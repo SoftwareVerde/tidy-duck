@@ -2,4 +2,5 @@
 # IntelliJ files
 .idea/
 build/
+out/
 

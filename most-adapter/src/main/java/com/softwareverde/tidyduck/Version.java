@@ -8,7 +8,7 @@ public class Version {
     private String _name;
     private Account _owner;
     private boolean _isCommitted;
-    private List<FunctionCatalog> _functionCatalogs;
+    private List<FunctionCatalog> _functionCatalogs = new ArrayList<FunctionCatalog>();
 
     public long getId() {
         return _id;
