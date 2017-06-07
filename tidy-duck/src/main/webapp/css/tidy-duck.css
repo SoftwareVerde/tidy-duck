@@ -1,0 +1,84 @@
+html, body {
+    margin: 0;
+    height: 100%;
+    padding: 0;
+}
+
+.header {
+    position: absolute;
+    line-height: 50px;
+    font-size: 32px;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+}
+
+.container {
+    border: solid black;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.navigation-column {
+    width: 20%;
+    border-right: solid black;
+    padding: 5px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.navigation-entry {
+    width: auto;
+    padding: 5px;
+    text-align: center;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.navigation-entry:hover {
+    background-color: #EEEEEE;
+}
+
+.display-area {
+    width: 80%;
+    padding: 5px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.toolbar {
+    padding: 5px;
+}
+.metadata-form {
+    padding: 5px;
+    width: auto;
+    border: 2px solid #BB8FCE;
+    border-radius: 5px;
+    background-color: #CCAAEE;
+}
+
+.metadata-form table {
+    margin: auto;
+    padding: 8px;
+}
+
+.metadata-form td {
+    padding: 5px;
+}
+
+.child-display-area {
+    padding: 5px;
+}
