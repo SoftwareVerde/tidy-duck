@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html>
-    <head><link rel="stylesheet" href="css/tidy-duck.css"/></head>
+    <head>
+        <title>Tidy Duck</title>
+        <link rel="stylesheet" href="css/tidy-duck.css"/>
+        <!-- Import React modules, currently using DEV versions -->
+        <script src="https://unpkg.com/react@15/dist/react.js"></script>
+        <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    </head>
     <body>
         <div class="header">Tidy Duck</div>
         <div class="container">
             <div class="navigation-column">
-                <div class="navigation-entry">Function Catalog</div>
+                <div class="navigation-entry">Function Catalogs</div>
             </div>
             <div class="display-area">
+                <!--
+                <label for="new-function-catalog">New Function Catalog:</label>
+                <input type="text" id="new-function-catalog"/>
+               <input type="button" id="add-function-catalog" value="+"/>
+               -->
                 <div class="metadata-form">
                     <table>
+                        <tr>
+                            <td><label for="name">Name:</label></td>
+                            <td><input type="text" id="name"/></td>
+                        </tr>
                         <tr>
                             <td><label for="release">Release:</label></td>
                             <td><input type="text" id="release"/></td>
@@ -24,16 +40,20 @@
                         </tr>
                         <tr>
                             <td colspan="3"></td>
-                            <td><input type="submit" id="function-catalog-submit"/></td>
+                            <td><div id="function-catalog-submit"></div></td>
                         </tr>
                     </table>
                 </div>
+                <!--
                 <div class="toolbar">
                     <h3>Function Blocks</h3>
                     <input type="button" value="+"/>
                 </div>
-                <div class="child-display-area">Child Display Area</div>
+                -->
+                <div>Child Display Area Below</div>
+                <div id="child-display-area"></div>
             </div>
         </div>
+        <script src="js/main.js" type="text/babel"></script>
     </body>
 </html>
