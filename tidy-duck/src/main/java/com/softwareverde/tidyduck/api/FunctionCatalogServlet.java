@@ -79,7 +79,7 @@ public class FunctionCatalogServlet extends JsonServlet {
             ps = connection.prepareStatement(GET_FUNCTION_CATALOGS_SQL);
             ps.setLong(1, versionId);
             rs = ps.executeQuery();
-            ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<FunctionCatalog>();
+            ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
             while (rs.next()) {
                 FunctionCatalog functionCatalog = new FunctionCatalog();
                 functionCatalog.setRelease(rs.getString("release"));
