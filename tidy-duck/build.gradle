@@ -12,11 +12,16 @@ repositories {
 
 dependencies {
     compileOnly 'org.apache.tomcat:tomcat-servlet-api:7.0.37'
-    compile group: 'com.github.softwareverde', name: 'java-db-postgres', version: 'v+'
+
+    compile group: 'com.github.softwareverde', name: 'java-util', version: 'v+'
     compile group: 'com.github.softwareverde', name: 'json', version: 'v1.+'
+
+    // Logging
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.6'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.1'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.1'
-    compile project(":most-adapter")
+
+    compile project(":..:most-adapter")
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
