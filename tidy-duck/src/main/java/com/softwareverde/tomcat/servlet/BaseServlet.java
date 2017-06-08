@@ -1,6 +1,6 @@
-package com.softwareverde.servlet;
+package com.softwareverde.tomcat.servlet;
 
-import com.softwareverde.Environment;
+import com.softwareverde.tidyduck.environment.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
