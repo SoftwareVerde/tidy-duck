@@ -1,10 +1,10 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.environment.Environment;
-import com.softwareverde.json.Json;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
 import org.slf4j.Logger;
@@ -15,26 +15,92 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class FunctionCatalogServlet extends JsonServlet {
 
     private static final String INSERT_FUNCTION_CATALOG_SQL = "INSERT INTO function_catalogs (release, release_date, author_id, company_id) VALUES (?, ?, ?, ?)";
     private static final String ADD_FUNCTION_CATALOG_TO_VERSION_SQL = "INSERT INTO versions_function_catalogs (version_id, function_catalog_id) VALUES (?, ?)";
 
+    private static final String GET_FUNCTION_CATALOGS_SQL = "SELECT function_catalog_id, release, release_date, author_id, company_id" +
+                                                            " FROM function_catalogs INNER JOIN versions_function_catalogs" +
+                                                            " ON function_catalogs.id = versions_function_catalogs.function_catalog_id" +
+                                                            " WHERE version_id = ?";
+
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    protected Json handleRequest(final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Environment environment) throws Exception {
-        if (httpMethod == BaseServlet.HttpMethod.POST) {
+    protected Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
+        if (httpMethod == HttpMethod.POST) {
             return addFunctionCatalog(request, environment);
         }
-        return new Json(false);
+        if (httpMethod == HttpMethod.GET) {
+            long versionId = Long.parseLong(request.getParameter("versionId"));
+            return listFunctionCatalogs(versionId, environment);
+        }
+        return super.generateErrorJson("Unimplemented HTTP method in request.");
+    }
+
+    private Json listFunctionCatalogs(long versionId, Environment environment) {
+        Json response = new Json(false);
+
+        Connection connection = null;
+        try {
+            connection = environment.getNewDatabaseConnection();
+            List<FunctionCatalog> functionCatalogs = getFunctionCatalogs(versionId, connection);
+            Json catalogs = new Json(true);
+            for (FunctionCatalog functionCatalog : functionCatalogs) {
+                Json catalog = new Json(false);
+                catalog.put("release", functionCatalog.getRelease());
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                catalog.put("releaseDate", format.format(functionCatalog.getReleaseDate()));
+                catalog.put("authorId", functionCatalog.getAuthor().getId());
+                catalog.put("companyId", functionCatalog.getCompany().getId());
+                catalogs.add(catalog);
+            }
+            response.put("functionCatalogs", catalogs);
+        } catch (Exception e) {
+            _logger.error("Unable to list function catalogs.", e);
+            return super.generateErrorJson("Unable to list function catalogs.");
+        } finally {
+            Environment.close(connection, null, null);
+        }
+
+        super.setJsonSuccessFields(response);
+        return response;
+    }
+
+    private List<FunctionCatalog> getFunctionCatalogs(long versionId, Connection connection) throws SQLException {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = connection.prepareStatement(GET_FUNCTION_CATALOGS_SQL);
+            ps.setLong(1, versionId);
+            rs = ps.executeQuery();
+            ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<FunctionCatalog>();
+            while (rs.next()) {
+                FunctionCatalog functionCatalog = new FunctionCatalog();
+                functionCatalog.setRelease(rs.getString("release"));
+                functionCatalog.setReleaseDate(rs.getDate("releaseDate"));
+                Author author = new Author();
+                author.setId(rs.getLong("author_id"));
+                functionCatalog.setAuthor(author);
+                Company company = new Company();
+                company.setId(rs.getLong("company_id"));
+                functionCatalog.setCompany(company);
+                functionCatalogs.add(functionCatalog);
+            }
+            return functionCatalogs;
+        } finally {
+            Environment.close(null, ps, rs);
+        }
     }
 
     private Json addFunctionCatalog(HttpServletRequest httpRequest, Environment environment) throws IOException {
         Json request = super.getRequestDataAsJson(httpRequest);
-        Json response = new Json();
+        Json response = new Json(false);
 
         long versionId = Long.parseLong(request.getString("versionId"));
         FunctionCatalog functionCatalog = new FunctionCatalog();
