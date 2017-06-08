@@ -1,5 +1,7 @@
 package com.softwareverde.tidyduck.environment;
 
+import com.softwareverde.util.Util;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,11 +14,13 @@ public class Configuration {
         private String _username;
         private String _password;
         private String _schema;
+        private Integer _port;
 
         public String getConnectionUrl() { return _connectionUrl; }
         public String getUsername() { return _username; }
         public String getPassword() { return _password; }
         public String getSchema() { return _schema; }
+        public Integer getPort() { return _port; }
     }
 
     private final Properties _properties;
@@ -28,6 +32,7 @@ public class Configuration {
         _databaseProperties._username = _properties.getProperty("database.username", "");
         _databaseProperties._password = _properties.getProperty("database.password", "");
         _databaseProperties._schema = _properties.getProperty("database.schema", "");
+        _databaseProperties._port = Util.parseInt(_properties.getProperty("database.port", ""));
     }
 
     public Configuration(final String configurationFileContents) {
