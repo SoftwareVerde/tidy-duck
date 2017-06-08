@@ -8,12 +8,21 @@
         Tidy Duck - MOST XML Generator
     </description>
 
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
+    <servlet>
+        <servlet-name>FunctionCatalog</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.FunctionCatalogServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>FunctionCatalog</servlet-name>
+        <url-pattern>/api/v1/function-catalog</url-pattern>
+    </servlet-mapping>
 
     <session-config>
         <session-timeout>30</session-timeout>    <!-- 30 minutes -->
     </session-config>
 
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
 </web-app>

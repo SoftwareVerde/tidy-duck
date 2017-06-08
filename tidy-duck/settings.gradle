@@ -1,2 +1,4 @@
 rootProject.name = 'tidy-duck'
 
+include ":most-adapter"
+project(":most-adapter").projectDir = new File(settingsDir, "../most-adapter/")
