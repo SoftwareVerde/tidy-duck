@@ -1,7 +1,8 @@
 package com.softwareverde.tidyduck;
 
+import com.softwareverde.Environment;
 import com.softwareverde.json.Json;
-import com.softwareverde.json.Jsonable;
+import com.softwareverde.servlet.BaseServlet;
 import com.softwareverde.servlet.JsonServlet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,8 +11,8 @@ import java.io.IOException;
 public class FunctionCatalogServlet extends JsonServlet {
 
     @Override
-    protected Json handleRequest(HttpServletRequest request, JsonServlet.HttpMethod httpMethod) throws IOException {
-        if (httpMethod == HttpMethod.POST) {
+    protected Json handleRequest(HttpServletRequest request, BaseServlet.HttpMethod httpMethod, Environment environment) throws Exception {
+        if (httpMethod == BaseServlet.HttpMethod.POST) {
             return addFunctionCatalog(request);
         }
         return null;
