@@ -1,9 +1,12 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.api;
 
-import com.softwareverde.Environment;
+import com.softwareverde.tidyduck.Author;
+import com.softwareverde.tidyduck.Company;
+import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.json.Json;
-import com.softwareverde.servlet.BaseServlet;
-import com.softwareverde.servlet.JsonServlet;
+import com.softwareverde.tomcat.servlet.BaseServlet;
+import com.softwareverde.tomcat.servlet.JsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +25,11 @@ public class FunctionCatalogServlet extends JsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    protected Json handleRequest(HttpServletRequest request, BaseServlet.HttpMethod httpMethod, Environment environment) throws Exception {
+    protected Json handleRequest(final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Environment environment) throws Exception {
         if (httpMethod == BaseServlet.HttpMethod.POST) {
-            return addFunctionCatalog(request, environment.getDatabase());
+            return addFunctionCatalog(request, environment.getNewDatabaseConnection());
         }
-        return null;
+        return new Json(false);
     }
 
     private Json addFunctionCatalog(HttpServletRequest httpRequest, Connection connection) throws IOException {
@@ -44,7 +47,7 @@ public class FunctionCatalogServlet extends JsonServlet {
             functionCatalog.setReleaseDate(releaseDate);
         } catch (ParseException e) {
             _logger.error("Unable to parse release date", e);
-            return super.getErrorJson("Unable to parse release date: " + releaseDateString);
+            return super.generateErrorJson("Unable to parse release date: " + releaseDateString);
         }
         Author author = new Author();
         author.setId(request.getInteger("authorId"));
@@ -66,7 +69,7 @@ public class FunctionCatalogServlet extends JsonServlet {
             } catch (SQLException e1) {
                 _logger.error("Unable to roll back changes.");
             }
-            return super.getErrorJson("Unable to add function catalog: " + e.getMessage());
+            return super.generateErrorJson("Unable to add function catalog: " + e.getMessage());
         }
 
         super.setJsonSuccessFields(response);

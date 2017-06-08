@@ -1,6 +1,6 @@
-package com.softwareverde.servlet;
+package com.softwareverde.tomcat.servlet;
 
-import com.softwareverde.Environment;
+import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.json.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,13 @@ public abstract class JsonServlet extends BaseServlet {
             json = handleRequest(req, httpMethod, environment);
             // default to empty json object
             if (json == null) {
-                json = getErrorJson("Unable to determine response");
+                json = generateErrorJson("Unable to determine response");
             }
-        } catch (Exception e) {
+        }
+        catch (final Exception e) {
             String msg = "Unable to handle request.";
             _logger.error(msg, e);
-            json = getErrorJson(msg + ": " + e.getMessage());
+            json = generateErrorJson(msg + ": " + e.getMessage());
         }
         PrintWriter writer = resp.getWriter();
         writer.append(json.toString());
@@ -55,7 +56,7 @@ public abstract class JsonServlet extends BaseServlet {
         json.put(JSON_ERROR_FIELD, null);
     }
 
-    protected Json getErrorJson(String errorMessage) {
+    protected Json generateErrorJson(String errorMessage) {
         Json json = new Json();
         json.put(JSON_SUCCESS_FIELD, false);
         json.put(JSON_ERROR_FIELD, errorMessage);

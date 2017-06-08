@@ -10,7 +10,7 @@
 
     <servlet>
         <servlet-name>FunctionCatalog</servlet-name>
-        <servlet-class>com.softwareverde.tidyduck.FunctionCatalogServlet</servlet-class>
+        <servlet-class>com.softwareverde.tidyduck.api.FunctionCatalogServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
