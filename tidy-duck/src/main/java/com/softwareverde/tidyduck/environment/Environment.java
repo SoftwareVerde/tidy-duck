@@ -1,12 +1,16 @@
 package com.softwareverde.tidyduck.environment;
 
 import com.softwareverde.util.IoUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.*;
 import java.util.Properties;
 
 public class Environment {
+
+    private static final Logger _logger = LoggerFactory.getLogger(Environment.class);
+
     private static Environment _environment = new Environment();
 
     public static Environment getInstance() {
@@ -47,5 +51,29 @@ public class Environment {
         }
 
         return _databaseConnection;
+    }
+
+    public static void close(Connection connection, Statement statement, ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (Exception e) {
+                _logger.error("Unable to close result set.", e);
+            }
+        }
+        if (statement != null) {
+            try {
+                connection.close();
+            } catch (Exception e) {
+                _logger.error("Unable to close statement.", e);
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (Exception e) {
+                _logger.error("Unable to close connection.", e);
+            }
+        }
     }
 }

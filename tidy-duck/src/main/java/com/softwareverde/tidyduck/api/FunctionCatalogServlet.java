@@ -27,12 +27,12 @@ public class FunctionCatalogServlet extends JsonServlet {
     @Override
     protected Json handleRequest(final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Environment environment) throws Exception {
         if (httpMethod == BaseServlet.HttpMethod.POST) {
-            return addFunctionCatalog(request, environment.getNewDatabaseConnection());
+            return addFunctionCatalog(request, environment);
         }
         return new Json(false);
     }
 
-    private Json addFunctionCatalog(HttpServletRequest httpRequest, Connection connection) throws IOException {
+    private Json addFunctionCatalog(HttpServletRequest httpRequest, Environment environment) throws IOException {
         Json request = super.getRequestDataAsJson(httpRequest);
         Json response = new Json();
 
@@ -56,7 +56,9 @@ public class FunctionCatalogServlet extends JsonServlet {
         company.setId(request.getInteger("companyId"));
         functionCatalog.setCompany(company);
 
+        Connection connection = null;
         try {
+            connection = environment.getNewDatabaseConnection();
             connection.setAutoCommit(false);
             long functionCatalogId = addFunctionCatalog(connection, functionCatalog);
             associateFunctionCatalogWithVersion(connection, versionId, functionCatalogId);
@@ -70,6 +72,8 @@ public class FunctionCatalogServlet extends JsonServlet {
                 _logger.error("Unable to roll back changes.");
             }
             return super.generateErrorJson("Unable to add function catalog: " + e.getMessage());
+        } finally {
+            Environment.close(connection, null, null);
         }
 
         super.setJsonSuccessFields(response);
@@ -93,12 +97,7 @@ public class FunctionCatalogServlet extends JsonServlet {
             }
             throw new SQLException("Unable to determine new function catalog ID.");
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
+            Environment.close(null, ps, rs);
         }
     }
 
@@ -111,12 +110,7 @@ public class FunctionCatalogServlet extends JsonServlet {
             ps.setLong(2, functionCatalogId);
             ps.executeUpdate();
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (ps != null) {
-                ps.close();
-            }
+            Environment.close(null, ps, rs);
         }
     }
 }
