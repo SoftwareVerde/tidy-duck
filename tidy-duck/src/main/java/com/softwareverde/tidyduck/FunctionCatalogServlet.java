@@ -17,6 +17,7 @@ import java.util.Date;
 public class FunctionCatalogServlet extends JsonServlet {
 
     private static final String INSERT_FUNCTION_CATALOG_SQL = "INSERT INTO function_catalogs (release, release_date, author_id, company_id) VALUES (?, ?, ?, ?)";
+    private static final String ADD_FUNCTION_CATALOG_TO_VERSION_SQL = "INSERT INTO versions_function_catalogs (version_id, function_catalog_id) VALUES (?, ?)";
 
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,7 +33,7 @@ public class FunctionCatalogServlet extends JsonServlet {
         Json request = super.getRequestDataAsJson(httpRequest);
         Json response = new Json();
 
-        String versionId = request.getString("versionId");
+        long versionId = Long.parseLong(request.getString("versionId"));
         FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setRelease(request.getString("release"));
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -53,10 +54,18 @@ public class FunctionCatalogServlet extends JsonServlet {
         functionCatalog.setCompany(company);
 
         try {
+            connection.setAutoCommit(false);
             long functionCatalogId = addFunctionCatalog(connection, functionCatalog);
+            associateFunctionCatalogWithVersion(connection, versionId, functionCatalogId);
+            connection.commit();
             response.put("functionCatalogId", functionCatalogId);
         } catch (Exception e) {
             _logger.error("Problem adding function catalog.", e);
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                _logger.error("Unable to roll back changes.");
+            }
             return super.getErrorJson("Unable to add function catalog: " + e.getMessage());
         }
 
@@ -80,6 +89,24 @@ public class FunctionCatalogServlet extends JsonServlet {
                 return rs.getLong(1);
             }
             throw new SQLException("Unable to determine new function catalog ID.");
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+        }
+    }
+
+    private void associateFunctionCatalogWithVersion(Connection connection, long versionId, long functionCatalogId) throws SQLException {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = connection.prepareStatement(ADD_FUNCTION_CATALOG_TO_VERSION_SQL);
+            ps.setLong(1, versionId);
+            ps.setLong(2, functionCatalogId);
+            ps.executeUpdate();
         } finally {
             if (rs != null) {
                 rs.close();
