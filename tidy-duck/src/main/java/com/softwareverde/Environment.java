@@ -1,6 +1,6 @@
 package com.softwareverde;
 
-import com.softwareverde.database.Database;
+import java.sql.Connection;
 
 public class Environment {
 
@@ -12,7 +12,7 @@ public class Environment {
         return environment;
     }
 
-    public Database getDatabase() {
+    public Connection getDatabase() {
         return null;
     }
 }

@@ -16,6 +16,8 @@ public abstract class JsonServlet extends BaseServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
     private static final int BUFFER_SIZE = 8192;
+    private static final String JSON_SUCCESS_FIELD = "wasSuccess";
+    private static final String JSON_ERROR_FIELD = "errorMessage";
 
     protected abstract Json handleRequest(HttpServletRequest request, HttpMethod httpMethod, Environment environment) throws Exception;
 
@@ -48,10 +50,15 @@ public abstract class JsonServlet extends BaseServlet {
         return Json.parse(builder.toString());
     }
 
-    private static Json getErrorJson(String errorMessage) {
+    protected void setJsonSuccessFields(Json json) {
+        json.put(JSON_SUCCESS_FIELD, true);
+        json.put(JSON_ERROR_FIELD, null);
+    }
+
+    protected Json getErrorJson(String errorMessage) {
         Json json = new Json();
-        json.put("wasSuccess", "false");
-        json.put("errorMessage", errorMessage);
+        json.put(JSON_SUCCESS_FIELD, false);
+        json.put(JSON_ERROR_FIELD, errorMessage);
         return json;
     }
 
