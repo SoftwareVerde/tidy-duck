@@ -95,3 +95,7 @@ html, body {
     background-color: #81F781;
     text-align: center;
 }
+
+.function-catalog:hover {
+    background-color: #D8F781;
+}
