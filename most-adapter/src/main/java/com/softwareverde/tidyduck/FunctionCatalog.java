@@ -10,6 +10,7 @@ import java.util.List;
 
 public class FunctionCatalog extends XmlNode {
     private long _id;
+    private String _name;
     private String _release;
     private Date _releaseDate;
     private Author _author;
@@ -23,6 +24,14 @@ public class FunctionCatalog extends XmlNode {
 
     public void setId(long id) {
         _id = id;
+    }
+
+    public String getName() {
+        return _name;
+    }
+
+    public void setName(String name) {
+        _name = name;
     }
 
     public String getRelease() {

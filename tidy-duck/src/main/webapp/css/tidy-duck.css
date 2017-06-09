@@ -102,3 +102,8 @@ body * {
     background-color: #FFDD66;
     cursor: pointer;
 }
+
+.function-catalog:hover {
+    background-color: #FFDD66;
+}
+

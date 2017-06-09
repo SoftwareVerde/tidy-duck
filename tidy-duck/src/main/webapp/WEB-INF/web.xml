@@ -9,10 +9,18 @@
     </description>
 
     <servlet>
+        <servlet-name>MostGenerator</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.MostGeneratorServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>FunctionCatalog</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.FunctionCatalogServlet</servlet-class>
     </servlet>
 
+    <servlet-mapping>
+        <servlet-name>MostGenerator</servlet-name>
+        <url-pattern>/v1/generate-most</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FunctionCatalog</servlet-name>
         <url-pattern>/api/v1/function-catalog</url-pattern>

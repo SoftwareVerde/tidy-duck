@@ -1,0 +1,116 @@
+package com.softwareverde.tidyduck.database;
+
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.Author;
+import com.softwareverde.tidyduck.Company;
+import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.FunctionCatalog;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MostCatalogInflater {
+
+    private final DatabaseConnection _databaseConnection;
+
+    public MostCatalogInflater(DatabaseConnection connection) {
+        _databaseConnection = connection;
+    }
+
+    public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(long versionId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT `function_catalog_id`"
+                + " FROM versions_function_catalogs"
+                + " WHERE version_id = ?"
+        );
+        query.setParameter(versionId);
+
+        final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long functionCatalogId = row.getLong("function_catalog_id");
+            FunctionCatalog functionCatalog = inflateFunctionCatalog(functionCatalogId);
+            functionCatalogs.add(functionCatalog);
+        }
+        return functionCatalogs;
+    }
+
+    public FunctionCatalog inflateFunctionCatalog(long functionCatalogId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT name, release_version, release_date, author_id, company_id"
+                + " FROM function_catalogs"
+                + " WHERE id = ?"
+        );
+        query.setParameter(functionCatalogId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        if (rows.size() == 0) {
+            throw new DatabaseException("Function catalog ID " + functionCatalogId + " not found.");
+        }
+        // get first (should be only) row
+        final Row row = rows.get(0);
+
+        final Author author = inflateAuthor(row.getLong("author_id"));
+
+        final Company company = inflateCompany(row.getLong("company_id"));
+
+        final FunctionCatalog functionCatalog = new FunctionCatalog();
+        functionCatalog.setName(row.getString("name"));
+        functionCatalog.setRelease(row.getString("release_version"));
+        functionCatalog.setReleaseDate(DateUtil.dateFromDateString(row.getString("release_date")));
+        functionCatalog.setAuthor(author);
+        functionCatalog.setCompany(company);
+
+        return functionCatalog;
+    }
+
+    private Company inflateCompany(long companyId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT id, name"
+                + " FROM companies"
+                + " WHERE id = ?"
+        );
+        query.setParameter(companyId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        if (rows.size() == 0) {
+            throw new DatabaseException("Company ID " + companyId + " not found.");
+        }
+        // get first (should be only) row
+        final Row row = rows.get(0);
+
+        final Company company = new Company();
+        company.setId(row.getLong("id"));
+        company.setName(row.getString("name"));
+
+        return company;
+    }
+
+    private Author inflateAuthor(Long authorId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT id, name, company_id"
+                + " FROM authors"
+                + " WHERE id = ?"
+        );
+        query.setParameter(authorId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        if (rows.size() == 0) {
+            throw new DatabaseException("Company ID " + authorId + " not found.");
+        }
+        // get first (should be only) row
+        final Row row = rows.get(0);
+
+        final Company company = inflateCompany(row.getLong("company_id"));
+
+        Author author = new Author();
+        author.setId(row.getLong("id"));
+        author.setName(row.getString("name"));
+        author.setCompany(company);
+
+        return author;
+    }
+}

@@ -24,7 +24,8 @@ CREATE TABLE authors (
 
 CREATE TABLE function_catalogs (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
-    `release` varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    release_version varchar(255) NOT NULL,
     release_date date NOT NULL,
     author_id int unsigned NOT NULL REFERENCES authors (id),
     company_id int unsigned NOT NULL REFERENCES companies (id)
