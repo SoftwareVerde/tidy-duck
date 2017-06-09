@@ -5,8 +5,29 @@ html, body {
 }
 
 body * {
-    font-family: 'Libre Baskerville', serif;
+    font-family: 'Lato', sans-serif;
     color: #4A4A4A;
+    font-size: 14px;
+    word-spacing: 1px;
+}
+
+.center {
+    text-align: center;
+}
+
+.submit-button {
+    margin: 2em 0 0.5em;
+    width: 100%;
+    text-transform: uppercase;
+    color: white;
+    background: #e05d05;
+    padding: 0.75em;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    box-sizing: border-box;
 }
 
 .header {
@@ -70,17 +91,14 @@ body * {
 .metadata-form {
     padding: 5px;
     width: auto;
-    border: 2px solid;
+    border: 0px solid;
     border-radius: 5px;
-}
 
-.metadata-form table {
-    margin: auto;
-    padding: 8px;
-}
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
 
-.metadata-form td {
-    padding: 5px;
+    margin: 20px;
+    padding: 0px;
 }
 
 .child-display-area {

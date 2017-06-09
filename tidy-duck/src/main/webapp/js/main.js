@@ -14,34 +14,44 @@ TODO: create React classes for metadata form at top of page.
 * Selected Function Catalog metadata form
  */
 
+class FormInput extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: ""
+        };
+
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange(event) {
+        if (! this.prop.readOnly) {
+            this.setState({value: event.target.value});
+        }
+    }
+
+    render() {
+        return (
+            <div className="input-container">
+                <label htmlFor={this.props.id}>{this.props.label}:</label>
+                <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.handleChange} readOnly={this.props.readOnly} />
+            </div>
+        );
+    }
+}
+
 class FunctionCatalogsMetadataForm extends React.Component {
     //Currently renders original, functioning table HTML.
     render() {
         return (
-            <table>
-                <tbody>
-                    <tr>
-                        <td><label htmlFor="name">Name:</label></td>
-                        <td><input type="text" id="name"/></td>
-                    </tr>
-                    <tr>
-                        <td><label htmlFor="release">Release:</label></td>
-                        <td><input type="text" id="release"/></td>
-                        <td><label htmlFor="date">Date:</label></td>
-                        <td><input type="text" id="date"/></td>
-                    </tr>
-                    <tr>
-                        <td><label htmlFor="author">Author:</label></td>
-                        <td><input type="text" id="author"/></td>
-                        <td><label htmlFor="company">Company:</label></td>
-                        <td><input type="text" id="company"/></td>
-                    </tr>
-                    <tr>
-                        <td colSpan="3"></td>
-                        <td><div id="function-catalog-submit"></div></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div className="center" >
+                <FormInput id="new-function-catalog-name" name="name" type="text" label="Name"/>
+                <FormInput id="new-function-catalog-release-version" name="release_version" type="text" label="Release"/>
+                <FormInput id="new-function-catalog-date" name="date" type="text" label="Date"/>
+                <FormInput id="new-function-catalog-author" name="author" type="text" label="Author"/>
+                <FormInput id="new-function-catalog-company" name="company" type="text" label="Company"/>
+                <FunctionCatalogSubmitButton className="submit-button" id="new-function-catalog-submit" />
+            </div>
         );
     }
 }
@@ -50,26 +60,14 @@ class FunctionCatalogMetadataForm extends React.Component {
     //Renders Function Catalog metadata table for currently selected Function Catalog.
     render() {
         return (
-            <table>
-                <tbody>
-                <tr>
-                    <td><label htmlFor="release">Release:</label></td>
-                    <td><input type="text" id="release" readOnly={true} value={this.props.release}/></td>
-                    <td><label htmlFor="date">Date:</label></td>
-                    <td><input type="text" id="date" readOnly={true} value={this.props.date}/></td>
-                </tr>
-                <tr>
-                    <td><label htmlFor="author">Author:</label></td>
-                    <td><input type="text" id="author" readOnly={true} value={this.props.author}/></td>
-                    <td><label htmlFor="company">Company:</label></td>
-                    <td><input type="text" id="company" readOnly={true} value={this.props.company}/></td>
-                </tr>
-                <tr>
-                    <td colSpan="3"></td>
-                    <td><div id="function-catalog-submit"></div></td>
-                </tr>
-                </tbody>
-            </table>
+            <div className="center" >
+                <FormInput id="function-catalog-name" name="name" type="text" label="Name" readOnly={true} />
+                <FormInput id="function-catalog-release-version" name="release_version" type="text" label="Release" readOnly={true} />
+                <FormInput id="function-catalog-date" name="date" type="text" label="Date" readOnly={true} />
+                <FormInput id="function-catalog-author" name="author" type="text" label="Author" readOnly={true} />
+                <FormInput id="function-catalog-company" name="company" type="text" label="Company" readOnly={true} />
+                <FunctionCatalogSubmitButton className="submit-button" id="function-catalog-submit" readOnly={true} />
+            </div>
         );
     }
 }
@@ -125,8 +123,6 @@ class NavEntry extends React.Component {
 
         //Render default metadata form at top of display area.
         ReactDOM.render(<FunctionCatalogsMetadataForm/>, document.getElementsByClassName("metadata-form")[0]);
-        //Render Function Catalog submit button.
-        ReactDOM.render(<FunctionCatalogSubmitButton/>, document.getElementById('function-catalog-submit'));
 
         //TODO: This loop does not delete the correct amount of child elements in the navigation column,
         //TODO: assuming you have multiple navigation entries listed.
@@ -166,11 +162,11 @@ class FunctionCatalog extends React.Component {
         //TODO: These are the values that should be posted/retrieved from the database.
         //TODO: They are currently pulling from entries in the metadata form at the top of the display area.
         this.state = {
-            newName : document.getElementById("name").value,
-            newRelease : document.getElementById("release").value,
-            newAuthor : document.getElementById("author").value,
-            newDate : document.getElementById("date").value,
-            newCompany : document.getElementById("company").value,
+            newName : document.getElementById("new-function-catalog-name").value,
+            newRelease : document.getElementById("new-function-catalog-release-version").value,
+            newAuthor : document.getElementById("new-function-catalog-author").value,
+            newDate : document.getElementById("new-function-catalog-date").value,
+            newCompany : document.getElementById("new-function-catalog-company").value,
         };
         /*
         Need to bind properties to functions before they can be used.
@@ -203,12 +199,10 @@ class FunctionCatalog extends React.Component {
 
         //Render default metadata form at top of display area.
         //The props that are sent here are displayed as read-only inputs.
-        ReactDOM.render(<FunctionCatalogMetadataForm
-            release = {this.state.newRelease}
-            date = {this.state.newDate}
-            author = {this.state.newAuthor}
-            company = {this.state.newCompany}
-        />, document.getElementsByClassName("metadata-form")[0]);
+        ReactDOM.render(
+            <FunctionCatalogMetadataForm release= {this.state.newRelease} date={this.state.newDate} author={this.state.newAuthor} company={this.state.newCompany} />,
+            document.getElementsByClassName("metadata-form")[0]
+        );
     }
 
     render() {
@@ -222,9 +216,6 @@ class FunctionCatalog extends React.Component {
 
 //Render default metadata form at top of display area.
 ReactDOM.render(<FunctionCatalogsMetadataForm/>, document.getElementsByClassName("metadata-form")[0]);
-
-//Render Function Catalog submit button.
-ReactDOM.render(<FunctionCatalogSubmitButton/>, document.getElementById('function-catalog-submit'));
 
 //Render default navigation column entry: "Function Catalogs"
 ReactDOM.render(<NavEntry name="Function Catalogs"/>, document.getElementsByClassName("navigation-column")[0]);
