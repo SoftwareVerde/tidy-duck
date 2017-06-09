@@ -9,9 +9,8 @@ function generateClassNames(reactObject) {
     return classes;
 }
 
-/*
-TODO: create React classes for metadata form at top of page.
-* Selected Function Catalog metadata form
+/* TODO: create React classes for metadata form at top of page.
+ *  Selected Function Catalog metadata form
  */
 
 class FormInput extends React.Component {
@@ -25,7 +24,7 @@ class FormInput extends React.Component {
     }
 
     handleChange(event) {
-        if (! this.prop.readOnly) {
+        if (! this.props.readOnly) {
             this.setState({value: event.target.value});
         }
     }
@@ -40,54 +39,53 @@ class FormInput extends React.Component {
     }
 }
 
-class FunctionCatalogsMetadataForm extends React.Component {
-    //Currently renders original, functioning table HTML.
-    render() {
-        return (
-            <div className="center" >
-                <FormInput id="new-function-catalog-name" name="name" type="text" label="Name"/>
-                <FormInput id="new-function-catalog-release-version" name="release_version" type="text" label="Release"/>
-                <FormInput id="new-function-catalog-date" name="date" type="text" label="Date"/>
-                <FormInput id="new-function-catalog-author" name="author" type="text" label="Author"/>
-                <FormInput id="new-function-catalog-company" name="company" type="text" label="Company"/>
-                <FunctionCatalogSubmitButton className="submit-button" id="new-function-catalog-submit" />
-            </div>
-        );
-    }
-}
+class FunctionCatalogForm extends React.Component {
+    constructor(props) {
+        super(props);
 
-class FunctionCatalogMetadataForm extends React.Component {
-    //Renders Function Catalog metadata table for currently selected Function Catalog.
+        this.state = {
+            name:           this.props.name,
+            releaseVersion: this.props.releaseVersion,
+            date:           this.props.date,
+            author:         this.props.author,
+            company:        this.props.company
+        };
+    }
+
     render() {
         return (
             <div className="center" >
-                <FormInput id="function-catalog-name" name="name" type="text" label="Name" readOnly={true} />
-                <FormInput id="function-catalog-release-version" name="release_version" type="text" label="Release" readOnly={true} />
-                <FormInput id="function-catalog-date" name="date" type="text" label="Date" readOnly={true} />
-                <FormInput id="function-catalog-author" name="author" type="text" label="Author" readOnly={true} />
-                <FormInput id="function-catalog-company" name="company" type="text" label="Company" readOnly={true} />
-                <FunctionCatalogSubmitButton className="submit-button" id="function-catalog-submit" readOnly={true} />
+                <FormInput id="function-catalog-name" name="name" type="text" label="Name" value={this.state.name} readOnly={this.props.readOnly} />
+                <FormInput id="function-catalog-release-version" name="release_version" type="text" label="Release" value={this.state.releaseVersion} readOnly={this.props.readOnly} />
+                <FormInput id="function-catalog-date" name="date" type="text" label="Date" value={this.state.date} readOnly={this.props.readOnly} />
+                <FormInput id="function-catalog-author" name="author" type="text" label="Author" value={this.state.author} readOnly={this.props.readOnly} />
+                <FormInput id="function-catalog-company" name="company" type="text" label="Company" value={this.state.company} readOnly={this.props.readOnly} />
+                <FunctionCatalogSubmitButton id="function-catalog-submit" />
             </div>
         );
     }
 }
 
 class FunctionCatalogSubmitButton extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.handleClick = this.handleClick.bind(this);
+    }
+
     handleClick() {
-        /*
-        Create new div to place new function catalog element. This is needed to prevent existing
-        elements in the display area from being erased.
-         */
-        var newDisplayAreaChild = document.createElement("DIV");
+        // Create new div to place new function catalog element. This is needed to prevent existing elements in the display area from being erased.
+
+        var newDisplayAreaChild = document.createElement("div");
         newDisplayAreaChild.className = "function-catalog";
         document.getElementById("child-display-area").appendChild(newDisplayAreaChild);
 
-        //Render function catalog in new display area slot.
-        ReactDOM.render(<FunctionCatalog/>, newDisplayAreaChild);
+        // Render function catalog in new display area slot.
+        ReactDOM.render(<FunctionCatalog />, newDisplayAreaChild);
     }
 
     render() {
-        return ( <button onClick={this.handleClick}>Submit</button> );
+        return ( <div className="submit-button" onClick={this.handleClick}>Submit</div> );
     }
 }
 
@@ -116,22 +114,22 @@ class NavEntry extends React.Component {
     }
 
     returnToParentNavigationEntry() {
-        //Get Metadata Form element so that it can be revealed.
-        //var metaDataForm = document.getElementsByClassName("metadata-form")[0];
-        //metaDataForm.style.display = "flex";
+        // Get Metadata Form element so that it can be revealed.
+        // var metaDataForm = document.getElementsByClassName("metadata-form")[0];
+        // metaDataForm.style.display = "flex";
         var navigationColumn = document.getElementsByClassName("navigation-column")[0];
 
-        //Render default metadata form at top of display area.
-        ReactDOM.render(<FunctionCatalogsMetadataForm/>, document.getElementsByClassName("metadata-form")[0]);
+        // Render default metadata form at top of display area.
+        ReactDOM.render(<FunctionCatalogForm />, document.getElementsByClassName("metadata-form")[0]);
 
-        //TODO: This loop does not delete the correct amount of child elements in the navigation column,
-        //TODO: assuming you have multiple navigation entries listed.
-        //Starting i at 1 because we do not want to remove the default navigation entry.
+        // TODO: This loop does not delete the correct amount of child elements in the navigation column,
+        // TODO: assuming you have multiple navigation entries listed.
+        // Starting i at 1 because we do not want to remove the default navigation entry.
         for(var i = 1; i < navigationColumn.childElementCount; i++){
             navigationColumn.removeChild(navigationColumn.childNodes[i]);
         }
 
-        //Reveal existing function catalogs.
+        // Reveal existing function catalogs.
         var functionCatalogs = document.getElementsByClassName("function-catalog");
         for(var i = 0; i < functionCatalogs.length; i++) {
             functionCatalogs[i].style.display = 'inherit';
@@ -157,50 +155,49 @@ class NavEntry extends React.Component {
 }
 
 class FunctionCatalog extends React.Component {
-    constructor() {
-        super();
-        //TODO: These are the values that should be posted/retrieved from the database.
-        //TODO: They are currently pulling from entries in the metadata form at the top of the display area.
+    constructor(props) {
+        super(props);
+
+        // TODO: These are the values that should be posted/retrieved from the database.
+        //  They are currently pulling from entries in the metadata form at the top of the display area.
         this.state = {
-            newName : document.getElementById("new-function-catalog-name").value,
-            newRelease : document.getElementById("new-function-catalog-release-version").value,
-            newAuthor : document.getElementById("new-function-catalog-author").value,
-            newDate : document.getElementById("new-function-catalog-date").value,
-            newCompany : document.getElementById("new-function-catalog-company").value,
+            newName : document.getElementById("function-catalog-name").value,
+            newRelease : document.getElementById("function-catalog-release-version").value,
+            newAuthor : document.getElementById("function-catalog-author").value,
+            newDate : document.getElementById("function-catalog-date").value,
+            newCompany : document.getElementById("function-catalog-company").value,
         };
-        /*
-        Need to bind properties to functions before they can be used.
-        This prevents function catalogs from creating navigation entries with whatever "name"
-        is currently in the metadata form.
-        */
+
         this.clickOnFunctionCatalog = this.clickOnFunctionCatalog.bind(this);
     }
 
     clickOnFunctionCatalog() {
-        //Get Metadata Form element so that it can be hidden.
-        //var metaDataForm = document.getElementsByClassName("metadata-form")[0];
-        //metaDataForm.style.display = "none";
+        // Get Metadata Form element so that it can be hidden.
+        // var metaDataForm = document.getElementsByClassName("metadata-form")[0];
+        // metaDataForm.style.display = "none";
 
-        //Create new Navigation Entry DIV element.
-        //TODO: New navigation entries are made using JS and are NOT rendering new React classes.
-        var newNavigationEntry = document.createElement("DIV");
+        // Create new Navigation Entry DIV element.
+        // TODO: New navigation entries are made using JS and are NOT rendering new React classes.
+        var newNavigationEntry = document.createElement("div");
         newNavigationEntry.innerText = this.state.newName;
         newNavigationEntry.className = "navigation-entry";
 
-        //Add navigation entry to Navigation Column.
+        // Add navigation entry to Navigation Column.
         var navigationColumn = document.getElementsByClassName("navigation-column")[0];
         navigationColumn.appendChild(newNavigationEntry);
 
-        //Hide existing function catalogs.
+        /*
+        // Hide existing function catalogs.
         var functionCatalogs = document.getElementsByClassName("function-catalog");
         for(var i = 0; i < functionCatalogs.length; i++) {
             functionCatalogs[i].style.display = 'none';
         }
+        */
 
-        //Render default metadata form at top of display area.
-        //The props that are sent here are displayed as read-only inputs.
+        // Render default metadata form at top of display area.
+        // The props that are sent here are displayed as read-only inputs.
         ReactDOM.render(
-            <FunctionCatalogMetadataForm release= {this.state.newRelease} date={this.state.newDate} author={this.state.newAuthor} company={this.state.newCompany} />,
+            <FunctionCatalogForm releaseVersion={this.state.newRelease} date={this.state.newDate} author={this.state.newAuthor} company={this.state.newCompany} readOnly={true} />,
             document.getElementsByClassName("metadata-form")[0]
         );
     }
@@ -214,9 +211,9 @@ class FunctionCatalog extends React.Component {
     }
 }
 
-//Render default metadata form at top of display area.
-ReactDOM.render(<FunctionCatalogsMetadataForm/>, document.getElementsByClassName("metadata-form")[0]);
+// Render default metadata form at top of display area.
+ReactDOM.render(<FunctionCatalogForm />, document.getElementsByClassName("metadata-form")[0]);
 
-//Render default navigation column entry: "Function Catalogs"
+// Render default navigation column entry: "Function Catalogs"
 ReactDOM.render(<NavEntry name="Function Catalogs"/>, document.getElementsByClassName("navigation-column")[0]);
 
