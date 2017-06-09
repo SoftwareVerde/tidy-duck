@@ -23,7 +23,7 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
 
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
-    var request = new Request(API_ENDPOINT_PREFIX + '/api/v1/function-catalog', {
+    var request = new Request(API_ENDPOINT_PREFIX + 'api/v1/function-catalog', {
         method: 'POST',
         body: functionCatalog
     })
