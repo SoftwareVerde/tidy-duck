@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.sql;
 
+import com.softwareverde.database.Row;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class DatabaseConnection {
 
             final List<Row> results = new ArrayList<Row>();
             while (resultSet.next()) {
-                results.add(Row.fromResultSet(resultSet));
+                // results.add(Row.fromResultSet(resultSet));
             }
             resultSet.close();
             preparedStatement.close();
@@ -137,6 +138,6 @@ public class DatabaseConnection {
     }
 
     private static final Class[] UNUSED = {
-            org.postgresql.Driver.class
+        // org.postgresql.Driver.class
     };
 }

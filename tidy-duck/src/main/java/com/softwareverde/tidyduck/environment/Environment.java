@@ -1,11 +1,14 @@
 package com.softwareverde.tidyduck.environment;
 
+import com.softwareverde.database.Database;
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.mysql.MysqlDatabase;
 import com.softwareverde.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.Properties;
 
 public class Environment {
 
@@ -17,39 +20,35 @@ public class Environment {
         return _environment;
     }
 
-    protected Configuration.DatabaseProperties _databaseProperties;
+    protected Database<Connection> _database;
 
-    protected void _initDatabaseProperties() {
+    protected void _initDatabase() throws DatabaseException {
         final Configuration configuration = new Configuration(IoUtil.getResource(Resource.serverConfigurationFile));
-        _databaseProperties = configuration.getDatabaseProperties();
+        final Configuration.DatabaseProperties databaseProperties = configuration.getDatabaseProperties();
+
+        final String url = databaseProperties.getConnectionUrl();
+        final Integer port = databaseProperties.getPort();
+        final String username = databaseProperties.getUsername();
+        final String password = databaseProperties.getPassword();
+        final String schema = databaseProperties.getSchema();
+
+        final MysqlDatabase mysqlDatabase = new MysqlDatabase(url, username, password);
+        mysqlDatabase.setDatabase(schema);
+
+        _database = mysqlDatabase;
     }
 
     protected Environment() { }
 
-    public Connection getNewDatabaseConnection() throws SQLException {
-        if (_databaseProperties == null) {
-            _initDatabaseProperties();
+    public DatabaseConnection<Connection> getNewDatabaseConnection() throws DatabaseException {
+        if (_database == null) {
+            _initDatabase();
         }
 
-        final String url = _databaseProperties.getConnectionUrl();
-        final Integer port = _databaseProperties.getPort();
-        final String username = _databaseProperties.getUsername();
-        final String password = _databaseProperties.getPassword();
-        final String schema = _databaseProperties.getSchema();
-
-        try {
-            Class.forName("org.postgresql.Driver");
-        }  catch (final ClassNotFoundException exception) {
-            throw new SQLException("Unable to locate driver.", exception);
-        }
-
-        final Properties connectionProperties = new Properties();
-        connectionProperties.setProperty("user", username);
-        connectionProperties.setProperty("password", password);
-        return DriverManager.getConnection("jdbc:postgresql://"+ url +":"+ port +"/"+ schema, connectionProperties);
+        return _database.newConnection();
     }
 
-    public static void close(Connection connection, Statement statement, ResultSet resultSet) {
+    public static void close(final Connection connection, final Statement statement, final ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
