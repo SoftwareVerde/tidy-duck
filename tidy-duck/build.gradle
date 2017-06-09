@@ -13,6 +13,7 @@ repositories {
 dependencies {
     compileOnly 'org.apache.tomcat:tomcat-servlet-api:7.0.37'
 
+    compile group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4'
     compile group: 'com.github.softwareverde', name: 'java-util', version: 'v+'
     compile group: 'com.github.softwareverde', name: 'json', version: 'v1.+'
 
