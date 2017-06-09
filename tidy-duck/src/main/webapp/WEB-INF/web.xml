@@ -19,7 +19,7 @@
 
     <servlet-mapping>
         <servlet-name>MostGenerator</servlet-name>
-        <url-pattern>/generate-most</url-pattern>
+        <url-pattern>/v1/generate-most</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FunctionCatalog</servlet-name>
