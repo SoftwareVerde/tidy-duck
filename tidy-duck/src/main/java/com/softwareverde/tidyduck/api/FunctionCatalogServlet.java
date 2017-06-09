@@ -111,6 +111,7 @@ public class FunctionCatalogServlet extends JsonServlet {
         try {
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertFunctionCatalog(functionCatalog, versionId);
+            response.put("functionCatalogId", functionCatalog.getId());
         }
         catch (final DatabaseException exception) {
             _logger.error("Unable to store Function Catalog.", exception);
