@@ -1,5 +1,5 @@
 
-var API_ENDPOINT_PREFIX = '/tidy-duck/';
+var ENDPOINT_PREFIX = '/tidy-duck/';
 
 function jsonFetch(request) {
     return fetch(request)
@@ -10,7 +10,7 @@ function jsonFetch(request) {
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
-    var endpoint = API_ENDPOINT_PREFIX + 'api/v1/function-catalog?version_id=' + versionId;
+    var endpoint = ENDPOINT_PREFIX + 'api/v1/function-catalog?version_id=' + versionId;
     jsonFetch(endpoint)
         .then(function (data) {
             if (data.wasSuccess) {
@@ -23,7 +23,7 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
 
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
-    var request = new Request(API_ENDPOINT_PREFIX + 'api/v1/function-catalog', {
+    var request = new Request(ENDPOINT_PREFIX + 'api/v1/function-catalog', {
         method: 'POST',
         body: functionCatalog
     })
@@ -38,5 +38,5 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
 }
 
 function exportFunctionCatalogToMost(functionCatalogId) {
-    window.open('/v1/generate-most?function_catalog_id=' + function_catalog_id);
+    window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
 }
