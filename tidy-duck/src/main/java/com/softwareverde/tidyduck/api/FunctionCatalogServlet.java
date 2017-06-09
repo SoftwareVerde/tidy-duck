@@ -71,7 +71,7 @@ public class FunctionCatalogServlet extends JsonServlet {
 
     private List<FunctionCatalog> _loadFunctionCatalogsByVersion(final long versionId, final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_catalog_id, release, release_date, author_id, company_id"
+            "SELECT `function_catalog_id`, `release`, `release_date`, `author_id`, `company_id`"
             + " FROM function_catalogs INNER JOIN versions_function_catalogs"
             + " ON function_catalogs.id = versions_function_catalogs.function_catalog_id"
             + " WHERE version_id = ?"
