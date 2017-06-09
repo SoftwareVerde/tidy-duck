@@ -49,7 +49,11 @@ public class MostGeneratorServlet extends BaseServlet {
         String mostXml = null;
         try {
             MostAdapter mostAdapter = new MostAdapter();
-            String xml = mostAdapter.getMostXml(functionCatalog);
+            mostXml = mostAdapter.getMostXml(functionCatalog);
+
+            final int mostXmlLength = mostXml.getBytes().length;
+            final String functionCatalogName = functionCatalog.getName();
+            _logger.info(String.format("Generated %d bytes for %s (id: %d).", mostXmlLength, functionCatalogName, functionCatalogId));
         } catch (MostAdapterException e) {
             _logger.error("Problem generating MOST XML for function catalog " + functionCatalog + " (" + functionCatalog.getName() + ").");
             internalServerError(response);
@@ -66,6 +70,5 @@ public class MostGeneratorServlet extends BaseServlet {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         PrintWriter writer = response.getWriter();
         writer.write("Unable to generate MOST.");
-        return;
     }
 }
