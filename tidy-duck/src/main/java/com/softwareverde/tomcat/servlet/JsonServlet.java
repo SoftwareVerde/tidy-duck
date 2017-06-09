@@ -23,6 +23,7 @@ public abstract class JsonServlet extends BaseServlet {
 
     @Override
     protected final void handleRequest(HttpServletRequest req, HttpServletResponse resp, HttpMethod httpMethod, Environment environment) throws IOException {
+        long startTime = System.currentTimeMillis();
         Json json = null;
         try {
             json = handleRequest(req, httpMethod, environment);
@@ -38,6 +39,8 @@ public abstract class JsonServlet extends BaseServlet {
         }
         PrintWriter writer = resp.getWriter();
         writer.append(json.toString());
+        long endTime = System.currentTimeMillis();
+        _logger.info("Request took " + (endTime-startTime) + "ms.");
     }
 
     protected static Json getRequestDataAsJson(HttpServletRequest request) throws IOException {
