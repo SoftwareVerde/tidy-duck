@@ -14,7 +14,9 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
     jsonFetch(endpoint)
         .then(function (data) {
             if (data.wasSuccess) {
-                callbackFunction(data.functionCatalogs);
+                if (typeof callbackFunction == "function") {
+                    callbackFunction(data.functionCatalogs);
+                }
             } else {
                 console.log('Unable to get function catalogs for version ' + versionId + ': ' + data.errorMessage);
             }
@@ -33,7 +35,9 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
     jsonFetch(request)
         .then(function (data) {
             if (data.wasSuccess) {
-                callbackFunction(data.functionCatalogId);
+                if (typeof callbackFunction == "function") {
+                    callbackFunction(data.functionCatalogId);
+                }
             } else {
                 console.log('Unable to insert function catalog for version ' + versionId + ': ' + data.errorMessage);
             }

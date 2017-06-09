@@ -16,17 +16,29 @@ function generateClassNames(reactObject) {
 class FormInput extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             value: ""
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.getValue = this.getValue.bind(this);
     }
 
     handleChange(event) {
+        var newValue = event.target.value;
+
         if (! this.props.readOnly) {
-            this.setState({value: event.target.value});
+            this.setState({value: newValue});
         }
+
+        if (this.props.onChange) {
+            this.props.onChange(newValue, this.props.name)
+        }
+    }
+
+    getValue() {
+        return this.state.value;
     }
 
     render() {
@@ -50,31 +62,28 @@ class FunctionCatalogForm extends React.Component {
             author:         this.props.author,
             company:        this.props.company
         };
+
+        this.onSubmit = this.onSubmit.bind(this);
+        this.onInputChanged = this.onInputChanged.bind(this);
     }
 
-    render() {
-        return (
-            <div className="center" >
-                <FormInput id="function-catalog-name" name="name" type="text" label="Name" value={this.state.name} readOnly={this.props.readOnly} />
-                <FormInput id="function-catalog-release-version" name="release_version" type="text" label="Release" value={this.state.releaseVersion} readOnly={this.props.readOnly} />
-                <FormInput id="function-catalog-date" name="date" type="text" label="Date" value={this.state.date} readOnly={this.props.readOnly} />
-                <FormInput id="function-catalog-author" name="author" type="text" label="Author" value={this.state.author} readOnly={this.props.readOnly} />
-                <FormInput id="function-catalog-company" name="company" type="text" label="Company" value={this.state.company} readOnly={this.props.readOnly} />
-                <FunctionCatalogSubmitButton id="function-catalog-submit" />
-            </div>
-        );
-    }
-}
-
-class FunctionCatalogSubmitButton extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.handleClick = this.handleClick.bind(this);
+    onInputChanged(newValue, inputName) {
+        this.state[inputName] = newValue;
     }
 
-    handleClick() {
-        // Create new div to place new function catalog element. This is needed to prevent existing elements in the display area from being erased.
+    onSubmit() {
+        var versionId = 1; // TODO
+        var functionCatalogJson = {
+            name:           this.state.name,
+            release:        this.state.releaseVersion,
+            releaseDate:    this.state.date,
+            authorId:       this.state.author,
+            companyId:      this.state.company
+        };
+
+        insertFunctionCatalog(versionId, functionCatalogJson, new function(data) {
+            console.log(data);
+        });
 
         var newDisplayAreaChild = document.createElement("div");
         newDisplayAreaChild.className = "function-catalog";
@@ -85,7 +94,16 @@ class FunctionCatalogSubmitButton extends React.Component {
     }
 
     render() {
-        return ( <div className="submit-button" onClick={this.handleClick}>Submit</div> );
+        return (
+            <div className="center" >
+                <FormInput id="function-catalog-name" name="name" type="text" label="Name" value={this.state.name} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
+                <FormInput id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.releaseVersion} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
+                <FormInput id="function-catalog-date" name="date" type="text" label="Date" value={this.state.date} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
+                <FormInput id="function-catalog-author" name="author" type="text" label="Author" value={this.state.author} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
+                <FormInput id="function-catalog-company" name="company" type="text" label="Company" value={this.state.company} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
+                <div className="submit-button" id="function-catalog-submit" onClick={this.onSubmit}>Submit</div>
+            </div>
+        );
     }
 }
 
