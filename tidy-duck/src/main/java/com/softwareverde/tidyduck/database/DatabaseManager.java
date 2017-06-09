@@ -4,12 +4,15 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.environment.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseManager {
 
+    private final Logger _logger = LoggerFactory.getLogger(getClass());
     private final Environment _environment;
 
     public DatabaseManager(Environment environment) {
@@ -34,8 +37,9 @@ public class DatabaseManager {
                     connection.rollback();
                 }
             } catch (SQLException e1) {
-                throw new DatabaseException("Unable rollback connection.", e1);
+                _logger.error("Unable to roll back connection.", e1);
             }
+            throw new DatabaseException("Unable to insert function catalog.", e);
         } finally {
             Environment.close(databaseConnection);
         }
