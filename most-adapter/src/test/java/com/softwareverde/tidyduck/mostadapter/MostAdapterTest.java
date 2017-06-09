@@ -35,7 +35,7 @@ public class MostAdapterTest {
     }
 
     private String getResourceAsString(String resourcePath) throws IOException {
-        InputStream inputStream = getClass().getResource(SAMPLE_XML_RESOURCE_PATH).openStream();
+        InputStream inputStream = getClass().getResource(resourcePath).openStream();
         java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
     }
