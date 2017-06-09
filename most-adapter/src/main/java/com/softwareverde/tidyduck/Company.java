@@ -1,10 +1,10 @@
 package com.softwareverde.tidyduck;
 
 public class Company {
-    private long _id;
+    private Long _id;
     private String _name;
 
-    public long getId() {
+    public Long getId() {
         return this._id;
     }
 

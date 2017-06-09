@@ -1,11 +1,11 @@
 package com.softwareverde.tidyduck;
 
 public class Author {
-    private long _id;
+    private Long _id;
     private String _name;
     private Company _company;
 
-    public long getId() {
+    public Long getId() {
         return _id;
     }
 

@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalog extends XmlNode {
-    private long _id;
+    private Long _id;
     private String _name;
     private String _release;
     private Date _releaseDate;
@@ -18,7 +18,7 @@ public class FunctionCatalog extends XmlNode {
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<Modification>();
 
-    public long getId() {
+    public Long getId() {
         return _id;
     }
 

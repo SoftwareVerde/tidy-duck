@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Version {
-    private long _id;
+    private Long _id;
     private String _name;
     private Account _owner;
     private boolean _isCommitted;
     private List<FunctionCatalog> _functionCatalogs = new ArrayList<FunctionCatalog>();
 
-    public long getId() {
+    public Long getId() {
         return _id;
     }
 
