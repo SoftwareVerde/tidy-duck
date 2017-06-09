@@ -1,3 +1,13 @@
+function generateClassNames(reactObject) {
+    var classes = "";
+    for (var className in reactObject.state.classes) {
+        var isEnabled = reactObject.state.classes[className];
+        if (isEnabled) {
+            classes += className +" ";
+        }
+    }
+    return classes;
+}
 
 class FunctionCatalogSubmitButton extends React.Component {
     handleClick() {
@@ -22,6 +32,21 @@ class NavEntry extends React.Component {
      TODO: display area, and hide any unrelated elements.
      */
 
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            classes: {
+                "navigation-entry": true,
+                "hovered": false
+            },
+            className: ""
+        };
+
+        this.state.className = generateClassNames(this);
+    }
+
     returnToParentNavigationEntry() {
         //Get Metadata Form element so that it can be revealed.
         var metaDataForm = document.getElementsByClassName("metadata-form")[0];
@@ -42,10 +67,19 @@ class NavEntry extends React.Component {
         }
     }
 
+    toggleHover() {
+        var shouldBeHovered = (! this.state.classes['hovered']);
+        this.state.classes['hovered'] = shouldBeHovered
+        this.setState({className: generateClassNames(this)});
+    }
+
     render() {
         return <div
-            className="navigation-entry"
-            onClick={() => this.returnToParentNavigationEntry()}>
+                className={this.state.className}
+                onClick={() => this.returnToParentNavigationEntry()}
+                onMouseEnter={() => this.toggleHover()}
+                onMouseLeave={() => this.toggleHover()}
+            >
             {this.props.name}
         </div>;
     }
