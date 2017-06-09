@@ -71,4 +71,14 @@ public class Environment {
             }
         }
     }
+
+    public static void close(DatabaseConnection databaseConnection) {
+        if (databaseConnection != null) {
+            try {
+                databaseConnection.close();
+            } catch (DatabaseException e) {
+                _logger.error("Unable to close database connection.", e);
+            }
+        }
+    }
 }
