@@ -32,17 +32,17 @@
 
 
 .primary-border {
-    color: #F3F3F3;
+    border-color: #F3F3F3;
 }
 
 .secondary-border {
-    color: #FFDD66;
+    border-color: #FFDD66;
 }
 
 .tertiary-border {
-    color: #FFCC33;
+    border-color: #FFCC33;
 }
 
 .accent-border {
-    color: #4A4A4A;
+    border-color: #4A4A4A;
 }

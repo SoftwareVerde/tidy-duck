@@ -17,17 +17,24 @@ body * {
 
 .submit-button {
     margin: 2em 1em 1em .5em;
-    width: 100%;
+    width: 95%;
     text-transform: uppercase;
     color: white;
-    background-color: #FFCC33;
+    background-color: #FFDD66;
     padding: 0.75em;
     text-align: center;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    border: solid 1px #BBAA22;
     cursor: pointer;
     font-size: 16px;
     display: inline-block;
     box-sizing: border-box;
+    box-shadow: 5px 5px 5px #CCCCCC;
+
+    transition: background-color 0.5s ease;
+}
+
+.submit-button:hover {
+    background-color: #FFEE77;
 }
 
 .header {
@@ -44,7 +51,7 @@ body * {
 }
 
 .container {
-    border: solid 2px;
+    border-top: solid 2px;
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
@@ -59,12 +66,16 @@ body * {
 }
 
 .navigation-column {
-    width: 20%;
-    border-right: solid;
+    width: 300px;
+    border-right: solid 1px;
     padding: 5px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    border-color: #CCCCCC;
+    background-color: #D0D0D0;
+    box-shadow: 2px 0px 5px 0px #A0A0A0;
+    color: #101010;
 }
 
 .navigation-entry {
@@ -72,9 +83,17 @@ body * {
     padding: 5px;
     margin-top: 2px;
     text-align: center;
-    border-top: 1px solid;
-    border-bottom: 1px solid;
+    cursor: pointer;
+    background-color: #FFDD66;
+    border: solid 1px #BBAA22;
+    box-shadow: 5px 5px 5px #808080;
+
+    transition: background-color 0.5s ease;
 }
+.navigation-entry:hover {
+    background-color: #FFEE77;
+}
+
 
 .display-area {
     width: 80%;
@@ -106,22 +125,29 @@ body * {
 }
 
 .function-catalog {
-    padding: 5px;
-    margin-top: 10px;
-    margin-right: 12px;
-    float: left;
-    width: 30%;
-    border: 2px solid;
-    border-radius: 5px;
-    text-align: center;
-}
+    padding: 1em;
+    margin: 1em;
+    width: 250px;
+    height: 250px;
+    display: inline-block;
+    box-sizing: border-box;
 
-.navigation-entry:hover {
-    background-color: #FFDD66;
-    cursor: pointer;
+    border-radius: 5px;
+    border: solid 1px #C0C0C0;
+    background-color: #EEEEEE;
+    text-align: center;
+
+    transition: background-color 0.5s ease;
 }
 
 .function-catalog:hover {
     background-color: #FFDD66;
 }
 
+.table {
+    display: table;
+    width: 100%;
+}
+.cell {
+    display: table-cell;
+}

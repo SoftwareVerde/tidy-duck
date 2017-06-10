@@ -95,13 +95,13 @@ class FunctionCatalogForm extends React.Component {
 
     render() {
         return (
-            <div className="center" >
+            <div>
                 <FormInput id="function-catalog-name" name="name" type="text" label="Name" value={this.state.name} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
                 <FormInput id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.releaseVersion} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
                 <FormInput id="function-catalog-date" name="date" type="text" label="Date" value={this.state.date} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
                 <FormInput id="function-catalog-author" name="author" type="text" label="Author" value={this.state.author} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
                 <FormInput id="function-catalog-company" name="company" type="text" label="Company" value={this.state.company} readOnly={this.props.readOnly} onChange={this.onInputChanged} />
-                <div className="submit-button" id="function-catalog-submit" onClick={this.onSubmit}>Submit</div>
+                <div className="center"><div className="submit-button" id="function-catalog-submit" onClick={this.onSubmit}>Submit</div></div>
             </div>
         );
     }
@@ -179,11 +179,11 @@ class FunctionCatalog extends React.Component {
         // TODO: These are the values that should be posted/retrieved from the database.
         //  They are currently pulling from entries in the metadata form at the top of the display area.
         this.state = {
-            newName : document.getElementById("function-catalog-name").value,
-            newRelease : document.getElementById("function-catalog-release-version").value,
-            newAuthor : document.getElementById("function-catalog-author").value,
-            newDate : document.getElementById("function-catalog-date").value,
-            newCompany : document.getElementById("function-catalog-company").value,
+            name : document.getElementById("function-catalog-name").value,
+            release : document.getElementById("function-catalog-release-version").value,
+            author : document.getElementById("function-catalog-author").value,
+            date : document.getElementById("function-catalog-date").value,
+            company : document.getElementById("function-catalog-company").value,
         };
 
         this.clickOnFunctionCatalog = this.clickOnFunctionCatalog.bind(this);
@@ -197,7 +197,7 @@ class FunctionCatalog extends React.Component {
         // Create new Navigation Entry DIV element.
         // TODO: New navigation entries are made using JS and are NOT rendering new React classes.
         var newNavigationEntry = document.createElement("div");
-        newNavigationEntry.innerText = this.state.newName;
+        newNavigationEntry.innerText = this.state.name;
         newNavigationEntry.className = "navigation-entry";
 
         // Add navigation entry to Navigation Column.
@@ -215,7 +215,7 @@ class FunctionCatalog extends React.Component {
         // Render default metadata form at top of display area.
         // The props that are sent here are displayed as read-only inputs.
         ReactDOM.render(
-            <FunctionCatalogForm releaseVersion={this.state.newRelease} date={this.state.newDate} author={this.state.newAuthor} company={this.state.newCompany} readOnly={true} />,
+            <FunctionCatalogForm name={this.state.name} releaseVersion={this.state.release} date={this.state.date} author={this.state.author} company={this.state.company} readOnly={true} />,
             document.getElementsByClassName("metadata-form")[0]
         );
     }
@@ -223,7 +223,11 @@ class FunctionCatalog extends React.Component {
     render() {
         return (
             <div onClick={this.clickOnFunctionCatalog}>
-                 {this.state.newName}
+                <div className="child-function-catalog-property">{this.state.name}</div>
+                <div className="child-function-catalog-property">{this.state.release}</div>
+                <div className="child-function-catalog-property">{this.state.date}</div>
+                <div className="child-function-catalog-property">{this.state.author}</div>
+                <div className="child-function-catalog-property">{this.state.company}</div>
             </div>
         );
     }
