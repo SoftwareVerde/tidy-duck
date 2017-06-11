@@ -10,6 +10,7 @@ import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.util.TidyDuckUtil;
 import com.softwareverde.tomcat.servlet.JsonServlet;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
@@ -71,27 +72,44 @@ public class FunctionCatalogServlet extends JsonServlet {
         final Json request = super.getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
 
-        final long versionId = Long.parseLong(request.getString("versionId"));
+        final Long versionId = Util.parseLong(request.getString("versionId"));
 
-        final String release = request.getString("release");
-        final String releaseDateString = request.getString("releaseDate");
-        final Integer authorId = request.getInteger("authorId");
-        final Integer companyId = request.getInteger("companyId");
+        final Json functionCatalogJson = request.get("functionCatalog");
+        final String name = functionCatalogJson.getString("name");
+        final String release = functionCatalogJson.getString("release");
+        final String releaseDateString = functionCatalogJson.getString("releaseDate");
+        final Integer authorId = functionCatalogJson.getInteger("authorId");
+        final Integer companyId = functionCatalogJson.getInteger("companyId");
         final Date releaseDate = DateUtil.dateFromDateString(releaseDateString);
 
         { // Validate Inputs
+            if (versionId < 1) {
+                _logger.error("Unable to parse Version ID: " + versionId);
+                return super.generateErrorJson("Invalid Version ID: " + versionId);
+            }
+
+            if (TidyDuckUtil.isBlank(name)) {
+                _logger.error("Unable to parse Name: " + name);
+                return super.generateErrorJson("Invalid Name: " + name);
+            }
+
+            if (TidyDuckUtil.isBlank(release)) {
+                _logger.error("Unable to parse Release: " + release);
+                return super.generateErrorJson("Invalid Release: " + release);
+            }
+
             if (releaseDate == null) {
-                _logger.error(String.format("Unable to parse Release-Date: %s", releaseDateString));
+                _logger.error("Unable to parse Release Date: " + releaseDateString);
                 return super.generateErrorJson("Invalid Release Date: " + releaseDateString);
             }
 
             if (authorId < 1) {
-                _logger.error(String.format("Invalid Author ID: %s", authorId));
+                _logger.error("Invalid Author ID: " + authorId);
                 return super.generateErrorJson("Invalid Author ID: " + authorId);
             }
 
             if (companyId < 1) {
-                _logger.error(String.format("Invalid Company ID: %s", companyId));
+                _logger.error("Invalid Company ID: " + companyId);
                 return super.generateErrorJson("Invalid Company ID: " + companyId);
             }
         }
@@ -103,6 +121,7 @@ public class FunctionCatalogServlet extends JsonServlet {
         author.setId(authorId);
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();
+        functionCatalog.setName(name);
         functionCatalog.setRelease(release);
         functionCatalog.setReleaseDate(releaseDate);
         functionCatalog.setAuthor(author);
@@ -111,6 +130,7 @@ public class FunctionCatalogServlet extends JsonServlet {
         try {
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertFunctionCatalog(functionCatalog, versionId);
+            response.put("functionCatalogId", functionCatalog.getId());
         }
         catch (final DatabaseException exception) {
             _logger.error("Unable to store Function Catalog.", exception);

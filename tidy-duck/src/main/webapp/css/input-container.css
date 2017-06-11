@@ -1,0 +1,27 @@
+.input-container {
+    position: relative;
+    width: 33%;
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 2em 3em;
+    font-size: 0.85rem;
+}
+
+.input-container label {
+    float: left;
+    display: block;
+    clear: none;
+    color: #353535;
+    font-family: 'Lato', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.input-container input {
+    width: 100%;
+    border: solid 1px #CCCCCC;
+    font-weight: normal !important;
+    padding: 0.50em;
+    font-size: 1rem;
+    margin: 0px;
+    box-sizing: border-box;
+}

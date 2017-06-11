@@ -5,8 +5,36 @@ html, body {
 }
 
 body * {
-    font-family: 'Libre Baskerville', serif;
+    font-family: 'Lato', sans-serif;
     color: #4A4A4A;
+    font-size: 14px;
+    word-spacing: 1px;
+}
+
+.center {
+    text-align: center;
+}
+
+.submit-button {
+    margin: 2em 1em 1em .5em;
+    width: 95%;
+    text-transform: uppercase;
+    color: white;
+    background-color: #FFDD66;
+    padding: 0.75em;
+    text-align: center;
+    border: solid 1px #BBAA22;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    box-sizing: border-box;
+    box-shadow: 5px 5px 5px #CCCCCC;
+
+    transition: background-color 0.5s ease;
+}
+
+.submit-button:hover {
+    background-color: #FFEE77;
 }
 
 .header {
@@ -22,8 +50,7 @@ body * {
     padding-left: 10px;
 }
 
-.container {
-    border: solid 2px;
+#main {
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
@@ -37,23 +64,52 @@ body * {
     box-sizing: border-box;
 }
 
-.navigation-column {
-    width: 20%;
-    border-right: solid;
-    padding: 5px;
+.container {
+    border-top: solid 2px;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    position: absolute;
+    top: 0px;
+    right: 0;
+    left: 0;
+    bottom: 0;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
-.navigation-entry {
+.navigation-column {
+    width: 300px;
+    border-right: solid 1px;
+    padding: 5px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-color: #CCCCCC;
+    background-color: #D0D0D0;
+    box-shadow: 2px 0px 5px 0px #A0A0A0;
+    color: #101010;
+}
+
+.navigation-item {
     width: auto;
     padding: 5px;
     margin-top: 2px;
     text-align: center;
-    border-top: 1px solid;
-    border-bottom: 1px solid;
+    cursor: pointer;
+    background-color: #FFDD66;
+    border: solid 1px #BBAA22;
+    box-shadow: 5px 5px 5px #808080;
+
+    min-height: 1.2em;
+
+    transition: background-color 0.5s ease;
 }
+.navigation-item:hover {
+    background-color: #FFEE77;
+}
+
 
 .display-area {
     width: 80%;
@@ -70,17 +126,14 @@ body * {
 .metadata-form {
     padding: 5px;
     width: auto;
-    border: 2px solid;
+    border: 0px solid;
     border-radius: 5px;
-}
 
-.metadata-form table {
-    margin: auto;
-    padding: 8px;
-}
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
 
-.metadata-form td {
-    padding: 5px;
+    margin: 20px;
+    padding: 0px;
 }
 
 .child-display-area {
@@ -88,22 +141,39 @@ body * {
 }
 
 .function-catalog {
-    padding: 5px;
-    margin-top: 10px;
-    margin-right: 12px;
-    float: left;
-    width: 30%;
-    border: 2px solid;
-    border-radius: 5px;
-    text-align: center;
-}
+    padding: 1em;
+    margin: 1em;
+    width: 250px;
+    height: 250px;
+    display: inline-block;
+    box-sizing: border-box;
 
-.navigation-entry:hover {
-    background-color: #FFDD66;
-    cursor: pointer;
+    border-radius: 5px;
+    border: solid 1px #C0C0C0;
+    background-color: #EEEEEE;
+    text-align: center;
+
+    float: left;
+
+    transition: background-color 0.5s ease;
 }
 
 .function-catalog:hover {
     background-color: #FFDD66;
+}
+
+.table {
+    display: table;
+    width: 100%;
+}
+.cell {
+    display: table-cell;
+}
+
+/* For use with divs with floating-children. */
+.clearfix::after {
+    content:    "";
+    display:    block;
+    clear:      both;
 }
 
