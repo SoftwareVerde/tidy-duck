@@ -3,35 +3,32 @@ class FunctionCatalog extends React.Component {
         super(props);
 
         this.state = {
-            name : document.getElementById("function-catalog-name").value,
-            release : document.getElementById("function-catalog-release-version").value,
-            author : document.getElementById("function-catalog-author").value,
-            date : document.getElementById("function-catalog-date").value,
-            company : document.getElementById("function-catalog-company").value,
+            name:           this.props.name,
+            releaseVersion: this.props.releaseVersion,
+            date:           this.props.date,
+            author:         this.props.author,
+            company:        this.props.company
         };
 
-        this.clickOnFunctionCatalog = this.clickOnFunctionCatalog.bind(this);
+        this.selectFunctionCatalog = this.selectFunctionCatalog.bind(this);
+
+        window.app.navigation = this;
     }
 
-    clickOnFunctionCatalog() {
-        var newNavigationEntry = document.createElement("div");
-        newNavigationEntry.innerText = this.state.name;
-        newNavigationEntry.className = "navigation-entry";
-
-        var navigationColumn = document.getElementsByClassName("navigation-column")[0];
-        navigationColumn.appendChild(newNavigationEntry);
+    selectFunctionCatalog() {
+        app.navigation.addNavigationItem(this.state.name);
 
         ReactDOM.render(
-            <app.FunctionCatalogForm name={this.state.name} releaseVersion={this.state.release} date={this.state.date} author={this.state.author} company={this.state.company} readOnly={true} />,
+            <app.FunctionCatalogForm name={this.state.name} releaseVersion={this.state.releaseVersion} date={this.state.date} author={this.state.author} company={this.state.company} readOnly={true} />,
             document.getElementsByClassName("metadata-form")[0]
         );
     }
 
     render() {
         return (
-            <div onClick={this.clickOnFunctionCatalog}>
+            <div onClick={this.selectFunctionCatalog}>
                 <div className="child-function-catalog-property">{this.state.name}</div>
-                <div className="child-function-catalog-property">{this.state.release}</div>
+                <div className="child-function-catalog-property">{this.state.releaseVersion}</div>
                 <div className="child-function-catalog-property">{this.state.date}</div>
                 <div className="child-function-catalog-property">{this.state.author}</div>
                 <div className="child-function-catalog-property">{this.state.company}</div>

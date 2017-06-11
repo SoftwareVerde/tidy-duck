@@ -1,11 +1,11 @@
-class NavigationItem extends React.Component {
+class NavigationRootItem extends React.Component {
     constructor(props) {
         super(props);
     }
 
     render() {
         return (
-            <div onClick={this.props.onClick}>
+            <div className="navigation-item" onClick={this.props.onClick}>
                 {this.props.title}
             </div>
         );
@@ -13,5 +13,5 @@ class NavigationItem extends React.Component {
 }
 
 (function (app) {
-    app.NavigationItem = NavigationItem;
+    app.NavigationRootItem = NavigationRootItem;
 })(window.app || (window.app = { }))

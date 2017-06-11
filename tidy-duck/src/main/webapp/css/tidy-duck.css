@@ -50,13 +50,27 @@ body * {
     padding-left: 10px;
 }
 
+#main {
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 .container {
     border-top: solid 2px;
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
     position: absolute;
-    top: 50px;
+    top: 0px;
     right: 0;
     left: 0;
     bottom: 0;
@@ -78,7 +92,7 @@ body * {
     color: #101010;
 }
 
-.navigation-entry {
+.navigation-item {
     width: auto;
     padding: 5px;
     margin-top: 2px;
@@ -90,7 +104,7 @@ body * {
 
     transition: background-color 0.5s ease;
 }
-.navigation-entry:hover {
+.navigation-item:hover {
     background-color: #FFEE77;
 }
 
