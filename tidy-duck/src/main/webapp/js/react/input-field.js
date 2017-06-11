@@ -3,14 +3,14 @@ class InputField extends React.Component {
         super(props);
 
         this.state = {
-            value: ""
+            value: (this.props.value || "")
         };
 
-        this.handleChange = this.handleChange.bind(this);
+        this.onInputChanged = this.onInputChanged.bind(this);
         this.getValue = this.getValue.bind(this);
     }
 
-    handleChange(event) {
+    onInputChanged(event) {
         var newValue = event.target.value;
 
         if (! this.props.readOnly) {
@@ -22,6 +22,12 @@ class InputField extends React.Component {
         }
     }
 
+    componentWillReceiveProps(newProperties) {
+        this.setState({
+            value: (newProperties.value || "")
+        });
+    }
+
     getValue() {
         return this.state.value;
     }
@@ -30,7 +36,7 @@ class InputField extends React.Component {
         return (
             <div className="input-container">
                 <label htmlFor={this.props.id}>{this.props.label}:</label>
-                <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.handleChange} readOnly={this.props.readOnly} />
+                <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />
             </div>
         );
     }

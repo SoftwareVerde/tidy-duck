@@ -3,7 +3,7 @@ class FunctionCatalogForm extends React.Component {
         super(props);
 
         this.state = {
-            functionCatalog:    (this.props.functionCatalog || new FunctionCatalog())
+            functionCatalog: (this.props.functionCatalog || new FunctionCatalog())
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
