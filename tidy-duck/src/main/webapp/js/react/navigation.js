@@ -7,17 +7,20 @@ class Navigation extends React.Component {
         var navigationItemComponents = [];
         var navigationItems = (this.props.navigationItems || []);
         for (var i in navigationItems) {
+            const navigationItemTitle = this.props.navigationItems[i];
+
             navigationItemComponents.push(
-                <app.NavigationItem title="Navigation Item"/>
+                <app.NavigationItem key={i} title={navigationItemTitle} />
             );
         }
+
         return navigationItemComponents;
     }
 
     render() {
         return (
             <div className="navigation-column">
-                <app.NavigationRootItem title="Navigation" />
+                <app.NavigationRootItem title="Navigation" onClick={this.props.onRootItemClicked} />
                 {this.renderNavigationItems()}
             </div>
         );

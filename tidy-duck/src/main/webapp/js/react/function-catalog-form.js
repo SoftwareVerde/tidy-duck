@@ -67,14 +67,20 @@ class FunctionCatalogForm extends React.Component {
     }
 
     onSubmit() {
+        const createdFunctionCatalog = this.state.functionCatalog;
         if (typeof this.props.onSubmit == "function") {
-            this.props.onSubmit(this.state.functionCatalog);
+            this.props.onSubmit(createdFunctionCatalog);
         }
+
+        const functionCatalog = new FunctionCatalog();
+        this.setState({
+            functionCatalog: functionCatalog
+        });
     }
 
     render() {
         return (
-            <div>
+            <div className="metadata-form">
                 <app.InputField id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />

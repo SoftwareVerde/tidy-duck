@@ -6,6 +6,8 @@ class FunctionCatalog {
         this._releaseDate       = null;
         this._author            = null;
         this._company           = null;
+
+        this._functionBlocks    = [];
     };
 
     setId(id) {
@@ -54,5 +56,9 @@ class FunctionCatalog {
 
     getCompany() {
         return this._company;
+    }
+
+    getFunctionBlocks() {
+        return this._functionBlocks;
     }
 }

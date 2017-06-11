@@ -3,26 +3,36 @@ class App extends React.Component {
         super(props);
 
         this.state = {
+            navigationItems:    [],
             functionCatalogs:   []
         };
 
+        this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
+        this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
+        this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
     }
 
     onFunctionCatalogSubmit(functionCatalog) {
-        console.log("onFunctionCatalogSubmit");
+        const author = (functionCatalog.getAuthor() || new Author());
+        const company = (functionCatalog.getCompany() || new Company());
 
         const versionId = 1; // TODO
         const functionCatalogJson = {
             name:           functionCatalog.getName(),
             release:        functionCatalog.getReleaseVersion(),
             releaseDate:    functionCatalog.getReleaseDate(),
-            authorId:       functionCatalog.getAuthor().getId(),
-            companyId:      functionCatalog.getCompany().getId()
+            authorId:       author.getId(),
+            companyId:      company.getId()
         };
 
         insertFunctionCatalog(versionId, functionCatalogJson, new function(data) {
             console.log(data);
+        });
+
+        const functionCatalogs = this.state.functionCatalogs.concat(functionCatalog);
+        this.setState({
+            functionCatalogs: functionCatalogs
         });
 
         /*
@@ -35,16 +45,47 @@ class App extends React.Component {
         */
     }
 
+    onRootNavigationItemClicked() {
+        const navigationItems = [];
+
+        this.setState({
+            navigationItems: navigationItems
+        });
+    }
+
+    onFunctionCatalogSelected(functionCatalog) {
+        const navigationItems = [];
+        navigationItems.push(functionCatalog.getName());
+
+        const functionBlocks = functionCatalog.getFunctionBlocks();
+        for (let i in functionBlocks) {
+            const functionBlock = functionBlocks[i];
+            navigationItems.push(functioBlock.getName());
+        }
+        // TODO: Traverse FB children... [, ...]
+
+        this.setState({
+            navigationItems: navigationItems
+        });
+    }
+
+    renderFunctionCatalogs() {
+        const reactComponents = [];
+        for (let i in this.state.functionCatalogs) {
+            const functionCatalog = this.state.functionCatalogs[i];
+            reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={functionCatalog} onClick={this.onFunctionCatalogSelected} />);
+        }
+        return reactComponents;
+    }
+
     render() {
         return (
             <div className="container">
-                <app.Navigation />
+                <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
                 <div className="display-area">
-                    <div className="metadata-form">
-                        <app.FunctionCatalogForm onSubmit={this.onFunctionCatalogSubmit} />
-                    </div>
+                    <app.FunctionCatalogForm onSubmit={this.onFunctionCatalogSubmit} />
                     <div id="child-display-area">
-                        <app.Navigation name="Function Catalogs" functionCatalogs={this.state.functionCatalogs} />
+                        {this.renderFunctionCatalogs()}
                     </div>
                 </div>
             </div>

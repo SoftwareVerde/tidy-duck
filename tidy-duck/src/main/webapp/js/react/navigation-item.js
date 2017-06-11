@@ -5,7 +5,7 @@ class NavigationItem extends React.Component {
 
     render() {
         return (
-            <div onClick={this.props.onClick}>
+            <div className="navigation-item" onClick={this.props.onClick}>
                 {this.props.title}
             </div>
         );
