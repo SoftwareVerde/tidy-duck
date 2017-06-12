@@ -26,16 +26,31 @@ public class FunctionCatalogServlet extends JsonServlet {
 
     @Override
     protected Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
-        if (httpMethod == HttpMethod.POST) {
-            return storeFunctionCatalog(request, environment);
-        }
-        if (httpMethod == HttpMethod.GET) {
-            long versionId = Util.parseLong(Util.coalesce(request.getParameter("version_id")));
-            if (versionId < 1) {
-                return super.generateErrorJson("Invalid version id.");
+        String finalUrlSegment = super.getFinalUrlSegment(request);
+        if ("function-catalog".equals(finalUrlSegment)) {
+            if (httpMethod == HttpMethod.POST) {
+                return storeFunctionCatalog(request, environment);
             }
+            if (httpMethod == HttpMethod.GET) {
+                long versionId = Util.parseLong(Util.coalesce(request.getParameter("version_id")));
+                if (versionId < 1) {
+                    return super.generateErrorJson("Invalid version id.");
+                }
 
-            return listFunctionCatalogs(versionId, environment);
+                return listFunctionCatalogs(versionId, environment);
+            }
+        } else {
+            // not base function catalog, must have ID
+            long functionCatalogId = Util.parseLong(finalUrlSegment);
+            if (functionCatalogId < 1) {
+                return super.generateErrorJson("Invalid function catalog id.");
+            }
+            if (httpMethod == HttpMethod.POST) {
+                return updateFunctionCatalog(request, environment);
+            }
+            if (httpMethod == HttpMethod.DELETE) {
+                return deleteFunctionCatalogFromVersion(request, environment);
+            }
         }
         return super.generateErrorJson("Unimplemented HTTP method in request.");
     }
@@ -141,5 +156,13 @@ public class FunctionCatalogServlet extends JsonServlet {
 
         super.setJsonSuccessFields(response);
         return response;
+    }
+
+    private Json updateFunctionCatalog(HttpServletRequest request, Environment environment) {
+        return super.generateErrorJson("Unimplemented.");
+    }
+
+    private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, Environment environment) {
+        return super.generateErrorJson("Unimplemented.");
     }
 }
