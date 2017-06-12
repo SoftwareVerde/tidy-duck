@@ -4,7 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Author;
+import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
@@ -22,7 +22,7 @@ public class MostCatalogInflater {
 
     public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(long versionId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT `function_catalog_id`"
+                "SELECT function_catalog_id"
                 + " FROM versions_function_catalogs"
                 + " WHERE version_id = ?"
         );
@@ -40,7 +40,7 @@ public class MostCatalogInflater {
 
     public FunctionCatalog inflateFunctionCatalog(long functionCatalogId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT name, release_version, release_date, author_id, company_id"
+                "SELECT name, release_version, release_date, account_id, company_id"
                 + " FROM function_catalogs"
                 + " WHERE id = ?"
         );
@@ -53,7 +53,7 @@ public class MostCatalogInflater {
         // get first (should be only) row
         final Row row = rows.get(0);
 
-        final Author author = inflateAuthor(row.getLong("author_id"));
+        final Account account = inflateAccount(row.getLong("account_id"));
 
         final Company company = inflateCompany(row.getLong("company_id"));
 
@@ -61,7 +61,7 @@ public class MostCatalogInflater {
         functionCatalog.setName(row.getString("name"));
         functionCatalog.setRelease(row.getString("release_version"));
         functionCatalog.setReleaseDate(DateUtil.dateFromDateString(row.getString("release_date")));
-        functionCatalog.setAuthor(author);
+        functionCatalog.setAccount(account);
         functionCatalog.setCompany(company);
 
         return functionCatalog;
@@ -89,10 +89,10 @@ public class MostCatalogInflater {
         return company;
     }
 
-    private Author inflateAuthor(Long authorId) throws DatabaseException {
+    private Account inflateAccount(Long authorId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name, company_id"
-                + " FROM authors"
+                + " FROM accounts"
                 + " WHERE id = ?"
         );
         query.setParameter(authorId);
@@ -106,11 +106,11 @@ public class MostCatalogInflater {
 
         final Company company = inflateCompany(row.getLong("company_id"));
 
-        Author author = new Author();
-        author.setId(row.getLong("id"));
-        author.setName(row.getString("name"));
-        author.setCompany(company);
+        Account account = new Account();
+        account.setId(row.getLong("id"));
+        account.setName(row.getString("name"));
+        account.setCompany(company);
 
-        return author;
+        return account;
     }
 }

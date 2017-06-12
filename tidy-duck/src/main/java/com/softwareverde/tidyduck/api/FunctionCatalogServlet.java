@@ -3,7 +3,7 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Author;
+import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
@@ -54,8 +54,8 @@ public class FunctionCatalogServlet extends JsonServlet {
                 catalogJson.put("id", functionCatalog.getId());
                 catalogJson.put("name", functionCatalog.getName());
                 catalogJson.put("releaseVersion", functionCatalog.getRelease());
-                catalogJson.put("releaseDate", DateUtil.timestampToDatetimeString(functionCatalog.getReleaseDate().getTime()));
-                catalogJson.put("authorId", functionCatalog.getAuthor().getId());
+                catalogJson.put("releaseDate", DateUtil.dateToDateString(functionCatalog.getReleaseDate()));
+                catalogJson.put("authorId", functionCatalog.getAccount().getId());
                 catalogJson.put("companyId", functionCatalog.getCompany().getId());
                 catalogsJson.add(catalogJson);
             }
@@ -106,8 +106,8 @@ public class FunctionCatalogServlet extends JsonServlet {
             }
 
             if (authorId < 1) {
-                _logger.error("Invalid Author ID: " + authorId);
-                return super.generateErrorJson("Invalid Author ID: " + authorId);
+                _logger.error("Invalid Account ID: " + authorId);
+                return super.generateErrorJson("Invalid Account ID: " + authorId);
             }
 
             if (companyId < 1) {
@@ -119,14 +119,14 @@ public class FunctionCatalogServlet extends JsonServlet {
         final Company company = new Company();
         company.setId(companyId);
 
-        final Author author = new Author();
-        author.setId(authorId);
+        final Account account = new Account();
+        account.setId(authorId);
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName(name);
         functionCatalog.setRelease(release);
         functionCatalog.setReleaseDate(releaseDate);
-        functionCatalog.setAuthor(author);
+        functionCatalog.setAccount(account);
         functionCatalog.setCompany(company);
 
         try {

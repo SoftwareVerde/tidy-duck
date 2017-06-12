@@ -15,21 +15,21 @@ class FunctionCatalogDatabaseManager {
     }    
 
     /**
-     * Stores the functionCatalog's release, releaseDate, authorId, and companyId via the databaseConnection.
+     * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
      * Upon successful insert, the functionCatalog's Id is set to the database's insertId.
      */
     public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
         final String releaseDate = DateUtil.timestampToDatetimeString(functionCatalog.getReleaseDate().getTime());
-        final Long authorId = functionCatalog.getAuthor().getId();
+        final Long accountId = functionCatalog.getAccount().getId();
         final Long companyId = functionCatalog.getCompany().getId();
 
-        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, release_date, author_id, company_id) VALUES (?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, release_date, account_id, company_id) VALUES (?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(release)
             .setParameter(releaseDate)
-            .setParameter(authorId)
+            .setParameter(accountId)
             .setParameter(companyId)
         ;
 

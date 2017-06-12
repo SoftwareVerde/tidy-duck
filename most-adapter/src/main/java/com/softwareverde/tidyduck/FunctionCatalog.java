@@ -13,7 +13,7 @@ public class FunctionCatalog extends XmlNode {
     private String _name;
     private String _release;
     private Date _releaseDate;
-    private Author _author;
+    private Account _account;
     private Company _company;
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<Modification>();
@@ -50,12 +50,12 @@ public class FunctionCatalog extends XmlNode {
         _releaseDate = releaseDate;
     }
 
-    public Author getAuthor() {
-        return _author;
+    public Account getAccount() {
+        return _account;
     }
 
-    public void setAuthor(Author author) {
-        _author = author;
+    public void setAccount(Account account) {
+        _account = account;
     }
 
     public Company getCompany() {
@@ -96,7 +96,7 @@ public class FunctionCatalog extends XmlNode {
         catalogVersion.appendChild(release);
         Element date = super.createTextElement(document, "Date", getFormattedReleaseDate());
         catalogVersion.appendChild(date);
-        Element author = super.createTextElement(document, "Author", _author.getName());
+        Element author = super.createTextElement(document, "Author", _account.getName());
         catalogVersion.appendChild(author);
         Element company = super.createTextElement(document, "Company", _company.getName());
         catalogVersion.appendChild(company);

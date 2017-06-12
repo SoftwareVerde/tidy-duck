@@ -3,13 +3,14 @@ package com.softwareverde.tidyduck;
 public class Account {
     private Long _id;
     private String _name;
+    private Company _company;
 
     public Long getId() {
         return _id;
     }
 
     public void setId(long id) {
-        _id = id;
+        this._id = id;
     }
 
     public String getName() {
@@ -17,6 +18,14 @@ public class Account {
     }
 
     public void setName(String name) {
-        _name = name;
+        this._name = name;
+    }
+
+    public Company getCompany() {
+        return _company;
+    }
+
+    public void setCompany(Company company) {
+        this._company = company;
     }
 }
