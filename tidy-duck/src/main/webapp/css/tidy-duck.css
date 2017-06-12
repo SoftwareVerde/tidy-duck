@@ -168,6 +168,25 @@ body * {
     margin-top: 2px;
 }
 
+.navigation-item-menu {
+    margin-top: 5px;
+    margin-left: -5px;
+    margin-right: -5px;
+    margin-bottom: -5px;
+    border: solid 1px #DED480;
+    background-color: #F9EE99;
+}
+
+.navigation-item-menu-item {
+    font-size: 75%;
+    padding: 2px;
+    color: #7D7B67;
+}
+
+.navigation-item-menu-item i {
+    margin-left: 5px;
+}
+
 .table {
     display: table;
     width: 100%;
