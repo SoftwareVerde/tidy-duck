@@ -14,6 +14,8 @@ class App extends React.Component {
     }
 
     onFunctionCatalogSubmit(functionCatalog) {
+        const thisApp = this;
+
         const author = (functionCatalog.getAuthor() || new Author());
         const company = (functionCatalog.getCompany() || new Company());
 
@@ -26,23 +28,15 @@ class App extends React.Component {
             companyId:      company.getId()
         };
 
-        insertFunctionCatalog(versionId, functionCatalogJson, new function(data) {
-            console.log(data);
+        insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
+            functionCatalog.setId(functionCatalogId);
+            const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
+
+            thisApp.setState({
+                functionCatalogs: functionCatalogs
+            });
+
         });
-
-        const functionCatalogs = this.state.functionCatalogs.concat(functionCatalog);
-        this.setState({
-            functionCatalogs: functionCatalogs
-        });
-
-        /*
-            const newDisplayAreaChild = document.createElement("div");
-            newDisplayAreaChild.className = "function-catalog";
-            document.getElementById("child-display-area").appendChild(newDisplayAreaChild);
-
-            // Render function catalog in new display area slot.
-            ReactDOM.render(<app.FunctionCatalog name={this.state.name} releaseVersion={this.state.releaseVersion} date={this.state.date} author={this.state.author} company={this.state.company} />, newDisplayAreaChild);
-        */
     }
 
     onRootNavigationItemClicked() {
@@ -55,12 +49,12 @@ class App extends React.Component {
 
     onFunctionCatalogSelected(functionCatalog) {
         const navigationItems = [];
-        navigationItems.push(functionCatalog.getName());
+        navigationItems.push(functionCatalog);
 
         const functionBlocks = functionCatalog.getFunctionBlocks();
         for (let i in functionBlocks) {
             const functionBlock = functionBlocks[i];
-            navigationItems.push(functioBlock.getName());
+            navigationItems.push(functioBlock);
         }
         // TODO: Traverse FB children... [, ...]
 
@@ -84,7 +78,7 @@ class App extends React.Component {
                 <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
                 <div className="display-area">
                     <app.FunctionCatalogForm onSubmit={this.onFunctionCatalogSubmit} />
-                    <div id="child-display-area">
+                    <div id="child-display-area" className="clearfix">
                         {this.renderFunctionCatalogs()}
                     </div>
                 </div>

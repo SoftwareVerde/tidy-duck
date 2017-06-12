@@ -162,6 +162,12 @@ body * {
     background-color: #FFDD66;
 }
 
+.navigation-item .menu-button {
+    float: right;
+    margin-right: 5px;
+    margin-top: 2px;
+}
+
 .table {
     display: table;
     width: 100%;

@@ -1,47 +1,60 @@
+const ENDPOINT_PREFIX = '/tidy-duck/api/v1/';
 
-var ENDPOINT_PREFIX = '/tidy-duck/';
-
-function jsonFetch(request) {
-    return fetch(request)
-        .then(function (response) {
-            return response.json();
-        })
+function jsonFetch(request, callbackFunction) {
+    fetch(request).then(function(response) {
+        return response.json();
+    }).then(function(json) {
+        if (typeof callbackFunction == "function") {
+            callbackFunction(json);
+        }
+    });
 }
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
-    var endpoint = ENDPOINT_PREFIX + 'api/v1/function-catalog?version_id=' + versionId;
-    jsonFetch(endpoint)
-        .then(function (data) {
-            if (data.wasSuccess) {
-                if (typeof callbackFunction == "function") {
-                    callbackFunction(data.functionCatalogs);
-                }
-            } else {
-                console.log('Unable to get function catalogs for version ' + versionId + ': ' + data.errorMessage);
-            }
-        });
+    const endpoint = ENDPOINT_PREFIX + 'function-catalog?version_id=' + versionId;
+
+    jsonFetch(endpoint, function(data) {
+        let functionCatalogs = null;
+
+        if (data.wasSuccess) {
+            functionCatalogs = data.functionCatalogs;
+        } else {
+            console.log('Unable to get function catalogs for version ' + versionId + ': ' + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogs);
+        }
+    });
 }
 
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
-    var request = new Request(ENDPOINT_PREFIX + 'api/v1/function-catalog', {
-        method: 'POST',
-        body: JSON.stringify({
-            'versionId': versionId,
-            'functionCatalog': functionCatalog
-        })
-    })
-    jsonFetch(request)
-        .then(function (data) {
-            if (data.wasSuccess) {
-                if (typeof callbackFunction == "function") {
-                    callbackFunction(data.functionCatalogId);
-                }
-            } else {
-                console.log('Unable to insert function catalog for version ' + versionId + ': ' + data.errorMessage);
-            }
-        });
+    const request = new Request(
+        ENDPOINT_PREFIX + 'function-catalog',
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                'versionId': versionId,
+                'functionCatalog': functionCatalog
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionCatalogId = null;
+
+        if (data.wasSuccess) {
+            functionCatalogId = data.functionCatalogId;
+        } else {
+            console.log('Unable to insert function catalog for version ' + versionId + ': ' + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogId);
+        }
+    });
 }
 
 function exportFunctionCatalogToMost(functionCatalogId) {
