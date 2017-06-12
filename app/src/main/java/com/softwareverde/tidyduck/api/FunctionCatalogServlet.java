@@ -91,7 +91,97 @@ public class FunctionCatalogServlet extends JsonServlet {
 
         final Long versionId = Util.parseLong(request.getString("versionId"));
 
+        { // Validate Inputs
+            if (versionId < 1) {
+                _logger.error("Unable to parse Version ID: " + versionId);
+                return super.generateErrorJson("Invalid Version ID: " + versionId);
+            }
+        }
+
         final Json functionCatalogJson = request.get("functionCatalog");
+        try {
+            FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.insertFunctionCatalog(versionId, functionCatalog);
+            response.put("functionCatalogId", functionCatalog.getId());
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to store Function Catalog.", exception);
+            return super.generateErrorJson("Unable to store Function Catalog: " + exception.getMessage());
+        }
+
+        super.setJsonSuccessFields(response);
+        return response;
+    }
+
+    private Json updateFunctionCatalog(HttpServletRequest httpRequest, Environment environment) throws IOException {
+        final Json request = super.getRequestDataAsJson(httpRequest);
+
+        final Long versionId = Util.parseLong(request.getString("versionId"));
+
+        final Json functionCatalogJson = request.get("functionCatalog");
+        final String functionCatalogIdString = functionCatalogJson.getString("id");
+        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
+
+        { // Validate Inputs
+            if (versionId < 1) {
+                _logger.error("Unable to parse Version ID: " + versionId);
+                return super.generateErrorJson("Invalid Version ID: " + versionId);
+            }
+
+            if (functionCatalogId < 1) {
+                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                return super.generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+            }
+        }
+
+        try {
+            FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.updateFunctionCatalog(versionId, functionCatalog);
+        } catch (final Exception exception) {
+            String errorMessage = "Unable to update function catalog: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return super.generateErrorJson(errorMessage);
+        }
+
+        Json response = new Json(false);
+        super.setJsonSuccessFields(response);
+        return response;
+    }
+
+    private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, Environment environment) {
+        String versionIdString = request.getParameter("versionId");
+        Long versionId = Util.parseLong(versionIdString);
+        String functionCatalogIdString = request.getParameter("functionCatalogId");
+        Long functionCatalogId = Util.parseLong(functionCatalogIdString);
+
+        { // Validate Inputs
+            if (versionId == null || versionId < 1) {
+                return super.generateErrorJson(String.format("Invalid version id: %s", versionIdString));
+            }
+            if (functionCatalogId == null || functionCatalogId < 1) {
+                return super.generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
+            }
+        }
+
+        DatabaseManager databaseManager = new DatabaseManager(environment);
+        try {
+            databaseManager.deleteFunctionCatalog(versionId, functionCatalogId);
+        } catch (final DatabaseException exception) {
+            String errorMessage = String.format("Unable to delete function catalog %d from version %d.", functionCatalogId, versionId);
+            _logger.error(errorMessage, exception);
+            return super.generateErrorJson(errorMessage);
+        }
+
+        Json response = new Json(false);
+        super.setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected FunctionCatalog populateFunctionCatalogFromJson(Json functionCatalogJson) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
         final String releaseDateString = functionCatalogJson.getString("releaseDate");
@@ -100,34 +190,24 @@ public class FunctionCatalogServlet extends JsonServlet {
         final Date releaseDate = DateUtil.dateFromDateString(releaseDateString);
 
         { // Validate Inputs
-            if (versionId < 1) {
-                _logger.error("Unable to parse Version ID: " + versionId);
-                return super.generateErrorJson("Invalid Version ID: " + versionId);
-            }
-
             if (Util.isBlank(name)) {
-                _logger.error("Unable to parse Name: " + name);
-                return super.generateErrorJson("Invalid Name: " + name);
+                throw new Exception("Invalid Name: " + name);
             }
 
             if (Util.isBlank(release)) {
-                _logger.error("Unable to parse Release: " + release);
-                return super.generateErrorJson("Invalid Release: " + release);
+                throw new Exception("Invalid Release: " + release);
             }
 
             if (releaseDate == null) {
-                _logger.error("Unable to parse Release Date: " + releaseDateString);
-                return super.generateErrorJson("Invalid Release Date: " + releaseDateString);
+                throw new Exception("Invalid Release Date: " + releaseDateString);
             }
 
             if (authorId < 1) {
-                _logger.error("Invalid Account ID: " + authorId);
-                return super.generateErrorJson("Invalid Account ID: " + authorId);
+                throw new Exception("Invalid Account ID: " + authorId);
             }
 
             if (companyId < 1) {
-                _logger.error("Invalid Company ID: " + companyId);
-                return super.generateErrorJson("Invalid Company ID: " + companyId);
+                throw new Exception("Invalid Company ID: " + companyId);
             }
         }
 
@@ -144,31 +224,6 @@ public class FunctionCatalogServlet extends JsonServlet {
         functionCatalog.setAccount(account);
         functionCatalog.setCompany(company);
 
-        try {
-            DatabaseManager databaseManager = new DatabaseManager(environment);
-            databaseManager.insertFunctionCatalog(versionId, functionCatalog);
-            response.put("functionCatalogId", functionCatalog.getId());
-        }
-        catch (final DatabaseException exception) {
-            _logger.error("Unable to store Function Catalog.", exception);
-            return super.generateErrorJson("Unable to store Function Catalog: " + exception.getMessage());
-        }
-
-        super.setJsonSuccessFields(response);
-        return response;
-    }
-
-    private Json updateFunctionCatalog(HttpServletRequest request, Environment environment) {
-
-        return super.generateErrorJson("Unimplemented.");
-    }
-
-    private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, Environment environment) {
-        Long versionId = Util.parseLong(request.getParameter("versionId"));
-        Long functionCatalogId = Util.parseLong(request.getParameter("functionCatalogId"));
-
-        // TODO: implement
-
-        return super.generateErrorJson("Unimplemented.");
+        return functionCatalog;
     }
 }
