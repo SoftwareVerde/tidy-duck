@@ -51,7 +51,9 @@ public class FunctionCatalogServlet extends JsonServlet {
             final Json catalogsJson = new Json();
             for (final FunctionCatalog functionCatalog : functionCatalogs) {
                 final Json catalogJson = new Json();
-                catalogJson.put("release", functionCatalog.getRelease());
+                catalogJson.put("id", functionCatalog.getId());
+                catalogJson.put("name", functionCatalog.getName());
+                catalogJson.put("releaseVersion", functionCatalog.getRelease());
                 catalogJson.put("releaseDate", DateUtil.timestampToDatetimeString(functionCatalog.getReleaseDate().getTime()));
                 catalogJson.put("authorId", functionCatalog.getAuthor().getId());
                 catalogJson.put("companyId", functionCatalog.getCompany().getId());
@@ -76,7 +78,7 @@ public class FunctionCatalogServlet extends JsonServlet {
 
         final Json functionCatalogJson = request.get("functionCatalog");
         final String name = functionCatalogJson.getString("name");
-        final String release = functionCatalogJson.getString("release");
+        final String release = functionCatalogJson.getString("releaseVersion");
         final String releaseDateString = functionCatalogJson.getString("releaseDate");
         final Integer authorId = functionCatalogJson.getInteger("authorId");
         final Integer companyId = functionCatalogJson.getInteger("companyId");

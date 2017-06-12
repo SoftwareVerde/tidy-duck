@@ -11,22 +11,29 @@ class App extends React.Component {
         this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
+
+        
+        const thisApp = this;
+        const versionId = 1;
+        getFunctionCatalogsForVersionId(versionId, function(functionCatalogsJson) {
+            const functionCatalogs = [];
+            for (let i in functionCatalogsJson) {
+                const functionCatalogJson = functionCatalogsJson[i];
+                const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
+                functionCatalogs.push(functionCatalog);
+            }
+
+            thisApp.setState({
+                functionCatalogs: functionCatalogs
+            });
+        });
     }
 
     onFunctionCatalogSubmit(functionCatalog) {
         const thisApp = this;
 
-        const author = (functionCatalog.getAuthor() || new Author());
-        const company = (functionCatalog.getCompany() || new Company());
-
         const versionId = 1; // TODO
-        const functionCatalogJson = {
-            name:           functionCatalog.getName(),
-            release:        functionCatalog.getReleaseVersion(),
-            releaseDate:    functionCatalog.getReleaseDate(),
-            authorId:       author.getId(),
-            companyId:      company.getId()
-        };
+        const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
         insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
             functionCatalog.setId(functionCatalogId);

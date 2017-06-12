@@ -1,4 +1,36 @@
 class FunctionCatalog {
+    static fromJson(json) {
+        const functionCatalog = new FunctionCatalog();
+
+        const author = new Author();
+        author.setId(json.authorId);
+
+        const company = new Company();
+        company.setId(json.companyId);
+
+        functionCatalog.setId(json.id);
+        functionCatalog.setName(json.name);
+        functionCatalog.setReleaseVersion(json.releaseVersion);
+        functionCatalog.setReleaseDate(json.releaseDate);
+        functionCatalog.setAuthor(author);
+        functionCatalog.setCompany(company);
+
+        return functionCatalog;
+    }
+
+    static toJson(functionCatalog) {
+        const author = (functionCatalog.getAuthor() || new Author());
+        const company = (functionCatalog.getCompany() || new Company());
+
+        return {
+            name:           functionCatalog.getName(),
+            releaseVersion: functionCatalog.getReleaseVersion(),
+            releaseDate:    functionCatalog.getReleaseDate(),
+            authorId:       author.getId(),
+            companyId:      company.getId()
+        };
+    }
+
     constructor() {
         this._id                = null;
         this._name              = null;
