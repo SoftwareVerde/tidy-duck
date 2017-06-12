@@ -12,14 +12,14 @@ DROP TABLE IF EXISTS companies;
 CREATE TABLE companies (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     name varchar(255) NOT NULL
-) ENGINE=INNODB CHARACTER SET UTF8;
+) ENGINE=INNODB;
 
 CREATE TABLE accounts (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     name varchar(255) NOT NULL,
     company_id int unsigned NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id)
-) ENGINE=INNODB CHARACTER SET UTF8;
+) ENGINE=INNODB;
 
 CREATE TABLE function_catalogs (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
@@ -30,7 +30,7 @@ CREATE TABLE function_catalogs (
     company_id int unsigned NOT NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id)
-) ENGINE=INNODB CHARACTER SET UTF8;
+) ENGINE=INNODB;
 
 CREATE TABLE versions (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
@@ -38,7 +38,7 @@ CREATE TABLE versions (
     is_committed boolean NOT NULL DEFAULT FALSE,
     owner_id int unsigned NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES accounts (id)
-) ENGINE=INNODB CHARACTER SET UTF8;
+) ENGINE=INNODB;
 
 CREATE TABLE versions_function_catalogs (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
@@ -47,5 +47,5 @@ CREATE TABLE versions_function_catalogs (
     is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (version_id) REFERENCES versions (id),
     FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id)
-) ENGINE=INNODB CHARACTER SET UTF8;
+) ENGINE=INNODB;
 

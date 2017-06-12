@@ -21,7 +21,7 @@ class FunctionCatalogDatabaseManager {
     public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
-        final String releaseDate = DateUtil.timestampToDatetimeString(functionCatalog.getReleaseDate().getTime());
+        final String releaseDate = DateUtil.timestampToDateString(functionCatalog.getReleaseDate().getTime());
         final Long accountId = functionCatalog.getAccount().getId();
         final Long companyId = functionCatalog.getCompany().getId();
 
