@@ -26,4 +26,5 @@ dependencies {
     compile project(":..:most-adapter")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'com.github.softwareverde', name: 'java-db-h2-mysql', version: 'v2+'
 }
