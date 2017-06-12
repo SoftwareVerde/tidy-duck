@@ -4,5 +4,5 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 
 public interface DatabaseConnectionProvider<T> {
-    public DatabaseConnection<T> getNewConnection() throws DatabaseException;
+    public DatabaseConnection<T> getNewDatabaseConnection() throws DatabaseException;
 }

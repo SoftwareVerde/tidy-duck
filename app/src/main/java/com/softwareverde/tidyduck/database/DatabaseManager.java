@@ -21,8 +21,7 @@ public class DatabaseManager {
     }
 
     protected void executeTransaction(DatabaseConnectedRunnable<Connection> databaseConnectedRunnable) throws DatabaseException {
-        final EnvironmentDatabaseConnectionProvider environmentDatabaseConnectionProvider = new EnvironmentDatabaseConnectionProvider(_environment);
-        final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(environmentDatabaseConnectionProvider);
+        final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_environment);
         jdbcDatabaseTransaction.execute(databaseConnectedRunnable);
     }
 

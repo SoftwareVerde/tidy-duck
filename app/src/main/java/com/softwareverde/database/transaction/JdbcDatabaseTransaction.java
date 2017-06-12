@@ -23,7 +23,7 @@ public class JdbcDatabaseTransaction implements DatabaseTransaction<Connection> 
         DatabaseConnection<Connection> databaseConnection = null;
         Connection connection = null;
         try {
-            databaseConnection = _databaseConnectionProvider.getNewConnection();
+            databaseConnection = _databaseConnectionProvider.getNewDatabaseConnection();
             connection = databaseConnection.getRawConnection();
             connection.setAutoCommit(false);
 

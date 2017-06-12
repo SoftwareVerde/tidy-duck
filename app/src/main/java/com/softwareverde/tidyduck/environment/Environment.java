@@ -4,13 +4,14 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.mysql.MysqlDatabase;
+import com.softwareverde.database.transaction.DatabaseConnectionProvider;
 import com.softwareverde.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
-public class Environment {
+public class Environment implements DatabaseConnectionProvider<Connection> {
 
     private static final Logger _logger = LoggerFactory.getLogger(Environment.class);
 
@@ -40,6 +41,7 @@ public class Environment {
 
     protected Environment() { }
 
+    @Override
     public DatabaseConnection<Connection> getNewDatabaseConnection() throws DatabaseException {
         if (_database == null) {
             _initDatabase();
