@@ -56,17 +56,36 @@ class FunctionCatalogDatabaseManager {
 
         MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
         FunctionCatalog databaseFunctionCatalog = mostCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
-        if (databaseFunctionCatalog.isCommitted()) {
-            // can update existing function catalog
-            // TODO: implement
+        if (!databaseFunctionCatalog.isCommitted()) {
+            // not committed, can update existing function catalog
+            _updateUncommittedFunctionCatalog(proposedFunctionCatalog);
         } else {
-            // not committed, need to insert a new function catalog replace this one
+            // current catalog is committed to a version
+            // need to insert a new function catalog replace this one
             _insertFunctionCatalog(proposedFunctionCatalog);
             final long newFunctionCatalogId = proposedFunctionCatalog.getId();
             // change association with version
             _disassociateFunctionCatalogWithVersion(versionId, inputFunctionCatalogId);
             _associateFunctionCatalogWithVersion(versionId, newFunctionCatalogId);
         }
+    }
+
+    private void _updateUncommittedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
+        final String newName = proposedFunctionCatalog.getName();
+        final String newReleaseVersion = proposedFunctionCatalog.getRelease();
+        final String newReleaseDate = DateUtil.dateToDateString(proposedFunctionCatalog.getReleaseDate());
+        final long newAccountId = proposedFunctionCatalog.getAccount().getId();
+        final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
+
+        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, release_date = ?, account_id = ?, company_id = ?")
+            .setParameter(newName)
+            .setParameter(newReleaseVersion)
+            .setParameter(newReleaseDate)
+            .setParameter(newAccountId)
+            .setParameter(newCompanyId)
+        ;
+
+        _databaseConnection.executeSql(query);
     }
 
     public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
