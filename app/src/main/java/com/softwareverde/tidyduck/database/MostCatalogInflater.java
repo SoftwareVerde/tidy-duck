@@ -8,6 +8,7 @@ import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.util.Util;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public class MostCatalogInflater {
 
-    private final DatabaseConnection<Connection> _databaseConnection;
+    protected final DatabaseConnection<Connection> _databaseConnection;
 
     public MostCatalogInflater(DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
@@ -41,7 +42,7 @@ public class MostCatalogInflater {
 
     public FunctionCatalog inflateFunctionCatalog(long functionCatalogId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT name, release_version, release_date, account_id, company_id"
+                "SELECT *"
                 + " FROM function_catalogs"
                 + " WHERE id = ?"
         );
@@ -59,6 +60,7 @@ public class MostCatalogInflater {
         final Company company = inflateCompany(row.getLong("company_id"));
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();
+        functionCatalog.setId(Util.parseLong(row.getString("id")));
         functionCatalog.setName(row.getString("name"));
         functionCatalog.setRelease(row.getString("release_version"));
         functionCatalog.setReleaseDate(DateUtil.dateFromDateString(row.getString("release_date")));
@@ -90,17 +92,17 @@ public class MostCatalogInflater {
         return company;
     }
 
-    private Account inflateAccount(Long authorId) throws DatabaseException {
+    private Account inflateAccount(Long accountId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name, company_id"
                 + " FROM accounts"
                 + " WHERE id = ?"
         );
-        query.setParameter(authorId);
+        query.setParameter(accountId);
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            throw new DatabaseException("Company ID " + authorId + " not found.");
+            throw new DatabaseException("Account ID " + accountId + " not found.");
         }
         // get first (should be only) row
         final Row row = rows.get(0);

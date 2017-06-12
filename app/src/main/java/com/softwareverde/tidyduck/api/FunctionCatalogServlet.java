@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class FunctionCatalogServlet extends JsonServlet {
         try {
             final Json response = new Json(false);
 
-            final DatabaseConnection databaseConnection = environment.getNewDatabaseConnection();
+            final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
             final MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(databaseConnection);
             final List<FunctionCatalog> functionCatalogs = mostCatalogInflater.inflateFunctionCatalogsFromVersionId(versionId);
 
