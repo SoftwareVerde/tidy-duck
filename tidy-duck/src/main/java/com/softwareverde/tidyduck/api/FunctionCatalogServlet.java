@@ -10,9 +10,8 @@ import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
-import com.softwareverde.tidyduck.util.TidyDuckUtil;
+import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.JsonServlet;
-import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,12 +104,12 @@ public class FunctionCatalogServlet extends JsonServlet {
                 return super.generateErrorJson("Invalid Version ID: " + versionId);
             }
 
-            if (TidyDuckUtil.isBlank(name)) {
+            if (Util.isBlank(name)) {
                 _logger.error("Unable to parse Name: " + name);
                 return super.generateErrorJson("Invalid Name: " + name);
             }
 
-            if (TidyDuckUtil.isBlank(release)) {
+            if (Util.isBlank(release)) {
                 _logger.error("Unable to parse Release: " + release);
                 return super.generateErrorJson("Invalid Release: " + release);
             }
@@ -146,7 +145,7 @@ public class FunctionCatalogServlet extends JsonServlet {
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(environment);
-            databaseManager.insertFunctionCatalog(functionCatalog, versionId);
+            databaseManager.insertFunctionCatalog(versionId, functionCatalog);
             response.put("functionCatalogId", functionCatalog.getId());
         }
         catch (final DatabaseException exception) {
@@ -159,10 +158,16 @@ public class FunctionCatalogServlet extends JsonServlet {
     }
 
     private Json updateFunctionCatalog(HttpServletRequest request, Environment environment) {
+
         return super.generateErrorJson("Unimplemented.");
     }
 
     private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, Environment environment) {
+        Long versionId = Util.parseLong(request.getParameter("versionId"));
+        Long functionCatalogId = Util.parseLong(request.getParameter("functionCatalogId"));
+
+        // TODO: implement
+
         return super.generateErrorJson("Unimplemented.");
     }
 }

@@ -9,14 +9,15 @@ import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MostCatalogInflater {
 
-    private final DatabaseConnection _databaseConnection;
+    private final DatabaseConnection<Connection> _databaseConnection;
 
-    public MostCatalogInflater(DatabaseConnection connection) {
+    public MostCatalogInflater(DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
     }
 

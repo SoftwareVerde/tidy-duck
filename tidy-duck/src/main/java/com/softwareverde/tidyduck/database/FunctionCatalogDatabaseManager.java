@@ -14,11 +14,16 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection = databaseConnection;
     }    
 
+    public void insertFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+        _insertFunctionCatalog(functionCatalog);
+        _associateFunctionCatalogWithVersion(versionId, functionCatalog.getId());
+    }
+
     /**
      * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
      * Upon successful insert, the functionCatalog's Id is set to the database's insertId.
      */
-    public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
+    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
         final String releaseDate = DateUtil.timestampToDatetimeString(functionCatalog.getReleaseDate().getTime());
@@ -37,12 +42,43 @@ class FunctionCatalogDatabaseManager {
         functionCatalog.setId(functionCatalogId);
     }
 
-    public long associateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
+    private long _associateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
         final Query query = new Query("INSERT INTO versions_function_catalogs (version_id, function_catalog_id) VALUES (?, ?)")
             .setParameter(versionId)
             .setParameter(functionCatalogId)
         ;
 
         return _databaseConnection.executeSql(query);
+    }
+
+    public void updateFunctionCatalogForVersion(final long versionId, final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
+        final long inputFunctionCatalogId = proposedFunctionCatalog.getId();
+
+        MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
+        FunctionCatalog databaseFunctionCatalog = mostCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
+        if (databaseFunctionCatalog.isCommitted()) {
+            // can update existing function catalog
+            // TODO: implement
+        } else {
+            // not committed, need to insert a new function catalog replace this one
+            _insertFunctionCatalog(proposedFunctionCatalog);
+            final long newFunctionCatalogId = proposedFunctionCatalog.getId();
+            // change association with version
+            _disassociateFunctionCatalogWithVersion(versionId, inputFunctionCatalogId);
+            _associateFunctionCatalogWithVersion(versionId, newFunctionCatalogId);
+        }
+    }
+
+    public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
+        _disassociateFunctionCatalogWithVersion(versionId, functionCatalogId);
+    }
+
+    private void _disassociateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM versions_function_catalogs WHERE version_id = ? and function_catalog_id = ?")
+            .setParameter(versionId)
+            .setParameter(functionCatalogId)
+        ;
+
+        _databaseConnection.executeSql(query);
     }
 }
