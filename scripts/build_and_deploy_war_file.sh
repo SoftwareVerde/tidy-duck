@@ -9,7 +9,7 @@ TARGET_WAR_FILE_NAME="tidy-duck.war"
 
 # build war file
 cd $WAR_MODULE_DIR
-gradle war
+./gradle war
 cd -
 if [[ $? == 0 ]]; then
     if [[ ! -f $WAR_MODULE_PATH ]]; then
