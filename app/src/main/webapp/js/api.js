@@ -57,6 +57,36 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
     });
 }
 
+//calls callbackFunction with modified function catalog ID
+function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/' + functionCatalogId,
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                'versionId': versionId,
+                'functionCatalog': functionCatalog
+            })
+        }
+    );
+
+    //Function in jsonFetch call should be modified, using current for debugging parent function calls.
+    // TODO: currently receiving 404 error, but it is posting the correct path with the correct function catalog ID.
+    jsonFetch(request, function(data) {
+        let functionCatalogId = null;
+
+        if (data.wasSuccess) {
+            functionCatalogId = data.functionCatalogId;
+        } else {
+            console.log('Unable to modify function catalog for version ' + versionId + ': ' + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogId);
+        }
+    });
+}
+
 function exportFunctionCatalogToMost(functionCatalogId) {
     window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
 }

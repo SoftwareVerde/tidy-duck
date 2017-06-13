@@ -20,7 +20,8 @@ class FunctionCatalogForm extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(newProperties.functionCatalog || this.state.functionCatalog));
-            this.setState({
+        functionCatalog.setId((newProperties.functionCatalog || this.state.functionCatalog).getId());
+        this.setState({
                 functionCatalog: functionCatalog,
                 formButton : newProperties.isFunctionCatalogSelected ? "Save" : "Submit"
             });
@@ -91,6 +92,9 @@ class FunctionCatalogForm extends React.Component {
 
     onSave() {
         const modifiedFunctionCatalog = this.state.functionCatalog;
+        if(modifiedFunctionCatalog.getId() == undefined) {
+            alert("We have a problem...");
+        }
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(modifiedFunctionCatalog);
         }

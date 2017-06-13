@@ -11,6 +11,7 @@ class App extends React.Component {
 
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
+        this.onFunctionCatalogSave = this.onFunctionCatalogSave.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
 
@@ -48,8 +49,22 @@ class App extends React.Component {
     }
 
     onFunctionCatalogSave(functionCatalog) {
-        // TODO: Call FunctionCatalog api update function.
+        const thisApp = this;
 
+        const versionId = 1; // TODO
+        const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
+
+        modifyFunctionCatalog(versionId,functionCatalogJson, functionCatalog.getId(), function(functionCatalogId) {
+            functionCatalog.setId(functionCatalogId);
+            const index = thisApp.state.functionCatalogs.indexOf(functionCatalog);
+            const functionCatalogs = thisApp.state.functionCatalogs.splice(index, 1);
+            functionCatalogs.concat(functionCatalog);
+
+            thisApp.setState({
+                functionCatalogs: functionCatalogs,
+                currentFunctionCatalog : functionCatalog
+            });
+        });
     }
 
     onRootNavigationItemClicked() {
