@@ -29,6 +29,4 @@ class FunctionCatalog extends React.Component {
     }
 }
 
-(function (app) {
-    app.FunctionCatalog = FunctionCatalog;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("FunctionCatalog", FunctionCatalog);

@@ -1,3 +1,4 @@
-(function(app) {
+(function() {
+    const app = window.app;
     ReactDOM.render(<app.App />, document.getElementById("main"));
-})(window.app || (window.app = { }))
+})()

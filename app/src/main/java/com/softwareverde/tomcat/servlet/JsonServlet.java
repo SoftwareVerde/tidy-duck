@@ -2,7 +2,7 @@ package com.softwareverde.tomcat.servlet;
 
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.util.TidyDuckUtil;
+import com.softwareverde.tidyduck.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public abstract class JsonServlet extends BaseServlet {
     }
 
     protected static Json getRequestDataAsJson(HttpServletRequest request) throws IOException {
-        String messageBody = TidyDuckUtil.getInputStreamAsString(request.getInputStream());
+        String messageBody = Util.getInputStreamAsString(request.getInputStream());
         return Json.parse(messageBody);
     }
 

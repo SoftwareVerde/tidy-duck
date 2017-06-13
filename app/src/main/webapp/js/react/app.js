@@ -107,6 +107,4 @@ class App extends React.Component {
     }
 }
 
-(function (app) {
-    app.App = App;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("App", App);

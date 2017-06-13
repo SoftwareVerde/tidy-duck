@@ -51,6 +51,4 @@ class NavigationItem extends React.Component {
     }
 }
 
-(function (app) {
-    app.NavigationItem = NavigationItem;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("NavigationItem", NavigationItem);

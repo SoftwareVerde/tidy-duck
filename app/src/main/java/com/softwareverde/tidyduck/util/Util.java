@@ -1,10 +1,8 @@
 package com.softwareverde.tidyduck.util;
 
-import com.softwareverde.util.Util;
-
 import java.io.InputStream;
 
-public class TidyDuckUtil extends Util {
+public class Util extends com.softwareverde.util.Util {
 
     public static boolean isBlank(String string) {
         return string == null && string.trim().length() == 0;
