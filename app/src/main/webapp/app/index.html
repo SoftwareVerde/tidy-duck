@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tidy Duck</title>
+        <link rel="stylesheet" href="/css/palette.css"/>
+        <link rel="stylesheet" href="/css/font.css"/>
+        <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+        <link href="https://fonts.googleapis.com/css?family=Lato:400,700|Righteous" rel="stylesheet">
+
+        <!-- Import React modules, currently using DEV versions -->
+        <script src="https://unpkg.com/react@15/dist/react.js"></script>
+        <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+        <!-- Tidy Duck JS API -->
+        <script src="/js/api/api.js"></script>
+
+        <!-- Allow for registering classes in global scope -->
+        <script src="/js/classes/register-class.js"></script>
+
+        <!-- Custom Data Classes -->
+        <script src="/js/classes/account.js"></script>
+        <script src="/js/classes/company.js"></script>
+        <script src="/js/classes/function-catalog.js"></script>
+
+        <!-- Custom React Classes -->
+        <script src="/js/react/input-field.js" type="text/babel"></script>
+        <script src="/js/react/function-catalog-form.js" type="text/babel"></script>
+        <script src="/js/react/navigation-root-item.js" type="text/babel"></script>
+        <script src="/js/react/navigation-item.js" type="text/babel"></script>
+        <script src="/js/react/function-catalog.js" type="text/babel"></script>
+        <script src="/js/react/navigation.js" type="text/babel"></script>
+        <script src="/js/react/app.js" type="text/babel"></script>
+        <link rel="stylesheet" href="/css/react/input-container.css"/>
+
+        <!--  Page-Specific Includes -->
+        <link rel="stylesheet" href="/css/app.css"/>
+    </head>
+    <body class="primary-bg">
+        <div class="header secondary-bg accent title-font">Tidy Duck</div>
+        <div id="main"></div>
+
+        <script src="/js/app.js" type="text/babel"></script>
+    </body>
+</html>

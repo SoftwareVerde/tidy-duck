@@ -14,7 +14,7 @@ class FunctionCatalog extends React.Component {
     }
 
     render() {
-        const author = this.props.functionCatalog.getAuthor();
+        const account = this.props.functionCatalog.getAccount();
         const company = this.props.functionCatalog.getCompany();
 
         return (
@@ -22,7 +22,7 @@ class FunctionCatalog extends React.Component {
                 <div className="child-function-catalog-property">{this.props.functionCatalog.getName()}</div>
                 <div className="child-function-catalog-property">{this.props.functionCatalog.getReleaseVersion()}</div>
                 <div className="child-function-catalog-property">{this.props.functionCatalog.getReleaseDate()}</div>
-                <div className="child-function-catalog-property">{(author ? author.getId() : "")}</div>
+                <div className="child-function-catalog-property">{(account ? account.getId() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getId() : "")}</div>
             </div>
         );

@@ -1,4 +1,5 @@
-const ENDPOINT_PREFIX = '/tidy-duck/';
+const ENDPOINT_PREFIX = '/';
+const API_PREFIX = ENDPOINT_PREFIX + 'api/v1/';
 
 function jsonFetch(request, callbackFunction) {
     fetch(request).then(function(response) {
@@ -12,7 +13,7 @@ function jsonFetch(request, callbackFunction) {
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
-    const endpoint = ENDPOINT_PREFIX + 'api/v1/function-catalog?version_id=' + versionId;
+    const endpoint = API_PREFIX + 'function-catalog?version_id=' + versionId;
 
     jsonFetch(endpoint, function(data) {
         let functionCatalogs = null;
@@ -32,7 +33,7 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-catalog',
+        API_PREFIX + 'function-catalog',
         {
             method: 'POST',
             body: JSON.stringify({

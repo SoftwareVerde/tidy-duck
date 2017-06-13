@@ -2,8 +2,8 @@ class FunctionCatalog {
     static fromJson(json) {
         const functionCatalog = new FunctionCatalog();
 
-        const author = new Author();
-        author.setId(json.authorId);
+        const account = new Account();
+        account.setId(json.accountId);
 
         const company = new Company();
         company.setId(json.companyId);
@@ -12,21 +12,21 @@ class FunctionCatalog {
         functionCatalog.setName(json.name);
         functionCatalog.setReleaseVersion(json.releaseVersion);
         functionCatalog.setReleaseDate(json.releaseDate);
-        functionCatalog.setAuthor(author);
+        functionCatalog.setAccount(account);
         functionCatalog.setCompany(company);
 
         return functionCatalog;
     }
 
     static toJson(functionCatalog) {
-        const author = (functionCatalog.getAuthor() || new Author());
+        const account = (functionCatalog.getAccount() || new Account());
         const company = (functionCatalog.getCompany() || new Company());
 
         return {
             name:           functionCatalog.getName(),
             releaseVersion: functionCatalog.getReleaseVersion(),
             releaseDate:    functionCatalog.getReleaseDate(),
-            authorId:       author.getId(),
+            accountId:       account.getId(),
             companyId:      company.getId()
         };
     }
@@ -36,7 +36,7 @@ class FunctionCatalog {
         this._name              = null;
         this._releaseVersion    = null;
         this._releaseDate       = null;
-        this._author            = null;
+        this._account           = null;
         this._company           = null;
 
         this._functionBlocks    = [];
@@ -74,12 +74,12 @@ class FunctionCatalog {
         return this._releaseDate;
     }
 
-    setAuthor(author) {
-        this._author = author;
+    setAccount(account) {
+        this._account = account;
     }
 
-    getAuthor() {
-        return this._author;
+    getAccount() {
+        return this._account;
     }
 
     setCompany(company) {

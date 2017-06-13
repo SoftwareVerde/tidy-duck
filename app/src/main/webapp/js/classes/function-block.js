@@ -1,7 +1,7 @@
 class FunctionBlock {
     constructor() {
-        this._id                = null;
-        this._name              = null;
+        this._id    = null;
+        this._name  = null;
     };
 
     setId(id) {
