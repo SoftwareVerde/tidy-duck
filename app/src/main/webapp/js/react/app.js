@@ -49,6 +49,7 @@ class App extends React.Component {
 
     onFunctionCatalogSave(functionCatalog) {
         // TODO: Call FunctionCatalog api update function.
+
     }
 
     onRootNavigationItemClicked() {
