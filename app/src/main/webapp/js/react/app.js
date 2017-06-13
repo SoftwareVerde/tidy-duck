@@ -4,7 +4,9 @@ class App extends React.Component {
 
         this.state = {
             navigationItems:    [],
-            functionCatalogs:   []
+            functionCatalogs:   [],
+            isFunctionCatalogSelected : false,
+            currentFunctionCatalog : undefined,
         };
 
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
@@ -12,7 +14,6 @@ class App extends React.Component {
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
 
-        
         const thisApp = this;
         const versionId = 1;
         getFunctionCatalogsForVersionId(versionId, function(functionCatalogsJson) {
@@ -46,11 +47,16 @@ class App extends React.Component {
         });
     }
 
+    onFunctionCatalogSave(functionCatalog) {
+        // TODO: Call FunctionCatalog api update function.
+    }
+
     onRootNavigationItemClicked() {
         const navigationItems = [];
 
         this.setState({
-            navigationItems: navigationItems
+            navigationItems: navigationItems,
+            isFunctionCatalogSelected : false
         });
     }
 
@@ -61,12 +67,14 @@ class App extends React.Component {
         const functionBlocks = functionCatalog.getFunctionBlocks();
         for (let i in functionBlocks) {
             const functionBlock = functionBlocks[i];
-            navigationItems.push(functioBlock);
+            navigationItems.push(functionBlock);
         }
         // TODO: Traverse FB children... [, ...]
 
         this.setState({
-            navigationItems: navigationItems
+            navigationItems: navigationItems,
+            currentFunctionCatalog: functionCatalog,
+            isFunctionCatalogSelected : true
         });
     }
 
@@ -84,7 +92,11 @@ class App extends React.Component {
             <div className="container">
                 <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
                 <div className="display-area">
-                    <app.FunctionCatalogForm onSubmit={this.onFunctionCatalogSubmit} />
+                    <app.FunctionCatalogForm
+                        onSubmit={this.state.isFunctionCatalogSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
+                        functionCatalog={this.state.currentFunctionCatalog}
+                        isFunctionCatalogSelected={this.state.isFunctionCatalogSelected}
+                    />
                     <div id="child-display-area" className="clearfix">
                         {this.renderFunctionCatalogs()}
                     </div>
