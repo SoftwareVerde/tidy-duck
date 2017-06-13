@@ -162,6 +162,38 @@ body * {
     background-color: #FFDD66;
 }
 
+.function-catalog-title {
+    border-bottom: solid 1px #C0C0C0;
+    margin-bottom: 4px;
+    text-align: left;
+}
+
+.function-catalog:hover .function-catalog-title {
+    border-bottom: solid 1px #BBAA22;
+}
+
+.function-catalog-title .menu-button {
+    float: right;
+    margin-right: 5px;
+    margin-top: 2px;
+}
+
+
+.function-catalog-menu-item {
+    padding: 2px;
+    background-color: #DDDDDD;
+    text-align: center;
+    cursor: pointer;
+}
+
+.function-catalog:hover .function-catalog-menu-item {
+    background-color: #F9EE99;
+}
+
+.function-catalog-menu-item i {
+    margin-left: 5px;
+}
+
 .navigation-item .menu-button {
     float: right;
     margin-right: 5px;
