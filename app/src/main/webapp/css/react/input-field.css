@@ -1,4 +1,4 @@
-.input-container {
+.input-field {
     position: relative;
     width: 33%;
     display: inline-block;
@@ -7,7 +7,7 @@
     font-size: 0.85rem;
 }
 
-.input-container label {
+.input-field label {
     float: left;
     display: block;
     clear: none;
@@ -16,7 +16,7 @@
     font-weight: 700 !important;
 }
 
-.input-container input {
+.input-field input {
     width: 100%;
     border: solid 1px #CCCCCC;
     font-weight: normal !important;

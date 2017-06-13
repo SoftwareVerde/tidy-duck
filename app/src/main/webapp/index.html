@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>Tidy Duck</title>
+    <link rel="stylesheet" href="/css/core.css"/>
     <link rel="stylesheet" href="/css/palette.css"/>
     <link rel="stylesheet" href="/css/font.css"/>
     <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="/css/react/input-field.css"/>
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700|Righteous" rel="stylesheet">
 
     <!-- jQuery -->
@@ -23,8 +25,22 @@
     <link rel="stylesheet" href="/css/account.css"/>
 </head>
 <body class="primary-bg">
-<div class="header secondary-bg accent title-font">Tidy Duck</div>
-<div id="main"></div>
+<div id="header" class="secondary-bg accent title-font">Tidy Duck</div>
+<div id="main">
+    <div id="login-container">
+        <h1>Login</h1>
+        <div class="input-field">
+            <label for="username">Username</label>
+            <input id="username" name="username" />
+        </div>
+        <div class="input-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" />
+        </div>
+
+        <div class="button">Login</div>
+    </div>
+</div>
 
 <script src="js/account.js"></script>
 </body>

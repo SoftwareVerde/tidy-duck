@@ -86,7 +86,7 @@ class FunctionCatalogForm extends React.Component {
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />
                 <app.InputField id="function-catalog-account" name="account" type="text" label="Author" value={this.state.functionCatalog.getAccount()} readOnly={this.props.readOnly} onChange={this.onAccountChanged} />
                 <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={this.state.functionCatalog.getCompany()} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="submit-button" id="function-catalog-submit" onClick={this.onSubmit}>Submit</div></div>
+                <div className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>Submit</div></div>
             </div>
         );
     }
