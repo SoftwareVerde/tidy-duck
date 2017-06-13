@@ -3,12 +3,13 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
+import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.environment.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class DatabaseManager {
 
@@ -19,29 +20,38 @@ public class DatabaseManager {
         _environment = environment;
     }
 
-    public void insertFunctionCatalog(final FunctionCatalog functionCatalog, final long versionId) throws DatabaseException {
-        DatabaseConnection<Connection> databaseConnection = null;
-        Connection connection = null;
-        try {
-            databaseConnection = _environment.getNewDatabaseConnection();
-            connection = databaseConnection.getRawConnection();
-            connection.setAutoCommit(false);
+    protected void executeTransaction(DatabaseConnectedRunnable<Connection> databaseConnectedRunnable) throws DatabaseException {
+        final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_environment);
+        jdbcDatabaseTransaction.execute(databaseConnectedRunnable);
+    }
 
-            FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-            functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
-            functionCatalogDatabaseManager.associateFunctionCatalogWithVersion(versionId, functionCatalog.getId());
-            connection.commit();
-        } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException e1) {
-                _logger.error("Unable to roll back connection.", e1);
+    public void insertFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
             }
-            throw new DatabaseException("Unable to insert function catalog.", e);
-        } finally {
-            Environment.close(databaseConnection);
-        }
+        });
+    }
+
+    public void updateFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                functionCatalogDatabaseManager.updateFunctionCatalogForVersion(versionId, functionCatalog);
+            }
+        });
+    }
+
+    public void deleteFunctionCatalog(final long versionId, final long functionCatalogId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                functionCatalogDatabaseManager.deleteFunctionCatalogFromVersion(versionId, functionCatalogId);
+            }
+        });
     }
 }
