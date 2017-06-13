@@ -12,6 +12,4 @@ class NavigationRootItem extends React.Component {
     }
 }
 
-(function (app) {
-    app.NavigationRootItem = NavigationRootItem;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("NavigationRootItem", NavigationRootItem);

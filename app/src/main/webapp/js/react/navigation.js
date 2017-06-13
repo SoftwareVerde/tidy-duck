@@ -27,6 +27,4 @@ class Navigation extends React.Component {
     }
 }
 
-(function (app) {
-    app.Navigation = Navigation;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("Navigation", Navigation);

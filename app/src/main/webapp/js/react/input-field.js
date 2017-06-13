@@ -42,6 +42,4 @@ class InputField extends React.Component {
     }
 }
 
-(function (app) {
-    app.InputField = InputField;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("InputField", InputField);

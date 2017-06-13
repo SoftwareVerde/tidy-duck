@@ -92,6 +92,4 @@ class FunctionCatalogForm extends React.Component {
     }
 }
 
-(function (app) {
-    app.FunctionCatalogForm = FunctionCatalogForm;
-})(window.app || (window.app = { }))
+registerClassWithGlobalScope("FunctionCatalogForm", FunctionCatalogForm);
