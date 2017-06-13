@@ -22,7 +22,8 @@ class FunctionCatalog extends React.Component {
         });
     }
 
-    deleteFunctionCatalog() {
+    deleteFunctionCatalog(event) {
+        event.stopPropagation();
         if (typeof this.props.onDelete == "function") {
             this.props.onDelete(this.props.functionCatalog);
         }
