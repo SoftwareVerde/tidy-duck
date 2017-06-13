@@ -11,6 +11,7 @@ import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.util.Util;
+import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class FunctionCatalogServlet extends JsonServlet {
 
     @Override
     protected Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
-        String finalUrlSegment = super.getFinalUrlSegment(request);
+        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-catalog".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
                 return storeFunctionCatalog(request, environment);
@@ -203,7 +204,7 @@ public class FunctionCatalogServlet extends JsonServlet {
             }
 
             if (authorId < 1) {
-                throw new Exception("Invalid Account ID: " + authorId);
+                throw new Exception("Invalid AccountServlet ID: " + authorId);
             }
 
             if (companyId < 1) {

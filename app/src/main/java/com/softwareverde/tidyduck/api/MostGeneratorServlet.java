@@ -1,6 +1,7 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.database.MostCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.mostadapter.MostAdapter;

@@ -17,6 +17,7 @@ CREATE TABLE companies (
 CREATE TABLE accounts (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     name varchar(255) NOT NULL,
+    password varchar(255) NOT NULL,
     company_id int unsigned NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;

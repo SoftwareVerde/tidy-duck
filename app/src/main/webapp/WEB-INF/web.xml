@@ -9,13 +9,22 @@
     </description>
 
     <servlet>
+        <servlet-name>Account</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.AccountServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MostGenerator</servlet-name>
-        <servlet-class>com.softwareverde.tidyduck.MostGeneratorServlet</servlet-class>
+        <servlet-class>com.softwareverde.tidyduck.api.MostGeneratorServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>FunctionCatalog</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.FunctionCatalogServlet</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Account</servlet-name>
+        <url-pattern>/api/v1/account/authenticate</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostGenerator</servlet-name>

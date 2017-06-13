@@ -25,6 +25,12 @@ public abstract class BaseServlet extends HttpServlet {
         TRACE
     }
 
+    public static String getFinalUrlSegment(final HttpServletRequest request) {
+        final String path = request.getServletPath();
+        final int finalSlash = path.lastIndexOf('/');
+        return path.substring(finalSlash+1);
+    }
+
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
         try {
             Environment environment = Environment.getInstance();
@@ -38,12 +44,6 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected abstract void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method, Environment environment) throws  ServletException, IOException;
-
-    public String getFinalUrlSegment(HttpServletRequest request) {
-        String path = request.getServletPath();
-        int finalSlash = path.lastIndexOf('/');
-        return path.substring(finalSlash+1);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

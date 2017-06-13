@@ -102,7 +102,7 @@ public class MostCatalogInflater {
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            throw new DatabaseException("Account ID " + accountId + " not found.");
+            throw new DatabaseException("AccountServlet ID " + accountId + " not found.");
         }
         // get first (should be only) row
         final Row row = rows.get(0);
