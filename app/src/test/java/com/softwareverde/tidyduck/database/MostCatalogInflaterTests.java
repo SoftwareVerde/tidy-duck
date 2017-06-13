@@ -33,13 +33,14 @@ public class MostCatalogInflaterTests {
         final Company company = new Company();
         company.setId(1L);
 
+        final Long versionId = 1L;
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName("Name");
         functionCatalog.setRelease("v0.0.0");
         functionCatalog.setReleaseDate(DateUtil.dateFromDateString("2000-01-01"));
         functionCatalog.setAccount(account);
         functionCatalog.setCompany(company);
-        functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
+        functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
 
         // Action
         final FunctionCatalog inflatedFunctionCatalog = mostCatalogInflater.inflateFunctionCatalog(1L);
