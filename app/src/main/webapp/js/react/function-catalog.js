@@ -14,7 +14,8 @@ class FunctionCatalog extends React.Component {
         window.app.navigation = this;
     }
 
-    onMenuButtonClick() {
+    onMenuButtonClick(event) {
+        event.stopPropagation();
         const shouldShowMenu = (! this.state.showMenu);
         this.setState({
             showMenu: shouldShowMenu
