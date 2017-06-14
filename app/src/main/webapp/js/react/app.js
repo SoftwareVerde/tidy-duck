@@ -43,7 +43,8 @@ class App extends React.Component {
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
             thisApp.setState({
-                functionCatalogs: functionCatalogs
+                functionCatalogs: functionCatalogs,
+                currentFunctionCatalog : functionCatalog
             });
 
         });
@@ -61,7 +62,7 @@ class App extends React.Component {
                 var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                   return value.getId() != functionCatalogId;
                 });
-                functionCatalogs = functionCatalogs.concat(functionCatalog);
+                functionCatalogs = functionCatalogs.push(functionCatalog);
 
                 thisApp.setState({
                     functionCatalogs: functionCatalogs,
@@ -110,6 +111,7 @@ class App extends React.Component {
         this.setState({
             navigationItems: navigationItems,
             currentFunctionCatalog: functionCatalog,
+            functionCatalogs:   [],
             isFunctionCatalogSelected : true
         });
     }
@@ -131,7 +133,8 @@ class App extends React.Component {
                     }
                 }
                 thisApp.setState({
-                    functionCatalogs: newFunctionCatalogs
+                    functionCatalogs: newFunctionCatalogs,
+                    currentFunctionCatalog: undefined
                 });
             }
         });
