@@ -23,6 +23,7 @@ class FunctionCatalog {
         const company = (functionCatalog.getCompany() || new Company());
 
         return {
+            id:             functionCatalog.getId(),
             name:           functionCatalog.getName(),
             releaseVersion: functionCatalog.getReleaseVersion(),
             releaseDate:    functionCatalog.getReleaseDate(),

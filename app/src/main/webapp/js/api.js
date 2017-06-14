@@ -60,7 +60,7 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
 //calls callbackFunction with modified function catalog ID
 function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/' + functionCatalogId,
+        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId,
         {
             method: 'POST',
             body: JSON.stringify({
@@ -71,7 +71,6 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
     );
 
     //Function in jsonFetch call should be modified, using current for debugging parent function calls.
-    // TODO: currently receiving 404 error, but it is posting the correct path with the correct function catalog ID.
     jsonFetch(request, function(data) {
         let functionCatalogId = null;
 
