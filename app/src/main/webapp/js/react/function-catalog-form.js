@@ -101,13 +101,21 @@ class FunctionCatalogForm extends React.Component {
     }
 
     render() {
+        const author = this.state.functionCatalog.getAuthor();
+        const company = this.state.functionCatalog.getCompany();
+
+        var authorId = "";
+        var companyId = "";
+        if(author != undefined) authorId = author.getId();
+        if(company != undefined) companyId = company.getId();
+
         return (
             <div className="metadata-form">
                 <app.InputField id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />
-                <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={this.state.functionCatalog.getAuthor()} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
-                <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={this.state.functionCatalog.getCompany()} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
+                <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
+                <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
                 <div className="center"><div className="submit-button" id="function-catalog-submit" onClick={this.props.isFunctionCatalogSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
             </div>
         );

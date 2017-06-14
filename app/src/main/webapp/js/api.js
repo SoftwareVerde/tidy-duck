@@ -65,23 +65,20 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
             method: 'POST',
             body: JSON.stringify({
                 'versionId': versionId,
-                'functionCatalog': FunctionCatalog.toJson(functionCatalog)
+                'functionCatalog': functionCatalog
             })
         }
     );
 
     //Function in jsonFetch call should be modified, using current for debugging parent function calls.
     jsonFetch(request, function(data) {
-        let functionCatalogId = null;
-
-        if (data.wasSuccess) {
-            functionCatalogId = data.functionCatalogId;
-        } else {
-            console.log('Unable to modify function catalog for version ' + versionId + ': ' + data.errorMessage);
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to modify function catalog " + functionCatalogId + " from version " + versionId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(functionCatalogId);
+            callbackFunction(wasSuccess);
         }
     });
 }

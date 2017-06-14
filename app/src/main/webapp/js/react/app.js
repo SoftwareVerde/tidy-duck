@@ -55,16 +55,17 @@ class App extends React.Component {
         const versionId = 1; // TODO
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
-        modifyFunctionCatalog(versionId,functionCatalogJson, functionCatalog.getId(), function(functionCatalogId) {
-            functionCatalog.setId(functionCatalogId);
-            const index = thisApp.state.functionCatalogs.indexOf(functionCatalog);
-            const functionCatalogs = thisApp.state.functionCatalogs.splice(index, 1);
-            functionCatalogs.concat(functionCatalog);
+        modifyFunctionCatalog(versionId,functionCatalogJson, functionCatalog.getId(), function(wasSuccess) {
+            if (wasSuccess) {
+                const index = thisApp.state.functionCatalogs.indexOf(functionCatalog);
+                var functionCatalogs = thisApp.state.functionCatalogs.splice(index, index+1);
+                functionCatalogs = functionCatalogs.concat(functionCatalog);
 
-            thisApp.setState({
-                functionCatalogs: functionCatalogs,
-                currentFunctionCatalog : functionCatalog
-            });
+                thisApp.setState({
+                    functionCatalogs: functionCatalogs,
+                    currentFunctionCatalog : functionCatalog
+                });
+            }
         });
     }
 

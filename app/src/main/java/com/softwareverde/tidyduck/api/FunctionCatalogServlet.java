@@ -131,6 +131,7 @@ public class FunctionCatalogServlet extends JsonServlet {
 
         try {
             FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+            functionCatalog.setId(functionCatalogId);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.updateFunctionCatalog(versionId, functionCatalog);
