@@ -54,11 +54,13 @@ class App extends React.Component {
 
         const versionId = 1; // TODO
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
+        const functionCatalogId = functionCatalog.getId();
 
-        modifyFunctionCatalog(versionId,functionCatalogJson, functionCatalog.getId(), function(wasSuccess) {
+        modifyFunctionCatalog(versionId,functionCatalogJson, functionCatalogId, function(wasSuccess) {
             if (wasSuccess) {
-                const index = thisApp.state.functionCatalogs.indexOf(functionCatalog);
-                var functionCatalogs = thisApp.state.functionCatalogs.splice(index, index+1);
+                var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
+                  return value.getId() != functionCatalogId;
+                });
                 functionCatalogs = functionCatalogs.concat(functionCatalog);
 
                 thisApp.setState({
@@ -74,7 +76,23 @@ class App extends React.Component {
 
         this.setState({
             navigationItems: navigationItems,
-            isFunctionCatalogSelected : false
+            isFunctionCatalogSelected : false,
+            currentFunctionCatalog: undefined
+        });
+
+        const thisApp = this;
+        const versionId = 1;
+        getFunctionCatalogsForVersionId(versionId, function(functionCatalogsJson) {
+            const functionCatalogs = [];
+            for (let i in functionCatalogsJson) {
+                const functionCatalogJson = functionCatalogsJson[i];
+                const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
+                functionCatalogs.push(functionCatalog);
+            }
+
+            thisApp.setState({
+                functionCatalogs: functionCatalogs
+            });
         });
     }
 

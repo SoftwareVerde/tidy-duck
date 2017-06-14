@@ -70,7 +70,6 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
         }
     );
 
-    //Function in jsonFetch call should be modified, using current for debugging parent function calls.
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (!wasSuccess) {
