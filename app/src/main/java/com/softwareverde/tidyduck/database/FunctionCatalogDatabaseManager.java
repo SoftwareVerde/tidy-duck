@@ -90,6 +90,7 @@ class FunctionCatalogDatabaseManager {
 
     public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
         _disassociateFunctionCatalogWithVersion(versionId, functionCatalogId);
+        _deleteFunctionCatalogIfUncommitted(functionCatalogId);
     }
 
     private void _disassociateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
@@ -99,5 +100,21 @@ class FunctionCatalogDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteFunctionCatalogIfUncommitted(long functionCatalogId) throws DatabaseException {
+        MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
+        FunctionCatalog functionCatalog = mostCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+        if (!functionCatalog.isCommitted()) {
+            // function catalog isn't committed, we can delete it
+            final Query query = new Query("DELETE FROM function_catalogs WHERE id = ?")
+                .setParameter(functionCatalogId)
+            ;
+
+            _databaseConnection.executeSql(query);
+
+            // TODO: delete any uncommitted function blocks
+        }
     }
 }

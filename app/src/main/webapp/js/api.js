@@ -65,7 +65,7 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
             method: 'POST',
             body: JSON.stringify({
                 'versionId': versionId,
-                'functionCatalog': functionCatalog
+                'functionCatalog': FunctionCatalog.toJson(functionCatalog)
             })
         }
     );
@@ -82,6 +82,27 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
 
         if (typeof callbackFunction == "function") {
             callbackFunction(functionCatalogId);
+        }
+    });
+}
+
+
+function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId + "?versionId=" + versionId,
+        {
+            method: 'DELETE'
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to delete function catalog " + functionCatalogId + " from version " + versionId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

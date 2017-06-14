@@ -9,6 +9,7 @@ class App extends React.Component {
             currentFunctionCatalog : undefined,
         };
 
+        this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
         this.onFunctionCatalogSave = this.onFunctionCatalogSave.bind(this);
@@ -94,11 +95,34 @@ class App extends React.Component {
         });
     }
 
+    deleteFunctionCatalog(functionCatalog) {
+        const thisApp = this;
+
+        const versionId = 1; // TODO
+        const functionCatalogId = functionCatalog.getId();
+
+        deleteFunctionCatalog(versionId, functionCatalogId, function (success) {
+            if (success) {
+                const newFunctionCatalogs = [];
+                const existingFunctionCatalogs = thisApp.state.functionCatalogs;
+                for (let i in existingFunctionCatalogs) {
+                    const existingFunctionCatalog = existingFunctionCatalogs[i];
+                    if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
+                        newFunctionCatalogs.push(existingFunctionCatalog);
+                    }
+                }
+                thisApp.setState({
+                    functionCatalogs: newFunctionCatalogs
+                });
+            }
+        });
+    }
+
     renderFunctionCatalogs() {
         const reactComponents = [];
         for (let i in this.state.functionCatalogs) {
             const functionCatalog = this.state.functionCatalogs[i];
-            reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={functionCatalog} onClick={this.onFunctionCatalogSelected} />);
+            reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={functionCatalog} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
         }
         return reactComponents;
     }

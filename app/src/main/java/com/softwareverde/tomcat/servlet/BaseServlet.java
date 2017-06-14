@@ -40,9 +40,9 @@ public abstract class BaseServlet extends HttpServlet {
     protected abstract void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method, Environment environment) throws  ServletException, IOException;
 
     public String getFinalUrlSegment(HttpServletRequest request) {
-        String path = request.getServletPath();
-        int finalSlash = path.lastIndexOf('/');
-        return path.substring(finalSlash+1);
+        String path = request.getRequestURI();
+        int finalSlashIndex = path.lastIndexOf('/');
+        return path.substring(finalSlashIndex+1);
     }
 
     @Override
