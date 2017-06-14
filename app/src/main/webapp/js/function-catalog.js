@@ -18,6 +18,7 @@ class FunctionCatalog {
         return functionCatalog;
     }
 
+    //Converts existing function catalog into JSON
     static toJson(functionCatalog) {
         const author = (functionCatalog.getAuthor() || new Author());
         const company = (functionCatalog.getCompany() || new Company());

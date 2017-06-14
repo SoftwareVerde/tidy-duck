@@ -82,7 +82,6 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
     });
 }
 
-
 function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId + "?versionId=" + versionId,

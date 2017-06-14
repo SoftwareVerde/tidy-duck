@@ -6,7 +6,7 @@ class App extends React.Component {
             navigationItems:    [],
             functionCatalogs:   [],
             isFunctionCatalogSelected : false,
-            currentFunctionCatalog : undefined,
+            selectedFunctionCatalog : undefined,
         };
 
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
@@ -44,7 +44,7 @@ class App extends React.Component {
 
             thisApp.setState({
                 functionCatalogs: functionCatalogs,
-                currentFunctionCatalog : functionCatalog
+                selectedFunctionCatalog : functionCatalog
             });
 
         });
@@ -66,7 +66,7 @@ class App extends React.Component {
 
                 thisApp.setState({
                     functionCatalogs: functionCatalogs,
-                    currentFunctionCatalog : functionCatalog
+                    selectedFunctionCatalog : functionCatalog
                 });
             }
         });
@@ -78,7 +78,7 @@ class App extends React.Component {
         this.setState({
             navigationItems: navigationItems,
             isFunctionCatalogSelected : false,
-            currentFunctionCatalog: undefined
+            selectedFunctionCatalog: undefined
         });
 
         const thisApp = this;
@@ -110,7 +110,7 @@ class App extends React.Component {
 
         this.setState({
             navigationItems: navigationItems,
-            currentFunctionCatalog: functionCatalog,
+            selectedFunctionCatalog: functionCatalog,
             functionCatalogs:   [],
             isFunctionCatalogSelected : true
         });
@@ -134,7 +134,7 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionCatalogs: newFunctionCatalogs,
-                    currentFunctionCatalog: undefined
+                    selectedFunctionCatalog: undefined
                 });
             }
         });
@@ -156,7 +156,7 @@ class App extends React.Component {
                 <div className="display-area">
                     <app.FunctionCatalogForm
                         onSubmit={this.state.isFunctionCatalogSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
-                        functionCatalog={this.state.currentFunctionCatalog}
+                        functionCatalog={this.state.selectedFunctionCatalog}
                         isFunctionCatalogSelected={this.state.isFunctionCatalogSelected}
                     />
                     <div id="child-display-area" className="clearfix">
