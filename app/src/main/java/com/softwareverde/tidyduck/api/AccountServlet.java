@@ -33,39 +33,36 @@ public class AccountServlet extends JsonServlet {
         final Boolean doAuthenticate = ("authenticate".equals(finalUrlSegment));
         final Boolean doLogout = ("logout".equals(finalUrlSegment));
 
-        if ((! isPost) && doSelect) {
+        if ( (! isPost) && (doSelect) ) {
             final Boolean isAuthenticated = AuthenticatedJsonServlet.isAuthenticated(request);
             if (! isAuthenticated) {
                 return super._generateErrorJson("Not authorized.");
             }
 
-
             final Long accountId = AuthenticatedJsonServlet.getAccountId(request);
+            final Account account;
             try {
                 final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
-                final List<Row> rows = databaseConnection.query(new Query("SELECT * FROM accounts WHERE id = ?").setParameter(accountId));
-                if (rows.isEmpty()) {
-                    return super._generateErrorJson("Author does not exist.");
-                }
 
                 final AccountInflater accountInflater = new AccountInflater(databaseConnection);
-                // final Account account = accountInflater.
-
-                final Row row = rows.get(0);
-                final Json accountJson = new Json();
-                // accountJson.put("id", acc);
-
-                final Json responseJson = super._generateSuccessJson();
-                responseJson.put("account", accountJson);
-                return responseJson;
+                account = accountInflater.inflateAccount(accountId);
             }
             catch (final DatabaseException databaseException) {
                 _logger.error("Error authenticating.", databaseException);
-                return super._generateErrorJson("Error communicating with the database.");
+                return super._generateErrorJson("Invalid account.");
             }
 
+            final Json accountJson = new Json();
+            accountJson.put("id", account.getId());
+            accountJson.put("username", account.getUsername());
+            accountJson.put("name", account.getName());
+            accountJson.put("companyId", account.getCompany().getId());
+
+            final Json responseJson = super._generateSuccessJson();
+            responseJson.put("account", accountJson);
+            return responseJson;
         }
-        if (isPost && doAuthenticate) {
+        else if (isPost && doAuthenticate) {
             final String username = Util.coalesce(request.getParameter("username"));
             final String password = Util.coalesce(request.getParameter("password"));
 

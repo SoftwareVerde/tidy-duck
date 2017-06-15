@@ -23,15 +23,15 @@
 
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
-        <url-pattern>/api/v1/author</url-pattern>
+        <url-pattern>/api/v1/account</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
-        <url-pattern>/api/v1/author/authenticate</url-pattern>
+        <url-pattern>/api/v1/account/authenticate</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
-        <url-pattern>/api/v1/author/logout</url-pattern>
+        <url-pattern>/api/v1/account/logout</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
