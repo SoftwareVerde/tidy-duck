@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE FunctionCatalog SYSTEM "fcat.dtd">
+<FunctionCatalog>
+    <CatalogVersion>
+        <Release>3.0.2.2</Release>
+        <Date>25-APR-2016</Date>
+        <Author>Specification Support</Author>
+        <Company>MOST Cooperation</Company>
+    </CatalogVersion>
+    <FBlock>
+        <FBlockID>0x0F</FBlockID>
+        <FBlockKind>Proprietary</FBlockKind>
+        <FBlockName>EnhancedTestability</FBlockName>
+        <FBlockDescription>This is an FBlock description.</FBlockDescription>
+        <FBlockVersion Access="public">
+            <Release>3.0.2</Release>
+            <Date>14-FEB-2011</Date>
+            <Author>Specification Support</Author>
+            <Company>MOST Cooperation</Company>
+        </FBlockVersion>
+    </FBlock>
+    <FBlock>
+        <FBlockID>0x10</FBlockID>
+        <FBlockKind>Proprietary</FBlockKind>
+        <FBlockName>SecondFunctionBlock</FBlockName>
+        <FBlockDescription>This is a second FBlock description.</FBlockDescription>
+        <FBlockVersion Access="public">
+            <Release>3.0.3</Release>
+            <Date>18-MAR-2017</Date>
+            <Author>Test User</Author>
+            <Company>Software Verde</Company>
+        </FBlockVersion>
+    </FBlock>
+</FunctionCatalog>
