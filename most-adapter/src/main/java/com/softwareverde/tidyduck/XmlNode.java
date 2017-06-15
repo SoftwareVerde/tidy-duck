@@ -16,8 +16,8 @@ public abstract class XmlNode {
         return element;
     }
 
-    protected String formatLastModifiedDate(Date date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        return formatter.format(date);
+    protected String formatDate(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+        return formatter.format(date).toUpperCase();
     }
 }

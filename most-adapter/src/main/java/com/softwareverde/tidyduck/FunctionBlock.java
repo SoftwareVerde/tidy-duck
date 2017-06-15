@@ -132,7 +132,7 @@ public class FunctionBlock extends XmlNode {
 
         Element releaseElement = super.createTextElement(document, "Release", _release);
         versionElement.appendChild(releaseElement);
-        Element dateElement = super.createTextElement(document, "Date", super.formatLastModifiedDate(_lastModifiedDate));
+        Element dateElement = super.createTextElement(document, "Date", super.formatDate(_lastModifiedDate));
         versionElement.appendChild(dateElement);
         Element authorElement = super.createTextElement(document, "Author", _account.getName());
         versionElement.appendChild(authorElement);

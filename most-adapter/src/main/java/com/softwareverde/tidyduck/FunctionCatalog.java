@@ -107,7 +107,7 @@ public class FunctionCatalog extends XmlNode {
 
         Element release = super.createTextElement(document, "Release", _release);
         catalogVersion.appendChild(release);
-        Element date = super.createTextElement(document, "Date", getFormattedReleaseDate());
+        Element date = super.createTextElement(document, "Date", super.formatDate(_releaseDate));
         catalogVersion.appendChild(date);
         Element author = super.createTextElement(document, "Author", _account.getName());
         catalogVersion.appendChild(author);
@@ -127,10 +127,5 @@ public class FunctionCatalog extends XmlNode {
         }
 
         return rootElement;
-    }
-
-    protected String getFormattedReleaseDate() {
-        SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
-        return format.format(_releaseDate).toUpperCase();
     }
 }
