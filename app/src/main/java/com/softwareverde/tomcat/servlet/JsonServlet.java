@@ -26,6 +26,8 @@ public abstract class JsonServlet extends BaseServlet {
     protected final void handleRequest(HttpServletRequest req, HttpServletResponse resp, HttpMethod httpMethod, Environment environment) throws IOException {
         long startTime = System.currentTimeMillis();
 
+        resp.setContentType("application/json");
+
         Json json;
         try {
             json = handleRequest(req, httpMethod, environment);

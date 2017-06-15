@@ -1,7 +1,6 @@
 function redirectToApp() {
-    window.location = "/app";
+    window.location.href = "/app/";
 }
-
 
 $(window).on("load", function() {
     $.get("/api/v1/account", function(data) {
@@ -11,6 +10,9 @@ $(window).on("load", function() {
     });
 
     $("#login-button").on("click", function() {
+        const username = $("#username").val();
+        const password = $("#password").val();
+
         $.post(
             "/api/v1/account/authenticate",
             {
@@ -18,8 +20,6 @@ $(window).on("load", function() {
                 password: password
             },
             function(data) {
-                console.log(data);
-
                 if (data.wasSuccess) {
                     redirectToApp();
                 }
