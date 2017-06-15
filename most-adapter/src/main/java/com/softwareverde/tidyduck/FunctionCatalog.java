@@ -15,8 +15,9 @@ public class FunctionCatalog extends XmlNode {
     private Date _releaseDate;
     private Account _account;
     private Company _company;
+    private List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private boolean _isCommitted;
-    private List<Modification> _modifications = new ArrayList<Modification>();
+    private List<Modification> _modifications = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -74,6 +75,18 @@ public class FunctionCatalog extends XmlNode {
         _isCommitted = committed;
     }
 
+    public List<FunctionBlock> getFunctionBlocks() {
+        return _functionBlocks;
+    }
+
+    public void addFunctionBlock(final FunctionBlock functionBlock) {
+        _functionBlocks.add(functionBlock);
+    }
+
+    public void setFunctionBlocks(List<FunctionBlock> functionBlocks) {
+        _functionBlocks = new ArrayList<>(functionBlocks);
+    }
+
     public List<Modification> getModifications() {
         return _modifications;
     }
@@ -83,7 +96,7 @@ public class FunctionCatalog extends XmlNode {
     }
 
     public void setModifications(List<Modification> modifications) {
-        _modifications = modifications;
+        _modifications = new ArrayList<>(modifications);
     }
 
     @Override
@@ -101,14 +114,17 @@ public class FunctionCatalog extends XmlNode {
         Element company = super.createTextElement(document, "Company", _company.getName());
         catalogVersion.appendChild(company);
 
-        for (Modification modification : _modifications) {
+        for (final Modification modification : _modifications) {
             Element modificationElement = modification.generateXmlElement(document);
             catalogVersion.appendChild(modificationElement);
         }
 
         rootElement.appendChild(catalogVersion);
 
-        // TODO: once function blocks are added, add elements for them
+        for (final FunctionBlock functionBlock : _functionBlocks) {
+            Element functionBlockElement = functionBlock.generateXmlElement(document);
+            rootElement.appendChild(functionBlockElement);
+        }
 
         return rootElement;
     }

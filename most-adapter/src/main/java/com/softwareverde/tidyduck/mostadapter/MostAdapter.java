@@ -25,11 +25,11 @@ public class MostAdapter {
         return _isIndented;
     }
 
-    public void setIndented(boolean indented) {
+    public void setIndented(final boolean indented) {
         _isIndented = indented;
     }
 
-    public String getMostXml(FunctionCatalog functionCatalog) throws MostAdapterException {
+    public String getMostXml(final FunctionCatalog functionCatalog) throws MostAdapterException {
         try {
             Document document = getNewDocument();
             Element rootElement = functionCatalog.generateXmlElement(document);
@@ -47,7 +47,7 @@ public class MostAdapter {
         return document;
     }
 
-    private String convertToString(Document document) throws TransformerException {
+    private String convertToString(final Document document) throws TransformerException {
         // samples are standalone
         document.setXmlStandalone(true);
 
@@ -59,13 +59,16 @@ public class MostAdapter {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, documentType.getSystemId());
-        transformer.setOutputProperty(OutputKeys.INDENT, this._isIndented ?"yes":"no");
+        if (this._isIndented) {
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+        }
         // write document to string and return
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(document), new StreamResult(writer));
         String xml = writer.toString();
         // fix potential bug where doctype is followed by newline
-        if (!_isIndented) {
+        if (!this._isIndented) {
             xml = xml.replaceAll("\r|\n", "");
         }
         return xml;
