@@ -3,7 +3,7 @@ class FunctionBlock extends React.Component {
         super(props);
 
         this.state = {
-            showMenu : false
+            showMenu: false
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
@@ -28,7 +28,6 @@ class FunctionBlock extends React.Component {
             this.props.onDelete(this.props.functionBlock);
         }
     }
-
 
     renderMenu() {
         if (! this.state.showMenu) { return; }

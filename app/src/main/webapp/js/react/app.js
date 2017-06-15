@@ -16,10 +16,11 @@ class App extends React.Component {
             childItems:         [],
             functionCatalogs:   [],
             functionBlocks:     [],
+            interfaces:         [],
             isChildItemSelected :   false,
             selectedChildItem :     null,
-            selectedFunctionBlock:  null,
-            currentNavigationLevel: this.navigationLevel.versions
+            currentNavigationLevel: this.navigationLevel.versions,
+            showFunctionBlockForm: false
         };
 
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
@@ -28,6 +29,8 @@ class App extends React.Component {
         this.onFunctionCatalogSave = this.onFunctionCatalogSave.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
+        this.onPlusButtonClicked = this.onPlusButtonClicked.bind(this);
+        this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
 
         const thisApp = this;
         const versionId = 1;
@@ -61,7 +64,6 @@ class App extends React.Component {
                 childItems: functionCatalogs,
                 selectedChildItem : functionCatalog
             });
-
         });
     }
 
@@ -95,7 +97,8 @@ class App extends React.Component {
             navigationItems: navigationItems,
             isChildItemSelected : false,
             selectedChildItem: null,
-            navigationLevel: this.navigationLevel.versions
+            navigationLevel: this.navigationLevel.versions,
+            showFunctionBlockForm: false
         });
 
         const thisApp = this;
@@ -160,23 +163,64 @@ class App extends React.Component {
         });
     }
 
+    onPlusButtonClicked() {
+        this.setState({
+            isChildItemSelected:    false,
+            selectedChildItem:      null,
+            showFunctionBlockForm:  true
+        });
+    }
+
+    onFunctionBlockSelected(functionBlock) {
+        const navigationItems = [];
+        navigationItems.push(functionBlock);
+
+        const interfaces = functionBlock.getInterfaces();
+        for (let i in interfaces) {
+            const blockInterface = interfaces[i];
+            navigationItems.push(blockInterface);
+        }
+        // TODO: Traverse FB children... [, ...]
+        this.setState({
+            navigationItems: navigationItems,
+            selectedChildItem: functionBlock,
+            interfaces: interfaces,
+            childItems: interfaces,
+            isChildItemSelected : true,
+            navigationLevel: this.navigationLevel.interfaces
+        });
+    }
+
     renderChildItems() {
         const reactComponents = [];
+        const navigationLevel = this.navigationLevel;
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
         for (let i in this.state.childItems) {
             const childItem = this.state.childItems[i];
 
-            switch(this.state.currentNavigationLevel)
+            // TODO: having this switch statement in the loop is...most troubling.
+            switch(currentNavigationLevel)
             {
-                case this.navigationLevel.versions:
+                case navigationLevel.versions:
                     reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
                     break;
-                case this.navigationLevel.functionCatalogs:
-                    // TODO: push toolbar or toolbar components before childItems.
-                    // TODO: Add necessary functions and change onClick and onDelete props.
-                    reactComponents.push(<app.FunctionBlock key={i} functionBlock={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+                case navigationLevel.functionCatalogs:
+                    // TODO: Add necessary save/submit functions and change onSubmit props.
+                    if(this.state.showFunctionBlockForm) { // Display Function Block Form AFTER Function Catalog form.
+                        reactComponents.push(
+                            <app.FunctionBlockForm
+                                onSubmit={this.state.isChildItemSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
+                                functionCatalog={this.state.selectedChildItem}
+                                isChildItemSelected={this.state.isChildItemSelected}
+                            />);
+                    } else {                               // Display + icon for adding a function block.
+                        reactComponents.push(<i className="fa fa-plus" onClick={this.onPlusButtonClicked}/>);
+                    }
+
+                    // TODO: Add necessary delete function and change onDelete props.
+                    reactComponents.push(<app.FunctionBlock key={i} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.deleteFunctionCatalog} />);
                     break;
-                default:
-                    reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
             }
         }
         return reactComponents;
