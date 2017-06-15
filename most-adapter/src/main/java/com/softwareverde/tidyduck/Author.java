@@ -1,9 +1,10 @@
 package com.softwareverde.tidyduck;
 
-public class Account {
-    private Long _id;
-    private String _name;
-    private Company _company;
+public class Author {
+    protected Long _id;
+
+    protected String _name;
+    protected Company _company;
 
     public Long getId() {
         return _id;

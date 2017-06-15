@@ -1,6 +1,6 @@
 package com.softwareverde.tidyduck.mostadapter;
 
-import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import org.junit.Test;
@@ -21,9 +21,9 @@ public class MostAdapterTest {
         functionCatalog.setRelease("3.0.3.2");
         Date releaseDate = new Date(1475251200000L); // date -d "30-SEP-2016 12:00:00" +%s (converted to ms)
         functionCatalog.setReleaseDate(releaseDate);
-        Account account = new Account();
-        account.setName("WG DA");
-        functionCatalog.setAccount(account);
+        Author author = new Author();
+        author.setName("WG DA");
+        functionCatalog.setAuthor(author);
         Company company = new Company();
         company.setName("MOST Cooperation");
         functionCatalog.setCompany(company);

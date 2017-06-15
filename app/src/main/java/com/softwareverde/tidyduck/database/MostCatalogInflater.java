@@ -4,10 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.util.Util;
 
 import java.sql.Connection;
@@ -41,6 +38,8 @@ public class MostCatalogInflater {
     }
 
     public FunctionCatalog inflateFunctionCatalog(long functionCatalogId) throws DatabaseException {
+        final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
+
         final Query query = new Query(
                 "SELECT *"
                 + " FROM function_catalogs"
@@ -55,65 +54,30 @@ public class MostCatalogInflater {
         // get first (should be only) row
         final Row row = rows.get(0);
 
-        final Account account = inflateAccount(row.getLong("account_id"));
+        final Author account = _inflateAccount(row.getLong("account_id"));
 
-        final Company company = inflateCompany(row.getLong("company_id"));
+        final Company company = companyInflater.inflateCompany(row.getLong("company_id"));
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setId(Util.parseLong(row.getString("id")));
         functionCatalog.setName(row.getString("name"));
         functionCatalog.setRelease(row.getString("release_version"));
         functionCatalog.setReleaseDate(DateUtil.dateFromDateString(row.getString("release_date")));
-        functionCatalog.setAccount(account);
+        functionCatalog.setAuthor(account);
         functionCatalog.setCompany(company);
 
         return functionCatalog;
     }
 
-    private Company inflateCompany(long companyId) throws DatabaseException {
-        final Query query = new Query(
-                "SELECT id, name"
-                + " FROM companies"
-                + " WHERE id = ?"
-        );
-        query.setParameter(companyId);
+    private Author _inflateAccount(Long accountId) throws DatabaseException {
+        final AccountInflater accountInflater = new AccountInflater(_databaseConnection);
+        final Account account = accountInflater.inflateAccount(accountId);
 
-        final List<Row> rows = _databaseConnection.query(query);
-        if (rows.size() == 0) {
-            throw new DatabaseException("Company ID " + companyId + " not found.");
-        }
-        // get first (should be only) row
-        final Row row = rows.get(0);
+        Author author = new Author();
+        author.setId(account.getId());
+        author.setName(account.getName());
+        author.setCompany(account.getCompany());
 
-        final Company company = new Company();
-        company.setId(row.getLong("id"));
-        company.setName(row.getString("name"));
-
-        return company;
-    }
-
-    private Account inflateAccount(Long accountId) throws DatabaseException {
-        final Query query = new Query(
-                "SELECT id, name, company_id"
-                + " FROM accounts"
-                + " WHERE id = ?"
-        );
-        query.setParameter(accountId);
-
-        final List<Row> rows = _databaseConnection.query(query);
-        if (rows.size() == 0) {
-            throw new DatabaseException("AccountServlet ID " + accountId + " not found.");
-        }
-        // get first (should be only) row
-        final Row row = rows.get(0);
-
-        final Company company = inflateCompany(row.getLong("company_id"));
-
-        Account account = new Account();
-        account.setId(row.getLong("id"));
-        account.setName(row.getString("name"));
-        account.setCompany(company);
-
-        return account;
+        return author;
     }
 }

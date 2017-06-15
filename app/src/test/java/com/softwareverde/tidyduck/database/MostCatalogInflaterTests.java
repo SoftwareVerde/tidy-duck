@@ -3,7 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.mysql.MysqlMemoryDatabase;
-import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
@@ -27,7 +27,7 @@ public class MostCatalogInflaterTests {
         TestDataLoader.insertFakeAccount(databaseConnection);
         TestDataLoader.insertFakeVersion(databaseConnection);
 
-        final Account account = new Account();
+        final Author account = new Author();
         account.setId(1L);
 
         final Company company = new Company();
@@ -38,7 +38,7 @@ public class MostCatalogInflaterTests {
         functionCatalog.setName("Name");
         functionCatalog.setRelease("v0.0.0");
         functionCatalog.setReleaseDate(DateUtil.dateFromDateString("2000-01-01"));
-        functionCatalog.setAccount(account);
+        functionCatalog.setAuthor(account);
         functionCatalog.setCompany(company);
         functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
 
@@ -50,7 +50,7 @@ public class MostCatalogInflaterTests {
         Assert.assertEquals("Name", inflatedFunctionCatalog.getName());
         Assert.assertEquals("v0.0.0", inflatedFunctionCatalog.getRelease());
         Assert.assertEquals("2000-01-01", DateUtil.timestampToDateString(inflatedFunctionCatalog.getReleaseDate().getTime()));
-        Assert.assertEquals(1L, inflatedFunctionCatalog.getAccount().getId().longValue());
+        Assert.assertEquals(1L, inflatedFunctionCatalog.getAuthor().getId().longValue());
         Assert.assertEquals(1L, inflatedFunctionCatalog.getCompany().getId().longValue());
     }
 }

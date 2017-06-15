@@ -21,16 +21,20 @@ public abstract class AuthenticatedJsonServlet extends JsonServlet {
         return (accountObject != null);
     }
 
-    @Override
-    protected final Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
+    public static Long getAccountId(final HttpServletRequest request) {
         final HttpSession session = request.getSession();
         final Object accountObject = session.getAttribute(SESSION_ACCOUNT_ID_KEY);
+        return (Long) accountObject;
+    }
 
-        if (accountObject == null) {
+    @Override
+    protected final Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
+
+        if (! isAuthenticated(request)) {
             return super._generateErrorJson("Not authenticated.");
         }
 
-        final Long accountId = (Long) accountObject;
+        final Long accountId = getAccountId(request);
         return this.handleAuthenticatedRequest(request, httpMethod, accountId, environment);
     }
 }

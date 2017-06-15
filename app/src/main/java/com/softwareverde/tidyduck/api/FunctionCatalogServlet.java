@@ -3,7 +3,7 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
@@ -13,7 +13,6 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
-import com.softwareverde.tomcat.servlet.JsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +71,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 catalogJson.put("name", functionCatalog.getName());
                 catalogJson.put("releaseVersion", functionCatalog.getRelease());
                 catalogJson.put("releaseDate", DateUtil.dateToDateString(functionCatalog.getReleaseDate()));
-                catalogJson.put("authorId", functionCatalog.getAccount().getId());
+                catalogJson.put("authorId", functionCatalog.getAuthor().getId());
                 catalogJson.put("companyId", functionCatalog.getCompany().getId());
                 catalogsJson.add(catalogJson);
             }
@@ -216,14 +215,14 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final Company company = new Company();
         company.setId(companyId);
 
-        final Account account = new Account();
+        final Author account = new Author();
         account.setId(authorId);
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName(name);
         functionCatalog.setRelease(release);
         functionCatalog.setReleaseDate(releaseDate);
-        functionCatalog.setAccount(account);
+        functionCatalog.setAuthor(account);
         functionCatalog.setCompany(company);
 
         return functionCatalog;
