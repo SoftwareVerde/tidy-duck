@@ -5,7 +5,7 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(this.props.functionCatalog || new FunctionCatalog()));
         this.state = {
             functionCatalog: functionCatalog,
-            formButton : this.props.isFunctionCatalogSelected ? "Save" : "Submit"
+            formButton : this.props.isChildItemSelected ? "Save" : "Submit"
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
@@ -23,7 +23,7 @@ class FunctionCatalogForm extends React.Component {
         functionCatalog.setId((newProperties.functionCatalog || functionCatalog).getId());
         this.setState({
                 functionCatalog: functionCatalog,
-                formButton : newProperties.isFunctionCatalogSelected ? "Save" : "Submit"
+                formButton : newProperties.isChildItemSelected ? "Save" : "Submit"
             });
     }
 
@@ -118,7 +118,7 @@ class FunctionCatalogForm extends React.Component {
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />
                 <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
                 <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="submit-button" id="function-catalog-submit" onClick={this.props.isFunctionCatalogSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
+                <div className="center"><div className="submit-button" id="function-catalog-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
             </div>
         );
     }

@@ -2,15 +2,28 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        this.navigationLevel = {
+            versions:           "versions",
+            functionCatalogs:   "functionCatalogs",
+            functionBlocks:     "functionBlocks",
+            interfaces:         "interfaces",
+            functions:          "functions",
+            operations:         "operations"
+        };
+
         this.state = {
             navigationItems:    [],
+            childItems:         [],
             functionCatalogs:   [],
-            isFunctionCatalogSelected : false,
-            selectedFunctionCatalog : undefined,
+            functionBlocks:     [],
+            isChildItemSelected :   false,
+            selectedChildItem :     null,
+            selectedFunctionBlock:  null,
+            currentNavigationLevel: this.navigationLevel.versions
         };
 
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
-        this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
+        this.renderChildItems = this.renderChildItems.bind(this);
         this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
         this.onFunctionCatalogSave = this.onFunctionCatalogSave.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
@@ -27,7 +40,8 @@ class App extends React.Component {
             }
 
             thisApp.setState({
-                functionCatalogs: functionCatalogs
+                functionCatalogs: functionCatalogs,
+                childItems: functionCatalogs
             });
         });
     }
@@ -44,7 +58,8 @@ class App extends React.Component {
 
             thisApp.setState({
                 functionCatalogs: functionCatalogs,
-                selectedFunctionCatalog : functionCatalog
+                childItems: functionCatalogs,
+                selectedChildItem : functionCatalog
             });
 
         });
@@ -66,7 +81,8 @@ class App extends React.Component {
 
                 thisApp.setState({
                     functionCatalogs: functionCatalogs,
-                    selectedFunctionCatalog : functionCatalog
+                    childItems: functionCatalogs,
+                    selectedChildItem : functionCatalog
                 });
             }
         });
@@ -77,8 +93,9 @@ class App extends React.Component {
 
         this.setState({
             navigationItems: navigationItems,
-            isFunctionCatalogSelected : false,
-            selectedFunctionCatalog: undefined
+            isChildItemSelected : false,
+            selectedChildItem: null,
+            navigationLevel: this.navigationLevel.versions
         });
 
         const thisApp = this;
@@ -92,7 +109,8 @@ class App extends React.Component {
             }
 
             thisApp.setState({
-                functionCatalogs: functionCatalogs
+                functionCatalogs: functionCatalogs,
+                childItems: functionCatalogs,
             });
         });
     }
@@ -107,12 +125,13 @@ class App extends React.Component {
             navigationItems.push(functionBlock);
         }
         // TODO: Traverse FB children... [, ...]
-
         this.setState({
             navigationItems: navigationItems,
-            selectedFunctionCatalog: functionCatalog,
-            functionCatalogs:   [],
-            isFunctionCatalogSelected : true
+            selectedChildItem: functionCatalog,
+            functionBlocks: functionBlocks,
+            childItems: functionBlocks,
+            isChildItemSelected : true,
+            navigationLevel: this.navigationLevel.functionCatalogs
         });
     }
 
@@ -134,17 +153,31 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionCatalogs: newFunctionCatalogs,
-                    selectedFunctionCatalog: undefined
+                    childItems: newFunctionCatalogs,
+                    selectedChildItem: null
                 });
             }
         });
     }
 
-    renderFunctionCatalogs() {
+    renderChildItems() {
         const reactComponents = [];
-        for (let i in this.state.functionCatalogs) {
-            const functionCatalog = this.state.functionCatalogs[i];
-            reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={functionCatalog} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+        for (let i in this.state.childItems) {
+            const childItem = this.state.childItems[i];
+
+            switch(this.state.currentNavigationLevel)
+            {
+                case this.navigationLevel.versions:
+                    reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+                    break;
+                case this.navigationLevel.functionCatalogs:
+                    // TODO: push toolbar or toolbar components before childItems.
+                    // TODO: Add necessary functions and change onClick and onDelete props.
+                    reactComponents.push(<app.FunctionBlock key={i} functionBlock={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+                    break;
+                default:
+                    reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+            }
         }
         return reactComponents;
     }
@@ -155,12 +188,12 @@ class App extends React.Component {
                 <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
                 <div className="display-area">
                     <app.FunctionCatalogForm
-                        onSubmit={this.state.isFunctionCatalogSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
-                        functionCatalog={this.state.selectedFunctionCatalog}
-                        isFunctionCatalogSelected={this.state.isFunctionCatalogSelected}
+                        onSubmit={this.state.isChildItemSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
+                        functionCatalog={this.state.selectedChildItem}
+                        isChildItemSelected={this.state.isChildItemSelected}
                     />
                     <div id="child-display-area" className="clearfix">
-                        {this.renderFunctionCatalogs()}
+                        {this.renderChildItems()}
                     </div>
                 </div>
             </div>
