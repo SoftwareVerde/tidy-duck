@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 public abstract class JsonServlet extends BaseServlet {
 
@@ -24,18 +25,20 @@ public abstract class JsonServlet extends BaseServlet {
     @Override
     protected final void handleRequest(HttpServletRequest req, HttpServletResponse resp, HttpMethod httpMethod, Environment environment) throws IOException {
         long startTime = System.currentTimeMillis();
-        Json json = null;
+
+        Json json;
         try {
             json = handleRequest(req, httpMethod, environment);
+
             // default to empty json object
             if (json == null) {
-                json = generateErrorJson("Unable to determine response");
+                json = _generateErrorJson("Unable to determine response");
             }
         }
         catch (final Exception e) {
             String msg = "Unable to handle request";
             _logger.error(msg, e);
-            json = generateErrorJson(msg + ": " + e.getMessage());
+            json = _generateErrorJson(msg + ": " + e.getMessage());
         }
         PrintWriter writer = resp.getWriter();
         writer.append(json.toString());
@@ -43,17 +46,24 @@ public abstract class JsonServlet extends BaseServlet {
         _logger.info("Request took " + (endTime-startTime) + "ms.");
     }
 
-    protected static Json getRequestDataAsJson(HttpServletRequest request) throws IOException {
+    protected static Json _getRequestDataAsJson(HttpServletRequest request) throws IOException {
         String messageBody = Util.getInputStreamAsString(request.getInputStream());
         return Json.parse(messageBody);
     }
 
-    protected void setJsonSuccessFields(Json json) {
+    protected void _setJsonSuccessFields(Json json) {
         json.put(JSON_SUCCESS_FIELD, true);
         json.put(JSON_ERROR_FIELD, null);
     }
 
-    protected Json generateErrorJson(String errorMessage) {
+    protected Json _generateSuccessJson() {
+        Json json = new Json();
+        json.put(JSON_SUCCESS_FIELD, true);
+        json.put(JSON_ERROR_FIELD, null);
+        return json;
+    }
+
+    protected Json _generateErrorJson(String errorMessage) {
         Json json = new Json();
         json.put(JSON_SUCCESS_FIELD, false);
         json.put(JSON_ERROR_FIELD, errorMessage);
