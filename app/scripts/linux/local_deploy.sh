@@ -1,6 +1,6 @@
 #/bin/bash
 WAR_FILE_NAME="tidy-duck-1.0-SNAPSHOT.war"
-DEST_FILE_NAME="tidy-duck.war"
+DEST_FILE_NAME="ROOT.war"
 BASE_DIR="$(dirname $0)/../../"
 cd $BASE_DIR
 ./gradlew war

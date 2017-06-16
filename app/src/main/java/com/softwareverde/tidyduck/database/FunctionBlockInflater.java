@@ -4,7 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionBlock;
@@ -66,9 +66,10 @@ public class FunctionBlockInflater {
         final long accountId = row.getLong("account_id");
         final long companyId = row.getLong("company_id");
 
-        MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
-        final Account account = mostCatalogInflater.inflateAccount(accountId);
-        final Company company = mostCatalogInflater.inflateCompany(companyId);
+        AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
+        final Author author = authorInflater.inflateAuthor(accountId);
+        CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
+        final Company company = companyInflater.inflateCompany(companyId);
 
         FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setId(id);
@@ -78,7 +79,7 @@ public class FunctionBlockInflater {
         functionBlock.setDescription(description);
         functionBlock.setLastModifiedDate(lastModifiedDate);
         functionBlock.setRelease(release);
-        functionBlock.setAccount(account);
+        functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
 
         return functionBlock;

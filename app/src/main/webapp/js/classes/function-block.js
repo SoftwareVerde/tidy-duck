@@ -2,7 +2,7 @@ class FunctionBlock {
     static fromJson(json) {
         const functionBlock = new FunctionBlock();
 
-        const author = new Author();
+        const author = new Account();
         author.setId(json.authorId);
 
         const company = new Company();

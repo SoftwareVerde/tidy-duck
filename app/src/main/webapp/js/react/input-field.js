@@ -34,7 +34,7 @@ class InputField extends React.Component {
 
     render() {
         return (
-            <div className="input-container">
+            <div className="input-field">
                 <label htmlFor={this.props.id}>{this.props.label}:</label>
                 <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />
             </div>

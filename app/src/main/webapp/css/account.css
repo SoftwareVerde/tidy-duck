@@ -1,0 +1,27 @@
+#login-container {
+    width: 300px;
+    display: inline-block;
+    margin: auto;
+    margin-top: 7em;
+
+    border: 0px solid;
+    border-radius: 5px;
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+}
+
+#login-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+#login-container .input-field {
+    display: block;
+    width: 100%;
+}
+
+#login-container .button { }

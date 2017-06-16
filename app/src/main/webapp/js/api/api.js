@@ -1,4 +1,5 @@
-const ENDPOINT_PREFIX = '/tidy-duck/';
+const ENDPOINT_PREFIX = '/';
+const API_PREFIX = ENDPOINT_PREFIX + 'api/v1/';
 
 function exportFunctionCatalogToMost(functionCatalogId) {
     window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
@@ -18,9 +19,15 @@ function jsonFetch(request, callbackFunction) {
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
-    const endpoint = ENDPOINT_PREFIX + 'api/v1/function-catalog?version_id=' + versionId;
+    const request = new Request(
+        API_PREFIX + 'function-catalog?version_id=' + versionId,
+        {
+            method: 'GET',
+            credentials: 'include'
+        }
+    );
 
-    jsonFetch(endpoint, function(data) {
+    jsonFetch(request, function(data) {
         let functionCatalogs = null;
 
         if (data.wasSuccess) {
@@ -38,9 +45,10 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-catalog',
+        API_PREFIX + 'function-catalog',
         {
             method: 'POST',
+            credentials: 'include',
             body: JSON.stringify({
                 'versionId': versionId,
                 'functionCatalog': functionCatalog
@@ -69,6 +77,7 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
         ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId,
         {
             method: 'POST',
+            credentials: 'include',
             body: JSON.stringify({
                 'versionId': versionId,
                 'functionCatalog': functionCatalog
@@ -92,7 +101,8 @@ function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId + "?versionId=" + versionId,
         {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         }
     );
 
@@ -112,9 +122,15 @@ function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
 
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
-    const endpoint = ENDPOINT_PREFIX + 'api/v1/function-block?function_catalog_id=' + functionCatalogId;
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-block?function_catalog_id=' + functionCatalogId,
+        {
+            method: 'GET',
+            credentials: 'include'
+        }
+    );
 
-    jsonFetch(endpoint, function(data) {
+    jsonFetch(request, function(data) {
         let functionBlocks = null;
 
         if (data.wasSuccess) {

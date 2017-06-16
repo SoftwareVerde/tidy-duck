@@ -30,7 +30,7 @@ public class FunctionBlock extends XmlNode {
     private String _description;
     private String _release;
     private Date _lastModifiedDate;
-    private Account _account;
+    private Author _author;
     private Company _company;
     private List<Modification> _modifications = new ArrayList<>();
 
@@ -90,12 +90,12 @@ public class FunctionBlock extends XmlNode {
         _lastModifiedDate = lastModifiedDate;
     }
 
-    public Account getAccount() {
-        return _account;
+    public Author getAuthor() {
+        return _author;
     }
 
-    public void setAccount(Account account) {
-        _account = account;
+    public void setAuthor(Author author) {
+        _author = author;
     }
 
     public Company getCompany() {
@@ -134,7 +134,7 @@ public class FunctionBlock extends XmlNode {
         versionElement.appendChild(releaseElement);
         Element dateElement = super.createTextElement(document, "Date", super.formatDate(_lastModifiedDate));
         versionElement.appendChild(dateElement);
-        Element authorElement = super.createTextElement(document, "Author", _account.getName());
+        Element authorElement = super.createTextElement(document, "Author", _author.getName());
         versionElement.appendChild(authorElement);
         Element companyElement = super.createTextElement(document, "Company", _company.getName());
         versionElement.appendChild(companyElement);

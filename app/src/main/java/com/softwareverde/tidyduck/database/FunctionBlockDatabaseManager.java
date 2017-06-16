@@ -25,7 +25,7 @@ public class FunctionBlockDatabaseManager {
         final String name = functionBlock.getName();
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
-        final Long accountId = functionBlock.getAccount().getId();
+        final Long authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
 
         final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)")
@@ -34,7 +34,7 @@ public class FunctionBlockDatabaseManager {
             .setParameter(name)
             .setParameter(description)
             .setParameter(release)
-            .setParameter(accountId)
+            .setParameter(authorId)
             .setParameter(companyId)
         ;
 

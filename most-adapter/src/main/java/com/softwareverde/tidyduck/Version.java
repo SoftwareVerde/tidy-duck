@@ -6,7 +6,7 @@ import java.util.List;
 public class Version {
     private Long _id;
     private String _name;
-    private Account _owner;
+    private Author _owner;
     private boolean _isCommitted;
     private List<FunctionCatalog> _functionCatalogs = new ArrayList<FunctionCatalog>();
 
@@ -26,11 +26,11 @@ public class Version {
         _name = name;
     }
 
-    public Account getOwner() {
+    public Author getOwner() {
         return _owner;
     }
 
-    public void setOwner(Account owner) {
+    public void setOwner(Author owner) {
         _owner = owner;
     }
 

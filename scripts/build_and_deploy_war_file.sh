@@ -5,7 +5,7 @@ WAR_MODULE_DIR="$(dirname $0)/../app/"
 WAR_MODULE_PATH="$WAR_MODULE_DIR/build/libs/tidy-duck-$VERSION.war"
 SERVER="dev.tidy-duck.sv.net"
 DEPLOY_PATH="/var/lib/tomcat7/webapps/"
-TARGET_WAR_FILE_NAME="tidy-duck.war"
+TARGET_WAR_FILE_NAME="ROOT.war"
 
 # build war file
 cd $WAR_MODULE_DIR

@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -25,7 +23,24 @@ public abstract class BaseServlet extends HttpServlet {
         TRACE
     }
 
+    public static String getFinalUrlSegment(final HttpServletRequest request) {
+        final String path = request.getServletPath();
+        final int finalSlash = path.lastIndexOf('/');
+        return path.substring(finalSlash+1);
+    }
+
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
+        final HttpSession session = request.getSession();
+        if (request.getParameter("JSESSIONID") != null) {
+            final Cookie userCookie = new Cookie("JSESSIONID", request.getParameter("JSESSIONID"));
+            response.addCookie(userCookie);
+        }
+        else {
+            final String sessionId = session.getId();
+            final Cookie userCookie = new Cookie("JSESSIONID", sessionId);
+            response.addCookie(userCookie);
+        }
+
         try {
             Environment environment = Environment.getInstance();
             this.handleRequest(request, response, method, environment);
@@ -38,12 +53,6 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected abstract void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method, Environment environment) throws  ServletException, IOException;
-
-    public String getFinalUrlSegment(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        int finalSlashIndex = path.lastIndexOf('/');
-        return path.substring(finalSlashIndex+1);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

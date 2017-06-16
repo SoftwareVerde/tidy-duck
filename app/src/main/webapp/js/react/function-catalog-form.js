@@ -11,7 +11,7 @@ class FunctionCatalogForm extends React.Component {
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
         this.onReleaseDateChanged = this.onReleaseDateChanged.bind(this);
-        this.onAuthorChanged = this.onAuthorChanged.bind(this);
+        this.onAccount= this.onAccountChanged.bind(this);
         this.onCompanyChanged = this.onCompanyChanged.bind(this);
 
         this.onSubmit = this.onSubmit.bind(this);
@@ -54,12 +54,12 @@ class FunctionCatalogForm extends React.Component {
         }
     }
 
-    onAuthorChanged(newValue) {
+    onAccountChanged(newValue) {
         const functionCatalog = this.state.functionCatalog;
 
-        const author = (functionCatalog.getAuthor() || new Author());
-        author.setId(newValue);
-        functionCatalog.setAuthor(author);
+        const account = (functionCatalog.getAccount() || new Account());
+        account.setId(newValue);
+        functionCatalog.setAccount(account);
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -118,7 +118,7 @@ class FunctionCatalogForm extends React.Component {
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />
                 <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
                 <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="submit-button" id="function-catalog-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
+                <div className="center"><div className="button" id="function-catalog-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
             </div>
         );
     }

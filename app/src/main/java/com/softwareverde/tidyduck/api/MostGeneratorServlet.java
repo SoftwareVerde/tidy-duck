@@ -1,10 +1,12 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.tidyduck.database.MostCatalogInflater;
+import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.mostadapter.MostAdapter;
 import com.softwareverde.tidyduck.mostadapter.MostAdapterException;
+import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
@@ -15,12 +17,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 
 public class MostGeneratorServlet extends BaseServlet {
     private final Logger _logger = LoggerFactory.getLogger(getClass());
 
     @Override
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method, Environment environment) throws ServletException, IOException {
+        if (! AuthenticatedJsonServlet.isAuthenticated(request)) {
+            authenticationError(response);
+            return;
+        }
+
         long functionCatalogId = Util.parseLong(request.getParameter("function_catalog_id"));
         if (functionCatalogId < 1) {
             _logger.error("Invalid function catalog id.");
@@ -31,12 +39,12 @@ public class MostGeneratorServlet extends BaseServlet {
     }
 
     private void returnMostAsAttachment(long functionCatalogId, HttpServletResponse response, Environment environment) throws IOException {
-        DatabaseConnection databaseConnection = null;
+        DatabaseConnection<Connection> databaseConnection = null;
         FunctionCatalog functionCatalog = null;
         try {
             databaseConnection = environment.getNewDatabaseConnection();
-            MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(databaseConnection);
-            functionCatalog = mostCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+            FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+            functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
         } catch (Exception e) {
             _logger.error("Unable to inflate function catalog.", e);
             if (databaseConnection != null) {
@@ -70,5 +78,11 @@ public class MostGeneratorServlet extends BaseServlet {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         PrintWriter writer = response.getWriter();
         writer.write("Unable to generate MOST.");
+    }
+
+    private void authenticationError(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        PrintWriter writer = response.getWriter();
+        writer.write("Not authorized.");
     }
 }

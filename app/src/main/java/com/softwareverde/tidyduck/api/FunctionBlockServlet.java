@@ -3,15 +3,12 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.FunctionBlock;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.util.Util;
-import com.softwareverde.tomcat.servlet.JsonServlet;
+import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.util.List;
 
-public class FunctionBlockServlet extends JsonServlet {
+public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    protected Json handleRequest(HttpServletRequest request, HttpMethod httpMethod, Environment environment) throws Exception {
+    protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, final long accountId, Environment environment) throws Exception {
         String finalUrlSegment = super.getFinalUrlSegment(request);
         if ("function-block".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
@@ -32,7 +29,7 @@ public class FunctionBlockServlet extends JsonServlet {
             if (httpMethod == HttpMethod.GET) {
                 long functionCatalogId = Util.parseLong(Util.coalesce(request.getParameter("function_catalog_id")));
                 if (functionCatalogId < 1) {
-                    return super.generateErrorJson("Invalid function catalog id.");
+                    return super._generateErrorJson("Invalid function catalog id.");
                 }
                 return listFunctionBlocks(functionCatalogId, environment);
             }
@@ -49,11 +46,11 @@ public class FunctionBlockServlet extends JsonServlet {
 //                return deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
 //            }
         }
-        return super.generateErrorJson("Unimplemented HTTP method in request.");
+        return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
     private Json storeFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
-        Json jsonRequest = JsonServlet.getRequestDataAsJson(request);
+        Json jsonRequest = super._getRequestDataAsJson(request);
         Json response = new Json(false);
 
         final Long functionCatalogId = Util.parseLong(jsonRequest.getString("functionCatalogId"));
@@ -61,7 +58,7 @@ public class FunctionBlockServlet extends JsonServlet {
         { // Validate Inputs
             if (functionCatalogId < 1) {
                 _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
-                return super.generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
             }
         }
 
@@ -75,7 +72,7 @@ public class FunctionBlockServlet extends JsonServlet {
         }
         catch (final Exception exception) {
             _logger.error("Unable to store Function Block.", exception);
-            return super.generateErrorJson("Unable to store Function Block: " + exception.getMessage());
+            return super._generateErrorJson("Unable to store Function Block: " + exception.getMessage());
         }
 
         return response;
@@ -99,18 +96,18 @@ public class FunctionBlockServlet extends JsonServlet {
                 blockJson.put("description", functionBlock.getDescription());
                 blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
                 blockJson.put("releaseVersion", functionBlock.getRelease());
-                blockJson.put("authorId", functionBlock.getAccount().getId());
+                blockJson.put("authorId", functionBlock.getAuthor().getId());
                 blockJson.put("companyId", functionBlock.getCompany().getId());
                 blocksJson.add(blockJson);
             }
             response.put("functionBlocks", blocksJson);
 
-            super.setJsonSuccessFields(response);
+            super._setJsonSuccessFields(response);
             return response;
         }
         catch (final DatabaseException exception) {
             _logger.error("Unable to list function blocks.", exception);
-            return super.generateErrorJson("Unable to list function blocks.");
+            return super._generateErrorJson("Unable to list function blocks.");
         }
     }
 
@@ -159,8 +156,8 @@ public class FunctionBlockServlet extends JsonServlet {
         final Company company = new Company();
         company.setId(companyId);
 
-        final Account account = new Account();
-        account.setId(authorId);
+        final Author author = new Author();
+        author.setId(authorId);
 
         FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setMostId(mostId);
@@ -168,7 +165,7 @@ public class FunctionBlockServlet extends JsonServlet {
         functionBlock.setName(name);
         functionBlock.setRelease(release);
         functionBlock.setDescription(description);
-        functionBlock.setAccount(account);
+        functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
 
         return functionBlock;

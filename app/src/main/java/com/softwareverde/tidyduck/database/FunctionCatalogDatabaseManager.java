@@ -27,7 +27,7 @@ class FunctionCatalogDatabaseManager {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
         final String releaseDate = DateUtil.timestampToDateString(functionCatalog.getReleaseDate().getTime());
-        final Long accountId = functionCatalog.getAccount().getId();
+        final Long accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
 
         final Query query = new Query("INSERT INTO function_catalogs (name, release_version, release_date, account_id, company_id) VALUES (?, ?, ?, ?, ?)")
@@ -54,8 +54,8 @@ class FunctionCatalogDatabaseManager {
     public void updateFunctionCatalogForVersion(final long versionId, final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final long inputFunctionCatalogId = proposedFunctionCatalog.getId();
 
-        MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
-        FunctionCatalog databaseFunctionCatalog = mostCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
+        FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
+        FunctionCatalog databaseFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
         if (!databaseFunctionCatalog.isCommitted()) {
             // not committed, can update existing function catalog
             _updateUncommittedFunctionCatalog(proposedFunctionCatalog);
@@ -74,7 +74,7 @@ class FunctionCatalogDatabaseManager {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
         final String newReleaseDate = DateUtil.dateToDateString(proposedFunctionCatalog.getReleaseDate());
-        final long newAccountId = proposedFunctionCatalog.getAccount().getId();
+        final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
         final long functionCatalogId = proposedFunctionCatalog.getId();
 
@@ -82,7 +82,7 @@ class FunctionCatalogDatabaseManager {
             .setParameter(newName)
             .setParameter(newReleaseVersion)
             .setParameter(newReleaseDate)
-            .setParameter(newAccountId)
+            .setParameter(newAuthorId)
             .setParameter(newCompanyId)
             .setParameter(functionCatalogId)
         ;
@@ -105,8 +105,8 @@ class FunctionCatalogDatabaseManager {
     }
 
     private void _deleteFunctionCatalogIfUncommitted(long functionCatalogId) throws DatabaseException {
-        MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
-        FunctionCatalog functionCatalog = mostCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+        FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
+        FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
         if (!functionCatalog.isCommitted()) {
             // function catalog isn't committed, we can delete it

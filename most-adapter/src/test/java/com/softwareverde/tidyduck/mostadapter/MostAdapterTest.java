@@ -1,6 +1,6 @@
 package com.softwareverde.tidyduck.mostadapter;
 
-import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
@@ -91,33 +91,33 @@ public class MostAdapterTest {
         return createTestFunctionCatalog("3.0.2.2", releaseDate, "Specification Support", "MOST Cooperation");
     }
 
-    private FunctionCatalog createTestFunctionCatalog(String release, Date releaseDate, String account, String company) {
+    private FunctionCatalog createTestFunctionCatalog(String release, Date releaseDate, String author, String company) {
         FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setRelease(release);
         functionCatalog.setReleaseDate(releaseDate);
 
-        functionCatalog.setAccount(createTestAccount(account));
+        functionCatalog.setAuthor(createTestAuthor(author));
         functionCatalog.setCompany(createTestCompany(company));
         return functionCatalog;
     }
 
-    private FunctionBlock createTestFunctionBlock(String mostId, String name, String description, String release, Date lastModifiedDate, String account, String company) {
+    private FunctionBlock createTestFunctionBlock(String mostId, String name, String description, String release, Date lastModifiedDate, String author, String company) {
         FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setMostId(mostId);
         functionBlock.setName(name);
         functionBlock.setDescription(description);
         functionBlock.setRelease(release);
         functionBlock.setLastModifiedDate(lastModifiedDate);
-        functionBlock.setAccount(createTestAccount(account));
+        functionBlock.setAuthor(createTestAuthor(author));
         functionBlock.setCompany(createTestCompany(company));
 
         return functionBlock;
     }
 
-    private Account createTestAccount(String name) {
-        Account account = new Account();
-        account.setName(name);
-        return account;
+    private Author createTestAuthor(String name) {
+        Author author = new Author();
+        author.setName(name);
+        return author;
     }
 
     private Company createTestCompany(String name) {
