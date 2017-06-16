@@ -1,4 +1,4 @@
-class FunctionCatalog extends React.Component {
+class FunctionBlock extends React.Component {
     constructor(props) {
         super(props);
 
@@ -9,7 +9,7 @@ class FunctionCatalog extends React.Component {
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
         this.onClick = this.onClick.bind(this);
-        this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
+        this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
 
         window.app.navigation = this;
     }
@@ -22,10 +22,10 @@ class FunctionCatalog extends React.Component {
         });
     }
 
-    deleteFunctionCatalog(event) {
+    deleteFunctionBlock(event) {
         event.stopPropagation();
         if (typeof this.props.onDelete == "function") {
-            this.props.onDelete(this.props.functionCatalog);
+            this.props.onDelete(this.props.functionBlock);
         }
     }
 
@@ -34,7 +34,7 @@ class FunctionCatalog extends React.Component {
 
         return (
             <div className="function-catalog-menu">
-                <div className="function-catalog-menu-item" onClick={this.deleteFunctionCatalog}>
+                <div className="function-catalog-menu-item" onClick={this.deleteFunctionBlock}>
                     Delete
                     <i className="fa fa-remove" />
                 </div>
@@ -44,15 +44,15 @@ class FunctionCatalog extends React.Component {
 
     onClick() {
         if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionCatalog);
+            this.props.onClick(this.props.functionBlock);
         }
     }
 
     render() {
-        const author = this.props.functionCatalog.getAuthor();
-        const company = this.props.functionCatalog.getCompany();
-        const name = this.props.functionCatalog.getName();
-
+        const author = this.props.functionBlock.getAuthor();
+        const company = this.props.functionBlock.getCompany();
+        const name = this.props.functionBlock.getName();
+        
         return (
             <div className="function-catalog" onClick={this.onClick}>
                 <div className="function-catalog-title">
@@ -60,8 +60,10 @@ class FunctionCatalog extends React.Component {
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {this.renderMenu()}
                 </div>
-                <div className="child-function-catalog-property">{this.props.functionCatalog.getReleaseVersion()}</div>
-                <div className="child-function-catalog-property">{this.props.functionCatalog.getReleaseDate()}</div>
+                <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
+                <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
+                <div className="child-function-catalog-property">{this.props.functionBlock.getDescription()}</div>
+                <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div>
                 <div className="child-function-catalog-property">{(author ? author.getId() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getId() : "")}</div>
             </div>
@@ -69,4 +71,4 @@ class FunctionCatalog extends React.Component {
     }
 }
 
-registerClassWithGlobalScope("FunctionCatalog", FunctionCatalog);
+registerClassWithGlobalScope("FunctionBlock", FunctionBlock);

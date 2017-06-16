@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE FunctionCatalog SYSTEM "fcat.dtd">
+<FunctionCatalog>
+    <CatalogVersion>
+        <Release>3.0.2.2</Release>
+        <Date>25-APR-2016</Date>
+        <Author>Specification Support</Author>
+        <Company>MOST Cooperation</Company>
+    </CatalogVersion>
+    <FBlock>
+        <FBlockID>0x0F</FBlockID>
+        <FBlockKind>Proprietary</FBlockKind>
+        <FBlockName>EnhancedTestability</FBlockName>
+        <FBlockDescription>This is an FBlock description.</FBlockDescription>
+        <FBlockVersion Access="public">
+            <Release>3.0.2</Release>
+            <Date>14-FEB-2011</Date>
+            <Author>Specification Support</Author>
+            <Company>MOST Cooperation</Company>
+        </FBlockVersion>
+    </FBlock>
+</FunctionCatalog>

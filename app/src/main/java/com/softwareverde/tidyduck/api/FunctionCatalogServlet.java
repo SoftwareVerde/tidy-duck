@@ -47,10 +47,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function catalog id.");
             }
             if (httpMethod == HttpMethod.POST) {
-                return updateFunctionCatalog(request, environment);
+                return updateFunctionCatalog(request, functionCatalogId, environment);
             }
             if (httpMethod == HttpMethod.DELETE) {
-                return deleteFunctionCatalogFromVersion(request, environment);
+                return deleteFunctionCatalogFromVersion(request, functionCatalogId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
@@ -116,29 +116,23 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json updateFunctionCatalog(HttpServletRequest httpRequest, Environment environment) throws IOException {
+    private Json updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, Environment environment) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
 
         final Long versionId = Util.parseLong(request.getString("versionId"));
 
         final Json functionCatalogJson = request.get("functionCatalog");
-        final String functionCatalogIdString = functionCatalogJson.getString("id");
-        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
         { // Validate Inputs
             if (versionId < 1) {
                 _logger.error("Unable to parse Version ID: " + versionId);
                 return super._generateErrorJson("Invalid Version ID: " + versionId);
             }
-
-            if (functionCatalogId < 1) {
-                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
-                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
-            }
         }
 
         try {
             FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+            functionCatalog.setId(functionCatalogId);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.updateFunctionCatalog(versionId, functionCatalog);
@@ -153,18 +147,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, Environment environment) {
+    private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, long functionCatalogId, Environment environment) {
         String versionIdString = request.getParameter("versionId");
         Long versionId = Util.parseLong(versionIdString);
-        String functionCatalogIdString = request.getParameter("functionCatalogId");
-        Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
         { // Validate Inputs
             if (versionId == null || versionId < 1) {
                 return super._generateErrorJson(String.format("Invalid version id: %s", versionIdString));
-            }
-            if (functionCatalogId == null || functionCatalogId < 1) {
-                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
             }
         }
 

@@ -2,7 +2,7 @@ const ENDPOINT_PREFIX = '/';
 const API_PREFIX = ENDPOINT_PREFIX + 'api/v1/';
 
 function jsonFetch(request, callbackFunction) {
-    fetch(request).then(function(response) {
+    fetch(request, { credentials: 'include' }).then(function(response) {
         return response.json();
     }).then(function(json) {
         if (typeof callbackFunction == "function") {
@@ -54,6 +54,51 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(functionCatalogId);
+        }
+    });
+}
+
+//calls callbackFunction with modified function catalog ID
+function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId,
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                'versionId': versionId,
+                'functionCatalog': functionCatalog
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to modify function catalog " + functionCatalogId + " from version " + versionId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
+function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId + "?versionId=" + versionId,
+        {
+            method: 'DELETE'
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to delete function catalog " + functionCatalogId + " from version " + versionId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

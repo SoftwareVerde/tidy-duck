@@ -10,7 +10,7 @@ class FunctionCatalogDatabaseManager {
 
     private final DatabaseConnection _databaseConnection;
 
-    public FunctionCatalogDatabaseManager(DatabaseConnection databaseConnection) {
+    public FunctionCatalogDatabaseManager(final DatabaseConnection databaseConnection) {
         _databaseConnection = databaseConnection;
     }    
 
@@ -76,13 +76,15 @@ class FunctionCatalogDatabaseManager {
         final String newReleaseDate = DateUtil.dateToDateString(proposedFunctionCatalog.getReleaseDate());
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
+        final long functionCatalogId = proposedFunctionCatalog.getId();
 
-        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, release_date = ?, account_id = ?, company_id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, release_date = ?, account_id = ?, company_id = ? WHERE id = ?")
             .setParameter(newName)
             .setParameter(newReleaseVersion)
             .setParameter(newReleaseDate)
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
+            .setParameter(functionCatalogId)
         ;
 
         _databaseConnection.executeSql(query);
@@ -90,6 +92,7 @@ class FunctionCatalogDatabaseManager {
 
     public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
         _disassociateFunctionCatalogWithVersion(versionId, functionCatalogId);
+        _deleteFunctionCatalogIfUncommitted(functionCatalogId);
     }
 
     private void _disassociateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
@@ -99,5 +102,21 @@ class FunctionCatalogDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteFunctionCatalogIfUncommitted(long functionCatalogId) throws DatabaseException {
+        MostCatalogInflater mostCatalogInflater = new MostCatalogInflater(_databaseConnection);
+        FunctionCatalog functionCatalog = mostCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+        if (!functionCatalog.isCommitted()) {
+            // function catalog isn't committed, we can delete it
+            final Query query = new Query("DELETE FROM function_catalogs WHERE id = ?")
+                .setParameter(functionCatalogId)
+            ;
+
+            _databaseConnection.executeSql(query);
+
+            // TODO: delete any uncommitted function blocks
+        }
     }
 }

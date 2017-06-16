@@ -2,8 +2,8 @@ class FunctionCatalog {
     static fromJson(json) {
         const functionCatalog = new FunctionCatalog();
 
-        const account = new Account();
-        account.setId(json.accountId);
+        const author = new Author();
+        author.setId(json.authorId);
 
         const company = new Company();
         company.setId(json.companyId);
@@ -12,21 +12,23 @@ class FunctionCatalog {
         functionCatalog.setName(json.name);
         functionCatalog.setReleaseVersion(json.releaseVersion);
         functionCatalog.setReleaseDate(json.releaseDate);
-        functionCatalog.setAccount(account);
+        functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
         return functionCatalog;
     }
 
+    //Converts existing function catalog into JSON
     static toJson(functionCatalog) {
-        const account = (functionCatalog.getAccount() || new Account());
+        const author = (functionCatalog.getAuthor() || new Author());
         const company = (functionCatalog.getCompany() || new Company());
 
         return {
+            id:             functionCatalog.getId(),
             name:           functionCatalog.getName(),
             releaseVersion: functionCatalog.getReleaseVersion(),
             releaseDate:    functionCatalog.getReleaseDate(),
-            accountId:       account.getId(),
+            authorId:       author.getId(),
             companyId:      company.getId()
         };
     }
@@ -36,7 +38,7 @@ class FunctionCatalog {
         this._name              = null;
         this._releaseVersion    = null;
         this._releaseDate       = null;
-        this._account           = null;
+        this._author           = null;
         this._company           = null;
 
         this._functionBlocks    = [];
@@ -74,12 +76,12 @@ class FunctionCatalog {
         return this._releaseDate;
     }
 
-    setAccount(account) {
-        this._account = account;
+    setAuthor(author) {
+        this._author = author;
     }
 
-    getAccount() {
-        return this._account;
+    getAuthor() {
+        return this._author;
     }
 
     setCompany(company) {

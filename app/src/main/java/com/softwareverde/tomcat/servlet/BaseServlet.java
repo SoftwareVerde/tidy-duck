@@ -1,6 +1,7 @@
 package com.softwareverde.tomcat.servlet;
 
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.util.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,21 +31,10 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
-        final HttpSession session = request.getSession();
-        if (request.getParameter("JSESSIONID") != null) {
-            final Cookie userCookie = new Cookie("JSESSIONID", request.getParameter("JSESSIONID"));
-            response.addCookie(userCookie);
-        }
-        else {
-            final String sessionId = session.getId();
-            final Cookie userCookie = new Cookie("JSESSIONID", sessionId);
-            response.addCookie(userCookie);
-        }
-
         try {
             Environment environment = Environment.getInstance();
             this.handleRequest(request, response, method, environment);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             _logger.error("Unable to handle request.", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             PrintWriter writer = response.getWriter();
