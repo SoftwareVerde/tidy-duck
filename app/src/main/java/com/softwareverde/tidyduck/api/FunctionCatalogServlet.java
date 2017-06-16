@@ -132,6 +132,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         try {
             FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+            functionCatalog.setId(functionCatalogId);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.updateFunctionCatalog(versionId, functionCatalog);

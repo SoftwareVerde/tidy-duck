@@ -1,4 +1,4 @@
-class Account {
+class Author {
     constructor() {
         this._id = null;
     }

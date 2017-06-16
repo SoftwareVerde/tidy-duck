@@ -10,7 +10,7 @@ class FunctionCatalogDatabaseManager {
 
     private final DatabaseConnection _databaseConnection;
 
-    public FunctionCatalogDatabaseManager(DatabaseConnection databaseConnection) {
+    public FunctionCatalogDatabaseManager(final DatabaseConnection databaseConnection) {
         _databaseConnection = databaseConnection;
     }    
 
@@ -76,13 +76,15 @@ class FunctionCatalogDatabaseManager {
         final String newReleaseDate = DateUtil.dateToDateString(proposedFunctionCatalog.getReleaseDate());
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
+        final long functionCatalogId = proposedFunctionCatalog.getId();
 
-        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, release_date = ?, account_id = ?, company_id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, release_date = ?, account_id = ?, company_id = ? WHERE id = ?")
             .setParameter(newName)
             .setParameter(newReleaseVersion)
             .setParameter(newReleaseDate)
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
+            .setParameter(functionCatalogId)
         ;
 
         _databaseConnection.executeSql(query);

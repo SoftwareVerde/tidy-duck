@@ -8,6 +8,10 @@ public class Util extends com.softwareverde.util.Util {
         return string == null && string.trim().length() == 0;
     }
 
+    public static boolean isNotBlank(String string) {
+        return string != null && string.trim().length() > 0;
+    }
+
     public static String getInputStreamAsString(InputStream inputStream) {
         java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";

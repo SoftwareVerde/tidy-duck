@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE web-app
-        PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-        "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
     <display-name>Tidy Duck</display-name>
-    <description>
-        Tidy Duck - MOST XML Generator
-    </description>
+    <description>Tidy Duck - MOST XML Generator</description>
 
     <servlet>
         <servlet-name>Account</servlet-name>
@@ -19,6 +15,10 @@
     <servlet>
         <servlet-name>FunctionCatalog</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.FunctionCatalogServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>FunctionBlock</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.FunctionBlockServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -46,6 +46,15 @@
     <servlet-mapping>
         <servlet-name>FunctionCatalog</servlet-name>
         <url-pattern>/api/v1/function-catalog/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>FunctionBlock</servlet-name>
+        <url-pattern>/api/v1/function-block</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FunctionCatalog</servlet-name>
+        <url-pattern>/api/v1/function-block/*</url-pattern>
     </servlet-mapping>
 
     <session-config>

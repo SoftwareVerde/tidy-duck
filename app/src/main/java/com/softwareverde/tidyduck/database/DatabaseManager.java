@@ -2,6 +2,7 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
@@ -24,6 +25,8 @@ public class DatabaseManager {
         final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_environment);
         jdbcDatabaseTransaction.execute(databaseConnectedRunnable);
     }
+
+    // FUNCTION CATALOG METHODS
 
     public void insertFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
@@ -51,6 +54,18 @@ public class DatabaseManager {
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
                 functionCatalogDatabaseManager.deleteFunctionCatalogFromVersion(versionId, functionCatalogId);
+            }
+        });
+    }
+
+    // FUNCTION BLOCK METHODS
+
+    public void insertFunctionBlock(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock);
             }
         });
     }
