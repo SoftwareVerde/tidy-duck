@@ -45,7 +45,7 @@ public abstract class JsonServlet extends BaseServlet {
         PrintWriter writer = resp.getWriter();
         writer.append(json.toString());
         long endTime = System.currentTimeMillis();
-        _logger.info("Request took " + (endTime-startTime) + "ms.");
+        _logger.info(httpMethod.name() + " request to " + req.getRequestURI() + " took " + (endTime-startTime) + "ms.");
     }
 
     protected static Json _getRequestDataAsJson(HttpServletRequest request) throws IOException {

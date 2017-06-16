@@ -7,11 +7,11 @@ class App extends React.Component {
             functionCatalogs:   []
         };
 
+        this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
-
         
         const thisApp = this;
         const versionId = 1;
@@ -61,7 +61,7 @@ class App extends React.Component {
         const functionBlocks = functionCatalog.getFunctionBlocks();
         for (let i in functionBlocks) {
             const functionBlock = functionBlocks[i];
-            navigationItems.push(functioBlock);
+            navigationItems.push(functionBlock);
         }
         // TODO: Traverse FB children... [, ...]
 
@@ -70,11 +70,34 @@ class App extends React.Component {
         });
     }
 
+    deleteFunctionCatalog(functionCatalog) {
+        const thisApp = this;
+
+        const versionId = 1; // TODO
+        const functionCatalogId = functionCatalog.getId();
+
+        deleteFunctionCatalog(versionId, functionCatalogId, function (success) {
+            if (success) {
+                const newFunctionCatalogs = [];
+                const existingFunctionCatalogs = thisApp.state.functionCatalogs;
+                for (let i in existingFunctionCatalogs) {
+                    const existingFunctionCatalog = existingFunctionCatalogs[i];
+                    if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
+                        newFunctionCatalogs.push(existingFunctionCatalog);
+                    }
+                }
+                thisApp.setState({
+                    functionCatalogs: newFunctionCatalogs
+                });
+            }
+        });
+    }
+
     renderFunctionCatalogs() {
         const reactComponents = [];
         for (let i in this.state.functionCatalogs) {
             const functionCatalog = this.state.functionCatalogs[i];
-            reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={functionCatalog} onClick={this.onFunctionCatalogSelected} />);
+            reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={functionCatalog} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
         }
         return reactComponents;
     }

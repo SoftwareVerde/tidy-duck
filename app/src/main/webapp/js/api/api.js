@@ -58,6 +58,26 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
     });
 }
 
+function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId + "?versionId=" + versionId,
+        {
+            method: 'DELETE'
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to delete function catalog " + functionCatalogId + " from version " + versionId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
 function exportFunctionCatalogToMost(functionCatalogId) {
     window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
 }
