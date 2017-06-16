@@ -6,8 +6,8 @@ import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.mostadapter.MostAdapter;
 import com.softwareverde.tidyduck.mostadapter.MostAdapterException;
-import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
+import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class MostGeneratorServlet extends BaseServlet {
 
     @Override
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method, Environment environment) throws ServletException, IOException {
-        if (! AuthenticatedJsonServlet.isAuthenticated(request)) {
+        if (! Session.isAuthenticated(request)) {
             authenticationError(response);
             return;
         }

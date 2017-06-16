@@ -2,22 +2,20 @@ package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.Environment;
-import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
+import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.HashUtil;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.sql.Connection;
 import java.util.List;
 
@@ -34,12 +32,12 @@ public class AccountServlet extends JsonServlet {
         final Boolean doLogout = ("logout".equals(finalUrlSegment));
 
         if ( (! isPost) && (doSelect) ) {
-            final Boolean isAuthenticated = AuthenticatedJsonServlet.isAuthenticated(request);
+            final Boolean isAuthenticated = Session.isAuthenticated(request);
             if (! isAuthenticated) {
                 return super._generateErrorJson("Not authorized.");
             }
 
-            final Long accountId = AuthenticatedJsonServlet.getAccountId(request);
+            final Long accountId = Session.getAccountId(request);
             final Account account;
             try {
                 final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
@@ -82,8 +80,7 @@ public class AccountServlet extends JsonServlet {
                 final Row row = rows.get(0);
                 final Long accountId = row.getLong("id");
 
-                final HttpSession session = request.getSession();
-                session.setAttribute(AuthenticatedJsonServlet.SESSION_ACCOUNT_ID_KEY, accountId);
+                Session.setAccountId(accountId, request);
 
                 return super._generateSuccessJson();
             }
@@ -93,8 +90,7 @@ public class AccountServlet extends JsonServlet {
             }
         }
         else if (doLogout) {
-            final HttpSession session = request.getSession();
-            session.setAttribute(AuthenticatedJsonServlet.SESSION_ACCOUNT_ID_KEY, null);
+            Session.setAccountId(null, request);
             return super._generateSuccessJson();
         }
 

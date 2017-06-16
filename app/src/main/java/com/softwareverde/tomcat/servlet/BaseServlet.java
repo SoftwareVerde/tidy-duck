@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -24,27 +26,16 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     public static String getFinalUrlSegment(final HttpServletRequest request) {
-        final String path = request.getServletPath();
+        final String path = request.getRequestURI();
         final int finalSlash = path.lastIndexOf('/');
         return path.substring(finalSlash+1);
     }
 
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
-        final HttpSession session = request.getSession();
-        if (request.getParameter("JSESSIONID") != null) {
-            final Cookie userCookie = new Cookie("JSESSIONID", request.getParameter("JSESSIONID"));
-            response.addCookie(userCookie);
-        }
-        else {
-            final String sessionId = session.getId();
-            final Cookie userCookie = new Cookie("JSESSIONID", sessionId);
-            response.addCookie(userCookie);
-        }
-
         try {
             Environment environment = Environment.getInstance();
             this.handleRequest(request, response, method, environment);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             _logger.error("Unable to handle request.", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             PrintWriter writer = response.getWriter();

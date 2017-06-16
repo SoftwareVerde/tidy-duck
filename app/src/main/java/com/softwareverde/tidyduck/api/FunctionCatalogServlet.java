@@ -117,7 +117,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     private Json updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, Environment environment) throws IOException {
-        final Json request = AuthenticatedJsonServlet._getRequestDataAsJson(httpRequest);
+        final Json request = super._getRequestDataAsJson(httpRequest);
 
         final Long versionId = Util.parseLong(request.getString("versionId"));
 
@@ -193,7 +193,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
 
             if (authorId < 1) {
-                throw new Exception("Invalid AccountServlet ID: " + authorId);
+                throw new Exception("Invalid Author ID: " + authorId);
             }
 
             if (companyId < 1) {

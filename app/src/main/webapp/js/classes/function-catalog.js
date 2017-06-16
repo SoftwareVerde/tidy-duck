@@ -2,8 +2,8 @@ class FunctionCatalog {
     static fromJson(json) {
         const functionCatalog = new FunctionCatalog();
 
-        const account = new Account();
-        account.setId(json.accountId);
+        const author = new Author();
+        author.setId(json.authorId);
 
         const company = new Company();
         company.setId(json.companyId);
@@ -12,7 +12,7 @@ class FunctionCatalog {
         functionCatalog.setName(json.name);
         functionCatalog.setReleaseVersion(json.releaseVersion);
         functionCatalog.setReleaseDate(json.releaseDate);
-        functionCatalog.setAuthor(account);
+        functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
         return functionCatalog;
@@ -20,7 +20,7 @@ class FunctionCatalog {
 
     //Converts existing function catalog into JSON
     static toJson(functionCatalog) {
-        const author = (functionCatalog.getAuthor() || new Account());
+        const author = (functionCatalog.getAuthor() || new Author());
         const company = (functionCatalog.getCompany() || new Company());
 
         return {
