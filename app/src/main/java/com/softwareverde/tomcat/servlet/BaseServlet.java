@@ -31,18 +31,10 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
-        if (! AuthenticatedJsonServlet.hasSessionCookie(request)) {
-            final Cookie userCookie = new Cookie(AuthenticatedJsonServlet.COOKIE_SESSION_NAME, HashUtil.sha256(""+ Math.random()));
-            userCookie.setPath("/");
-            userCookie.setHttpOnly(true);
-            userCookie.setMaxAge(60 * 24 * 265);
-            response.addCookie(userCookie);
-        }
-
         try {
             Environment environment = Environment.getInstance();
             this.handleRequest(request, response, method, environment);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             _logger.error("Unable to handle request.", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             PrintWriter writer = response.getWriter();
