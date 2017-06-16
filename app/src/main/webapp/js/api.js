@@ -1,5 +1,9 @@
 const ENDPOINT_PREFIX = '/tidy-duck/';
 
+function exportFunctionCatalogToMost(functionCatalogId) {
+    window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
+}
+
 function jsonFetch(request, callbackFunction) {
     fetch(request).then(function(response) {
         return response.json();
@@ -9,6 +13,8 @@ function jsonFetch(request, callbackFunction) {
         }
     });
 }
+
+// FUNCTION CATALOGS
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
@@ -102,6 +108,23 @@ function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
     });
 }
 
-function exportFunctionCatalogToMost(functionCatalogId) {
-    window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
+// FUNCTION BLOCKS
+
+// calls callbackFunction with an array of function blocks
+function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
+    const endpoint = ENDPOINT_PREFIX + 'api/v1/function-block?function_catalog_id=' + functionCatalogId;
+
+    jsonFetch(endpoint, function(data) {
+        let functionBlocks = null;
+
+        if (data.wasSuccess) {
+            functionBlocks = data.functionBlocks;
+        } else {
+            console.log('Unable to get function blocks for function catalog ' + functionCatalogId + ': ' + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlocks);
+        }
+    });
 }

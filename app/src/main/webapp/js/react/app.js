@@ -119,23 +119,26 @@ class App extends React.Component {
     }
 
     onFunctionCatalogSelected(functionCatalog) {
+        const thisApp = this;
         const navigationItems = [];
         navigationItems.push(functionCatalog);
 
-        const functionBlocks = functionCatalog.getFunctionBlocks();
-        for (let i in functionBlocks) {
-            const functionBlock = functionBlocks[i];
-            navigationItems.push(functionBlock);
-        }
-        // TODO: Traverse FB children... [, ...]
-        this.setState({
-            navigationItems: navigationItems,
-            selectedChildItem: functionCatalog,
-            functionBlocks: functionBlocks,
-            childItems: functionBlocks,
-            isChildItemSelected : true,
-            navigationLevel: this.navigationLevel.functionCatalogs
-        });
+        getFunctionBlocksForFunctionCatalogId(functionCatalog.getId(), function(functionBlocksJson) {
+            const functionBlocks = [];
+            for (let i in functionBlocksJson) {
+                const functionBlockJson = functionBlocksJson[i];
+                const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                functionBlocks.push(functionBlock);
+            }
+            thisApp.setState({
+                navigationItems: navigationItems,
+                selectedChildItem: functionCatalog,
+                functionBlocks: functionBlocks,
+                childItems: functionBlocks,
+                isChildItemSelected : true,
+                currentNavigationLevel: thisApp.navigationLevel.functionCatalogs
+            });
+        })
     }
 
     deleteFunctionCatalog(functionCatalog) {
@@ -187,7 +190,7 @@ class App extends React.Component {
             interfaces: interfaces,
             childItems: interfaces,
             isChildItemSelected : true,
-            navigationLevel: this.navigationLevel.interfaces
+            currentNavigationLevel: this.navigationLevel.interfaces
         });
     }
 
@@ -203,23 +206,25 @@ class App extends React.Component {
             switch(currentNavigationLevel)
             {
                 case navigationLevel.versions:
-                    reactComponents.push(<app.FunctionCatalog key={i} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+                    const functionCatalogKey = "FunctionCatalog" + i;
+                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
                     break;
                 case navigationLevel.functionCatalogs:
                     // TODO: Add necessary save/submit functions and change onSubmit props.
-                    if(this.state.showFunctionBlockForm) { // Display Function Block Form AFTER Function Catalog form.
+                    if (this.state.showFunctionBlockForm) { // Display Function Block Form AFTER Function Catalog form.
                         reactComponents.push(
-                            <app.FunctionBlockForm
+                            <app.FunctionBlockForm key="FunctionBlockDisplayForm"
                                 onSubmit={this.state.isChildItemSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
                                 functionCatalog={this.state.selectedChildItem}
                                 isChildItemSelected={this.state.isChildItemSelected}
                             />);
                     } else {                               // Display + icon for adding a function block.
-                        reactComponents.push(<i className="fa fa-plus" onClick={this.onPlusButtonClicked}/>);
+                        reactComponents.push(<i key="FunctionBlockAddButton" className="fa fa-plus" onClick={this.onPlusButtonClicked}/>);
                     }
 
                     // TODO: Add necessary delete function and change onDelete props.
-                    reactComponents.push(<app.FunctionBlock key={i} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.deleteFunctionCatalog} />);
+                    const functionBlockKey = "FunctionBlock" + i;
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.deleteFunctionCatalog} />);
                     break;
             }
         }

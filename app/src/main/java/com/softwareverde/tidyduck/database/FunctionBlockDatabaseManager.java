@@ -20,6 +20,7 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
+        final String mostId = functionBlock.getMostId();
         final FunctionBlock.Kind kind = functionBlock.getKind();
         final String name = functionBlock.getName();
         final String description = functionBlock.getDescription();
@@ -27,7 +28,8 @@ public class FunctionBlockDatabaseManager {
         final Long accountId = functionBlock.getAccount().getId();
         final Long companyId = functionBlock.getCompany().getId();
 
-        final Query query = new Query("INSERT INTO function_blocks (kind, name, description, last_modified_date, release_version, account_id, company_id) VALUES (?, ?, ?, NOW(), ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)")
+            .setParameter(mostId)
             .setParameter(kind.getXmlText())
             .setParameter(name)
             .setParameter(description)

@@ -56,11 +56,12 @@ public class FunctionBlockInflater {
         final Row row = rows.get(0);
 
         final long id = row.getLong("id");
+        final String mostId = row.getString("most_id");
         final String kindString = row.getString("kind");
-        final FunctionBlock.Kind kind = FunctionBlock.Kind.valueOf(kindString);
+        final FunctionBlock.Kind kind = FunctionBlock.Kind.valueOf(kindString.toUpperCase());
         final String name = row.getString("name");
         final String description = row.getString("description");
-        final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("lastModifiedDate"));
+        final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
         final String release = row.getString("release_version");
         final long accountId = row.getLong("account_id");
         final long companyId = row.getLong("company_id");
@@ -71,6 +72,7 @@ public class FunctionBlockInflater {
 
         FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setId(id);
+        functionBlock.setMostId(mostId);
         functionBlock.setKind(kind);
         functionBlock.setName(name);
         functionBlock.setDescription(description);

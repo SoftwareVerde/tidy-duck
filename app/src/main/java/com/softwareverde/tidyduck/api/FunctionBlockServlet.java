@@ -93,7 +93,8 @@ public class FunctionBlockServlet extends JsonServlet {
             for (final FunctionBlock functionBlock : functionBlocks) {
                 final Json blockJson = new Json(false);
                 blockJson.put("id", functionBlock.getId());
-                blockJson.put("kind", functionBlock.getKind());
+                blockJson.put("mostId", functionBlock.getMostId());
+                blockJson.put("kind", functionBlock.getKind().getXmlText());
                 blockJson.put("name", functionBlock.getName());
                 blockJson.put("description", functionBlock.getDescription());
                 blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
@@ -114,6 +115,7 @@ public class FunctionBlockServlet extends JsonServlet {
     }
 
     protected FunctionBlock populateFunctionBlockFromJson(Json functionBlockJson) throws Exception {
+        final String mostId = functionBlockJson.getString("mostId");
         final String kindString = functionBlockJson.getString("kind");
         final String name = functionBlockJson.getString("name");
         final String description = functionBlockJson.getString("description");
@@ -124,6 +126,10 @@ public class FunctionBlockServlet extends JsonServlet {
         FunctionBlock.Kind kind = FunctionBlock.Kind.PROPRIETARY;
 
         { // Validate Inputs
+            if (Util.isBlank(mostId)) {
+                throw new Exception("Invalid Most ID: " + mostId);
+            }
+
             if (Util.isNotBlank(kindString)) {
                 // will throw an exception if invalid
                 kind = FunctionBlock.Kind.valueOf(kindString);
@@ -134,7 +140,7 @@ public class FunctionBlockServlet extends JsonServlet {
             }
 
             if (Util.isBlank(description)) {
-                throw new Exception("Invalid description: " + description);
+                throw new Exception("Invalid Description: " + description);
             }
 
             if (Util.isBlank(release)) {
@@ -157,6 +163,7 @@ public class FunctionBlockServlet extends JsonServlet {
         account.setId(authorId);
 
         FunctionBlock functionBlock = new FunctionBlock();
+        functionBlock.setMostId(mostId);
         functionBlock.setKind(kind);
         functionBlock.setName(name);
         functionBlock.setRelease(release);

@@ -53,6 +53,7 @@ CREATE TABLE versions_function_catalogs (
 
 CREATE TABLE function_blocks (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
+    most_id varchar(255) NOT NULL,
     kind varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
