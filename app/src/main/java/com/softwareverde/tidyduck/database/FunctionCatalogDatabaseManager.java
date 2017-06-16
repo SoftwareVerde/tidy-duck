@@ -10,7 +10,7 @@ class FunctionCatalogDatabaseManager {
 
     private final DatabaseConnection _databaseConnection;
 
-    public FunctionCatalogDatabaseManager(DatabaseConnection databaseConnection) {
+    public FunctionCatalogDatabaseManager(final DatabaseConnection databaseConnection) {
         _databaseConnection = databaseConnection;
     }    
 
