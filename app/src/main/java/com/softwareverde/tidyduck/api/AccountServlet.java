@@ -82,8 +82,9 @@ public class AccountServlet extends JsonServlet {
                 final Row row = rows.get(0);
                 final Long accountId = row.getLong("id");
 
-                final HttpSession session = request.getSession();
-                session.setAttribute(AuthenticatedJsonServlet.SESSION_ACCOUNT_ID_KEY, accountId);
+                // final HttpSession session = request.getSession();
+                // session.setAttribute(AuthenticatedJsonServlet.SESSION_ACCOUNT_ID_KEY, accountId);
+                AuthenticatedJsonServlet.setAccountId(accountId, request);
 
                 return super._generateSuccessJson();
             }
@@ -93,8 +94,7 @@ public class AccountServlet extends JsonServlet {
             }
         }
         else if (doLogout) {
-            final HttpSession session = request.getSession();
-            session.setAttribute(AuthenticatedJsonServlet.SESSION_ACCOUNT_ID_KEY, null);
+            AuthenticatedJsonServlet.setAccountId(null, request);
             return super._generateSuccessJson();
         }
 

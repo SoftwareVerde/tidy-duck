@@ -2,7 +2,7 @@ const ENDPOINT_PREFIX = '/';
 const API_PREFIX = ENDPOINT_PREFIX + 'api/v1/';
 
 function jsonFetch(request, callbackFunction) {
-    fetch(request).then(function(response) {
+    fetch(request, { credentials: 'include' }).then(function(response) {
         return response.json();
     }).then(function(json) {
         if (typeof callbackFunction == "function") {

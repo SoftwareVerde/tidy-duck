@@ -1,6 +1,7 @@
 package com.softwareverde.tomcat.servlet;
 
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.util.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +31,11 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
-        final HttpSession session = request.getSession();
-        if (request.getParameter("JSESSIONID") != null) {
-            final Cookie userCookie = new Cookie("JSESSIONID", request.getParameter("JSESSIONID"));
-            response.addCookie(userCookie);
-        }
-        else {
-            final String sessionId = session.getId();
-            final Cookie userCookie = new Cookie("JSESSIONID", sessionId);
+        if (! AuthenticatedJsonServlet.hasSessionCookie(request)) {
+            final Cookie userCookie = new Cookie(AuthenticatedJsonServlet.COOKIE_SESSION_NAME, HashUtil.sha256(""+ Math.random()));
+            userCookie.setPath("/");
+            userCookie.setHttpOnly(true);
+            userCookie.setMaxAge(60 * 24 * 265);
             response.addCookie(userCookie);
         }
 
