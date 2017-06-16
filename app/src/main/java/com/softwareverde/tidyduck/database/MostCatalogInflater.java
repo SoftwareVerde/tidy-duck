@@ -4,10 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.util.Util;
 
 import java.sql.Connection;
@@ -70,7 +67,7 @@ public class MostCatalogInflater {
         return functionCatalog;
     }
 
-    private Company inflateCompany(long companyId) throws DatabaseException {
+    public Company inflateCompany(long companyId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name"
                 + " FROM companies"
@@ -92,7 +89,7 @@ public class MostCatalogInflater {
         return company;
     }
 
-    private Account inflateAccount(Long accountId) throws DatabaseException {
+    public Account inflateAccount(Long accountId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name, company_id"
                 + " FROM accounts"
