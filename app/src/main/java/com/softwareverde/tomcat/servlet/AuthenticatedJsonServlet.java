@@ -16,13 +16,15 @@ public abstract class AuthenticatedJsonServlet extends JsonServlet {
     protected abstract Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception;
 
     public static Boolean isAuthenticated(final HttpServletRequest request) {
-        final HttpSession session = request.getSession();
+        final HttpSession session = request.getSession(false);
+        if (session == null) { return false; }
         final Object accountObject = session.getAttribute(SESSION_ACCOUNT_ID_KEY);
         return (accountObject != null);
     }
 
     public static Long getAccountId(final HttpServletRequest request) {
-        final HttpSession session = request.getSession();
+        final HttpSession session = request.getSession(false);
+        if (session == null) { return null; }
         final Object accountObject = session.getAttribute(SESSION_ACCOUNT_ID_KEY);
         return (Long) accountObject;
     }

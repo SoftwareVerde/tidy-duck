@@ -1,5 +1,5 @@
 function redirectToApp() {
-    window.location.href = "/app/";
+    window.location.replace("/app/");
 }
 
 $(window).on("load", function() {
