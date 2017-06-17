@@ -184,7 +184,7 @@ class App extends React.Component {
             navigationItems:        navigationItems,
             selectedItem:           functionBlock,
             interfaces:             interfaces,
-            currentNavigationLevel: thisApp.NavigationLevel.functionBlock
+            currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
         });
     }
 
