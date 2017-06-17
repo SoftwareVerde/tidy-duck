@@ -31,6 +31,8 @@ class FunctionBlock {
         this._releaseVersion        = null;
         this._author                = null;
         this._company               = null;
+
+        this._interfaces            = [];
     };
 
     setId(id) {
@@ -103,5 +105,9 @@ class FunctionBlock {
 
     getCompany() {
         return this._company;
+    }
+
+    getInterfaces() {
+        return this._interfaces;
     }
 }
