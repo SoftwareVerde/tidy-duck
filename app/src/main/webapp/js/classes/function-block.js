@@ -21,6 +21,23 @@ class FunctionBlock {
         return functionBlock;
     }
 
+    static toJson(functionBlock) {
+        const author = (functionBlock.getAuthor() || new Author());
+        const company = (functionBlock.getCompany() || new Company());
+
+        return {
+            id:                 functionBlock.getId(),
+            mostId:             functionBlock.getMostId(),
+            kind:               functionBlock.getKind(),
+            name:               functionBlock.getName(),
+            description:        functionBlock.getDescription(),
+            lastModifiedDate:   functionBlock.getLastModifiedDate(),
+            releaseVersion:     functionBlock.getReleaseVersion(),
+            authorId:           author.getId(),
+            companyId:          company.getId()
+        };
+    }
+
     constructor() {
         this._id                    = null;
         this._mostId                = null;

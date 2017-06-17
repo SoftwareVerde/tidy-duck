@@ -134,14 +134,14 @@ class FunctionBlockForm extends React.Component {
 
         return (
             <div className="metadata-form">
-                <app.InputField id="function-block-most-id" name="id" type="text" label="ID" value={this.state.functionBlock.getMostID()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
+                <app.InputField id="function-block-most-id" name="id" type="text" label="ID" value={this.state.functionBlock.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
                 <app.InputField id="function-block-kind" name="kind" type="text" label="Kind" value={this.state.functionBlock.getKind()} readOnly={this.props.readOnly} onChange={this.onKindChanged} />
                 <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-block-description" name="description" type="text" label="Description" value={this.state.functionBlock.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
                 <app.InputField id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-block-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
                 <app.InputField id="function-block-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="submit-button" id="function-block-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
+                <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
             </div>
         );
     }

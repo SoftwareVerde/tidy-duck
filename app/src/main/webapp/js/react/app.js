@@ -2,7 +2,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        this.navigationLevel = {
+        this.NavigationLevel = {
             versions:           "versions",
             functionCatalogs:   "functionCatalogs",
             functionBlocks:     "functionBlocks",
@@ -16,10 +16,9 @@ class App extends React.Component {
             functionCatalogs:   [],
             functionBlocks:     [],
             interfaces:         [],
-            isChildItemSelected:    false,
-            selectedChildItem:      null,
-            currentNavigationLevel: this.navigationLevel.versions,
-            showFunctionBlockForm:  false
+            selectedItem:               null,
+            currentNavigationLevel:     this.NavigationLevel.versions,
+            shouldShowCreateChildForm:  true
         };
 
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
@@ -43,7 +42,7 @@ class App extends React.Component {
 
             thisApp.setState({
                 functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.navigationLevel.versions
+                currentNavigationLevel: thisApp.NavigationLevel.versions
             });
         });
     }
@@ -60,8 +59,8 @@ class App extends React.Component {
 
             thisApp.setState({
                 functionCatalogs:       functionCatalogs,
-                selectedChildItem:      functionCatalog,
-                currentNavigationLevel: thisApp.navigationLevel.versions
+                selectedItem:           functionCatalog,
+                currentNavigationLevel: thisApp.NavigationLevel.versions
             });
         });
     }
@@ -82,8 +81,8 @@ class App extends React.Component {
 
                 thisApp.setState({
                     functionCatalogs:       functionCatalogs,
-                    selectedChildItem:      functionCatalog,
-                    currentNavigationLevel: thisApp.navigationLevel.functionCatalogs
+                    selectedItem:           functionCatalog,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
             }
         });
@@ -94,11 +93,10 @@ class App extends React.Component {
         const navigationItems = [];
 
         this.setState({
-            navigationItems:        navigationItems,
-            isChildItemSelected:    false,
-            selectedChildItem:      null,
-            showFunctionBlockForm:  false,
-            navigationLevel:        thisApp.navigationLevel.versions
+            navigationItems:            navigationItems,
+            selectedItem:               null,
+            shouldShowCreateChildForm:  true,
+            navigationLevel:            thisApp.NavigationLevel.versions
         });
 
         const versionId = 1;
@@ -112,7 +110,7 @@ class App extends React.Component {
 
             thisApp.setState({
                 functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.navigationLevel.versions
+                currentNavigationLevel: thisApp.NavigationLevel.versions
             });
         });
     }
@@ -131,10 +129,9 @@ class App extends React.Component {
             }
             thisApp.setState({
                 navigationItems:        navigationItems,
-                selectedChildItem:      functionCatalog,
+                selectedItem:           functionCatalog,
                 functionBlocks:         functionBlocks,
-                isChildItemSelected:    true,
-                currentNavigationLevel: thisApp.navigationLevel.functionCatalogs
+                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
             });
         })
     }
@@ -157,8 +154,8 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionCatalogs:       newFunctionCatalogs,
-                    selectedChildItem:      null,
-                    currentNavigationLevel: thisApp.navigationLevel.functionCatalogs
+                    selectedItem:           null,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
             }
         });
@@ -166,9 +163,8 @@ class App extends React.Component {
 
     onPlusButtonClicked() {
         this.setState({
-            isChildItemSelected:    false,
-            selectedChildItem:      null,
-            showFunctionBlockForm:  true
+            selectedItem:               null,
+            shouldShowCreateChildForm:  true
         });
     }
 
@@ -186,23 +182,22 @@ class App extends React.Component {
         // TODO: Traverse FB children... [, ...]
         this.setState({
             navigationItems:        navigationItems,
-            selectedChildItem:      functionBlock,
+            selectedItem:           functionBlock,
             interfaces:             interfaces,
-            isChildItemSelected:    true,
-            currentNavigationLevel: thisApp.navigationLevel.interfaces
+            currentNavigationLevel: thisApp.NavigationLevel.functionBlock
         });
     }
 
     renderChildItems() {
         const reactComponents = [];
-        const navigationLevel = this.navigationLevel;
+        const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
 
         console.log(currentNavigationLevel);
 
         let childItems = [];
         switch (currentNavigationLevel) {
-            case navigationLevel.versions:
+            case NavigationLevel.versions:
                 childItems = this.state.functionCatalogs;
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -211,28 +206,87 @@ class App extends React.Component {
                 }
             break;
 
-            case navigationLevel.functionCatalogs:
-                const shouldShowFunctionBlockForm = this.state.showFunctionBlockForm;
+            case NavigationLevel.functionCatalogs:
                 childItems = this.state.functionBlocks;
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     // TODO: Add necessary save/submit functions and change onSubmit props.
-                    if (shouldShowFunctionBlockForm) { // Display Function Block Form AFTER Function Catalog form.
-                        reactComponents.push(
-                            <app.FunctionBlockForm key="FunctionBlockDisplayForm"
-                                onSubmit={this.state.isChildItemSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
-                                functionCatalog={this.state.selectedChildItem}
-                                isChildItemSelected={this.state.isChildItemSelected}
-                            />
-                        );
-                    } else {                               // Display + icon for adding a function block.
-                        reactComponents.push(<i key="FunctionBlockAddButton" className="fa fa-plus" onClick={this.onPlusButtonClicked}/>);
-                    }
+                    // reactComponents.push(<i key="FunctionBlockAddButton" className="fa fa-plus" onClick={this.onPlusButtonClicked}/>);
 
                     // TODO: Add necessary delete function and change onDelete props.
                     const functionBlockKey = "FunctionBlock" + i;
                     reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.deleteFunctionCatalog} />);
                 }
+            break;
+
+            case NavigationLevel.functionBlocks:
+                childItems = this.state.interfaces;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    reactComponents.push(<div className="function-catalog" />);
+                }
+            break;
+
+            default:
+                console.log("renderChildItems: Unimplemented Navigation Level: "+ currentNavigationLevel);
+            break;
+        }
+
+        return reactComponents;
+    }
+
+    renderForm() {
+        const NavigationLevel = this.NavigationLevel;
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        const isEditingExistingObject = (this.state.selectedItem != null);
+        const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
+
+        const reactComponents = [];
+
+        switch (currentNavigationLevel) {
+            case NavigationLevel.versions:
+                if (shouldShowCreateChildForm) {
+                    reactComponents.push(
+                        <app.FunctionCatalogForm key="FunctionCatalogForm"
+                            onSubmit={isEditingExistingObject ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
+                            isItemSelected={this.state.isItemSelected}
+                            functionCatalog={this.state.selectedItem}
+                        />
+                    );
+                }
+            break;
+
+            case NavigationLevel.functionCatalogs:
+                reactComponents.push(
+                    <app.FunctionCatalogForm key="FunctionCatalogForm"
+                        onSubmit={isEditingExistingObject ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
+                        functionCatalog={this.state.selectedItem}
+                        isItemSelected={true}
+                    />
+                );
+                if (shouldShowCreateChildForm) {
+                    reactComponents.push(
+                        <app.FunctionBlockForm key="FunctionBlockForm"
+                            onSubmit={this.onFunctionCatalogSubmit}
+                            isItemSelected={false}
+                        />
+                    );
+                }
+            break;
+
+            case NavigationLevel.functionBlocks:
+                reactComponents.push(
+                    <app.FunctionBlockForm key="FunctionBlockForm"
+                        onSubmit={this.onFunctionCatalogSave}
+                        functionBlock={this.state.selectedItem}
+                        isItemSelected={true}
+                    />
+                );
+            break;
+
+            default:
+                console.log("renderForm: Unimplemented Navigation Level: "+ currentNavigationLevel);
             break;
         }
 
@@ -244,11 +298,7 @@ class App extends React.Component {
             <div className="container">
                 <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
                 <div className="display-area">
-                    <app.FunctionCatalogForm
-                        onSubmit={this.state.isChildItemSelected ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
-                        functionCatalog={this.state.selectedChildItem}
-                        isChildItemSelected={this.state.isChildItemSelected}
-                    />
+                    {this.renderForm()}
                     <div id="child-display-area" className="clearfix">
                         {this.renderChildItems()}
                     </div>
