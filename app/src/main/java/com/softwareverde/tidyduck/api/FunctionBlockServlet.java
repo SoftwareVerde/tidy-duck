@@ -102,6 +102,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 blockJson.put("releaseVersion", functionBlock.getRelease());
                 blockJson.put("authorId", functionBlock.getAuthor().getId());
                 blockJson.put("companyId", functionBlock.getCompany().getId());
+                blockJson.put("access", functionBlock.getAccess());
                 blocksJson.add(blockJson);
             }
             response.put("functionBlocks", blocksJson);
@@ -123,12 +124,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final String release = functionBlockJson.getString("releaseVersion");
         final Integer authorId = functionBlockJson.getInteger("authorId");
         final Integer companyId = functionBlockJson.getInteger("companyId");
+        final String access = functionBlockJson.getString("access");
 
         FunctionBlock.Kind kind = FunctionBlock.Kind.PROPRIETARY;
 
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
-                throw new Exception("Invalid Most ID: " + mostId);
+                throw new Exception("Invalid Most ID");
             }
 
             if (! Util.isBlank(kindString)) {
@@ -137,15 +139,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             if (Util.isBlank(name)) {
-                throw new Exception("Invalid Name: " + name);
+                throw new Exception("Name field is required.");
             }
 
             if (Util.isBlank(description)) {
-                throw new Exception("Invalid Description: " + description);
+                throw new Exception("Description field is required.");
             }
 
             if (Util.isBlank(release)) {
-                throw new Exception("Invalid Release: " + release);
+                throw new Exception("Release field is required.");
+            }
+
+            if (Util.isBlank(access)) {
+                throw new Exception("Access field is required.");
             }
 
             if (authorId < 1) {
@@ -171,6 +177,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         functionBlock.setDescription(description);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
+        functionBlock.setAccess(access);
 
         return functionBlock;
     }

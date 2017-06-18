@@ -17,6 +17,7 @@ class FunctionBlock {
         functionBlock.setReleaseVersion(json.releaseVersion);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
+        functionBlock.setAccess(json.access);
 
         return functionBlock;
     }
@@ -34,20 +35,22 @@ class FunctionBlock {
             lastModifiedDate:   functionBlock.getLastModifiedDate(),
             releaseVersion:     functionBlock.getReleaseVersion(),
             authorId:           author.getId(),
-            companyId:          company.getId()
+            companyId:          company.getId(),
+            access:             functionBlock.getAccess()
         };
     }
 
     constructor() {
         this._id                    = null;
         this._mostId                = null;
-        this._kind                  = null;
-        this._name                  = null;
-        this._description           = null;
-        this._lastModifiedDate      = null;
-        this._releaseVersion        = null;
+        this._kind                  = "";
+        this._name                  = "";
+        this._description           = "";
+        this._lastModifiedDate      = "";
+        this._releaseVersion        = "";
         this._author                = null;
         this._company               = null;
+        this._access                = "";
 
         this._interfaces            = [];
     };
@@ -126,5 +129,13 @@ class FunctionBlock {
 
     getInterfaces() {
         return this._interfaces;
+    }
+
+    setAccess(access) {
+        this._access = access;
+    }
+
+    getAccess(access) {
+        return this._access;
     }
 }

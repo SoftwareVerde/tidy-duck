@@ -35,9 +35,9 @@ class FunctionCatalog {
 
     constructor() {
         this._id                = null;
-        this._name              = null;
-        this._releaseVersion    = null;
-        this._releaseDate       = null;
+        this._name              = "";
+        this._releaseVersion    = "";
+        this._releaseDate       = "";
         this._author            = null;
         this._company           = null;
 

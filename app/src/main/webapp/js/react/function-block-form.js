@@ -17,6 +17,7 @@ class FunctionBlockForm extends React.Component {
         this.onKindChanged = this.onKindChanged.bind(this);
         this.onAuthorChanged = this.onAuthorChanged.bind(this);
         this.onCompanyChanged = this.onCompanyChanged.bind(this);
+        this.onAccessChanged = this.onAccessChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -103,6 +104,15 @@ class FunctionBlockForm extends React.Component {
         }
     }
 
+    onAccessChanged(newValue) {
+        const functionBlock = this.state.functionBlock;
+        functionBlock.setAccess(newValue);
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
+    }
+
     onClick(event) {
         event.stopPropagation();
     }
@@ -113,10 +123,13 @@ class FunctionBlockForm extends React.Component {
             this.props.onSubmit(createdFunctionBlock);
         }
 
-        const functionBlock = new FunctionBlock();
-        this.setState({
-            functionBlock: functionBlock
-        });
+        /*
+            // Clear the form...
+            const functionBlock = new FunctionBlock();
+            this.setState({
+                functionBlock: functionBlock
+            });
+        */
     }
 
     renderFormTitle() {
@@ -146,6 +159,7 @@ class FunctionBlockForm extends React.Component {
                 <app.InputField id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-block-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
                 <app.InputField id="function-block-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
+                <app.InputField id="function-block-access" name="access" type="text" label="Access" value={this.state.functionBlock.getAccess()} readOnly={this.props.readOnly} onChange={this.onAccessChanged} />
                 <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>
         );

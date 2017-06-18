@@ -93,10 +93,13 @@ class FunctionCatalogForm extends React.Component {
             this.props.onSubmit(createdFunctionCatalog);
         }
 
-        const functionCatalog = new FunctionCatalog();
-        this.setState({
-            functionCatalog: functionCatalog
-        });
+        /*
+            // Clear the form...
+            const functionCatalog = new FunctionCatalog();
+            this.setState({
+                functionCatalog: functionCatalog
+            });
+        */
     }
 
     renderFormTitle() {

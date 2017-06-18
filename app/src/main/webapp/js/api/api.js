@@ -1,12 +1,12 @@
-const ENDPOINT_PREFIX = '/';
-const API_PREFIX = ENDPOINT_PREFIX + 'api/v1/';
+const ENDPOINT_PREFIX = "/";
+const API_PREFIX = ENDPOINT_PREFIX + "api/v1/";
 
 function exportFunctionCatalogToMost(functionCatalogId) {
-    window.open(ENDPOINT_PREFIX + 'v1/generate-most?function_catalog_id=' + functionCatalogId);
+    window.open(ENDPOINT_PREFIX + "v1/generate-most?function_catalog_id=" + functionCatalogId);
 }
 
 function jsonFetch(request, callbackFunction) {
-    fetch(request, { credentials: 'include' }).then(function(response) {
+    fetch(request, { credentials: "include" }).then(function(response) {
         return response.json();
     }).then(function(json) {
         if (typeof callbackFunction == "function") {
@@ -20,10 +20,10 @@ function jsonFetch(request, callbackFunction) {
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + 'function-catalog?version_id=' + versionId,
+        API_PREFIX + "function-catalog?version_id=" + versionId,
         {
-            method: 'GET',
-            credentials: 'include'
+            method: "GET",
+            credentials: "include"
         }
     );
 
@@ -33,7 +33,7 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
         if (data.wasSuccess) {
             functionCatalogs = data.functionCatalogs;
         } else {
-            console.log('Unable to get function catalogs for version ' + versionId + ': ' + data.errorMessage);
+            console.log("Unable to get function catalogs for version " + versionId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -45,13 +45,13 @@ function getFunctionCatalogsForVersionId(versionId, callbackFunction) {
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
     const request = new Request(
-        API_PREFIX + 'function-catalog',
+        API_PREFIX + "function-catalog",
         {
-            method: 'POST',
-            credentials: 'include',
+            method: "POST",
+            credentials: "include",
             body: JSON.stringify({
-                'versionId': versionId,
-                'functionCatalog': functionCatalog
+                "versionId": versionId,
+                "functionCatalog": functionCatalog
             })
         }
     );
@@ -62,7 +62,7 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
         if (data.wasSuccess) {
             functionCatalogId = data.functionCatalogId;
         } else {
-            console.log('Unable to insert function catalog for version ' + versionId + ': ' + data.errorMessage);
+            console.log("Unable to insert function catalog for version " + versionId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -72,15 +72,15 @@ function insertFunctionCatalog(versionId, functionCatalog, callbackFunction) {
 }
 
 //calls callbackFunction with modified function catalog ID
-function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, callbackFunction) {
+function updateFunctionCatalog(versionId, functionCatalogId, functionCatalog, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-catalog/" + functionCatalogId,
         {
-            method: 'POST',
-            credentials: 'include',
+            method: "POST",
+            credentials: "include",
             body: JSON.stringify({
-                'versionId': versionId,
-                'functionCatalog': functionCatalog
+                "versionId": versionId,
+                "functionCatalog": functionCatalog
             })
         }
     );
@@ -99,10 +99,10 @@ function modifyFunctionCatalog(versionId, functionCatalog, functionCatalogId, ca
 
 function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-catalog/' + functionCatalogId + "?versionId=" + versionId,
+        ENDPOINT_PREFIX + "api/v1/function-catalog/" + functionCatalogId + "?versionId=" + versionId,
         {
-            method: 'DELETE',
-            credentials: 'include'
+            method: "DELETE",
+            credentials: "include"
         }
     );
 
@@ -123,10 +123,10 @@ function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-block?function_catalog_id=' + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-block?function_catalog_id=" + functionCatalogId,
         {
-            method: 'GET',
-            credentials: 'include'
+            method: "GET",
+            credentials: "include"
         }
     );
 
@@ -136,7 +136,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
         if (data.wasSuccess) {
             functionBlocks = data.functionBlocks;
         } else {
-            console.log('Unable to get function blocks for function catalog ' + functionCatalogId + ': ' + data.errorMessage);
+            console.log("Unable to get function blocks for function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -146,15 +146,15 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
 }
 
 // calls callbackFunction with new function block ID
-function insertFunctionBlock(versionId, functionBlock, callbackFunction) {
+function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction) {
     const request = new Request(
-        API_PREFIX + 'function-block',
+        API_PREFIX + "function-block",
         {
-            method: 'POST',
-            credentials: 'include',
+            method: "POST",
+            credentials: "include",
             body: JSON.stringify({
-                'versionId': versionId,
-                'functionBlock': functionBlock
+                "functionCatalogId":    functionCatalogId,
+                "functionBlock":        functionBlock
             })
         }
     );
@@ -165,7 +165,7 @@ function insertFunctionBlock(versionId, functionBlock, callbackFunction) {
         if (data.wasSuccess) {
             functionBlockId = data.functionBlockId;
         } else {
-            console.log('Unable to insert function block for version ' + versionId + ': ' + data.errorMessage);
+            console.log("Unable to insert function block: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -175,15 +175,14 @@ function insertFunctionBlock(versionId, functionBlock, callbackFunction) {
 }
 
 // calls callbackFunction with modified function block ID
-function modifyFunctionBlock(versionId, functionBlock, functionBlockId, callbackFunction) {
+function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-block/' + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId,
         {
-            method: 'POST',
-            credentials: 'include',
+            method: "POST",
+            credentials: "include",
             body: JSON.stringify({
-                'versionId': versionId,
-                'functionBlock': functionBlock
+                "functionBlock":    functionBlock
             })
         }
     );
@@ -202,10 +201,10 @@ function modifyFunctionBlock(versionId, functionBlock, functionBlockId, callback
 
 function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + 'api/v1/function-block/' + functionBlockId + "?versionId=" + versionId,
+        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "?versionId=" + versionId,
         {
-            method: 'DELETE',
-            credentials: 'include'
+            method: "DELETE",
+            credentials: "include"
         }
     );
 

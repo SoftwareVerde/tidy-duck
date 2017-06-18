@@ -22,13 +22,18 @@ class App extends React.Component {
             shouldShowCreateChildForm:  false
         };
 
-        this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
-        this.renderChildItems = this.renderChildItems.bind(this);
-        this.onFunctionCatalogSubmit = this.onFunctionCatalogSubmit.bind(this);
-        this.onFunctionCatalogSave = this.onFunctionCatalogSave.bind(this);
-        this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
+        this.renderChildItems = this.renderChildItems.bind(this);
+
+        this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
+        this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
+        this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
+        this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
+
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
+        this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
+        this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
+        this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
 
         const thisApp = this;
         const versionId = 1;
@@ -47,7 +52,7 @@ class App extends React.Component {
         });
     }
 
-    onFunctionCatalogSubmit(functionCatalog) {
+    onCreateFunctionCatalog(functionCatalog) {
         const thisApp = this;
 
         const versionId = 1; // TODO
@@ -65,17 +70,17 @@ class App extends React.Component {
         });
     }
 
-    onFunctionCatalogSave(functionCatalog) {
+    onUpdateFunctionCatalog(functionCatalog) {
         const thisApp = this;
 
         const versionId = 1; // TODO
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
         const functionCatalogId = functionCatalog.getId();
 
-        modifyFunctionCatalog(versionId,functionCatalogJson, functionCatalogId, function(wasSuccess) {
+        updateFunctionCatalog(versionId, functionCatalogId, functionCatalogJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
-                  return value.getId() != functionCatalogId;
+                    return value.getId() != functionCatalogId;
                 });
                 functionCatalogs = functionCatalogs.push(functionCatalog);
 
@@ -88,32 +93,34 @@ class App extends React.Component {
         });
     }
 
-    onFunctionBlockSubmit(functionBlock) {
+    onCreateFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const versionId = 1; // TODO
+        const functionCatalog = this.state.selectedItem;
+
+        const functionCatalogId = functionCatalog.getId();
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
 
-        insertFunctionBlock(versionId, functionBlockJson, function(functionBlockId) {
+        insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
             functionBlock.setId(functionBlockId);
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
             thisApp.setState({
-                functionBlocks:       functionBlocks,
+                functionBlocks:         functionBlocks,
                 selectedItem:           functionBlock,
                 currentNavigationLevel: thisApp.NavigationLevel.versions
             });
         });
     }
 
-    onFunctionBlockSave(functionBlock) {
+    onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
         const versionId = 1; // TODO
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
         const functionBlockId = functionBlock.getId();
 
-        modifyFunctionBlock(versionId,functionBlockJson, functionBlockId, function(wasSuccess) {
+        updateFunctionBlock(functionBlockId, functionBlockJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                   return value.getId() != functionBlockId;
@@ -180,7 +187,7 @@ class App extends React.Component {
         navigationItemConfig.setForm(
             <app.FunctionCatalogForm 
                 showTitle={false}
-                onSubmit={this.onFunctionCatalogSave}
+                onSubmit={this.onUpdateFunctionCatalog}
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
             />
@@ -205,13 +212,13 @@ class App extends React.Component {
         })
     }
 
-    deleteFunctionCatalog(functionCatalog) {
+    onDeleteFunctionCatalog(functionCatalog) {
         const thisApp = this;
 
         const versionId = 1; // TODO
         const functionCatalogId = functionCatalog.getId();
 
-        deleteFunctionCatalog(versionId, functionCatalogId, function (success) {
+        onDeleteFunctionCatalog(versionId, functionCatalogId, function (success) {
             if (success) {
                 const newFunctionCatalogs = [];
                 const existingFunctionCatalogs = thisApp.state.functionCatalogs;
@@ -249,7 +256,7 @@ class App extends React.Component {
         navigationItemConfig.setForm(
             <app.FunctionBlockForm key="FunctionBlockForm"
                 showTitle={false}
-                onSubmit={this.onFunctionBlockSave}
+                onSubmit={this.onUpdateFunctionBlock}
                 functionBlock={functionBlock}
                 buttonTitle="Save"
             />
@@ -267,6 +274,10 @@ class App extends React.Component {
         });
     }
 
+    onDeleteFunctionBlock(functionBlock) {
+        // TODO
+    }
+
     renderChildItems() {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
@@ -281,7 +292,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
-                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.deleteFunctionCatalog} />);
+                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} />);
                 }
             break;
 
@@ -290,7 +301,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.deleteFunctionCatalog} />);
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionCatalog} />);
                 }
             break;
 
@@ -336,7 +347,7 @@ class App extends React.Component {
                     reactComponents.push(
                         <app.FunctionCatalogForm key="FunctionCatalogForm"
                             showTitle={true}
-                            onSubmit={this.onFunctionCatalogSubmit}
+                            onSubmit={this.onCreateFunctionCatalog}
                         />
                     );
                 }
@@ -347,7 +358,7 @@ class App extends React.Component {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
                             showTitle={true}
-                            onSubmit={this.onFunctionBlockSubmit}
+                            onSubmit={this.onCreateFunctionBlock}
                         />
                     );
                 }

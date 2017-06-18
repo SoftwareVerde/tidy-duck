@@ -27,8 +27,9 @@ public class FunctionBlockDatabaseManager {
         final String release = functionBlock.getRelease();
         final Long authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
+        final String access = functionBlock.getAccess();
 
-        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)")
             .setParameter(mostId)
             .setParameter(kind.getXmlText())
             .setParameter(name)
@@ -36,6 +37,7 @@ public class FunctionBlockDatabaseManager {
             .setParameter(release)
             .setParameter(authorId)
             .setParameter(companyId)
+            .setParameter(access)
         ;
 
         final long functionBlockId = _databaseConnection.executeSql(query);

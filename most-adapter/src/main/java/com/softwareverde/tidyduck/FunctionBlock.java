@@ -32,6 +32,7 @@ public class FunctionBlock extends XmlNode {
     private Date _lastModifiedDate;
     private Author _author;
     private Company _company;
+    private String _access;
     private List<Modification> _modifications = new ArrayList<>();
 
     public Long getId() {
@@ -104,6 +105,14 @@ public class FunctionBlock extends XmlNode {
 
     public void setCompany(Company company) {
         _company = company;
+    }
+
+    public void setAccess(String access) {
+        _access = access;
+    }
+
+    public String getAccess() {
+        return _access;
     }
 
     public List<Modification> getModifications() {
