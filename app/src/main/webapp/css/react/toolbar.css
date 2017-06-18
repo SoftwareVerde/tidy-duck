@@ -16,6 +16,11 @@
     align-items: center;
 
     cursor: pointer;
+
+    transition: color 0.5s ease;
+}
+.toolbar .toolbar-item:hover i {
+    color: #000000;
 }
 
 .toolbar .toolbar-item i {

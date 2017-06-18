@@ -196,10 +196,11 @@ class App extends React.Component {
                 functionBlocks.push(functionBlock);
             }
             thisApp.setState({
-                navigationItems:        navigationItems,
-                selectedItem:           functionCatalog,
-                functionBlocks:         functionBlocks,
-                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                navigationItems:            navigationItems,
+                selectedItem:               functionCatalog,
+                functionBlocks:             functionBlocks,
+                shouldShowCreateChildForm:  false,
+                currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs
             });
         })
     }
@@ -258,10 +259,11 @@ class App extends React.Component {
         const interfaces = functionBlock.getInterfaces();
 
         this.setState({
-            navigationItems:        navigationItems,
-            selectedItem:           functionBlock,
-            interfaces:             interfaces,
-            currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+            navigationItems:            navigationItems,
+            selectedItem:               functionBlock,
+            interfaces:                 interfaces,
+            shouldShowCreateChildForm:  false,
+            currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
         });
     }
 
