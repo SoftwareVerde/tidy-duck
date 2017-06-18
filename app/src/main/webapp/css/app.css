@@ -169,3 +169,8 @@
     box-shadow: none !important;
 }
 
+
+.interfaces-placeholder {
+    padding: 1em;
+    font-size: 2em;
+}

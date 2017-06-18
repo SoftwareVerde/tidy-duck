@@ -12,13 +12,14 @@ class App extends React.Component {
         };
 
         this.state = {
-            navigationItems:    [],
-            functionCatalogs:   [],
-            functionBlocks:     [],
-            interfaces:         [],
+            navigationItems:            [],
+            functionCatalogs:           [],
+            functionBlocks:             [],
+            interfaces:                 [],
             selectedItem:               null,
             currentNavigationLevel:     this.NavigationLevel.versions,
-            shouldShowCreateChildForm:  true
+            shouldShowToolbar:          true,
+            shouldShowCreateChildForm:  false
         };
 
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
@@ -27,7 +28,6 @@ class App extends React.Component {
         this.onFunctionCatalogSave = this.onFunctionCatalogSave.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
-        this.onPlusButtonClicked = this.onPlusButtonClicked.bind(this);
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
 
         const thisApp = this;
@@ -136,7 +136,8 @@ class App extends React.Component {
         this.setState({
             navigationItems:            navigationItems,
             selectedItem:               null,
-            shouldShowCreateChildForm:  true,
+            shouldShowToolbar:          true,
+            shouldShowCreateChildForm:  false,
             navigationLevel:            thisApp.NavigationLevel.versions
         });
 
@@ -228,13 +229,6 @@ class App extends React.Component {
         });
     }
 
-    onPlusButtonClicked() {
-        this.setState({
-            selectedItem:               null,
-            shouldShowCreateChildForm:  true
-        });
-    }
-
     onFunctionBlockSelected(functionBlock) {
         const thisApp = this;
 
@@ -263,7 +257,6 @@ class App extends React.Component {
 
         const interfaces = functionBlock.getInterfaces();
 
-        // TODO: Traverse FB children... [, ...]
         this.setState({
             navigationItems:        navigationItems,
             selectedItem:           functionBlock,
@@ -294,10 +287,6 @@ class App extends React.Component {
                 childItems = this.state.functionBlocks;
                 for (let i in childItems) {
                     const childItem = childItems[i];
-                    // TODO: Add necessary save/submit functions and change onSubmit props.
-                    // reactComponents.push(<i key="FunctionBlockAddButton" className="fa fa-plus" onClick={this.onPlusButtonClicked}/>);
-
-                    // TODO: Add necessary delete function and change onDelete props.
                     const functionBlockKey = "FunctionBlock" + i;
                     reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.deleteFunctionCatalog} />);
                 }
@@ -324,9 +313,20 @@ class App extends React.Component {
         const currentNavigationLevel = this.state.currentNavigationLevel;
 
         const isEditingExistingObject = (this.state.selectedItem != null);
+        const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
 
         const reactComponents = [];
+
+        if (shouldShowToolbar) {
+            reactComponents.push(
+                <app.Toolbar key="Toolbar"
+                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: true })}
+                    onCancel={() => this.setState({ shouldShowCreateChildForm: false })}
+                />
+            );
+        }
+
 
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
@@ -354,7 +354,9 @@ class App extends React.Component {
             case NavigationLevel.functionBlocks:
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
-                        <div key="InterfaceForm" />
+                        <div key="InterfaceForm" className="metadata-form interfaces-placeholder">
+                            Create-Interface Placeholder
+                        </div>
                     );
                 }
             break;
