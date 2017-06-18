@@ -4,6 +4,7 @@ class FunctionBlockForm extends React.Component {
 
         const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(this.props.functionBlock || new FunctionBlock()));
         this.state = {
+            showTitle:      this.props.showTitle,
             functionBlock:  functionBlock,
             buttonTitle:    (this.props.buttonTitle || "Submit")
         };
@@ -19,14 +20,17 @@ class FunctionBlockForm extends React.Component {
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+
+        this.renderFormTitle = this.renderFormTitle.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
         const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(newProperties.functionBlock || new FunctionBlock()));
         functionBlock.setId((newProperties.functionBlock || functionBlock).getId());
         this.setState({
-            functionBlock: functionBlock,
-            formButton: newProperties.isChildItemSelected ? "Save" : "Submit"
+            showTitle:      newProperties.showTitle,
+            functionBlock:  functionBlock,
+            buttonTitle:    (newProperties.buttonTitle || "Submit")
         });
     }
 
@@ -115,6 +119,14 @@ class FunctionBlockForm extends React.Component {
         });
     }
 
+    renderFormTitle() {
+        if (! this.state.showTitle) {
+            return null;
+        }
+
+        return (<div className="metadata-form-title">New Function Block</div>);
+    }
+
     render() {
         const author = this.state.functionBlock.getAuthor();
         const company = this.state.functionBlock.getCompany();
@@ -126,6 +138,7 @@ class FunctionBlockForm extends React.Component {
 
         return (
             <div className="metadata-form" onClick={this.onClick}>
+                {this.renderFormTitle()}
                 <app.InputField id="function-block-most-id" name="id" type="text" label="ID" value={this.state.functionBlock.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
                 <app.InputField id="function-block-kind" name="kind" type="text" label="Kind" value={this.state.functionBlock.getKind()} readOnly={this.props.readOnly} onChange={this.onKindChanged} />
                 <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />

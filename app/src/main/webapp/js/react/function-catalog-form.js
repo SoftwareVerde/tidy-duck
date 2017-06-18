@@ -4,8 +4,9 @@ class FunctionCatalogForm extends React.Component {
 
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(this.props.functionCatalog || new FunctionCatalog()));
         this.state = {
+            showTitle:          this.props.showTitle,
             functionCatalog:    functionCatalog,
-            buttonTitle:        (this.props.buttonTitle || "Submit")
+            buttonTitle:        (this.props.buttonTitle || "Submit"),
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
@@ -16,15 +17,18 @@ class FunctionCatalogForm extends React.Component {
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+
+        this.renderFormTitle = this.renderFormTitle.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(newProperties.functionCatalog || new FunctionCatalog()));
         functionCatalog.setId((newProperties.functionCatalog || functionCatalog).getId());
         this.setState({
-                functionCatalog: functionCatalog,
-                formButton : newProperties.buttonTitle || "Submit"
-            });
+            showTitle:          newProperties.showTitle,
+            functionCatalog:    functionCatalog,
+            buttonTitle:        (newProperties.buttonTitle || "Submit")
+        });
     }
 
     onNameChanged(newValue) {
@@ -95,6 +99,14 @@ class FunctionCatalogForm extends React.Component {
         });
     }
 
+    renderFormTitle() {
+        if (! this.state.showTitle) {
+            return null;
+        }
+
+        return (<div className="metadata-form-title">New Function Catalog</div>);
+    }
+
     render() {
         const author = this.state.functionCatalog.getAuthor();
         const company = this.state.functionCatalog.getCompany();
@@ -106,6 +118,7 @@ class FunctionCatalogForm extends React.Component {
 
         return (
             <div className="metadata-form" onClick={this.onClick}>
+                {this.renderFormTitle()}
                 <app.InputField id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />

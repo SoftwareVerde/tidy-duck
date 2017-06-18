@@ -178,6 +178,7 @@ class App extends React.Component {
 
         navigationItemConfig.setForm(
             <app.FunctionCatalogForm 
+                showTitle={false}
                 onSubmit={this.onFunctionCatalogSave}
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
@@ -252,6 +253,7 @@ class App extends React.Component {
         });
         navigationItemConfig.setForm(
             <app.FunctionBlockForm key="FunctionBlockForm"
+                showTitle={false}
                 onSubmit={this.onFunctionBlockSave}
                 functionBlock={functionBlock}
                 buttonTitle="Save"
@@ -331,6 +333,7 @@ class App extends React.Component {
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionCatalogForm key="FunctionCatalogForm"
+                            showTitle={true}
                             onSubmit={this.onFunctionCatalogSubmit}
                         />
                     );
@@ -341,6 +344,7 @@ class App extends React.Component {
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
+                            showTitle={true}
                             onSubmit={this.onFunctionBlockSubmit}
                         />
                     );
@@ -350,10 +354,7 @@ class App extends React.Component {
             case NavigationLevel.functionBlocks:
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
-                        <app.FunctionBlockForm key="FunctionBlockForm"
-                            onSubmit={this.onFunctionBlockSave}
-                            functionBlock={this.state.selectedItem}
-                        />
+                        <div key="InterfaceForm" />
                     );
                 }
             break;
