@@ -24,18 +24,21 @@
 <body class="primary-bg">
 <div id="header" class="secondary-bg accent title-font">Tidy Duck</div>
 <div id="main">
-    <div id="login-container">
-        <h1>Login</h1>
-        <div class="input-field">
-            <label for="username">Username</label>
-            <input id="username" name="username" />
-        </div>
-        <div class="input-field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" />
-        </div>
+    <div id="main-content">
+        <div id="authenticate-message"></div>
+        <form id="login-container" method="post">
+            <h1>Login</h1>
+            <div class="input-field">
+                <label for="username">Username</label>
+                <input id="username" name="username" />
+            </div>
+            <div class="input-field">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" />
+            </div>
 
-        <div id="login-button" class="button">Login</div>
+            <div id="login-button" class="button">Login</div>
+        </form>
     </div>
 </div>
 

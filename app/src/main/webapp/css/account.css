@@ -1,8 +1,21 @@
+#main-content {
+    display: block;
+    width: 100%;
+}
+
+#authenticate-message {
+    margin-top: 3em;
+    font-size: 1.5em;
+    min-height: 2em;
+    text-align: center;
+    margin-bottom: 1em;
+    color: #B72F2F;
+}
+
 #login-container {
     width: 300px;
-    display: inline-block;
+    display: block;
     margin: auto;
-    margin-top: 7em;
 
     border: 0px solid;
     border-radius: 5px;

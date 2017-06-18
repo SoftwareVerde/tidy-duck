@@ -9,7 +9,7 @@ $(window).on("load", function() {
         }
     });
 
-    $("#login-button").on("click", function() {
+    const submitFunction = function() {
         const username = $("#username").val();
         const password = $("#password").val();
 
@@ -23,7 +23,18 @@ $(window).on("load", function() {
                 if (data.wasSuccess) {
                     redirectToApp();
                 }
+                else {
+                    $("#authenticate-message").text(data.errorMessage);
+                }
             }
         );
+    };
+
+    $("#login-button").on("click", submitFunction);
+    $("#username, #password").on("keypress", function(event) {
+        if (event.which == 13) {
+            submitFunction();
+            return false;
+        }
     });
 });

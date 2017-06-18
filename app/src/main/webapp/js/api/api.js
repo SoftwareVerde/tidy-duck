@@ -220,3 +220,21 @@ function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
         }
     });
 }
+
+function downloadAccount(callback) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "account",
+            {
+                method:         "GET",
+                credentials:    "include"
+            }
+        ),
+        function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
