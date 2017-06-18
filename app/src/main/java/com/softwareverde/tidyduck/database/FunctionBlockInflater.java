@@ -24,9 +24,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(long functionCatalogId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT function_block_id"
-                        + " FROM function_catalogs_function_blocks"
-                        + " WHERE function_catalog_id = ?"
+            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?"
         );
         query.setParameter(functionCatalogId);
 
@@ -42,9 +40,7 @@ public class FunctionBlockInflater {
 
     public FunctionBlock inflateFunctionBlock(final long functionBlockId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT *"
-                        + " FROM function_blocks"
-                        + " WHERE id = ?"
+            "SELECT * FROM function_blocks WHERE id = ?"
         );
         query.setParameter(functionBlockId);
 
@@ -52,10 +48,10 @@ public class FunctionBlockInflater {
         if (rows.size() == 0) {
             throw new DatabaseException("Function block ID " + functionBlockId + " not found.");
         }
-        // get first (should be only) row
+
         final Row row = rows.get(0);
 
-        final long id = row.getLong("id");
+        final Long id = row.getLong("id");
         final String mostId = row.getString("most_id");
         final String kindString = row.getString("kind");
         final FunctionBlock.Kind kind = FunctionBlock.Kind.valueOf(kindString.toUpperCase());
@@ -63,8 +59,9 @@ public class FunctionBlockInflater {
         final String description = row.getString("description");
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
         final String release = row.getString("release_version");
-        final long accountId = row.getLong("account_id");
-        final long companyId = row.getLong("company_id");
+        final Long accountId = row.getLong("account_id");
+        final Long companyId = row.getLong("company_id");
+        final String access = row.getString("access");
 
         AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -81,6 +78,7 @@ public class FunctionBlockInflater {
         functionBlock.setRelease(release);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
+        functionBlock.setAccess(access);
 
         return functionBlock;
     }
