@@ -12,7 +12,9 @@ class NavigationItem extends React.Component {
         this.renderForm = this.renderForm.bind(this);
     }
 
-    onMenuButtonClick() {
+    onMenuButtonClick(event) {
+        event.stopPropagation();
+
         const shouldShowMenu = (! this.state.showMenu);
         this.setState({
             showMenu: shouldShowMenu
@@ -46,9 +48,17 @@ class NavigationItem extends React.Component {
             for (let i in menuItemConfigs) {
                 const menuItemConfig = menuItemConfigs[i];
 
+                const onMenuItemClicked = function(event) {
+                    event.stopPropagation();
+                    const clickCallback = menuItemConfig.getOnClickCallback();
+                    if (typeof clickCallback == "function") {
+                        clickCallback();
+                    }
+                };
+
                 reactComponents.push(
                     <div key={"navi-item-"+ i} className="navigation-item-menu">
-                        <div className="navigation-item-menu-item" onClick={menuItemConfig.getOnClickCallback()}>
+                        <div className="navigation-item-menu-item" onClick={onMenuItemClicked}>
                             {menuItemConfig.getTitle()}
                             <i className={"fa "+ menuItemConfig.getIconName()} />
                         </div>
