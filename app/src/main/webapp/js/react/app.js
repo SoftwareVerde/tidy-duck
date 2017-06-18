@@ -159,7 +159,24 @@ class App extends React.Component {
     onFunctionCatalogSelected(functionCatalog) {
         const thisApp = this;
         const navigationItems = [];
-        navigationItems.push(functionCatalog);
+
+        const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setTitle(functionCatalog.getName());
+        navigationItemConfig.setIconName("fa-bars");
+
+        const navigationMenuItemConfig = new NavigationItemConfig();
+        navigationMenuItemConfig.setTitle("Download MOST XML");
+        navigationMenuItemConfig.setIconName("fa-download");
+        navigationMenuItemConfig.setOnClickCallback(function() {
+            const functionCatalogId = functionCatalog.getId();
+            exportFunctionCatalogToMost(functionCatalogId);
+        });
+        navigationItemConfig.addMenuItemConfig(navigationMenuItemConfig);
+        navigationItemConfig.setOnClickCallback(function() {
+            thisApp.onFunctionCatalogSelected(functionCatalog);
+        });
+
+        navigationItems.push(navigationItemConfig);
 
         getFunctionBlocksForFunctionCatalogId(functionCatalog.getId(), function(functionBlocksJson) {
             const functionBlocks = [];
@@ -216,14 +233,18 @@ class App extends React.Component {
         for (let i in this.state.navigationItems) {
             const navigationItem = this.state.navigationItems[i];
             navigationItems.push(navigationItem);
+            break; // Take only for the first one...
         }
-        navigationItems.push(functionBlock);
+
+        const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setTitle(functionBlock.getName());
+        navigationItemConfig.setOnClickCallback(function() {
+            thisApp.onFunctionBlockSelected(functionBlock);
+        });
+        navigationItems.push(navigationItemConfig);
 
         const interfaces = functionBlock.getInterfaces();
-        for (let i in interfaces) {
-            const blockInterface = interfaces[i];
-            navigationItems.push(blockInterface);
-        }
+
         // TODO: Traverse FB children... [, ...]
         this.setState({
             navigationItems:        navigationItems,

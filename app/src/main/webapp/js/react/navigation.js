@@ -10,7 +10,7 @@ class Navigation extends React.Component {
             const navigationItem = this.props.navigationItems[i];
 
             navigationItemComponents.push(
-                <app.NavigationItem key={i} navigationItem={navigationItem} />
+                <app.NavigationItem key={i} navigationItemConfig={navigationItem} />
             );
         }
 

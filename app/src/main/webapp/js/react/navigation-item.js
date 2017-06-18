@@ -6,9 +6,9 @@ class NavigationItem extends React.Component {
             showMenu: false
         };
 
+        this.onClick = this.onClick.bind(this);
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
-        this.downloadFunctionCatalog = this.downloadFunctionCatalog.bind(this);
     }
 
     onMenuButtonClick() {
@@ -18,34 +18,56 @@ class NavigationItem extends React.Component {
         });
     }
 
-    renderMenu() {
-        if (! this.state.showMenu) { return; }
+    onClick() {
+        const config = this.props.navigationItemConfig || new NavigationItemConfig();
 
-        return (
-            <div className="navigation-item-menu">
-                <div className="navigation-item-menu-item" onClick={this.downloadFunctionCatalog}>
-                    Download MOST XML
-                    <i className="fa fa-cloud-download" />
-                </div>
-            </div>
-        );
+        const callback = config.getOnClickCallback();
+        if (typeof callback == "function") {
+            callback();
+        }
     }
 
-    // TODO: This functionality needs to be brought outside this class...
-    downloadFunctionCatalog() {
-        const functionCatalog = this.props.navigationItem;
-        const functionCatalogId = functionCatalog.getId();
-        exportFunctionCatalogToMost(functionCatalogId);
+    renderMenu() {
+        const config = this.props.navigationItemConfig || new NavigationItemConfig();
+
+        if (config.getMenuItemConfigs().length == 0) { return []; }
+
+        const menuItemConfigs = config.getMenuItemConfigs();
+        if (menuItemConfigs.length == 0) { return []; }
+
+        const reactComponents = [];
+
+        reactComponents.push(
+            <i key="nav-item-menu" className={"menu-button fa "+ config.getIconName()} onClick={this.onMenuButtonClick} />
+        );
+
+        if (this.state.showMenu) {
+            for (let i in menuItemConfigs) {
+                const menuItemConfig = menuItemConfigs[i];
+
+                reactComponents.push(
+                    <div key={"navi-item-"+ i} className="navigation-item-menu">
+                        <div className="navigation-item-menu-item" onClick={menuItemConfig.getOnClickCallback()}>
+                            {menuItemConfig.getTitle()}
+                            <i className={"fa "+ menuItemConfig.getIconName()} />
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        return reactComponents;
     }
 
     render() {
-        const navigationItem = this.props.navigationItem;
-        const navigationItemTitle = navigationItem.getName();
+        const _this = this;
+
+        const config = this.props.navigationItemConfig || new NavigationItemConfig();
+
         return (
-            <div className="navigation-item" onClick={this.props.onClick}>
-                {navigationItemTitle}
-                <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
-                {this.renderMenu()}
+            <div className="navigation-item" onClick={this.onClick}>
+                {config.getTitle()}
+                {_this.renderMenu()}
             </div>
         );
     }
