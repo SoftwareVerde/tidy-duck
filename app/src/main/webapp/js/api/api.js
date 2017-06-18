@@ -144,3 +144,79 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
         }
     });
 }
+
+// calls callbackFunction with new function block ID
+function insertFunctionBlock(versionId, functionBlock, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + 'function-block',
+        {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify({
+                'versionId': versionId,
+                'functionBlock': functionBlock
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlockId = null;
+
+        if (data.wasSuccess) {
+            functionBlockId = data.functionBlockId;
+        } else {
+            console.log('Unable to insert function block for version ' + versionId + ': ' + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlockId);
+        }
+    });
+}
+
+// calls callbackFunction with modified function block ID
+function modifyFunctionBlock(versionId, functionBlock, functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-block/' + functionBlockId,
+        {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify({
+                'versionId': versionId,
+                'functionBlock': functionBlock
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to modify function block " + functionBlockId + " from version " + versionId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
+function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + 'api/v1/function-block/' + functionBlockId + "?versionId=" + versionId,
+        {
+            method: 'DELETE',
+            credentials: 'include'
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to delete function block " + functionBlockId + " from version " + versionId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}

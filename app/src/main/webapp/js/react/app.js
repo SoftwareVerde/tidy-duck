@@ -88,6 +88,47 @@ class App extends React.Component {
         });
     }
 
+    onFunctionBlockSubmit(functionBlock) {
+        const thisApp = this;
+
+        const versionId = 1; // TODO
+        const functionBlockJson = FunctionBlock.toJson(functionBlock);
+
+        insertFunctionBlock(versionId, functionBlockJson, function(functionBlockId) {
+            functionBlock.setId(functionBlockId);
+            const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+
+            thisApp.setState({
+                functionBlocks:       functionBlocks,
+                selectedItem:           functionBlock,
+                currentNavigationLevel: thisApp.NavigationLevel.versions
+            });
+        });
+    }
+
+    onFunctionBlockSave(functionBlock) {
+        const thisApp = this;
+
+        const versionId = 1; // TODO
+        const functionBlockJson = FunctionBlock.toJson(functionBlock);
+        const functionBlockId = functionBlock.getId();
+
+        modifyFunctionBlock(versionId,functionBlockJson, functionBlockId, function(wasSuccess) {
+            if (wasSuccess) {
+                var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
+                  return value.getId() != functionBlockId;
+                });
+                functionBlocks = functionBlocks.push(functionBlock);
+
+                thisApp.setState({
+                    functionBlocks:       functionBlocks,
+                    selectedItem:           functionBlock,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                });
+            }
+        });
+    }
+
     onRootNavigationItemClicked() {
         const thisApp = this;
         const navigationItems = [];
@@ -172,6 +213,10 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
+        for (let i in this.state.navigationItems) {
+            const navigationItem = this.state.navigationItems[i];
+            navigationItems.push(navigationItem);
+        }
         navigationItems.push(functionBlock);
 
         const interfaces = functionBlock.getInterfaces();
@@ -268,7 +313,7 @@ class App extends React.Component {
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
-                            onSubmit={this.onFunctionCatalogSubmit}
+                            onSubmit={this.onFunctionBlockSubmit}
                             isItemSelected={false}
                         />
                     );
@@ -278,7 +323,7 @@ class App extends React.Component {
             case NavigationLevel.functionBlocks:
                 reactComponents.push(
                     <app.FunctionBlockForm key="FunctionBlockForm"
-                        onSubmit={this.onFunctionCatalogSave}
+                        onSubmit={this.onFunctionBlockSave}
                         functionBlock={this.state.selectedItem}
                         isItemSelected={true}
                     />
