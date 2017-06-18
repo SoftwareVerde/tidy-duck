@@ -4,8 +4,8 @@ class FunctionCatalogForm extends React.Component {
 
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(this.props.functionCatalog || new FunctionCatalog()));
         this.state = {
-            functionCatalog: functionCatalog,
-            formButton : this.props.isChildItemSelected ? "Save" : "Submit"
+            functionCatalog:    functionCatalog,
+            buttonTitle:        (this.props.buttonTitle || "Submit")
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
@@ -14,8 +14,8 @@ class FunctionCatalogForm extends React.Component {
         this.onAuthorChanged = this.onAuthorChanged.bind(this);
         this.onCompanyChanged = this.onCompanyChanged.bind(this);
 
+        this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.onSave = this.onSave.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -23,7 +23,7 @@ class FunctionCatalogForm extends React.Component {
         functionCatalog.setId((newProperties.functionCatalog || functionCatalog).getId());
         this.setState({
                 functionCatalog: functionCatalog,
-                formButton : newProperties.isChildItemSelected ? "Save" : "Submit"
+                formButton : newProperties.buttonTitle || "Submit"
             });
     }
 
@@ -78,22 +78,15 @@ class FunctionCatalogForm extends React.Component {
         }
     }
 
+    onClick(event) {
+        event.stopPropagation();
+    }
+
+
     onSubmit() {
         const createdFunctionCatalog = this.state.functionCatalog;
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionCatalog);
-        }
-
-        const functionCatalog = new FunctionCatalog();
-        this.setState({
-            functionCatalog: functionCatalog
-        });
-    }
-
-    onSave() {
-        const modifiedFunctionCatalog = this.state.functionCatalog;
-        if (typeof this.props.onSubmit == "function") {
-            this.props.onSubmit(modifiedFunctionCatalog);
         }
 
         const functionCatalog = new FunctionCatalog();
@@ -112,13 +105,13 @@ class FunctionCatalogForm extends React.Component {
         if(company != undefined) companyId = company.getId();
 
         return (
-            <div className="metadata-form">
+            <div className="metadata-form" onClick={this.onClick}>
                 <app.InputField id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-catalog-date" name="date" type="text" label="Date" value={this.state.functionCatalog.getReleaseDate()} readOnly={this.props.readOnly} onChange={this.onReleaseDateChanged} />
                 <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={authorId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
                 <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={companyId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
+                <div className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>
         );
     }

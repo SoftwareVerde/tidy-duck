@@ -4,8 +4,8 @@ class FunctionBlockForm extends React.Component {
 
         const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(this.props.functionBlock || new FunctionBlock()));
         this.state = {
-            functionBlock: functionBlock,
-            formButton : this.props.isChildItemSelected ? "Save" : "Submit"
+            functionBlock:  functionBlock,
+            buttonTitle:    (this.props.buttonTitle || "Submit")
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -17,8 +17,8 @@ class FunctionBlockForm extends React.Component {
         this.onAuthorChanged = this.onAuthorChanged.bind(this);
         this.onCompanyChanged = this.onCompanyChanged.bind(this);
 
+        this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.onSave = this.onSave.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -99,22 +99,14 @@ class FunctionBlockForm extends React.Component {
         }
     }
 
+    onClick(event) {
+        event.stopPropagation();
+    }
+
     onSubmit() {
         const createdFunctionBlock = this.state.functionBlock;
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionBlock);
-        }
-
-        const functionBlock = new FunctionBlock();
-        this.setState({
-            functionBlock: functionBlock
-        });
-    }
-
-    onSave() {
-        const modifiedFunctionBlock = this.state.functionBlock;
-        if (typeof this.props.onSubmit == "function") {
-            this.props.onSubmit(modifiedFunctionBlock);
         }
 
         const functionBlock = new FunctionBlock();
@@ -133,7 +125,7 @@ class FunctionBlockForm extends React.Component {
         if(company != undefined) companyId = company.getId();
 
         return (
-            <div className="metadata-form">
+            <div className="metadata-form" onClick={this.onClick}>
                 <app.InputField id="function-block-most-id" name="id" type="text" label="ID" value={this.state.functionBlock.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
                 <app.InputField id="function-block-kind" name="kind" type="text" label="Kind" value={this.state.functionBlock.getKind()} readOnly={this.props.readOnly} onChange={this.onKindChanged} />
                 <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
@@ -141,7 +133,7 @@ class FunctionBlockForm extends React.Component {
                 <app.InputField id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
                 <app.InputField id="function-block-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
                 <app.InputField id="function-block-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.props.isChildItemSelected ? this.onSave : this.onSubmit}>{this.state.formButton}</div></div>
+                <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>
         );
     }

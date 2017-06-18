@@ -9,6 +9,7 @@ class NavigationItem extends React.Component {
         this.onClick = this.onClick.bind(this);
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
+        this.renderForm = this.renderForm.bind(this);
     }
 
     onMenuButtonClick() {
@@ -59,15 +60,21 @@ class NavigationItem extends React.Component {
         return reactComponents;
     }
 
-    render() {
-        const _this = this;
+    renderForm() {
+        const config = this.props.navigationItemConfig || new NavigationItemConfig();
 
+        const form = config.getForm();
+        return form;
+    }
+
+    render() {
         const config = this.props.navigationItemConfig || new NavigationItemConfig();
 
         return (
             <div className="navigation-item" onClick={this.onClick}>
                 {config.getTitle()}
-                {_this.renderMenu()}
+                {this.renderMenu()}
+                {this.renderForm()}
             </div>
         );
     }

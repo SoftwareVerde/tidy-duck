@@ -22,8 +22,10 @@
     box-shadow: 5px 5px 5px #808080;
 
     min-height: 1.2em;
+    max-height: 1000px;
 
     transition: background-color 0.5s ease;
+    transition: max-height 1s ease;
 }
 .navigation-item:hover {
     background-color: #FFEE77;
@@ -141,3 +143,21 @@
 .navigation-item-menu-item i {
     margin-left: 5px;
 }
+
+.navigation-item .metadata-form {
+    background: none !important;
+    box-shadow: none !important;
+    margin: -5px !important;
+    margin-top: 5px !important;
+    cursor: default !important;
+}
+
+.navigation-item .input-field {
+    padding: 0.5em 2em !important;
+    width: 100% !important;
+}
+
+.navigation-item .button {
+    box-shadow: none !important;
+}
+

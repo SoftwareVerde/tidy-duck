@@ -176,6 +176,14 @@ class App extends React.Component {
             thisApp.onFunctionCatalogSelected(functionCatalog);
         });
 
+        navigationItemConfig.setForm(
+            <app.FunctionCatalogForm 
+                onSubmit={this.onFunctionCatalogSave}
+                functionCatalog={functionCatalog}
+                buttonTitle="Save"
+            />
+        );
+
         navigationItems.push(navigationItemConfig);
 
         getFunctionBlocksForFunctionCatalogId(functionCatalog.getId(), function(functionBlocksJson) {
@@ -232,6 +240,7 @@ class App extends React.Component {
         const navigationItems = [];
         for (let i in this.state.navigationItems) {
             const navigationItem = this.state.navigationItems[i];
+            navigationItem.setForm(null);
             navigationItems.push(navigationItem);
             break; // Take only for the first one...
         }
@@ -241,6 +250,13 @@ class App extends React.Component {
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock);
         });
+        navigationItemConfig.setForm(
+            <app.FunctionBlockForm key="FunctionBlockForm"
+                onSubmit={this.onFunctionBlockSave}
+                functionBlock={functionBlock}
+                buttonTitle="Save"
+            />
+        );
         navigationItems.push(navigationItemConfig);
 
         const interfaces = functionBlock.getInterfaces();
@@ -315,40 +331,31 @@ class App extends React.Component {
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionCatalogForm key="FunctionCatalogForm"
-                            onSubmit={isEditingExistingObject ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
-                            isItemSelected={this.state.isItemSelected}
-                            functionCatalog={this.state.selectedItem}
+                            onSubmit={this.onFunctionCatalogSubmit}
                         />
                     );
                 }
             break;
 
             case NavigationLevel.functionCatalogs:
-                reactComponents.push(
-                    <app.FunctionCatalogForm key="FunctionCatalogForm"
-                        onSubmit={isEditingExistingObject ? this.onFunctionCatalogSave : this.onFunctionCatalogSubmit}
-                        functionCatalog={this.state.selectedItem}
-                        isItemSelected={true}
-                    />
-                );
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
                             onSubmit={this.onFunctionBlockSubmit}
-                            isItemSelected={false}
                         />
                     );
                 }
             break;
 
             case NavigationLevel.functionBlocks:
-                reactComponents.push(
-                    <app.FunctionBlockForm key="FunctionBlockForm"
-                        onSubmit={this.onFunctionBlockSave}
-                        functionBlock={this.state.selectedItem}
-                        isItemSelected={true}
-                    />
-                );
+                if (shouldShowCreateChildForm) {
+                    reactComponents.push(
+                        <app.FunctionBlockForm key="FunctionBlockForm"
+                            onSubmit={this.onFunctionBlockSave}
+                            functionBlock={this.state.selectedItem}
+                        />
+                    );
+                }
             break;
 
             default:

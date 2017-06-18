@@ -4,6 +4,8 @@ class NavigationItemConfig {
         this._onClickCallback = null;
         this._menuItemConfigs = [];
         this._iconName = "";
+
+        this._form = null;
     }
 
     setTitle(title) {
@@ -36,5 +38,13 @@ class NavigationItemConfig {
 
     getIconName() {
         return this._iconName;
+    }
+
+    setForm(form) {
+        this._form = form;
+    }
+
+    getForm() {
+        return this._form;
     }
 }
