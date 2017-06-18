@@ -53,7 +53,7 @@
         <url-pattern>/api/v1/function-block</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>FunctionCatalog</servlet-name>
+        <servlet-name>FunctionBlock</servlet-name>
         <url-pattern>/api/v1/function-block/*</url-pattern>
     </servlet-mapping>
 

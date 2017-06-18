@@ -105,7 +105,7 @@ class FunctionBlockForm extends React.Component {
             this.props.onSubmit(createdFunctionBlock);
         }
 
-        const functionBlock = new functionBlock();
+        const functionBlock = new FunctionBlock();
         this.setState({
             functionBlock: functionBlock
         });
@@ -117,7 +117,7 @@ class FunctionBlockForm extends React.Component {
             this.props.onSubmit(modifiedFunctionBlock);
         }
 
-        const functionBlock = new functionBlock();
+        const functionBlock = new FunctionBlock();
         this.setState({
             functionBlock: functionBlock
         });

@@ -27,32 +27,33 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         String finalUrlSegment = super.getFinalUrlSegment(request);
         if ("function-block".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return storeFunctionBlock(request, environment);
+                return _storeFunctionBlock(request, environment);
             }
             if (httpMethod == HttpMethod.GET) {
                 long functionCatalogId = Util.parseLong(Util.coalesce(request.getParameter("function_catalog_id")));
                 if (functionCatalogId < 1) {
                     return super._generateErrorJson("Invalid function catalog id.");
                 }
-                return listFunctionBlocks(functionCatalogId, environment);
+                return _listFunctionBlocks(functionCatalogId, environment);
             }
-//        } else {
-//            // not base function block, must have ID
-//            long functionBlockId = Util.parseLong(finalUrlSegment);
-//            if (functionBlockId < 1) {
-//                return super.generateErrorJson("Invalid function block id.");
-//            }
-//            if (httpMethod == HttpMethod.POST) {
-//                return updateFunctionBlock(request, functionBlockId, environment);
-//            }
-//            if (httpMethod == HttpMethod.DELETE) {
-//                return deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
-//            }
+        } else {
+            // not base function block, must have ID
+            long functionBlockId = Util.parseLong(finalUrlSegment);
+            if (functionBlockId < 1) {
+                return super._generateErrorJson("Invalid function block id.");
+            }
+
+            if (httpMethod == HttpMethod.POST) {
+                // return _updateFunctionBlock(request, functionBlockId, environment);
+            }
+            else if (httpMethod == HttpMethod.DELETE) {
+                // return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
+            }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    private Json storeFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
+    protected Json _storeFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
         Json jsonRequest = super._getRequestDataAsJson(request);
         Json response = new Json(false);
 
@@ -67,7 +68,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         final Json functionBlockJson = jsonRequest.get("functionBlock");
         try {
-            FunctionBlock functionBlock = populateFunctionBlockFromJson(functionBlockJson);
+            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertFunctionBlock(functionCatalogId, functionBlock);
@@ -81,7 +82,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json listFunctionBlocks(long functionCatalogId, Environment environment) {
+    protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
         try {
             final Json response = new Json(false);
 
@@ -114,7 +115,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected FunctionBlock populateFunctionBlockFromJson(Json functionBlockJson) throws Exception {
+    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson) throws Exception {
         final String mostId = functionBlockJson.getString("mostId");
         final String kindString = functionBlockJson.getString("kind");
         final String name = functionBlockJson.getString("name");
@@ -130,7 +131,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 throw new Exception("Invalid Most ID: " + mostId);
             }
 
-            if (Util.isNotBlank(kindString)) {
+            if (! Util.isBlank(kindString)) {
                 // will throw an exception if invalid
                 kind = FunctionBlock.Kind.valueOf(kindString);
             }
