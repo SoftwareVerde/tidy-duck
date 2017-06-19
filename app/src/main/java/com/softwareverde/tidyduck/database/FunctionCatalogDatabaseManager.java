@@ -4,7 +4,10 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
+
+import java.util.List;
 
 class FunctionCatalogDatabaseManager {
 
@@ -110,13 +113,26 @@ class FunctionCatalogDatabaseManager {
 
         if (!functionCatalog.isCommitted()) {
             // function catalog isn't committed, we can delete it
-            final Query query = new Query("DELETE FROM function_catalogs WHERE id = ?")
-                .setParameter(functionCatalogId)
-            ;
-
-            _databaseConnection.executeSql(query);
-
-            // TODO: delete any uncommitted function blocks
+            _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
+            _deleteFunctionCatalogFromDatabase(functionCatalogId);
         }
+    }
+
+    private void _deleteFunctionBlocksFromFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
+
+        FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
+        for (final FunctionBlock functionBlock : functionBlocks) {
+            functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
+        }
+    }
+
+    private void _deleteFunctionCatalogFromDatabase(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_catalogs WHERE id = ?")
+            .setParameter(functionCatalogId)
+        ;
+
+        _databaseConnection.executeSql(query);
     }
 }

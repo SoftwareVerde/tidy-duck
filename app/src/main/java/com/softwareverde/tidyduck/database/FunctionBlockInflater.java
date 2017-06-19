@@ -62,6 +62,7 @@ public class FunctionBlockInflater {
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
         final String access = row.getString("access");
+        final boolean isCommitted = row.getBoolean("is_committed");
 
         AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -79,6 +80,7 @@ public class FunctionBlockInflater {
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(access);
+        functionBlock.setCommitted(isCommitted);
 
         return functionBlock;
     }
