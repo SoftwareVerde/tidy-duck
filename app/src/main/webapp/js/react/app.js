@@ -17,6 +17,7 @@ class App extends React.Component {
             functionBlocks:             [],
             interfaces:                 [],
             selectedItem:               null,
+            parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false
@@ -119,11 +120,11 @@ class App extends React.Component {
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const versionId = 1; // TODO
+        const functionCatalogId = this.state.parentItem.getId();
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
         const functionBlockId = functionBlock.getId();
 
-        updateFunctionBlock(functionBlockId, functionBlockJson, function(wasSuccess) {
+        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                     return value.getId() != functionBlockId;
@@ -146,6 +147,7 @@ class App extends React.Component {
         this.setState({
             navigationItems:            navigationItems,
             selectedItem:               null,
+            parentItem:                 null,
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
             navigationLevel:            thisApp.NavigationLevel.versions
@@ -208,6 +210,7 @@ class App extends React.Component {
             thisApp.setState({
                 navigationItems:            navigationItems,
                 selectedItem:               functionCatalog,
+                parentItem:                 null,
                 functionBlocks:             functionBlocks,
                 shouldShowCreateChildForm:  false,
                 currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs
@@ -266,10 +269,12 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const interfaces = functionBlock.getInterfaces();
+        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
 
         this.setState({
             navigationItems:            navigationItems,
             selectedItem:               functionBlock,
+            parentItem:                 parentItem,
             interfaces:                 interfaces,
             shouldShowCreateChildForm:  false,
             currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
@@ -279,7 +284,7 @@ class App extends React.Component {
     onDeleteFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const functionCatalogId = this.state.selectedItem.getId();
+        const functionCatalogId = this.state.parentItem.getId();
         const functionBlockId = functionBlock.getId();
 
         deleteFunctionBlock(functionCatalogId, functionBlockId, function (success) {

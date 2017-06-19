@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.FunctionBlock;
+import jdk.nashorn.internal.objects.annotations.Function;
 
 public class FunctionBlockDatabaseManager {
 
@@ -51,6 +52,47 @@ public class FunctionBlockDatabaseManager {
         ;
 
         return _databaseConnection.executeSql(query);
+    }
+
+    public void updateFunctionBlockForFunctionCatalog (final long functionCatalogId, final FunctionBlock proposedFunctionBlock) throws DatabaseException {
+        final long inputFunctionBlockId = proposedFunctionBlock.getId();
+
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        FunctionBlock databaseFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
+        if (!databaseFunctionBlock.isCommitted()) {
+            // not committed, can update existing function block
+            _updateUncommittedFunctionBlock(proposedFunctionBlock);
+        } else {
+            // current block is committed to a function catalog
+            // need to insert a new function block replace this one
+            _insertFunctionBlock(proposedFunctionBlock);
+            final long newFunctionBlockId = proposedFunctionBlock.getId();
+            // change association with function catalog
+            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
+            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
+        }
+    }
+
+    private void _updateUncommittedFunctionBlock(FunctionBlock proposedFunctionBlock) throws DatabaseException {
+        final String newName = proposedFunctionBlock.getName();
+        final String newReleaseVersion = proposedFunctionBlock.getRelease();
+        final String newDescription = proposedFunctionBlock.getDescription();
+        final String newAccess = proposedFunctionBlock.getAccess();
+        final long newAuthorId = proposedFunctionBlock.getAuthor().getId();
+        final long newCompanyId = proposedFunctionBlock.getCompany().getId();
+        final long functionBlockId = proposedFunctionBlock.getId();
+
+        final Query query = new Query("UPDATE function_blocks SET name = ?, release_version = ?, account_id = ?, company_id = ?, description = ?, access = ?, WHERE id = ?")
+                .setParameter(newName)
+                .setParameter(newReleaseVersion)
+                .setParameter(newAuthorId)
+                .setParameter(newCompanyId)
+                .setParameter(functionBlockId)
+                .setParameter(newDescription)
+                .setParameter(newAccess)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {

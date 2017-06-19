@@ -45,7 +45,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             if (httpMethod == HttpMethod.POST) {
-                // return _updateFunctionBlock(request, functionBlockId, environment);
+                return _updateFunctionBlock(request, functionBlockId, environment);
             }
             else if (httpMethod == HttpMethod.DELETE) {
                 return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
@@ -76,10 +76,41 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
-            _logger.error("Unable to store Function Block.", exception);
-            return super._generateErrorJson("Unable to store Function Block: " + exception.getMessage());
+            _logger.error("Unable to insert Function Block.", exception);
+            return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
         }
 
+        return response;
+    }
+
+    protected Json _updateFunctionBlock(HttpServletRequest httpRequest, long functionBlockId, Environment environment) throws Exception {
+        final Json request = super._getRequestDataAsJson(httpRequest);
+
+        final Long functionCatalogId = Util.parseLong(request.getString("functionCatalogId"));
+
+        final Json functionBlockJson = request.get("functionBlock");
+
+        { // Validate Inputs
+            if (functionCatalogId < 1) {
+                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+            }
+        }
+
+        try {
+            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson);
+            functionBlock.setId(functionBlockId);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+        } catch (final Exception exception) {
+            String errorMessage = "Unable to update function block: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        Json response = new Json(false);
+        super._setJsonSuccessFields(response);
         return response;
     }
 

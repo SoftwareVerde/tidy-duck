@@ -70,6 +70,16 @@ public class DatabaseManager {
         });
     }
 
+    public void updateFunctionBlock(final long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock);
+            }
+        });
+    }
+
     public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override

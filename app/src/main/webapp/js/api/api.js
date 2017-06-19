@@ -175,13 +175,14 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
 }
 
 // calls callbackFunction with modified function block ID
-function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
+function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
+                "functionCatalogId":    functionCatalogId,
                 "functionBlock":    functionBlock
             })
         }
