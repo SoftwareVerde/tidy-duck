@@ -199,9 +199,9 @@ function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
     });
 }
 
-function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
+function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "?versionId=" + versionId,
+        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "?functionCatalogId=" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"
@@ -211,7 +211,7 @@ function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         if (!wasSuccess) {
-            console.log("Unable to delete function block " + functionBlockId + " from version " + versionId + ": " + data.errorMessage);
+            console.log("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {

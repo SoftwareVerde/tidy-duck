@@ -47,7 +47,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 // return _updateFunctionBlock(request, functionBlockId, environment);
             }
             else if (httpMethod == HttpMethod.DELETE) {
-                // return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
+                return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
@@ -81,6 +81,31 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         return response;
     }
+
+    protected Json _deleteFunctionBlockFromCatalog(HttpServletRequest request, long functionBlockId, Environment environment) {
+        final String functionCatalogIdString = request.getParameter("functionCatalogId");
+        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
+
+        { // Validate Inputs
+            if (functionCatalogId == null || functionCatalogId < 1) {
+                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
+            }
+        }
+
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
+        } catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
 
     protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
         try {

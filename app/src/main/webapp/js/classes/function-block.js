@@ -135,7 +135,7 @@ class FunctionBlock {
         this._access = access;
     }
 
-    getAccess(access) {
+    getAccess() {
         return this._access;
     }
 }
