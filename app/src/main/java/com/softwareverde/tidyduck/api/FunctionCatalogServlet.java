@@ -30,7 +30,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-catalog".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return storeFunctionCatalog(request, environment);
+                return _storeFunctionCatalog(request, environment);
             }
             if (httpMethod == HttpMethod.GET) {
                 long versionId = Util.parseLong(Util.coalesce(request.getParameter("version_id")));
@@ -38,7 +38,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid version id.");
                 }
 
-                return listFunctionCatalogs(versionId, environment);
+                return _listFunctionCatalogs(versionId, environment);
             }
         } else {
             // not base function catalog, must have ID
@@ -47,16 +47,16 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function catalog id.");
             }
             if (httpMethod == HttpMethod.POST) {
-                return updateFunctionCatalog(request, functionCatalogId, environment);
+                return _updateFunctionCatalog(request, functionCatalogId, environment);
             }
             if (httpMethod == HttpMethod.DELETE) {
-                return deleteFunctionCatalogFromVersion(request, functionCatalogId, environment);
+                return _deleteFunctionCatalogFromVersion(request, functionCatalogId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    private Json listFunctionCatalogs(final long versionId, final Environment environment) {
+    protected Json _listFunctionCatalogs(final long versionId, final Environment environment) {
         try {
             final Json response = new Json(false);
 
@@ -86,7 +86,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json storeFunctionCatalog(final HttpServletRequest httpRequest, final Environment environment) throws IOException {
+    protected Json _storeFunctionCatalog(final HttpServletRequest httpRequest, final Environment environment) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
 
@@ -101,7 +101,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         final Json functionCatalogJson = request.get("functionCatalog");
         try {
-            FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertFunctionCatalog(versionId, functionCatalog);
@@ -116,7 +116,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, Environment environment) throws IOException {
+    protected Json _updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, Environment environment) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
 
         final Long versionId = Util.parseLong(request.getString("versionId"));
@@ -131,7 +131,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            FunctionCatalog functionCatalog = populateFunctionCatalogFromJson(functionCatalogJson);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson);
             functionCatalog.setId(functionCatalogId);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
@@ -147,9 +147,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json deleteFunctionCatalogFromVersion(HttpServletRequest request, long functionCatalogId, Environment environment) {
-        String versionIdString = request.getParameter("versionId");
-        Long versionId = Util.parseLong(versionIdString);
+    protected Json _deleteFunctionCatalogFromVersion(HttpServletRequest request, long functionCatalogId, Environment environment) {
+        final String versionIdString = request.getParameter("versionId");
+        final Long versionId = Util.parseLong(versionIdString);
 
         { // Validate Inputs
             if (versionId == null || versionId < 1) {
@@ -157,21 +157,21 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         }
 
-        DatabaseManager databaseManager = new DatabaseManager(environment);
         try {
+            final DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.deleteFunctionCatalog(versionId, functionCatalogId);
         } catch (final DatabaseException exception) {
-            String errorMessage = String.format("Unable to delete function catalog %d from version %d.", functionCatalogId, versionId);
+            final String errorMessage = String.format("Unable to delete function catalog %d from version %d.", functionCatalogId, versionId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
-        Json response = new Json(false);
+        final Json response = new Json(false);
         super._setJsonSuccessFields(response);
         return response;
     }
 
-    protected FunctionCatalog populateFunctionCatalogFromJson(Json functionCatalogJson) throws Exception {
+    protected FunctionCatalog _populateFunctionCatalogFromJson(Json functionCatalogJson) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
         final String releaseDateString = functionCatalogJson.getString("releaseDate");

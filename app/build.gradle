@@ -10,7 +10,7 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-ext.env = project.hasProperty('configuration') ? project.configuration : 'development'
+ext.configuration = project.hasProperty('configuration') ? project.configuration : 'development'
 sourceSets {
     main {
         resources {

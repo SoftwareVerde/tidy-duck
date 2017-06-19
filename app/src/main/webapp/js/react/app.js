@@ -218,7 +218,7 @@ class App extends React.Component {
         const versionId = 1; // TODO
         const functionCatalogId = functionCatalog.getId();
 
-        onDeleteFunctionCatalog(versionId, functionCatalogId, function (success) {
+        deleteFunctionCatalog(versionId, functionCatalogId, function (success) {
             if (success) {
                 const newFunctionCatalogs = [];
                 const existingFunctionCatalogs = thisApp.state.functionCatalogs;
