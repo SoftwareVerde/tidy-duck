@@ -1,15 +1,14 @@
 #!/bin/bash
 
-VERSION="1.0-SNAPSHOT"
 WAR_MODULE_DIR="$(dirname $0)/../app/"
-WAR_MODULE_PATH="$WAR_MODULE_DIR/build/libs/tidy-duck-$VERSION.war"
+WAR_MODULE_PATH="$WAR_MODULE_DIR/build/libs/*.war"
 SERVER="dev.tidy-duck.sv.net"
 DEPLOY_PATH="/var/lib/tomcat7/webapps/"
 TARGET_WAR_FILE_NAME="ROOT.war"
 
 # build war file
 cd $WAR_MODULE_DIR
-./gradle war
+./gradlew war
 cd -
 if [[ $? == 0 ]]; then
     if [[ ! -f $WAR_MODULE_PATH ]]; then

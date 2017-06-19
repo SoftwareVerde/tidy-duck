@@ -10,6 +10,16 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+ext.env = project.hasProperty('configuration') ? project.configuration : 'development'
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/resources'
+            srcDir "src/$configuration/resources"
+        }
+    }
+}
+
 dependencies {
     compileOnly 'org.apache.tomcat:tomcat-servlet-api:7.0.37'
 
