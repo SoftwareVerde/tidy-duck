@@ -108,7 +108,7 @@ class App extends React.Component {
             thisApp.setState({
                 functionBlocks:         functionBlocks,
                 selectedItem:           functionBlock,
-                currentNavigationLevel: thisApp.NavigationLevel.versions
+                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
             });
         });
     }
