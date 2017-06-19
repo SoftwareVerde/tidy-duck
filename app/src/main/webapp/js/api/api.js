@@ -189,8 +189,8 @@ function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
 
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        if (!wasSuccess) {
-            console.log("Unable to modify function block " + functionBlockId + " from version " + versionId + ": " + data.errorMessage);
+        if (! wasSuccess) {
+            console.log("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {

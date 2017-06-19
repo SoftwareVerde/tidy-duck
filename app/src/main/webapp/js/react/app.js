@@ -101,6 +101,11 @@ class App extends React.Component {
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
 
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
+            if (! (functionBlockId > 0)) {
+                console.log("Unable to create function block.");
+                return;
+            }
+
             functionBlock.setId(functionBlockId);
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
@@ -121,7 +126,7 @@ class App extends React.Component {
         updateFunctionBlock(functionBlockId, functionBlockJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
-                  return value.getId() != functionBlockId;
+                    return value.getId() != functionBlockId;
                 });
                 functionBlocks = functionBlocks.push(functionBlock);
 
