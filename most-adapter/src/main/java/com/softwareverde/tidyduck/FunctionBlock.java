@@ -21,6 +21,16 @@ public class FunctionBlock extends XmlNode {
         public String getXmlText() {
             return _xmlText;
         }
+
+        public static Kind fromString(final String string) {
+            for (final Kind kind : Kind.values()) {
+                if (kind.getXmlText().equalsIgnoreCase(string)) {
+                    return kind;
+                }
+            }
+
+            return null;
+        }
     }
 
     private Long _id;

@@ -1,8 +1,20 @@
+function injectDefaultValues(functionBlock) {
+    functionBlock.setKind("Proprietary");
+    functionBlock.setAccess("public");
+}
+
 class FunctionBlockForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(this.props.functionBlock || new FunctionBlock()));
+        const isNewFunctionBlock = (! this.props.functionBlock);
+        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(isNewFunctionBlock ? new FunctionBlock() : this.props.functionBlock));
+
+        // Default values for the function block...
+        if (isNewFunctionBlock) {
+            injectDefaultValues(functionBlock);
+        }
+
         this.state = {
             showTitle:      this.props.showTitle,
             functionBlock:  functionBlock,
@@ -26,7 +38,14 @@ class FunctionBlockForm extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(newProperties.functionBlock || new FunctionBlock()));
+        const isNewFunctionBlock = (! this.props.functionBlock);
+        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(isNewFunctionBlock ? new FunctionBlock() : newProperties.functionBlock));
+
+        // Default values for the function block...
+        if (isNewFunctionBlock) {
+            injectDefaultValues(functionBlock);
+        }
+
         functionBlock.setId((newProperties.functionBlock || functionBlock).getId());
         this.setState({
             showTitle:      newProperties.showTitle,
