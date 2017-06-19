@@ -12,6 +12,7 @@ import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
+import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     @Override
     protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, final long accountId, Environment environment) throws Exception {
-        String finalUrlSegment = super.getFinalUrlSegment(request);
+        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-block".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
                 return _insertFunctionBlock(request, environment);
@@ -54,7 +55,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _insertFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
-        final Json jsonRequest = super._getRequestDataAsJson(request);
+        final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
         final Long functionCatalogId = Util.parseLong(jsonRequest.getString("functionCatalogId"));

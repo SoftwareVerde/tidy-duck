@@ -4,10 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.util.Util;
 
 import java.sql.Connection;
@@ -62,7 +59,7 @@ public class FunctionCatalogInflater {
         final String release = row.getString("release_version");
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
-        final boolean isCommited = row.getBoolean("is_committed");
+        final boolean isCommitted = row.getBoolean("is_committed");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -76,7 +73,11 @@ public class FunctionCatalogInflater {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
-        functionCatalog.setCommitted(isCommited);
+        functionCatalog.setCommitted(isCommitted);
+
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
+        functionCatalog.setFunctionBlocks(functionBlocks);
 
         return functionCatalog;
     }
