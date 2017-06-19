@@ -70,7 +70,6 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 catalogJson.put("id", functionCatalog.getId());
                 catalogJson.put("name", functionCatalog.getName());
                 catalogJson.put("releaseVersion", functionCatalog.getRelease());
-                catalogJson.put("releaseDate", DateUtil.dateToDateString(functionCatalog.getReleaseDate()));
                 catalogJson.put("authorId", functionCatalog.getAuthor().getId());
                 catalogJson.put("companyId", functionCatalog.getCompany().getId());
                 catalogsJson.add(catalogJson);
@@ -174,10 +173,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     protected FunctionCatalog _populateFunctionCatalogFromJson(Json functionCatalogJson) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
-        final String releaseDateString = functionCatalogJson.getString("releaseDate");
         final Integer authorId = functionCatalogJson.getInteger("authorId");
         final Integer companyId = functionCatalogJson.getInteger("companyId");
-        final Date releaseDate = DateUtil.dateFromDateString(releaseDateString);
 
         { // Validate Inputs
             if (Util.isBlank(name)) {
@@ -186,10 +183,6 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
             if (Util.isBlank(release)) {
                 throw new Exception("Invalid Release: " + release);
-            }
-
-            if (releaseDate == null) {
-                throw new Exception("Invalid Release Date: " + releaseDateString);
             }
 
             if (authorId < 1) {
@@ -210,7 +203,6 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName(name);
         functionCatalog.setRelease(release);
-        functionCatalog.setReleaseDate(releaseDate);
         functionCatalog.setAuthor(account);
         functionCatalog.setCompany(company);
 

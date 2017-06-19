@@ -29,7 +29,6 @@ CREATE TABLE function_catalogs (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     name varchar(255) NOT NULL,
     release_version varchar(255) NOT NULL,
-    release_date date NOT NULL,
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
     is_committed boolean NOT NULL DEFAULT FALSE,
