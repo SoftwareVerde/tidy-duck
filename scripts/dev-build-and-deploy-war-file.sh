@@ -6,15 +6,22 @@ SERVER="dev.tidy-duck.sv.net"
 DEPLOY_PATH="/var/lib/tomcat7/webapps/"
 TARGET_WAR_FILE_NAME="ROOT.war"
 
+echo rm ${WAR_MODULE_PATH} 2>/dev/null
+rm ${WAR_MODULE_PATH} 2>/dev/null
+
 # build war file
 cd $WAR_MODULE_DIR
 ./gradlew war
 cd -
+
+file=$(ls -tr ${WAR_MODULE_PATH})
+echo ${file}
+
 if [[ $? == 0 ]]; then
-    if [[ ! -f $WAR_MODULE_PATH ]]; then
+    if [[ ! -f $file ]]; then
         echo "$WAR_MODULE_PATH does not exist."
         exit 1
     fi
-    scp $WAR_MODULE_PATH $SERVER:~/$TARGET_WAR_FILE_NAME
+    scp $file $SERVER:~/$TARGET_WAR_FILE_NAME
     ssh -t $SERVER "sudo rm -rf $DEPLOY_PATH/*; sudo mv $TARGET_WAR_FILE_NAME $DEPLOY_PATH; sudo chown tomcat7:tomcat7 $DEPLOY_PATH/$TARGET_WAR_FILE_NAME"
 fi
