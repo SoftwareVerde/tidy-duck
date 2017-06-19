@@ -64,7 +64,6 @@ class App extends React.Component {
 
             thisApp.setState({
                 functionCatalogs:       functionCatalogs,
-                selectedItem:           functionCatalog,
                 currentNavigationLevel: thisApp.NavigationLevel.versions
             });
         });
@@ -105,14 +104,10 @@ class App extends React.Component {
             functionBlock.setId(functionBlockId);
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
-            thisApp.onFunctionBlockSelected(functionBlock);
-            /*
-                thisApp.setState({
-                    functionBlocks:         functionBlocks,
-                    selectedItem:           functionBlock,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-                });
-            */
+            thisApp.setState({
+                functionBlocks:         functionBlocks,
+                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+            });
         });
     }
 
