@@ -284,7 +284,7 @@ class App extends React.Component {
     onDeleteFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const functionCatalogId = this.state.parentItem.getId();
+        const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
         deleteFunctionBlock(functionCatalogId, functionBlockId, function (success) {
@@ -299,7 +299,7 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionBlocks:       newFunctionBlocks,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
             }
         });
@@ -328,7 +328,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionCatalog} />);
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
                 }
             break;
 
