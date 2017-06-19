@@ -60,7 +60,6 @@ public class FunctionCatalogInflater {
         final Long id = Util.parseLong(row.getString("id"));
         final String name = row.getString("name");
         final String release = row.getString("release_version");
-        final Date releaseDate = DateUtil.dateFromDateString(row.getString("release_date"));
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
         final boolean isCommited = row.getBoolean("is_committed");
@@ -75,7 +74,6 @@ public class FunctionCatalogInflater {
         functionCatalog.setId(id);
         functionCatalog.setName(name);
         functionCatalog.setRelease(release);
-        functionCatalog.setReleaseDate(releaseDate);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
         functionCatalog.setCommitted(isCommited);

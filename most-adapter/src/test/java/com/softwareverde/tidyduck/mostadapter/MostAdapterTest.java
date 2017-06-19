@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -22,13 +23,12 @@ public class MostAdapterTest {
 
     @Test
     public void testFunctionCatalogWithoutFunctionBlocks() throws MostAdapterException, IOException {
-        Date releaseDate = new Date(1475251200000L); // date -d "30-SEP-2016 12:00:00" +%s (converted to ms)
-        FunctionCatalog functionCatalog = createTestFunctionCatalog("3.0.3.2", releaseDate, "WG DA", "MOST Cooperation");
+        FunctionCatalog functionCatalog = createTestFunctionCatalog("3.0.3.2", "WG DA", "MOST Cooperation");
 
         MostAdapter adapter = new MostAdapter();
         String mostXml = adapter.getMostXml(functionCatalog);
 
-        assertEquals(getResourceAsString(FUNCTION_CATALOG_WITHOUT_FUNCTION_BLOCKS_XML), mostXml);
+        assertEquals(getCorrectXml(FUNCTION_CATALOG_WITHOUT_FUNCTION_BLOCKS_XML), mostXml);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class MostAdapterTest {
         adapter.setIndented(true);
         String mostXml = adapter.getMostXml(functionCatalog);
 
-        assertEquals(getResourceAsString(FUNCTION_BLOCK_WITHOUT_INTERFACES_XML), mostXml);
+        assertEquals(getCorrectXml(FUNCTION_BLOCK_WITHOUT_INTERFACES_XML), mostXml);
     }
 
     @Test
@@ -83,18 +83,20 @@ public class MostAdapterTest {
         adapter.setIndented(true);
         String mostXml = adapter.getMostXml(functionCatalog);
 
-        assertEquals(getResourceAsString(MULTIPLE_FUNCTION_BLOCKS_WITHOUT_INTERFACES_XML), mostXml);
+        assertEquals(getCorrectXml(MULTIPLE_FUNCTION_BLOCKS_WITHOUT_INTERFACES_XML), mostXml);
     }
 
     private FunctionCatalog createDefaultTestFunctionCatalog() {
-        Date releaseDate = new Date(1461600000000L); // date -d "25-APR-2016 12:00:00" +%s (converted to ms)
-        return createTestFunctionCatalog("3.0.2.2", releaseDate, "Specification Support", "MOST Cooperation");
+        return createTestFunctionCatalog(
+                "3.0.2.2",
+                "Specification Support",
+                "MOST Cooperation"
+        );
     }
 
-    private FunctionCatalog createTestFunctionCatalog(String release, Date releaseDate, String author, String company) {
+    private FunctionCatalog createTestFunctionCatalog(String release, String author, String company) {
         FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setRelease(release);
-        functionCatalog.setReleaseDate(releaseDate);
 
         functionCatalog.setAuthor(createTestAuthor(author));
         functionCatalog.setCompany(createTestCompany(company));
@@ -130,5 +132,16 @@ public class MostAdapterTest {
         InputStream inputStream = getClass().getResource(resourcePath).openStream();
         java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
+    }
+
+    private String getCorrectXml(String resourcePath) throws IOException {
+        String xml = getResourceAsString(resourcePath);
+        String correctedXml = xml.replace("%CURRENT_DATE%", getCurrentDate());
+        return correctedXml;
+    }
+
+    private String getCurrentDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+        return formatter.format(new Date()).toUpperCase();
     }
 }

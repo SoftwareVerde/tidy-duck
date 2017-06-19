@@ -12,7 +12,6 @@ public class FunctionCatalog extends XmlNode {
     private Long _id;
     private String _name;
     private String _release;
-    private Date _releaseDate;
     private Author _author;
     private Company _company;
     private List<FunctionBlock> _functionBlocks = new ArrayList<>();
@@ -41,14 +40,6 @@ public class FunctionCatalog extends XmlNode {
 
     public void setRelease(String release) {
         _release = release;
-    }
-
-    public Date getReleaseDate() {
-        return _releaseDate;
-    }
-
-    public void setReleaseDate(Date releaseDate) {
-        _releaseDate = releaseDate;
     }
 
     public Author getAuthor() {
@@ -107,7 +98,8 @@ public class FunctionCatalog extends XmlNode {
 
         Element release = super.createTextElement(document, "Release", _release);
         catalogVersion.appendChild(release);
-        Element date = super.createTextElement(document, "Date", super.formatDate(_releaseDate));
+        final Date currentDate = new Date();
+        Element date = super.createTextElement(document, "Date", super.formatDate(currentDate));
         catalogVersion.appendChild(date);
         Element author = super.createTextElement(document, "Author", _author.getName());
         catalogVersion.appendChild(author);

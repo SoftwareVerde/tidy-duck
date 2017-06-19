@@ -29,14 +29,12 @@ class FunctionCatalogDatabaseManager {
     private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
-        final String releaseDate = DateUtil.timestampToDateString(functionCatalog.getReleaseDate().getTime());
         final Long accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
 
-        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, release_date, account_id, company_id) VALUES (?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id) VALUES (?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(release)
-            .setParameter(releaseDate)
             .setParameter(accountId)
             .setParameter(companyId)
         ;
@@ -76,15 +74,13 @@ class FunctionCatalogDatabaseManager {
     private void _updateUncommittedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
-        final String newReleaseDate = DateUtil.dateToDateString(proposedFunctionCatalog.getReleaseDate());
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
         final long functionCatalogId = proposedFunctionCatalog.getId();
 
-        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, release_date = ?, account_id = ?, company_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, account_id = ?, company_id = ? WHERE id = ?")
             .setParameter(newName)
             .setParameter(newReleaseVersion)
-            .setParameter(newReleaseDate)
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
             .setParameter(functionCatalogId)
