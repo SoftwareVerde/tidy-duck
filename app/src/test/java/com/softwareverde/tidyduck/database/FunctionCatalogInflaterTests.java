@@ -37,7 +37,6 @@ public class FunctionCatalogInflaterTests {
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName("Name");
         functionCatalog.setRelease("v0.0.0");
-        functionCatalog.setReleaseDate(DateUtil.dateFromDateString("2000-01-01"));
         functionCatalog.setAuthor(account);
         functionCatalog.setCompany(company);
         functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
@@ -49,7 +48,6 @@ public class FunctionCatalogInflaterTests {
         Assert.assertEquals(1L, inflatedFunctionCatalog.getId().longValue());
         Assert.assertEquals("Name", inflatedFunctionCatalog.getName());
         Assert.assertEquals("v0.0.0", inflatedFunctionCatalog.getRelease());
-        Assert.assertEquals("2000-01-01", DateUtil.timestampToDateString(inflatedFunctionCatalog.getReleaseDate().getTime()));
         Assert.assertEquals(1L, inflatedFunctionCatalog.getAuthor().getId().longValue());
         Assert.assertEquals(1L, inflatedFunctionCatalog.getCompany().getId().longValue());
     }
