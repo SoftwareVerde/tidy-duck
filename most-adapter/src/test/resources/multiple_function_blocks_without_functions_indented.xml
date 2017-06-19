@@ -3,7 +3,7 @@
 <FunctionCatalog>
     <CatalogVersion>
         <Release>3.0.2.2</Release>
-        <Date>25-APR-2016</Date>
+        <Date>%CURRENT_DATE%</Date>
         <Author>Specification Support</Author>
         <Company>MOST Cooperation</Company>
     </CatalogVersion>

@@ -22,8 +22,7 @@ public class MostAdapterTest {
 
     @Test
     public void testFunctionCatalogWithoutFunctionBlocks() throws MostAdapterException, IOException {
-        Date releaseDate = new Date(1475251200000L); // date -d "30-SEP-2016 12:00:00" +%s (converted to ms)
-        FunctionCatalog functionCatalog = createTestFunctionCatalog("3.0.3.2", releaseDate, "WG DA", "MOST Cooperation");
+        FunctionCatalog functionCatalog = createTestFunctionCatalog("3.0.3.2", "WG DA", "MOST Cooperation");
 
         MostAdapter adapter = new MostAdapter();
         String mostXml = adapter.getMostXml(functionCatalog);
@@ -87,14 +86,16 @@ public class MostAdapterTest {
     }
 
     private FunctionCatalog createDefaultTestFunctionCatalog() {
-        Date releaseDate = new Date(1461600000000L); // date -d "25-APR-2016 12:00:00" +%s (converted to ms)
-        return createTestFunctionCatalog("3.0.2.2", releaseDate, "Specification Support", "MOST Cooperation");
+        return createTestFunctionCatalog(
+                "3.0.2.2",
+                "Specification Support",
+                "MOST Cooperation"
+        );
     }
 
-    private FunctionCatalog createTestFunctionCatalog(String release, Date releaseDate, String author, String company) {
+    private FunctionCatalog createTestFunctionCatalog(String release, String author, String company) {
         FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setRelease(release);
-        functionCatalog.setReleaseDate(releaseDate);
 
         functionCatalog.setAuthor(createTestAuthor(author));
         functionCatalog.setCompany(createTestCompany(company));
