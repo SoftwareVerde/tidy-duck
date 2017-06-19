@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -27,7 +28,7 @@ public class MostAdapterTest {
         MostAdapter adapter = new MostAdapter();
         String mostXml = adapter.getMostXml(functionCatalog);
 
-        assertEquals(getResourceAsString(FUNCTION_CATALOG_WITHOUT_FUNCTION_BLOCKS_XML), mostXml);
+        assertEquals(getCorrectXml(FUNCTION_CATALOG_WITHOUT_FUNCTION_BLOCKS_XML), mostXml);
     }
 
     @Test
@@ -49,7 +50,7 @@ public class MostAdapterTest {
         adapter.setIndented(true);
         String mostXml = adapter.getMostXml(functionCatalog);
 
-        assertEquals(getResourceAsString(FUNCTION_BLOCK_WITHOUT_INTERFACES_XML), mostXml);
+        assertEquals(getCorrectXml(FUNCTION_BLOCK_WITHOUT_INTERFACES_XML), mostXml);
     }
 
     @Test
@@ -82,7 +83,7 @@ public class MostAdapterTest {
         adapter.setIndented(true);
         String mostXml = adapter.getMostXml(functionCatalog);
 
-        assertEquals(getResourceAsString(MULTIPLE_FUNCTION_BLOCKS_WITHOUT_INTERFACES_XML), mostXml);
+        assertEquals(getCorrectXml(MULTIPLE_FUNCTION_BLOCKS_WITHOUT_INTERFACES_XML), mostXml);
     }
 
     private FunctionCatalog createDefaultTestFunctionCatalog() {
@@ -131,5 +132,16 @@ public class MostAdapterTest {
         InputStream inputStream = getClass().getResource(resourcePath).openStream();
         java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
+    }
+
+    private String getCorrectXml(String resourcePath) throws IOException {
+        String xml = getResourceAsString(resourcePath);
+        String correctedXml = xml.replace("%CURRENT_DATE%", getCurrentDate());
+        return correctedXml;
+    }
+
+    private String getCurrentDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+        return formatter.format(new Date()).toUpperCase();
     }
 }
