@@ -228,7 +228,6 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionCatalogs:       newFunctionCatalogs,
-                    selectedItem:           null,
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
             }
@@ -273,7 +272,27 @@ class App extends React.Component {
     }
 
     onDeleteFunctionBlock(functionBlock) {
-        // TODO
+        const thisApp = this;
+
+        const functionCatalogId = this.state.selectedItem.getId();
+        const functionBlockId = functionBlock.getId();
+
+        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success) {
+            if (success) {
+                const newFunctionBlocks = [];
+                const existingFunctionBlocks = thisApp.state.functionBlocks;
+                for (let i in existingFunctionBlocks) {
+                    const existingFunctionBlock = existingFunctionBlocks[i];
+                    if (existingFunctionBlock.getId() != functionBlock.getId()) {
+                        newFunctionBlocks.push(existingFunctionBlock);
+                    }
+                }
+                thisApp.setState({
+                    functionBlocks:       newFunctionBlocks,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                });
+            }
+        });
     }
 
     renderChildItems() {
