@@ -69,4 +69,14 @@ public class DatabaseManager {
             }
         });
     }
+
+    public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
+            }
+        });
+    }
 }

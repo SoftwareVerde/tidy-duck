@@ -106,7 +106,6 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-
     protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
         try {
             final Json response = new Json(false);
