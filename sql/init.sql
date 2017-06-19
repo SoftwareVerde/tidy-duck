@@ -32,6 +32,7 @@ CREATE TABLE function_catalogs (
     release_date date NOT NULL,
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
+    is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;
@@ -48,7 +49,6 @@ CREATE TABLE versions_function_catalogs (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     version_id int unsigned NOT NULL,
     function_catalog_id int unsigned NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (version_id) REFERENCES versions (id),
     FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id)
 ) ENGINE=INNODB;
@@ -64,6 +64,7 @@ CREATE TABLE function_blocks (
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
     access varchar(255) NOT NULL,
+    is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;
@@ -72,7 +73,6 @@ CREATE TABLE function_catalogs_function_blocks (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     function_catalog_id int unsigned NOT NULL,
     function_block_id int unsigned NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id),
     FOREIGN KEY (function_block_id) REFERENCES function_blocks (id)
 ) ENGINE=INNODB;

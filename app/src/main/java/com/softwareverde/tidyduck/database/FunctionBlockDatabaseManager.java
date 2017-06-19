@@ -52,4 +52,37 @@ public class FunctionBlockDatabaseManager {
 
         return _databaseConnection.executeSql(query);
     }
+
+    public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        _deleteFunctionBlockIfUncommitted(functionBlockId);
+    }
+
+    private void _disassociateFunctionBlockWithFunctionCatalog(long functionCatalogId, long functionBlockId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_catalog_id = ? and function_block_id = ?")
+            .setParameter(functionCatalogId)
+            .setParameter(functionBlockId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteFunctionBlockIfUncommitted(long functionBlockId) throws DatabaseException {
+        FunctionBlockInflater functionCatalogInflater = new FunctionBlockInflater(_databaseConnection);
+        FunctionBlock functionBlock = functionCatalogInflater.inflateFunctionBlock(functionBlockId);
+
+        if (!functionBlock.isCommitted()) {
+            // function block isn't committed, we can delete it
+            // TODO: delete interfaces from function block
+            _deleteFunctionBlockFromDatabase(functionBlockId);
+        }
+    }
+
+    private void _deleteFunctionBlockFromDatabase(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_blocks WHERE id = ?")
+            .setParameter(functionBlockId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
 }

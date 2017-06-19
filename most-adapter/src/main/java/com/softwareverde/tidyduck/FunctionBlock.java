@@ -33,6 +33,7 @@ public class FunctionBlock extends XmlNode {
     private Author _author;
     private Company _company;
     private String _access;
+    private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
 
     public Long getId() {
@@ -113,6 +114,14 @@ public class FunctionBlock extends XmlNode {
 
     public String getAccess() {
         return _access;
+    }
+
+    public boolean isCommitted() {
+        return _isCommitted;
+    }
+
+    public void setCommitted(boolean committed) {
+        _isCommitted = committed;
     }
 
     public List<Modification> getModifications() {

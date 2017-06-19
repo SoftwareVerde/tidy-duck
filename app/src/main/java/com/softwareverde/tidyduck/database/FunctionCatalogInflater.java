@@ -63,6 +63,7 @@ public class FunctionCatalogInflater {
         final Date releaseDate = DateUtil.dateFromDateString(row.getString("release_date"));
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
+        final boolean isCommited = row.getBoolean("is_committed");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -77,6 +78,7 @@ public class FunctionCatalogInflater {
         functionCatalog.setReleaseDate(releaseDate);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+        functionCatalog.setCommitted(isCommited);
 
         return functionCatalog;
     }
