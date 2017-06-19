@@ -27,7 +27,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         String finalUrlSegment = super.getFinalUrlSegment(request);
         if ("function-block".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return _storeFunctionBlock(request, environment);
+                return _insertFunctionBlock(request, environment);
             }
             if (httpMethod == HttpMethod.GET) {
                 long functionCatalogId = Util.parseLong(Util.coalesce(request.getParameter("function_catalog_id")));
@@ -53,9 +53,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    protected Json _storeFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
-        Json jsonRequest = super._getRequestDataAsJson(request);
-        Json response = new Json(false);
+    protected Json _insertFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
+        final Json jsonRequest = super._getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
 
         final Long functionCatalogId = Util.parseLong(jsonRequest.getString("functionCatalogId"));
 
@@ -134,8 +134,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             if (! Util.isBlank(kindString)) {
-                // will throw an exception if invalid
-                kind = FunctionBlock.Kind.valueOf(kindString);
+                kind = FunctionBlock.Kind.fromString(kindString);
+                if (kind == null) {
+                    throw new Exception("Invalid Kind value: "+ kindString);
+                }
             }
 
             if (Util.isBlank(name)) {

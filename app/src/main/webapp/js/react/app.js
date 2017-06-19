@@ -105,11 +105,14 @@ class App extends React.Component {
             functionBlock.setId(functionBlockId);
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
-            thisApp.setState({
-                functionBlocks:         functionBlocks,
-                selectedItem:           functionBlock,
-                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-            });
+            thisApp.onFunctionBlockSelected(functionBlock);
+            /*
+                thisApp.setState({
+                    functionBlocks:         functionBlocks,
+                    selectedItem:           functionBlock,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                });
+            */
         });
     }
 
