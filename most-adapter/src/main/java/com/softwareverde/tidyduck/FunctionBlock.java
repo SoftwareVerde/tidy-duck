@@ -156,7 +156,7 @@ public class FunctionBlock extends XmlNode {
         functionBlock.appendChild(descriptionElement);
 
         Element versionElement = document.createElement("FBlockVersion");
-        versionElement.setAttribute("Access", "public");
+        versionElement.setAttribute("Access", _access);
 
         Element releaseElement = super.createTextElement(document, "Release", _release);
         versionElement.appendChild(releaseElement);
