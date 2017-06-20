@@ -82,11 +82,19 @@ class App extends React.Component {
                 var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
                 });
-                functionCatalogs = functionCatalogs.push(functionCatalog);
+                functionCatalogs.push(functionCatalog);
+
+                //Update final navigation item to reflect any name changes.
+                var navigationItems = [];
+                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                var navigationItem = navigationItems.pop();
+                navigationItem.setTitle(functionCatalog.getName());
+                navigationItems.push(navigationItem);
 
                 thisApp.setState({
                     functionCatalogs:       functionCatalogs,
                     selectedItem:           functionCatalog,
+                    navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
             }
@@ -129,11 +137,19 @@ class App extends React.Component {
                 var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                     return value.getId() != functionBlockId;
                 });
-                functionBlocks = functionBlocks.push(functionBlock);
+                functionBlocks.push(functionBlock);
+
+                //Update final navigation item to reflect any name changes.
+                var navigationItems = [];
+                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                var navigationItem = navigationItems.pop();
+                navigationItem.setTitle(functionBlock.getName());
+                navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionBlocks:       functionBlocks,
+                    functionBlocks:         functionBlocks,
                     selectedItem:           functionBlock,
+                    navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
                 });
             }
