@@ -270,6 +270,7 @@ class App extends React.Component {
 
         const interfaces = functionBlock.getInterfaces();
         const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+        // TODO: what happens if you select a function block from the Navigation area? How do we find out the parent in this situation?
 
         this.setState({
             navigationItems:            navigationItems,

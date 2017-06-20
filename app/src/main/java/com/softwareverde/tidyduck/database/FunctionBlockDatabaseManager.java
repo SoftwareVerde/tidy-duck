@@ -75,7 +75,7 @@ public class FunctionBlockDatabaseManager {
 
     private void _updateUncommittedFunctionBlock(FunctionBlock proposedFunctionBlock) throws DatabaseException {
         final String newMostId = proposedFunctionBlock.getMostId();
-        final String newKindText = proposedFunctionBlock.getKind().getXmlText(); //Should this just pass the kind object instead?
+        final FunctionBlock.Kind newKind = proposedFunctionBlock.getKind();
         final String newName = proposedFunctionBlock.getName();
         final String newReleaseVersion = proposedFunctionBlock.getRelease();
         final String newDescription = proposedFunctionBlock.getDescription();
@@ -86,7 +86,7 @@ public class FunctionBlockDatabaseManager {
 
         final Query query = new Query("UPDATE function_blocks SET mostId = ?, kind = ?, name = ?, release_version = ?, account_id = ?, company_id = ?, description = ?, access = ?, WHERE id = ?")
                 .setParameter(newMostId)
-                .setParameter(newKindText)
+                .setParameter(newKind)
                 .setParameter(newName)
                 .setParameter(newReleaseVersion)
                 .setParameter(newAuthorId)
