@@ -53,8 +53,7 @@ public class FunctionBlockInflater {
 
         final Long id = row.getLong("id");
         final String mostId = row.getString("most_id");
-        final String kindString = row.getString("kind");
-        final FunctionBlock.Kind kind = FunctionBlock.Kind.valueOf(kindString.toUpperCase());
+        final String kind = row.getString("kind");
         final String name = row.getString("name");
         final String description = row.getString("description");
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));

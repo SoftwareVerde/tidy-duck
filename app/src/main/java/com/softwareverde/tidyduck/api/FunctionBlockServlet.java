@@ -151,7 +151,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 final Json blockJson = new Json(false);
                 blockJson.put("id", functionBlock.getId());
                 blockJson.put("mostId", functionBlock.getMostId());
-                blockJson.put("kind", functionBlock.getKind().getXmlText());
+                blockJson.put("kind", functionBlock.getKind());
                 blockJson.put("name", functionBlock.getName());
                 blockJson.put("description", functionBlock.getDescription());
                 blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
@@ -174,7 +174,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson) throws Exception {
         final String mostId = functionBlockJson.getString("mostId");
-        final String kindString = functionBlockJson.getString("kind");
+        final String kind = functionBlockJson.getString("kind");
         final String name = functionBlockJson.getString("name");
         final String description = functionBlockJson.getString("description");
         final String release = functionBlockJson.getString("releaseVersion");
@@ -182,18 +182,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Integer companyId = functionBlockJson.getInteger("companyId");
         final String access = functionBlockJson.getString("access");
 
-        FunctionBlock.Kind kind = FunctionBlock.Kind.PROPRIETARY;
-
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
 
-            if (! Util.isBlank(kindString)) {
-                kind = FunctionBlock.Kind.fromString(kindString);
-                if (kind == null) {
-                    throw new Exception("Invalid Kind value: "+ kindString);
-                }
+            if (Util.isBlank(kind)) {
+                throw new Exception("Invalid Kind value: "+ kind);
             }
 
             if (Util.isBlank(name)) {

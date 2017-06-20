@@ -9,33 +9,9 @@ import java.util.List;
 
 public class FunctionBlock extends XmlNode {
 
-    public enum Kind {
-        PROPRIETARY("Proprietary");
-
-        private final String _xmlText;
-
-        Kind(String xmlText) {
-            _xmlText = xmlText;
-        }
-
-        public String getXmlText() {
-            return _xmlText;
-        }
-
-        public static Kind fromString(final String string) {
-            for (final Kind kind : Kind.values()) {
-                if (kind.getXmlText().equalsIgnoreCase(string)) {
-                    return kind;
-                }
-            }
-
-            return null;
-        }
-    }
-
     private Long _id;
     private String _mostId;
-    private Kind _kind = Kind.PROPRIETARY;
+    private String _kind = "Proprietary";
     private String _name;
     private String _description;
     private String _release;
@@ -62,11 +38,11 @@ public class FunctionBlock extends XmlNode {
         _mostId = mostId;
     }
 
-    public Kind getKind() {
+    public String getKind() {
         return _kind;
     }
 
-    public void setKind(Kind kind) {
+    public void setKind(String kind) {
         _kind = kind;
     }
 
@@ -148,7 +124,7 @@ public class FunctionBlock extends XmlNode {
 
         Element mostIdElement = super.createTextElement(document, "FBlockID", _mostId);
         functionBlock.appendChild(mostIdElement);
-        Element kindElement = super.createTextElement(document, "FBlockKind", _kind.getXmlText());
+        Element kindElement = super.createTextElement(document, "FBlockKind", _kind);
         functionBlock.appendChild(kindElement);
         Element nameElement = super.createTextElement(document, "FBlockName", _name);
         functionBlock.appendChild(nameElement);

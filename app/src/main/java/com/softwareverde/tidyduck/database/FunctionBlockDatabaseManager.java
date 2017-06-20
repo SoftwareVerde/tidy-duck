@@ -22,7 +22,7 @@ public class FunctionBlockDatabaseManager {
 
     private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
         final String mostId = functionBlock.getMostId();
-        final FunctionBlock.Kind kind = functionBlock.getKind();
+        final String kind = functionBlock.getKind();
         final String name = functionBlock.getName();
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
@@ -32,7 +32,7 @@ public class FunctionBlockDatabaseManager {
 
         final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)")
             .setParameter(mostId)
-            .setParameter(kind.getXmlText())
+            .setParameter(kind)
             .setParameter(name)
             .setParameter(description)
             .setParameter(release)
@@ -75,7 +75,7 @@ public class FunctionBlockDatabaseManager {
 
     private void _updateUncommittedFunctionBlock(FunctionBlock proposedFunctionBlock) throws DatabaseException {
         final String newMostId = proposedFunctionBlock.getMostId();
-        final FunctionBlock.Kind newKind = proposedFunctionBlock.getKind();
+        final String newKind = proposedFunctionBlock.getKind();
         final String newName = proposedFunctionBlock.getName();
         final String newReleaseVersion = proposedFunctionBlock.getRelease();
         final String newDescription = proposedFunctionBlock.getDescription();
@@ -86,7 +86,7 @@ public class FunctionBlockDatabaseManager {
 
         final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ? WHERE id = ?")
                 .setParameter(newMostId)
-                .setParameter(newKind.getXmlText())
+                .setParameter(newKind)
                 .setParameter(newName)
                 .setParameter(newDescription)
                 .setParameter(newReleaseVersion)
