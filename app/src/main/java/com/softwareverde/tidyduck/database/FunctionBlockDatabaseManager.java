@@ -84,14 +84,14 @@ public class FunctionBlockDatabaseManager {
         final long newCompanyId = proposedFunctionBlock.getCompany().getId();
         final long functionBlockId = proposedFunctionBlock.getId();
 
-        final Query query = new Query("UPDATE function_blocks SET mostId = ?, kind = ?, name = ?, release_version = ?, account_id = ?, company_id = ?, description = ?, access = ?, WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET mostId = ?, kind = ?, name = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, access = ? WHERE id = ?")
                 .setParameter(newMostId)
-                .setParameter(newKind)
+                .setParameter(newKind.getXmlText())
                 .setParameter(newName)
+                .setParameter(newDescription)
                 .setParameter(newReleaseVersion)
                 .setParameter(newAuthorId)
                 .setParameter(newCompanyId)
-                .setParameter(newDescription)
                 .setParameter(newAccess)
                 .setParameter(functionBlockId)
                 ;
