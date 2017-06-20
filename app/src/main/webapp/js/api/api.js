@@ -239,11 +239,65 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
         if (data.wasSuccess) {
             mostInterfaces = data.mostInterfaces;
         } else {
-            console.log("Unable to get function blocks for function catalog " + functionBlockId + ": " + data.errorMessage);
+            console.log("Unable to get Interfaces for function block " + functionBlockId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
             callbackFunction(mostInterfaces);
+        }
+    });
+}
+// calls callbackFunction with new MOST interface ID
+function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interface",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlockId":      functionBlockId,
+                "mostInterface":        mostInterface
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaceId = null;
+
+        if (data.wasSuccess) {
+            mostInterfaceId = data.mostInterfaceId;
+        } else {
+            console.log("Unable to insert interface: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaceId);
+        }
+    });
+}
+
+// calls callbackFunction with modified MOST interface ID
+function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId,
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlockId":    functionBlockId,
+                "mostInterface":      mostInterface
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.log("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

@@ -6,7 +6,7 @@ class App extends React.Component {
             versions:           "versions",
             functionCatalogs:   "functionCatalogs",
             functionBlocks:     "functionBlocks",
-            interfaces:         "interfaces",
+            mostInterfaces:         "mostInterfaces",
             functions:          "functions",
             operations:         "operations"
         };
@@ -15,7 +15,7 @@ class App extends React.Component {
             navigationItems:            [],
             functionCatalogs:           [],
             functionBlocks:             [],
-            interfaces:                 [],
+            mostInterfaces:                 [],
             functions:                  [],
             selectedItem:               null,
             parentItem:                 null,
@@ -36,6 +36,9 @@ class App extends React.Component {
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
+
+        this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
+        this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
 
         const thisApp = this;
         const versionId = 1;
@@ -152,6 +155,61 @@ class App extends React.Component {
                     selectedItem:           functionBlock,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                });
+            }
+        });
+    }
+
+    onCreateMostInterface(mostInterface) {
+        const thisApp = this;
+
+        const functionBlock = this.state.selectedItem;
+
+        const functionBlockId = functionBlock.getId();
+        const mostInterfaceJson = MostInterface.toJson(mostInterface);
+
+        insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
+            if (! (mostInterfaceId > 0)) {
+                console.log("Unable to create interface.");
+                return;
+            }
+
+            mostInterface.setId(mostInterfaceId);
+            const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+
+            thisApp.setState({
+                mostInterfaces:         mostInterfaces,
+                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+            });
+        });
+    }
+
+    onUpdateMostInterface(mostInterface) {
+        const thisApp = this;
+
+        const functionBlockId = this.state.parentItem.getId();
+        const mostInterfaceJson = MostInterface.toJson(mostInterface);
+        const mostInterfaceId = mostInterface.getId();
+
+        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess) {
+            if (wasSuccess) {
+                var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
+                    return value.getId() != mostInterfaceId;
+                });
+                mostInterfaces.push(mostInterface);
+
+                //Update final navigation item to reflect any name changes.
+                var navigationItems = [];
+                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                var navigationItem = navigationItems.pop();
+                navigationItem.setTitle(mostInterface.getName());
+                navigationItems.push(navigationItem);
+
+                thisApp.setState({
+                    mostInterfaces:         mostInterfaces,
+                    selectedItem:           mostInterface,
+                    navigationItems:        navigationItems,
+                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
                 });
             }
         });
@@ -299,7 +357,7 @@ class App extends React.Component {
                 navigationItems:            navigationItems,
                 selectedItem:               functionBlock,
                 parentItem:                 parentItem,
-                interfaces:                 mostInterfaces,
+                mostInterfaces:             mostInterfaces,
                 shouldShowCreateChildForm:  false,
                 currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
             });
@@ -327,6 +385,57 @@ class App extends React.Component {
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
             }
+        });
+    }
+
+    onMostInterfaceSelected(mostInterface) {
+        const thisApp = this;
+
+        const navigationItems = [];
+        for (let i in this.state.navigationItems) {
+            const navigationItem = this.state.navigationItems[i];
+            navigationItem.setForm(null);
+            navigationItems.push(navigationItem);
+            break; // Take only for the first one...
+        }
+
+        const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setTitle(mostInterface.getName());
+        navigationItemConfig.setOnClickCallback(function() {
+            thisApp.onFunctionBlockSelected(mostInterface);
+        });
+        navigationItemConfig.setForm(
+            <app.MostInterfaceForm key="MostInterfaceForm"
+                                   showTitle={false}
+                                   onSubmit={this.onUpdateMostInterface}
+                                   mostInterface={mostInterface}
+                                   buttonTitle="Save"
+            />
+        );
+        navigationItems.push(navigationItemConfig);
+
+        // TODO: getFunctionsForMostInterfaceId should use the following as a callback function.
+
+        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+        const mostFunctions = this.state.functions; //Placeholder.
+
+        // TODO: might want to consider renaming "functions" array to "mostFunctions".
+        /*
+        const mostFunctions = [];
+        for (let i in mostFunctions) {
+            const mostFunctionJson = mostFunctions[i];
+            const mostFunction = MostFunction.fromJson(mostFunctionJson);
+            mostFunctions.push(mostFunction);
+        }
+        */
+
+        this.setState({
+            navigationItems:            navigationItems,
+            selectedItem:               mostInterface,
+            parentItem:                 parentItem,
+            functions:                  mostFunctions,
+            shouldShowCreateChildForm:  false,
+            currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces
         });
     }
 
@@ -358,7 +467,7 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionBlocks:
-                childItems = this.state.interfaces;
+                childItems = this.state.mostInterfaces;
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
@@ -419,10 +528,10 @@ class App extends React.Component {
 
             case NavigationLevel.functionBlocks:
                 if (shouldShowCreateChildForm) {
-                    // TODO: add onSubmit Function for onSubmit Prop.
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
                             showTitle={true}
+                            onSubmit={this.onCreateMostInterface}
                         />
                     );
                 }

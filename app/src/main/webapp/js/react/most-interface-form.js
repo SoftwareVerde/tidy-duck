@@ -1,8 +1,3 @@
-function injectDefaultValues(mostInterface) {
-    mostInterface.setKind("Proprietary");
-    mostInterface.setAccess("public");
-}
-
 class MostInterfaceForm extends React.Component {
     constructor(props) {
         super(props);
