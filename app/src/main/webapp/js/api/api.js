@@ -221,6 +221,33 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
     });
 }
 
+//MOST INTERFACES
+
+// calls callbackFunction with an array of MOST interfaces.
+function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface?function_block_id=" + functionBlockId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaces = null;
+
+        if (data.wasSuccess) {
+            mostInterfaces = data.mostInterfaces;
+        } else {
+            console.log("Unable to get function blocks for function catalog " + functionBlockId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaces);
+        }
+    });
+}
+
 function downloadAccount(callback) {
     jsonFetch(
         new Request(

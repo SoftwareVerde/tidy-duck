@@ -16,6 +16,7 @@ class App extends React.Component {
             functionCatalogs:           [],
             functionBlocks:             [],
             interfaces:                 [],
+            functions:                  [],
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -284,17 +285,24 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        const interfaces = functionBlock.getInterfaces();
-        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
-        // TODO: what happens if you select a function block from the Navigation area? How do we find out the parent in this situation?
+        getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
+            const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
 
-        this.setState({
-            navigationItems:            navigationItems,
-            selectedItem:               functionBlock,
-            parentItem:                 parentItem,
-            interfaces:                 interfaces,
-            shouldShowCreateChildForm:  false,
-            currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
+            const mostInterfaces = [];
+            for (let i in mostInterfacesJson) {
+                const mostInterfaceJson = mostInterfacesJson[i];
+                const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                mostInterfaces.push(mostInterface);
+            }
+
+            this.setState({
+                navigationItems:            navigationItems,
+                selectedItem:               functionBlock,
+                parentItem:                 parentItem,
+                interfaces:                 mostInterfaces,
+                shouldShowCreateChildForm:  false,
+                currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
+            });
         });
     }
 
@@ -353,7 +361,8 @@ class App extends React.Component {
                 childItems = this.state.interfaces;
                 for (let i in childItems) {
                     const childItem = childItems[i];
-                    reactComponents.push(<div className="function-catalog" />);
+                    const interfaceKey = "Interface" + i;
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
                 }
             break;
 
@@ -410,10 +419,11 @@ class App extends React.Component {
 
             case NavigationLevel.functionBlocks:
                 if (shouldShowCreateChildForm) {
+                    // TODO: add onSubmit Function for onSubmit Prop.
                     reactComponents.push(
-                        <div key="InterfaceForm" className="metadata-form interfaces-placeholder">
-                            Create-Interface Placeholder
-                        </div>
+                        <app.MostInterfaceForm key="MostInterfaceForm"
+                            showTitle={true}
+                        />
                     );
                 }
             break;
