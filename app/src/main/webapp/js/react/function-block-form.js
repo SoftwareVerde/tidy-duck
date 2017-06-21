@@ -27,8 +27,6 @@ class FunctionBlockForm extends React.Component {
         this.onDescriptionChange = this.onDescriptionChange.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
         this.onKindChanged = this.onKindChanged.bind(this);
-        this.onAuthorChanged = this.onAuthorChanged.bind(this);
-        this.onCompanyChanged = this.onCompanyChanged.bind(this);
         this.onAccessChanged = this.onAccessChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
@@ -98,30 +96,6 @@ class FunctionBlockForm extends React.Component {
             this.props.onUpdate();
         }
     }
-    
-    onAuthorChanged(newValue) {
-        const functionBlock = this.state.functionBlock;
-
-        const author = (functionBlock.getAuthor() || new Author());
-        author.setId(newValue);
-        functionBlock.setAuthor(author);
-
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-
-    onCompanyChanged(newValue) {
-        const functionBlock = this.state.functionBlock;
-
-        const company = (functionBlock.getCompany() || new Company());
-        company.setId(newValue);
-        functionBlock.setCompany(company);
-
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
 
     onAccessChanged(newValue) {
         const functionBlock = this.state.functionBlock;
@@ -152,14 +126,6 @@ class FunctionBlockForm extends React.Component {
     }
 
     render() {
-        const author = this.state.functionBlock.getAuthor();
-        const company = this.state.functionBlock.getCompany();
-
-        var authorId = "";
-        var companyId = "";
-        if(author != undefined) authorId = author.getId();
-        if(company != undefined) companyId = company.getId();
-
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
@@ -168,8 +134,6 @@ class FunctionBlockForm extends React.Component {
                 <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-block-description" name="description" type="text" label="Description" value={this.state.functionBlock.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
                 <app.InputField id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
-                <app.InputField id="function-block-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
-                <app.InputField id="function-block-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
                 <app.InputField id="function-block-access" name="access" type="text" label="Access" value={this.state.functionBlock.getAccess()} readOnly={this.props.readOnly} onChange={this.onAccessChanged} />
                 <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>

@@ -221,7 +221,7 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
     });
 }
 
-//MOST INTERFACES
+// MOST INTERFACES
 
 // calls callbackFunction with an array of MOST interfaces.
 function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
@@ -322,6 +322,8 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         }
     });
 }
+
+// ACCOUNT
 
 function downloadAccount(callback) {
     jsonFetch(
