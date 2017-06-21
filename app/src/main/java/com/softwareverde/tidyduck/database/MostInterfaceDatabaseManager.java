@@ -82,9 +82,33 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    public void deleteMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        _deleteMostInterfaceIfUncommited(mostInterfaceId);
+    }
+
     private void _disassociateMostInterfaceWithFunctionBlock(long functionBlockId, long mostInterfaceId) throws DatabaseException {
         final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE function_block_id = ? and interface_id = ?")
                 .setParameter(functionBlockId)
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteMostInterfaceIfUncommited(long mostInterfaceId) throws DatabaseException {
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+        if (!mostInterface.isCommitted()) {
+            // function block isn't committed, we can delete it
+            // TODO: delete interfaces from function block
+            _deleteMostInterfaceFromDatabase(mostInterfaceId);
+        }
+    }
+
+    private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM interfaces WHERE id = ?")
                 .setParameter(mostInterfaceId)
                 ;
 

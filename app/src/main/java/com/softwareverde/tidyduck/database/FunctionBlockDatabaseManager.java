@@ -114,8 +114,8 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _deleteFunctionBlockIfUncommitted(long functionBlockId) throws DatabaseException {
-        FunctionBlockInflater functionCatalogInflater = new FunctionBlockInflater(_databaseConnection);
-        FunctionBlock functionBlock = functionCatalogInflater.inflateFunctionBlock(functionBlockId);
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
         if (!functionBlock.isCommitted()) {
             // function block isn't committed, we can delete it

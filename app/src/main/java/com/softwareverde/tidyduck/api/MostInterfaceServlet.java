@@ -48,7 +48,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _updateMostInterface(request, mostInterfaceId, environment);
             }
             else if (httpMethod == HttpMethod.DELETE) {
-                //return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, environment);
+                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
@@ -110,6 +110,30 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
 
         Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _deleteMostInterfaceFromFunctionBlock(HttpServletRequest request, long mostInterfaceId, Environment environment) {
+        final String functionBlockIdString = request.getParameter("functionBlockId");
+        final Long functionBlockId = Util.parseLong(functionBlockIdString);
+
+        { // Validate Inputs
+            if (functionBlockId == null || functionBlockId < 1) {
+                return super._generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
+            }
+        }
+
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
+        } catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to delete interface %d from function block %d.", mostInterfaceId, functionBlockId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
         super._setJsonSuccessFields(response);
         return response;
     }
