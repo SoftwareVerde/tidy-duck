@@ -44,4 +44,50 @@ public class MostInterfaceDatabaseManager {
 
         return _databaseConnection.executeSql(query);
     }
+
+    public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
+        final long inputMostInterfaceId = proposedMostInterface.getId();
+
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        MostInterface databaseMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
+        if (!databaseMostInterface.isCommitted()) {
+            // not committed, can update existing function block
+            _updateUncommittedMostInterface(proposedMostInterface);
+        } else {
+            // current block is committed to a function catalog
+            // need to insert a new function block replace this one
+            _insertMostInterface(proposedMostInterface);
+            final long newMostInterfaceId = proposedMostInterface.getId();
+            // change association with function catalog
+            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
+            _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
+        }
+    }
+    
+    private void _updateUncommittedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
+        final String newMostId = proposedMostInterface.getMostId();
+        final String newName = proposedMostInterface.getName();
+        final String newVersion = proposedMostInterface.getVersion();
+        final String newDescription = proposedMostInterface.getDescription();
+        final long mostInterfaceId = proposedMostInterface.getId();
+
+        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ? WHERE id = ?")
+                .setParameter(newMostId)
+                .setParameter(newName)
+                .setParameter(newDescription)
+                .setParameter(newVersion)
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _disassociateMostInterfaceWithFunctionBlock(long functionBlockId, long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE function_block_id = ? and interface_id = ?")
+                .setParameter(functionBlockId)
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
 }

@@ -45,7 +45,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
 
             if (httpMethod == HttpMethod.POST) {
-                //return _updateMostInterface(request, mostInterfaceId, environment);
+                return _updateMostInterface(request, mostInterfaceId, environment);
             }
             else if (httpMethod == HttpMethod.DELETE) {
                 //return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, environment);
@@ -82,7 +82,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         return response;
     }
-/*
+
     protected Json _updateMostInterface(HttpServletRequest httpRequest, long mostInterfaceId, Environment environment) throws Exception {
         final Json request = super._getRequestDataAsJson(httpRequest);
 
@@ -113,7 +113,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         super._setJsonSuccessFields(response);
         return response;
     }
-    */
 
     protected Json _listMostInterfaces(long functionBlockId, Environment environment) {
         try {
