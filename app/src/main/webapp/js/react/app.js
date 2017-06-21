@@ -6,7 +6,7 @@ class App extends React.Component {
             versions:           "versions",
             functionCatalogs:   "functionCatalogs",
             functionBlocks:     "functionBlocks",
-            mostInterfaces:         "mostInterfaces",
+            mostInterfaces:     "mostInterfaces",
             functions:          "functions",
             operations:         "operations"
         };
@@ -15,7 +15,7 @@ class App extends React.Component {
             navigationItems:            [],
             functionCatalogs:           [],
             functionBlocks:             [],
-            mostInterfaces:                 [],
+            mostInterfaces:             [],
             functions:                  [],
             selectedItem:               null,
             parentItem:                 null,
@@ -344,7 +344,7 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
-            const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+            const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
 
             const mostInterfaces = [];
             for (let i in mostInterfacesJson) {
@@ -353,7 +353,7 @@ class App extends React.Component {
                 mostInterfaces.push(mostInterface);
             }
 
-            this.setState({
+            thisApp.setState({
                 navigationItems:            navigationItems,
                 selectedItem:               functionBlock,
                 parentItem:                 parentItem,
