@@ -141,14 +141,6 @@ class FunctionBlockForm extends React.Component {
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionBlock);
         }
-
-        /*
-            // Clear the form...
-            const functionBlock = new FunctionBlock();
-            this.setState({
-                functionBlock: functionBlock
-            });
-        */
     }
 
     renderFormTitle() {

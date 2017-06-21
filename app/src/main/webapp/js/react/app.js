@@ -343,6 +343,19 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
+        //Debugging Most Interface Form, setting to blank array for now.
+        const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
+
+        const mostInterfaces = [];
+        thisApp.setState({
+            navigationItems:            navigationItems,
+            selectedItem:               functionBlock,
+            parentItem:                 parentItem,
+            mostInterfaces:             mostInterfaces,
+            shouldShowCreateChildForm:  false,
+            currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
+        });
+        /*
         getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
             const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
 
@@ -362,6 +375,7 @@ class App extends React.Component {
                 currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
             });
         });
+        */
     }
 
     onDeleteFunctionBlock(functionBlock) {

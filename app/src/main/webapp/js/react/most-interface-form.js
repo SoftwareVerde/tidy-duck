@@ -5,11 +5,6 @@ class MostInterfaceForm extends React.Component {
         const isNewMostInterface = (! this.props.mostInterface);
         const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : this.props.mostInterface));
 
-        // Default values for the interface...
-        if (isNewMostInterface) {
-            injectDefaultValues(mostInterface);
-        }
-
         this.state = {
             showTitle:      this.props.showTitle,
             mostInterface:  mostInterface,
@@ -30,11 +25,6 @@ class MostInterfaceForm extends React.Component {
     componentWillReceiveProps(newProperties) {
         const isNewMostInterface = (! this.props.mostInterface);
         const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : newProperties.mostInterface));
-
-        // Default values for the function block...
-        if (isNewMostInterface) {
-            injectDefaultValues(mostInterface);
-        }
 
         mostInterface.setId((newProperties.mostInterface || mostInterface).getId());
         this.setState({
@@ -103,10 +93,10 @@ class MostInterfaceForm extends React.Component {
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
-                <app.InputField id="function-block-most-id" name="id" type="text" label="ID" value={this.state.mostInterface.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
-                <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.mostInterface.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
-                <app.InputField id="function-block-description" name="description" type="text" label="Description" value={this.state.mostInterface.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
-                <app.InputField id="function-block-version" name="version" type="text" label="Version" value={this.state.mostInterface.getVersion()} readOnly={this.props.readOnly} onChange={this.onVersionChanged} />
+                <app.InputField id="most-interface-most-id" name="id" type="text" label="ID" value={this.state.mostInterface.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
+                <app.InputField id="most-interface-name" name="name" type="text" label="Name" value={this.state.mostInterface.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
+                <app.InputField id="most-interface-description" name="description" type="text" label="Description" value={this.state.mostInterface.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
+                <app.InputField id="most-interface-version" name="version" type="text" label="Version" value={this.state.mostInterface.getVersion()} readOnly={this.props.readOnly} onChange={this.onVersionChanged} />
                 <div className="center"><div className="button submit-button" id="interface-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>
         );

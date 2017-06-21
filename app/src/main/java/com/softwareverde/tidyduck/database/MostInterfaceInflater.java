@@ -40,7 +40,7 @@ public class MostInterfaceInflater {
 
     public MostInterface inflateMostInterface(final long mostInterfaceId) throws DatabaseException {
         final Query query = new Query(
-            "SELECT * FROM most_interfaces WHERE id = ?"
+            "SELECT * FROM interfaces WHERE id = ?"
         );
         query.setParameter(mostInterfaceId);
 
