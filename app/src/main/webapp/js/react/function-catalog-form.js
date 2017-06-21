@@ -11,8 +11,6 @@ class FunctionCatalogForm extends React.Component {
 
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
-        this.onAuthorChanged = this.onAuthorChanged.bind(this);
-        this.onCompanyChanged = this.onCompanyChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -48,30 +46,6 @@ class FunctionCatalogForm extends React.Component {
         }
     }
 
-    onAuthorChanged(newValue) {
-        const functionCatalog = this.state.functionCatalog;
-
-        const author = (functionCatalog.getAuthor() || new Author());
-        author.setId(newValue);
-        functionCatalog.setAuthor(author);
-
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-
-    onCompanyChanged(newValue) {
-        const functionCatalog = this.state.functionCatalog;
-
-        const company = (functionCatalog.getCompany() || new Company());
-        company.setId(newValue);
-        functionCatalog.setCompany(company);
-
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-
     onClick(event) {
         event.stopPropagation();
     }
@@ -101,21 +75,11 @@ class FunctionCatalogForm extends React.Component {
     }
 
     render() {
-        const author = this.state.functionCatalog.getAuthor();
-        const company = this.state.functionCatalog.getCompany();
-
-        var authorId = "";
-        var companyId = "";
-        if(author != undefined) authorId = author.getId();
-        if(company != undefined) companyId = company.getId();
-
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
                 <app.InputField id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
-                <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={authorId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
-                <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={companyId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
                 <div className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>
         );

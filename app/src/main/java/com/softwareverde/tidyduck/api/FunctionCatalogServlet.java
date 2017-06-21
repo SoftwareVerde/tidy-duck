@@ -186,22 +186,12 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(release)) {
                 throw new Exception("Invalid Release: " + release);
             }
-
-            if (authorId != null) {
-                if (authorId < 1) {
-                    throw new Exception("Invalid Author ID: " + authorId);
-                }
-
-                if (companyId < 1) {
-                    throw new Exception("Invalid Company ID: " + companyId);
-                }
-            }
         }
 
         Company company;
         Author author;
 
-        if (authorId != null) {
+        if (authorId >= 1) {
             // use supplied author/account ID
             company = new Company();
             company.setId(companyId);

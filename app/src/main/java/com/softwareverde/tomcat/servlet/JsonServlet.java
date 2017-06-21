@@ -22,14 +22,14 @@ public abstract class JsonServlet extends BaseServlet {
     protected abstract Json handleRequest(HttpServletRequest request, HttpMethod httpMethod, Environment environment) throws Exception;
 
     @Override
-    protected final void handleRequest(HttpServletRequest req, HttpServletResponse resp, HttpMethod httpMethod, Environment environment) throws IOException {
+    protected final void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod, Environment environment) throws IOException {
         long startTime = System.currentTimeMillis();
 
-        resp.setContentType("application/json");
+        response.setContentType("application/json");
 
         Json json;
         try {
-            json = handleRequest(req, httpMethod, environment);
+            json = handleRequest(request, httpMethod, environment);
 
             // default to empty json object
             if (json == null) {
@@ -41,10 +41,11 @@ public abstract class JsonServlet extends BaseServlet {
             _logger.error(msg, e);
             json = _generateErrorJson(msg + ": " + e.getMessage());
         }
-        PrintWriter writer = resp.getWriter();
+        PrintWriter writer = response.getWriter();
         writer.append(json.toString());
+
         long endTime = System.currentTimeMillis();
-        _logger.info(httpMethod.name() + " request to " + req.getRequestURI() + " took " + (endTime-startTime) + "ms.");
+        _logger.info(httpMethod.name() + " request to " + request.getRequestURI() + " took " + (endTime-startTime) + "ms.");
     }
 
     protected static Json _getRequestDataAsJson(HttpServletRequest request) throws IOException {

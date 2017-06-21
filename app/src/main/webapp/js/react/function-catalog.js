@@ -61,9 +61,8 @@ class FunctionCatalog extends React.Component {
                     {this.renderMenu()}
                 </div>
                 <div className="child-function-catalog-property">{this.props.functionCatalog.getReleaseVersion()}</div>
-                <div className="child-function-catalog-property">{this.props.functionCatalog.getReleaseDate()}</div>
-                <div className="child-function-catalog-property">{(author ? author.getId() : "")}</div>
-                <div className="child-function-catalog-property">{(company ? company.getId() : "")}</div>
+                <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
+                <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
             </div>
         );
     }
