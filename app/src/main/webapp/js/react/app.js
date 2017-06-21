@@ -399,7 +399,6 @@ class App extends React.Component {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            break; // Take only for the first one...
         }
 
         const navigationItemConfig = new NavigationItemConfig();
@@ -432,7 +431,7 @@ class App extends React.Component {
         }
         */
 
-        this.setState({
+        thisApp.setState({
             navigationItems:            navigationItems,
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
@@ -563,6 +562,12 @@ class App extends React.Component {
                     );
                 }
             break;
+
+            case NavigationLevel.mostInterfaces:
+                if (shouldShowCreateChildForm) {
+                    // TODO: implement metadata form for creating/saving Functions.
+                }
+                break;
 
             default:
                 console.log("renderForm: Unimplemented Navigation Level: "+ currentNavigationLevel);
