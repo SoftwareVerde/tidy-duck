@@ -12,6 +12,7 @@ class App extends React.Component {
         };
 
         this.state = {
+            account:                    null,
             navigationItems:            [],
             functionCatalogs:           [],
             functionBlocks:             [],
@@ -27,6 +28,8 @@ class App extends React.Component {
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
 
+        this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
+        this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
 
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
@@ -45,15 +48,16 @@ class App extends React.Component {
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         const thisApp = this;
-        const versionId = 1;
-        getFunctionCatalogsForVersionId(versionId, function(functionCatalogsJson) {
-            const functionCatalogs = [];
-            for (let i in functionCatalogsJson) {
-                const functionCatalogJson = functionCatalogsJson[i];
-                const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
-                functionCatalogs.push(functionCatalog);
-            }
 
+        const account = downloadAccount(function (data) {
+            if (data.wasSuccess) {
+                thisApp.setState({
+                    account: data.account
+                });
+            }
+        });
+
+        this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
             thisApp.setState({
                 functionCatalogs:       functionCatalogs,
                 currentNavigationLevel: thisApp.NavigationLevel.versions
@@ -68,13 +72,36 @@ class App extends React.Component {
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
         insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
-            thisApp.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-                thisApp.setState({
-                    functionCatalogs:       functionCatalogs,
-                    currentNavigationLevel: thisApp.NavigationLevel.versions
-                });
+            if (! (functionCatalogId > 0)) {
+                console.log("Unable to create function catalog.");
+                return;
+            }
+
+            functionCatalog.setId(functionCatalogId);
+            functionCatalog.setAuthor(thisApp.getCurrentAccountAuthor());
+            functionCatalog.setCompany(thisApp.getCurrentAccountCompany());
+
+            const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
+
+            thisApp.setState({
+                functionCatalogs:       functionCatalogs,
+                currentNavigationLevel: thisApp.NavigationLevel.versions
             });
         });
+    }
+
+    getCurrentAccountAuthor() {
+        const author = new Author();
+        author.setId(this.state.account.id);
+        author.setName(this.state.account.name);
+        return author;
+    }
+
+    getCurrentAccountCompany() {
+        const company = new Company();
+        company.setId(this.state.account.companyId);
+        company.setName(this.state.account.companyName);
+        return company;
     }
 
     onUpdateFunctionCatalog(functionCatalog) {
@@ -123,6 +150,9 @@ class App extends React.Component {
             }
 
             functionBlock.setId(functionBlockId);
+            functionBlock.setAuthor(thisApp.getCurrentAccountAuthor());
+            functionBlock.setCompany(thisApp.getCurrentAccountCompany());
+
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
             thisApp.setState({

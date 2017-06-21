@@ -4,7 +4,6 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.FunctionBlock;
-import jdk.nashorn.internal.objects.annotations.Function;
 
 public class FunctionBlockDatabaseManager {
 

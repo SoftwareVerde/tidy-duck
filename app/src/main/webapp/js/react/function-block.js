@@ -64,8 +64,8 @@ class FunctionBlock extends React.Component {
                 <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getDescription()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div>
-                <div className="child-function-catalog-property">{(author ? author.getId() : "")}</div>
-                <div className="child-function-catalog-property">{(company ? company.getId() : "")}</div>
+                <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
+                <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
             </div>
         );
     }

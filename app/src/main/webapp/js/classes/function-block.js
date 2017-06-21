@@ -4,9 +4,11 @@ class FunctionBlock {
 
         const author = new Author();
         author.setId(json.authorId);
+        author.setName(json.authorName);
 
         const company = new Company();
         company.setId(json.companyId);
+        company.setName(json.companyName);
 
         functionBlock.setId(json.id);
         functionBlock.setMostId(json.mostId);
@@ -23,10 +25,7 @@ class FunctionBlock {
     }
 
     static toJson(functionBlock) {
-        const author = (functionBlock.getAuthor() || new Author());
-        const company = (functionBlock.getCompany() || new Company());
-
-        return {
+        const jsonFunctionBlock = {
             id:                 functionBlock.getId(),
             mostId:             functionBlock.getMostId(),
             kind:               functionBlock.getKind(),
@@ -34,10 +33,17 @@ class FunctionBlock {
             description:        functionBlock.getDescription(),
             lastModifiedDate:   functionBlock.getLastModifiedDate(),
             releaseVersion:     functionBlock.getReleaseVersion(),
-            authorId:           author.getId(),
-            companyId:          company.getId(),
             access:             functionBlock.getAccess()
         };
+        const author = (functionBlock.getAuthor() || new Author());
+        const company = (functionBlock.getCompany() || new Company());
+        if (author.getId() > 0) {
+            jsonFunctionBlock.authorId = author.getId();
+        }
+        if (company.getId() > 0) {
+            jsonFunctionBlock.companyId = company.getId();
+        }
+        return jsonFunctionBlock;
     }
 
     constructor() {

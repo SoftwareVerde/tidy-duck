@@ -55,6 +55,7 @@ public class AccountServlet extends JsonServlet {
             accountJson.put("username", account.getUsername());
             accountJson.put("name", account.getName());
             accountJson.put("companyId", account.getCompany().getId());
+            accountJson.put("companyName", account.getCompany().getName());
 
             final Json responseJson = super._generateSuccessJson();
             responseJson.put("account", accountJson);
