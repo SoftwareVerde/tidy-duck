@@ -39,11 +39,13 @@ public class MostAdapterTest {
         FunctionBlock functionBlock = createTestFunctionBlock(
                 "0x0F",
                 "EnhancedTestability",
+                "Proprietary",
                 "This is an FBlock description.",
                 "3.0.2",
                 lastModifiedDate,
                 "Specification Support",
-                "MOST Cooperation");
+                "MOST Cooperation",
+                "public");
         functionCatalog.addFunctionBlock(functionBlock);
 
         MostAdapter adapter = new MostAdapter();
@@ -61,22 +63,26 @@ public class MostAdapterTest {
         FunctionBlock functionBlock1 = createTestFunctionBlock(
                 "0x0F",
                 "EnhancedTestability",
+                "Proprietary",
                 "This is an FBlock description.",
                 "3.0.2",
                 lastModifiedDate1,
                 "Specification Support",
-                "MOST Cooperation");
+                "MOST Cooperation",
+                "public");
         functionCatalog.addFunctionBlock(functionBlock1);
 
         Date lastModifiedDate2 = new Date(1489852800000L); // date -d "18-MAR-2017 12:00:00" +%s (converted to ms)
         FunctionBlock functionBlock2 = createTestFunctionBlock(
                 "0x10",
                 "SecondFunctionBlock",
+                "Test",
                 "This is a second FBlock description.",
                 "3.0.3",
                 lastModifiedDate2,
                 "Test User",
-                "Software Verde");
+                "Software Verde",
+                "private");
         functionCatalog.addFunctionBlock(functionBlock2);
 
         MostAdapter adapter = new MostAdapter();
@@ -103,15 +109,17 @@ public class MostAdapterTest {
         return functionCatalog;
     }
 
-    private FunctionBlock createTestFunctionBlock(String mostId, String name, String description, String release, Date lastModifiedDate, String author, String company) {
+    private FunctionBlock createTestFunctionBlock(String mostId, String name, String kind, String description, String release, Date lastModifiedDate, String author, String company, String access) {
         FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setMostId(mostId);
         functionBlock.setName(name);
+        functionBlock.setKind(kind);
         functionBlock.setDescription(description);
         functionBlock.setRelease(release);
         functionBlock.setLastModifiedDate(lastModifiedDate);
         functionBlock.setAuthor(createTestAuthor(author));
         functionBlock.setCompany(createTestCompany(company));
+        functionBlock.setAccess(access);
 
         return functionBlock;
     }

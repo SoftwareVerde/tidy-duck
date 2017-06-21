@@ -20,7 +20,17 @@ public class FunctionCatalogInflater {
         _databaseConnection = connection;
     }
 
-    public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(long versionId) throws DatabaseException {
+    /**
+     * Inflates function catalogs without child objects.
+     * @param versionId
+     * @return
+     * @throws DatabaseException
+     */
+    public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(final long versionId) throws DatabaseException {
+        return inflateFunctionCatalogsFromVersionId(versionId, false);
+    }
+
+    public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(final long versionId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
                 "SELECT function_catalog_id"
                 + " FROM versions_function_catalogs"
@@ -32,14 +42,17 @@ public class FunctionCatalogInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long functionCatalogId = row.getLong("function_catalog_id");
-            FunctionCatalog functionCatalog = inflateFunctionCatalog(functionCatalogId);
+            FunctionCatalog functionCatalog = inflateFunctionCatalog(functionCatalogId, inflateChildren);
             functionCatalogs.add(functionCatalog);
         }
         return functionCatalogs;
     }
 
-    public FunctionCatalog inflateFunctionCatalog(long functionCatalogId) throws DatabaseException {
+    public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        return inflateFunctionCatalog(functionCatalogId, false);
+    }
 
+    public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
                 "SELECT *"
                 + " FROM function_catalogs"
@@ -75,9 +88,11 @@ public class FunctionCatalogInflater {
         functionCatalog.setCompany(company);
         functionCatalog.setCommitted(isCommitted);
 
-        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
-        functionCatalog.setFunctionBlocks(functionBlocks);
+        if (inflateChildren) {
+            FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+            List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, inflateChildren);
+            functionCatalog.setFunctionBlocks(functionBlocks);
+        }
 
         return functionCatalog;
     }
