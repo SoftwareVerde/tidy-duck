@@ -24,7 +24,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(long functionBlockId) throws DatabaseException {
         final Query query = new Query(
-          "SELECT interface_id FROM function_blocks WHERE function_block_id = ?"
+          "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
         );
         query.setParameter(functionBlockId);
 

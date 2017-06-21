@@ -180,7 +180,7 @@ class App extends React.Component {
 
             thisApp.setState({
                 mostInterfaces:         mostInterfaces,
-                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
             });
         });
     }
