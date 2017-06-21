@@ -37,6 +37,7 @@ class App extends React.Component {
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
 
+        this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
 
@@ -343,19 +344,6 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        //Debugging Most Interface Form, setting to blank array for now.
-        const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
-
-        const mostInterfaces = [];
-        thisApp.setState({
-            navigationItems:            navigationItems,
-            selectedItem:               functionBlock,
-            parentItem:                 parentItem,
-            mostInterfaces:             mostInterfaces,
-            shouldShowCreateChildForm:  false,
-            currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
-        });
-        /*
         getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
             const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
 
@@ -375,7 +363,7 @@ class App extends React.Component {
                 currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
             });
         });
-        */
+        
     }
 
     onDeleteFunctionBlock(functionBlock) {
@@ -485,7 +473,8 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                    // TODO: implement Delete Most Interface function for onDelete.
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteFunctionBlock} />);
                 }
             break;
 
