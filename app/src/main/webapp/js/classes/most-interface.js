@@ -75,7 +75,7 @@ class MostInterface {
     }
 
     setVersion(version) {
-        this._releaseVersion = version;
+        this._version = version;
     }
 
     getVersion() {

@@ -363,7 +363,7 @@ class App extends React.Component {
                 currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
             });
         });
-        
+
     }
 
     onDeleteFunctionBlock(functionBlock) {

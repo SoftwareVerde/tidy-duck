@@ -63,7 +63,7 @@ class MostInterfaceForm extends React.Component {
 
     onVersionChanged(newValue) {
         const mostInterface = this.state.mostInterface;
-        mostInterface.setReleaseVersion(newValue);
+        mostInterface.setVersion(newValue);
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();

@@ -76,3 +76,20 @@ CREATE TABLE function_catalogs_function_blocks (
     FOREIGN KEY (function_block_id) REFERENCES function_blocks (id)
 ) ENGINE=INNODB;
 
+CREATE TABLE interfaces (
+    id int unsigned NOT NULL PRIMARY KEY auto_increment,
+    most_id varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    description varchar(255) NOT NULL,
+    last_modified_date date NOT NULL,
+    version varchar(255) NOT NULL,
+    is_committed boolean NOT NULL DEFAULT FALSE
+) ENGINE=INNODB;
+
+CREATE TABLE function_blocks_interfaces (
+    id int unsigned NOT NULL PRIMARY KEY auto_increment,
+    function_block_id int unsigned NOT NULL,
+    interface_id int unsigned NOT NULL,
+    FOREIGN KEY (function_block_id) REFERENCES function_blocks (id),
+    FOREIGN KEY (interface_id) REFERENCES interfaces (id)
+) ENGINE=INNODB;
