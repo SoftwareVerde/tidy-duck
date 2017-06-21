@@ -46,4 +46,12 @@ public class Account {
     public void setCompany(Company company) {
         this._company = company;
     }
+
+    public Author toAuthor() {
+        Author author = new Author();
+        author.setId(_id);
+        author.setName(_name);
+        author.setCompany(_company);
+        return author;
+    }
 }

@@ -39,17 +39,12 @@ public class MostGeneratorServlet extends BaseServlet {
     }
 
     private void returnMostAsAttachment(long functionCatalogId, HttpServletResponse response, Environment environment) throws IOException {
-        DatabaseConnection<Connection> databaseConnection = null;
         FunctionCatalog functionCatalog = null;
-        try {
-            databaseConnection = environment.getNewDatabaseConnection();
+        try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
-            functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+            functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId, true);
         } catch (Exception e) {
             _logger.error("Unable to inflate function catalog.", e);
-            if (databaseConnection != null) {
-                Environment.close(databaseConnection);
-            }
             internalServerError(response);
             return;
         }

@@ -27,6 +27,8 @@ class App extends React.Component {
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
 
+        this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
+
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
@@ -66,12 +68,11 @@ class App extends React.Component {
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
         insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
-            functionCatalog.setId(functionCatalogId);
-            const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
-
-            thisApp.setState({
-                functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions
+            thisApp.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                thisApp.setState({
+                    functionCatalogs:       functionCatalogs,
+                    currentNavigationLevel: thisApp.NavigationLevel.versions
+                });
             });
         });
     }
@@ -230,19 +231,26 @@ class App extends React.Component {
             navigationLevel:            thisApp.NavigationLevel.versions
         });
 
-        const versionId = 1;
+        this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+            thisApp.setState({
+                functionCatalogs:       functionCatalogs,
+                currentNavigationLevel: thisApp.NavigationLevel.versions
+            });
+        });
+    }
+
+    getFunctionCatalogsForCurrentVersion(callbackFunction) {
+        const versionId = 1; // TODO
         getFunctionCatalogsForVersionId(versionId, function(functionCatalogsJson) {
             const functionCatalogs = [];
+
             for (let i in functionCatalogsJson) {
                 const functionCatalogJson = functionCatalogsJson[i];
                 const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
                 functionCatalogs.push(functionCatalog);
             }
 
-            thisApp.setState({
-                functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions
-            });
+            callbackFunction(functionCatalogs);
         });
     }
 
@@ -313,7 +321,7 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionCatalogs:       newFunctionCatalogs,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    currentNavigationLevel: thisApp.NavigationLevel.versions
                 });
             }
         });

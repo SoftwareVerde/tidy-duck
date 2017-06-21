@@ -1,6 +1,7 @@
 class Company {
     constructor() {
         this._id = null;
+        this._name  = null;
     }
 
     setId(id) {
@@ -9,5 +10,13 @@ class Company {
 
     getId() {
         return this._id;
+    }
+
+    setName(name) {
+        this._name = name;
+    }
+
+    getName() {
+        return this._name;
     }
 }

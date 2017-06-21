@@ -3,10 +3,12 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.database.AuthorInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -19,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
-import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
@@ -30,7 +31,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-catalog".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return _storeFunctionCatalog(request, environment);
+                return _insertFunctionCatalog(request, accountId, environment);
             }
             if (httpMethod == HttpMethod.GET) {
                 long versionId = Util.parseLong(Util.coalesce(request.getParameter("version_id")));
@@ -47,7 +48,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function catalog id.");
             }
             if (httpMethod == HttpMethod.POST) {
-                return _updateFunctionCatalog(request, functionCatalogId, environment);
+                return _updateFunctionCatalog(request, functionCatalogId, accountId, environment);
             }
             if (httpMethod == HttpMethod.DELETE) {
                 return _deleteFunctionCatalogFromVersion(request, functionCatalogId, environment);
@@ -57,10 +58,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _listFunctionCatalogs(final long versionId, final Environment environment) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
-            final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
             final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
             final List<FunctionCatalog> functionCatalogs = functionCatalogInflater.inflateFunctionCatalogsFromVersionId(versionId);
 
@@ -71,7 +71,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 catalogJson.put("name", functionCatalog.getName());
                 catalogJson.put("releaseVersion", functionCatalog.getRelease());
                 catalogJson.put("authorId", functionCatalog.getAuthor().getId());
+                catalogJson.put("authorName", functionCatalog.getAuthor().getName());
                 catalogJson.put("companyId", functionCatalog.getCompany().getId());
+                catalogJson.put("companyName", functionCatalog.getCompany().getName());
                 catalogsJson.add(catalogJson);
             }
             response.put("functionCatalogs", catalogsJson);
@@ -85,7 +87,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _storeFunctionCatalog(final HttpServletRequest httpRequest, final Environment environment) throws IOException {
+    protected Json _insertFunctionCatalog(final HttpServletRequest httpRequest, long accountId, final Environment environment) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
 
@@ -100,7 +102,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         final Json functionCatalogJson = request.get("functionCatalog");
         try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, environment);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertFunctionCatalog(versionId, functionCatalog);
@@ -115,7 +117,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, Environment environment) throws IOException {
+    protected Json _updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, long accountId, Environment environment) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
 
         final Long versionId = Util.parseLong(request.getString("versionId"));
@@ -130,7 +132,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, environment);
             functionCatalog.setId(functionCatalogId);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
@@ -170,7 +172,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected FunctionCatalog _populateFunctionCatalogFromJson(Json functionCatalogJson) throws Exception {
+    protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Environment environment) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
         final Integer authorId = functionCatalogJson.getInteger("authorId");
@@ -184,26 +186,33 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(release)) {
                 throw new Exception("Invalid Release: " + release);
             }
-
-            if (authorId < 1) {
-                throw new Exception("Invalid Author ID: " + authorId);
-            }
-
-            if (companyId < 1) {
-                throw new Exception("Invalid Company ID: " + companyId);
-            }
         }
 
-        final Company company = new Company();
-        company.setId(companyId);
+        Company company;
+        Author author;
 
-        final Author account = new Author();
-        account.setId(authorId);
+        if (authorId >= 1) {
+            // use supplied author/account ID
+            company = new Company();
+            company.setId(companyId);
+            author = new Author();
+            author.setId(authorId);
+        } else {
+            // use users's account ID
+            try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+                AccountInflater accountInflater = new AccountInflater(databaseConnection);
+
+                Account account = accountInflater.inflateAccount(accountId);
+
+                company = account.getCompany();
+                author = account.toAuthor();
+            }
+        }
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName(name);
         functionCatalog.setRelease(release);
-        functionCatalog.setAuthor(account);
+        functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
         return functionCatalog;

@@ -21,10 +21,10 @@
     </FBlock>
     <FBlock>
         <FBlockID>0x10</FBlockID>
-        <FBlockKind>Proprietary</FBlockKind>
+        <FBlockKind>Test</FBlockKind>
         <FBlockName>SecondFunctionBlock</FBlockName>
         <FBlockDescription>This is a second FBlock description.</FBlockDescription>
-        <FBlockVersion Access="public">
+        <FBlockVersion Access="private">
             <Release>3.0.3</Release>
             <Date>18-MAR-2017</Date>
             <Author>Test User</Author>
