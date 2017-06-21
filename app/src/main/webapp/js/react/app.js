@@ -40,6 +40,7 @@ class App extends React.Component {
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
+        this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         const thisApp = this;
         const versionId = 1;
@@ -441,6 +442,30 @@ class App extends React.Component {
         });
     }
 
+    onDeleteMostInterface(mostInterface) {
+        const thisApp = this;
+
+        const functionBlockId = this.state.selectedItem.getId();
+        const mostInterfaceId = mostInterface.getId();
+
+        deleteMostInterface(functionBlockId, mostInterfaceId, function (success) {
+            if (success) {
+                const newMostInterfaces = [];
+                const existingMostInterfaces = thisApp.state.mostInterfaces;
+                for (let i in existingMostInterfaces) {
+                    const existingMostInterface = existingMostInterfaces[i];
+                    if (existingMostInterface.getId() != mostInterface.getId()) {
+                        newMostInterfaces.push(existingMostInterface);
+                    }
+                }
+                thisApp.setState({
+                    mostInterfaces:       newMostInterfaces,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                });
+            }
+        });
+    }
+
     renderChildItems() {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
@@ -473,8 +498,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
-                    // TODO: implement Delete Most Interface function for onDelete.
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteFunctionBlock} />);
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
                 }
             break;
 

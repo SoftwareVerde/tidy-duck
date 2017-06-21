@@ -302,6 +302,27 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
     });
 }
 
+function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
 function downloadAccount(callback) {
     jsonFetch(
         new Request(
