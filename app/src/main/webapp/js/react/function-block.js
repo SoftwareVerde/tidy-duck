@@ -52,6 +52,7 @@ class FunctionBlock extends React.Component {
         const author = this.props.functionBlock.getAuthor();
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
+        const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
         
         return (
             <div className="function-catalog" onClick={this.onClick}>
@@ -62,7 +63,7 @@ class FunctionBlock extends React.Component {
                 </div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
-                <div className="child-function-catalog-property">{this.props.functionBlock.getDescription()}</div>
+                <div className="child-function-catalog-property">{shortDescription}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div>
                 <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
