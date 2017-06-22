@@ -111,6 +111,25 @@ class App extends React.Component {
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
         const functionCatalogId = functionCatalog.getId();
 
+        //Update function catalog form to display saving animation.
+        var navigationItems = [];
+        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+        var navigationItem = navigationItems.pop();
+        navigationItem.setForm(
+            <app.FunctionCatalogForm
+                showTitle={false}
+                shouldShowSaveAnimation={true}
+                onSubmit={this.onUpdateFunctionCatalog}
+                functionCatalog={functionCatalog}
+                buttonTitle="Save"
+            />
+        );
+        navigationItems.push(navigationItem);
+
+        this.setState({
+           navigationItems: navigationItems
+        });
+
         updateFunctionCatalog(versionId, functionCatalogId, functionCatalogJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
@@ -123,6 +142,17 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
+
+                //Update form to show changes were saved.
+                navigationItem.setForm(
+                    <app.FunctionCatalogForm
+                        showTitle={false}
+                        shouldShowSaveAnimation={false}
+                        onSubmit={thisApp.onUpdateFunctionCatalog}
+                        functionCatalog={functionCatalog}
+                        buttonTitle="Changes Saved"
+                    />
+                );
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
@@ -169,6 +199,21 @@ class App extends React.Component {
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
         const functionBlockId = functionBlock.getId();
 
+        //Update function block form to display saving animation.
+        var navigationItems = [];
+        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+        var navigationItem = navigationItems.pop();
+        navigationItem.setForm(
+            <app.FunctionBlockForm
+                showTitle={false}
+                shouldShowSaveAnimation={true}
+                onSubmit={this.onUpdateFunctionBlock}
+                functionBlock={functionBlock}
+                buttonTitle="Save"
+            />
+        );
+        navigationItems.push(navigationItem);
+
         updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
@@ -181,6 +226,17 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
+
+                //Update form to show changes were saved.
+                navigationItem.setForm(
+                    <app.FunctionBlockForm
+                        showTitle={false}
+                        shouldShowSaveAnimation={true}
+                        onSubmit={this.onUpdateFunctionBlock}
+                        functionBlock={functionBlock}
+                        buttonTitle="Changes Saved"
+                    />
+                );
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
