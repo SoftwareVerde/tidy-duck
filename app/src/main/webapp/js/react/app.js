@@ -22,7 +22,8 @@ class App extends React.Component {
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
             shouldShowToolbar:          true,
-            shouldShowCreateChildForm:  false
+            shouldShowCreateChildForm:  false,
+            isLoadingChildren:          true
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -60,7 +61,8 @@ class App extends React.Component {
         this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
             thisApp.setState({
                 functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions
+                currentNavigationLevel: thisApp.NavigationLevel.versions,
+                isLoadingChildren:      false
             });
         });
     }
@@ -406,21 +408,27 @@ class App extends React.Component {
 
         navigationItems.push(navigationItemConfig);
 
+        thisApp.setState({
+            navigationItems:            navigationItems,
+            selectedItem:               functionCatalog,
+            shouldShowCreateChildForm:  false,
+            currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
+            isLoadingChildren:          true
+        });
+
         getFunctionBlocksForFunctionCatalogId(functionCatalog.getId(), function(functionBlocksJson) {
-            const functionBlocks = [];
-            for (let i in functionBlocksJson) {
-                const functionBlockJson = functionBlocksJson[i];
-                const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                functionBlocks.push(functionBlock);
+            if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                const functionBlocks = [];
+                for (let i in functionBlocksJson) {
+                    const functionBlockJson = functionBlocksJson[i];
+                    const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                    functionBlocks.push(functionBlock);
+                }
+                thisApp.setState({
+                    functionBlocks:     functionBlocks,
+                    isLoadingChildren:  false
+                });
             }
-            thisApp.setState({
-                navigationItems:            navigationItems,
-                selectedItem:               functionCatalog,
-                parentItem:                 null,
-                functionBlocks:             functionBlocks,
-                shouldShowCreateChildForm:  false,
-                currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs
-            });
         })
     }
 
@@ -474,26 +482,35 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
-            const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
+        const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
 
-            const mostInterfaces = [];
-            for (let i in mostInterfacesJson) {
-                const mostInterfaceJson = mostInterfacesJson[i];
-                const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                mostInterfaces.push(mostInterface);
-            }
-
-            thisApp.setState({
-                navigationItems:            navigationItems,
-                selectedItem:               functionBlock,
-                parentItem:                 parentItem,
-                mostInterfaces:             mostInterfaces,
-                shouldShowCreateChildForm:  false,
-                currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
-            });
+        thisApp.setState({
+            navigationItems:            navigationItems,
+            selectedItem:               functionBlock,
+            parentItem:                 parentItem,
+            mostInterfaces:             [],
+            shouldShowCreateChildForm:  false,
+            currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
+            isLoadingChildren:          true
         });
 
+        getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
+            if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
+                // still on function blocks (haven't navigated away from download was happening)
+                const mostInterfaces = [];
+                for (let i in mostInterfacesJson) {
+                    const mostInterfaceJson = mostInterfacesJson[i];
+                    const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                    mostInterfaces.push(mostInterface);
+                }
+
+                thisApp.setState({
+                    mostInterfaces:     mostInterfaces,
+                    isLoadingChildren:  false
+                });
+            }
+
+        });
     }
 
     onDeleteFunctionBlock(functionBlock) {
@@ -545,9 +562,19 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
+        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+        thisApp.setState({
+            navigationItems:            navigationItems,
+            selectedItem:               mostInterface,
+            parentItem:                 parentItem,
+            functions:                  mostFunctions,
+            shouldShowCreateChildForm:  false,
+            currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
+            isLoadingChildren:          true
+        });
+
         // TODO: getFunctionsForMostInterfaceId should use the following as a callback function.
 
-        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
         const mostFunctions = this.state.functions; //Placeholder.
 
         // TODO: might want to consider renaming "functions" array to "mostFunctions".
@@ -559,15 +586,6 @@ class App extends React.Component {
             mostFunctions.push(mostFunction);
         }
         */
-
-        thisApp.setState({
-            navigationItems:            navigationItems,
-            selectedItem:               mostInterface,
-            parentItem:                 parentItem,
-            functions:                  mostFunctions,
-            shouldShowCreateChildForm:  false,
-            currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces
-        });
     }
 
     onDeleteMostInterface(mostInterface) {
@@ -598,8 +616,14 @@ class App extends React.Component {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        const isLoadingChildren = this.state.isLoadingChildren;
 
-        console.log(currentNavigationLevel);
+        if (isLoadingChildren) {
+            // return loading icon
+            return (
+                <i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i>
+            );
+        }
 
         let childItems = [];
         switch (currentNavigationLevel) {
