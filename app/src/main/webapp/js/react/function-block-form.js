@@ -126,6 +126,10 @@ class FunctionBlockForm extends React.Component {
     }
 
     render() {
+        const accessOptions = [];
+        accessOptions.push('public');
+        accessOptions.push('private');
+        accessOptions.push('preliminary');
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
@@ -134,7 +138,7 @@ class FunctionBlockForm extends React.Component {
                 <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
                 <app.InputField id="function-block-description" name="description" type="text" label="Description" value={this.state.functionBlock.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
                 <app.InputField id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
-                <app.InputField id="function-block-access" name="access" type="text" label="Access" value={this.state.functionBlock.getAccess()} readOnly={this.props.readOnly} onChange={this.onAccessChanged} />
+                <app.InputField id="function-block-access" name="access" type="select" label="Access" value={this.state.functionBlock.getAccess()} options={accessOptions} readOnly={this.props.readOnly} onChange={this.onAccessChanged} />
                 <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
             </div>
         );
