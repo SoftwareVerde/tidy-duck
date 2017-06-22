@@ -1,0 +1,48 @@
+.primary {
+    color: #032334;
+}
+
+.secondary {
+    color: #032C46;
+}
+
+.tertiary {
+    color: #FFCC33;
+}
+
+.accent {
+    color: #F6D858;
+}
+
+.primary-bg {
+    background-color: #032334;
+}
+
+.secondary-bg {
+    background-color: #032C46;
+}
+
+.tertiary-bg {
+    background-color: #FFCC33;
+}
+
+.accent-bg {
+    background-color: #FDFDF2;
+}
+
+
+.primary-border {
+    border-color: #032334;
+}
+
+.secondary-border {
+    border-color: #032C46;
+}
+
+.tertiary-border {
+    border-color: #FFCC33;
+}
+
+.accent-border {
+    border-color: #FDFDF2;
+}
