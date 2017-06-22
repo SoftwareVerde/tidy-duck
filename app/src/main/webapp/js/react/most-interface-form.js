@@ -6,9 +6,10 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : this.props.mostInterface));
 
         this.state = {
-            showTitle:      this.props.showTitle,
-            mostInterface:  mostInterface,
-            buttonTitle:    (this.props.buttonTitle || "Submit")
+            showTitle:                  this.props.showTitle,
+            shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
+            mostInterface:              mostInterface,
+            buttonTitle:                (this.props.buttonTitle || "Submit")
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -28,15 +29,20 @@ class MostInterfaceForm extends React.Component {
 
         mostInterface.setId((newProperties.mostInterface || mostInterface).getId());
         this.setState({
-            showTitle:      newProperties.showTitle,
-            mostInterface:  mostInterface,
-            buttonTitle:    (newProperties.buttonTitle || "Submit")
+            showTitle:                  newProperties.showTitle,
+            shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
+            mostInterface:              mostInterface,
+            buttonTitle:                (newProperties.buttonTitle || "Submit")
         });
     }
 
     onMostIdChanged(newValue) {
         const mostInterface = this.state.mostInterface;
         mostInterface.setMostId(newValue);
+
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -47,6 +53,10 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setName(newValue);
 
+        this.setState({
+            buttonTitle: "Save"
+        });
+
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
         }
@@ -56,6 +66,10 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setDescription(newValue);
 
+        this.setState({
+            buttonTitle: "Save"
+        });
+
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
         }
@@ -64,6 +78,10 @@ class MostInterfaceForm extends React.Component {
     onVersionChanged(newValue) {
         const mostInterface = this.state.mostInterface;
         mostInterface.setVersion(newValue);
+
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -90,14 +108,24 @@ class MostInterfaceForm extends React.Component {
     }
 
     render() {
+
+        const reactComponents = [];
+
+        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" label="ID" value={this.state.mostInterface.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />);
+        reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" label="Name" value={this.state.mostInterface.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={this.state.mostInterface.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />);
+        reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" label="Version" value={this.state.mostInterface.getVersion()} readOnly={this.props.readOnly} onChange={this.onVersionChanged} />);
+
+        if(this.state.shouldShowSaveAnimation)  {
+            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="interface-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+        } else {
+            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="interface-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+        }
+
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
-                <app.InputField id="most-interface-most-id" name="id" type="text" label="ID" value={this.state.mostInterface.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
-                <app.InputField id="most-interface-name" name="name" type="text" label="Name" value={this.state.mostInterface.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
-                <app.InputField id="most-interface-description" name="description" type="textarea" label="Description" value={this.state.mostInterface.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
-                <app.InputField id="most-interface-version" name="version" type="text" label="Version" value={this.state.mostInterface.getVersion()} readOnly={this.props.readOnly} onChange={this.onVersionChanged} />
-                <div className="center"><div className="button submit-button" id="interface-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
+                {reactComponents}
             </div>
         );
     }
