@@ -3,8 +3,6 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.MostInterface;
 import com.softwareverde.tidyduck.database.DatabaseManager;
@@ -139,10 +137,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _listMostInterfaces(long functionBlockId, Environment environment) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
-            final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
             final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
 
