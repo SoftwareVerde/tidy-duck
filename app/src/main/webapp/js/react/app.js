@@ -284,6 +284,26 @@ class App extends React.Component {
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
         const mostInterfaceId = mostInterface.getId();
 
+        //Update function block form to display saving animation.
+        var navigationItems = [];
+        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+        var navigationItem = navigationItems.pop();
+        navigationItem.setForm(
+            <app.MostInterfaceForm
+                showTitle={false}
+                shouldShowSaveAnimation={true}
+                onSubmit={this.onUpdateMostInterface}
+                mostInterface={mostInterface}
+                buttonTitle="Save"
+            />
+        );
+        navigationItems.push(navigationItem);
+
+        this.setState({
+            navigationItems: navigationItems
+        });
+
+
         updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess) {
             if (wasSuccess) {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
@@ -296,6 +316,17 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
+
+                //Update form to show changes were saved.
+                navigationItem.setForm(
+                    <app.MostInterfaceForm
+                        showTitle={false}
+                        shouldShowSaveAnimation={false}
+                        onSubmit={thisApp.onUpdateMostInterface}
+                        mostInterface={mostInterface}
+                        buttonTitle="Changes Saved"
+                    />
+                );
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
