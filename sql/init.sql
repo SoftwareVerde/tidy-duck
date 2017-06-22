@@ -58,7 +58,7 @@ CREATE TABLE function_blocks (
     most_id varchar(255) NOT NULL,
     kind varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
-    description varchar(255) NOT NULL,
+    description text NOT NULL,
     last_modified_date date NOT NULL,
     release_version varchar(255) NOT NULL,
     account_id int unsigned NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE interfaces (
     id int unsigned NOT NULL PRIMARY KEY auto_increment,
     most_id varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
-    description varchar(255) NOT NULL,
+    description text NOT NULL,
     last_modified_date date NOT NULL,
     version varchar(255) NOT NULL,
     is_committed boolean NOT NULL DEFAULT FALSE
