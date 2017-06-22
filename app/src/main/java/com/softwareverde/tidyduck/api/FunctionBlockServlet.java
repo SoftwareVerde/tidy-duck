@@ -137,10 +137,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
-            final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
             final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
@@ -219,7 +218,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             author.setId(authorId);
         } else {
             // use users's account ID
-            try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
                 AccountInflater accountInflater = new AccountInflater(databaseConnection);
 
                 Account account = accountInflater.inflateAccount(accountId);
