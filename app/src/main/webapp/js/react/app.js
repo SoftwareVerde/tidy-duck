@@ -214,6 +214,10 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
+        this.setState({
+           navigationItems: navigationItems
+        });
+
         updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
@@ -231,8 +235,8 @@ class App extends React.Component {
                 navigationItem.setForm(
                     <app.FunctionBlockForm
                         showTitle={false}
-                        shouldShowSaveAnimation={true}
-                        onSubmit={this.onUpdateFunctionBlock}
+                        shouldShowSaveAnimation={false}
+                        onSubmit={thisApp.onUpdateFunctionBlock}
                         functionBlock={functionBlock}
                         buttonTitle="Changes Saved"
                     />

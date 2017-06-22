@@ -16,9 +16,12 @@
     font-weight: 700 !important;
 }
 
-.input-field input {
-    width: 100%;
+.input-field input, .input-field textarea {
     border: solid 1px #CCCCCC;
+}
+
+.input-field input, .input-field select, .input-field textarea {
+    width: 100%;
     font-weight: normal !important;
     padding: 0.50em;
     font-size: 1rem;
