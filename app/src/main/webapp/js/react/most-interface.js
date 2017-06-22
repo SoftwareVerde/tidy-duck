@@ -50,6 +50,7 @@ class MostInterface extends React.Component {
 
     render() {
         const name = this.props.mostInterface.getName();
+        const shortDescription = shortenString(this.props.mostInterface.getDescription(), 25);
 
         return (
             <div className="function-catalog" onClick={this.onClick}>
@@ -59,7 +60,7 @@ class MostInterface extends React.Component {
                     {this.renderMenu()}
                 </div>
                 <div className="child-function-catalog-property">{this.props.mostInterface.getMostId()}</div>
-                <div className="child-function-catalog-property">{this.props.mostInterface.getDescription()}</div>
+                <div className="child-function-catalog-property">{shortDescription}</div>
                 <div className="child-function-catalog-property">{this.props.mostInterface.getVersion()}</div>
             </div>
         );
