@@ -52,6 +52,7 @@ public class MostGeneratorServlet extends BaseServlet {
         String mostXml = null;
         try {
             MostAdapter mostAdapter = new MostAdapter();
+            mostAdapter.setIndented(true);
             mostXml = mostAdapter.getMostXml(functionCatalog);
 
             final int mostXmlLength = mostXml.getBytes().length;
