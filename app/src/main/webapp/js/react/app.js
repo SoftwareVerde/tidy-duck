@@ -11,6 +11,12 @@ class App extends React.Component {
             operations:         "operations"
         };
 
+        this.CreateButtonState = {
+            normal:     "normal",
+            animate:    "animate",
+            success:    "success"
+        };
+
         this.state = {
             account:                    null,
             navigationItems:            [],
@@ -23,6 +29,7 @@ class App extends React.Component {
             currentNavigationLevel:     this.NavigationLevel.versions,
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
+            createButtonState:          this.CreateButtonState.normal,
             isLoadingChildren:          true
         };
 
@@ -73,9 +80,16 @@ class App extends React.Component {
         const versionId = 1; // TODO
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
         insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
             if (! (functionCatalogId > 0)) {
                 console.log("Unable to create function catalog.");
+                this.setState({
+                    createButtonState: thisApp.CreateButtonState.normal
+                });
                 return;
             }
 
@@ -86,6 +100,7 @@ class App extends React.Component {
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
             thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
                 functionCatalogs:       functionCatalogs,
                 currentNavigationLevel: thisApp.NavigationLevel.versions
             });
@@ -175,9 +190,16 @@ class App extends React.Component {
         const functionCatalogId = functionCatalog.getId();
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
 
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
             if (! (functionBlockId > 0)) {
                 console.log("Unable to create function block.");
+                this.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
                 return;
             }
 
@@ -188,6 +210,7 @@ class App extends React.Component {
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
             thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
                 functionBlocks:         functionBlocks,
                 currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
             });
@@ -263,9 +286,16 @@ class App extends React.Component {
         const functionBlockId = functionBlock.getId();
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
 
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
+                this.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
                 return;
             }
 
@@ -273,6 +303,7 @@ class App extends React.Component {
             const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
 
             thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
                 mostInterfaces:         mostInterfaces,
                 currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
             });
@@ -350,6 +381,7 @@ class App extends React.Component {
             parentItem:                 null,
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
+            createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.versions,
             isLoadingChildren:          false // can default on what we already have
         });
@@ -415,6 +447,7 @@ class App extends React.Component {
             navigationItems:            navigationItems,
             selectedItem:               functionCatalog,
             shouldShowCreateChildForm:  false,
+            createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
             isLoadingChildren:          !canUseCachedChildren
         });
@@ -494,6 +527,7 @@ class App extends React.Component {
             parentItem:                 parentItem,
             mostInterfaces:             [],
             shouldShowCreateChildForm:  false,
+            createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
             isLoadingChildren:          !canUseCachedChildren
         });
@@ -572,6 +606,7 @@ class App extends React.Component {
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
             shouldShowCreateChildForm:  false,
+            createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
             isLoadingChildren:          !canUseCachedChildren
         });
@@ -687,12 +722,16 @@ class App extends React.Component {
             );
         }
 
+        const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Added" : "Submit";
+        const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
 
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionCatalogForm key="FunctionCatalogForm"
+                            shouldShowSaveAnimation={shouldAnimateCreateButton}
+                            buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateFunctionCatalog}
                         />
@@ -704,6 +743,8 @@ class App extends React.Component {
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
+                            shouldShowSaveAnimation={shouldAnimateCreateButton}
+                            buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateFunctionBlock}
                         />
@@ -715,6 +756,8 @@ class App extends React.Component {
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
+                            shouldShowSaveAnimation={shouldAnimateCreateButton}
+                            buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateMostInterface}
                         />

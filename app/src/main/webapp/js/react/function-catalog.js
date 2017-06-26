@@ -3,7 +3,8 @@ class FunctionCatalog extends React.Component {
         super(props);
 
         this.state = {
-            showMenu: false
+            showMenu:           false,
+            showWorkingIcon:    false
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
@@ -25,6 +26,9 @@ class FunctionCatalog extends React.Component {
     deleteFunctionCatalog(event) {
         event.stopPropagation();
         if (typeof this.props.onDelete == "function") {
+            this.setState({
+                showWorkingIcon: true
+            });
             this.props.onDelete(this.props.functionCatalog);
         }
     }
@@ -53,10 +57,13 @@ class FunctionCatalog extends React.Component {
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
 
+        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+
         return (
             <div className="function-catalog" onClick={this.onClick}>
                 <div className="function-catalog-title">
                     {name}
+                    {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {this.renderMenu()}
                 </div>
