@@ -3,7 +3,8 @@ class MostInterface extends React.Component {
         super(props);
 
         this.state = {
-            showMenu: false
+            showMenu:           false,
+            showWorkingIcon:    false
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
@@ -25,6 +26,9 @@ class MostInterface extends React.Component {
     deleteMostInterface(event) {
         event.stopPropagation();
         if (typeof this.props.onDelete == "function") {
+            this.setState({
+                showWorkingIcon: true
+            });
             this.props.onDelete(this.props.mostInterface);
         }
     }
@@ -52,10 +56,13 @@ class MostInterface extends React.Component {
         const name = this.props.mostInterface.getName();
         const shortDescription = shortenString(this.props.mostInterface.getDescription(), 25);
 
+        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+
         return (
             <div className="function-catalog" onClick={this.onClick}>
                 <div className="function-catalog-title">
                     {name}
+                    {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {this.renderMenu()}
                 </div>

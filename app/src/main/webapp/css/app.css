@@ -114,6 +114,10 @@
     margin: 10px;
 }
 
+.delete-working-icon {
+    margin: 0 5px;
+}
+
 .function-catalog {
     padding: 1em;
     margin: 1em;
@@ -153,7 +157,6 @@
     padding: 5px;
     margin: -5px;
 }
-
 
 .function-catalog-menu-item {
     margin: 2px;
