@@ -9,6 +9,7 @@ INSERT INTO accounts (username, name, password, company_id) VALUES ('cjones@oh.h
 INSERT INTO accounts (username, name, password, company_id) VALUES ('jporembski@oh.hra.com', 'Joe Porembski', 'aa80cf9d7cba1d315277f7d345d82b66b8a0d3dab77e91e920bd59a0f927972c', 1);
 INSERT INTO accounts (username, name, password, company_id) VALUES ('jblock@oh.hra.com', 'Jeremy Block', 'aa80cf9d7cba1d315277f7d345d82b66b8a0d3dab77e91e920bd59a0f927972c', 1);
 INSERT INTO accounts (username, name, password, company_id) VALUES ('zforbush@oh.hra.com', 'Zachary Forbush', 'aa80cf9d7cba1d315277f7d345d82b66b8a0d3dab77e91e920bd59a0f927972c', 1);
+INSERT INTO accounts (username, name, password, company_id) VALUES ('dgraves@oh.hra.com', 'David Graves', 'aa80cf9d7cba1d315277f7d345d82b66b8a0d3dab77e91e920bd59a0f927972c', 1);
 
 INSERT INTO versions (name, owner_id)
 VALUES ('Version 1', 1);
