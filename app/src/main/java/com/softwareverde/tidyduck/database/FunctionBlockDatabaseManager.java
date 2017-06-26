@@ -4,6 +4,9 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.FunctionBlock;
+import com.softwareverde.tidyduck.MostInterface;
+
+import java.util.List;
 
 public class FunctionBlockDatabaseManager {
 
@@ -117,9 +120,19 @@ public class FunctionBlockDatabaseManager {
         FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
         if (!functionBlock.isCommitted()) {
-            // function block isn't committed, we can delete it
-            // TODO: delete interfaces from function block
+            _deleteInterfacesFromFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
+        }
+    }
+
+    private void _deleteInterfacesFromFunctionBlock(long functionBlockId) throws DatabaseException {
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
+
+        MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (MostInterface mostInterface : mostInterfaces) {
+            // function block isn't committed, we can delete it
+            mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
     }
 
