@@ -15,6 +15,13 @@ class FunctionBlock extends React.Component {
         window.app.navigation = this;
     }
 
+    componentWillReceiveProps(newProperties) {
+        this.setState({
+            showMenu:           false,
+            showWorkingIcon:    false
+        });
+    }
+
     onMenuButtonClick(event) {
         event.stopPropagation();
         const shouldShowMenu = (! this.state.showMenu);
