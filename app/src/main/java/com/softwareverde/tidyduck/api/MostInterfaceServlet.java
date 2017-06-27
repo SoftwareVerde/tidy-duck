@@ -35,6 +35,14 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 }
                 return _listMostInterfaces(functionBlockId, environment);
             }
+        } else if ("search".equals(finalUrlSegment)){
+            if (httpMethod == HttpMethod.GET) {
+                String searchString = Util.coalesce(request.getParameter("name"));
+                if (searchString.length() < 1) {
+                    return super._generateErrorJson("Invalid search string for interface.");
+                }
+                return _listMostInterfacesMatchingSearchString(searchString);
+            }
         } else {
             // not base interface, must have ID
             long mostInterfaceId = Util.parseLong(finalUrlSegment);
@@ -161,6 +169,34 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         } catch (final DatabaseException exception) {
             _logger.error("Unable to list interfaces", exception);
             return super._generateErrorJson("Unable to list interfaces.");
+        }
+    }
+
+    protected Json _listMostInterfacesMatchingSearchString(String searchString, Environment environment) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            final Json response = new Json(false);
+
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
+
+            final Json mostInterfacesJson = new Json(true);
+            for (final MostInterface mostInterface : mostInterfaces) {
+                final Json mostInterfaceJson = new Json(false);
+                mostInterfaceJson.put("id", mostInterface.getId());
+                mostInterfaceJson.put("mostId", mostInterface.getMostId());
+                mostInterfaceJson.put("name", mostInterface.getName());
+                mostInterfaceJson.put("description", mostInterface.getDescription());
+                mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
+                mostInterfaceJson.put("version", mostInterface.getVersion());
+                mostInterfacesJson.add(mostInterfaceJson);
+            }
+            response.put("mostInterfaces", mostInterfacesJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (final DatabaseException exception) {
+            _logger.error("Unable to list interfaces from search", exception);
+            return super._generateErrorJson("Unable to list interfaces from search.");
         }
     }
 

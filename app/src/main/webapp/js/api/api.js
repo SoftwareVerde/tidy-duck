@@ -247,6 +247,32 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
         }
     });
 }
+
+///Calls callbackFunction with an array of MOST interfaces filtered by search string.
+function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaces = null;
+
+        if (data.wasSuccess) {
+            mostInterfaces = data.mostInterfaces;
+        } else {
+            console.log("Unable to get Interfaces for search string " + searchString + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaces);
+        }
+    });
+}
+
 // calls callbackFunction with new MOST interface ID
 function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     const request = new Request(

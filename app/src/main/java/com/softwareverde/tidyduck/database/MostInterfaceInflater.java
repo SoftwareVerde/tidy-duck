@@ -38,6 +38,23 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
+    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) {
+        final String likeString = "%".concat(searchString).concat("%");
+        final Query query = new Query (
+            "SELECT interface_id FROM interfaces WHERE name LIKE ?"
+        );
+        query.setParameter(likeString);
+
+        List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long mostInterfaceId = row.getLong("interface_id");
+            MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
+            mostInterfaces.add(mostInterface);
+        }
+        return mostInterfaces;
+    }
+
     public MostInterface inflateMostInterface(final long mostInterfaceId) throws DatabaseException {
         final Query query = new Query(
             "SELECT * FROM interfaces WHERE id = ?"
