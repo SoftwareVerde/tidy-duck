@@ -58,6 +58,30 @@
     padding-top: 0.5em;
 }
 
+.search-result-form {
+    padding: 5px;
+    width: auto;
+    max-height: 33%;
+    border: 0px solid;
+    border-radius: 5px;
+
+    margin: 20px;
+    padding: 0px;
+    overflow: scroll;
+}
+
+.search-result-form .search-result-form-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding-left: 0.5em;
+    padding-top: 0.5em;
+}
+
+.search-bar-icon {
+    padding-left: auto;
+    padding-right: 0.5em;
+}
+
 .search-result {
     padding: 5px;
     width: auto;

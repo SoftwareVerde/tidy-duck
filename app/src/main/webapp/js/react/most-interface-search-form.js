@@ -36,12 +36,13 @@ class MostInterfaceSearchForm extends React.Component {
             return null;
         }
 
-        return (<div className="metadata-form-title">Search Interfaces</div>);
+        return (<div className="search-result-form-title">Search Interfaces</div>);
     }
 
     render() {
         const reactComponents = [];
 
+        //TODO: replace input-field React element with SearchBar element.
         reactComponents.push(<app.InputField key="most-interface-search" id="most-interface-search" name="search" type="text" label="Search" value={this.state.searchString} readOnly={false} onChange={this.onSearchFieldChanged} />);
 
         //Populate search results as React components.
@@ -55,7 +56,7 @@ class MostInterfaceSearchForm extends React.Component {
         }
 
         return (
-            <div className="metadata-form">
+            <div className="search-result-form">
                 {this.renderFormTitle()}
                 {reactComponents}
             </div>
