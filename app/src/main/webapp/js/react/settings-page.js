@@ -9,7 +9,7 @@ class SettingsPage extends React.Component {
         };
 
         this.state = {
-            currentTheme:       this.props.currentTheme,
+            currentTheme:       this.props.theme,
             saveButtonState:    this.SaveButtonState.save
         };
 
@@ -68,7 +68,6 @@ class SettingsPage extends React.Component {
         return (
             <div id="settings-container">
                 <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
-
                 <div id="save-settings-button" className="button" onClick={this.onSave}>{this.renderSaveButtonText()}</div>
             </div>
         );

@@ -13,6 +13,7 @@
 #settings-icon {
     padding: 5px;
     margin: 0 5px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -27,6 +28,10 @@
     padding-left: 1em;
     padding-right: 1em;
     padding-bottom: 1em;
+}
+
+#settings-container .input-field {
+    width: 100%;
 }
 
 .navigation-column {

@@ -56,6 +56,7 @@ class App extends React.Component {
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
+        this.onThemeChange = this.onThemeChange.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
         this.logout = this.logout.bind(this);
@@ -666,6 +667,15 @@ class App extends React.Component {
         });
     }
 
+    onThemeChange(themeName) {
+        this.setTheme(themeName);
+        const account = this.state.account;
+        account.theme = themeName;
+        this.setState({
+            account: account
+        });
+    }
+
     setTheme(themeName) {
         const themeCssDirectory = themeName.toLowerCase();
         document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
@@ -805,7 +815,7 @@ class App extends React.Component {
             const theme = this.state.account ? this.state.account.theme : "Tidy";
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage onThemeChange={this.setTheme} currentTheme={theme}/>
+                    <app.SettingsPage theme={theme} onThemeChange={this.onThemeChange}/>
                 </div>
             );
         } else {
@@ -841,7 +851,7 @@ class App extends React.Component {
                     <div id="account-area">
                         {accountName}
                         <a id="logout" href="#" onClick={this.logout}>logout</a>
-                        <i id="settings-icon" className="fa fa-cog" onClick={this.handleSettingsClick}/>
+                        <i id="settings-icon" className="fa fa-cog fa-lg" onClick={this.handleSettingsClick}/>
                     </div>
                 </div>
                 {this.renderMainContent()}

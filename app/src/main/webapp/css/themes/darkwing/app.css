@@ -3,6 +3,10 @@
     color: #FFF !important;
 }
 
+#settings-icon:hover {
+    background-color: #369;
+}
+
 .navigation-column {
     background-color: #032C46;
     color: #101010;
