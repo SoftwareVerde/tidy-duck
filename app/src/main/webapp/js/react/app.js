@@ -93,7 +93,7 @@ class App extends React.Component {
         insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
             if (! (functionCatalogId > 0)) {
                 console.log("Unable to create function catalog.");
-                this.setState({
+                thisApp.setState({
                     createButtonState: thisApp.CreateButtonState.normal
                 });
                 return;
@@ -203,7 +203,7 @@ class App extends React.Component {
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
             if (! (functionBlockId > 0)) {
                 console.log("Unable to create function block.");
-                this.setState({
+                thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
                 return;
@@ -299,7 +299,7 @@ class App extends React.Component {
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
-                this.setState({
+                thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
                 return;
