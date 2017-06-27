@@ -35,6 +35,10 @@ public class MostInterfaceDatabaseManager {
         mostInterface.setId(mostInterfaceId);
     }
 
+    public Long associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+    }
+
     private Long _associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
         final Query query = new Query("INSERT INTO function_blocks_interfaces (function_block_id, interface_id) VALUES (?, ?)")
                 .setParameter(functionBlockId)
