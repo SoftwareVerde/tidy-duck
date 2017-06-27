@@ -41,7 +41,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (searchString.length() < 1) {
                     return super._generateErrorJson("Invalid search string for interface.");
                 }
-                return _listMostInterfacesMatchingSearchString(searchString);
+                return _listMostInterfacesMatchingSearchString(searchString, environment);
             }
         } else {
             // not base interface, must have ID

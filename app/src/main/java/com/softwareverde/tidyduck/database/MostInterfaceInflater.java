@@ -38,7 +38,7 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
-    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) {
+    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
         final String likeString = "%".concat(searchString).concat("%");
         final Query query = new Query (
             "SELECT interface_id FROM interfaces WHERE name LIKE ?"

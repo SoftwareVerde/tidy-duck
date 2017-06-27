@@ -27,6 +27,9 @@ class Toolbar extends React.Component {
                 <div className="toolbar-item create" onClick={this.props.onCreateClicked}>
                     <i className="fa fa-4 fa-plus" />
                 </div>
+                <div className="toolbar-item search" onClick={this.props.onSearchClicked}>
+                    <i className="fa fa-4 fa-search" />
+                </div>
             </div>
         );
     }
