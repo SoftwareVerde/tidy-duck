@@ -39,16 +39,16 @@ public class MostInterfaceInflater {
     }
 
     public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
-        final String likeString = "%".concat(searchString).concat("%");
+        //final String likeString = "%".concat(searchString).concat("%");
         final Query query = new Query (
-            "SELECT interface_id FROM interfaces WHERE name LIKE ?"
+            "SELECT id FROM interfaces WHERE name LIKE ?"
         );
-        query.setParameter(likeString);
+        query.setParameter("%" + searchString + "%");
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long mostInterfaceId = row.getLong("interface_id");
+            final long mostInterfaceId = row.getLong("id");
             MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
             mostInterfaces.add(mostInterface);
         }

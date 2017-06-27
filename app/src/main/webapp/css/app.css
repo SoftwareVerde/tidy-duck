@@ -58,6 +58,26 @@
     padding-top: 0.5em;
 }
 
+.search-result {
+    padding: 5px;
+    width: auto;
+    border: 1px solid;
+    border-radius: 5px;
+
+    display: flex;
+
+    margin: 1em;
+    padding: 0;
+
+    float: top;
+}
+
+.search-result-property {
+    padding: 0;
+    margin: 1em;
+
+}
+
 .child-display-area {
     padding: 5px;
 }

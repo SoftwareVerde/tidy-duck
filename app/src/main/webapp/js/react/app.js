@@ -380,6 +380,7 @@ class App extends React.Component {
 
         this.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               null,
             parentItem:                 null,
             shouldShowToolbar:          true,
@@ -449,6 +450,7 @@ class App extends React.Component {
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               functionCatalog,
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
@@ -528,6 +530,7 @@ class App extends React.Component {
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               functionBlock,
             parentItem:                 parentItem,
             mostInterfaces:             [],
@@ -609,6 +612,7 @@ class App extends React.Component {
         const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
         thisApp.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
             shouldShowCreateChildForm:  false,
@@ -654,6 +658,10 @@ class App extends React.Component {
                         searchResults: mostInterfaces
                     });
                 }
+            });
+        } else {
+            this.setState({
+               searchResults: []
             });
         }
     }
@@ -779,7 +787,7 @@ class App extends React.Component {
                             onSubmit={this.onCreateFunctionBlock}
                         />
                     );
-                } else if ()
+                }
             break;
 
             case NavigationLevel.functionBlocks:
@@ -795,6 +803,7 @@ class App extends React.Component {
                 } else if (shouldShowSearchChildForm) {
                     reactComponents.push(
                       <app.MostInterfaceSearchForm key="MostInterfaceSearchForm"
+                           showTitle={true}
                            onUpdate={this.onSearchMostInterfaces}
                            mostInterfaces={this.state.searchResults}
                       />

@@ -22,6 +22,7 @@ class Toolbar extends React.Component {
     }
 
     render() {
+        //TODO return array containing only the toolbar items that are needed at the current navigation level.
         return (
             <div className="toolbar">
                 <div className="toolbar-item create" onClick={this.props.onCreateClicked}>
