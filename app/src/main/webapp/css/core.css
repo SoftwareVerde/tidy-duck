@@ -15,23 +15,7 @@ body * {
     display: -webkit-flex;
     display: flex;
     position: absolute;
-    top: 50px;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-
-    border-top: solid 2px;
-}
-
-.container {
-    display: -ms-flex;
-    display: -webkit-flex;
-    display: flex;
-    position: absolute;
-    top: 0px;
+    top: 0;
     right: 0;
     left: 0;
     bottom: 0;
@@ -51,6 +35,26 @@ body * {
 
     font-weight: bold;
     padding-left: 10px;
+}
+
+#main-content {
+    position: absolute;
+    top: 50px;
+    border-top: solid 2px;
+}
+
+.container {
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: flex;
+    position: absolute;
+    top: 0px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .button {

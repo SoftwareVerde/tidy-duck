@@ -342,3 +342,19 @@ function downloadAccount(callback) {
     );
 }
 
+function logout(callback) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "account/logout",
+            {
+                method:         "GET",
+                credentials:    "include"
+            }
+        ),
+        function (data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}

@@ -1,3 +1,8 @@
+#settings-container {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+}
+
 .navigation-column {
     border-color: #CCCCCC;
     background-color: #D0D0D0;

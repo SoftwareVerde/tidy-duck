@@ -30,7 +30,8 @@ class App extends React.Component {
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
             createButtonState:          this.CreateButtonState.normal,
-            isLoadingChildren:          true
+            isLoadingChildren:          true,
+            theme:                      ""
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -54,6 +55,11 @@ class App extends React.Component {
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
+
+        this.handleSettingsClick = this.handleSettingsClick.bind(this);
+        this.setTheme = this.setTheme.bind(this);
+
+        this.logout = this.logout.bind(this);
 
         const thisApp = this;
 
@@ -654,6 +660,25 @@ class App extends React.Component {
         });
     }
 
+    handleSettingsClick() {
+        this.setState({
+            showSettingsPage: !this.state.showSettingsPage
+        });
+    }
+
+    setTheme(themeName) {
+        const themeCssDirectory = themeName.toLowerCase();
+        document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
+        document.getElementById('app-css').href =               '/css/themes/' + themeCssDirectory + '/app.css';
+        document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
+        document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
+        document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
+
+        this.setState({
+            theme: themeName
+        });
+    }
+
     renderChildItems() {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
@@ -779,16 +804,50 @@ class App extends React.Component {
         return reactComponents;
     }
 
-    render() {
-        return (
-            <div className="container">
-                <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
-                <div className="display-area">
-                    {this.renderForm()}
-                    <div id="child-display-area" className="clearfix">
-                        {this.renderChildItems()}
+    renderMainContent() {
+        if (this.state.showSettingsPage) {
+            return (
+                <div id="main-content" className="container">
+                    <app.SettingsPage onThemeChange={this.setTheme} currentTheme={this.state.theme}/>
+                </div>
+            );
+        } else {
+            return (
+                <div id="main-content" className="container">
+                    <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
+                    <div className="display-area">
+                        {this.renderForm()}
+                        <div id="child-display-area" className="clearfix">
+                            {this.renderChildItems()}
+                        </div>
                     </div>
                 </div>
+            );
+        }
+
+    }
+
+    logout() {
+        logout(function (data) {
+            if (data.wasSuccess) {
+                window.location.replace("/");
+            }
+        });
+    }
+
+    render() {
+        const accountName = this.state.account ? this.state.account.name : "";
+        return (
+            <div>
+                <div id="header" className="secondary-bg accent title-font">
+                    Tidy Duck
+                    <div id="account-area">
+                        {accountName}
+                        <a id="logout" href="#" onClick={this.logout}>logout</a>
+                        <i id="settings-icon" className="fa fa-cog" onClick={this.handleSettingsClick}/>
+                    </div>
+                </div>
+                {this.renderMainContent()}
             </div>
         );
     }
