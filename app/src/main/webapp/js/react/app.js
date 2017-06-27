@@ -30,8 +30,7 @@ class App extends React.Component {
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
             createButtonState:          this.CreateButtonState.normal,
-            isLoadingChildren:          true,
-            theme:                      ""
+            isLoadingChildren:          true
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -65,8 +64,9 @@ class App extends React.Component {
 
         const account = downloadAccount(function (data) {
             if (data.wasSuccess) {
+                thisApp.setTheme(data.account.theme);
                 thisApp.setState({
-                    account: data.account
+                    account:    data.account
                 });
             }
         });
@@ -673,10 +673,6 @@ class App extends React.Component {
         document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
         document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
         document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
-
-        this.setState({
-            theme: themeName
-        });
     }
 
     renderChildItems() {
@@ -806,9 +802,10 @@ class App extends React.Component {
 
     renderMainContent() {
         if (this.state.showSettingsPage) {
+            const theme = this.state.account ? this.state.account.theme : "Tidy";
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage onThemeChange={this.setTheme} currentTheme={this.state.theme}/>
+                    <app.SettingsPage onThemeChange={this.setTheme} currentTheme={theme}/>
                 </div>
             );
         } else {
