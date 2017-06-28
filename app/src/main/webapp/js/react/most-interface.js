@@ -46,7 +46,7 @@ class MostInterface extends React.Component {
         return (
             <div className="function-catalog-menu">
                 <div className="function-catalog-menu-item" onClick={this.deleteMostInterface}>
-                    Delete
+                    Remove
                     <i className="fa fa-remove" />
                 </div>
             </div>
