@@ -48,10 +48,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         } else if ("search".equals(finalUrlSegment)){
             if (httpMethod == HttpMethod.GET) {
                 String searchString = Util.coalesce(request.getParameter("name"));
+                Long versionId = Util.parseLong(request.getParameter("versionId"));
                 if (searchString.length() < 1) {
                     return super._generateErrorJson("Invalid search string for function block.");
                 }
-                return _listFunctionBlocksMatchingSearchString(searchString, environment);
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId for function block search.");
+                }
+                return _listFunctionBlocksMatchingSearchString(searchString, versionId, environment);
             }
         } else {
             // not base function block, must have ID
@@ -202,12 +206,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _listFunctionBlocksMatchingSearchString(String searchString, Environment environment) {
+    private Json _listFunctionBlocksMatchingSearchString(String searchString, Long versionId, Environment environment) {
         try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
+            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString, versionId);
 
             final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {

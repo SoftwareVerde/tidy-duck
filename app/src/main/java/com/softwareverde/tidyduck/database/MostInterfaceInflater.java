@@ -36,11 +36,16 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
-    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
+    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString, Long versionId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query (
-            "SELECT id FROM interfaces WHERE name LIKE ?"
-        );
+        final Query query = new Query ("SELECT DISTINCT interfaces.id\n" +
+                                        "FROM interfaces\n" +
+                                        " INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces.id\n" +
+                                        " INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id\n" +
+                                        " INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id\n" +
+                                        "WHERE version_id = ?\n" +
+                                        "and interfaces.name LIKE ?");
+        query.setParameter(versionId);
         query.setParameter("%" + searchString + "%");
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();

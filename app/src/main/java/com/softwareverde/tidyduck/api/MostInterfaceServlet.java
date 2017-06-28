@@ -39,10 +39,14 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         } else if ("search".equals(finalUrlSegment)){
             if (httpMethod == HttpMethod.GET) {
                 String searchString = Util.coalesce(request.getParameter("name"));
+                Long versionId = Util.parseLong(request.getParameter("versionId"));
                 if (searchString.length() < 1) {
                     return super._generateErrorJson("Invalid search string for interface.");
                 }
-                return _listMostInterfacesMatchingSearchString(searchString, environment);
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId for interface search.");
+                }
+                return _listMostInterfacesMatchingSearchString(searchString, versionId, environment);
             }
         } else if ("function-blocks".equals(finalUrlSegment)) {
             // most-interface/<id>/function-blocks
@@ -201,12 +205,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listMostInterfacesMatchingSearchString(String searchString, Environment environment) {
+    protected Json _listMostInterfacesMatchingSearchString(String searchString, Long versionId, Environment environment) {
         try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString, versionId);
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
