@@ -145,6 +145,34 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
     });
 }
 
+
+///Calls callbackFunction with an array of Function Blocks filtered by search string.
+function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
+    // TODO: change versionId after implementing versions.
+    const versionId = 1;
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-block/search?name=" + searchString + "&versionId=" + versionId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlocks = null;
+
+        if (data.wasSuccess) {
+            functionBlocks = data.functionBlocks;
+        } else {
+            console.log("Unable to get Function Blocks for search string " + searchString + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlocks);
+        }
+    });
+}
+
 // calls callbackFunction with new function block ID
 function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction) {
     const request = new Request(
@@ -250,8 +278,10 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
 
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
 function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
+    // TODO: change versionId after implementing versions.
+    const versionId = 1;
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString,
+        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString + "&versionId=" + versionId,
         {
             method: "GET",
             credentials: "include"
