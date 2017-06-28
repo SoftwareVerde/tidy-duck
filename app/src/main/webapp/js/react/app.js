@@ -50,6 +50,7 @@ class App extends React.Component {
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
+        this.onSearchFunctionBlocks = this.onSearchFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
 
@@ -567,6 +568,31 @@ class App extends React.Component {
             }
 
         });
+    }
+
+    onSearchFunctionBlocks(searchString) {
+        if(searchString.length > 0) {
+            const thisApp = this;
+
+            getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                    const functionBlocks = [];
+                    for (let i in functionBlocksJson) {
+                        const functionBlockJson = functionBlocksJson[i];
+                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                        functionBlocks.push(functionBlock);
+                    }
+
+                    thisApp.setState({
+                        searchResults: functionBlocks
+                    });
+                }
+            });
+        } else {
+            this.setState({
+                searchResults: []
+            });
+        }
     }
 
     onAssociateFunctionBlockWithFunctionCatalog(functionBlock, functionCatalog) {
