@@ -50,12 +50,14 @@ class App extends React.Component {
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
+        this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
 
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
+        this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -567,6 +569,12 @@ class App extends React.Component {
         });
     }
 
+    onAssociateFunctionBlockWithFunctionCatalog(functionBlock, functionCatalog) {
+        // TODO: wire into api.
+        //testing onclick
+        console.log("Adding Function Block " + functionBlock.getName() + " to Function Catalog " + functionCatalog.getName());
+    }
+
     onDeleteFunctionBlock(functionBlock) {
         const thisApp = this;
 
@@ -671,6 +679,12 @@ class App extends React.Component {
                searchResults: []
             });
         }
+    }
+
+    onAssociateMostInterfaceWithFunctionBlock(mostInterface, functionBlock) {
+        // TODO: wire into api.
+        //testing onclick
+        console.log("Adding Interface " + mostInterface.getName() + " to FunctionBlock " + functionBlock.getName());
     }
 
     onDeleteMostInterface(mostInterface) {
@@ -787,6 +801,8 @@ class App extends React.Component {
                     onCreateClicked={() => this.setState({ shouldShowCreateChildForm: true })}
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false })}
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: true})}
+                    navigationLevel={this.NavigationLevel}
+                    currentNavigationLevel={this.state.currentNavigationLevel}
                 />
             );
         }
@@ -818,8 +834,21 @@ class App extends React.Component {
                             onSubmit={this.onCreateFunctionBlock}
                         />
                     );
+                } else if (shouldShowSearchChildForm) {
+                    reactComponents.push(
+                        <app.SearchForm key="SearchForm"
+                            navigationLevel={NavigationLevel}
+                            currentNavigationLevel={currentNavigationLevel}
+                            showTitle={true}
+                            formTitle={"Search Function Blocks"}
+                            onUpdate={this.onSearchFunctionBlocks}
+                            onPlusButtonClick={this.onAssociateFunctionBlockWithFunctionCatalog}
+                            selectedItem={this.state.selectedItem}
+                            searchResults={this.state.searchResults}
+                        />
+                    );
                 }
-            break;
+                break;
 
             case NavigationLevel.functionBlocks:
                 if (shouldShowCreateChildForm) {
@@ -833,10 +862,15 @@ class App extends React.Component {
                     );
                 } else if (shouldShowSearchChildForm) {
                     reactComponents.push(
-                      <app.MostInterfaceSearchForm key="MostInterfaceSearchForm"
+                      <app.SearchForm key="SearchForm"
+                           navigationLevel={NavigationLevel}
+                           currentNavigationLevel={currentNavigationLevel}
                            showTitle={true}
+                           formTitle={"Search Interfaces"}
                            onUpdate={this.onSearchMostInterfaces}
-                           mostInterfaces={this.state.searchResults}
+                           onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
+                           selectedItem={this.state.selectedItem}
+                           searchResults={this.state.searchResults}
                       />
                     );
                 }
