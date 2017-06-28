@@ -22,6 +22,7 @@ CREATE TABLE accounts (
     username varchar(255) NOT NULL,
     password varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
+    theme varchar(255) NOT NULL DEFAULT 'Tidy',
     company_id int unsigned NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;

@@ -31,6 +31,12 @@ public abstract class BaseServlet extends HttpServlet {
         return path.substring(finalSlash+1);
     }
 
+    public static String getNthFromLastUrlSegment(final HttpServletRequest request, final int index) {
+        final String path = request.getRequestURI();
+        String[] segments = path.split("/");
+        return segments[segments.length-1-index];
+    }
+
     protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method) throws ServletException, IOException {
         try {
             Environment environment = Environment.getInstance();

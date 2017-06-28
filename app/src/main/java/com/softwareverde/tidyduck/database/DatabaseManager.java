@@ -2,11 +2,12 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
+import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.MostInterface;
-import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
-import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
+import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.environment.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,14 @@ public class DatabaseManager {
     protected void executeTransaction(DatabaseConnectedRunnable<Connection> databaseConnectedRunnable) throws DatabaseException {
         final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_environment);
         jdbcDatabaseTransaction.execute(databaseConnectedRunnable);
+    }
+
+    // ACCOUNT METHODS
+    public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
+            AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            accountDatabaseManager.updateAccountSettings(accountId, settings);
+        }
     }
 
     // FUNCTION CATALOG METHODS
@@ -71,6 +80,16 @@ public class DatabaseManager {
         });
     }
 
+    public void associateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+            }
+        });
+    }
+
     public void updateFunctionBlock(final long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
@@ -99,6 +118,16 @@ public class DatabaseManager {
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
+            }
+        });
+    }
+
+    public void associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
             }
         });
     }

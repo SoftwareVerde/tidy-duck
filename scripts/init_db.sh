@@ -1,3 +1,3 @@
 #!/bin/bash
-psql -d tidy_duck -f "$(dirname $0)/../sql/init.sql"
+mysql tidy_duck -u root -p < "$(dirname $0)/../sql/init.sql"
 
