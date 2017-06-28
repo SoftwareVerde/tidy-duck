@@ -36,29 +36,27 @@ class MostInterfaceSearchForm extends React.Component {
             return null;
         }
 
-        return (<div className="search-result-form-title">Search Interfaces</div>);
+        return (<div className="search-form-title">Search Interfaces</div>);
     }
 
     render() {
         const reactComponents = [];
-
-        //TODO: replace input-field React element with SearchBar element.
-        reactComponents.push(<app.InputField key="most-interface-search" id="most-interface-search" name="search" type="text" label="Search" value={this.state.searchString} readOnly={false} onChange={this.onSearchFieldChanged} />);
+        reactComponents.push();
 
         //Populate search results as React components.
-        // TODO: create new React element for search results, using MostInterfaces as a placeholder for debugging search results.
         const mostInterfaces = this.state.mostInterfaces;
         for(let i in mostInterfaces) {
             const mostInterface = mostInterfaces[i];
             const interfaceKey = "Interface" + i;
             reactComponents.push(<app.MostInterfaceSearchResult key={interfaceKey} mostInterface={mostInterface} />);
-            //reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={mostInterface} />);
         }
 
         return (
-            <div className="search-result-form">
+            <div className="search-form">
                 {this.renderFormTitle()}
-                {reactComponents}
+                <app.SearchBar id="most-interface-search" name="search" type="text" label="Search" value={this.state.searchString} readOnly={false} onChange={this.onSearchFieldChanged}/>
+                <div className="search-result-form">{reactComponents}</div>
+
             </div>
         );
     }

@@ -35,10 +35,10 @@ class SearchBar extends React.Component {
 
     render() {
         return (
-            <div className="search-bar">
+            <span className="search-bar">
                 <input type="text" id="search-bar" name="search-bar" value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly}/>
-                <span className="search-bar-icon"><i className="fa fa-search"/></span>
-            </div>
+                <i className="fa fa-search"/>
+            </span>
         )
     }
 }
