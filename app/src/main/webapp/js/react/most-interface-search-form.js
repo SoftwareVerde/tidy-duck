@@ -55,6 +55,12 @@ class MostInterfaceSearchForm extends React.Component {
             <div className="search-form">
                 {this.renderFormTitle()}
                 <app.SearchBar id="most-interface-search" name="search" type="text" label="Search" value={this.state.searchString} readOnly={false} onChange={this.onSearchFieldChanged}/>
+                <div className="search-result-labels">
+                    <span className="search-result-property">{"Name"}</span>
+                    <span className="search-result-property-short">{"ID"}</span>
+                    <span className="search-result-property">{"Description"}</span>
+                    <span className="search-result-property-short">{"Version"}</span>
+                </div>
                 <div className="search-result-form">{reactComponents}</div>
 
             </div>
