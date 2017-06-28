@@ -22,10 +22,14 @@ class Toolbar extends React.Component {
     }
 
     render() {
+        //TODO return array containing only the toolbar items that are needed at the current navigation level.
         return (
             <div className="toolbar">
                 <div className="toolbar-item create" onClick={this.props.onCreateClicked}>
                     <i className="fa fa-4 fa-plus" />
+                </div>
+                <div className="toolbar-item search" onClick={this.props.onSearchClicked}>
+                    <i className="fa fa-4 fa-search" />
                 </div>
             </div>
         );

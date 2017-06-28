@@ -108,7 +108,6 @@ class MostInterfaceForm extends React.Component {
     }
 
     render() {
-
         const reactComponents = [];
 
         reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" label="ID" value={this.state.mostInterface.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />);

@@ -75,6 +75,15 @@
     color: #A0A0A0;
 }
 
+.search-form {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+}
+
+.search-form .search-form-title {
+    color: #A0A0A0;
+}
+
 .function-catalog {
     border: solid 1px #C0C0C0;
     background-color: #EEEEEE;

@@ -20,6 +20,7 @@ class App extends React.Component {
         this.state = {
             account:                    null,
             navigationItems:            [],
+            searchResults:              [],
             functionCatalogs:           [],
             functionBlocks:             [],
             mostInterfaces:             [],
@@ -30,6 +31,7 @@ class App extends React.Component {
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
             createButtonState:          this.CreateButtonState.normal,
+            shouldShowSearchChildForm:  false,
             isLoadingChildren:          true
         };
 
@@ -53,6 +55,7 @@ class App extends React.Component {
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
+        this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -384,10 +387,12 @@ class App extends React.Component {
 
         this.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               null,
             parentItem:                 null,
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
+            shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.versions,
             isLoadingChildren:          false // can default on what we already have
@@ -452,8 +457,10 @@ class App extends React.Component {
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               functionCatalog,
             shouldShowCreateChildForm:  false,
+            shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
             isLoadingChildren:          !canUseCachedChildren
@@ -530,10 +537,12 @@ class App extends React.Component {
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               functionBlock,
             parentItem:                 parentItem,
             mostInterfaces:             [],
             shouldShowCreateChildForm:  false,
+            shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
             isLoadingChildren:          !canUseCachedChildren
@@ -610,9 +619,11 @@ class App extends React.Component {
         const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
         thisApp.setState({
             navigationItems:            navigationItems,
+            searchResults:              [],
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
             shouldShowCreateChildForm:  false,
+            shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
             isLoadingChildren:          !canUseCachedChildren
@@ -634,6 +645,31 @@ class App extends React.Component {
                 mostFunctions:      mostFunctions,
                 isLoadingChildren:  false
             })
+        }
+    }
+
+    onSearchMostInterfaces(searchString) {
+        if(searchString.length > 0) {
+            const thisApp = this;
+
+            getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
+                    const mostInterfaces = [];
+                    for (let i in mostInterfacesJson) {
+                        const mostInterfaceJson = mostInterfacesJson[i];
+                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                        mostInterfaces.push(mostInterface);
+                    }
+
+                    thisApp.setState({
+                        searchResults: mostInterfaces
+                    });
+                }
+            });
+        } else {
+            this.setState({
+               searchResults: []
+            });
         }
     }
 
@@ -741,6 +777,7 @@ class App extends React.Component {
         const isEditingExistingObject = (this.state.selectedItem != null);
         const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
+        const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
 
         const reactComponents = [];
 
@@ -749,6 +786,7 @@ class App extends React.Component {
                 <app.Toolbar key="Toolbar"
                     onCreateClicked={() => this.setState({ shouldShowCreateChildForm: true })}
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false })}
+                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: true})}
                 />
             );
         }
@@ -792,6 +830,14 @@ class App extends React.Component {
                             showTitle={true}
                             onSubmit={this.onCreateMostInterface}
                         />
+                    );
+                } else if (shouldShowSearchChildForm) {
+                    reactComponents.push(
+                      <app.MostInterfaceSearchForm key="MostInterfaceSearchForm"
+                           showTitle={true}
+                           onUpdate={this.onSearchMostInterfaces}
+                           mostInterfaces={this.state.searchResults}
+                      />
                     );
                 }
             break;
