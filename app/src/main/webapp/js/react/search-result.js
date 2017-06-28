@@ -13,8 +13,8 @@ class SearchResult extends React.Component {
     }
 
     onPlusButtonClick() {
-        if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionCatalog);
+        if (typeof this.props.onPlusButtonClick == "function") {
+            this.props.onPlusButtonClick(this.state.searchResult, this.state.selectedItem);
         }
     }
 

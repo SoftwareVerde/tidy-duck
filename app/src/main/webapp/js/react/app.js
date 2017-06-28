@@ -666,6 +666,12 @@ class App extends React.Component {
         }
     }
 
+    onAssociateMostInterfaceWithFunctionBlock(mostInterface, functionBlock) {
+        // TODO: wire into api.
+        //testing onclick
+        console.log("Adding Interface " + mostInterface.getName() + " to FunctionBlock " + functionBlock.getName());
+    }
+
     onDeleteMostInterface(mostInterface) {
         const thisApp = this;
 
@@ -822,6 +828,7 @@ class App extends React.Component {
                            showTitle={true}
                            formTitle={"Search Interfaces"}
                            onUpdate={this.onSearchMostInterfaces}
+                           onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
                            selectedItem={this.state.selectedItem}
                            searchResults={this.state.searchResults}
                       />

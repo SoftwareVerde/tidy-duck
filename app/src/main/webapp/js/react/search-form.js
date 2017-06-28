@@ -89,7 +89,7 @@ class SearchForm extends React.Component {
         for(let i in searchResults) {
             const searchResult = searchResults[i];
             const searchResultKey = "search-result" + i;
-            reactComponents.push(<app.SearchResult key={searchResultKey} selectedItem={selectedItem} searchResult={searchResult} navigationLevel={navigationLevel} currentNavigationLevel={currentNavigationLevel}/>);
+            reactComponents.push(<app.SearchResult key={searchResultKey} selectedItem={selectedItem} searchResult={searchResult} onPlusButtonClick={this.props.onPlusButtonClick} navigationLevel={navigationLevel} currentNavigationLevel={currentNavigationLevel}/>);
         }
 
         return (
