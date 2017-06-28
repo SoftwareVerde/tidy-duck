@@ -756,6 +756,8 @@ class App extends React.Component {
                     onCreateClicked={() => this.setState({ shouldShowCreateChildForm: true })}
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false })}
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: true})}
+                    navigationLevel={this.NavigationLevel}
+                    currentNavigationLevel={this.state.currentNavigationLevel}
                 />
             );
         }
@@ -787,8 +789,20 @@ class App extends React.Component {
                             onSubmit={this.onCreateFunctionBlock}
                         />
                     );
+                } else if (shouldShowSearchChildForm) {
+                    reactComponents.push(
+                        <app.SearchForm key="SearchForm"
+                            navigationLevel={NavigationLevel}
+                            currentNavigationLevel={currentNavigationLevel}
+                            showTitle={true}
+                            formTitle={"Search Function Blocks"}
+                            onUpdate={this.onSearchFunctionBlocks}
+                            selectedItem={this.state.selectedItem}
+                            searchResults={this.state.searchResults}
+                        />
+                    );
                 }
-            break;
+                break;
 
             case NavigationLevel.functionBlocks:
                 if (shouldShowCreateChildForm) {

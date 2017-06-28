@@ -51,6 +51,18 @@ class SearchForm extends React.Component {
         const currentNavigationLevel = this.state.currentNavigationLevel;
 
         switch(currentNavigationLevel) {
+            case navigationLevel.functionCatalogs:
+                return (
+                    <div className="search-result-labels">
+                        <span className="search-result-property">{"Name"}</span>
+                        <span className="search-result-property-short">{"ID"}</span>
+                        <span className="search-result-property-short">{"Kind"}</span>
+                        <span className="search-result-property">{"Description"}</span>
+                        <span className="search-result-property-short">{"Release"}</span>
+                        <span className="search-result-property-short">{"Access"}</span>
+                    </div>
+                );
+                break;
             case navigationLevel.functionBlocks:
                 return (
                     <div className="search-result-labels">
@@ -73,23 +85,18 @@ class SearchForm extends React.Component {
         const searchResults = this.state.searchResults;
         const selectedItem = this.state.selectedItem;
 
-        //Populate search results as React components, based on navigation level.
-        switch(currentNavigationLevel) {
-            case navigationLevel.functionBlocks:
-                for(let i in searchResults) {
-                    const searchResult = searchResults[i];
-                    const searchResultKey = "Interface" + i;
-                    //reactComponents.push(<app.MostInterfaceSearchResult key={searchResultKey} mostInterface={mostInterface}/>);
-                    reactComponents.push(<app.SearchResult key={searchResultKey} selectedItem={selectedItem} searchResult={searchResult} navigationLevel={navigationLevel} currentNavigationLevel={currentNavigationLevel}/>);
-                }
-                break;
+        //Populate search results as React components.
+        for(let i in searchResults) {
+            const searchResult = searchResults[i];
+            const searchResultKey = "search-result" + i;
+            reactComponents.push(<app.SearchResult key={searchResultKey} selectedItem={selectedItem} searchResult={searchResult} navigationLevel={navigationLevel} currentNavigationLevel={currentNavigationLevel}/>);
         }
 
         return (
             <div className="search-form">
                 {this.renderFormTitle()}
-                {this.renderSearchResultLabels()}
                 <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.searchString} readOnly={false} onChange={this.onSearchFieldChanged}/>
+                {this.renderSearchResultLabels()}
                 <div className="search-result-form">{reactComponents}</div>
             </div>
         );

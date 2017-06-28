@@ -22,10 +22,25 @@ class SearchResult extends React.Component {
         const searchResult = this.state.searchResult;
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        var shortDescription = "";
 
         switch (currentNavigationLevel) {
+            case navigationLevel.functionCatalogs:
+                shortDescription = shortenString(searchResult.getDescription(), 25);
+                return (
+                    <div className="search-result">
+                        <div className="search-result-property">{searchResult.getName()}</div>
+                        <div className="search-result-property-short">{searchResult.getMostId()}</div>
+                        <div className="search-result-property-short">{searchResult.getKind()}</div>
+                        <div className="search-result-property">{shortDescription}</div>
+                        <div className="search-result-property-short">{searchResult.getReleaseVersion()}</div>
+                        <div className="search-result-property-short">{searchResult.getAccess()}</div>
+                        <i className="fa fa-plus-square fa-3x" onClick={this.onPlusButtonClick}/>
+                    </div>
+                );
+                break;
             case navigationLevel.functionBlocks:
-                const shortDescription = shortenString(searchResult.getDescription(), 25);
+                shortDescription = shortenString(searchResult.getDescription(), 25);
                 return (
                     <div className="search-result">
                         <div className="search-result-property">{searchResult.getName()}</div>
