@@ -50,12 +50,14 @@ class App extends React.Component {
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
+        this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
 
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
+        this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         const thisApp = this;
@@ -560,6 +562,12 @@ class App extends React.Component {
         });
     }
 
+    onAssociateFunctionBlockWithFunctionCatalog(functionBlock, functionCatalog) {
+        // TODO: wire into api.
+        //testing onclick
+        console.log("Adding Function Block " + functionBlock.getName() + " to Function Catalog " + functionCatalog.getName());
+    }
+
     onDeleteFunctionBlock(functionBlock) {
         const thisApp = this;
 
@@ -803,6 +811,7 @@ class App extends React.Component {
                             showTitle={true}
                             formTitle={"Search Function Blocks"}
                             onUpdate={this.onSearchFunctionBlocks}
+                            onPlusButtonClick={this.onAssociateFunctionBlockWithFunctionCatalog}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}
                         />
