@@ -4,9 +4,10 @@ public class Account {
     protected Long _id;
     protected String _username;
     protected String _password;
-
     protected String _name;
     protected Company _company;
+
+    protected Settings _settings;
 
     public Long getId() {
         return _id;
@@ -27,6 +28,7 @@ public class Account {
     public void setPassword(final String password) {
         _password = password;
     }
+
     public String getPassword() {
         return _password;
     }
@@ -45,6 +47,14 @@ public class Account {
 
     public void setCompany(Company company) {
         this._company = company;
+    }
+
+    public Settings getSettings() {
+        return _settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this._settings = settings;
     }
 
     public Author toAuthor() {

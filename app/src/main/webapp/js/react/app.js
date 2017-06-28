@@ -55,12 +55,19 @@ class App extends React.Component {
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
+        this.handleSettingsClick = this.handleSettingsClick.bind(this);
+        this.onThemeChange = this.onThemeChange.bind(this);
+        this.setTheme = this.setTheme.bind(this);
+
+        this.logout = this.logout.bind(this);
+
         const thisApp = this;
 
         const account = downloadAccount(function (data) {
             if (data.wasSuccess) {
+                thisApp.setTheme(data.account.theme);
                 thisApp.setState({
-                    account: data.account
+                    account:    data.account
                 });
             }
         });
@@ -87,7 +94,7 @@ class App extends React.Component {
         insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
             if (! (functionCatalogId > 0)) {
                 console.log("Unable to create function catalog.");
-                this.setState({
+                thisApp.setState({
                     createButtonState: thisApp.CreateButtonState.normal
                 });
                 return;
@@ -197,7 +204,7 @@ class App extends React.Component {
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
             if (! (functionBlockId > 0)) {
                 console.log("Unable to create function block.");
-                this.setState({
+                thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
                 return;
@@ -293,7 +300,7 @@ class App extends React.Component {
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
-                this.setState({
+                thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
                 return;
@@ -654,6 +661,30 @@ class App extends React.Component {
         });
     }
 
+    handleSettingsClick() {
+        this.setState({
+            showSettingsPage: !this.state.showSettingsPage
+        });
+    }
+
+    onThemeChange(themeName) {
+        this.setTheme(themeName);
+        const account = this.state.account;
+        account.theme = themeName;
+        this.setState({
+            account: account
+        });
+    }
+
+    setTheme(themeName) {
+        const themeCssDirectory = themeName.toLowerCase();
+        document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
+        document.getElementById('app-css').href =               '/css/themes/' + themeCssDirectory + '/app.css';
+        document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
+        document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
+        document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
+    }
+
     renderChildItems() {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
@@ -779,16 +810,51 @@ class App extends React.Component {
         return reactComponents;
     }
 
-    render() {
-        return (
-            <div className="container">
-                <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
-                <div className="display-area">
-                    {this.renderForm()}
-                    <div id="child-display-area" className="clearfix">
-                        {this.renderChildItems()}
+    renderMainContent() {
+        if (this.state.showSettingsPage) {
+            const theme = this.state.account ? this.state.account.theme : "Tidy";
+            return (
+                <div id="main-content" className="container">
+                    <app.SettingsPage theme={theme} onThemeChange={this.onThemeChange}/>
+                </div>
+            );
+        } else {
+            return (
+                <div id="main-content" className="container">
+                    <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
+                    <div className="display-area">
+                        {this.renderForm()}
+                        <div id="child-display-area" className="clearfix">
+                            {this.renderChildItems()}
+                        </div>
                     </div>
                 </div>
+            );
+        }
+
+    }
+
+    logout() {
+        logout(function (data) {
+            if (data.wasSuccess) {
+                window.location.replace("/");
+            }
+        });
+    }
+
+    render() {
+        const accountName = this.state.account ? this.state.account.name : "";
+        return (
+            <div>
+                <div id="header" className="secondary-bg accent title-font">
+                    Tidy Duck
+                    <div id="account-area">
+                        {accountName}
+                        <a id="logout" href="#" onClick={this.logout}>logout</a>
+                        <i id="settings-icon" className="fa fa-cog fa-lg" onClick={this.handleSettingsClick}/>
+                    </div>
+                </div>
+                {this.renderMainContent()}
             </div>
         );
     }

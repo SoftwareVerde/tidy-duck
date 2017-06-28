@@ -2,11 +2,12 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
+import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.MostInterface;
-import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
-import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
+import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.environment.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,14 @@ public class DatabaseManager {
     protected void executeTransaction(DatabaseConnectedRunnable<Connection> databaseConnectedRunnable) throws DatabaseException {
         final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_environment);
         jdbcDatabaseTransaction.execute(databaseConnectedRunnable);
+    }
+
+    // ACCOUNT METHODS
+    public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
+            AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            accountDatabaseManager.updateAccountSettings(accountId, settings);
+        }
     }
 
     // FUNCTION CATALOG METHODS
