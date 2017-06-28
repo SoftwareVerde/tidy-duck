@@ -177,7 +177,7 @@
     margin: 0 5px;
 }
 
-.function-catalog {
+.child-item {
     padding: 1em;
     margin: 1em;
     width: 250px;
@@ -193,27 +193,27 @@
     transition: background-color 0.5s ease;
 }
 
-.function-catalog-title {
+.child-item-title {
     font-weight: bold;
     padding: 5px;
     margin-bottom: 5px;
     text-align: left;
 }
 
-.function-catalog-title .menu-button {
+.child-item-title .menu-button {
     float: right;
     padding: 5px;
     margin: -5px;
 }
 
-.function-catalog-menu-item {
+.child-item-menu-item {
     margin: 2px;
     padding: 2px;
     text-align: center;
     cursor: pointer;
 }
 
-.function-catalog-menu-item i {
+.child-item-menu-item i {
     margin-left: 5px;
 }
 

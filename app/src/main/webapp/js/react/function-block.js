@@ -44,8 +44,8 @@ class FunctionBlock extends React.Component {
         if (! this.state.showMenu) { return; }
 
         return (
-            <div className="function-catalog-menu">
-                <div className="function-catalog-menu-item" onClick={this.deleteFunctionBlock}>
+            <div className="child-item-menu">
+                <div className="child-item-menu-item" onClick={this.deleteFunctionBlock}>
                     Remove
                     <i className="fa fa-remove" />
                 </div>
@@ -68,8 +68,8 @@ class FunctionBlock extends React.Component {
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
         
         return (
-            <div className="function-catalog" onClick={this.onClick}>
-                <div className="function-catalog-title">
+            <div className="child-item" onClick={this.onClick}>
+                <div className="child-item-title">
                     {name}
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
