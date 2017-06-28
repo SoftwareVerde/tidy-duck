@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -34,6 +35,15 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid function catalog id.");
                 }
                 return _listFunctionBlocks(functionCatalogId, environment);
+            }
+        } else if ("function-catalogs".equals(finalUrlSegment)) {
+            // function-block/<id>/function-catalogs
+            if (httpMethod == HttpMethod.POST) {
+                final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
+                if (functionBlockId < 1) {
+                    return super._generateErrorJson("Invalid function block id.");
+                }
+                return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment);
             }
         } else {
             // not base function block, must have ID
@@ -109,6 +119,31 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         Json response = new Json(false);
         super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    private Json _associateFunctionBlockWithFunctionCatalog(HttpServletRequest request, long functionBlockId, Environment environment) throws IOException {
+        final Json jsonRequest = super._getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+
+        final Long functionCatalogId = Util.parseLong(jsonRequest.getString("functionCatalogId"));
+
+        { // Validate Inputs
+            if (functionCatalogId < 1) {
+                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+            }
+        }
+
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to insert Interface.", exception);
+            return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+        }
+
         return response;
     }
 
