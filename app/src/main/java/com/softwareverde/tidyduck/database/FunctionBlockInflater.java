@@ -4,10 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.FunctionBlock;
+import com.softwareverde.tidyduck.*;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -94,5 +91,20 @@ public class FunctionBlockInflater {
         }
 
         return functionBlock;
+    }
+
+    public List<FunctionBlock> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
+        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
+        final Query query = new Query ("SELECT id FROM function_blocks WHERE name LIKE ?");
+        query.setParameter("%" + searchString + "%");
+
+        List<FunctionBlock> functionBlocks = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long functionBlockId = row.getLong("id");
+            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId);
+            functionBlocks.add(functionBlock);
+        }
+        return functionBlocks;
     }
 }

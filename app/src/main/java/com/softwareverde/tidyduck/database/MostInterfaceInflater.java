@@ -4,8 +4,6 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.MostInterface;
 
@@ -39,7 +37,7 @@ public class MostInterfaceInflater {
     }
 
     public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
-        //final String likeString = "%".concat(searchString).concat("%");
+        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query (
             "SELECT id FROM interfaces WHERE name LIKE ?"
         );

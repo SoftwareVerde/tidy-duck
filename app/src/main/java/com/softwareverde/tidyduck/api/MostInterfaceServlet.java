@@ -188,13 +188,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = new Json(false);
-                mostInterfaceJson.put("id", mostInterface.getId());
-                mostInterfaceJson.put("mostId", mostInterface.getMostId());
-                mostInterfaceJson.put("name", mostInterface.getName());
-                mostInterfaceJson.put("description", mostInterface.getDescription());
-                mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
-                mostInterfaceJson.put("version", mostInterface.getVersion());
+                final Json mostInterfaceJson = _toJson(mostInterface);
                 mostInterfacesJson.add(mostInterfaceJson);
             }
             response.put("mostInterfaces", mostInterfacesJson);
@@ -216,13 +210,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = new Json(false);
-                mostInterfaceJson.put("id", mostInterface.getId());
-                mostInterfaceJson.put("mostId", mostInterface.getMostId());
-                mostInterfaceJson.put("name", mostInterface.getName());
-                mostInterfaceJson.put("description", mostInterface.getDescription());
-                mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
-                mostInterfaceJson.put("version", mostInterface.getVersion());
+                final Json mostInterfaceJson = _toJson(mostInterface);
                 mostInterfacesJson.add(mostInterfaceJson);
             }
             response.put("mostInterfaces", mostInterfacesJson);
@@ -267,5 +255,16 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterface.setDescription(description);
 
         return mostInterface;
+    }
+
+    private Json _toJson(final MostInterface mostInterface) {
+        final Json mostInterfaceJson = new Json(false);
+        mostInterfaceJson.put("id", mostInterface.getId());
+        mostInterfaceJson.put("mostId", mostInterface.getMostId());
+        mostInterfaceJson.put("name", mostInterface.getName());
+        mostInterfaceJson.put("description", mostInterface.getDescription());
+        mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
+        mostInterfaceJson.put("version", mostInterface.getVersion());
+        return mostInterfaceJson;
     }
 }
