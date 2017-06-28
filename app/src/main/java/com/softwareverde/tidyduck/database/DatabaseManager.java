@@ -112,6 +112,16 @@ public class DatabaseManager {
         });
     }
 
+    public void associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+            }
+        });
+    }
+
     public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override

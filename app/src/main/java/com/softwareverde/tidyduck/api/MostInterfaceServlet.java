@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -34,6 +35,15 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid function block id.");
                 }
                 return _listMostInterfaces(functionBlockId, environment);
+            }
+        } else if ("function-blocks".equals(finalUrlSegment)) {
+            // most-interface/<id>/function-blocks
+            if (httpMethod == HttpMethod.POST) {
+                final long mostInterfaceId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
+                if (mostInterfaceId < 1) {
+                    return super._generateErrorJson("Invalid function block id.");
+                }
+                return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment);
             }
         } else {
             // not base interface, must have ID
@@ -109,6 +119,31 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         Json response = new Json(false);
         super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    private Json _associateInterfaceWithFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Environment environment) throws IOException {
+        final Json jsonRequest = super._getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+
+        final Long functionBlockId = Util.parseLong(jsonRequest.getString("functionBlockId"));
+
+        { // Validate Inputs
+            if (functionBlockId < 1) {
+                _logger.error("Unable to parse Function Block ID: " + functionBlockId);
+                return super._generateErrorJson("Invalid Function Block ID: " + functionBlockId);
+            }
+        }
+
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to insert Interface.", exception);
+            return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+        }
+
         return response;
     }
 
