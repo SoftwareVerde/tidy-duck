@@ -802,10 +802,14 @@ class App extends React.Component {
                     );
                 } else if (shouldShowSearchChildForm) {
                     reactComponents.push(
-                      <app.MostInterfaceSearchForm key="MostInterfaceSearchForm"
+                      <app.SearchForm key="SearchForm"
+                           navigationLevel={NavigationLevel}
+                           currentNavigationLevel={currentNavigationLevel}
                            showTitle={true}
+                           formTitle={"Search Interfaces"}
                            onUpdate={this.onSearchMostInterfaces}
-                           mostInterfaces={this.state.searchResults}
+                           selectedItem={this.state.selectedItem}
+                           searchResults={this.state.searchResults}
                       />
                     );
                 }

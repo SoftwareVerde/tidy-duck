@@ -82,7 +82,7 @@
     transition: background-color 0.5s ease;
 }
 
-.search-result .fa-plus-square:hover {
+.search-result i:hover {
     background-color: #FFDD66;
 }
 
