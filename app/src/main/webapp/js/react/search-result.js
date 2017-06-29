@@ -12,6 +12,15 @@ class SearchResult extends React.Component {
         this.onPlusButtonClick = this.onPlusButtonClick.bind(this);
     }
 
+    componentWillReceiveProps(newProperties) {
+        this.state = {
+            navigationLevel:        newProperties.navigationLevel,
+            currentNavigationLevel: newProperties.currentNavigationLevel,
+            selectedItem:           newProperties.selectedItem,
+            searchResult:           newProperties.searchResult
+        };
+    }
+
     onPlusButtonClick() {
         if (typeof this.props.onPlusButtonClick == "function") {
             this.props.onPlusButtonClick(this.state.searchResult, this.state.selectedItem);

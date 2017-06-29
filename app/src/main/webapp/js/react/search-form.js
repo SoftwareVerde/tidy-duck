@@ -7,8 +7,8 @@ class SearchForm extends React.Component {
             navigationLevel:        this.props.navigationLevel,
             currentNavigationLevel: this.props.currentNavigationLevel,
             showTitle:              this.props.showTitle,
-            searchResults:         (this.props.searchResults || []),
-            selectedItem:          this.props.selectedItem,
+            searchResults:          (this.props.searchResults || []),
+            selectedItem:           this.props.selectedItem,
             searchString:           ""
         };
 
