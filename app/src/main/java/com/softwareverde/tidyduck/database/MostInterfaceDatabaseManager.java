@@ -39,7 +39,10 @@ public class MostInterfaceDatabaseManager {
     }
 
     public Long associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        if (!_isAssociatedWithFunctionBlock(functionBlockId, mostInterfaceId)) {
+            return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+
     }
 
     private Long _associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
@@ -49,6 +52,17 @@ public class MostInterfaceDatabaseManager {
         ;
 
         return _databaseConnection.executeSql(query);
+    }
+
+    private boolean _isAssociatedWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT FROM function_blocks_interfaces WHERE function_block_id = ? AND interface_id = ?")
+                .setParameter(functionBlockId)
+                .setParameter(mostInterfaceId)
+                ;
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        return rows.size() > 0;
     }
 
     public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {

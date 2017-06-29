@@ -34,7 +34,7 @@ class App extends React.Component {
             createButtonState:          this.CreateButtonState.normal,
             shouldShowSearchChildForm:  false,
             isLoadingChildren:          true,
-            isLoadingSearchResults:     true
+            isLoadingSearchResults:     false
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -756,7 +756,8 @@ class App extends React.Component {
             });
         } else {
             this.setState({
-               searchResults: []
+                searchResults: [],
+                isLoadingSearchResults: false
             });
         }
     }

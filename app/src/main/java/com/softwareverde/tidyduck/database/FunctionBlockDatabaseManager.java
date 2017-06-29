@@ -49,7 +49,9 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void associateFunctionBlockWithFunctionCatalog(final Long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        if (!_isAssociatedWithFunctionCatalog(functionCatalogId, functionBlockId)) {
+            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        }
     }
 
     private Long _associateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
@@ -59,6 +61,17 @@ public class FunctionBlockDatabaseManager {
         ;
 
         return _databaseConnection.executeSql(query);
+    }
+
+    private boolean _isAssociatedWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT FROM function_catalogs_function_blocks WHERE function_catalog_id = ? AND function_block_id = ?")
+                .setParameter(functionCatalogId)
+                .setParameter(functionBlockId)
+                ;
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        return rows.size() > 0;
     }
 
     public void updateFunctionBlockForFunctionCatalog (final long functionCatalogId, final FunctionBlock proposedFunctionBlock) throws DatabaseException {
