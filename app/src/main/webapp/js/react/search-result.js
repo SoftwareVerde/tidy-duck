@@ -36,11 +36,11 @@ class SearchResult extends React.Component {
     renderIcon() {
         if (this.state.showWorkingIcon) {
             return (
-                <i className="fa fa-refresh fa-spin fa-3x" onClick={this.onPlusButtonClick}/>
+                <i className="assign-button fa fa-refresh fa-spin fa-3x" onClick={this.onPlusButtonClick}/>
             );
         } else {
             return (
-                <i className="fa fa-plus-square fa-3x" onClick={this.onPlusButtonClick}/>
+                <i className="assign-button fa fa-plus-square fa-3x" onClick={this.onPlusButtonClick}/>
             );
         }
 
