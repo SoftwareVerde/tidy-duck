@@ -4,11 +4,11 @@
 }
 
 #authenticate-message {
-    margin-top: 3em;
+    margin-top: 2em;
+    margin-bottom: 1.5em;
     font-size: 1.5em;
-    min-height: 2em;
+    min-height: 1.5em;
     text-align: center;
-    margin-bottom: 1em;
     color: #B72F2F;
 }
 

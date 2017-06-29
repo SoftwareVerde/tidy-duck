@@ -145,6 +145,32 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
     });
 }
 
+
+///Calls callbackFunction with an array of Function Blocks filtered by search string.
+function getFunctionBlocksMatchingSearchString(versionId, searchString, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-block/search?name=" + searchString + "&versionId=" + versionId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlocks = null;
+
+        if (data.wasSuccess) {
+            functionBlocks = data.functionBlocks;
+        } else {
+            console.log("Unable to get Function Blocks for search string " + searchString + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlocks);
+        }
+    });
+}
+
 // calls callbackFunction with new function block ID
 function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction) {
     const request = new Request(
@@ -247,6 +273,32 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
         }
     });
 }
+
+///Calls callbackFunction with an array of MOST interfaces filtered by search string.
+function getMostInterfacesMatchingSearchString(versionId, searchString, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString + "&versionId=" + versionId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaces = null;
+
+        if (data.wasSuccess) {
+            mostInterfaces = data.mostInterfaces;
+        } else {
+            console.log("Unable to get Interfaces for search string " + searchString + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaces);
+        }
+    });
+}
+
 // calls callbackFunction with new MOST interface ID
 function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     const request = new Request(
@@ -272,6 +324,30 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(mostInterfaceId);
+        }
+    });
+}
+
+// calls callbackFunction with wasSuccess
+function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId + "/function-blocks",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                functionBlockId: functionBlockId
+            })
+        }
+    );
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.log("Unable to associate interface " + mostInterfaceId + " with function block: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

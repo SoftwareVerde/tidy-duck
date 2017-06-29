@@ -45,6 +45,18 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 }
                 return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment);
             }
+        } else if ("search".equals(finalUrlSegment)){
+            if (httpMethod == HttpMethod.GET) {
+                String searchString = Util.coalesce(request.getParameter("name"));
+                Long versionId = Util.parseLong(request.getParameter("versionId"));
+                if (searchString.length() < 1) {
+                    return super._generateErrorJson("Invalid search string for function block.");
+                }
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId for function block search.");
+                }
+                return _listFunctionBlocksMatchingSearchString(searchString, versionId, environment);
+            }
         } else {
             // not base function block, must have ID
             long functionBlockId = Util.parseLong(finalUrlSegment);
@@ -178,24 +190,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
             final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
-            final Json blocksJson = new Json(true);
+            final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {
-                final Json blockJson = new Json(false);
-                blockJson.put("id", functionBlock.getId());
-                blockJson.put("mostId", functionBlock.getMostId());
-                blockJson.put("kind", functionBlock.getKind());
-                blockJson.put("name", functionBlock.getName());
-                blockJson.put("description", functionBlock.getDescription());
-                blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
-                blockJson.put("releaseVersion", functionBlock.getRelease());
-                blockJson.put("authorId", functionBlock.getAuthor().getId());
-                blockJson.put("authorName", functionBlock.getAuthor().getName());
-                blockJson.put("companyId", functionBlock.getCompany().getId());
-                blockJson.put("companyName", functionBlock.getCompany().getName());
-                blockJson.put("access", functionBlock.getAccess());
-                blocksJson.add(blockJson);
+                final Json functionBlockJson = _toJson(functionBlock);
+                functionBlocksJson.add(functionBlockJson);
             }
-            response.put("functionBlocks", blocksJson);
+            response.put("functionBlocks", functionBlocksJson);
 
             super._setJsonSuccessFields(response);
             return response;
@@ -203,6 +203,28 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         catch (final DatabaseException exception) {
             _logger.error("Unable to list function blocks.", exception);
             return super._generateErrorJson("Unable to list function blocks.");
+        }
+    }
+
+    private Json _listFunctionBlocksMatchingSearchString(String searchString, Long versionId, Environment environment) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            final Json response = new Json(false);
+
+            final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString, versionId);
+
+            final Json functionBlocksJson = new Json(true);
+            for (final FunctionBlock functionBlock : functionBlocks) {
+                final Json functionBlockJson = _toJson(functionBlock);
+                functionBlocksJson.add(functionBlockJson);
+            }
+            response.put("functionBlocks", functionBlocksJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (final DatabaseException exception) {
+            _logger.error("Unable to list function blocks from search", exception);
+            return super._generateErrorJson("Unable to list function blocks from search.");
         }
     }
 
@@ -274,5 +296,22 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         functionBlock.setAccess(access);
 
         return functionBlock;
+    }
+
+    private Json _toJson(final FunctionBlock functionBlock) {
+        final Json blockJson = new Json(false);
+        blockJson.put("id", functionBlock.getId());
+        blockJson.put("mostId", functionBlock.getMostId());
+        blockJson.put("kind", functionBlock.getKind());
+        blockJson.put("name", functionBlock.getName());
+        blockJson.put("description", functionBlock.getDescription());
+        blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
+        blockJson.put("releaseVersion", functionBlock.getRelease());
+        blockJson.put("authorId", functionBlock.getAuthor().getId());
+        blockJson.put("authorName", functionBlock.getAuthor().getName());
+        blockJson.put("companyId", functionBlock.getCompany().getId());
+        blockJson.put("companyName", functionBlock.getCompany().getName());
+        blockJson.put("access", functionBlock.getAccess());
+        return blockJson;
     }
 }

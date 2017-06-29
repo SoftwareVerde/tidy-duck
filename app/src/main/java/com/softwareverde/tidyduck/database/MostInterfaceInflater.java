@@ -4,8 +4,6 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.MostInterface;
 
@@ -32,6 +30,28 @@ public class MostInterfaceInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long mostInterfaceId = row.getLong("interface_id");
+            MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
+            mostInterfaces.add(mostInterface);
+        }
+        return mostInterfaces;
+    }
+
+    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString, Long versionId) throws DatabaseException {
+        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
+        final Query query = new Query ("SELECT DISTINCT interfaces.id\n" +
+                                        "FROM interfaces\n" +
+                                        " INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces.id\n" +
+                                        " INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id\n" +
+                                        " INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id\n" +
+                                        "WHERE version_id = ?\n" +
+                                        "and interfaces.name LIKE ?");
+        query.setParameter(versionId);
+        query.setParameter("%" + searchString + "%");
+
+        List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long mostInterfaceId = row.getLong("id");
             MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
             mostInterfaces.add(mostInterface);
         }
