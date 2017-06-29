@@ -579,7 +579,8 @@ class App extends React.Component {
     onSearchFunctionBlocks(searchString) {
         if (searchString.length > 0) {
             const thisApp = this;
-            this.setS
+
+            this.setState({isLoadingSearchResults: true});
 
             getFunctionBlocksMatchingSearchString(this.state.currentVersionId, searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
@@ -603,7 +604,8 @@ class App extends React.Component {
                     }
 
                     thisApp.setState({
-                        searchResults: functionBlocks
+                        searchResults: functionBlocks,
+                        isLoadingSearchResults: false
                     });
                 }
             });
