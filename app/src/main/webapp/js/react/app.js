@@ -705,9 +705,28 @@ class App extends React.Component {
     }
 
     onAssociateMostInterfaceWithFunctionBlock(mostInterface, functionBlock) {
-        // TODO: wire into api.
-        //testing onclick
-        console.log("Adding Interface " + mostInterface.getName() + " to FunctionBlock " + functionBlock.getName());
+        const thisApp = this;
+        associateMostInterfaceWithFunctionBlock(functionBlock.getId(), mostInterface.getId(), function (success) {
+            if (success) {
+                // remove most interface from search results
+                let searchResults = thisApp.state.searchResults;
+                const newSearchResults = [];
+                for (let index in searchResults) {
+                    const searchResult = searchResults[index];
+                    if (searchResult.getId() != mostInterface.getId()) {
+                        newSearchResults.push(newSearchResults);
+                    }
+                }
+
+                // add most interface to children
+                const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+
+                thisApp.setState({
+                    searchResults: newSearchResults,
+                    mostInterfaces: mostInterfaces
+                });
+            }
+        });
     }
 
     onDeleteMostInterface(mostInterface) {
