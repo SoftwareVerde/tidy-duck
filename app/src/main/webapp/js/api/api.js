@@ -200,6 +200,30 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
     });
 }
 
+// calls callbackFunction with wasSuccess
+function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "/function-catalogs",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                functionCatalogId: functionCatalogId
+            })
+        }
+    );
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.log("Unable to associate function block " + functionBlockId + " with function catalog: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
 // calls callbackFunction with modified function block ID
 function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(

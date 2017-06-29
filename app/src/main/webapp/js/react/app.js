@@ -605,9 +605,28 @@ class App extends React.Component {
     }
 
     onAssociateFunctionBlockWithFunctionCatalog(functionBlock, functionCatalog) {
-        // TODO: wire into api.
-        //testing onclick
-        console.log("Adding Function Block " + functionBlock.getName() + " to Function Catalog " + functionCatalog.getName());
+        const thisApp = this;
+        associateFunctionBlockWithFunctionCatalog(functionCatalog.getId(), functionBlock.getId(), function (success) {
+            if (success) {
+                // remove most function block from search results
+                let searchResults = thisApp.state.searchResults;
+                const newSearchResults = [];
+                for (let index in searchResults) {
+                    const searchResult = searchResults[index];
+                    if (searchResult.getId() != functionBlock.getId()) {
+                        newSearchResults.push(newSearchResults);
+                    }
+                }
+
+                // add function block to children
+                const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+
+                thisApp.setState({
+                    searchResults: newSearchResults,
+                    functionBlocks: functionBlocks
+                });
+            }
+        });
     }
 
     onDeleteFunctionBlock(functionBlock) {
