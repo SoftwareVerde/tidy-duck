@@ -86,28 +86,45 @@
     color: #212121;
 }
 
-.function-catalog {
+.search-form {
+    background-color: #9DA1AE;
+    color: #032334;
+}
+
+.search-result {
+    border: solid 1px #000;
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.search-result i:hover {
+    color: #9CF;
+}
+
+.child-item {
     color: #032334;
     background-color: #9DA1AE;
     transition: background-color 0.5s ease;
 }
 
-.function-catalog:hover {
+.child-item:hover {
     background-color: #C4C7CF;
 }
 
-.function-catalog-title {
+.child-item-title {
     border-bottom: solid 1px #032334;
 }
 
-.function-catalog:hover .function-catalog-title {
+.child-item:hover .child-item-title {
     border-bottom: solid 1px #032334;
 }
 
-.function-catalog-menu-item {
+.child-item-menu-item {
     background-color: #838EA4;
 }
 
-.function-catalog:hover .function-catalog-menu-item {
+.child-item:hover .child-item-menu-item {
     background-color: #838EA4;
 }

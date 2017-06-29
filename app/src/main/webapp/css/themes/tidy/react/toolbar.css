@@ -11,7 +11,7 @@
     height: 75px;
     width: 75px;
 
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
 
