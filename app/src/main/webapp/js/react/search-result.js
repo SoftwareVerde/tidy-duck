@@ -6,10 +6,12 @@ class SearchResult extends React.Component {
             navigationLevel:        this.props.navigationLevel,
             currentNavigationLevel: this.props.currentNavigationLevel,
             selectedItem:           this.props.selectedItem,
-            searchResult:           this.props.searchResult
+            searchResult:           this.props.searchResult,
+            showWorkingIcon:        false
         };
 
         this.onPlusButtonClick = this.onPlusButtonClick.bind(this);
+        this.renderIcon = this.renderIcon.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -17,14 +19,31 @@ class SearchResult extends React.Component {
             navigationLevel:        newProperties.navigationLevel,
             currentNavigationLevel: newProperties.currentNavigationLevel,
             selectedItem:           newProperties.selectedItem,
-            searchResult:           newProperties.searchResult
+            searchResult:           newProperties.searchResult,
+            showWorkingIcon:        false
         };
     }
 
     onPlusButtonClick() {
+        this.setState({
+            showWorkingIcon: true
+        });
         if (typeof this.props.onPlusButtonClick == "function") {
             this.props.onPlusButtonClick(this.state.searchResult, this.state.selectedItem);
         }
+    }
+
+    renderIcon() {
+        if (this.state.showWorkingIcon) {
+            return (
+                <i className="fa fa-refresh fa-spin fa-3x" onClick={this.onPlusButtonClick}/>
+            );
+        } else {
+            return (
+                <i className="fa fa-plus-square fa-3x" onClick={this.onPlusButtonClick}/>
+            );
+        }
+
     }
 
     render() {
@@ -44,7 +63,7 @@ class SearchResult extends React.Component {
                         <div className="search-result-property">{shortDescription}</div>
                         <div className="search-result-property-short">{searchResult.getReleaseVersion()}</div>
                         <div className="search-result-property-short">{searchResult.getAccess()}</div>
-                        <i className="fa fa-plus-square fa-3x" onClick={this.onPlusButtonClick}/>
+                        {this.renderIcon()}
                     </div>
                 );
                 break;
@@ -56,7 +75,7 @@ class SearchResult extends React.Component {
                         <div className="search-result-property-short">{searchResult.getMostId()}</div>
                         <div className="search-result-property">{shortDescription}</div>
                         <div className="search-result-property-short">{searchResult.getVersion()}</div>
-                        <i className="fa fa-plus-square fa-3x" onClick={this.onPlusButtonClick}/>
+                        {this.renderIcon()}
                     </div>
                 );
                 break;
