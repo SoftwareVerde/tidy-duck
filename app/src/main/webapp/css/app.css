@@ -166,6 +166,10 @@
     width: 10%;
 }
 
+.search-result-form .fa-refresh {
+    margin: auto;
+}
+
 .child-display-area {
     padding: 5px;
 }

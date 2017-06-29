@@ -33,7 +33,8 @@ class App extends React.Component {
             shouldShowCreateChildForm:  false,
             createButtonState:          this.CreateButtonState.normal,
             shouldShowSearchChildForm:  false,
-            isLoadingChildren:          true
+            isLoadingChildren:          true,
+            isLoadingSearchResults:     false
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -570,6 +571,7 @@ class App extends React.Component {
     onSearchFunctionBlocks(searchString) {
         if (searchString.length > 0) {
             const thisApp = this;
+            this.setState({isLoadingSearchResults: true});
 
             getFunctionBlocksMatchingSearchString(this.state.currentVersionId, searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
@@ -593,7 +595,8 @@ class App extends React.Component {
                     }
 
                     thisApp.setState({
-                        searchResults: functionBlocks
+                        searchResults: functionBlocks,
+                        isLoadingSearchResults: false
                     });
                 }
             });
@@ -714,6 +717,8 @@ class App extends React.Component {
         if (searchString.length > 0) {
             const thisApp = this;
 
+            this.setState({isLoadingSearchResults: true});
+
             getMostInterfacesMatchingSearchString(this.state.currentVersionId, searchString, function (mostInterfacesJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     const mostInterfaces = [];
@@ -736,7 +741,8 @@ class App extends React.Component {
                     }
 
                     thisApp.setState({
-                        searchResults: mostInterfaces
+                        searchResults: mostInterfaces,
+                        isLoadingSearchResults: false
                     });
                 }
             });
@@ -930,6 +936,7 @@ class App extends React.Component {
                             onPlusButtonClick={this.onAssociateFunctionBlockWithFunctionCatalog}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}
+                            isLoadingSearchResults={this.state.isLoadingSearchResults}
                         />
                     );
                 }
@@ -956,6 +963,7 @@ class App extends React.Component {
                             onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}
+                            isLoadingSearchResults={this.state.isLoadingSearchResults}
                         />
                     );
                 }

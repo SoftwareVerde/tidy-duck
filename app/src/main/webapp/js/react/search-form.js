@@ -9,12 +9,14 @@ class SearchForm extends React.Component {
             showTitle:              this.props.showTitle,
             searchResults:          (this.props.searchResults || []),
             selectedItem:           this.props.selectedItem,
-            searchString:           ""
+            searchString:           "",
+            isLoadingSearchResults: this.props.isLoadingSearchResults
         };
 
         this.onSearchFieldChanged = this.onSearchFieldChanged.bind(this);
         this.renderFormTitle = this.renderFormTitle.bind(this);
         this.renderSearchResultLabels = this.renderSearchResultLabels.bind(this);
+        this.renderSearchResults = this.renderSearchResults.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -25,6 +27,7 @@ class SearchForm extends React.Component {
             currentNavigationLevel: newProperties.currentNavigationLevel,
             searchResults:          newProperties.searchResults,
             selectedItem:           newProperties.selectedItem,
+            isLoadingSearchResults: newProperties.isLoadingSearchResults
         });
     }
 
@@ -78,7 +81,10 @@ class SearchForm extends React.Component {
 
     }
 
-    render() {
+    renderSearchResults () {
+        if (this.state.isLoadingSearchResults) {
+            return (<i className="fa fa-4x fa-refresh fa-spin"/>);
+        }
         const reactComponents = [];
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
@@ -86,18 +92,28 @@ class SearchForm extends React.Component {
         const selectedItem = this.state.selectedItem;
 
         //Populate search results as React components.
-        for(let i in searchResults) {
+        for (let i in searchResults) {
             const searchResult = searchResults[i];
             const searchResultKey = "search-result" + i;
-            reactComponents.push(<app.SearchResult key={searchResultKey} selectedItem={selectedItem} searchResult={searchResult} onPlusButtonClick={this.props.onPlusButtonClick} navigationLevel={navigationLevel} currentNavigationLevel={currentNavigationLevel}/>);
+            reactComponents.push(<app.SearchResult key={searchResultKey} selectedItem={selectedItem}
+                                                   searchResult={searchResult}
+                                                   onPlusButtonClick={this.props.onPlusButtonClick}
+                                                   navigationLevel={navigationLevel}
+                                                   currentNavigationLevel={currentNavigationLevel}/>);
         }
+
+        return reactComponents;
+    }
+
+    render() {
+
 
         return (
             <div className="search-form">
                 {this.renderFormTitle()}
                 <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.searchString} readOnly={false} onChange={this.onSearchFieldChanged}/>
                 {this.renderSearchResultLabels()}
-                <div className="search-result-form">{reactComponents}</div>
+                <div className="search-result-form">{this.renderSearchResults()}</div>
             </div>
         );
     }
