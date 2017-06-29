@@ -614,7 +614,7 @@ class App extends React.Component {
                 for (let index in searchResults) {
                     const searchResult = searchResults[index];
                     if (searchResult.getId() != functionBlock.getId()) {
-                        newSearchResults.push(newSearchResults);
+                        newSearchResults.push(searchResult);
                     }
                 }
 
@@ -757,7 +757,7 @@ class App extends React.Component {
                 for (let index in searchResults) {
                     const searchResult = searchResults[index];
                     if (searchResult.getId() != mostInterface.getId()) {
-                        newSearchResults.push(newSearchResults);
+                        newSearchResults.push(searchResult);
                     }
                 }
 
