@@ -19,7 +19,8 @@ class FunctionBlockForm extends React.Component {
             showTitle:                  this.props.showTitle,
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             functionBlock:              functionBlock,
-            buttonTitle:                (this.props.buttonTitle || "Submit")
+            buttonTitle:                (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:         this.props.defaultButtonTitle
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -50,7 +51,8 @@ class FunctionBlockForm extends React.Component {
             showTitle:                  newProperties.showTitle,
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
             functionBlock:              functionBlock,
-            buttonTitle:                (newProperties.buttonTitle || "Submit")
+            buttonTitle:                (newProperties.buttonTitle || "Submit"),
+            defaultButtonTitle:         newProperties.defaultButtonTitle
         });
     }
 
@@ -58,9 +60,8 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setMostId(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -71,9 +72,8 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setKind(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -84,9 +84,8 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setName(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -97,9 +96,8 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setDescription(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -110,9 +108,8 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setReleaseVersion(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -123,9 +120,8 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setAccess(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();

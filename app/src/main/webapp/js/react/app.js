@@ -34,7 +34,7 @@ class App extends React.Component {
             createButtonState:          this.CreateButtonState.normal,
             shouldShowSearchChildForm:  false,
             isLoadingChildren:          true,
-            isLoadingSearchResults:     false
+            isLoadingSearchResults:     true
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -152,6 +152,7 @@ class App extends React.Component {
                 onSubmit={this.onUpdateFunctionCatalog}
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
+                defaultButtonTitle="Save"
             />
         );
         navigationItems.push(navigationItem);
@@ -181,6 +182,7 @@ class App extends React.Component {
                         onSubmit={thisApp.onUpdateFunctionCatalog}
                         functionCatalog={functionCatalog}
                         buttonTitle="Changes Saved"
+                        defaultButtonTitle="Save"
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -248,6 +250,7 @@ class App extends React.Component {
                 onSubmit={this.onUpdateFunctionBlock}
                 functionBlock={functionBlock}
                 buttonTitle="Save"
+                defaultButtonTitle="Save"
             />
         );
         navigationItems.push(navigationItem);
@@ -277,6 +280,7 @@ class App extends React.Component {
                         onSubmit={thisApp.onUpdateFunctionBlock}
                         functionBlock={functionBlock}
                         buttonTitle="Changes Saved"
+                        defaultButtonTitle="Save"
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -341,6 +345,7 @@ class App extends React.Component {
                 onSubmit={this.onUpdateMostInterface}
                 mostInterface={mostInterface}
                 buttonTitle="Save"
+                defaultButtonTitle="Save"
             />
         );
         navigationItems.push(navigationItem);
@@ -370,6 +375,7 @@ class App extends React.Component {
                         onSubmit={thisApp.onUpdateMostInterface}
                         mostInterface={mostInterface}
                         buttonTitle="Changes Saved"
+                        defaultButtonTitle="Save"
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -452,6 +458,7 @@ class App extends React.Component {
                 onSubmit={this.onUpdateFunctionCatalog}
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
+                defaultButtonTitle="Save"
             />
         );
 
@@ -530,6 +537,7 @@ class App extends React.Component {
                 onSubmit={this.onUpdateFunctionBlock}
                 functionBlock={functionBlock}
                 buttonTitle="Save"
+                defaultButtonTitle="Save"
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -571,7 +579,7 @@ class App extends React.Component {
     onSearchFunctionBlocks(searchString) {
         if (searchString.length > 0) {
             const thisApp = this;
-            this.setState({isLoadingSearchResults: true});
+            this.setS
 
             getFunctionBlocksMatchingSearchString(this.state.currentVersionId, searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
@@ -595,8 +603,7 @@ class App extends React.Component {
                     }
 
                     thisApp.setState({
-                        searchResults: functionBlocks,
-                        isLoadingSearchResults: false
+                        searchResults: functionBlocks
                     });
                 }
             });
@@ -677,6 +684,7 @@ class App extends React.Component {
                                    onSubmit={this.onUpdateMostInterface}
                                    mostInterface={mostInterface}
                                    buttonTitle="Save"
+                                   defaultButtonTitle="Save"
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -910,6 +918,7 @@ class App extends React.Component {
                             buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateFunctionCatalog}
+                            defaultButtonTitle="Submit"
                         />
                     );
                 }
@@ -923,6 +932,7 @@ class App extends React.Component {
                             buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateFunctionBlock}
+                            defaultButtonTitle="Submit"
                         />
                     );
                 } else if (shouldShowSearchChildForm) {
@@ -950,6 +960,7 @@ class App extends React.Component {
                             buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateMostInterface}
+                            defaultButtonTitle="Submit"
                         />
                     );
                 } else if (shouldShowSearchChildForm) {

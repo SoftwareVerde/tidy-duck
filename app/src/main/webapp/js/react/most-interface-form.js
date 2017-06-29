@@ -9,7 +9,8 @@ class MostInterfaceForm extends React.Component {
             showTitle:                  this.props.showTitle,
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             mostInterface:              mostInterface,
-            buttonTitle:                (this.props.buttonTitle || "Submit")
+            buttonTitle:                (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:         this.props.defaultButtonTitle
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -32,7 +33,8 @@ class MostInterfaceForm extends React.Component {
             showTitle:                  newProperties.showTitle,
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
             mostInterface:              mostInterface,
-            buttonTitle:                (newProperties.buttonTitle || "Submit")
+            buttonTitle:                (newProperties.buttonTitle || "Submit"),
+            defaultButtonTitle:          newProperties.defaultButtonTitle
         });
     }
 
@@ -40,9 +42,8 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setMostId(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -53,9 +54,8 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setName(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -66,9 +66,8 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setDescription(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -79,9 +78,8 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setVersion(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
