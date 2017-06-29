@@ -328,6 +328,30 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     });
 }
 
+// calls callbackFunction with wasSuccess
+function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId + "/function-blocks",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                functionBlockId: functionBlockId
+            })
+        }
+    );
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.log("Unable to associate interface " + mostInterfaceId + " with function block: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
 // calls callbackFunction with modified MOST interface ID
 function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
