@@ -497,7 +497,7 @@ class App extends React.Component {
 
         const functionCatalogId = functionCatalog.getId();
 
-        deleteFunctionCatalog(this.state.currentVersionId, functionCatalogId, function (success) {
+        deleteFunctionCatalog(this.state.currentVersionId, functionCatalogId, function (success, errorMessage) {
             if (success) {
                 const newFunctionCatalogs = [];
                 const existingFunctionCatalogs = thisApp.state.functionCatalogs;
@@ -511,7 +511,7 @@ class App extends React.Component {
                     functionCatalogs:       newFunctionCatalogs,
                     currentNavigationLevel: thisApp.NavigationLevel.versions
                 });
-            }
+            } else {alert("Request to delete Function Catalog failed: " + errorMessage);}
         });
     }
 
@@ -616,7 +616,7 @@ class App extends React.Component {
 
     onAssociateFunctionBlockWithFunctionCatalog(functionBlock, functionCatalog) {
         const thisApp = this;
-        associateFunctionBlockWithFunctionCatalog(functionCatalog.getId(), functionBlock.getId(), function (success) {
+        associateFunctionBlockWithFunctionCatalog(functionCatalog.getId(), functionBlock.getId(), function (success, errorMessage) {
             if (success) {
                 // remove most function block from search results
                 let searchResults = thisApp.state.searchResults;
@@ -635,7 +635,7 @@ class App extends React.Component {
                     searchResults: newSearchResults,
                     functionBlocks: functionBlocks
                 });
-            }
+            } else {alert("Request to associate Function Block failed: " + errorMessage);}
         });
     }
 
@@ -645,7 +645,7 @@ class App extends React.Component {
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success) {
+        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
             if (success) {
                 const newFunctionBlocks = [];
                 const existingFunctionBlocks = thisApp.state.functionBlocks;
@@ -659,7 +659,7 @@ class App extends React.Component {
                     functionBlocks:       newFunctionBlocks,
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
-            }
+            } else {alert("Request to delete Function Block failed: " + errorMessage);}
         });
     }
 
@@ -763,7 +763,7 @@ class App extends React.Component {
 
     onAssociateMostInterfaceWithFunctionBlock(mostInterface, functionBlock) {
         const thisApp = this;
-        associateMostInterfaceWithFunctionBlock(functionBlock.getId(), mostInterface.getId(), function (success) {
+        associateMostInterfaceWithFunctionBlock(functionBlock.getId(), mostInterface.getId(), function (success, errorMessage) {
             if (success) {
                 // remove most interface from search results
                 let searchResults = thisApp.state.searchResults;
@@ -782,7 +782,7 @@ class App extends React.Component {
                     searchResults: newSearchResults,
                     mostInterfaces: mostInterfaces
                 });
-            }
+            } else {alert("Request to associate Interface failed: " + errorMessage);}
         });
     }
 
@@ -792,7 +792,7 @@ class App extends React.Component {
         const functionBlockId = this.state.selectedItem.getId();
         const mostInterfaceId = mostInterface.getId();
 
-        deleteMostInterface(functionBlockId, mostInterfaceId, function (success) {
+        deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
             if (success) {
                 const newMostInterfaces = [];
                 const existingMostInterfaces = thisApp.state.mostInterfaces;
@@ -806,7 +806,7 @@ class App extends React.Component {
                     mostInterfaces:         newMostInterfaces,
                     currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
                 });
-            }
+            } else {alert("Request to delete Interface failed: " + errorMessage);}
         });
     }
 

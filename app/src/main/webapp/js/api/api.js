@@ -108,12 +108,14 @@ function deleteFunctionCatalog(versionId, functionCatalogId, callbackFunction) {
 
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
         if (!wasSuccess) {
             console.log("Unable to delete function catalog " + functionCatalogId + " from version " + versionId + ": " + data.errorMessage);
+            errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, errorMessage);
         }
     });
 }
@@ -214,12 +216,14 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
     );
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
         if (! wasSuccess) {
             console.log("Unable to associate function block " + functionBlockId + " with function catalog: " + data.errorMessage);
+            errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, errorMessage);
         }
     });
 }
@@ -261,12 +265,14 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
 
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
         if (!wasSuccess) {
             console.log("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
+            errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, errorMessage);
         }
     });
 }
@@ -366,12 +372,14 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
     );
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
         if (! wasSuccess) {
             console.log("Unable to associate interface " + mostInterfaceId + " with function block: " + data.errorMessage);
+            errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, errorMessage);
         }
     });
 }
@@ -413,12 +421,14 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
 
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
         if (!wasSuccess) {
             console.log("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+            errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, errorMessage);
         }
     });
 }
