@@ -166,8 +166,9 @@
     width: 10%;
 }
 
-.search-result-form .fa-refresh {
-    margin: auto;
+.search-result-form i {
+    margin-left: 10px;
+    margin-top: 10px;
 }
 
 .child-display-area {
