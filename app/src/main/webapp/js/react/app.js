@@ -577,10 +577,22 @@ class App extends React.Component {
             getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     const functionBlocks = [];
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
                     for (let i in functionBlocksJson) {
                         const functionBlockJson = functionBlocksJson[i];
-                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                        functionBlocks.push(functionBlock);
+
+                        //Filter any existing child elements that appear in the search results.
+                        var pushToSearchResults = true;
+                        for(let m in existingFunctionBlocks) {
+                            if (existingFunctionBlocks[m].getId() == functionBlockJson.id) {
+                                pushToSearchResults = false;
+                                break;
+                            }
+                        }
+                        if (pushToSearchResults) {
+                            const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                            functionBlocks.push(functionBlock);
+                        }
                     }
 
                     thisApp.setState({
@@ -689,10 +701,22 @@ class App extends React.Component {
             getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     const mostInterfaces = [];
+                    const existingMostInterfaces = thisApp.state.mostInterfaces;
                     for (let i in mostInterfacesJson) {
                         const mostInterfaceJson = mostInterfacesJson[i];
-                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                        mostInterfaces.push(mostInterface);
+
+                        //Filter any existing child elements that appear in the search results.
+                        var pushToSearchResults = true;
+                        for(let m in existingMostInterfaces) {
+                            if (existingMostInterfaces[m].getId() == mostInterfaceJson.id) {
+                                pushToSearchResults = false;
+                                break;
+                            }
+                        }
+                        if (pushToSearchResults) {
+                            const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                            mostInterfaces.push(mostInterface);
+                        }
                     }
 
                     thisApp.setState({
