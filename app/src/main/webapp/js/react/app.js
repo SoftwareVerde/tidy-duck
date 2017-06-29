@@ -864,9 +864,9 @@ class App extends React.Component {
         if (shouldShowToolbar) {
             reactComponents.push(
                 <app.Toolbar key="Toolbar"
-                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: true })}
-                    onCancel={() => this.setState({ shouldShowCreateChildForm: false })}
-                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: true})}
+                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false })}
+                    onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
+                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false })}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
                 />
