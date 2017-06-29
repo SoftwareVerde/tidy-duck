@@ -147,9 +147,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
 
 
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
-function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
-    // TODO: change versionId after implementing versions.
-    const versionId = 1;
+function getFunctionBlocksMatchingSearchString(versionId, searchString, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-block/search?name=" + searchString + "&versionId=" + versionId,
         {
@@ -277,9 +275,7 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
 }
 
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
-function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
-    // TODO: change versionId after implementing versions.
-    const versionId = 1;
+function getMostInterfacesMatchingSearchString(versionId, searchString, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString + "&versionId=" + versionId,
         {
