@@ -904,16 +904,16 @@ class App extends React.Component {
                     );
                 } else if (shouldShowSearchChildForm) {
                     reactComponents.push(
-                      <app.SearchForm key="SearchForm"
-                           navigationLevel={NavigationLevel}
-                           currentNavigationLevel={currentNavigationLevel}
-                           showTitle={true}
-                           formTitle={"Search Interfaces"}
-                           onUpdate={this.onSearchMostInterfaces}
-                           onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
-                           selectedItem={this.state.selectedItem}
-                           searchResults={this.state.searchResults}
-                      />
+                        <app.SearchForm key="SearchForm"
+                            navigationLevel={NavigationLevel}
+                            currentNavigationLevel={currentNavigationLevel}
+                            showTitle={true}
+                            formTitle={"Search Interfaces"}
+                            onUpdate={this.onSearchMostInterfaces}
+                            onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
+                            selectedItem={this.state.selectedItem}
+                            searchResults={this.state.searchResults}
+                        />
                     );
                 }
             break;
