@@ -21,6 +21,7 @@ class App extends React.Component {
             account:                    null,
             navigationItems:            [],
             searchResults:              [],
+            currentVersionId:           1, // TODO
             functionCatalogs:           [],
             functionBlocks:             [],
             mostInterfaces:             [],
@@ -90,14 +91,13 @@ class App extends React.Component {
     onCreateFunctionCatalog(functionCatalog) {
         const thisApp = this;
 
-        const versionId = 1; // TODO
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
         this.setState({
             createButtonState:  this.CreateButtonState.animate
         });
 
-        insertFunctionCatalog(versionId, functionCatalogJson, function(functionCatalogId) {
+        insertFunctionCatalog(this.state.currentVersionId, functionCatalogJson, function(functionCatalogId) {
             if (! (functionCatalogId > 0)) {
                 console.log("Unable to create function catalog.");
                 thisApp.setState({
@@ -137,7 +137,6 @@ class App extends React.Component {
     onUpdateFunctionCatalog(functionCatalog) {
         const thisApp = this;
 
-        const versionId = 1; // TODO
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
         const functionCatalogId = functionCatalog.getId();
 
@@ -160,7 +159,7 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(versionId, functionCatalogId, functionCatalogJson, function(wasSuccess) {
+        updateFunctionCatalog(this.state.currentVersionId, functionCatalogId, functionCatalogJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
@@ -413,8 +412,7 @@ class App extends React.Component {
     }
 
     getFunctionCatalogsForCurrentVersion(callbackFunction) {
-        const versionId = 1; // TODO
-        getFunctionCatalogsForVersionId(versionId, function(functionCatalogsJson) {
+        getFunctionCatalogsForVersionId(this.state.currentVersionId, function(functionCatalogsJson) {
             const functionCatalogs = [];
 
             for (let i in functionCatalogsJson) {
@@ -489,10 +487,9 @@ class App extends React.Component {
     onDeleteFunctionCatalog(functionCatalog) {
         const thisApp = this;
 
-        const versionId = 1; // TODO
         const functionCatalogId = functionCatalog.getId();
 
-        deleteFunctionCatalog(versionId, functionCatalogId, function (success) {
+        deleteFunctionCatalog(this.state.currentVersionId, functionCatalogId, function (success) {
             if (success) {
                 const newFunctionCatalogs = [];
                 const existingFunctionCatalogs = thisApp.state.functionCatalogs;
@@ -571,10 +568,10 @@ class App extends React.Component {
     }
 
     onSearchFunctionBlocks(searchString) {
-        if(searchString.length > 0) {
+        if (searchString.length > 0) {
             const thisApp = this;
 
-            getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
+            getFunctionBlocksMatchingSearchString(this.state.currentVersionId, searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     const functionBlocks = [];
                     const existingFunctionBlocks = thisApp.state.functionBlocks;
@@ -695,10 +692,10 @@ class App extends React.Component {
     }
 
     onSearchMostInterfaces(searchString) {
-        if(searchString.length > 0) {
+        if (searchString.length > 0) {
             const thisApp = this;
 
-            getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
+            getMostInterfacesMatchingSearchString(this.state.currentVersionId, searchString, function (mostInterfacesJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     const mostInterfaces = [];
                     const existingMostInterfaces = thisApp.state.mostInterfaces;
@@ -732,9 +729,28 @@ class App extends React.Component {
     }
 
     onAssociateMostInterfaceWithFunctionBlock(mostInterface, functionBlock) {
-        // TODO: wire into api.
-        //testing onclick
-        console.log("Adding Interface " + mostInterface.getName() + " to FunctionBlock " + functionBlock.getName());
+        const thisApp = this;
+        associateMostInterfaceWithFunctionBlock(functionBlock.getId(), mostInterface.getId(), function (success) {
+            if (success) {
+                // remove most interface from search results
+                let searchResults = thisApp.state.searchResults;
+                const newSearchResults = [];
+                for (let index in searchResults) {
+                    const searchResult = searchResults[index];
+                    if (searchResult.getId() != mostInterface.getId()) {
+                        newSearchResults.push(newSearchResults);
+                    }
+                }
+
+                // add most interface to children
+                const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+
+                thisApp.setState({
+                    searchResults: newSearchResults,
+                    mostInterfaces: mostInterfaces
+                });
+            }
+        });
     }
 
     onDeleteMostInterface(mostInterface) {
@@ -912,16 +928,16 @@ class App extends React.Component {
                     );
                 } else if (shouldShowSearchChildForm) {
                     reactComponents.push(
-                      <app.SearchForm key="SearchForm"
-                           navigationLevel={NavigationLevel}
-                           currentNavigationLevel={currentNavigationLevel}
-                           showTitle={true}
-                           formTitle={"Search Interfaces"}
-                           onUpdate={this.onSearchMostInterfaces}
-                           onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
-                           selectedItem={this.state.selectedItem}
-                           searchResults={this.state.searchResults}
-                      />
+                        <app.SearchForm key="SearchForm"
+                            navigationLevel={NavigationLevel}
+                            currentNavigationLevel={currentNavigationLevel}
+                            showTitle={true}
+                            formTitle={"Search Interfaces"}
+                            onUpdate={this.onSearchMostInterfaces}
+                            onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
+                            selectedItem={this.state.selectedItem}
+                            searchResults={this.state.searchResults}
+                        />
                     );
                 }
             break;
