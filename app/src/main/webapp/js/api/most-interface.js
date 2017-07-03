@@ -50,7 +50,7 @@ function getMostInterfacesMatchingSearchString(versionId, searchString, callback
 }
 
 // calls callbackFunction with list of function catalog IDs
-function listFunctionCatalogsContainingFunctionBlock(mostInterfaceId, versionId, callbackFunction) {
+function listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId, callbackFunction) {
     const request = new Request(
         API_PREFIX + "most-interface/" + mostInterfaceId + "/function-blocks?versionId=" + versionId,
         {

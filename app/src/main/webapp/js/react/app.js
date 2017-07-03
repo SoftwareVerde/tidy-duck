@@ -680,16 +680,14 @@ class App extends React.Component {
                                 functionBlocks:         newFunctionBlocks,
                                 currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                             });
-                            callbackFunction(true);
                         } else {
                             alert("Request to delete Function Block failed: " + errorMessage);
-                            callbackFunction(false);
                         }
                     });
-                } else {
-                    callbackFunction(false);
                 }
             }
+            // let component know action is complete
+            callbackFunction();
         });
     }
 
@@ -824,27 +822,45 @@ class App extends React.Component {
         });
     }
 
-    onDeleteMostInterface(mostInterface) {
+    onDeleteMostInterface(mostInterface, callbackFunction) {
         const thisApp = this;
 
         const functionBlockId = this.state.selectedItem.getId();
         const mostInterfaceId = mostInterface.getId();
 
-        deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-            if (success) {
-                const newMostInterfaces = [];
-                const existingMostInterfaces = thisApp.state.mostInterfaces;
-                for (let i in existingMostInterfaces) {
-                    const existingMostInterface = existingMostInterfaces[i];
-                    if (existingMostInterface.getId() != mostInterface.getId()) {
-                        newMostInterfaces.push(existingMostInterface);
-                    }
+        listFunctionBlocksContainingMostInterface(mostInterfaceId, this.state.currentVersionId, function (data) {
+            if (data.wasSuccess) {
+                let shouldDelete = false;
+                const functionBlockIds = data.functionBlockIds;
+                if (functionBlockIds.length > 1) {
+                    shouldDelete = true;
+                } else {
+                    shouldDelete = confirm("This action will delete the last reference to this interface.  Are you sure you want to delete it?");
                 }
-                thisApp.setState({
-                    mostInterfaces:         newMostInterfaces,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-                });
-            } else {alert("Request to delete Interface failed: " + errorMessage);}
+
+                if (shouldDelete) {
+                    deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+                        if (success) {
+                            const newMostInterfaces = [];
+                            const existingMostInterfaces = thisApp.state.mostInterfaces;
+                            for (let i in existingMostInterfaces) {
+                                const existingMostInterface = existingMostInterfaces[i];
+                                if (existingMostInterface.getId() != mostInterface.getId()) {
+                                    newMostInterfaces.push(existingMostInterface);
+                                }
+                            }
+                            thisApp.setState({
+                                mostInterfaces:         newMostInterfaces,
+                                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                            });
+                        } else {
+                            alert("Request to delete Interface failed: " + errorMessage);
+                        }
+                    });
+                }
+            }
+            // let component know action is complete
+            callbackFunction();
         });
     }
 
