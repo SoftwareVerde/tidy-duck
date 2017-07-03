@@ -51,9 +51,9 @@ function getFunctionBlocksMatchingSearchString(versionId, searchString, callback
 }
 
 // calls callbackFunction with list of function catalog IDs
-function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFunction) {
+function listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-block/" + functionBlockId + "/function-catalogs",
+        API_PREFIX + "function-block/" + functionBlockId + "/function-catalogs?versionId=" + versionId,
         {
             method: "GET",
             credentials: "include"

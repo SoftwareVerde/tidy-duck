@@ -656,7 +656,7 @@ class App extends React.Component {
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        listFunctionCatalogsContainingFunctionBlock(functionBlockId, function (data) {
+        listFunctionCatalogsContainingFunctionBlock(functionBlockId, this.state.currentVersionId, function (data) {
             if (data.wasSuccess) {
                 let shouldDelete = false;
                 const functionCatalogIds = data.functionCatalogIds;

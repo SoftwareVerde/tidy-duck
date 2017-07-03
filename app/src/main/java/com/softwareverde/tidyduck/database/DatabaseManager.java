@@ -111,10 +111,10 @@ public class DatabaseManager {
         });
     }
 
-    public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {
+    public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
             FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-            return functionBlockDatabaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId);
+            return functionBlockDatabaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId);
         }
     }
 

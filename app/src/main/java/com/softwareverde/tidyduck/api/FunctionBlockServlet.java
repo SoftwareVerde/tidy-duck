@@ -43,14 +43,18 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function block id.");
             }
             if (httpMethod == HttpMethod.GET) {
-                return _listFunctionCatalogsForFunctionBlock(request, functionBlockId, environment);
+                final Long versionId = Util.parseLong(request.getParameter("versionId"));
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId.");
+                }
+                return _listFunctionCatalogsForFunctionBlock(request, functionBlockId, versionId, environment);
             } else if (httpMethod == HttpMethod.POST) {
                 return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment);
             }
         } else if ("search".equals(finalUrlSegment)){
             if (httpMethod == HttpMethod.GET) {
-                String searchString = Util.coalesce(request.getParameter("name"));
-                Long versionId = Util.parseLong(request.getParameter("versionId"));
+                final String searchString = Util.coalesce(request.getParameter("name"));
+                final Long versionId = Util.parseLong(request.getParameter("versionId"));
                 if (searchString.length() < 1) {
                     return super._generateErrorJson("Invalid search string for function block.");
                 }
@@ -61,7 +65,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         } else {
             // not base function block, must have ID
-            long functionBlockId = Util.parseLong(finalUrlSegment);
+            final long functionBlockId = Util.parseLong(finalUrlSegment);
             if (functionBlockId < 1) {
                 return super._generateErrorJson("Invalid function block id.");
             }
@@ -230,12 +234,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listFunctionCatalogsForFunctionBlock(final HttpServletRequest request, final long functionBlockId, final Environment environment) {
+    protected Json _listFunctionCatalogsForFunctionBlock(final HttpServletRequest request, final long functionBlockId, Long versionId, final Environment environment) {
         try {
             final Json response = new Json(false);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
-            final List<Long> functionCatalogIds = databaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId);
+            final List<Long> functionCatalogIds = databaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId);
 
             Json functionCatalogIdsJson = new Json(true);
             for (Long functionCatalogId : functionCatalogIds) {

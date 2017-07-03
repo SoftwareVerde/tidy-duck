@@ -181,9 +181,12 @@ public class FunctionBlockDatabaseManager {
 
 
 
-    public List<Long> listFunctionCatalogsContainingFunctionBlock(long functionBlockId) throws DatabaseException {
-        final Query query = new Query("SELECT function_catalog_id FROM function_catalogs_function_blocks WHERE function_block_id = ?")
+    public List<Long> listFunctionCatalogsContainingFunctionBlock(long functionBlockId, long versionId) throws DatabaseException {
+        final Query query = new Query("SELECT function_catalogs_function_blocks.function_catalog_id FROM function_catalogs_function_blocks "
+                                        + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
+                                        + "WHERE function_catalogs_function_blocks.function_block_id = ? and versions_function_catalogs.version_id = ?")
             .setParameter(functionBlockId)
+            .setParameter(versionId)
         ;
 
         List<Row> rows =_databaseConnection.query(query);
