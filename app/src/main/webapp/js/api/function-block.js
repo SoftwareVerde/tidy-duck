@@ -50,6 +50,26 @@ function getFunctionBlocksMatchingSearchString(versionId, searchString, callback
     });
 }
 
+// calls callbackFunction with list of function catalog IDs
+function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-block/" + functionBlockId + "/function-catalogs",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        if (!data.wasSuccess) {
+            console.log("Unable to get function catalogs associated with function block " + functionBlockId);
+        }
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
 // calls callbackFunction with new function block ID
 function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction) {
     const request = new Request(

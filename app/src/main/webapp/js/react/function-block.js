@@ -36,7 +36,14 @@ class FunctionBlock extends React.Component {
             this.setState({
                 showWorkingIcon: true
             });
-            this.props.onDelete(this.props.functionBlock);
+            const thisFunctionBlock = this;
+            this.props.onDelete(this.props.functionBlock, function (success) {
+                if (!success) {
+                    thisFunctionBlock.setState({
+                        showWorkingIcon: false
+                    });
+                }
+            });
         }
     }
 

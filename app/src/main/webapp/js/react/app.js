@@ -650,27 +650,46 @@ class App extends React.Component {
         });
     }
 
-    onDeleteFunctionBlock(functionBlock) {
+    onDeleteFunctionBlock(functionBlock, callbackFunction) {
         const thisApp = this;
 
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-            if (success) {
-                const newFunctionBlocks = [];
-                const existingFunctionBlocks = thisApp.state.functionBlocks;
-                for (let i in existingFunctionBlocks) {
-                    const existingFunctionBlock = existingFunctionBlocks[i];
-                    if (existingFunctionBlock.getId() != functionBlock.getId()) {
-                        newFunctionBlocks.push(existingFunctionBlock);
-                    }
+        listFunctionCatalogsContainingFunctionBlock(functionBlockId, function (data) {
+            if (data.wasSuccess) {
+                let shouldDelete = false;
+                const functionCatalogIds = data.functionCatalogIds;
+                if (functionCatalogIds.length > 1) {
+                    shouldDelete = true;
+                } else {
+                    shouldDelete = confirm("This action will delete the last reference to this function block.  Are you sure you want to delete it?");
                 }
-                thisApp.setState({
-                    functionBlocks:       newFunctionBlocks,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                });
-            } else {alert("Request to delete Function Block failed: " + errorMessage);}
+                if (shouldDelete) {
+                    deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                        if (success) {
+                            const newFunctionBlocks = [];
+                            const existingFunctionBlocks = thisApp.state.functionBlocks;
+                            for (let i in existingFunctionBlocks) {
+                                const existingFunctionBlock = existingFunctionBlocks[i];
+                                if (existingFunctionBlock.getId() != functionBlock.getId()) {
+                                    newFunctionBlocks.push(existingFunctionBlock);
+                                }
+                            }
+                            thisApp.setState({
+                                functionBlocks:         newFunctionBlocks,
+                                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                            });
+                            callbackFunction(true);
+                        } else {
+                            alert("Request to delete Function Block failed: " + errorMessage);
+                            callbackFunction(false);
+                        }
+                    });
+                } else {
+                    callbackFunction(false);
+                }
+            }
         });
     }
 
