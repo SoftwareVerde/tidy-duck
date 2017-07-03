@@ -64,10 +64,10 @@ public class FunctionBlockDatabaseManager {
     }
 
     private boolean _isAssociatedWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        final Query query = new Query("SELECT FROM function_catalogs_function_blocks WHERE function_catalog_id = ? AND function_block_id = ?")
-                .setParameter(functionCatalogId)
-                .setParameter(functionBlockId)
-                ;
+        final Query query = new Query("SELECT id FROM function_catalogs_function_blocks WHERE function_catalog_id = ? AND function_block_id = ?")
+            .setParameter(functionCatalogId)
+            .setParameter(functionBlockId)
+        ;
 
         List<Row> rows = _databaseConnection.query(query);
 

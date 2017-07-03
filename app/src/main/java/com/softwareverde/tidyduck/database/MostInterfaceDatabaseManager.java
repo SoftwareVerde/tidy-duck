@@ -55,10 +55,10 @@ public class MostInterfaceDatabaseManager {
     }
 
     private boolean _isAssociatedWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("SELECT FROM function_blocks_interfaces WHERE function_block_id = ? AND interface_id = ?")
-                .setParameter(functionBlockId)
-                .setParameter(mostInterfaceId)
-                ;
+        final Query query = new Query("SELECT id FROM function_blocks_interfaces WHERE function_block_id = ? AND interface_id = ?")
+            .setParameter(functionBlockId)
+            .setParameter(mostInterfaceId)
+        ;
 
         List<Row> rows = _databaseConnection.query(query);
 
