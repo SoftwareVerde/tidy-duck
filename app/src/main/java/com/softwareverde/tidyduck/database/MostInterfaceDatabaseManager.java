@@ -42,7 +42,7 @@ public class MostInterfaceDatabaseManager {
         if (!_isAssociatedWithFunctionBlock(functionBlockId, mostInterfaceId)) {
             return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
-
+        return null;
     }
 
     private Long _associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
