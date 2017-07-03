@@ -38,11 +38,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         } else if ("function-catalogs".equals(finalUrlSegment)) {
             // function-block/<id>/function-catalogs
-            if (httpMethod == HttpMethod.POST) {
-                final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
-                if (functionBlockId < 1) {
-                    return super._generateErrorJson("Invalid function block id.");
-                }
+            final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
+            if (functionBlockId < 1) {
+                return super._generateErrorJson("Invalid function block id.");
+            }
+            if (httpMethod == HttpMethod.GET) {
+                return _listFunctionCatalogsForFunctionBlock(request, functionBlockId, environment);
+            } else if (httpMethod == HttpMethod.POST) {
                 return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment);
             }
         } else if ("search".equals(finalUrlSegment)){
@@ -225,6 +227,28 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         } catch (final DatabaseException exception) {
             _logger.error("Unable to list function blocks from search", exception);
             return super._generateErrorJson("Unable to list function blocks from search.");
+        }
+    }
+
+    protected Json _listFunctionCatalogsForFunctionBlock(final HttpServletRequest request, final long functionBlockId, final Environment environment) {
+        try {
+            final Json response = new Json(false);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            final List<Long> functionCatalogIds = databaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId);
+
+            Json functionCatalogIdsJson = new Json(true);
+            for (Long functionCatalogId : functionCatalogIds) {
+                functionCatalogIdsJson.add(functionCatalogId);
+            }
+            response.put("functionCatalogIds", functionCatalogIdsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list function catalogs for function block " + functionBlockId, exception);
+            return super._generateErrorJson("Unable to list function catalogs.");
         }
     }
 

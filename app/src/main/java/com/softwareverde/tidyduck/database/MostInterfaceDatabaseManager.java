@@ -6,6 +6,7 @@ import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.MostInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MostInterfaceDatabaseManager {
@@ -149,5 +150,19 @@ public class MostInterfaceDatabaseManager {
         Row row = rows.get(0);
         final long associationCount = row.getLong("associations");
         return associationCount == 0;
+    }
+
+    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT function_block_id FROM function_blocks_interfaces WHERE interface_id = ?")
+            .setParameter(mostInterfaceId)
+        ;
+
+        List<Row> rows =_databaseConnection.query(query);
+        final ArrayList<Long> functionBlockIds = new ArrayList<>();
+        for (Row row : rows) {
+            Long functionBlockId = row.getLong("function_block_id");
+            functionBlockIds.add(functionBlockId);
+        }
+        return functionBlockIds;
     }
 }

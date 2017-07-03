@@ -50,11 +50,14 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         } else if ("function-blocks".equals(finalUrlSegment)) {
             // most-interface/<id>/function-blocks
+            final long mostInterfaceId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
+            if (mostInterfaceId < 1) {
+                return super._generateErrorJson("Invalid function block id.");
+            }
+            if (httpMethod == HttpMethod.GET) {
+                return _listFunctionBlocksContainingMostInterface(request, mostInterfaceId, environment);
+            }
             if (httpMethod == HttpMethod.POST) {
-                final long mostInterfaceId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
-                if (mostInterfaceId < 1) {
-                    return super._generateErrorJson("Invalid function block id.");
-                }
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment);
             }
         } else {
@@ -224,6 +227,28 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         } catch (final DatabaseException exception) {
             _logger.error("Unable to list interfaces from search", exception);
             return super._generateErrorJson("Unable to list interfaces from search.");
+        }
+    }
+
+    protected Json _listFunctionBlocksContainingMostInterface(HttpServletRequest request, long mostInterfaceId, Environment environment) {
+        try {
+            final Json response = new Json(false);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            final List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
+
+            Json functionBlockIdsJson = new Json(true);
+            for (Long functionBlockId : functionBlockIds) {
+                functionBlockIdsJson.add(functionBlockId);
+            }
+            response.put("functionBlockIds", functionBlockIdsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list function blocks for interface " + mostInterfaceId, exception);
+            return super._generateErrorJson("Unable to list function blocks.");
         }
     }
 

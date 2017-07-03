@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.MostInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionBlockDatabaseManager {
@@ -176,5 +177,21 @@ public class FunctionBlockDatabaseManager {
         Row row = rows.get(0);
         final long associationCount = row.getLong("associations");
         return associationCount == 0;
+    }
+
+
+
+    public List<Long> listFunctionCatalogsContainingFunctionBlock(long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT function_catalog_id FROM function_catalogs_function_blocks WHERE function_block_id = ?")
+            .setParameter(functionBlockId)
+        ;
+
+        List<Row> rows =_databaseConnection.query(query);
+        final ArrayList<Long> functionCatalogIds = new ArrayList<>();
+        for (Row row : rows) {
+            Long functionCatalogId = row.getLong("function_catalog_id");
+            functionCatalogIds.add(functionCatalogId);
+        }
+        return functionCatalogIds;
     }
 }

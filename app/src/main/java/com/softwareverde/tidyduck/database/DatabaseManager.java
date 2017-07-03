@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.util.List;
 
 public class DatabaseManager {
 
@@ -110,6 +111,13 @@ public class DatabaseManager {
         });
     }
 
+    public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
+            FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+            return functionBlockDatabaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId);
+        }
+    }
+
     //MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
@@ -150,5 +158,12 @@ public class DatabaseManager {
                 mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
             }
         });
+    }
+
+    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
+            MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
+        }
     }
 }
