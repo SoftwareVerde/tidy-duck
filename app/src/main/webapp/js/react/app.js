@@ -21,6 +21,7 @@ class App extends React.Component {
             account:                    null,
             navigationItems:            [],
             searchResults:              [],
+            lastSearchResultTimestamp:  0,
             currentVersionId:           1, // TODO
             functionCatalogs:           [],
             functionBlocks:             [],
@@ -577,13 +578,18 @@ class App extends React.Component {
     }
 
     onSearchFunctionBlocks(searchString) {
+        const requestTime = (new Date()).getTime();
+
         if (searchString.length > 0) {
             const thisApp = this;
-
             this.setState({isLoadingSearchResults: true});
 
             getFunctionBlocksMatchingSearchString(this.state.currentVersionId, searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                    if (thisApp.state.lastSearchResultTimestamp > requestTime) {
+                        // old results, discard
+                        return;
+                    }
                     const functionBlocks = [];
                     const existingFunctionBlocks = thisApp.state.functionBlocks;
                     for (let i in functionBlocksJson) {
@@ -605,13 +611,16 @@ class App extends React.Component {
 
                     thisApp.setState({
                         searchResults: functionBlocks,
+                        lastSearchResultTimestamp: requestTime,
                         isLoadingSearchResults: false
                     });
                 }
             });
         } else {
             this.setState({
-                searchResults: []
+                searchResults: [],
+                lastSearchResultTimestamp: requestTime,
+                isLoadingSearchResults: false
             });
         }
     }
@@ -724,13 +733,18 @@ class App extends React.Component {
     }
 
     onSearchMostInterfaces(searchString) {
+        const requestTime = (new Date()).getTime();
+
         if (searchString.length > 0) {
             const thisApp = this;
-
             this.setState({isLoadingSearchResults: true});
 
             getMostInterfacesMatchingSearchString(this.state.currentVersionId, searchString, function (mostInterfacesJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
+                    if (thisApp.state.lastSearchResultTimestamp > requestTime) {
+                        // old results, discard
+                        return;
+                    }
                     const mostInterfaces = [];
                     const existingMostInterfaces = thisApp.state.mostInterfaces;
                     for (let i in mostInterfacesJson) {
@@ -752,6 +766,7 @@ class App extends React.Component {
 
                     thisApp.setState({
                         searchResults: mostInterfaces,
+                        lastSearchResultTimestamp: requestTime,
                         isLoadingSearchResults: false
                     });
                 }
@@ -759,6 +774,7 @@ class App extends React.Component {
         } else {
             this.setState({
                 searchResults: [],
+                lastSearchResultTimestamp: requestTime,
                 isLoadingSearchResults: false
             });
         }
