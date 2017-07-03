@@ -152,9 +152,13 @@ public class MostInterfaceDatabaseManager {
         return associationCount == 0;
     }
 
-    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("SELECT function_block_id FROM function_blocks_interfaces WHERE interface_id = ?")
+    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {
+        final Query query = new Query("SELECT DISTINCT function_blocks_interfaces.function_block_id FROM function_blocks_interfaces "
+                                        + "INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id "
+                                        + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
+                                        + "WHERE function_blocks_interfaces.interface_id = ? and versions_function_catalogs.version_id = ?")
             .setParameter(mostInterfaceId)
+            .setParameter(versionId)
         ;
 
         List<Row> rows =_databaseConnection.query(query);

@@ -55,7 +55,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function block id.");
             }
             if (httpMethod == HttpMethod.GET) {
-                return _listFunctionBlocksContainingMostInterface(request, mostInterfaceId, environment);
+                Long versionId = Util.parseLong(request.getParameter("versionId"));
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId.");
+                }
+                return _listFunctionBlocksContainingMostInterface(request, mostInterfaceId, versionId, environment);
             }
             if (httpMethod == HttpMethod.POST) {
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment);
@@ -230,12 +234,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listFunctionBlocksContainingMostInterface(HttpServletRequest request, long mostInterfaceId, Environment environment) {
+    protected Json _listFunctionBlocksContainingMostInterface(HttpServletRequest request, long mostInterfaceId, Long versionId, Environment environment) {
         try {
             final Json response = new Json(false);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
-            final List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
+            final List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
 
             Json functionBlockIdsJson = new Json(true);
             for (Long functionBlockId : functionBlockIds) {

@@ -160,10 +160,10 @@ public class DatabaseManager {
         });
     }
 
-    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
+    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
             MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-            return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
+            return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
         }
     }
 }

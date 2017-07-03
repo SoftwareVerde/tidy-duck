@@ -49,6 +49,26 @@ function getMostInterfacesMatchingSearchString(versionId, searchString, callback
     });
 }
 
+// calls callbackFunction with list of function catalog IDs
+function listFunctionCatalogsContainingFunctionBlock(mostInterfaceId, versionId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interface/" + mostInterfaceId + "/function-blocks?versionId=" + versionId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        if (!data.wasSuccess) {
+            console.log("Unable to get function catalogs associated with interface " + mostInterfaceId);
+        }
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
 // calls callbackFunction with new MOST interface ID
 function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     const request = new Request(
