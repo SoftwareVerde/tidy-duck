@@ -902,7 +902,7 @@ class App extends React.Component {
         if (this.state.isLoadingChildren) {
             // return loading icon
             return (
-                <i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i>
+                <div className="form-loading"><i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i></div>
             );
         }
 
