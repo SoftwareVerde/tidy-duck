@@ -413,6 +413,9 @@ class App extends React.Component {
                 // didn't navigate away while downloading children
                 thisApp.setState({
                     functionCatalogs:       functionCatalogs,
+                    functionBlocks:         [],
+                    mostInterfaces:         [],
+                    mostFunctions:          [],
                     isLoadingChildren:      false
                 });
             }
@@ -487,6 +490,7 @@ class App extends React.Component {
                 }
                 thisApp.setState({
                     functionBlocks:     functionBlocks,
+                    mostInterfaces:     [],
                     isLoadingChildren:  false
                 });
             }
@@ -570,6 +574,7 @@ class App extends React.Component {
 
                 thisApp.setState({
                     mostInterfaces:     mostInterfaces,
+                    mostFunctions:      [],
                     isLoadingChildren:  false
                 });
             }
@@ -704,7 +709,7 @@ class App extends React.Component {
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setOnClickCallback(function() {
-            thisApp.onFunctionBlockSelected(mostInterface, true);
+            thisApp.onMostInterfaceSelected(mostInterface, true);
         });
         navigationItemConfig.setForm(
             <app.MostInterfaceForm key="MostInterfaceForm"
@@ -742,6 +747,7 @@ class App extends React.Component {
             }
             */
 
+            // TODO: if Functions have child elements that can be displayed, clear their array in setState.
             thisApp.setState({
                 mostFunctions:      mostFunctions,
                 isLoadingChildren:  false
