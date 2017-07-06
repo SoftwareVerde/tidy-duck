@@ -38,35 +38,68 @@ class Toolbar extends React.Component {
     renderItemCreateButton() {
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        let shouldShowButton = false;
+        let buttonTitleType = "";
 
         switch(currentNavigationLevel) {
             case navigationLevel.versions:
-            case navigationLevel.functionCatalogs:
-            case navigationLevel.functionBlocks:
-            case navigationLevel.mostInterfaces:
-                return (
-                    <div className="toolbar-item create" onClick={this.props.onCreateClicked}>
-                        <i className="fa fa-4 fa-plus" />
-                    </div>
-                );
+                shouldShowButton = true;
+                buttonTitleType = "Function Catalog";
                 break;
+            case navigationLevel.functionCatalogs:
+                shouldShowButton = true;
+                buttonTitleType = "Function Block";
+                break;
+            case navigationLevel.functionBlocks:
+                shouldShowButton = true;
+                buttonTitleType = "Interface";
+                break;
+            case navigationLevel.mostInterfaces:
+                shouldShowButton = true;
+                buttonTitleType = "Function";
+                break;
+        }
+
+        const buttonTitle = "Create New " + buttonTitleType;
+
+        if (shouldShowButton) {
+            return (
+                <div className="toolbar-item create" onClick={this.props.onCreateClicked} title={buttonTitle}>
+                    <i className="fa fa-4 fa-plus" />
+                </div>
+            );
         }
     }
 
     renderSearchButton() {
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        let shouldShowButton = false;
+        let buttonTitleType = "";
 
         switch(currentNavigationLevel) {
             case navigationLevel.functionCatalogs:
-            case navigationLevel.functionBlocks:
-            case navigationLevel.mostInterfaces:
-                return (
-                    <div className="toolbar-item search" onClick={this.props.onSearchClicked}>
-                        <i className="fa fa-4 fa-search" />
-                    </div>
-                );
+                shouldShowButton = true;
+                buttonTitleType = "Function Blocks";
                 break;
+            case navigationLevel.functionBlocks:
+                shouldShowButton = true;
+                buttonTitleType = "Interfaces";
+                break;
+            case navigationLevel.mostInterfaces:
+                shouldShowButton = true;
+                buttonTitleType = "Functions";
+                break;
+        }
+
+        const buttonTitle = "Find and Associate " + buttonTitleType;
+
+        if (shouldShowButton) {
+            return (
+                <div className="toolbar-item search" onClick={this.props.onSearchClicked} title={buttonTitle}>
+                    <i className="fa fa-4 fa-search" />
+                </div>
+            );
         }
     }
 
