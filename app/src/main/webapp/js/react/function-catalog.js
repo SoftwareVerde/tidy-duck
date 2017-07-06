@@ -36,7 +36,13 @@ class FunctionCatalog extends React.Component {
             this.setState({
                 showWorkingIcon: true
             });
-            this.props.onDelete(this.props.functionCatalog);
+
+            const thisFunctionCatalog = this;
+            this.props.onDelete(this.props.functionCatalog, function () {
+                thisFunctionCatalog.setState({
+                    showWorkingIcon: false
+                });
+            });
         }
     }
 

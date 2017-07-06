@@ -497,27 +497,31 @@ class App extends React.Component {
         })
     }
 
-    onDeleteFunctionCatalog(functionCatalog) {
-        const thisApp = this;
+    onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
+        if(confirm("This action will delete all function blocks, interfaces, and functions that are referenced only within this function catalog. Are you sure you want to delete it?")) {
+            const thisApp = this;
 
-        const functionCatalogId = functionCatalog.getId();
+            const functionCatalogId = functionCatalog.getId();
 
-        deleteFunctionCatalog(this.state.currentVersionId, functionCatalogId, function (success, errorMessage) {
-            if (success) {
-                const newFunctionCatalogs = [];
-                const existingFunctionCatalogs = thisApp.state.functionCatalogs;
-                for (let i in existingFunctionCatalogs) {
-                    const existingFunctionCatalog = existingFunctionCatalogs[i];
-                    if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
-                        newFunctionCatalogs.push(existingFunctionCatalog);
+            deleteFunctionCatalog(this.state.currentVersionId, functionCatalogId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionCatalogs = [];
+                    const existingFunctionCatalogs = thisApp.state.functionCatalogs;
+                    for (let i in existingFunctionCatalogs) {
+                        const existingFunctionCatalog = existingFunctionCatalogs[i];
+                        if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
+                            newFunctionCatalogs.push(existingFunctionCatalog);
+                        }
                     }
-                }
-                thisApp.setState({
-                    functionCatalogs:       newFunctionCatalogs,
-                    currentNavigationLevel: thisApp.NavigationLevel.versions
-                });
-            } else {alert("Request to delete Function Catalog failed: " + errorMessage);}
-        });
+                    thisApp.setState({
+                        functionCatalogs:       newFunctionCatalogs,
+                        currentNavigationLevel: thisApp.NavigationLevel.versions
+                    });
+                } else {alert("Request to delete Function Catalog failed: " + errorMessage);}
+            });
+        }
+        //Let function catalog menu component know that action is completed.
+        callbackFunction();
     }
 
     onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
