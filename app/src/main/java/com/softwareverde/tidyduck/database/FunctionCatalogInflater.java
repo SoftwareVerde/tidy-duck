@@ -9,7 +9,6 @@ import com.softwareverde.util.Util;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalogInflater {
@@ -86,7 +85,7 @@ public class FunctionCatalogInflater {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
-        functionCatalog.setCommitted(isCommitted);
+        functionCatalog.setIsCommitted(isCommitted);
 
         if (inflateChildren) {
             FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);

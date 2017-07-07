@@ -20,19 +20,20 @@ public class DatabaseManager {
     private final Logger _logger = LoggerFactory.getLogger(getClass());
     private final Environment _environment;
 
-    public DatabaseManager(Environment environment) {
+    public DatabaseManager(final Environment environment) {
         _environment = environment;
     }
 
-    protected void executeTransaction(DatabaseConnectedRunnable<Connection> databaseConnectedRunnable) throws DatabaseException {
+    protected void executeTransaction(final DatabaseConnectedRunnable<Connection> databaseConnectedRunnable) throws DatabaseException {
         final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_environment);
         jdbcDatabaseTransaction.execute(databaseConnectedRunnable);
     }
 
     // ACCOUNT METHODS
+
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
-            AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
             accountDatabaseManager.updateAccountSettings(accountId, settings);
         }
     }
@@ -43,7 +44,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
                 functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
             }
         });
@@ -53,7 +54,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
                 functionCatalogDatabaseManager.updateFunctionCatalogForVersion(versionId, functionCatalog);
             }
         });
@@ -63,7 +64,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
                 functionCatalogDatabaseManager.deleteFunctionCatalogFromVersion(versionId, functionCatalogId);
             }
         });
@@ -75,7 +76,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
                 functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock);
             }
         });
@@ -85,7 +86,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
                 functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
             }
         });
@@ -95,7 +96,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
                 functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock);
             }
         });
@@ -105,26 +106,26 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
                 functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
             }
         });
     }
 
     public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {
-        try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
-            FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+        try (final DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
+            final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
             return functionBlockDatabaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId);
         }
     }
 
-    //MOST INTERFACE METHODS
+    // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
             }
         });
@@ -134,7 +135,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
             }
         });
@@ -144,7 +145,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
             }
         });
@@ -154,7 +155,7 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
             }
         });
@@ -162,7 +163,7 @@ public class DatabaseManager {
 
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _environment.getNewDatabaseConnection()) {
-            MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
             return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
         }
     }
