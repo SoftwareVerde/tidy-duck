@@ -179,6 +179,11 @@
     width: 10%;
 }
 
+.parameter-display-area {
+    float: left;
+    width:  100%;
+}
+
 .child-display-area {
     padding: 5px;
 }

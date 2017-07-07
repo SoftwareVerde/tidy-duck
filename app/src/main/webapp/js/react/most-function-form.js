@@ -10,7 +10,8 @@ class MostFunctionForm extends React.Component {
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             mostFunction:               mostFunction,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:         this.props.defaultButtonTitle
+            defaultButtonTitle:         this.props.defaultButtonTitle,
+            parameters:                 mostFunction.getParameters()
         };
 
         // TODO: Bind functions to this.
@@ -38,9 +39,10 @@ class MostFunctionForm extends React.Component {
         this.setState({
             showTitle:                  newProperties.showTitle,
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
-            mostFunction:              mostFunction,
+            mostFunction:               mostFunction,
             buttonTitle:                (newProperties.buttonTitle || "Submit"),
-            defaultButtonTitle:         newProperties.defaultButtonTitle
+            defaultButtonTitle:         newProperties.defaultButtonTitle,
+            parameters:                 mostFunction.getParameters()
         });
     }
 
@@ -117,7 +119,22 @@ class MostFunctionForm extends React.Component {
     }
 
     onAddParameterClicked() {
-        // TODO: add a default parameter object to this Function's array of parameters
+        const mostFunction = this.state.mostFunction;
+        const parameter = new Parameter();
+        parameter.setName("Parameter Name");
+
+        const parameters = mostFunction.getParameters();
+        parameters.push(parameter);
+
+        mostFunction.setParameters(parameters);
+
+        this.setState({
+            parameters: parameters
+        });
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
     }
 
     onClick(event) {
@@ -194,23 +211,25 @@ class MostFunctionForm extends React.Component {
         reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={mostFunction.getReturnType()} options={returnTypeOptions} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
 
         const parameterComponents = [];
-        const parameters = mostFunction.getParameters();
+        const parameters = this.state.parameters;//mostFunction.getParameters();
 
         for (let i in parameters) {
             const parameter = parameters[i];
+            console.log(parameter.getName());
             const parameterKey = "parameter" + i;
             // TODO: pass onParameterUpdate, onParameterAdd, and onParameterDelete function as props.
             parameterComponents.push(<app.MostFunctionParameter key={parameterKey} parameter={parameter}/>);
         }
 
         // Push button for adding parameters.
+        // TODO: need to position this button correctly.
         parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-3x" onClick={this.onAddParameterClicked}/>);
 
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
                 {reactComponents}
-                {parameterComponents}
+                <div className="parameter-display-area">{parameterComponents}</div>
                 {this.renderOperationCheckboxes()}
                 {this.renderSubmitButton()}
             </div>
