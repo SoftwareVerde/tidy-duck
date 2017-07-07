@@ -4,14 +4,15 @@ class FunctionCatalog {
 
         const author = new Author();
         author.setId(json.authorId);
+        author.setName(json.authorName);
 
         const company = new Company();
         company.setId(json.companyId);
+        company.setName(json.companyName);
 
         functionCatalog.setId(json.id);
         functionCatalog.setName(json.name);
         functionCatalog.setReleaseVersion(json.releaseVersion);
-        functionCatalog.setReleaseDate(json.releaseDate);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
@@ -20,24 +21,26 @@ class FunctionCatalog {
 
     // Converts existing function catalog into JSON
     static toJson(functionCatalog) {
-        const author = (functionCatalog.getAuthor() || new Author());
-        const company = (functionCatalog.getCompany() || new Company());
-
-        return {
+        const jsonFunctionCatalog = {
             id:             functionCatalog.getId(),
             name:           functionCatalog.getName(),
-            releaseVersion: functionCatalog.getReleaseVersion(),
-            releaseDate:    functionCatalog.getReleaseDate(),
-            authorId:       author.getId(),
-            companyId:      company.getId()
+            releaseVersion: functionCatalog.getReleaseVersion()
         };
+        const author = (functionCatalog.getAuthor() || new Author());
+        const company = (functionCatalog.getCompany() || new Company());
+        if (author.getId() > 0) {
+            jsonFunctionCatalog.authorId = author.getId();
+        }
+        if (company.getId() > 0) {
+            jsonFunctionCatalog.companyId = company.getId();
+        }
+        return jsonFunctionCatalog;
     }
 
     constructor() {
         this._id                = null;
         this._name              = "";
         this._releaseVersion    = "";
-        this._releaseDate       = "";
         this._author            = null;
         this._company           = null;
 
@@ -66,14 +69,6 @@ class FunctionCatalog {
 
     getReleaseVersion() {
         return this._releaseVersion;
-    }
-
-    setReleaseDate(releaseDate) {
-        this._releaseDate = releaseDate;
-    }
-
-    getReleaseDate() {
-        return this._releaseDate;
     }
 
     setAuthor(author) {

@@ -3,10 +3,8 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.FunctionBlock;
+import com.softwareverde.tidyduck.*;
+import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -28,7 +26,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-block".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return _insertFunctionBlock(request, environment);
+                return _insertFunctionBlock(request, accountId, environment);
             }
             if (httpMethod == HttpMethod.GET) {
                 long functionCatalogId = Util.parseLong(Util.coalesce(request.getParameter("function_catalog_id")));
@@ -45,16 +43,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             if (httpMethod == HttpMethod.POST) {
-                // return _updateFunctionBlock(request, functionBlockId, environment);
+                return _updateFunctionBlock(request, functionBlockId, accountId, environment);
             }
             else if (httpMethod == HttpMethod.DELETE) {
-                // return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
+                return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    protected Json _insertFunctionBlock(HttpServletRequest request, Environment environment) throws Exception {
+    protected Json _insertFunctionBlock(HttpServletRequest request, long accountId, Environment environment) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
@@ -69,25 +67,79 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         final Json functionBlockJson = jsonRequest.get("functionBlock");
         try {
-            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson);
+            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, environment);
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertFunctionBlock(functionCatalogId, functionBlock);
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
-            _logger.error("Unable to store Function Block.", exception);
-            return super._generateErrorJson("Unable to store Function Block: " + exception.getMessage());
+            _logger.error("Unable to insert Function Block.", exception);
+            return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
         }
 
         return response;
     }
 
-    protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
+    protected Json _updateFunctionBlock(HttpServletRequest httpRequest, long functionBlockId, long accountId, Environment environment) throws Exception {
+        final Json request = super._getRequestDataAsJson(httpRequest);
+
+        final Long functionCatalogId = Util.parseLong(request.getString("functionCatalogId"));
+
+        final Json functionBlockJson = request.get("functionBlock");
+
+        { // Validate Inputs
+            if (functionCatalogId < 1) {
+                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+            }
+        }
+
         try {
+            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, environment);
+            functionBlock.setId(functionBlockId);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+        } catch (final Exception exception) {
+            String errorMessage = "Unable to update function block: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _deleteFunctionBlockFromCatalog(HttpServletRequest request, long functionBlockId, Environment environment) {
+        final String functionCatalogIdString = request.getParameter("functionCatalogId");
+        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
+
+        { // Validate Inputs
+            if (functionCatalogId == null || functionCatalogId < 1) {
+                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
+            }
+        }
+
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
+        } catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
-            final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
             final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
@@ -96,13 +148,15 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 final Json blockJson = new Json(false);
                 blockJson.put("id", functionBlock.getId());
                 blockJson.put("mostId", functionBlock.getMostId());
-                blockJson.put("kind", functionBlock.getKind().getXmlText());
+                blockJson.put("kind", functionBlock.getKind());
                 blockJson.put("name", functionBlock.getName());
                 blockJson.put("description", functionBlock.getDescription());
                 blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
                 blockJson.put("releaseVersion", functionBlock.getRelease());
                 blockJson.put("authorId", functionBlock.getAuthor().getId());
+                blockJson.put("authorName", functionBlock.getAuthor().getName());
                 blockJson.put("companyId", functionBlock.getCompany().getId());
+                blockJson.put("companyName", functionBlock.getCompany().getName());
                 blockJson.put("access", functionBlock.getAccess());
                 blocksJson.add(blockJson);
             }
@@ -117,9 +171,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson) throws Exception {
+    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson, final long accountId, final Environment environment) throws Exception {
         final String mostId = functionBlockJson.getString("mostId");
-        final String kindString = functionBlockJson.getString("kind");
+        final String kind = functionBlockJson.getString("kind");
         final String name = functionBlockJson.getString("name");
         final String description = functionBlockJson.getString("description");
         final String release = functionBlockJson.getString("releaseVersion");
@@ -127,18 +181,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Integer companyId = functionBlockJson.getInteger("companyId");
         final String access = functionBlockJson.getString("access");
 
-        FunctionBlock.Kind kind = FunctionBlock.Kind.PROPRIETARY;
-
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
 
-            if (! Util.isBlank(kindString)) {
-                kind = FunctionBlock.Kind.fromString(kindString);
-                if (kind == null) {
-                    throw new Exception("Invalid Kind value: "+ kindString);
-                }
+            if (Util.isBlank(kind)) {
+                throw new Exception("Invalid Kind value: "+ kind);
             }
 
             if (Util.isBlank(name)) {
@@ -156,21 +205,28 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(access)) {
                 throw new Exception("Access field is required.");
             }
-
-            if (authorId < 1) {
-                throw new Exception("Invalid Account ID: " + authorId);
-            }
-
-            if (companyId < 1) {
-                throw new Exception("Invalid Company ID: " + companyId);
-            }
         }
 
-        final Company company = new Company();
-        company.setId(companyId);
+        Company company;
+        Author author;
 
-        final Author author = new Author();
-        author.setId(authorId);
+        if (authorId >= 1) {
+            // use supplied author/account ID
+            company = new Company();
+            company.setId(companyId);
+            author = new Author();
+            author.setId(authorId);
+        } else {
+            // use users's account ID
+            try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+                AccountInflater accountInflater = new AccountInflater(databaseConnection);
+
+                Account account = accountInflater.inflateAccount(accountId);
+
+                company = account.getCompany();
+                author = account.toAuthor();
+            }
+        }
 
         FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setMostId(mostId);

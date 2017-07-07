@@ -19,3 +19,9 @@ VALUES ('0x01', 'Proprietary', 'Test Function Block', 'This is a test fblock.', 
 INSERT INTO function_catalogs_function_blocks (function_catalog_id, function_block_id)
 VALUES (1, 1);
 
+INSERT INTO interfaces (most_id, name, description, last_modified_date, version)
+VALUES ('1', 'Test Interface', 'This is a test interface.', '2017-06-06', '1');
+
+INSERT INTO function_blocks_interfaces (function_block_id, interface_id)
+VALUES (1, 1);
+

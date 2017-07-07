@@ -5,7 +5,6 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.mysql.MysqlMemoryDatabase;
 import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import org.junit.Assert;
 import org.junit.Test;

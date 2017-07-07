@@ -4,15 +4,14 @@ class FunctionCatalogForm extends React.Component {
 
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(this.props.functionCatalog || new FunctionCatalog()));
         this.state = {
-            showTitle:          this.props.showTitle,
-            functionCatalog:    functionCatalog,
-            buttonTitle:        (this.props.buttonTitle || "Submit"),
+            showTitle:                  this.props.showTitle,
+            shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
+            functionCatalog:            functionCatalog,
+            buttonTitle:                (this.props.buttonTitle || "Submit"),
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
-        this.onAuthorChanged = this.onAuthorChanged.bind(this);
-        this.onCompanyChanged = this.onCompanyChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -24,15 +23,20 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(newProperties.functionCatalog || new FunctionCatalog()));
         functionCatalog.setId((newProperties.functionCatalog || functionCatalog).getId());
         this.setState({
-            showTitle:          newProperties.showTitle,
-            functionCatalog:    functionCatalog,
-            buttonTitle:        (newProperties.buttonTitle || "Submit")
+            showTitle:                  newProperties.showTitle,
+            shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
+            functionCatalog:            functionCatalog,
+            buttonTitle:                (newProperties.buttonTitle || "Submit")
         });
     }
 
     onNameChanged(newValue) {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setName(newValue);
+
+        this.setState({
+           buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -43,29 +47,9 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setReleaseVersion(newValue);
 
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-
-    onAuthorChanged(newValue) {
-        const functionCatalog = this.state.functionCatalog;
-
-        const author = (functionCatalog.getAuthor() || new Author());
-        author.setId(newValue);
-        functionCatalog.setAuthor(author);
-
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-
-    onCompanyChanged(newValue) {
-        const functionCatalog = this.state.functionCatalog;
-
-        const company = (functionCatalog.getCompany() || new Company());
-        company.setId(newValue);
-        functionCatalog.setCompany(company);
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -101,22 +85,19 @@ class FunctionCatalogForm extends React.Component {
     }
 
     render() {
-        const author = this.state.functionCatalog.getAuthor();
-        const company = this.state.functionCatalog.getCompany();
+        const reactComponents = [];
+        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />);
 
-        var authorId = "";
-        var companyId = "";
-        if(author != undefined) authorId = author.getId();
-        if(company != undefined) companyId = company.getId();
-
+        if(this.state.shouldShowSaveAnimation)  {
+            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+        } else {
+            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+        }
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
-                <app.InputField id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
-                <app.InputField id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
-                <app.InputField id="function-catalog-author" name="author" type="text" label="Author" value={authorId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
-                <app.InputField id="function-catalog-company" name="company" type="text" label="Company" value={companyId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <div className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
+                {reactComponents}
             </div>
         );
     }

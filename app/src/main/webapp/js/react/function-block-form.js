@@ -16,9 +16,10 @@ class FunctionBlockForm extends React.Component {
         }
 
         this.state = {
-            showTitle:      this.props.showTitle,
-            functionBlock:  functionBlock,
-            buttonTitle:    (this.props.buttonTitle || "Submit")
+            showTitle:                  this.props.showTitle,
+            shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
+            functionBlock:              functionBlock,
+            buttonTitle:                (this.props.buttonTitle || "Submit")
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -27,8 +28,6 @@ class FunctionBlockForm extends React.Component {
         this.onDescriptionChange = this.onDescriptionChange.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
         this.onKindChanged = this.onKindChanged.bind(this);
-        this.onAuthorChanged = this.onAuthorChanged.bind(this);
-        this.onCompanyChanged = this.onCompanyChanged.bind(this);
         this.onAccessChanged = this.onAccessChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
@@ -48,15 +47,20 @@ class FunctionBlockForm extends React.Component {
 
         functionBlock.setId((newProperties.functionBlock || functionBlock).getId());
         this.setState({
-            showTitle:      newProperties.showTitle,
-            functionBlock:  functionBlock,
-            buttonTitle:    (newProperties.buttonTitle || "Submit")
+            showTitle:                  newProperties.showTitle,
+            shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
+            functionBlock:              functionBlock,
+            buttonTitle:                (newProperties.buttonTitle || "Submit")
         });
     }
 
     onMostIdChanged(newValue) {
         const functionBlock = this.state.functionBlock;
         functionBlock.setMostId(newValue);
+
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -67,6 +71,10 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setKind(newValue);
 
+        this.setState({
+            buttonTitle: "Save"
+        });
+
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
         }
@@ -75,6 +83,10 @@ class FunctionBlockForm extends React.Component {
     onNameChanged(newValue) {
         const functionBlock = this.state.functionBlock;
         functionBlock.setName(newValue);
+
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -85,6 +97,10 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setDescription(newValue);
 
+        this.setState({
+            buttonTitle: "Save"
+        });
+
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
         }
@@ -94,29 +110,9 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setReleaseVersion(newValue);
 
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-    
-    onAuthorChanged(newValue) {
-        const functionBlock = this.state.functionBlock;
-
-        const author = (functionBlock.getAuthor() || new Author());
-        author.setId(newValue);
-        functionBlock.setAuthor(author);
-
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-    }
-
-    onCompanyChanged(newValue) {
-        const functionBlock = this.state.functionBlock;
-
-        const company = (functionBlock.getCompany() || new Company());
-        company.setId(newValue);
-        functionBlock.setCompany(company);
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -126,6 +122,10 @@ class FunctionBlockForm extends React.Component {
     onAccessChanged(newValue) {
         const functionBlock = this.state.functionBlock;
         functionBlock.setAccess(newValue);
+
+        this.setState({
+            buttonTitle: "Save"
+        });
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -141,14 +141,6 @@ class FunctionBlockForm extends React.Component {
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionBlock);
         }
-
-        /*
-            // Clear the form...
-            const functionBlock = new FunctionBlock();
-            this.setState({
-                functionBlock: functionBlock
-            });
-        */
     }
 
     renderFormTitle() {
@@ -160,26 +152,30 @@ class FunctionBlockForm extends React.Component {
     }
 
     render() {
-        const author = this.state.functionBlock.getAuthor();
-        const company = this.state.functionBlock.getCompany();
 
-        var authorId = "";
-        var companyId = "";
-        if(author != undefined) authorId = author.getId();
-        if(company != undefined) companyId = company.getId();
+        const accessOptions = [];
+        accessOptions.push('public');
+        accessOptions.push('private');
+        accessOptions.push('preliminary');
+
+        const reactComponents = [];
+        reactComponents.push(<app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID" value={this.state.functionBlock.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />);
+        reactComponents.push(<app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={this.state.functionBlock.getKind()} readOnly={this.props.readOnly} onChange={this.onKindChanged} />);
+        reactComponents.push(<app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="function-block-description" id="function-block-description" name="description" type="textarea" label="Description" value={this.state.functionBlock.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />);
+        reactComponents.push(<app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />);
+        reactComponents.push(<app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={this.state.functionBlock.getAccess()} options={accessOptions} readOnly={this.props.readOnly} onChange={this.onAccessChanged} />);
+
+        if(this.state.shouldShowSaveAnimation)  {
+            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+        } else {
+            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+        }
 
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
-                <app.InputField id="function-block-most-id" name="id" type="text" label="ID" value={this.state.functionBlock.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />
-                <app.InputField id="function-block-kind" name="kind" type="text" label="Kind" value={this.state.functionBlock.getKind()} readOnly={this.props.readOnly} onChange={this.onKindChanged} />
-                <app.InputField id="function-block-name" name="name" type="text" label="Name" value={this.state.functionBlock.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
-                <app.InputField id="function-block-description" name="description" type="text" label="Description" value={this.state.functionBlock.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
-                <app.InputField id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionBlock.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />
-                <app.InputField id="function-block-author" name="author" type="text" label="Author" value={companyId} readOnly={this.props.readOnly} onChange={this.onAuthorChanged} />
-                <app.InputField id="function-block-company" name="company" type="text" label="Company" value={authorId} readOnly={this.props.readOnly} onChange={this.onCompanyChanged} />
-                <app.InputField id="function-block-access" name="access" type="text" label="Access" value={this.state.functionBlock.getAccess()} readOnly={this.props.readOnly} onChange={this.onAccessChanged} />
-                <div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>
+                {reactComponents}
             </div>
         );
     }

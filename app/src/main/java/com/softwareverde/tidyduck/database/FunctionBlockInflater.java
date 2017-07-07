@@ -22,7 +22,11 @@ public class FunctionBlockInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(long functionCatalogId) throws DatabaseException {
+    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+        return inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, false);
+    }
+
+    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
             "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?"
         );
@@ -32,13 +36,17 @@ public class FunctionBlockInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long functionBlockId = row.getLong("function_block_id");
-            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId);
+            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId, inflateChildren);
             functionBlocks.add(functionBlock);
         }
         return functionBlocks;
     }
 
     public FunctionBlock inflateFunctionBlock(final long functionBlockId) throws DatabaseException {
+        return inflateFunctionBlock(functionBlockId, false);
+    }
+
+    public FunctionBlock inflateFunctionBlock(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
             "SELECT * FROM function_blocks WHERE id = ?"
         );
@@ -53,8 +61,7 @@ public class FunctionBlockInflater {
 
         final Long id = row.getLong("id");
         final String mostId = row.getString("most_id");
-        final String kindString = row.getString("kind");
-        final FunctionBlock.Kind kind = FunctionBlock.Kind.valueOf(kindString.toUpperCase());
+        final String kind = row.getString("kind");
         final String name = row.getString("name");
         final String description = row.getString("description");
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
@@ -81,6 +88,10 @@ public class FunctionBlockInflater {
         functionBlock.setCompany(company);
         functionBlock.setAccess(access);
         functionBlock.setCommitted(isCommitted);
+
+        if (inflateChildren) {
+            // TODO: inflate interfaces
+        }
 
         return functionBlock;
     }

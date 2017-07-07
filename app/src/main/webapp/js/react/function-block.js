@@ -3,7 +3,8 @@ class FunctionBlock extends React.Component {
         super(props);
 
         this.state = {
-            showMenu: false
+            showMenu:           false,
+            showWorkingIcon:    false
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
@@ -12,6 +13,13 @@ class FunctionBlock extends React.Component {
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
 
         window.app.navigation = this;
+    }
+
+    componentWillReceiveProps(newProperties) {
+        this.setState({
+            showMenu:           false,
+            showWorkingIcon:    false
+        });
     }
 
     onMenuButtonClick(event) {
@@ -25,6 +33,9 @@ class FunctionBlock extends React.Component {
     deleteFunctionBlock(event) {
         event.stopPropagation();
         if (typeof this.props.onDelete == "function") {
+            this.setState({
+                showWorkingIcon: true
+            });
             this.props.onDelete(this.props.functionBlock);
         }
     }
@@ -52,20 +63,24 @@ class FunctionBlock extends React.Component {
         const author = this.props.functionBlock.getAuthor();
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
+        const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
+
+        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
         
         return (
             <div className="function-catalog" onClick={this.onClick}>
                 <div className="function-catalog-title">
                     {name}
+                    {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {this.renderMenu()}
                 </div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
-                <div className="child-function-catalog-property">{this.props.functionBlock.getDescription()}</div>
+                <div className="child-function-catalog-property">{shortDescription}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div>
-                <div className="child-function-catalog-property">{(author ? author.getId() : "")}</div>
-                <div className="child-function-catalog-property">{(company ? company.getId() : "")}</div>
+                <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
+                <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
             </div>
         );
     }

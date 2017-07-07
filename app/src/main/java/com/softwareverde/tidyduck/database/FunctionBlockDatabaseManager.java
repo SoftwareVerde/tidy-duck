@@ -4,6 +4,9 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.FunctionBlock;
+import com.softwareverde.tidyduck.MostInterface;
+
+import java.util.List;
 
 public class FunctionBlockDatabaseManager {
 
@@ -21,7 +24,7 @@ public class FunctionBlockDatabaseManager {
 
     private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
         final String mostId = functionBlock.getMostId();
-        final FunctionBlock.Kind kind = functionBlock.getKind();
+        final String kind = functionBlock.getKind();
         final String name = functionBlock.getName();
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
@@ -31,7 +34,7 @@ public class FunctionBlockDatabaseManager {
 
         final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)")
             .setParameter(mostId)
-            .setParameter(kind.getXmlText())
+            .setParameter(kind)
             .setParameter(name)
             .setParameter(description)
             .setParameter(release)
@@ -53,6 +56,51 @@ public class FunctionBlockDatabaseManager {
         return _databaseConnection.executeSql(query);
     }
 
+    public void updateFunctionBlockForFunctionCatalog (final long functionCatalogId, final FunctionBlock proposedFunctionBlock) throws DatabaseException {
+        final long inputFunctionBlockId = proposedFunctionBlock.getId();
+
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        FunctionBlock databaseFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
+        if (!databaseFunctionBlock.isCommitted()) {
+            // not committed, can update existing function block
+            _updateUncommittedFunctionBlock(proposedFunctionBlock);
+        } else {
+            // current block is committed to a function catalog
+            // need to insert a new function block replace this one
+            _insertFunctionBlock(proposedFunctionBlock);
+            final long newFunctionBlockId = proposedFunctionBlock.getId();
+            // change association with function catalog
+            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
+            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
+        }
+    }
+
+    private void _updateUncommittedFunctionBlock(FunctionBlock proposedFunctionBlock) throws DatabaseException {
+        final String newMostId = proposedFunctionBlock.getMostId();
+        final String newKind = proposedFunctionBlock.getKind();
+        final String newName = proposedFunctionBlock.getName();
+        final String newReleaseVersion = proposedFunctionBlock.getRelease();
+        final String newDescription = proposedFunctionBlock.getDescription();
+        final String newAccess = proposedFunctionBlock.getAccess();
+        final long newAuthorId = proposedFunctionBlock.getAuthor().getId();
+        final long newCompanyId = proposedFunctionBlock.getCompany().getId();
+        final long functionBlockId = proposedFunctionBlock.getId();
+
+        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ? WHERE id = ?")
+                .setParameter(newMostId)
+                .setParameter(newKind)
+                .setParameter(newName)
+                .setParameter(newDescription)
+                .setParameter(newReleaseVersion)
+                .setParameter(newAuthorId)
+                .setParameter(newCompanyId)
+                .setParameter(newAccess)
+                .setParameter(functionBlockId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
         _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
         _deleteFunctionBlockIfUncommitted(functionBlockId);
@@ -68,13 +116,23 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _deleteFunctionBlockIfUncommitted(long functionBlockId) throws DatabaseException {
-        FunctionBlockInflater functionCatalogInflater = new FunctionBlockInflater(_databaseConnection);
-        FunctionBlock functionBlock = functionCatalogInflater.inflateFunctionBlock(functionBlockId);
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
         if (!functionBlock.isCommitted()) {
-            // function block isn't committed, we can delete it
-            // TODO: delete interfaces from function block
+            _deleteInterfacesFromFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
+        }
+    }
+
+    private void _deleteInterfacesFromFunctionBlock(long functionBlockId) throws DatabaseException {
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
+
+        MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (MostInterface mostInterface : mostInterfaces) {
+            // function block isn't committed, we can delete it
+            mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
     }
 

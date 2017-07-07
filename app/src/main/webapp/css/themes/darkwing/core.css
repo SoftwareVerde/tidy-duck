@@ -1,0 +1,19 @@
+body * {
+    font-size: 14px;
+    word-spacing: 1px;
+}
+
+.button {
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.button:hover {
+    background-color: #143D57;
+}
+
+.delete-working-icon, #loading-children-icon {
+    color: #FFF;
+}

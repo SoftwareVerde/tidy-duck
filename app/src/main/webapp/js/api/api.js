@@ -175,13 +175,14 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
 }
 
 // calls callbackFunction with modified function block ID
-function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
+function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
+                "functionCatalogId":    functionCatalogId,
                 "functionBlock":    functionBlock
             })
         }
@@ -199,9 +200,9 @@ function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
     });
 }
 
-function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
+function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "?versionId=" + versionId,
+        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "?functionCatalogId=" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"
@@ -211,7 +212,7 @@ function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
     jsonFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         if (!wasSuccess) {
-            console.log("Unable to delete function block " + functionBlockId + " from version " + versionId + ": " + data.errorMessage);
+            console.log("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -219,6 +220,110 @@ function deleteFunctionBlock(versionId, functionBlockId, callbackFunction) {
         }
     });
 }
+
+// MOST INTERFACES
+
+// calls callbackFunction with an array of MOST interfaces.
+function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface?function_block_id=" + functionBlockId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaces = null;
+
+        if (data.wasSuccess) {
+            mostInterfaces = data.mostInterfaces;
+        } else {
+            console.log("Unable to get Interfaces for function block " + functionBlockId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaces);
+        }
+    });
+}
+// calls callbackFunction with new MOST interface ID
+function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interface",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlockId":      functionBlockId,
+                "mostInterface":        mostInterface
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaceId = null;
+
+        if (data.wasSuccess) {
+            mostInterfaceId = data.mostInterfaceId;
+        } else {
+            console.log("Unable to insert interface: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaceId);
+        }
+    });
+}
+
+// calls callbackFunction with modified MOST interface ID
+function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId,
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlockId":    functionBlockId,
+                "mostInterface":      mostInterface
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.log("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
+function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (!wasSuccess) {
+            console.log("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
+// ACCOUNT
 
 function downloadAccount(callback) {
     jsonFetch(

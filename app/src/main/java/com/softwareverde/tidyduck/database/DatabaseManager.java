@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.MostInterface;
 import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -66,6 +67,58 @@ public class DatabaseManager {
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
                 functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock);
+            }
+        });
+    }
+
+    public void updateFunctionBlock(final long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock);
+            }
+        });
+    }
+
+    public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
+            }
+        });
+    }
+
+    //MOST INTERFACE METHODS
+
+    public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
+            }
+        });
+    }
+
+    public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
+            }
+        });
+    }
+
+    public void deleteMostInterface(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
             }
         });
     }

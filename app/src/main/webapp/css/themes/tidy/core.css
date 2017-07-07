@@ -1,0 +1,16 @@
+body * {
+    color: #4A4A4A;
+}
+
+.button {
+    background-color: #FFDD66;
+    border: solid 1px #BBAA22;
+    box-shadow: 5px 5px 5px #CCCCCC;
+
+    transition: background-color 0.5s ease;
+}
+
+.button:hover {
+    background-color: #FFEE77;
+}
+

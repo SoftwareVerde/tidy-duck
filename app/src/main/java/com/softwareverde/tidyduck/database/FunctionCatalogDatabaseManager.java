@@ -6,10 +6,14 @@ import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
+
+    private final Logger _logger = LoggerFactory.getLogger(getClass());
 
     private final DatabaseConnection _databaseConnection;
 

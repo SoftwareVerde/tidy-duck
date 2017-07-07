@@ -16,11 +16,14 @@ public abstract class AuthenticatedJsonServlet extends JsonServlet {
 
     @Override
     protected final Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
+
         if (! Session.isAuthenticated(request)) {
             return super._generateErrorJson("Not authenticated.");
         }
 
         final Long accountId = Session.getAccountId(request);
+        _logger.debug("Authenticated as " + accountId.toString());
+
         return this.handleAuthenticatedRequest(request, httpMethod, accountId, environment);
     }
 }

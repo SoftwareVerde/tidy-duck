@@ -39,9 +39,7 @@ public class AccountServlet extends JsonServlet {
 
             final Long accountId = Session.getAccountId(request);
             final Account account;
-            try {
-                final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
-
+            try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
                 final AccountInflater accountInflater = new AccountInflater(databaseConnection);
                 account = accountInflater.inflateAccount(accountId);
             }
@@ -55,6 +53,7 @@ public class AccountServlet extends JsonServlet {
             accountJson.put("username", account.getUsername());
             accountJson.put("name", account.getName());
             accountJson.put("companyId", account.getCompany().getId());
+            accountJson.put("companyName", account.getCompany().getName());
 
             final Json responseJson = super._generateSuccessJson();
             responseJson.put("account", accountJson);
@@ -64,8 +63,7 @@ public class AccountServlet extends JsonServlet {
             final String username = Util.coalesce(request.getParameter("username"));
             final String password = Util.coalesce(request.getParameter("password"));
 
-            try {
-                final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection();
+            try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
                 final List<Row> rows = databaseConnection.query(
                     "SELECT id FROM accounts WHERE username = ? AND password = ?",
                     new String[] {
