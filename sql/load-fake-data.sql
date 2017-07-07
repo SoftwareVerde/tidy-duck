@@ -26,3 +26,12 @@ VALUES ('1', 'Test Interface', 'This is a test interface.', '2017-06-06', '1');
 INSERT INTO function_blocks_interfaces (function_block_id, interface_id)
 VALUES (1, 1);
 
+INSERT INTO functions (name, function_stereotype_id, description, release_version, account_id, company_id, return_type)
+VALUES ('Test Function', 2, 'Description', '1.1', 1, 1, 1);
+
+INSERT INTO function_operations (function_id, operation_id)
+VALUES
+        (1, 1),
+        (1, 5),
+        (1, 6);
+
