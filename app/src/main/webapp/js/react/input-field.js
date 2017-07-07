@@ -48,6 +48,11 @@ class InputField extends React.Component {
                     <textarea id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />
                 );
                 break;
+            case 'checkbox':
+                return (
+                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} checked={this.props.checked}/>
+                );
+                break;
             default:
                 return (
                     <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />

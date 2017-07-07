@@ -1125,7 +1125,16 @@ class App extends React.Component {
 
             case NavigationLevel.mostInterfaces:
                 if (shouldShowCreateChildForm) {
-                    // TODO: implement metadata form for creating/saving Functions.
+                    // TODO: change onSubmit to onCreateMostFunction, when ready.
+                    reactComponents.push(
+                        <app.MostFunctionForm key="MostFunctionForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
+                           buttonTitle={buttonTitle}
+                           showTitle={true}
+                           onSubmit={this.onCreateMostInterface}
+                           defaultButtonTitle="Submit"
+                        />
+                    );
                 }
                 break;
 

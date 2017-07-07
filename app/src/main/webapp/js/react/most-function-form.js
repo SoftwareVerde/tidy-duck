@@ -21,6 +21,7 @@ class MostFunctionForm extends React.Component {
         this.onStereotypeChanged = this.onStereotypeChanged.bind(this);
         this.onReturnTypeChanged = this.onReturnTypeChanged.bind(this);
 
+        this.onAddParameterClicked = this.onAddParameterClicked.bind(this);
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
@@ -115,6 +116,10 @@ class MostFunctionForm extends React.Component {
         }
     }
 
+    onAddParameterClicked() {
+        // TODO: add a default parameter object to this Function's array of parameters
+    }
+
     onClick(event) {
         event.stopPropagation();
     }
@@ -136,28 +141,30 @@ class MostFunctionForm extends React.Component {
 
     renderOperationCheckboxes() {
         // TODO: logic for which checkboxes should be checked, based on what toolbar button was clicked.
+
+        const readOnly = true;
         let shouldCheckGet = false;
-        let shouldCheckSet = false;
+        let shouldCheckSet = true;
         let shouldCheckStatus = false;
         let shouldCheckError = false;
         let shouldCheckStartResultAck = false;
         let shouldCheckErrorAck = false;
-        let shouldCheckResultAck = false;
+        let shouldCheckResultAck = true;
         let shouldCheckProcessingAck = false
         let shouldCheckAbortAck = false;
 
         return (
-            <span>
-                <input type="checkbox" checked={shouldCheckGet}>Get</input>
-                <input type="checkbox" checked={shouldCheckSet}>Get</input>
-                <input type="checkbox" checked={shouldCheckStatus}>Get</input>
-                <input type="checkbox" checked={shouldCheckError}>Get</input>
-                <input type="checkbox" checked={shouldCheckStartResultAck}>Get</input>
-                <input type="checkbox" checked={shouldCheckErrorAck}>Get</input>
-                <input type="checkbox" checked={shouldCheckResultAck}>Get</input>
-                <input type="checkbox" checked={shouldCheckProcessingAck}>Get</input>
-                <input type="checkbox" checked={shouldCheckAbortAck}>Get</input>
-            </span>
+            <div>
+                <app.InputField id="operation-get" name="get" type="checkbox" label="Get" value={shouldCheckGet} checked={shouldCheckGet} readOnly={readOnly}/>
+                <app.InputField id="operation-set" name="set" type="checkbox" label="Set" value={shouldCheckSet} checked={shouldCheckSet} readOnly={readOnly}/>
+                <app.InputField id="operation-status" name="status" type="checkbox" label="Status" value={shouldCheckStatus} checked={shouldCheckStatus} readOnly={readOnly}/>
+                <app.InputField id="operation-error" name="error" type="checkbox" label="Error" value={shouldCheckError} checked={shouldCheckError} readOnly={readOnly}/>
+                <app.InputField id="operation-start-result-ack" name="startResultAck" type="checkbox" label="StartResultAck" value={shouldCheckStartResultAck} checked={shouldCheckStartResultAck} readOnly={readOnly}/>
+                <app.InputField id="operation-error-ack" name="errorAck" type="checkbox" label="ErrorAck" value={shouldCheckErrorAck} checked={shouldCheckErrorAck} readOnly={readOnly}/>
+                <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" value={shouldCheckResultAck} checked={shouldCheckResultAck} readOnly={readOnly}/>
+                <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" value={shouldCheckProcessingAck} checked={shouldCheckProcessingAck} readOnly={readOnly}/>
+                <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" value={shouldCheckAbortAck} checked={shouldCheckAbortAck} readOnly={readOnly}/>
+            </div>
         );
     }
 
@@ -195,6 +202,9 @@ class MostFunctionForm extends React.Component {
             // TODO: pass onParameterUpdate, onParameterAdd, and onParameterDelete function as props.
             parameterComponents.push(<app.MostFunctionParameter key={parameterKey} parameter={parameter}/>);
         }
+
+        // Push button for adding parameters.
+        parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-3x" onClick={this.onAddParameterClicked}/>);
 
         return (
             <div className="metadata-form" onClick={this.onClick}>

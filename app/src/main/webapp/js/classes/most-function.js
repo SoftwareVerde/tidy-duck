@@ -1,6 +1,6 @@
 class MostFunction {
     static fromJson(json) {
-        const mostFunction = new MostFunctionForm();
+        const mostFunction = new MostFunction();
 
         const author = new Author();
         author.setId(json.authorId);
