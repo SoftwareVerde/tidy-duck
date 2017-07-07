@@ -21,7 +21,7 @@ class MostFunctionParameter extends React.Component {
         parameter.setName(newValue);
 
         if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
+            this.props.onUpdate(parameter);
         }
     }
 
@@ -36,6 +36,7 @@ class MostFunctionParameter extends React.Component {
         return (
           <div className="search-result">
               <app.InputField id="name" name="name" type="text" label="NAME" value={parameter.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
+              {this.renderDeleteIcon()}
           </div>
         );
     }
