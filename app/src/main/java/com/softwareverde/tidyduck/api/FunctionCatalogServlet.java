@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
@@ -28,10 +29,12 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     @Override
     protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
+        final Database<Connection> database = environment.getDatabase();
+
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-catalog".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return _insertFunctionCatalog(request, accountId, environment);
+                return _insertFunctionCatalog(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
                 long versionId = Util.parseLong(Util.coalesce(request.getParameter("version_id")));
@@ -39,7 +42,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid version id.");
                 }
 
-                return _listFunctionCatalogs(versionId, environment);
+                return _listFunctionCatalogs(versionId, database);
             }
         } else {
             // not base function catalog, must have ID
@@ -48,17 +51,17 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function catalog id.");
             }
             if (httpMethod == HttpMethod.POST) {
-                return _updateFunctionCatalog(request, functionCatalogId, accountId, environment);
+                return _updateFunctionCatalog(request, functionCatalogId, accountId, database);
             }
             if (httpMethod == HttpMethod.DELETE) {
-                return _deleteFunctionCatalogFromVersion(request, functionCatalogId, environment);
+                return _deleteFunctionCatalogFromVersion(request, functionCatalogId, database);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    protected Json _listFunctionCatalogs(final long versionId, final Environment environment) {
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+    protected Json _listFunctionCatalogs(final long versionId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
@@ -87,7 +90,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertFunctionCatalog(final HttpServletRequest httpRequest, long accountId, final Environment environment) throws IOException {
+    protected Json _insertFunctionCatalog(final HttpServletRequest httpRequest, long accountId, final Database<Connection> database) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
 
@@ -102,9 +105,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         final Json functionCatalogJson = request.get("functionCatalog");
         try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, environment);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, database);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertFunctionCatalog(versionId, functionCatalog);
             response.put("functionCatalogId", functionCatalog.getId());
         }
@@ -117,7 +120,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateFunctionCatalog(HttpServletRequest httpRequest, long functionCatalogId, long accountId, Environment environment) throws IOException {
+    protected Json _updateFunctionCatalog(final HttpServletRequest httpRequest, final long functionCatalogId, final long accountId, final Database<Connection> database) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
 
         final Long versionId = Util.parseLong(request.getString("versionId"));
@@ -132,10 +135,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, environment);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, database);
             functionCatalog.setId(functionCatalogId);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateFunctionCatalog(versionId, functionCatalog);
         } catch (final Exception exception) {
             String errorMessage = "Unable to update function catalog: " + exception.getMessage();
@@ -148,7 +151,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _deleteFunctionCatalogFromVersion(HttpServletRequest request, long functionCatalogId, Environment environment) {
+    protected Json _deleteFunctionCatalogFromVersion(final HttpServletRequest request, final long functionCatalogId, final Database<Connection> database) {
         final String versionIdString = request.getParameter("versionId");
         final Long versionId = Util.parseLong(versionIdString);
 
@@ -159,7 +162,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            final DatabaseManager databaseManager = new DatabaseManager(environment);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.deleteFunctionCatalog(versionId, functionCatalogId);
         } catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function catalog %d from version %d.", functionCatalogId, versionId);
@@ -172,7 +175,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Environment environment) throws Exception {
+    protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Database<Connection> database) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
         final Integer authorId = functionCatalogJson.getInteger("authorId");
@@ -188,8 +191,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         }
 
-        Company company;
-        Author author;
+        final Company company;
+        final Author author;
 
         if (authorId >= 1) {
             // use supplied author/account ID
@@ -197,9 +200,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             company.setId(companyId);
             author = new Author();
             author.setId(authorId);
-        } else {
+        }
+        else {
             // use users's account ID
-            try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            try (DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
                 AccountInflater accountInflater = new AccountInflater(databaseConnection);
 
                 Account account = accountInflater.inflateAccount(accountId);

@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.database.DatabaseManager;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
 
 public class SettingsServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
@@ -22,7 +24,9 @@ public class SettingsServlet extends AuthenticatedJsonServlet {
         return super._generateErrorJson("Unimplemented request method: " + httpMethod);
     }
 
-    private Json updateSettings(HttpServletRequest request, long accountId, Environment environment) {
+    private Json updateSettings(final HttpServletRequest request, final long accountId, final Environment environment) {
+        final Database<Connection> database = environment.getDatabase();
+
         Json response = super._generateSuccessJson();
 
         try {
@@ -37,7 +41,7 @@ public class SettingsServlet extends AuthenticatedJsonServlet {
             final Settings settings = new Settings();
             settings.setTheme(theme);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateAccountSettings(accountId, settings);
         } catch (Exception e) {
             String message = "Unable to update settings.";
