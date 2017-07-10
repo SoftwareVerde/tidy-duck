@@ -200,11 +200,11 @@
 .parameter-display-area {
     float: left;
     width:  100%;
-    text-align: center;
 }
 
 .parameter-display-area i {
     cursor: pointer;
+    margin-left: 0.25em;
 }
 
 .child-display-area {

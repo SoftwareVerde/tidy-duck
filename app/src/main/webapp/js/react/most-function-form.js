@@ -28,6 +28,7 @@ class MostFunctionForm extends React.Component {
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
+        this.renderParameters = this.renderParameters.bind(this);
         this.renderFormTitle = this.renderFormTitle.bind(this);
         this.renderOperationCheckboxes = this.renderOperationCheckboxes.bind(this);
         this.renderSubmitButton = this.renderSubmitButton.bind(this);
@@ -254,6 +255,38 @@ class MostFunctionForm extends React.Component {
         );
     }
 
+    renderParameters() {
+        const parameterComponents = [];
+
+        //Check if selected stereotype is a method. If so, display parameters and add parameter button.
+        const functionStereotypes = this.props.functionStereotypes;
+        switch (this.props.selectedFunctionStereotype) {
+            case functionStereotypes.commandWithAck:
+            case functionStereotypes.requestResponse:
+                const parameters = this.state.parameters;
+                if (this.props.selectedFunctionStereotype)
+                    for (let i in parameters) {
+                        const parameter = parameters[i];
+                        const parameterKey = parameter.getName() + i;
+                        // TODO: pass onParameterUpdate function as props.
+                        parameterComponents.push(<app.MostFunctionParameter key={parameterKey} parameter={parameter} onDeleteParameterClicked={this.onDeleteParameterClicked}/>);
+                    }
+
+                // Push button for adding parameters.
+                parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
+                break;
+        }
+
+        if (parameterComponents.length > 0) {
+            return(
+                <div>
+                    <div className="metadata-form-title">Function Parameters</div>
+                    <div className="parameter-display-area">{parameterComponents}</div>
+                </div>
+            );
+        }
+    }
+
     renderSubmitButton() {
         if(this.state.shouldShowSaveAnimation)  {
             return(<div className="center"><div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
@@ -279,25 +312,11 @@ class MostFunctionForm extends React.Component {
         reactComponents.push(<app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={mostFunction.getStereotype()} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />);
         reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={mostFunction.getReturnType()} options={returnTypeOptions} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
 
-        const parameterComponents = [];
-        const parameters = this.state.parameters;
-
-        for (let i in parameters) {
-            const parameter = parameters[i];
-            const parameterKey = parameter.getName() + i;
-            // TODO: pass onParameterUpdate function as props.
-            parameterComponents.push(<app.MostFunctionParameter key={parameterKey} parameter={parameter} onDeleteParameterClicked={this.onDeleteParameterClicked}/>);
-        }
-
-        // Push button for adding parameters.
-        parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
-
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
                 <div className="metadata-form-inputs">{reactComponents}</div>
-                <div className="metadata-form-title">Function Parameters</div>
-                <div className="parameter-display-area">{parameterComponents}</div>
+                {this.renderParameters()}
                 {this.renderOperationCheckboxes()}
                 {this.renderSubmitButton()}
             </div>
