@@ -3,9 +3,11 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.MostInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionBlockDatabaseManager {
@@ -47,6 +49,12 @@ public class FunctionBlockDatabaseManager {
         functionBlock.setId(functionBlockId);
     }
 
+    public void associateFunctionBlockWithFunctionCatalog(final Long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        if (!_isAssociatedWithFunctionCatalog(functionCatalogId, functionBlockId)) {
+            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        }
+    }
+
     private Long _associateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
         final Query query = new Query("INSERT INTO function_catalogs_function_blocks (function_catalog_id, function_block_id) VALUES (?, ?)")
             .setParameter(functionCatalogId)
@@ -54,6 +62,17 @@ public class FunctionBlockDatabaseManager {
         ;
 
         return _databaseConnection.executeSql(query);
+    }
+
+    private boolean _isAssociatedWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_catalogs_function_blocks WHERE function_catalog_id = ? AND function_block_id = ?")
+            .setParameter(functionCatalogId)
+            .setParameter(functionBlockId)
+        ;
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        return rows.size() > 0;
     }
 
     public void updateFunctionBlockForFunctionCatalog (final long functionCatalogId, final FunctionBlock proposedFunctionBlock) throws DatabaseException {
@@ -87,16 +106,16 @@ public class FunctionBlockDatabaseManager {
         final long functionBlockId = proposedFunctionBlock.getId();
 
         final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ? WHERE id = ?")
-                .setParameter(newMostId)
-                .setParameter(newKind)
-                .setParameter(newName)
-                .setParameter(newDescription)
-                .setParameter(newReleaseVersion)
-                .setParameter(newAuthorId)
-                .setParameter(newCompanyId)
-                .setParameter(newAccess)
-                .setParameter(functionBlockId)
-                ;
+            .setParameter(newMostId)
+            .setParameter(newKind)
+            .setParameter(newName)
+            .setParameter(newDescription)
+            .setParameter(newReleaseVersion)
+            .setParameter(newAuthorId)
+            .setParameter(newCompanyId)
+            .setParameter(newAccess)
+            .setParameter(functionBlockId)
+        ;
 
         _databaseConnection.executeSql(query);
     }
@@ -119,7 +138,7 @@ public class FunctionBlockDatabaseManager {
         FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (!functionBlock.isCommitted()) {
+        if (!functionBlock.isCommitted() && isOrphaned(functionBlockId)) {
             _deleteInterfacesFromFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
@@ -142,5 +161,40 @@ public class FunctionBlockDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    /**
+     * Returns true if and only if the function block with the given idea is not associated with any function catalog.
+     * @return
+     */
+    private boolean isOrphaned(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS associations FROM function_catalogs_function_blocks WHERE function_block_id = ?")
+            .setParameter(functionBlockId)
+        ;
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        Row row = rows.get(0);
+        final long associationCount = row.getLong("associations");
+        return associationCount == 0;
+    }
+
+
+
+    public List<Long> listFunctionCatalogsContainingFunctionBlock(long functionBlockId, long versionId) throws DatabaseException {
+        final Query query = new Query("SELECT DISTINCT function_catalogs_function_blocks.function_catalog_id FROM function_catalogs_function_blocks "
+                                        + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
+                                        + "WHERE function_catalogs_function_blocks.function_block_id = ? and versions_function_catalogs.version_id = ?")
+            .setParameter(functionBlockId)
+            .setParameter(versionId)
+        ;
+
+        List<Row> rows =_databaseConnection.query(query);
+        final ArrayList<Long> functionCatalogIds = new ArrayList<>();
+        for (Row row : rows) {
+            Long functionCatalogId = row.getLong("function_catalog_id");
+            functionCatalogIds.add(functionCatalogId);
+        }
+        return functionCatalogIds;
     }
 }

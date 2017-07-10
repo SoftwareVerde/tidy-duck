@@ -1,3 +1,12 @@
+#settings-container {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+}
+
+#settings-icon:hover {
+    background-color: #FF7;
+}
+
 .navigation-column {
     border-color: #CCCCCC;
     background-color: #D0D0D0;
@@ -66,30 +75,50 @@
     color: #A0A0A0;
 }
 
-.function-catalog {
+.search-form {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+}
+
+.search-form .search-form-title {
+    color: #A0A0A0;
+}
+
+.search-result {
     border: solid 1px #C0C0C0;
     background-color: #EEEEEE;
 
     transition: background-color 0.5s ease;
 }
 
-.function-catalog:hover {
+.search-result i:hover {
+    color: #FFDD66;
+}
+
+.child-item {
+    border: solid 1px #C0C0C0;
+    background-color: #EEEEEE;
+
+    transition: background-color 0.5s ease;
+}
+
+.child-item:hover {
     background-color: #FFDD66;
 }
 
-.function-catalog-title {
+.child-item-title {
     border-bottom: solid 1px #C0C0C0;
 }
 
-.function-catalog:hover .function-catalog-title {
+.child-item:hover .child-item-title {
     border-bottom: solid 1px #BBAA22;
 }
 
-.function-catalog-menu-item {
+.child-item-menu-item {
     background-color: #DDDDDD;
 }
 
-.function-catalog:hover .function-catalog-menu-item {
+.child-item:hover .child-item-menu-item {
     background-color: #F9EE99;
 }
 

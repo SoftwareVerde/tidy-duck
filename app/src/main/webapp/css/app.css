@@ -1,8 +1,37 @@
-#theme-selector {
+#account-area {
     position: absolute;
-    width: 100px;
-    margin: 15px;
+    top: 0px;
     right: 0px;
+}
+
+#logout {
+    height: 0.8em;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#settings-icon {
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#settings-container {
+    width: 300px;
+    display: block;
+    margin: 5em auto auto auto;
+
+    border: 0px solid;
+    border-radius: 5px;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+}
+
+#settings-container .input-field {
+    width: 100%;
 }
 
 .navigation-column {
@@ -35,6 +64,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     text-align: left;
+    flex: 1;
 }
 
 .toolbar {
@@ -58,6 +88,97 @@
     padding-top: 0.5em;
 }
 
+.search-form {
+    padding: 5px;
+    width: auto;
+    border: 0px solid;
+    border-radius: 5px;
+    margin: 20px;
+}
+
+.search-form .search-form-title {
+    display: inline-flex;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding-left: 0.5em;
+    padding-top: 0.5em;
+}
+
+.search-form .search-result-form {
+    height: 20em;
+    overflow-y: auto;
+    border: none;
+    padding: 0;
+}
+
+.form-loading {
+    text-align: center;
+    margin-top: 100px;
+    font-size: x-large;
+}
+
+.search-result-form i.loading-results {
+    margin: 10px;
+}
+
+.search-bar {
+    display: flex;
+    position: relative;
+    width:auto;
+    margin: 1em;
+    font-size: 1rem;
+}
+
+.search-bar input {
+    padding-left: 0.5em;
+    flex-grow: 1;
+    border: 1px solid;
+    box-shadow: none;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.search-bar .fa-search {
+    position: absolute;
+    left: auto;
+    top: 0.25em;
+    right: 0.25em;
+}
+
+.search-result {
+    width: auto;
+    border: 1px solid;
+    border-radius: 5px;
+    display: flex;
+    margin: 1em;
+    float: top;
+}
+
+.search-result i.assign-button {
+    margin: 0 2px 0 auto;
+    cursor: pointer;
+}
+
+.search-result-labels {
+    font-weight: bold;
+    text-align: left;
+    width: auto;
+    display: flex;
+    margin: 0 1em;
+    padding: 0;
+}
+.search-result-property {
+    padding: 0;
+    margin: 0.75em;
+    width: 20%
+}
+
+.search-result-property-short {
+    padding: 0;
+    margin: 0.75em;
+    width: 10%;
+}
+
 .child-display-area {
     padding: 5px;
 }
@@ -70,7 +191,7 @@
     margin: 0 5px;
 }
 
-.function-catalog {
+.child-item {
     padding: 1em;
     margin: 1em;
     width: 250px;
@@ -86,27 +207,27 @@
     transition: background-color 0.5s ease;
 }
 
-.function-catalog-title {
+.child-item-title {
     font-weight: bold;
     padding: 5px;
     margin-bottom: 5px;
     text-align: left;
 }
 
-.function-catalog-title .menu-button {
+.child-item-title .menu-button {
     float: right;
     padding: 5px;
     margin: -5px;
 }
 
-.function-catalog-menu-item {
+.child-item-menu-item {
     margin: 2px;
     padding: 2px;
     text-align: center;
     cursor: pointer;
 }
 
-.function-catalog-menu-item i {
+.child-item-menu-item i {
     margin-left: 5px;
 }
 

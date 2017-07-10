@@ -3,7 +3,11 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.MostInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MostInterfaceDatabaseManager {
     private final DatabaseConnection _databaseConnection;
@@ -25,23 +29,41 @@ public class MostInterfaceDatabaseManager {
         final String version = mostInterface.getVersion();
 
         final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version) VALUES (?, ?, ?, NOW(), ?)")
-                .setParameter(mostId)
-                .setParameter(name)
-                .setParameter(description)
-                .setParameter(version)
+            .setParameter(mostId)
+            .setParameter(name)
+            .setParameter(description)
+            .setParameter(version)
         ;
 
         final long mostInterfaceId = _databaseConnection.executeSql(query);
         mostInterface.setId(mostInterfaceId);
     }
 
+    public Long associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        if (!_isAssociatedWithFunctionBlock(functionBlockId, mostInterfaceId)) {
+            return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        return null;
+    }
+
     private Long _associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
         final Query query = new Query("INSERT INTO function_blocks_interfaces (function_block_id, interface_id) VALUES (?, ?)")
-                .setParameter(functionBlockId)
-                .setParameter(mostInterfaceId)
-                ;
+            .setParameter(functionBlockId)
+            .setParameter(mostInterfaceId)
+        ;
 
         return _databaseConnection.executeSql(query);
+    }
+
+    private boolean _isAssociatedWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_blocks_interfaces WHERE function_block_id = ? AND interface_id = ?")
+            .setParameter(functionBlockId)
+            .setParameter(mostInterfaceId)
+        ;
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        return rows.size() > 0;
     }
 
     public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
@@ -71,12 +93,12 @@ public class MostInterfaceDatabaseManager {
         final long mostInterfaceId = proposedMostInterface.getId();
 
         final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ? WHERE id = ?")
-                .setParameter(newMostId)
-                .setParameter(newName)
-                .setParameter(newDescription)
-                .setParameter(newVersion)
-                .setParameter(mostInterfaceId)
-                ;
+            .setParameter(newMostId)
+            .setParameter(newName)
+            .setParameter(newDescription)
+            .setParameter(newVersion)
+            .setParameter(mostInterfaceId)
+        ;
 
         _databaseConnection.executeSql(query);
     }
@@ -88,9 +110,9 @@ public class MostInterfaceDatabaseManager {
 
     private void _disassociateMostInterfaceWithFunctionBlock(long functionBlockId, long mostInterfaceId) throws DatabaseException {
         final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE function_block_id = ? and interface_id = ?")
-                .setParameter(functionBlockId)
-                .setParameter(mostInterfaceId)
-                ;
+            .setParameter(functionBlockId)
+            .setParameter(mostInterfaceId)
+        ;
 
         _databaseConnection.executeSql(query);
     }
@@ -99,8 +121,8 @@ public class MostInterfaceDatabaseManager {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (!mostInterface.isCommitted()) {
-            // interface isn't committed, we can delete it
+        if (!mostInterface.isCommitted() && isOrphaned(mostInterfaceId)) {
+            // interface isn't committed and isn't associated with any function blocks, we can delete it
             // TODO: delete functions from interface
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
         }
@@ -108,9 +130,43 @@ public class MostInterfaceDatabaseManager {
 
     private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
         final Query query = new Query("DELETE FROM interfaces WHERE id = ?")
-                .setParameter(mostInterfaceId)
-                ;
+            .setParameter(mostInterfaceId)
+        ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    /**
+     * Returns true if and only if the interface with the given idea is not associated with any function blocks.
+     * @return
+     */
+    private boolean isOrphaned(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS associations FROM function_blocks_interfaces WHERE interface_id = ?")
+            .setParameter(mostInterfaceId)
+        ;
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        Row row = rows.get(0);
+        final long associationCount = row.getLong("associations");
+        return associationCount == 0;
+    }
+
+    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {
+        final Query query = new Query("SELECT DISTINCT function_blocks_interfaces.function_block_id FROM function_blocks_interfaces "
+                                        + "INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id "
+                                        + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
+                                        + "WHERE function_blocks_interfaces.interface_id = ? and versions_function_catalogs.version_id = ?")
+            .setParameter(mostInterfaceId)
+            .setParameter(versionId)
+        ;
+
+        List<Row> rows =_databaseConnection.query(query);
+        final ArrayList<Long> functionBlockIds = new ArrayList<>();
+        for (Row row : rows) {
+            Long functionBlockId = row.getLong("function_block_id");
+            functionBlockIds.add(functionBlockId);
+        }
+        return functionBlockIds;
     }
 }

@@ -17,3 +17,7 @@ body * {
 .delete-working-icon, #loading-children-icon {
     color: #FFF;
 }
+
+a {
+    color: #FFA;
+}

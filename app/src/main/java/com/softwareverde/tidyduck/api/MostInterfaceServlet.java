@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -34,6 +35,34 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid function block id.");
                 }
                 return _listMostInterfaces(functionBlockId, environment);
+            }
+        } else if ("search".equals(finalUrlSegment)){
+            if (httpMethod == HttpMethod.GET) {
+                String searchString = Util.coalesce(request.getParameter("name"));
+                Long versionId = Util.parseLong(request.getParameter("versionId"));
+                if (searchString.length() < 1) {
+                    return super._generateErrorJson("Invalid search string for interface.");
+                }
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId for interface search.");
+                }
+                return _listMostInterfacesMatchingSearchString(searchString, versionId, environment);
+            }
+        } else if ("function-blocks".equals(finalUrlSegment)) {
+            // most-interface/<id>/function-blocks
+            final long mostInterfaceId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
+            if (mostInterfaceId < 1) {
+                return super._generateErrorJson("Invalid function block id.");
+            }
+            if (httpMethod == HttpMethod.GET) {
+                Long versionId = Util.parseLong(request.getParameter("versionId"));
+                if (versionId < 1) {
+                    return super._generateErrorJson("Invalid versionId.");
+                }
+                return _listFunctionBlocksContainingMostInterface(request, mostInterfaceId, versionId, environment);
+            }
+            if (httpMethod == HttpMethod.POST) {
+                return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment);
             }
         } else {
             // not base interface, must have ID
@@ -112,6 +141,31 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    private Json _associateInterfaceWithFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Environment environment) throws IOException {
+        final Json jsonRequest = super._getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+
+        final Long functionBlockId = Util.parseLong(jsonRequest.getString("functionBlockId"));
+
+        { // Validate Inputs
+            if (functionBlockId < 1) {
+                _logger.error("Unable to parse Function Block ID: " + functionBlockId);
+                return super._generateErrorJson("Invalid Function Block ID: " + functionBlockId);
+            }
+        }
+
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to insert Interface.", exception);
+            return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+        }
+
+        return response;
+    }
+
     protected Json _deleteMostInterfaceFromFunctionBlock(HttpServletRequest request, long mostInterfaceId, Environment environment) {
         final String functionBlockIdString = request.getParameter("functionBlockId");
         final Long functionBlockId = Util.parseLong(functionBlockIdString);
@@ -145,13 +199,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = new Json(false);
-                mostInterfaceJson.put("id", mostInterface.getId());
-                mostInterfaceJson.put("mostId", mostInterface.getMostId());
-                mostInterfaceJson.put("name", mostInterface.getName());
-                mostInterfaceJson.put("description", mostInterface.getDescription());
-                mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
-                mostInterfaceJson.put("version", mostInterface.getVersion());
+                final Json mostInterfaceJson = _toJson(mostInterface);
                 mostInterfacesJson.add(mostInterfaceJson);
             }
             response.put("mostInterfaces", mostInterfacesJson);
@@ -161,6 +209,50 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         } catch (final DatabaseException exception) {
             _logger.error("Unable to list interfaces", exception);
             return super._generateErrorJson("Unable to list interfaces.");
+        }
+    }
+
+    protected Json _listMostInterfacesMatchingSearchString(String searchString, Long versionId, Environment environment) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            final Json response = new Json(false);
+
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString, versionId);
+
+            final Json mostInterfacesJson = new Json(true);
+            for (final MostInterface mostInterface : mostInterfaces) {
+                final Json mostInterfaceJson = _toJson(mostInterface);
+                mostInterfacesJson.add(mostInterfaceJson);
+            }
+            response.put("mostInterfaces", mostInterfacesJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (final DatabaseException exception) {
+            _logger.error("Unable to list interfaces from search", exception);
+            return super._generateErrorJson("Unable to list interfaces from search.");
+        }
+    }
+
+    protected Json _listFunctionBlocksContainingMostInterface(HttpServletRequest request, long mostInterfaceId, Long versionId, Environment environment) {
+        try {
+            final Json response = new Json(false);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment);
+            final List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
+
+            Json functionBlockIdsJson = new Json(true);
+            for (Long functionBlockId : functionBlockIds) {
+                functionBlockIdsJson.add(functionBlockId);
+            }
+            response.put("functionBlockIds", functionBlockIdsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list function blocks for interface " + mostInterfaceId, exception);
+            return super._generateErrorJson("Unable to list function blocks.");
         }
     }
 
@@ -196,5 +288,16 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterface.setDescription(description);
 
         return mostInterface;
+    }
+
+    private Json _toJson(final MostInterface mostInterface) {
+        final Json mostInterfaceJson = new Json(false);
+        mostInterfaceJson.put("id", mostInterface.getId());
+        mostInterfaceJson.put("mostId", mostInterface.getMostId());
+        mostInterfaceJson.put("name", mostInterface.getName());
+        mostInterfaceJson.put("description", mostInterface.getDescription());
+        mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
+        mostInterfaceJson.put("version", mostInterface.getVersion());
+        return mostInterfaceJson;
     }
 }

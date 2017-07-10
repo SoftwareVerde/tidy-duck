@@ -110,7 +110,7 @@
     padding: 5px;
 }
 
-.function-catalog {
+.child-item {
     padding: 1em;
     margin: 1em;
     width: 250px;
@@ -128,11 +128,11 @@
     transition: background-color 0.5s ease;
 }
 
-.function-catalog:hover {
+.child-item:hover {
     background-color: #032C46;
 }
 
-.function-catalog-title {
+.child-item-title {
     font-weight: bold;
     border-bottom: solid 1px #C0C0C0;
     padding: 5px;
@@ -140,18 +140,18 @@
     text-align: left;
 }
 
-.function-catalog:hover .function-catalog-title {
+.child-item:hover .child-item-title {
     border-bottom: solid 1px #BBAA22;
 }
 
-.function-catalog-title .menu-button {
+.child-item-title .menu-button {
     float: right;
     padding: 5px;
     margin: -5px;
 }
 
 
-.function-catalog-menu-item {
+.child-item-menu-item {
     margin: 2px;
     padding: 2px;
     background-color: #DDDDDD;
@@ -159,11 +159,11 @@
     cursor: pointer;
 }
 
-.function-catalog:hover .function-catalog-menu-item {
+.child-item:hover .child-item-menu-item {
     background-color: #F9EE99;
 }
 
-.function-catalog-menu-item i {
+.child-item-menu-item i {
     margin-left: 5px;
 }
 

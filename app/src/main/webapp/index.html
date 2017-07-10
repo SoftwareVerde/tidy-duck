@@ -10,7 +10,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
     <!-- Tidy Duck JS API -->
-    <script src="/js/api/api.js"></script>
+    <script src="/js/api/base.js"></script>
+    <script src="/js/api/account.js"></script>
 
     <!-- Allow for registering classes in global scope -->
     <script src="/js/classes/register-class.js"></script>
@@ -24,8 +25,8 @@
     <link rel="stylesheet" href="/css/themes/tidy/react/input-field.css"/>
 </head>
 <body class="primary-bg">
-<div id="header" class="secondary-bg accent title-font">Tidy Duck</div>
 <div id="main">
+    <div id="header" class="secondary-bg accent title-font">Tidy Duck</div>
     <div id="main-content">
         <div id="authenticate-message"></div>
         <form id="login-container" method="post">

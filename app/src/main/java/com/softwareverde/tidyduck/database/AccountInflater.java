@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
+import com.softwareverde.tidyduck.Settings;
 
 import java.sql.Connection;
 import java.util.List;
@@ -33,12 +34,16 @@ public class AccountInflater {
 
         final Company company = companyInflater.inflateCompany(row.getLong("company_id"));
 
+        final Settings settings = new Settings();
+        settings.setTheme(row.getString("theme"));
+
         final Account account = new Account();
         account.setId(row.getLong("id"));
         account.setName(row.getString("name"));
         account.setUsername(row.getString("username"));
         account.setPassword(row.getString("password"));
         account.setCompany(company);
+        account.setSettings(settings);
         return account;
     }
 }

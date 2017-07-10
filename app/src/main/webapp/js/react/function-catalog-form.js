@@ -8,6 +8,7 @@ class FunctionCatalogForm extends React.Component {
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:         this.props.defaultButtonTitle
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
@@ -26,7 +27,8 @@ class FunctionCatalogForm extends React.Component {
             showTitle:                  newProperties.showTitle,
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
-            buttonTitle:                (newProperties.buttonTitle || "Submit")
+            buttonTitle:                (newProperties.buttonTitle || "Submit"),
+            defaultButtonTitle:         newProperties.defaultButtonTitle
         });
     }
 
@@ -34,9 +36,8 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setName(newValue);
 
-        this.setState({
-           buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -47,9 +48,8 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setReleaseVersion(newValue);
 
-        this.setState({
-            buttonTitle: "Save"
-        });
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
