@@ -115,7 +115,7 @@ public class DatabaseManager {
     public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-            return functionBlockDatabaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId);
+            return functionBlockDatabaseManager.listFunctionCatalogIdsContainingFunctionBlock(functionBlockId, versionId);
         }
     }
 
