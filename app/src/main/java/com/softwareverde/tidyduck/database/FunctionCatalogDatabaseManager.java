@@ -3,52 +3,17 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
-import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.logging.Logger;
+import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.FunctionCatalog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
-    private final Logger _logger = LoggerFactory.getLogger(getClass());
-
+    private final Logger _logger = new Slf4jLogger(this.getClass());
     private final DatabaseConnection<Connection> _databaseConnection;
-
-    public FunctionCatalogDatabaseManager(final DatabaseConnection<Connection> databaseConnection) {
-        _databaseConnection = databaseConnection;
-    }    
-
-    public void insertFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
-        _insertFunctionCatalog(functionCatalog);
-        _associateFunctionCatalogWithVersion(versionId, functionCatalog.getId());
-    }
-
-    public void updateFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
-        final long inputFunctionCatalogId = functionCatalog.getId();
-
-        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
-        final FunctionCatalog databaseFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
-        if (databaseFunctionCatalog.isCommitted()) {
-            // need to insert a new function catalog replace this one
-            _insertFunctionCatalog(functionCatalog);
-            final long newFunctionCatalogId = functionCatalog.getId();
-
-            // change association with version
-            _disassociateFunctionCatalogWithVersion(versionId, inputFunctionCatalogId);
-            _associateFunctionCatalogWithVersion(versionId, newFunctionCatalogId);
-        }
-        else {
-            _updateUncommittedFunctionCatalog(functionCatalog);
-        }
-    }
-
-    public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
-        _disassociateFunctionCatalogWithVersion(versionId, functionCatalogId);
-        _deleteFunctionCatalogIfUncommitted(functionCatalogId);
-    }
 
     /**
      * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
@@ -134,5 +99,38 @@ class FunctionCatalogDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public FunctionCatalogDatabaseManager(final DatabaseConnection<Connection> databaseConnection) {
+        _databaseConnection = databaseConnection;
+    }
+
+    public void insertFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+        _insertFunctionCatalog(functionCatalog);
+        _associateFunctionCatalogWithVersion(versionId, functionCatalog.getId());
+    }
+
+    public void updateFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+        final long inputFunctionCatalogId = functionCatalog.getId();
+
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
+        final FunctionCatalog databaseFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
+        if (databaseFunctionCatalog.isCommitted()) {
+            // need to insert a new function catalog replace this one
+            _insertFunctionCatalog(functionCatalog);
+            final long newFunctionCatalogId = functionCatalog.getId();
+
+            // change association with version
+            _disassociateFunctionCatalogWithVersion(versionId, inputFunctionCatalogId);
+            _associateFunctionCatalogWithVersion(versionId, newFunctionCatalogId);
+        }
+        else {
+            _updateUncommittedFunctionCatalog(functionCatalog);
+        }
+    }
+
+    public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
+        _disassociateFunctionCatalogWithVersion(versionId, functionCatalogId);
+        _deleteFunctionCatalogIfUncommitted(functionCatalogId);
     }
 }

@@ -2,7 +2,6 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.mysql.MysqlMemoryDatabase;
 import com.softwareverde.tidyduck.Author;
 import com.softwareverde.tidyduck.Company;
@@ -135,14 +134,8 @@ public class FunctionCatalogDatabaseManagerTests {
         final List<FunctionCatalog> functionCatalogs = _functionCatalogInflater.inflateFunctionCatalogsFromVersionId(1L);
         Assert.assertEquals(0, functionCatalogs.size());
 
-        Boolean functionCatalogExistsViaVersion = true;
-        try {
-            _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
-        }
-        catch (final InvalidFunctionCatalogIdException invalidFunctionCatalogIdException) {
-            functionCatalogExistsViaVersion = false;
-        }
-        Assert.assertFalse(functionCatalogExistsViaVersion);
+        final FunctionCatalog inflateFunctionCatalog = _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
+        Assert.assertNull(inflateFunctionCatalog);
     }
 
 }

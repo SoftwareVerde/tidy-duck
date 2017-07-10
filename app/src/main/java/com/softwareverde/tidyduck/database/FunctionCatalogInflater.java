@@ -4,6 +4,8 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.logging.Logger;
+import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.util.Util;
 
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionCatalogInflater {
-
+    protected final Logger _logger = new Slf4jLogger(this.getClass());
     protected final DatabaseConnection<Connection> _databaseConnection;
 
     public FunctionCatalogInflater(DatabaseConnection<Connection> connection) {
@@ -47,22 +49,32 @@ public class FunctionCatalogInflater {
         return functionCatalogs;
     }
 
+    /**
+     * Returns the FunctionCatalog for the specified functionCatalogId.
+     *  FunctionCatalog's children are NOT inflated.
+     *  Returns null if a FunctionCatalog with the functionCatalogId is not found.
+     */
     public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         return inflateFunctionCatalog(functionCatalogId, false);
     }
 
+    /**
+     * Returns the FunctionCatalog for the specified functionCatalogId.
+     *  If inflateChildren is true, the FunctionCatalog and all of its children are inflated.
+     *  Returns null if a FunctionCatalog with the functionCatalogId is not found.
+     */
     public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT *"
-                + " FROM function_catalogs"
-                + " WHERE id = ?"
+            "SELECT * FROM function_catalogs WHERE id = ?"
         );
         query.setParameter(functionCatalogId);
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            throw new DatabaseException("Function catalog ID " + functionCatalogId + " not found.");
+            _logger.warn("Could not find functionCatalog w/ ID: "+ functionCatalogId);
+            return null;
         }
+
         // get first (should be only) row
         final Row row = rows.get(0);
 
