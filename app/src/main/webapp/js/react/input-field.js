@@ -64,7 +64,7 @@ class InputField extends React.Component {
         const options = []
         for (let i in this.props.options) {
             const optionName = this.props.options[i];
-            options.push(<option key={optionName} value={optionName}>{optionName}</option>);
+            options.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
         }
         return options;
     }

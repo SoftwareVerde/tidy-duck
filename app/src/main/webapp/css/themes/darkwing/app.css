@@ -103,7 +103,19 @@
     transition: background-color 0.5s ease;
 }
 
-.search-result i:hover {
+.parameter {
+    border: solid 1px #000;
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.parameter .input-field label {
+    color: #FFF;
+}
+
+.parameter i:hover {
     color: #9CF;
 }
 

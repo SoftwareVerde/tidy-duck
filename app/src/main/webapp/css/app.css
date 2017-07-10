@@ -183,6 +183,20 @@
     width: 10%;
 }
 
+.parameter {
+    width: auto;
+    border: 1px solid;
+    border-radius: 5px;
+    display: flex;
+    margin: 1em;
+    float: top;
+}
+
+.parameter i.remove-button {
+    margin: 0 2px 0 auto;
+    cursor: pointer;
+}
+
 .parameter-display-area {
     float: left;
     width:  100%;

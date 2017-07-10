@@ -8,6 +8,7 @@ class MostFunctionParameter extends React.Component {
 
         this.onNameChanged = this.onNameChanged.bind(this);
         this.renderDeleteIcon = this.renderDeleteIcon.bind(this);
+        this.onDeleteParameter = this.onDeleteParameter.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -25,17 +26,27 @@ class MostFunctionParameter extends React.Component {
         }
     }
 
+    onDeleteParameter() {
+        if (typeof this.props.onDeleteParameterClicked == "function") {
+            this.props.onDeleteParameterClicked(this.state.parameter);
+        }
+    }
+
     renderDeleteIcon() {
         return (
-            <i className="assign-button fa fa-remove fa-3x" />
+            <i className="remove-button fa fa-remove fa-4x" onClick={this.onDeleteParameter} />
         );
     }
 
     render() {
         const parameter = this.state.parameter;
+        const options = [];
+        options.push(parameter.getName());
+        options.push("Parameter Name 2");
+        options.push("Parameter Name 3");
         return (
-          <div className="search-result">
-              <app.InputField id="name" name="name" type="select" label="Name" value={parameter.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />
+          <div className="parameter">
+              <app.InputField id="name" name="name" type="select" label="Name" readOnly={this.props.readOnly} options={options} onChange={this.onNameChanged} />
               {this.renderDeleteIcon()}
           </div>
         );
