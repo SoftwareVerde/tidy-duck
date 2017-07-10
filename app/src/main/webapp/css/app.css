@@ -88,6 +88,10 @@
     padding-top: 0.5em;
 }
 
+.metadata-form .metadata-form-inputs {
+    float: left;
+}
+
 .search-form {
     padding: 5px;
     width: auto;
@@ -182,6 +186,11 @@
 .parameter-display-area {
     float: left;
     width:  100%;
+    text-align: center;
+}
+
+.parameter-display-area i {
+    cursor: pointer;
 }
 
 .child-display-area {

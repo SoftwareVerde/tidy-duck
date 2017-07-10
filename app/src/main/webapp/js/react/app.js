@@ -17,6 +17,15 @@ class App extends React.Component {
             success:    "success"
         };
 
+        this.FunctionStereotypes = {
+            event:                      "Event",
+            readOnlyProperty:           "ReadOnlyProperty",
+            readOnlyPropertyWithEvent:  "ReadOnlyPropertyWithEvent",
+            requestResponse:            "RequestResponse",
+            commandWithAck:             "CommandWithAck",
+            propertyWithEvent:          "PropertyWithEvent"
+        }
+
         this.state = {
             account:                    null,
             navigationItems:            [],
@@ -33,6 +42,7 @@ class App extends React.Component {
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
             createButtonState:          this.CreateButtonState.normal,
+            selectedFunctionStereotype: null,
             shouldShowSearchChildForm:  false,
             isLoadingChildren:          true,
             isLoadingSearchResults:     false
@@ -64,6 +74,7 @@ class App extends React.Component {
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
+        this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.setTheme = this.setTheme.bind(this);
@@ -953,6 +964,14 @@ class App extends React.Component {
         });
     }
 
+    handleFunctionStereotypeClick(selectedFunctionStereotype) {
+        const shouldShowCreateChildForm = this.state.selectedFunctionStereotype == selectedFunctionStereotype ? !this.state.shouldShowCreateChildForm : true;
+        this.setState({
+            shouldShowCreateChildForm:  shouldShowCreateChildForm,
+            selectedFunctionStereotype: selectedFunctionStereotype
+        });
+    }
+
     handleSettingsClick() {
         this.setState({
             showSettingsPage: !this.state.showSettingsPage
@@ -1045,6 +1064,8 @@ class App extends React.Component {
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false })}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
+                    functionStereotypes={this.FunctionStereotypes}
+                    handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
                 />
             );
         }
@@ -1133,6 +1154,8 @@ class App extends React.Component {
                            showTitle={true}
                            onSubmit={this.onCreateMostInterface}
                            defaultButtonTitle="Submit"
+                           functionStereotypes={this.FunctionStereotypes}
+                           selectedFunctionStereotype={this.state.selectedFunctionStereotype}
                         />
                     );
                 }

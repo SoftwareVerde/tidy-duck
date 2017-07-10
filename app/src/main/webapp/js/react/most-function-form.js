@@ -153,22 +153,63 @@ class MostFunctionForm extends React.Component {
             return null;
         }
 
-        return (<div className="metadata-form-title">New Function</div>);
+        return (<div className="metadata-form-title">New Function ({this.props.selectedFunctionStereotype})</div>);
     }
 
     renderOperationCheckboxes() {
         // TODO: logic for which checkboxes should be checked, based on what toolbar button was clicked.
 
-        const readOnly = true;
+        const readOnly = false;
         let shouldCheckGet = false;
-        let shouldCheckSet = true;
+        let shouldCheckSet = false;
         let shouldCheckStatus = false;
         let shouldCheckError = false;
         let shouldCheckStartResultAck = false;
         let shouldCheckErrorAck = false;
-        let shouldCheckResultAck = true;
+        let shouldCheckResultAck = false;
         let shouldCheckProcessingAck = false
         let shouldCheckAbortAck = false;
+        let shouldCheckNotification = false;
+
+        const functionStereotypes = this.props.functionStereotypes;
+        switch(this.props.selectedFunctionStereotype) {
+            case functionStereotypes.event:
+                shouldCheckStatus = true;
+                shouldCheckError = true;
+                shouldCheckNotification = true;
+                break;
+            case functionStereotypes.readOnlyProperty:
+                shouldCheckGet = true;
+                shouldCheckStatus = true;
+                shouldCheckError = true;
+                break;
+            case functionStereotypes.readOnlyPropertyWithEvent:
+                shouldCheckGet = true;
+                shouldCheckStatus = true;
+                shouldCheckError = true;
+                shouldCheckNotification = true;
+                break;
+            case functionStereotypes.propertyWithEvent:
+                shouldCheckGet = true;
+                shouldCheckSet = true;
+                shouldCheckStatus = true;
+                shouldCheckError = true;
+                shouldCheckNotification = true;
+                break;
+            case functionStereotypes.commandWithAck:
+                shouldCheckStartResultAck = true;
+                shouldCheckErrorAck = true;
+                shouldCheckResultAck = true;
+                shouldCheckProcessingAck = true;
+                break;
+            case functionStereotypes.requestResponse:
+                shouldCheckStartResultAck = true;
+                shouldCheckAbortAck = true;
+                shouldCheckErrorAck = true;
+                shouldCheckResultAck = true;
+                shouldCheckProcessingAck = true;
+                break;
+        }
 
         return (
             <div>
@@ -181,6 +222,7 @@ class MostFunctionForm extends React.Component {
                 <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" value={shouldCheckResultAck} checked={shouldCheckResultAck} readOnly={readOnly}/>
                 <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" value={shouldCheckProcessingAck} checked={shouldCheckProcessingAck} readOnly={readOnly}/>
                 <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" value={shouldCheckAbortAck} checked={shouldCheckAbortAck} readOnly={readOnly}/>
+                <app.InputField id="operation-notification" name="notification" type="checkbox" label="Notification" value={shouldCheckNotification} checked={shouldCheckNotification} readOnly={readOnly}/>
             </div>
         );
     }
@@ -223,12 +265,13 @@ class MostFunctionForm extends React.Component {
 
         // Push button for adding parameters.
         // TODO: need to position this button correctly.
-        parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-3x" onClick={this.onAddParameterClicked}/>);
+        parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
 
         return (
             <div className="metadata-form" onClick={this.onClick}>
                 {this.renderFormTitle()}
-                {reactComponents}
+                <div className="metadata-form-inputs">{reactComponents}</div>
+                <div className="metadata-form-title">Function Parameters</div>
                 <div className="parameter-display-area">{parameterComponents}</div>
                 {this.renderOperationCheckboxes()}
                 {this.renderSubmitButton()}
