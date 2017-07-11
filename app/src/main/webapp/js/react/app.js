@@ -75,6 +75,8 @@ class App extends React.Component {
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
         this.onCreateMostFunction = this.onCreateMostFunction.bind(this);
+        this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
+
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -413,23 +415,10 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
         const mostFunctionJson = MostFunction.toJson(mostFunction);
 
-        // TODO: uncomment when insertMostFunction and API is ready.
-        /*
         this.setState({
             createButtonState:  this.CreateButtonState.animate
         });
-        */
 
-        const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
-
-        thisApp.setState({
-            createButtonState:      thisApp.CreateButtonState.success,
-            mostFunctions:         mostFunctions,
-            currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
-        });
-
-        // TODO: uncomment when insertMostFunction and API is ready.
-        /*
         insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
             if (! (mostFunctionId > 0)) {
                 console.log("Unable to create function.");
@@ -448,7 +437,6 @@ class App extends React.Component {
                 currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
             });
         });
-        */
     }
 
     onRootNavigationItemClicked() {
@@ -866,6 +854,7 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
@@ -875,27 +864,27 @@ class App extends React.Component {
             shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
-            //isLoadingChildren:          !canUseCachedChildren
+            isLoadingChildren:          !canUseCachedChildren
         });
 
-        // TODO: getFunctionsForMostInterfaceId should use the following as a callback function.
-        if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
-            // didn't navigate away while downloading children
-            const mostFunctions = [];
-            /*
-            for (let i in mostFunctions) {
-                const mostFunctionJson = mostFunctions[i];
-                const mostFunction = MostFunction.fromJson(mostFunctionJson);
-                mostFunctions.push(mostFunction);
-            }
-            */
+        getMostFunctionsForMostInterfaceId(mostInterface.getId(), function(mostFunctionsJson) {
+            if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
+                // didn't navigate away while downloading children
+                const mostFunctions = [];
+                for (let i in mostFunctionsJson) {
+                    const mostFunctionJson = mostFunctions[i];
+                    const mostFunction = MostFunction.fromJson(mostFunctionJson);
+                    mostFunctions.push(mostFunction);
+                }
 
-            // TODO: if Functions have child elements that can be displayed, clear their array in setState.
-            thisApp.setState({
-                mostFunctions:      mostFunctions,
-                isLoadingChildren:  false
-            })
-        }
+                // TODO: if Functions have child elements that can be displayed, clear their array in setState.
+                thisApp.setState({
+                    mostFunctions:      mostFunctions,
+                    isLoadingChildren:  false
+                });
+            }
+        });
+
     }
 
     onSearchMostInterfaces(searchString) {
@@ -1013,6 +1002,48 @@ class App extends React.Component {
         });
     }
 
+    onDeleteMostFunction(mostFunction, callbackFunction) {
+        const thisApp = this;
+
+        const mostInterfaceId = this.state.selectedItem.getId();
+        const mostFunctionId = mostFunction.getId();
+
+        listMostInterfacesContainingMostFunction(mostFunctionId, this.state.currentVersionId, function (data) {
+            if (data.wasSuccess) {
+                let shouldDelete = false;
+                const mostInterfaceIds = data.mostInterfaceIds;
+                if (mostInterfaceIds.length > 1) {
+                    shouldDelete = true;
+                } else {
+                    shouldDelete = confirm("This action will delete the last reference to this function.  Are you sure you want to delete it?");
+                }
+
+                if (shouldDelete) {
+                    deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
+                        if (success) {
+                            const newMostFunctions = [];
+                            const existingMostFunctions = thisApp.state.mostFunctions;
+                            for (let i in existingMostFunctions) {
+                                const existingMostFunction = existingMostFunctions[i];
+                                if (existingMostFunction.getId() != mostFunction.getId()) {
+                                    newMostFunctions.push(existingMostFunction);
+                                }
+                            }
+                            thisApp.setState({
+                                mostFunctions:         newMostFunctions,
+                                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                            });
+                        } else {
+                            alert("Request to delete function failed: " + errorMessage);
+                        }
+                    });
+                }
+            }
+            // let component know action is complete
+            callbackFunction();
+        });
+    }
+
     handleFunctionStereotypeClick(selectedFunctionStereotype) {
         const shouldShowCreateChildForm = this.state.selectedFunctionStereotype == selectedFunctionStereotype ? !this.state.shouldShowCreateChildForm : true;
         this.setState({
@@ -1091,8 +1122,8 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const mostFunctionKey = "Interface" + i;
-                    // TODO: pass correct onClick and onDelete functions.
-                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                    // TODO: pass correct onClick function.
+                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostFunction} />);
                 }
                 break;
 

@@ -61,7 +61,7 @@ function listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId, c
 
     jsonFetch(request, function (data) {
         if (!data.wasSuccess) {
-            console.log("Unable to get function catalogs associated with interface " + mostInterfaceId);
+            console.log("Unable to get function blocks associated with interface " + mostInterfaceId);
         }
         if (typeof callbackFunction == "function") {
             callbackFunction(data);
