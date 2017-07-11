@@ -74,6 +74,8 @@ class App extends React.Component {
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
+        this.onCreateMostFunction = this.onCreateMostFunction.bind(this);
+
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
@@ -400,6 +402,53 @@ class App extends React.Component {
                 });
             }
         });
+    }
+
+
+    onCreateMostFunction(mostFunction) {
+        const thisApp = this;
+
+        const mostInterface = this.state.selectedItem;
+
+        const mostInterfaceId = mostInterface.getId();
+        const mostFunctionJson = MostFunction.toJson(mostFunction);
+
+        // TODO: uncomment when insertMostFunction and API is ready.
+        /*
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+        */
+
+        const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
+
+        thisApp.setState({
+            createButtonState:      thisApp.CreateButtonState.success,
+            mostFunctions:         mostFunctions,
+            currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+        });
+
+        // TODO: uncomment when insertMostFunction and API is ready.
+        /*
+        insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
+            if (! (mostFunctionId > 0)) {
+                console.log("Unable to create function.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
+                return;
+            }
+
+            mostFunction.setId(mostFunctionId);
+            const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
+
+            thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
+                mostFunctions:         mostFunctions,
+                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+            });
+        });
+        */
     }
 
     onRootNavigationItemClicked() {
@@ -807,11 +856,11 @@ class App extends React.Component {
         });
         navigationItemConfig.setForm(
             <app.MostInterfaceForm key="MostInterfaceForm"
-                                   showTitle={false}
-                                   onSubmit={this.onUpdateMostInterface}
-                                   mostInterface={mostInterface}
-                                   buttonTitle="Save"
-                                   defaultButtonTitle="Save"
+               showTitle={false}
+               onSubmit={this.onUpdateMostInterface}
+               mostInterface={mostInterface}
+               buttonTitle="Save"
+               defaultButtonTitle="Save"
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -826,7 +875,7 @@ class App extends React.Component {
             shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
-            isLoadingChildren:          !canUseCachedChildren
+            //isLoadingChildren:          !canUseCachedChildren
         });
 
         // TODO: getFunctionsForMostInterfaceId should use the following as a callback function.
@@ -1037,6 +1086,16 @@ class App extends React.Component {
                 }
             break;
 
+            case NavigationLevel.mostInterfaces:
+                childItems = this.state.mostFunctions;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const mostFunctionKey = "Interface" + i;
+                    // TODO: pass correct onClick and onDelete functions.
+                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                }
+                break;
+
             default:
                 console.log("renderChildItems: Unimplemented Navigation Level: "+ currentNavigationLevel);
             break;
@@ -1146,13 +1205,12 @@ class App extends React.Component {
 
             case NavigationLevel.mostInterfaces:
                 if (shouldShowCreateChildForm) {
-                    // TODO: change onSubmit to onCreateMostFunction, when ready.
                     reactComponents.push(
                         <app.MostFunctionForm key="MostFunctionForm"
                            shouldShowSaveAnimation={shouldAnimateCreateButton}
                            buttonTitle={buttonTitle}
                            showTitle={true}
-                           onSubmit={this.onCreateMostInterface}
+                           onSubmit={this.onCreateMostFunction}
                            defaultButtonTitle="Submit"
                            functionStereotypes={this.FunctionStereotypes}
                            selectedFunctionStereotype={this.state.selectedFunctionStereotype}
