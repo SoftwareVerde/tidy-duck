@@ -279,9 +279,9 @@ class MostFunctionForm extends React.Component {
 
         if (parameterComponents.length > 0) {
             return(
-                <div>
+                <div className="parameter-display-area">
                     <div className="metadata-form-title">Function Parameters</div>
-                    <div className="parameter-display-area">{parameterComponents}</div>
+                    {parameterComponents}
                 </div>
             );
         }
