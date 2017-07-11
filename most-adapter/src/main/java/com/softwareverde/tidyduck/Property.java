@@ -21,7 +21,20 @@ public class Property extends MostFunction {
 
     @Override
     protected Element generateFunctionClassElement(Document document) {
-        // TODO: implement
-        return null;
+        Element functionClassElement = document.createElement("FunctionClass");
+        // TODO: determine appropriate logic
+        functionClassElement.setAttribute("ClassRef", "class_unclassified_property");
+        Element functionClassDescriptionElement = document.createElement("FunctionClassDesc");
+        functionClassElement.appendChild(functionClassDescriptionElement);
+
+        Element propertyElement = document.createElement("Property");
+        propertyElement.setAttribute("Notification", Boolean.toString(_supportsNotification));
+        Element classElement = document.createElement("PUnclassified");
+
+        // TODO: add logic for filling in class element (parameters, etc.)
+
+        propertyElement.appendChild(classElement);
+        functionClassElement.appendChild(propertyElement);
+        return functionClassElement;
     }
 }

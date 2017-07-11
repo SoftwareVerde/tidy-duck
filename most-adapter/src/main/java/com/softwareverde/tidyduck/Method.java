@@ -24,7 +24,19 @@ public class Method extends MostFunction {
 
     @Override
     public Element generateFunctionClassElement(Document document) {
-        // TODO: implement
-        return null;
+        Element functionClassElement = document.createElement("FunctionClass");
+        // TODO: determine appropriate logic
+        functionClassElement.setAttribute("ClassRef", "class_unclassified_method");
+        Element functionClassDescriptionElement = document.createElement("FunctionClassDesc");
+        functionClassElement.appendChild(functionClassDescriptionElement);
+
+        Element propertyElement = document.createElement("Method");
+        Element classElement = document.createElement("MUnclassified");
+
+        // TODO: add logic for filling in class element (parameters, etc.)
+
+        propertyElement.appendChild(classElement);
+        functionClassElement.appendChild(propertyElement);
+        return functionClassElement;
     }
 }
