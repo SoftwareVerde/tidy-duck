@@ -11,6 +11,7 @@ rm ${WAR_MODULE_PATH} 2>/dev/null
 
 # build war file
 cd $WAR_MODULE_DIR
+rm -rf .gradle/
 ./gradlew war
 cd -
 

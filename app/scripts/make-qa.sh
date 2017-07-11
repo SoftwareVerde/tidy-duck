@@ -1,4 +1,5 @@
 #!/bin/bash
 
-./gradlew war -Pconfiguration=qa
+rm -rf .gradle/
+./gradlew clean test war -Pconfiguration=qa
 
