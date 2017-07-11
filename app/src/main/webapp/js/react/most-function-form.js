@@ -2,8 +2,9 @@ class MostFunctionForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const isNewMostFunction = (! this.props.MostFunction);
+        const isNewMostFunction = (! this.props.mostFunction);
         const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : this.props.mostFunction));
+        console.log("Function name " + mostFunction.getName() + " assigned to form.");
 
         this.state = {
             showTitle:                  this.props.showTitle,
@@ -15,7 +16,6 @@ class MostFunctionForm extends React.Component {
             parameterIdCounter:         0
         };
 
-        // TODO: Bind functions to this.
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onDescriptionChange = this.onDescriptionChange.bind(this);
@@ -35,9 +35,10 @@ class MostFunctionForm extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const isNewMostFunction = (! this.props.MostFunction);
-        const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : this.props.mostFunction));
+        const isNewMostFunction = (! newProperties.mostFunction);
+        const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : newProperties.mostFunction));
 
+        console.log("New props for function " + mostFunction.getName());
         mostFunction.setId((newProperties.mostFunction || mostFunction).getId());
         this.setState({
             showTitle:                  newProperties.showTitle,
@@ -181,6 +182,9 @@ class MostFunctionForm extends React.Component {
             return null;
         }
 
+        if (this.props.shouldUpdateFunction) {
+            return (<div className="metadata-form-title">Update Function({this.props.selectedFunctionStereotype})</div>);
+        }
         return (<div className="metadata-form-title">New Function ({this.props.selectedFunctionStereotype})</div>);
     }
 
@@ -289,9 +293,9 @@ class MostFunctionForm extends React.Component {
 
     renderSubmitButton() {
         if(this.state.shouldShowSaveAnimation)  {
-            return(<div className="center"><div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+            return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
         }
-        return(<div className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+        return(<div className="center"><div className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
     }
 
     render() {
