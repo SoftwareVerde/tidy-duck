@@ -244,7 +244,7 @@ class MostFunctionForm extends React.Component {
         }
 
         return (
-            <div>
+            <div className="operation-display-area">
                 <app.InputField id="operation-get" name="get" type="checkbox" label="Get" value={shouldCheckGet} checked={shouldCheckGet} readOnly={readOnly}/>
                 <app.InputField id="operation-set" name="set" type="checkbox" label="Set" value={shouldCheckSet} checked={shouldCheckSet} readOnly={readOnly}/>
                 <app.InputField id="operation-status" name="status" type="checkbox" label="Status" value={shouldCheckStatus} checked={shouldCheckStatus} readOnly={readOnly}/>

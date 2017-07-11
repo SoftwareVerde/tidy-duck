@@ -207,6 +207,13 @@
     margin-left: 0.25em;
 }
 
+.operation-display-area {
+    justify-content: center;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .child-display-area {
     padding: 5px;
 }
