@@ -21,7 +21,7 @@ class App extends React.Component {
             event:                      "Event",
             readOnlyProperty:           "ReadOnlyProperty",
             readOnlyPropertyWithEvent:  "ReadOnlyPropertyWithEvent",
-            requestResponse:            "RequestResponse",
+            requestResponse:            "Request/Response",
             commandWithAck:             "CommandWithAck",
             propertyWithEvent:          "PropertyWithEvent"
         }
