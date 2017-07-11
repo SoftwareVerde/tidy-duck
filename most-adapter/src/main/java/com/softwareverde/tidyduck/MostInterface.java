@@ -17,7 +17,7 @@ public class MostInterface extends XmlNode {
     private Date _lastModifiedDate;
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
-
+    private List<MostFunction> _mostFunctions = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -83,33 +83,16 @@ public class MostInterface extends XmlNode {
         _modifications.add(modification);
     }
 
+    public List<MostFunction> getMostFunctions() {
+        return new ArrayList<>(_mostFunctions);
+    }
+
+    public void addMostFunction(MostFunction mostFunction) {
+        _mostFunctions.add(mostFunction);
+    }
+
     @Override
     public Element generateXmlElement(Document document) {
-        Element mostInterface = document.createElement("Interface");
-
-        Element mostIdElement = super.createTextElement(document, "InterfaceID", _mostId);
-        mostInterface.appendChild(mostIdElement);
-        Element nameElement = super.createTextElement(document, "InterfaceName", _name);
-        mostInterface.appendChild(nameElement);
-        Element descriptionElement = super.createTextElement(document, "InterfaceDescription", _description);
-        mostInterface.appendChild(descriptionElement);
-
-        //Element versionElement = document.createElement("InterfaceVersion");
-
-        Element versionElement = super.createTextElement(document, "Version", _version);
-        versionElement.appendChild(versionElement);
-        Element dateElement = super.createTextElement(document, "Date", super.formatDate(_lastModifiedDate));
-        versionElement.appendChild(dateElement);
-
-        for (final Modification modification : _modifications) {
-            Element modificationElement = modification.generateXmlElement(document);
-            versionElement.appendChild(modificationElement);
-        }
-
-        // TODO: append functions once available
-
-        mostInterface.appendChild(versionElement);
-
-        return mostInterface;
+        throw new UnsupportedOperationException("generateXmlElement is invalid for MostInterface as there is not associated XML for interfaces.");
     }
 }

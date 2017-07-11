@@ -21,6 +21,7 @@ public class FunctionBlock extends XmlNode {
     private String _access;
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
+    private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -118,6 +119,14 @@ public class FunctionBlock extends XmlNode {
         _modifications.add(modification);
     }
 
+    public List<MostInterface> getMostInterfaces() {
+        return new ArrayList<>(_mostInterfaces);
+    }
+
+    public void addMostInterface(MostInterface mostInterface) {
+        _mostInterfaces.add(mostInterface);
+    }
+
     @Override
     public Element generateXmlElement(Document document) {
         Element functionBlock = document.createElement("FBlock");
@@ -148,7 +157,13 @@ public class FunctionBlock extends XmlNode {
             versionElement.appendChild(modificationElement);
         }
 
-        // TODO: append functions once available
+        // append functions from all interfaces
+        for (final MostInterface mostInterface : _mostInterfaces) {
+            for (final MostFunction mostFunction : mostInterface.getMostFunctions()) {
+                Element functionElement = mostFunction.generateXmlElement(document);
+                functionBlock.appendChild(functionElement);
+            }
+        }
 
         functionBlock.appendChild(versionElement);
 
