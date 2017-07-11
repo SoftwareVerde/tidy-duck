@@ -23,6 +23,11 @@ public class Method extends MostFunction {
     }
 
     @Override
+    public String getFunctionType() {
+        return "Method";
+    }
+
+    @Override
     public Element generateFunctionClassElement(Document document) {
         Element functionClassElement = document.createElement("FunctionClass");
         // TODO: determine appropriate logic
