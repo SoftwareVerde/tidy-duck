@@ -136,7 +136,8 @@ class MostFunctionForm extends React.Component {
         parameter.setName("Parameter Name");
 
         const parameters = mostFunction.getParameters();
-        parameter.setId(parameterIdCounter);
+        // TODO: how should the parameterIndex be set?
+        parameter.setParameterIndex(parameterIdCounter);
         parameters.push(parameter);
 
         mostFunction.setParameters(parameters);
