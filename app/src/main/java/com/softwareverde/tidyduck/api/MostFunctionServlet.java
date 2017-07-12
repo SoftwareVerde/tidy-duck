@@ -99,6 +99,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final String description = mostFunctionJson.getString("description");
         final String functionType = mostFunctionJson.getString("functionType");
         final Long returnTypeId = mostFunctionJson.getLong("returnTypeId");
+        final Long stereotypeId = mostFunctionJson.getLong("stereotypeId");
         final Long authorId = mostFunctionJson.getLong("authorId");
         final Long companyId = mostFunctionJson.getLong("companyId");
 
@@ -148,6 +149,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final MostType mostReturnType = new MostType();
         mostReturnType.setId(returnTypeId);
 
+        final MostFunctionStereotype mostFunctionStereotype = new MostFunctionStereotype();
+        mostFunctionStereotype.setId(stereotypeId);
+
         MostFunction mostFunction;
         switch (functionType) {
             case "Property": {
@@ -187,6 +191,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunction.setRelease(release);
         mostFunction.setDescription(description);
         mostFunction.setReturnType(mostReturnType);
+        mostFunction.setFunctionStereotype(mostFunctionStereotype);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
 
@@ -214,6 +219,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
         mostFunctionJson.put("returnTypeId", mostFunction.getReturnType().getId());
         mostFunctionJson.put("returnTypeName", mostFunction.getReturnType().getName());
+        mostFunctionJson.put("stereotypeId", mostFunction.getFunctionStereotype().getId());
+        mostFunctionJson.put("stereotypeName", mostFunction.getFunctionStereotype().getName());
         mostFunctionJson.put("authorId", mostFunction.getAuthor().getId());
         mostFunctionJson.put("authorName", mostFunction.getAuthor().getName());
         mostFunctionJson.put("companyId", mostFunction.getCompany().getId());

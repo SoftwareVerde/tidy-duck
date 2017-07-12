@@ -18,8 +18,11 @@ class MostFunction {
         mostFunction.setReleaseVersion(json.releaseVersion);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
-        mostFunction.setStereotype(json.stereotype);
-        mostFunction.setReturnType(json.returnType);
+        mostFunction.setStereotypeId(json.stereotypeId);
+        mostFunction.setStereotypeName(json.stereotypeName);
+        mostFunction.setReturnTypeId(json.returnTypeId);
+        mostFunction.setReturnTypeName(json.returnTypeName);
+        mostFunction.setSupportsNotification(json.supportsNotification);
         mostFunction.setParameters(json.parameters);
 
         return mostFunction;
@@ -27,15 +30,19 @@ class MostFunction {
 
     static toJson(mostFunction) {
         const jsonMostFunction = {
-            id:                 mostFunction.getId(),
-            mostId:             mostFunction.getMostId(),
-            name:               mostFunction.getName(),
-            description:        mostFunction.getDescription(),
-            lastModifiedDate:   mostFunction.getLastModifiedDate(),
-            releaseVersion:     mostFunction.getReleaseVersion(),
-            stereotype:         mostFunction.getStereotype(),
-            returnType:         mostFunction.getReturnType(),
-            parameters:         mostFunction.getParameters()
+            id:                     mostFunction.getId(),
+            mostId:                 mostFunction.getMostId(),
+            name:                   mostFunction.getName(),
+            description:            mostFunction.getDescription(),
+            lastModifiedDate:       mostFunction.getLastModifiedDate(),
+            releaseVersion:         mostFunction.getReleaseVersion(),
+            stereotypeId:           mostFunction.getStereotypeId(),
+            stereotypeName:         mostFunction.getStereotypeName(),
+            returnTypeId:           mostFunction.getReturnTypeId(),
+            returnTypeName:         mostFunction.getReturnTypeName(),
+            supportsNotification:   mostFunction.getSupportsNotification(),
+            operations:             mostFunction.getOperations(),
+            parameters:             mostFunction.getParameters()
         };
 
         const author = (mostFunction.getAuthor() || new Author());
@@ -59,11 +66,14 @@ class MostFunction {
       this._author                = null;
       this._company               = null;
 
-      this._stereotype            = "";
-      this._returnType            = "";
-      this._parameters            = [];
+      this._stereotypeId          = null;
+      this._stereotypeName        = "";
+      this._returnTypeId          = "";
+      this._returnTypeName        = "";
+      this._supportsNotification  = null;
 
-      this._operations            = [];
+      this._parameters            = null;
+      this._operations            = null;
     };
 
     setId(id) {
@@ -130,21 +140,47 @@ class MostFunction {
         return this._company;
     }
 
-    setStereotype(stereotype) {
-        this._stereotype = stereotype;
+    setStereotypeId(stereotypeId) {
+        this._stereotypeId = stereotypeId;
     }
 
-    getStereotype() {
-        return this._stereotype;
+    getStereotypeId() {
+        return this._stereotypeId;
     }
 
-    setReturnType(returnType) {
-        this._returnType = returnType;
+    setStereotypeName(stereotypeName) {
+        this._stereotypeId = stereotypeName;
     }
 
-    getReturnType() {
-        return this._returnType;
+    getStereotypeName() {
+        return this._stereotypeName;
     }
+
+    setReturnTypeId(returnTypeId) {
+        this._returnTypeId = returnTypeId;
+    }
+
+    getReturnTypeId() {
+        return this._returnTypeId;
+    }
+
+    setReturnTypeName(returnTypeName) {
+        this._returnTypeId = returnTypeName;
+    }
+
+    getReturnTypeName() {
+        return this._returnTypeName;
+    }
+
+    setSupportsNotification(supportsNotification) {
+        this._supportsNotification = supportsNotification;
+    }
+
+    getSupportsNotification() {
+        return this._supportsNotification;
+    }
+
+
 
     setParameters(parameters) {
         this._parameters = parameters;
