@@ -27,7 +27,7 @@ public class MostFunctionInflater {
         List<MostFunction> mostFunctions = new ArrayList<MostFunction>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long mostFunctionId = row.getLong("function_id");
+            final Long mostFunctionId = row.getLong("function_id");
             MostFunction mostFunction = inflateMostFunction(mostFunctionId);
             mostFunctions.add(mostFunction);
         }
@@ -69,9 +69,8 @@ public class MostFunctionInflater {
         CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(companyId);
 
-        if (category === "Property") {
+        if (category == "Property") {
             Property property = new Property();
-
             property.setId(id);
             property.setMostId(mostId);
             property.setName(name);
@@ -82,14 +81,14 @@ public class MostFunctionInflater {
             property.setReturnType(mostType);
             property.setAuthor(author);
             property.setCompany(company);
+            property.setOperations(inflateOperationsFromMostFunctionId(mostFunctionId));
             final boolean supportsNotification = row.getBoolean("supports_notification");
-            property.setSupportsNotification;
+            property.setSupportsNotification(supportsNotification);
 
             return property;
         }
 
         Method method = new Method();
-
         method.setId(id);
         method.setMostId(mostId);
         method.setName(name);
@@ -100,12 +99,10 @@ public class MostFunctionInflater {
         method.setReturnType(mostType);
         method.setAuthor(author);
         method.setCompany(company);
+        method.setOperations(inflateOperationsFromMostFunctionId(mostFunctionId));
+        method.setInputParameters(inflateMostFunctionParametersFromMostFunctionId(mostFunctionId));
 
-
-        /*
-        List<MostFunctionParameter> mostFunctionParameters = new ArrayList<MostFunctionParameter>();
-        Parameters are derived from operations and stereotypes...
-         */
+        return method;
     }
 
     public List<Operation> inflateOperationsFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
@@ -119,14 +116,14 @@ public class MostFunctionInflater {
         List<Operation> operations = new ArrayList<Operation>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long operationId = row.getLong("operation_id");
+            final Long operationId = row.getLong("operation_id");
             Operation operation = operationInflater.inflateOperation(operationId);
             operations.add(operation);
         }
         return operations;
     }
 
-    public List<MostFunctionParameter> inflateMostFunctionParametersFromMostFunctionId(mostFunctionId) throws DatabaseException {
+    public List<MostFunctionParameter> inflateMostFunctionParametersFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT parameter_index, most_type_id, name FROM functions_parameters INNER JOIN most_types ON function_parameters.most_type_id = most_types.id WHERE function_id = ?"
         );
@@ -142,7 +139,7 @@ public class MostFunctionInflater {
             MostType mostType = new MostType();
             mostType.setId(mostTypeId);
             mostType.setName(mostTypeName);
-            
+
             MostFunctionParameter mostFunctionParameter = new MostFunctionParameter();
             mostFunctionParameter.setParameterIndex(parameterIndex);
             mostFunctionParameter.setMostType(mostType);
