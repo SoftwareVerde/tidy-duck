@@ -82,9 +82,29 @@ class MostFunction {
         if (company.getId() > 0) {
             jsonMostFunction.companyId = company.getId();
         }
-        return jsonMostFunction;
 
-        // TODO: still need to Jsonify parameters and operations arrays!
+        // Jsonify parameters array, which contains parameter objects
+        const parameters = mostFunction.getParameters();
+        const parametersJson = {};
+        for (let i in parameters) {
+            const parameterJson = {
+                parameterIndex:     parameters[i].getParameterIndex(),
+                typeId:             parameters[i].getTypeId()
+            };
+
+            parametersJson.i = parameterJson;
+        }
+        jsonMostFunction.inputParameters = parametersJson;
+
+        // Jsonify operations array, which simply contains ids for operations.
+        const operations = mostFunction.getOperations();
+        const operationsJson = {};
+        for (let i in operations) {
+            operationsJson.i = operations[i].getId();
+        }
+        jsonMostFunction.operations = operationsJson;
+
+        return jsonMostFunction;
     }
 
     constructor() {

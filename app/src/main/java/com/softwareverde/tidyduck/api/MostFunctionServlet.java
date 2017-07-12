@@ -173,7 +173,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                     mostType.setId(inputParameterJson.getLong("typeId"));
 
                     MostFunctionParameter mostFunctionParameter = new MostFunctionParameter();
-                    mostFunctionParameter.setParameterIndex(inputParameterJson.getInteger("id"));
+                    mostFunctionParameter.setParameterIndex(inputParameterJson.getInteger("parameterIndex"));
                     mostFunctionParameter.setMostType(mostType);
 
                     method.addInputParameter(mostFunctionParameter);
