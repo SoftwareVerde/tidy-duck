@@ -1,22 +1,31 @@
 class Parameter {
     constructor() {
-        this._id    = null;
-        this._name  = null;
+        this._parameterIndex    = null;
+        this._typeId            = null;
+        this._typeName          = "";
     }
 
-    setId(id) {
-        this._id = id;
+    setParameterIndex(parameterIndex) {
+        this._parameterIndex = parameterIndex;
     }
 
-    getId() {
-        return this._id;
+    getParameterIndex() {
+        return this._parameterIndex;
     }
 
-    setName(name) {
-        this._name = name;
+    setTypeId(typeId) {
+        this._typeId = typeId;
     }
 
-    getName() {
-        return this._name;
+    getTypeId() {
+        return this._typeId;
+    }
+
+    setTypeName(typeName) {
+        this._typeName = typeName;
+    }
+
+    getTypeName() {
+        return this._typeName;
     }
 }
