@@ -62,7 +62,7 @@ public class FunctionCatalog extends XmlNode {
         return _isCommitted;
     }
 
-    public void setCommitted(boolean committed) {
+    public void setIsCommitted(boolean committed) {
         _isCommitted = committed;
     }
 

@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
@@ -22,9 +23,11 @@ public class MostGeneratorServlet extends BaseServlet {
     private final Logger _logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    protected void handleRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod method, Environment environment) throws ServletException, IOException {
+    protected void handleRequest(final HttpServletRequest request, final HttpServletResponse response, final HttpMethod method, final Environment environment) throws ServletException, IOException {
+        final Database<Connection> database = environment.getDatabase();
+
         if (! Session.isAuthenticated(request)) {
-            authenticationError(response);
+            _authenticationError(response);
             return;
         }
 
@@ -34,15 +37,15 @@ public class MostGeneratorServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        returnMostXmlAsAttachment(functionCatalogId, response, environment);
+        _returnMostXmlAsAttachment(functionCatalogId, response, database);
     }
 
-    private void returnMostXmlAsAttachment(long functionCatalogId, HttpServletResponse response, Environment environment) throws IOException {
-        try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
-            FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+    private void _returnMostXmlAsAttachment(final long functionCatalogId, final HttpServletResponse response, final Database<Connection> database) throws IOException {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
             final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId, true);
 
-            MostAdapter mostAdapter = new MostAdapter();
+            final MostAdapter mostAdapter = new MostAdapter();
             mostAdapter.setIndented(true);
             final String mostXml = mostAdapter.getMostXml(functionCatalog);
 
@@ -50,26 +53,27 @@ public class MostGeneratorServlet extends BaseServlet {
             final String functionCatalogName = functionCatalog.getName();
             _logger.info(String.format("Generated %d bytes for %s (id: %d).", mostXmlLength, functionCatalogName, functionCatalogId));
 
-            String fileName = functionCatalog.getName()+".xml";
+            final String fileName = functionCatalog.getName()+".xml";
             response.setHeader("Content-Disposition", "attachment;filename="+fileName);
-            PrintWriter writer = response.getWriter();
+            final PrintWriter writer = response.getWriter();
             writer.write(mostXml);
-        } catch (Exception e) {
-            _logger.error("Problem generating MOST XML for function catalog " + functionCatalogId + ".");
-            internalServerError(response);
+        }
+        catch (final Exception exception) {
+            _logger.error("Problem generating MOST XML for function catalog " + functionCatalogId + ".", exception);
+            _internalServerError(response);
             return;
         }
     }
 
-    private void internalServerError(HttpServletResponse response) throws IOException {
+    private void _internalServerError(final HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        PrintWriter writer = response.getWriter();
+        final PrintWriter writer = response.getWriter();
         writer.write("Unable to generate MOST.");
     }
 
-    private void authenticationError(HttpServletResponse response) throws IOException {
+    private void _authenticationError(final HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        PrintWriter writer = response.getWriter();
+        final PrintWriter writer = response.getWriter();
         writer.write("Not authorized.");
     }
 }

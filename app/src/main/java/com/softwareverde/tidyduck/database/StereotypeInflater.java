@@ -5,8 +5,10 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.MostFunctionStereotype;
+import com.softwareverde.tidyduck.Operation;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StereotypeInflater {
@@ -16,6 +18,8 @@ public class StereotypeInflater {
     public StereotypeInflater(DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
     }
+
+    private Operation inflateOperation(final Object object) { return null; } // TODO
 
     public MostFunctionStereotype inflateStereotype(final Long stereotypeId) throws DatabaseException {
         final Query query = new Query(
@@ -40,7 +44,7 @@ public class StereotypeInflater {
 
     public List<Operation> inflateOperationsFromStereotypeId(final long stereotypeId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT operation_id FROM function_stereotypes_operations WHERE function_stereotype_id = ?"
+            "SELECT operation_id FROM function_stereotypes_operations WHERE function_stereotype_id = ?"
         );
         query.setParameter(stereotypeId);
 
@@ -48,7 +52,7 @@ public class StereotypeInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long operationId = row.getLong("operation_id");
-            Operation operation = inflateOperation(operationId);
+            final Operation operation = inflateOperation(operationId);
             operations.add(operation);
         }
         return operations;

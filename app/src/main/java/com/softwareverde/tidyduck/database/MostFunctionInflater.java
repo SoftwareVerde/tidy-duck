@@ -56,6 +56,7 @@ public class MostFunctionInflater {
         final String releaseVersion = row.getString("release_version");
         final boolean isCommitted = row.getBoolean("is_committed");
 
+        /*
         MostFunction mostFunction = new MostFunction();
         mostFunction.setId(id);
         mostFunction.setMostId(mostId);
@@ -64,9 +65,12 @@ public class MostFunctionInflater {
         mostFunction.setLastModifiedDate(lastModifiedDate);
         mostFunction.setRelease(releaseVersion);
         mostInterface.setCommitted(isCommitted);
+        */
 
         /*
         Need inflaters for Types, Stereotypes, and Operations. Parameters are derived from operations and stereotypes...
          */
+
+        return null;
     }
 }
