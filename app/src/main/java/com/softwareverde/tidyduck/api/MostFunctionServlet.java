@@ -65,6 +65,15 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    protected _listMostFunctions(long mostInterfaceId, Environment environment) {
+        try(final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            final Json response = new Json(false);
+
+        } catch (final DatabaseException exception) {
+
+        }
+    }
+
     protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final long accountId, final Environment environment) throws Exception {
         final String mostId = mostFunctionJson.getString("mostId");
         final String name = mostFunctionJson.getString("name");

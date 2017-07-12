@@ -7,6 +7,7 @@ public class MostFunctionStereotype {
     private Long _id;
     private String _name;
     private boolean _supportsNotification;
+    private String _category;
     private List<Operation> _operations;
 
     public Long getId() {
@@ -31,6 +32,14 @@ public class MostFunctionStereotype {
 
     public void setSupportsNotification(boolean supportsNotification) {
         _supportsNotification = supportsNotification;
+    }
+
+    public String getCategory() {
+        return _category;
+    }
+
+    public void setCategory(String category) {
+        _category = category;
     }
 
     public List<Operation> getOperations() {
