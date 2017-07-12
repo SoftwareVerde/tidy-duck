@@ -19,10 +19,21 @@ public class DateUtil extends com.softwareverde.util.DateUtil {
         final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         try {
             return dateFormat.parse(dateString);
-        } catch (final ParseException e) {
-            // TODO: determine how to provide error message to caller.
+        }
+        catch (final ParseException e) {
             return null;
         }
+    }
+
+    /**
+     * Returns a java.util.Date object by parsing dateTimeString.
+     *  The dateTimeString should be the format: yyyy-MM-dd HH:mm:ss
+     *  Ex: 2000-01-01 00:00:00
+     * Returns null if the parse failed.
+     */
+    public static Date dateFromDateTimeString(final String dateTimeString) {
+        final Long time = com.softwareverde.util.DateUtil.datetimeToTimestamp(dateTimeString);
+        return new Date(time);
     }
 
     public static String dateToDateString(Date date) {

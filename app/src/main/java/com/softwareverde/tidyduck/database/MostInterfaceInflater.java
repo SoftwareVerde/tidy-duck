@@ -4,6 +4,8 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.logging.Logger;
+import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.MostInterface;
 
@@ -14,6 +16,7 @@ import java.util.List;
 
 public class MostInterfaceInflater {
 
+    protected final Logger _logger = new Slf4jLogger(this.getClass());
     private final DatabaseConnection<Connection> _databaseConnection;
 
     public MostInterfaceInflater(DatabaseConnection<Connection> databaseConnection) {
@@ -22,7 +25,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(long functionBlockId) throws DatabaseException {
         final Query query = new Query(
-          "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
+            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
         );
         query.setParameter(functionBlockId);
 
@@ -66,7 +69,8 @@ public class MostInterfaceInflater {
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            throw new DatabaseException("Interface ID " + mostInterfaceId + " not found.");
+            _logger.error("Interface ID " + mostInterfaceId + " not found.");
+            return null;
         }
 
         final Row row = rows.get(0);
