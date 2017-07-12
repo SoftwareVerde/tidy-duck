@@ -128,7 +128,7 @@ CREATE TABLE function_stereotypes (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255) NOT NULL,
     supports_notification boolean NOT NULL,
-    category ENUM('Property', 'Method')
+    category ENUM('Property', 'Method') NOT NULL
 ) ENGINE=INNODB;
 
 INSERT INTO function_stereotypes (id, name, supports_notification, category)
@@ -142,8 +142,10 @@ VALUES
 
 CREATE TABLE functions (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    most_id varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
     function_stereotype_id int unsigned NOT NULL,
+    category ENUM('Property', 'Method') NOT NULL,
     description text NOT NULL,
     release_version varchar(255) NOT NULL,
     account_id int unsigned NOT NULL,

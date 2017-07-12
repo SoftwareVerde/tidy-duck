@@ -117,6 +117,10 @@ public abstract class MostFunction extends XmlNode {
         _operations.add(operation);
     }
 
+    public void setOperations(final List<Operation> operations) {
+        _operations = new ArrayList<>(operations);
+    }
+
     public abstract String getFunctionType();
 
     protected abstract Element generateFunctionClassElement(Document document);

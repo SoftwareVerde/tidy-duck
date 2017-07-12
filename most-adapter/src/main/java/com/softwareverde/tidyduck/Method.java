@@ -22,6 +22,8 @@ public class Method extends MostFunction {
         _inputParameters.add(inputParameter);
     }
 
+    public void setInputParameters(final List<MostFunctionParameter> inputParameters) {_inputParameters = new ArrayList<>(inputParameters);}
+
     @Override
     public String getFunctionType() {
         return "Method";
