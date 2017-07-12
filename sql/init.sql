@@ -148,21 +148,30 @@ CREATE TABLE functions (
     release_version varchar(255) NOT NULL,
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
-    return_type int unsigned NOT NULL,
+    return_type_id int unsigned NOT NULL,
     supports_notification boolean NOT NULL,
     is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (function_stereotype_id) REFERENCES function_stereotypes (id),
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
-    FOREIGN KEY (return_type) REFERENCES most_types (id)
+    FOREIGN KEY (return_type_id) REFERENCES most_types (id)
+) ENGINE=INNODB;
+
+CREATE TABLE interfaces_functions (
+    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    interface_id int unsigned NOT NULL,
+    function_id int unsigned NOT NULL,
+    FOREIGN KEY (interface_id) REFERENCES interfaces (id),
+    FOREIGN KEY (function_id) REFERENCES functions (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_parameters (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
     function_id int unsigned NOT NULL,
-    most_type int unsigned NOT NULL,
+    parameter_index int unsigned NOT NULL,
+    most_type_id int unsigned NOT NULL,
     FOREIGN KEY (function_id) REFERENCES functions (id),
-    FOREIGN KEY (most_type) REFERENCES most_types (id)
+    FOREIGN KEY (most_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE operations (

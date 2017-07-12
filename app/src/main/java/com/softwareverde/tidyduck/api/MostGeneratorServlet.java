@@ -5,7 +5,6 @@ import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.mostadapter.MostAdapter;
-import com.softwareverde.tidyduck.mostadapter.MostAdapterException;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.Util;
@@ -35,39 +34,31 @@ public class MostGeneratorServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        returnMostAsAttachment(functionCatalogId, response, environment);
+        returnMostXmlAsAttachment(functionCatalogId, response, environment);
     }
 
-    private void returnMostAsAttachment(long functionCatalogId, HttpServletResponse response, Environment environment) throws IOException {
-        FunctionCatalog functionCatalog = null;
+    private void returnMostXmlAsAttachment(long functionCatalogId, HttpServletResponse response, Environment environment) throws IOException {
         try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
-            functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId, true);
-        } catch (Exception e) {
-            _logger.error("Unable to inflate function catalog.", e);
-            internalServerError(response);
-            return;
-        }
+            final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId, true);
 
-        String mostXml = null;
-        try {
             MostAdapter mostAdapter = new MostAdapter();
             mostAdapter.setIndented(true);
-            mostXml = mostAdapter.getMostXml(functionCatalog);
+            final String mostXml = mostAdapter.getMostXml(functionCatalog);
 
             final int mostXmlLength = mostXml.getBytes().length;
             final String functionCatalogName = functionCatalog.getName();
             _logger.info(String.format("Generated %d bytes for %s (id: %d).", mostXmlLength, functionCatalogName, functionCatalogId));
-        } catch (MostAdapterException e) {
-            _logger.error("Problem generating MOST XML for function catalog " + functionCatalog + " (" + functionCatalog.getName() + ").");
+
+            String fileName = functionCatalog.getName()+".xml";
+            response.setHeader("Content-Disposition", "attachment;filename="+fileName);
+            PrintWriter writer = response.getWriter();
+            writer.write(mostXml);
+        } catch (Exception e) {
+            _logger.error("Problem generating MOST XML for function catalog " + functionCatalogId + ".");
             internalServerError(response);
             return;
         }
-
-        String fileName = functionCatalog.getName()+".xml";
-        response.setHeader("Content-Disposition", "attachment;filename="+fileName);
-        PrintWriter writer = response.getWriter();
-        writer.write(mostXml);
     }
 
     private void internalServerError(HttpServletResponse response) throws IOException {
