@@ -59,8 +59,8 @@ public class MostFunctionInflater {
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
 
-        MostStereotypeInflater mostStereotypeInflater = new MostStereotypeInflater(_databaseConnection);
-        final MostFunctionStereotype mostFunctionStereotype = mostStereotypeInflater.inflateMostStereotype(mostFunctionStereotypeId);
+        MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(_databaseConnection);
+        final MostFunctionStereotype mostFunctionStereotype = mostFunctionStereotypeInflater.inflateStereotype(mostFunctionStereotypeId);
         MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
         final MostType mostType = mostTypeInflater.inflateMostType(returnTypeId);
 
@@ -132,7 +132,7 @@ public class MostFunctionInflater {
         List<MostFunctionParameter> mostFunctionParameters = new ArrayList<MostFunctionParameter>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final Long parameterIndex = row.getLong("parameter_index");
+            final Integer parameterIndex = row.getInteger("parameter_index");
             final Long mostTypeId = row.getLong("most_type_id");
             final String mostTypeName = row.getString("name");
 

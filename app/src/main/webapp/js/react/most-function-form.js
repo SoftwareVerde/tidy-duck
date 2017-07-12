@@ -275,7 +275,7 @@ class MostFunctionForm extends React.Component {
                     for (let i in parameters) {
                         const parameter = parameters[i];
                         const parameterKey = parameter.getName() + i;
-                        // TODO: pass onParameterUpdate function as props.
+                        // TODO: pass onParameterUpdate function as props, if needed.
                         parameterComponents.push(<app.MostFunctionParameter key={parameterKey} parameter={parameter} onDeleteParameterClicked={this.onDeleteParameterClicked}/>);
                     }
 

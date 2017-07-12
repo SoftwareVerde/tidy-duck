@@ -1,10 +1,12 @@
 package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
+import com.softwareverde.tidyduck.database.MostFunctionInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
@@ -13,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
+import java.util.List;
 
 public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -30,7 +34,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return super._generateErrorJson("Invalid interface id.");
                 }
-                //return _listMostFunctions(mostInterfaceId, environment);
+                return _listMostFunctions(mostInterfaceId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
@@ -65,12 +69,26 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected _listMostFunctions(long mostInterfaceId, Environment environment) {
+    protected Json _listMostFunctions(long mostInterfaceId, Environment environment) {
         try(final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
             final Json response = new Json(false);
 
-        } catch (final DatabaseException exception) {
+            final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
+            final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
 
+            final Json mostFunctionsJson = new Json(true);
+            for (MostFunction mostFunction : mostFunctions) {
+                final Json mostFunctionJson = _toJson(mostFunction);
+                mostFunctionsJson.add(mostFunctionJson);
+            }
+            response.put("mostFunctions", mostFunctionsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+
+        } catch (final DatabaseException exception) {
+            _logger.error("Unable to list functions.", exception);
+            return super._generateErrorJson("Unable to list functions.");
         }
     }
 

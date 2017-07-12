@@ -8,6 +8,7 @@ import com.softwareverde.tidyduck.MostFunctionStereotype;
 import com.softwareverde.tidyduck.Operation;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MostFunctionStereotypeInflater {
