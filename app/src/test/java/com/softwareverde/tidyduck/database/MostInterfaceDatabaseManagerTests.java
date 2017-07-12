@@ -23,7 +23,7 @@ public class MostInterfaceDatabaseManagerTests {
     protected MostInterfaceDatabaseManager _mostInterfaceDatabaseManager;
     protected MostInterfaceInflater _mostInterfaceInflater;
 
-    protected FunctionCatalog _createSavedTestFunctionCatalog() throws Exception {
+    protected FunctionCatalog _createSavedTestFunctionCatalog() throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(1L);
 
@@ -41,7 +41,7 @@ public class MostInterfaceDatabaseManagerTests {
         return functionCatalog;
     }
 
-    protected FunctionBlock _createSavedTestFunctionBlock(final FunctionCatalog functionCatalog, final String functionBlockName) throws Exception {
+    protected FunctionBlock _createSavedTestFunctionBlock(final FunctionCatalog functionCatalog, final String functionBlockName) throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(1L);
 
@@ -61,7 +61,7 @@ public class MostInterfaceDatabaseManagerTests {
         return functionBlock;
     }
 
-    protected MostInterface _createUnsavedTestMostInterface(final String mostInterfaceName) throws Exception {
+    protected MostInterface _createUnsavedTestMostInterface(final String mostInterfaceName) throws DatabaseException {
         final MostInterface mostInterface = new MostInterface();
         mostInterface.setName(mostInterfaceName);
         mostInterface.setDescription("Description");
@@ -81,6 +81,22 @@ public class MostInterfaceDatabaseManagerTests {
         return DateUtil.datetimeToTimestamp(dateTimeString);
     }
 
+    protected void _randomizeNextFunctionCatalogInsertId() throws DatabaseException {
+        final Integer autoIncrement = (int) ((Math.random() * 7777) % 1000);
+        // _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs AUTO_INCREMENT = "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs ALTER COLUMN id RESTART WITH "+ autoIncrement));
+    }
+
+    protected void _randomizeNextFunctionBlockInsertId() throws DatabaseException {
+        final Integer autoIncrement = (int) ((Math.random() * 7777) % 1000);
+        _databaseConnection.executeDdl(new Query("ALTER TABLE function_blocks ALTER COLUMN id RESTART WITH "+ autoIncrement));
+    }
+
+    protected void _randomizeNextMostInterfaceInsertId() throws DatabaseException {
+        final Integer autoIncrement = (int) ((Math.random() * 7777) % 1000);
+        _databaseConnection.executeDdl(new Query("ALTER TABLE interfaces ALTER COLUMN id RESTART WITH "+ autoIncrement));
+    }
+
     @Before
     public void setup() throws Exception {
         _databaseConnection = _inMemoryDatabase.newConnection();
@@ -94,6 +110,10 @@ public class MostInterfaceDatabaseManagerTests {
         TestDataLoader.insertFakeCompany(_databaseConnection);
         TestDataLoader.insertFakeAccount(_databaseConnection);
         TestDataLoader.insertFakeVersion(_databaseConnection);
+
+        _randomizeNextFunctionCatalogInsertId();
+        _randomizeNextFunctionBlockInsertId();
+        _randomizeNextMostInterfaceInsertId();
     }
 
     @Test
@@ -152,7 +172,7 @@ public class MostInterfaceDatabaseManagerTests {
         _mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlock.getId(), mostInterface);
 
         // Action
-        _mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlock2.getId(), functionBlock.getId());
+        _mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlock2.getId(), mostInterface.getId());
         final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock2.getId());
 
         // Assert
@@ -172,7 +192,7 @@ public class MostInterfaceDatabaseManagerTests {
         _mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlock.getId(), mostInterface);
 
         // Action
-        _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionBlock.getId(), functionBlock.getId());
+        _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog.getId(), functionBlock.getId());
         final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId());
 
         // Assert
@@ -249,7 +269,7 @@ public class MostInterfaceDatabaseManagerTests {
 
         // Assert
         Assert.assertEquals(2, functionBlockIds.size());
-        Assert.assertTrue(functionBlockIds.contains(1L));
-        Assert.assertTrue(functionBlockIds.contains(2L));
+        Assert.assertTrue(functionBlockIds.contains(functionBlock.getId()));
+        Assert.assertTrue(functionBlockIds.contains(functionBlock2.getId()));
     }
 }
