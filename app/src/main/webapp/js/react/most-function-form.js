@@ -2,6 +2,19 @@ class MostFunctionForm extends React.Component {
     constructor(props) {
         super(props);
 
+        this.mostTypeNames = {
+            tBool:          'TBool',
+            tBitField:      'TBitField',
+            tNumber:        'TNumber',
+            tEnum:          'TEnum',
+            tString:        'TString',
+            tArray:         'TArray',
+            tRecord:        'TRecord',
+            tStream:        'TStream',
+            tCStream:       'TCStream',
+            tShortStream:   'TShortStream'
+        };
+
         this.stereoTypeNames = {
             event:                      'Event',
             readOnlyProperty:           'ReadOnlyProperty',
@@ -18,10 +31,12 @@ class MostFunctionForm extends React.Component {
 
         const isNewMostFunction = (! this.props.mostFunction);
         const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : this.props.mostFunction));
-        if (isNewMostFunction) {
-            mostFunction.setStereotypeName(this.props.selectedFunctionStereotype);
+        let stereoTypeName = this.props.selectedFunctionStereotype;
 
-            switch (this.props.selectedFunctionStereotype) {
+        if (isNewMostFunction) {
+            mostFunction.setStereotypeName(stereoTypeName);
+
+            switch (stereoTypeName) {
                 case this.stereoTypeNames.requestResponse:
                 case this.stereoTypeNames.commandWithAck:
                     mostFunction.setFunctionType(this.functionTypes.method);
@@ -36,6 +51,7 @@ class MostFunctionForm extends React.Component {
             mostFunction.setReturnTypeName('TBool');
             mostFunction.setReturnTypeId(1);
         }
+        else {stereoTypeName = mostFunction.getStereotypeName();}
 
         this.state = {
             showTitle:                  this.props.showTitle,
@@ -43,7 +59,7 @@ class MostFunctionForm extends React.Component {
             mostFunction:               mostFunction,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
             defaultButtonTitle:         this.props.defaultButtonTitle,
-            selectedFunctionStereotype: mostFunction.getStereotypeName(),
+            selectedFunctionStereotype: stereoTypeName,
             parameters:                 mostFunction.getParameters(),
         };
 
@@ -191,7 +207,9 @@ class MostFunctionForm extends React.Component {
         const mostFunction = this.state.mostFunction;
         const parameter = new Parameter();
         const parameterIdCounter = this.state.parameterIdCounter + 1;
-        parameter.setTypeName(this.typeNames.tBool);
+
+        // TODO: pull in most types from api and assign accordingly. This is hard coded for now.
+        parameter.setTypeName("TBool");
 
         const parameters = mostFunction.getParameters();
         parameter.setParameterIndex(parameters.length);
@@ -337,13 +355,13 @@ class MostFunctionForm extends React.Component {
                 const parameters = this.state.parameters;
                     for (let i in parameters) {
                         const parameter = parameters[i];
-                        const parameterKey = parameter.getName() + i;
+                        const parameterKey = parameter.getTypeName() + i;
                         // TODO: pass onParameterUpdate function as props, if needed.
                         parameterComponents.push(<app.MostFunctionParameter
                             key={parameterKey}
                             parameter={parameter}
                             onDeleteParameterClicked={this.onDeleteParameterClicked}
-                            typeNames={this.typeNames}
+                            mostTypeNames={this.mostTypeNames}
                         />);
                     }
 
@@ -372,7 +390,6 @@ class MostFunctionForm extends React.Component {
     render() {
         const mostFunction = this.state.mostFunction;
         const stereotypeOptions = [];
-        // TODO: push all correct stereotypes
         stereotypeOptions.push('Event');
         stereotypeOptions.push('ReadOnlyProperty');
         stereotypeOptions.push('ReadOnlyPropertyWithEvent');
@@ -381,9 +398,11 @@ class MostFunctionForm extends React.Component {
         stereotypeOptions.push('Request/Response');
 
         const returnTypeOptions = [];
-        // TODO: push all correct stereotypes
-        returnTypeOptions.push('Property');
+        const mostTypeNames = this.mostTypeNames;
 
+        for (let i in mostTypeNames) {
+            returnTypeOptions.push(mostTypeNames[i]);
+        }
 
         const reactComponents = [];
         reactComponents.push(<app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID" value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />);

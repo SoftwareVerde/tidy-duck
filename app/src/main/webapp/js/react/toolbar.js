@@ -150,9 +150,11 @@ class Toolbar extends React.Component {
             reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked} title="Event">E</div>);
             reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked} title="ReadOnlyProperty">ROP</div>);
             reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked} title="ReadOnlyPropertyWithEvent">ROPwE</div>);
-            reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked} title="Request/Response">R/R</div>);
-            reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked} title="CommandWithAck">CwA</div>);
             reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked} title="PropertyWithEvent">PwE</div>);
+            reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked} title="CommandWithAck">CwA</div>);
+            reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked} title="Request/Response">R/R</div>);
+
+
 
             return reactComponents;
         }

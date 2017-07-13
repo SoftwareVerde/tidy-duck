@@ -21,10 +21,10 @@ class App extends React.Component {
             event:                      "Event",
             readOnlyProperty:           "ReadOnlyProperty",
             readOnlyPropertyWithEvent:  "ReadOnlyPropertyWithEvent",
-            requestResponse:            "Request/Response",
+            propertyWithEvent:          "PropertyWithEvent",
             commandWithAck:             "CommandWithAck",
-            propertyWithEvent:          "PropertyWithEvent"
-        }
+            requestResponse:            "Request/Response"
+        };
 
         this.state = {
             account:                    null,

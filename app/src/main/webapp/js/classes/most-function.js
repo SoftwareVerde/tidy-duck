@@ -237,7 +237,7 @@ class MostFunction {
     }
 
     setReturnTypeName(returnTypeName) {
-        this._returnTypeId = returnTypeName;
+        this._returnTypeName = returnTypeName;
     }
 
     getReturnTypeName() {
