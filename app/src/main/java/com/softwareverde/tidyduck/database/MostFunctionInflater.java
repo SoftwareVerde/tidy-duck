@@ -125,7 +125,7 @@ public class MostFunctionInflater {
 
     public List<MostFunctionParameter> inflateMostFunctionParametersFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT parameter_index, most_type_id, name FROM functions_parameters INNER JOIN most_types ON function_parameters.most_type_id = most_types.id WHERE function_id = ?"
+                "SELECT parameter_index, most_type_id, name FROM function_parameters INNER JOIN most_types ON function_parameters.most_type_id = most_types.id WHERE function_id = ?"
         );
         query.setParameter(mostFunctionId);
 

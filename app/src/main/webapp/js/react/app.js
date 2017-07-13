@@ -915,7 +915,7 @@ class App extends React.Component {
                 // didn't navigate away while downloading children
                 const mostFunctions = [];
                 for (let i in mostFunctionsJson) {
-                    const mostFunctionJson = mostFunctions[i];
+                    const mostFunctionJson = mostFunctionsJson[i];
                     const mostFunction = MostFunction.fromJson(mostFunctionJson);
                     mostFunctions.push(mostFunction);
                 }

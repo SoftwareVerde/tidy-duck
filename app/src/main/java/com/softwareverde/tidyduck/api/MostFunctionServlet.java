@@ -59,7 +59,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
-            response.put("mostInterfaceId", mostFunction.getId());
+            response.put("mostFunctionId", mostFunction.getId());
         }
         catch (final Exception exception) {
             _logger.error("Unable to insert function.", exception);

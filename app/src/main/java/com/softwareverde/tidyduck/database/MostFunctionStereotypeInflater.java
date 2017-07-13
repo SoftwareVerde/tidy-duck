@@ -21,7 +21,7 @@ public class MostFunctionStereotypeInflater {
 
     public MostFunctionStereotype inflateStereotype(final Long mostFunctionStereotypeId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT id, name, supports_notification, category FROM operations WHERE id = ?"
+                "SELECT id, name, supports_notification, category FROM function_stereotypes WHERE id = ?"
         );
         query.setParameter(mostFunctionStereotypeId);
 
