@@ -698,9 +698,7 @@ class App extends React.Component {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            if (i >= 1) {
                 break;
-            }
         }
 
         const navigationItemConfig = new NavigationItemConfig();
@@ -876,7 +874,7 @@ class App extends React.Component {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            if (i >= 2) {
+            if (i >= 1) {
                 break;
             }
         }
@@ -1056,7 +1054,7 @@ class App extends React.Component {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            if (i >= 3) {
+            if (i >= 2) {
                 break;
             }
         }

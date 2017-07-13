@@ -41,6 +41,7 @@ class MostFunctionForm extends React.Component {
                 case this.stereoTypeNames.commandWithAck:
                     mostFunction.setFunctionType(this.functionTypes.method);
                     mostFunction.setSupportsNotification(false);
+                    break;
                 default:
                     mostFunction.setFunctionType(this.functionTypes.property);
                     mostFunction.setSupportsNotification(true);
@@ -92,6 +93,7 @@ class MostFunctionForm extends React.Component {
                 case this.stereoTypeNames.commandWithAck:
                     mostFunction.setFunctionType(this.functionTypes.method);
                     mostFunction.setSupportsNotification(false);
+                    break;
                 default:
                     mostFunction.setFunctionType(this.functionTypes.property);
                     mostFunction.setSupportsNotification(true);
@@ -171,16 +173,22 @@ class MostFunctionForm extends React.Component {
             case this.stereoTypeNames.commandWithAck:
                 mostFunction.setFunctionType(this.functionTypes.method);
                 mostFunction.setSupportsNotification(false);
+                break;
             default:
                 mostFunction.setFunctionType(this.functionTypes.property);
                 mostFunction.setSupportsNotification(true);
+
+                // TODO: should changing the function type via stereotypes wipe out parameters, or should we temporarily save them?
+                const newParameters = [];
+                mostFunction.setParameters(newParameters);
                 break;
         }
 
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({
             buttonTitle: defaultButtonTitle,
-            selectedFunctionStereotype: newValue
+            selectedFunctionStereotype: newValue,
+            parameters: mostFunction.getParameters()
         });
 
         if (typeof this.props.onUpdate == "function") {
@@ -206,7 +214,6 @@ class MostFunctionForm extends React.Component {
     onAddParameterClicked() {
         const mostFunction = this.state.mostFunction;
         const parameter = new Parameter();
-        const parameterIdCounter = this.state.parameterIdCounter + 1;
 
         // TODO: pull in most types from api and assign accordingly. This is hard coded for now.
         parameter.setTypeName("TBool");
@@ -217,10 +224,7 @@ class MostFunctionForm extends React.Component {
 
         mostFunction.setParameters(parameters);
 
-        this.setState({
-            parameters:         parameters,
-            parameterIdCounter: parameterIdCounter
-        });
+        this.setState({parameters: parameters});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
