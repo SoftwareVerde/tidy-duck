@@ -201,6 +201,27 @@ class MostFunction {
 
     setStereotypeName(stereotypeName) {
         this._stereotypeId = stereotypeName;
+
+        switch (stereotypeName) {
+            case 'Event':
+                this.setStereotypeId(1);
+                break;
+            case 'ReadOnlyProperty':
+                this.setStereotypeId(2);
+                break;
+            case 'ReadOnlyPropertyWithEvent':
+                this.setStereotypeId(3);
+                break;
+            case 'PropertyWithEvent':
+                this.setStereotypeId(4);
+                break;
+            case 'CommandWithAck':
+                this.setStereotypeId(5);
+                break;
+            case 'Request/Response':
+                this.setStereotypeId(6);
+                break;
+        }
     }
 
     getStereotypeName() {
