@@ -20,6 +20,11 @@ public class Property extends MostFunction {
     }
 
     @Override
+    public String getFunctionType() {
+        return "Property";
+    }
+
+    @Override
     protected Element generateFunctionClassElement(Document document) {
         Element functionClassElement = document.createElement("FunctionClass");
         // TODO: determine appropriate logic

@@ -2,7 +2,7 @@
 // calls callbackFunction with an array of functions
 function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-function?interface_id=" + mostInterfaceId,
+        API_PREFIX + "most-function?most_interface_id=" + mostInterfaceId,
         {
             method: "GET",
             credentials: "include"
@@ -101,7 +101,7 @@ function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callb
 
 function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-function/" + mostFunctionId + "?mostInterfaceId=" + mostInterfaceId,
+        ENDPOINT_PREFIX + "api/v1/most-function/" + mostFunctionId + "?most_interface_id=" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"

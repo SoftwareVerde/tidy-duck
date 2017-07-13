@@ -10,32 +10,68 @@ class MostFunction {
         company.setId(json.companyId);
         company.setName(json.companyName);
 
+        const operations = [];
+        const operationsJson = json.operations;
+        for (let i in operationsJson) {
+            const operationJson = operationsJson[i];
+            const operation = new Operation();
+            operation.setId(operationJson.id);
+            operation.setName(operationJson.name);
+
+            operations.push(operation);
+        }
+
+        const functionType = json.functionType;
+
         mostFunction.setId(json.id);
         mostFunction.setMostId(json.mostId);
         mostFunction.setName(json.name);
         mostFunction.setDescription(json.description);
-        mostFunction.setLastModifiedDate(json.lastModifiedDate);
+        mostFunction.setFunctionType(functionType);
         mostFunction.setReleaseVersion(json.releaseVersion);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
-        mostFunction.setStereotype(json.stereotype);
-        mostFunction.setReturnType(json.returnType);
-        mostFunction.setParameters(json.parameters);
+        mostFunction.setStereotypeId(json.stereotypeId);
+        mostFunction.setStereotypeName(json.stereotypeName);
+        mostFunction.setReturnTypeId(json.returnTypeId);
+        mostFunction.setReturnTypeName(json.returnTypeName);
+        mostFunction.setOperations(operations);
+
+        if(functionType === "Property") {
+            mostFunction.setSupportsNotification(json.supportsNotification);
+        }
+        else {
+            const parameters = [];
+            const parametersJson = json.inputParameters;
+
+            for (let i in parametersJson) {
+                const parameterJson = parametersJson[i];
+                const parameter = new Parameter();
+                parameter.setParameterIndex(parameterJson.index);
+                parameter.setTypeId(parameterJson.typeId);
+                parameter.setTypeName(parameterJson.typeName);
+
+                parameters.push(parameter);
+            }
+            mostFunction.setParameters(parameters);
+        }
 
         return mostFunction;
     }
 
     static toJson(mostFunction) {
         const jsonMostFunction = {
-            id:                 mostFunction.getId(),
-            mostId:             mostFunction.getMostId(),
-            name:               mostFunction.getName(),
-            description:        mostFunction.getDescription(),
-            lastModifiedDate:   mostFunction.getLastModifiedDate(),
-            releaseVersion:     mostFunction.getReleaseVersion(),
-            stereotype:         mostFunction.getStereotype(),
-            returnType:         mostFunction.getReturnType(),
-            parameters:         mostFunction.getParameters()
+            id:                     mostFunction.getId(),
+            mostId:                 mostFunction.getMostId(),
+            name:                   mostFunction.getName(),
+            description:            mostFunction.getDescription(),
+            releaseVersion:         mostFunction.getReleaseVersion(),
+            functionType:           mostFunction.getFunctionType(),
+            stereotypeId:           mostFunction.getStereotypeId(),
+            stereotypeName:         mostFunction.getStereotypeName(),
+            returnTypeId:           mostFunction.getReturnTypeId(),
+            returnTypeName:         mostFunction.getReturnTypeName(),
+            supportsNotification:   mostFunction.getSupportsNotification(),
         };
 
         const author = (mostFunction.getAuthor() || new Author());
@@ -46,6 +82,28 @@ class MostFunction {
         if (company.getId() > 0) {
             jsonMostFunction.companyId = company.getId();
         }
+
+        // Jsonify parameters array, which contains parameter objects
+        const parameters = mostFunction.getParameters();
+        const parametersJson = {};
+        for (let i in parameters) {
+            const parameterJson = {
+                parameterIndex:     parameters[i].getParameterIndex(),
+                typeId:             parameters[i].getTypeId()
+            };
+
+            parametersJson.i = parameterJson;
+        }
+        jsonMostFunction.inputParameters = parametersJson;
+
+        // Jsonify operations array, which simply contains ids for operations.
+        const operations = mostFunction.getOperations();
+        const operationsJson = {};
+        for (let i in operations) {
+            operationsJson.i = operations[i].getId();
+        }
+        jsonMostFunction.operations = operationsJson;
+
         return jsonMostFunction;
     }
 
@@ -54,15 +112,18 @@ class MostFunction {
       this._mostId                = null;
       this._name                  = "";
       this._description           = "";
-      this._lastModifiedDate      = "";
+      this._functionType          = "";
       this._releaseVersion        = "";
       this._author                = null;
       this._company               = null;
 
-      this._stereotype            = "";
-      this._returnType            = "";
-      this._parameters            = [];
+      this._stereotypeId          = null;
+      this._stereotypeName        = "";
+      this._returnTypeId          = "";
+      this._returnTypeName        = "";
+      this._supportsNotification  = false;
 
+      this._parameters            = [];
       this._operations            = [];
     };
 
@@ -98,12 +159,12 @@ class MostFunction {
         return this._description;
     }
 
-    setLastModifiedDate(lastModifiedDate) {
-        this._lastModifiedDate = lastModifiedDate;
+    setFunctionType(functionType) {
+        this._functionType = functionType;
     }
 
-    getLastModifiedDate() {
-        return this._lastModifiedDate;
+    getFunctionType() {
+        return this._functionType;
     }
 
     setReleaseVersion(releaseVersion) {
@@ -130,21 +191,46 @@ class MostFunction {
         return this._company;
     }
 
-    setStereotype(stereotype) {
-        this._stereotype = stereotype;
+    setStereotypeId(stereotypeId) {
+        this._stereotypeId = stereotypeId;
     }
 
-    getStereotype() {
-        return this._stereotype;
+    getStereotypeId() {
+        return this._stereotypeId;
     }
 
-    setReturnType(returnType) {
-        this._returnType = returnType;
+    setStereotypeName(stereotypeName) {
+        this._stereotypeId = stereotypeName;
     }
 
-    getReturnType() {
-        return this._returnType;
+    getStereotypeName() {
+        return this._stereotypeName;
     }
+
+    setReturnTypeId(returnTypeId) {
+        this._returnTypeId = returnTypeId;
+    }
+
+    getReturnTypeId() {
+        return this._returnTypeId;
+    }
+
+    setReturnTypeName(returnTypeName) {
+        this._returnTypeId = returnTypeName;
+    }
+
+    getReturnTypeName() {
+        return this._returnTypeName;
+    }
+
+    setSupportsNotification(supportsNotification) {
+        this._supportsNotification = supportsNotification;
+    }
+
+    getSupportsNotification() {
+        return this._supportsNotification;
+    }
+
 
     setParameters(parameters) {
         this._parameters = parameters;
@@ -152,6 +238,10 @@ class MostFunction {
 
     getParameters() {
         return this._parameters;
+    }
+
+    setOperations(operations) {
+        this._operations = operations;
     }
 
     getOperations() {

@@ -45,7 +45,6 @@ class MostFunction extends React.Component {
         }
     }
 
-
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.mostFunction);

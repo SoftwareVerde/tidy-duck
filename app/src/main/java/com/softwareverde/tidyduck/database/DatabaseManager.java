@@ -4,10 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.transaction.DatabaseConnectedRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
-import com.softwareverde.tidyduck.FunctionBlock;
-import com.softwareverde.tidyduck.FunctionCatalog;
-import com.softwareverde.tidyduck.MostInterface;
-import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.environment.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +115,7 @@ public class DatabaseManager {
         }
     }
 
-    //MOST INTERFACE METHODS
+    // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
@@ -165,5 +162,17 @@ public class DatabaseManager {
             MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
             return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
         }
+    }
+
+    // MOST FUNCTION METHODS
+
+    public void insertMostFunction(final long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
+        this.executeTransaction(new DatabaseConnectedRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
+                mostFunctionDatabaseManager.insertMostFunctionForMostInterface(mostInterfaceId, mostFunction);
+            }
+        });
     }
 }

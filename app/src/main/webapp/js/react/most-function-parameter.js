@@ -6,7 +6,7 @@ class MostFunctionParameter extends React.Component {
             parameter:  (this.props.parameter || new Parameter()),
         };
 
-        this.onNameChanged = this.onNameChanged.bind(this);
+        this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
         this.renderDeleteIcon = this.renderDeleteIcon.bind(this);
         this.onDeleteParameter = this.onDeleteParameter.bind(this);
     }
@@ -17,9 +17,9 @@ class MostFunctionParameter extends React.Component {
         });
     }
 
-    onNameChanged(newValue) {
+    onTypeNameChanged(newValue) {
         const parameter = this.state.parameter;
-        parameter.setName(newValue);
+        parameter.setTypeName(newValue);
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate(parameter);
@@ -34,19 +34,19 @@ class MostFunctionParameter extends React.Component {
 
     renderDeleteIcon() {
         return (
-            <i className="remove-button fa fa-remove fa-4x" onClick={this.onDeleteParameter} />
+            <i className="remove-button fa fa-remove fa-3x" onClick={this.onDeleteParameter} />
         );
     }
 
     render() {
         const parameter = this.state.parameter;
         const options = [];
-        options.push(parameter.getName());
-        options.push("Parameter Name 2");
-        options.push("Parameter Name 3");
+        options.push(parameter.getTypeName());
+        // TODO: other type names should be pushed as options.
+
         return (
           <div className="parameter">
-              <app.InputField id="name" name="name" type="select" label="Name" readOnly={this.props.readOnly} options={options} onChange={this.onNameChanged} />
+              <app.InputField id="name" name="name" type="select" label="Name" readOnly={this.props.readOnly} options={options} onChange={this.onTypeNameChanged} />
               {this.renderDeleteIcon()}
           </div>
         );
