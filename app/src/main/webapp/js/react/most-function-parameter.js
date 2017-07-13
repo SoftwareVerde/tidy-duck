@@ -41,12 +41,11 @@ class MostFunctionParameter extends React.Component {
     render() {
         const parameter = this.state.parameter;
         const options = [];
-        options.push(parameter.getTypeName());
-        // TODO: other type names should be pushed as options.
+        options.push(this.props.typeNames);
 
         return (
           <div className="parameter">
-              <app.InputField id="name" name="name" type="select" label="Name" readOnly={this.props.readOnly} options={options} onChange={this.onTypeNameChanged} />
+              <app.InputField id="name" name="name" type="select" label="Name" readOnly={this.props.readOnly} options={options} value={parameter.getTypeName()} onChange={this.onTypeNameChanged} />
               {this.renderDeleteIcon()}
           </div>
         );

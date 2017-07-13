@@ -417,22 +417,11 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
         const mostFunctionJson = MostFunction.toJson(mostFunction);
 
-        /*
         this.setState({
             createButtonState:  this.CreateButtonState.animate
         });
-        */
-        mostFunction.setId(Math.random());
-        const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
 
-        thisApp.setState({
-            createButtonState:          thisApp.CreateButtonState.success,
-            mostFunctions:              mostFunctions,
-            currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces
-        });
 
-        // TODO: delete above duplicate code and uncomment below when api backend is ready.
-        /*
         insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
             if (! (mostFunctionId > 0)) {
                 console.log("Unable to create function.");
@@ -443,6 +432,9 @@ class App extends React.Component {
             }
 
             mostFunction.setId(mostFunctionId);
+            mostFunction.setAuthor(thisApp.getCurrentAccountAuthor());
+            mostFunction.setCompany(thisApp.getCurrentAccountCompany());
+
             const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
 
             thisApp.setState({
@@ -451,7 +443,6 @@ class App extends React.Component {
                 currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
             });
         });
-        */
     }
 
     onUpdateMostFunction(mostFunction) {
@@ -906,29 +897,21 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        ////////
-
         const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
 
-        const mostFunctions = [];
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
+            mostFunctions:              [],
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
-            mostFunctions:              mostFunctions, // TODO: remove after testing
-            isLoadingChildren:           false,         // TODO: remove after testing
-            //isLoadingChildren:          !canUseCachedChildren
+            isLoadingChildren:          !canUseCachedChildren
         });
 
-        ////////
-
-        // TODO: modify above and uncomment below when API is ready.
-            /*
         getMostFunctionsForMostInterfaceId(mostInterface.getId(), function(mostFunctionsJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
                 // didn't navigate away while downloading children
@@ -946,7 +929,6 @@ class App extends React.Component {
                 });
             }
         });
-        */
     }
 
     onSearchMostInterfaces(searchString) {
@@ -1349,7 +1331,6 @@ class App extends React.Component {
 
             case NavigationLevel.mostFunctions:
                 if(shouldShowCreateChildForm) {
-                    // TODO: set onSubmit to updateMostFunction
                     // TODO: ensure that stereotype properties are correctly populated for existing function
                     reactComponents.push(
                         <app.MostFunctionForm key="MostFunctionFormUpdate"

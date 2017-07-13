@@ -28,6 +28,10 @@
         <servlet-name>MostInterface</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.MostInterfaceServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>MostFunction</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.MostFunctionServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
@@ -77,6 +81,15 @@
     <servlet-mapping>
         <servlet-name>MostInterface</servlet-name>
         <url-pattern>/api/v1/most-interface/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>MostFunction</servlet-name>
+        <url-pattern>/api/v1/most-function</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MostFunction</servlet-name>
+        <url-pattern>/api/v1/most-function/*</url-pattern>
     </servlet-mapping>
 
     <session-config>
