@@ -32,6 +32,10 @@
         <servlet-name>MostFunction</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.MostFunctionServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>MostType</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.MostTypeServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
@@ -91,6 +95,16 @@
         <servlet-name>MostFunction</servlet-name>
         <url-pattern>/api/v1/most-function/*</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>MostType</servlet-name>
+        <url-pattern>/api/v1/most-type</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MostType</servlet-name>
+        <url-pattern>/api/v1/most-type/*</url-pattern>
+    </servlet-mapping>
+
 
     <session-config>
         <session-timeout>30</session-timeout>    <!-- 30 minutes -->

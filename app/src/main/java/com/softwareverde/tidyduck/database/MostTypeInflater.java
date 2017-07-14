@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.MostType;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MostTypeInflater {
@@ -15,6 +16,18 @@ public class MostTypeInflater {
 
     public MostTypeInflater(DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
+    }
+
+    public List<MostType> inflateMostTypes() throws DatabaseException {
+        final Query query = new Query("SELECT id FROM most_types");
+
+        List<Row> rows = _databaseConnection.query(query);
+        ArrayList<MostType> types = new ArrayList<>();
+        for (final Row row : rows) {
+            MostType mostType = inflateMostType(row.getLong("id"));
+            types.add(mostType);
+        }
+        return types;
     }
 
     public MostType inflateMostType(final Long mostTypeId) throws DatabaseException {
