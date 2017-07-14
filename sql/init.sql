@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS operations;
 DROP TABLE IF EXISTS function_parameters;
 DROP TABLE IF EXISTS functions;
 DROP TABLE IF EXISTS function_stereotypes;
+DROP TABLE IF EXISTS function_categories;
 DROP TABLE IF EXISTS most_types;
 DROP TABLE IF EXISTS interfaces;
 DROP TABLE IF EXISTS function_blocks;
@@ -124,11 +125,22 @@ VALUES
         ('TCStream'),
         ('TShortStream');
 
+CREATE TABLE function_categories (
+    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name varchar(255) NOT NULL UNIQUE
+) ENGINE=INNODB;
+
+INSERT INTO function_categories (name)
+VALUES
+        ('Property'),
+        ('Method');
+
 CREATE TABLE function_stereotypes (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255) NOT NULL,
     supports_notification boolean NOT NULL,
-    category ENUM('Property', 'Method') NOT NULL
+    category varchar(255) NOT NULL,
+    FOREIGN KEY (category) REFERENCES function_categories (name)
 ) ENGINE=INNODB;
 
 INSERT INTO function_stereotypes (id, name, supports_notification, category)
@@ -145,7 +157,7 @@ CREATE TABLE functions (
     most_id varchar(255) NOT NULL,
     name varchar(255) NOT NULL,
     function_stereotype_id int unsigned NOT NULL,
-    category ENUM('Property', 'Method') NOT NULL,
+    category varchar(255) NOT NULL,
     description text NOT NULL,
     release_version varchar(255) NOT NULL,
     account_id int unsigned NOT NULL,
@@ -154,6 +166,7 @@ CREATE TABLE functions (
     supports_notification boolean NOT NULL,
     is_committed boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY (function_stereotype_id) REFERENCES function_stereotypes (id),
+    FOREIGN KEY (category) REFERENCES function_categories (name),
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
     FOREIGN KEY (return_type_id) REFERENCES most_types (id)

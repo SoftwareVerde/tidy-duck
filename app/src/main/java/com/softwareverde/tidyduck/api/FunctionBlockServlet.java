@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
@@ -23,20 +24,23 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, final long accountId, Environment environment) throws Exception {
-        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
+    protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
+        final Database<Connection> database = environment.getDatabase();
+
+        final String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("function-block".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return _insertFunctionBlock(request, accountId, environment);
+                return _insertFunctionBlock(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
                 long functionCatalogId = Util.parseLong(Util.coalesce(request.getParameter("function_catalog_id")));
                 if (functionCatalogId < 1) {
                     return super._generateErrorJson("Invalid function catalog id.");
                 }
-                return _listFunctionBlocks(functionCatalogId, environment);
+                return _listFunctionBlocks(functionCatalogId, database);
             }
-        } else if ("function-catalogs".equals(finalUrlSegment)) {
+        }
+        else if ("function-catalogs".equals(finalUrlSegment)) {
             // function-block/<id>/function-catalogs
             final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
             if (functionBlockId < 1) {
@@ -47,11 +51,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (versionId < 1) {
                     return super._generateErrorJson("Invalid versionId.");
                 }
-                return _listFunctionCatalogsForFunctionBlock(request, functionBlockId, versionId, environment);
-            } else if (httpMethod == HttpMethod.POST) {
-                return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment);
+                return _listFunctionCatalogsForFunctionBlock(functionBlockId, versionId, database);
             }
-        } else if ("search".equals(finalUrlSegment)){
+            else if (httpMethod == HttpMethod.POST) {
+                return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, database);
+            }
+        }
+        else if ("search".equals(finalUrlSegment)){
             if (httpMethod == HttpMethod.GET) {
                 final String searchString = Util.coalesce(request.getParameter("name"));
                 final Long versionId = Util.parseLong(request.getParameter("versionId"));
@@ -61,9 +67,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (versionId < 1) {
                     return super._generateErrorJson("Invalid versionId for function block search.");
                 }
-                return _listFunctionBlocksMatchingSearchString(searchString, versionId, environment);
+                return _listFunctionBlocksMatchingSearchString(searchString, versionId, database);
             }
-        } else {
+        }
+        else {
             // not base function block, must have ID
             final long functionBlockId = Util.parseLong(finalUrlSegment);
             if (functionBlockId < 1) {
@@ -71,16 +78,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             if (httpMethod == HttpMethod.POST) {
-                return _updateFunctionBlock(request, functionBlockId, accountId, environment);
+                return _updateFunctionBlock(request, functionBlockId, accountId, database);
             }
             else if (httpMethod == HttpMethod.DELETE) {
-                return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment);
+                return _deleteFunctionBlockFromCatalog(request, functionBlockId, database);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    protected Json _insertFunctionBlock(HttpServletRequest request, long accountId, Environment environment) throws Exception {
+    protected Json _insertFunctionBlock(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
@@ -95,9 +102,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         final Json functionBlockJson = jsonRequest.get("functionBlock");
         try {
-            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, environment);
+            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertFunctionBlock(functionCatalogId, functionBlock);
             response.put("functionBlockId", functionBlock.getId());
         }
@@ -109,8 +116,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateFunctionBlock(HttpServletRequest httpRequest, long functionBlockId, long accountId, Environment environment) throws Exception {
-        final Json request = super._getRequestDataAsJson(httpRequest);
+    protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
+        final Json request = _getRequestDataAsJson(httpRequest);
 
         final Long functionCatalogId = Util.parseLong(request.getString("functionCatalogId"));
 
@@ -124,24 +131,25 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, environment);
+            final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
             functionBlock.setId(functionBlockId);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
-        } catch (final Exception exception) {
-            String errorMessage = "Unable to update function block: " + exception.getMessage();
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to update function block: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
-        Json response = new Json(false);
+        final Json response = new Json(false);
         super._setJsonSuccessFields(response);
         return response;
     }
 
-    private Json _associateFunctionBlockWithFunctionCatalog(HttpServletRequest request, long functionBlockId, Environment environment) throws IOException {
-        final Json jsonRequest = super._getRequestDataAsJson(request);
+    private Json _associateFunctionBlockWithFunctionCatalog(final HttpServletRequest request, final long functionBlockId, final Database<Connection> database) throws IOException {
+        final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
         final Long functionCatalogId = Util.parseLong(jsonRequest.getString("functionCatalogId"));
@@ -154,7 +162,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
         }
         catch (final Exception exception) {
@@ -165,7 +173,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _deleteFunctionBlockFromCatalog(HttpServletRequest request, long functionBlockId, Environment environment) {
+    protected Json _deleteFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Database<Connection> database) {
         final String functionCatalogIdString = request.getParameter("functionCatalogId");
         final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
@@ -176,9 +184,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            final DatabaseManager databaseManager = new DatabaseManager(environment);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
-        } catch (final DatabaseException exception) {
+        }
+        catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
@@ -189,8 +198,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listFunctionBlocks(long functionCatalogId, Environment environment) {
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+    protected Json _listFunctionBlocks(final long functionCatalogId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
@@ -212,8 +221,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _listFunctionBlocksMatchingSearchString(String searchString, Long versionId, Environment environment) {
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Long versionId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
@@ -228,17 +237,18 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
             super._setJsonSuccessFields(response);
             return response;
-        } catch (final DatabaseException exception) {
+        }
+        catch (final DatabaseException exception) {
             _logger.error("Unable to list function blocks from search", exception);
             return super._generateErrorJson("Unable to list function blocks from search.");
         }
     }
 
-    protected Json _listFunctionCatalogsForFunctionBlock(final HttpServletRequest request, final long functionBlockId, Long versionId, final Environment environment) {
+    protected Json _listFunctionCatalogsForFunctionBlock(final long functionBlockId, final Long versionId, final Database<Connection> database) {
         try {
             final Json response = new Json(false);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            DatabaseManager databaseManager = new DatabaseManager(database);
             final List<Long> functionCatalogIds = databaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId);
 
             Json functionCatalogIdsJson = new Json(true);
@@ -256,7 +266,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson, final long accountId, final Environment environment) throws Exception {
+    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson, final long accountId, final Database database) throws Exception {
         final String mostId = functionBlockJson.getString("mostId");
         final String kind = functionBlockJson.getString("kind");
         final String name = functionBlockJson.getString("name");
@@ -292,8 +302,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         }
 
-        Company company;
-        Author author;
+        final Company company;
+        final Author author;
 
         if (authorId >= 1) {
             // use supplied author/account ID
@@ -301,9 +311,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             company.setId(companyId);
             author = new Author();
             author.setId(authorId);
-        } else {
+        }
+        else {
             // use users's account ID
-            try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
                 AccountInflater accountInflater = new AccountInflater(databaseConnection);
 
                 Account account = accountInflater.inflateAccount(accountId);

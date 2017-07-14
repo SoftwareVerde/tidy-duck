@@ -30,7 +30,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
     }
 
     private Json _listMostTypes(final Environment environment) {
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
             Json response = new Json(false);
 
             MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);

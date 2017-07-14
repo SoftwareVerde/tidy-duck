@@ -61,15 +61,16 @@ public class MostAdapterTest {
 
         Date lastModifiedDate1 = new Date(1297702800000L); // date -d "14-FEB-2011 12:00:00" +%s (converted to ms)
         FunctionBlock functionBlock1 = createTestFunctionBlock(
-                "0x0F",
-                "EnhancedTestability",
-                "Proprietary",
-                "This is an FBlock description.",
-                "3.0.2",
-                lastModifiedDate1,
-                "Specification Support",
-                "MOST Cooperation",
-                "public");
+            "0x0F",
+            "EnhancedTestability",
+            "Proprietary",
+            "This is an FBlock description.",
+            "3.0.2",
+            lastModifiedDate1,
+            "Specification Support",
+            "MOST Cooperation",
+            "public"
+        );
         functionCatalog.addFunctionBlock(functionBlock1);
 
         Date lastModifiedDate2 = new Date(1489852800000L); // date -d "18-MAR-2017 12:00:00" +%s (converted to ms)

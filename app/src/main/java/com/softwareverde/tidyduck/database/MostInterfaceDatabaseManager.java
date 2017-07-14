@@ -12,16 +12,6 @@ import java.util.List;
 public class MostInterfaceDatabaseManager {
     private final DatabaseConnection _databaseConnection;
 
-    public MostInterfaceDatabaseManager(final DatabaseConnection databaseConnection) {
-        _databaseConnection = databaseConnection;
-    }
-
-    public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
-        // TODO: check to see whether function block is committed.
-        _insertMostInterface(mostInterface);
-        _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
-    }
-
     private void _insertMostInterface(final MostInterface mostInterface) throws DatabaseException {
         final String mostId = mostInterface.getMostId();
         final String name = mostInterface.getName();
@@ -37,13 +27,6 @@ public class MostInterfaceDatabaseManager {
 
         final long mostInterfaceId = _databaseConnection.executeSql(query);
         mostInterface.setId(mostInterfaceId);
-    }
-
-    public Long associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        if (!_isAssociatedWithFunctionBlock(functionBlockId, mostInterfaceId)) {
-            return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
-        }
-        return null;
     }
 
     private Long _associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
@@ -66,25 +49,6 @@ public class MostInterfaceDatabaseManager {
         return rows.size() > 0;
     }
 
-    public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
-        final long inputMostInterfaceId = proposedMostInterface.getId();
-
-        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        MostInterface databaseMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
-        if (!databaseMostInterface.isCommitted()) {
-            // not committed, can update existing function block
-            _updateUncommittedMostInterface(proposedMostInterface);
-        } else {
-            // current block is committed to a function catalog
-            // need to insert a new function block replace this one
-            _insertMostInterface(proposedMostInterface);
-            final long newMostInterfaceId = proposedMostInterface.getId();
-            // change association with function catalog
-            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
-            _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
-        }
-    }
-    
     private void _updateUncommittedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
         final String newMostId = proposedMostInterface.getMostId();
         final String newName = proposedMostInterface.getName();
@@ -101,11 +65,6 @@ public class MostInterfaceDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
-    }
-
-    public void deleteMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
-        _deleteMostInterfaceIfUncommitted(mostInterfaceId);
     }
 
     private void _disassociateMostInterfaceWithFunctionBlock(long functionBlockId, long mostInterfaceId) throws DatabaseException {
@@ -152,21 +111,62 @@ public class MostInterfaceDatabaseManager {
         return associationCount == 0;
     }
 
+    public MostInterfaceDatabaseManager(final DatabaseConnection databaseConnection) {
+        _databaseConnection = databaseConnection;
+    }
+
+    public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+        // TODO: check to see whether function block is committed.
+        _insertMostInterface(mostInterface);
+        _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
+    }
+
+    public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
+        final long inputMostInterfaceId = proposedMostInterface.getId();
+
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        MostInterface databaseMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
+        if (!databaseMostInterface.isCommitted()) {
+            // not committed, can update existing function block
+            _updateUncommittedMostInterface(proposedMostInterface);
+        } else {
+            // current block is committed to a function catalog
+            // need to insert a new function block replace this one
+            _insertMostInterface(proposedMostInterface);
+            final long newMostInterfaceId = proposedMostInterface.getId();
+            // change association with function catalog
+            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
+            _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
+        }
+    }
+
+    public void deleteMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        _deleteMostInterfaceIfUncommitted(mostInterfaceId);
+    }
+
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {
         final Query query = new Query("SELECT DISTINCT function_blocks_interfaces.function_block_id FROM function_blocks_interfaces "
-                                        + "INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id "
-                                        + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
-                                        + "WHERE function_blocks_interfaces.interface_id = ? and versions_function_catalogs.version_id = ?")
-            .setParameter(mostInterfaceId)
-            .setParameter(versionId)
-        ;
+            + "INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id "
+            + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
+            + "WHERE function_blocks_interfaces.interface_id = ? and versions_function_catalogs.version_id = ?"
+        );
+        query.setParameter(mostInterfaceId);
+        query.setParameter(versionId);
 
         List<Row> rows =_databaseConnection.query(query);
-        final ArrayList<Long> functionBlockIds = new ArrayList<>();
+        final ArrayList<Long> functionBlockIds = new ArrayList<Long>();
         for (Row row : rows) {
             Long functionBlockId = row.getLong("function_block_id");
             functionBlockIds.add(functionBlockId);
         }
         return functionBlockIds;
+    }
+
+    public Long associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        if (!_isAssociatedWithFunctionBlock(functionBlockId, mostInterfaceId)) {
+            return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        return null;
     }
 }

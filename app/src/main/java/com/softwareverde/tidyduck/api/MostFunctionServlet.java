@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -24,23 +24,25 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
     @Override
     protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
+        final Database<Connection> database = environment.getDatabase();
+
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
         if ("most-function".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                return _insertMostFunction(request, accountId, environment);
+                return _insertMostFunction(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
                 final long mostInterfaceId = Util.parseLong(Util.coalesce(request.getParameter("most_interface_id")));
                 if (mostInterfaceId < 1) {
                     return super._generateErrorJson("Invalid interface id.");
                 }
-                return _listMostFunctions(mostInterfaceId, environment);
+                return _listMostFunctions(mostInterfaceId, database);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
-    protected Json _insertMostFunction(final HttpServletRequest request, final long accountId, final Environment environment) throws Exception {
+    protected Json _insertMostFunction(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
@@ -55,9 +57,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         final Json mostFunctionJson = jsonRequest.get("mostFunction");
         try {
-            final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, accountId, environment);
+            final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, accountId, database);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
             response.put("mostFunctionId", mostFunction.getId());
         }
@@ -69,8 +71,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listMostFunctions(long mostInterfaceId, Environment environment) {
-        try(final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+    protected Json _listMostFunctions(long mostInterfaceId, Database<Connection> database) {
+        try(final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
@@ -92,7 +94,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final long accountId, final Environment environment) throws Exception {
+    protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final long accountId, final Database<Connection> database) throws Exception {
         final String mostId = mostFunctionJson.getString("mostId");
         final String name = mostFunctionJson.getString("name");
         final String release = mostFunctionJson.getString("releaseVersion");
@@ -136,7 +138,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             author.setId(authorId);
         } else {
             // use users's account ID
-            try (DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            try (DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
                 AccountInflater accountInflater = new AccountInflater(databaseConnection);
 
                 Account account = accountInflater.inflateAccount(accountId);

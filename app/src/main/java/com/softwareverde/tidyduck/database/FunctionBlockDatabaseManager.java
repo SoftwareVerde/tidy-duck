@@ -7,14 +7,15 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.FunctionBlock;
 import com.softwareverde.tidyduck.MostInterface;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionBlockDatabaseManager {
 
-    private final DatabaseConnection _databaseConnection;
+    private final DatabaseConnection<Connection> _databaseConnection;
 
-    public FunctionBlockDatabaseManager(final DatabaseConnection databaseConnection) {
+    public FunctionBlockDatabaseManager(final DatabaseConnection<Connection> databaseConnection) {
         _databaseConnection = databaseConnection;
     }
 
@@ -49,12 +50,6 @@ public class FunctionBlockDatabaseManager {
         functionBlock.setId(functionBlockId);
     }
 
-    public void associateFunctionBlockWithFunctionCatalog(final Long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        if (!_isAssociatedWithFunctionCatalog(functionCatalogId, functionBlockId)) {
-            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
-        }
-    }
-
     private Long _associateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
         final Query query = new Query("INSERT INTO function_catalogs_function_blocks (function_catalog_id, function_block_id) VALUES (?, ?)")
             .setParameter(functionCatalogId)
@@ -75,26 +70,7 @@ public class FunctionBlockDatabaseManager {
         return rows.size() > 0;
     }
 
-    public void updateFunctionBlockForFunctionCatalog (final long functionCatalogId, final FunctionBlock proposedFunctionBlock) throws DatabaseException {
-        final long inputFunctionBlockId = proposedFunctionBlock.getId();
-
-        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        FunctionBlock databaseFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
-        if (!databaseFunctionBlock.isCommitted()) {
-            // not committed, can update existing function block
-            _updateUncommittedFunctionBlock(proposedFunctionBlock);
-        } else {
-            // current block is committed to a function catalog
-            // need to insert a new function block replace this one
-            _insertFunctionBlock(proposedFunctionBlock);
-            final long newFunctionBlockId = proposedFunctionBlock.getId();
-            // change association with function catalog
-            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
-            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
-        }
-    }
-
-    private void _updateUncommittedFunctionBlock(FunctionBlock proposedFunctionBlock) throws DatabaseException {
+    private void _updateUncommittedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
         final String newMostId = proposedFunctionBlock.getMostId();
         final String newKind = proposedFunctionBlock.getKind();
         final String newName = proposedFunctionBlock.getName();
@@ -120,12 +96,7 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
-        _deleteFunctionBlockIfUncommitted(functionBlockId);
-    }
-
-    private void _disassociateFunctionBlockWithFunctionCatalog(long functionCatalogId, long functionBlockId) throws DatabaseException {
+    private void _disassociateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
         final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_catalog_id = ? and function_block_id = ?")
             .setParameter(functionCatalogId)
             .setParameter(functionBlockId)
@@ -134,22 +105,22 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteFunctionBlockIfUncommitted(long functionBlockId) throws DatabaseException {
-        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+    private void _deleteFunctionBlockIfUncommitted(final long functionBlockId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (!functionBlock.isCommitted() && isOrphaned(functionBlockId)) {
+        if (! functionBlock.isCommitted() && _isOrphaned(functionBlockId)) {
             _deleteInterfacesFromFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
     }
 
-    private void _deleteInterfacesFromFunctionBlock(long functionBlockId) throws DatabaseException {
-        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
+    private void _deleteInterfacesFromFunctionBlock(final long functionBlockId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
 
-        MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
-        for (MostInterface mostInterface : mostInterfaces) {
+        final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (final MostInterface mostInterface : mostInterfaces) {
             // function block isn't committed, we can delete it
             mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
@@ -167,32 +138,68 @@ public class FunctionBlockDatabaseManager {
      * Returns true if and only if the function block with the given idea is not associated with any function catalog.
      * @return
      */
-    private boolean isOrphaned(final long functionBlockId) throws DatabaseException {
-        final Query query = new Query("SELECT COUNT(*) AS associations FROM function_catalogs_function_blocks WHERE function_block_id = ?")
+    private boolean _isOrphaned(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS association_count FROM function_catalogs_function_blocks WHERE function_block_id = ?")
             .setParameter(functionBlockId)
         ;
 
-        List<Row> rows = _databaseConnection.query(query);
+        final List<Row> rows = _databaseConnection.query(query);
 
-        Row row = rows.get(0);
-        final long associationCount = row.getLong("associations");
-        return associationCount == 0;
+        final Row row = rows.get(0);
+        final long associationCount = row.getLong("association_count");
+        return (associationCount == 0);
     }
 
+    public void associateFunctionBlockWithFunctionCatalog(final Long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        if (! _isAssociatedWithFunctionCatalog(functionCatalogId, functionBlockId)) {
+            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        }
+    }
 
+    /**
+     * If the functionBlock already exists and is committed, a new one is inserted and associated with the functionCatalogId.
+     *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
+     *  If the functionBlock is not committed, then the values are updated within the database.
+     */
+    public void updateFunctionBlockForFunctionCatalog(final long functionCatalogId, final FunctionBlock updatedFunctionBlock) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
 
-    public List<Long> listFunctionCatalogsContainingFunctionBlock(long functionBlockId, long versionId) throws DatabaseException {
+        final long inputFunctionBlockId = updatedFunctionBlock.getId();
+        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
+
+        if (originalFunctionBlock.isCommitted()) {
+            // current block is committed to a function catalog
+            // need to insert a new function block replace this one
+            _insertFunctionBlock(updatedFunctionBlock);
+            final long newFunctionBlockId = updatedFunctionBlock.getId();
+
+            // change association with function catalog
+            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId); // TODO: Check if functionCatalog is also committed...?
+            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
+        }
+        else {
+            // not committed, can update existing function block
+            _updateUncommittedFunctionBlock(updatedFunctionBlock);
+        }
+    }
+
+    public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        _deleteFunctionBlockIfUncommitted(functionBlockId);
+    }
+
+    public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {
         final Query query = new Query("SELECT DISTINCT function_catalogs_function_blocks.function_catalog_id FROM function_catalogs_function_blocks "
-                                        + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
-                                        + "WHERE function_catalogs_function_blocks.function_block_id = ? and versions_function_catalogs.version_id = ?")
-            .setParameter(functionBlockId)
-            .setParameter(versionId)
-        ;
+            + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
+            + "WHERE function_catalogs_function_blocks.function_block_id = ? and versions_function_catalogs.version_id = ?"
+        );
+        query.setParameter(functionBlockId);
+        query.setParameter(versionId);
 
-        List<Row> rows =_databaseConnection.query(query);
+        final List<Row> rows =_databaseConnection.query(query);
         final ArrayList<Long> functionCatalogIds = new ArrayList<>();
-        for (Row row : rows) {
-            Long functionCatalogId = row.getLong("function_catalog_id");
+        for (final Row row : rows) {
+            final Long functionCatalogId = row.getLong("function_catalog_id");
             functionCatalogIds.add(functionCatalogId);
         }
         return functionCatalogIds;
