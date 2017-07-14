@@ -217,6 +217,7 @@ class MostFunctionForm extends React.Component {
 
         // TODO: pull in most types from api and assign accordingly. This is hard coded for now.
         parameter.setTypeName("TBool");
+        parameter.setTypeId(1);
 
         const parameters = mostFunction.getParameters();
         parameter.setParameterIndex(parameters.length);

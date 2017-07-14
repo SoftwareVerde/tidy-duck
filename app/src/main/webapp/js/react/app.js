@@ -421,7 +421,6 @@ class App extends React.Component {
             createButtonState:  this.CreateButtonState.animate
         });
 
-
         insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
             if (! (mostFunctionId > 0)) {
                 console.log("Unable to create function.");
@@ -439,7 +438,7 @@ class App extends React.Component {
 
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
-                mostFunctions:         mostFunctions,
+                mostFunctions:          mostFunctions,
                 currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
             });
         });

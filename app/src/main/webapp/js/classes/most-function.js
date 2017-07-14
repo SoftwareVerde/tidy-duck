@@ -85,22 +85,22 @@ class MostFunction {
 
         // Jsonify parameters array, which contains parameter objects
         const parameters = mostFunction.getParameters();
-        const parametersJson = {};
+        const parametersJson = [];
         for (let i in parameters) {
             const parameterJson = {
                 parameterIndex:     parameters[i].getParameterIndex(),
                 typeId:             parameters[i].getTypeId()
             };
 
-            parametersJson.i = parameterJson;
+            parametersJson.push(parameterJson);
         }
         jsonMostFunction.inputParameters = parametersJson;
 
         // Jsonify operations array, which simply contains ids for operations.
         const operations = mostFunction.getOperations();
-        const operationsJson = {};
+        const operationsJson = [];
         for (let i in operations) {
-            operationsJson.i = operations[i].getId();
+            operationsJson.push(operations[i].getId());
         }
         jsonMostFunction.operations = operationsJson;
 
@@ -251,7 +251,6 @@ class MostFunction {
     getSupportsNotification() {
         return this._supportsNotification;
     }
-
 
     setParameters(parameters) {
         this._parameters = parameters;
