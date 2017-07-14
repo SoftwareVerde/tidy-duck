@@ -36,6 +36,7 @@ class App extends React.Component {
             functionBlocks:             [],
             mostInterfaces:             [],
             mostFunctions:              [],
+            mostTypes:                  [],
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -80,6 +81,7 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
+        this.updateMostTypes = this.updateMostTypes.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -470,7 +472,7 @@ class App extends React.Component {
         navigationItems.push(navigationItem);
 
         thisApp.setState({
-            mostFunctions:         mostFunctions,
+            mostFunctions:          mostFunctions,
             selectedItem:           mostFunction,
             navigationItems:        navigationItems,
             currentNavigationLevel: thisApp.NavigationLevel.mostFunctions
@@ -894,14 +896,15 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
+
+        this.updateMostTypes();
 
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
-            mostFunctions:              [],
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
@@ -1066,7 +1069,9 @@ class App extends React.Component {
         navigationItemConfig.setForm(null);
         navigationItems.push(navigationItemConfig);
 
-        const parentItem = this.state.selectedItem; //Preserve reference to previously selected item.
+        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
+
+        this.updateMostTypes();
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1075,7 +1080,7 @@ class App extends React.Component {
             parentItem:                 parentItem,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
-            shouldShowCreateChildForm:  true
+            shouldShowCreateChildForm:  false
         });
     }
 
@@ -1128,6 +1133,28 @@ class App extends React.Component {
             selectedFunctionStereotype: selectedFunctionStereotype
         });
     }
+
+    updateMostTypes() {
+        const thisApp = this;
+        // get most types (used cached ones for now but set the new ones in the callback)
+        getMostTypes(function (mostTypesJson) {
+            if (!mostTypesJson) {
+                return;
+            }
+            const mostTypes = [];
+            for (let i in mostTypesJson) {
+                const mostType = new MostType();
+                mostType.setId(mostTypesJson[i].id);
+                mostType.setName(mostTypesJson[i].name);
+
+                mostTypes.push(mostType);
+            }
+            thisApp.setState({
+                mostTypes: mostTypes
+            });
+        });
+    }
+
 
     handleSettingsClick() {
         this.setState({
@@ -1201,6 +1228,18 @@ class App extends React.Component {
                     const mostFunctionKey = "mostFunction" + i;
                     reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
                 }
+                break;
+
+            case NavigationLevel.mostFunctions:
+                // add a form for the selected MOST function
+                reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
+                    showTitle={true}
+                    onSubmit={this.onUpdateMostFunction}
+                    defaultButtonTitle="Save"
+                    functionStereotypes={this.FunctionStereotypes}
+                    mostTypes={this.state.mostTypes}
+                    mostFunction={this.state.selectedItem}
+                    />)
                 break;
 
             default:
@@ -1321,28 +1360,14 @@ class App extends React.Component {
                            defaultButtonTitle="Submit"
                            functionStereotypes={this.FunctionStereotypes}
                            selectedFunctionStereotype={this.state.selectedFunctionStereotype}
+                           mostTypes={this.state.mostTypes}
                         />
                     );
                 }
                 break;
 
             case NavigationLevel.mostFunctions:
-                if(shouldShowCreateChildForm) {
-                    // TODO: ensure that stereotype properties are correctly populated for existing function
-                    reactComponents.push(
-                        <app.MostFunctionForm key="MostFunctionFormUpdate"
-                              shouldShowSaveAnimation={shouldAnimateCreateButton}
-                              buttonTitle={"Save"}
-                              showTitle={true}
-                              onSubmit={this.onUpdateMostFunction}
-                              defaultButtonTitle="Save"
-                              functionStereotypes={this.FunctionStereotypes}
-                              selectedFunctionStereotype={this.state.selectedFunctionStereotype}
-                              mostFunction={this.state.selectedItem}
-                              shouldUpdateFunction={true}
-                        />
-                    );
-                }
+                // add nothing, no child elements
                 break;
 
             default:

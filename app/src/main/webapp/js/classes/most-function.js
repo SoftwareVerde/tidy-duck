@@ -23,6 +23,10 @@ class MostFunction {
 
         const functionType = json.functionType;
 
+        const returnType = new MostType();
+        returnType.setId(json.returnTypeId);
+        returnType.setName(json.returnTypeName);
+
         mostFunction.setId(json.id);
         mostFunction.setMostId(json.mostId);
         mostFunction.setName(json.name);
@@ -33,23 +37,25 @@ class MostFunction {
         mostFunction.setCompany(company);
         mostFunction.setStereotypeId(json.stereotypeId);
         mostFunction.setStereotypeName(json.stereotypeName);
-        mostFunction.setReturnTypeId(json.returnTypeId);
-        mostFunction.setReturnTypeName(json.returnTypeName);
+        mostFunction.setReturnType(returnType);
         mostFunction.setOperations(operations);
 
-        if(functionType === "Property") {
+        if (functionType === "Property") {
             mostFunction.setSupportsNotification(json.supportsNotification);
-        }
-        else {
+        } else {
             const parameters = [];
             const parametersJson = json.inputParameters;
 
             for (let i in parametersJson) {
                 const parameterJson = parametersJson[i];
+
+                const parameterType = new MostType();
+                parameterType.setId(parameterJson.typeId);
+                parameterType.setName(parameterJson.typeName);
+
                 const parameter = new Parameter();
                 parameter.setParameterIndex(parameterJson.index);
-                parameter.setTypeId(parameterJson.typeId);
-                parameter.setTypeName(parameterJson.typeName);
+                parameter.setType(parameterType);
 
                 parameters.push(parameter);
             }
@@ -69,10 +75,12 @@ class MostFunction {
             functionType:           mostFunction.getFunctionType(),
             stereotypeId:           mostFunction.getStereotypeId(),
             stereotypeName:         mostFunction.getStereotypeName(),
-            returnTypeId:           mostFunction.getReturnTypeId(),
-            returnTypeName:         mostFunction.getReturnTypeName(),
             supportsNotification:   mostFunction.getSupportsNotification(),
         };
+
+        const returnType = (mostFunction.getReturnType() || new MostType());
+        jsonMostFunction.returnTypeId = returnType.getId();
+        jsonMostFunction.returnTypeName = returnType.getName();
 
         const author = (mostFunction.getAuthor() || new Author());
         const company = (mostFunction.getCompany() || new Company());
@@ -89,7 +97,7 @@ class MostFunction {
         for (let i in parameters) {
             const parameterJson = {
                 parameterIndex:     parameters[i].getParameterIndex(),
-                typeId:             parameters[i].getTypeId()
+                typeId:             parameters[i].getType().getId()
             };
 
             parametersJson.push(parameterJson);
@@ -119,8 +127,7 @@ class MostFunction {
 
       this._stereotypeId          = null;
       this._stereotypeName        = "";
-      this._returnTypeId          = "";
-      this._returnTypeName        = "";
+      this._returnType            = null;
       this._supportsNotification  = false;
 
       this._parameters            = [];
@@ -200,7 +207,7 @@ class MostFunction {
     }
 
     setStereotypeName(stereotypeName) {
-        this._stereotypeId = stereotypeName;
+        this._stereotypeName = stereotypeName;
 
         switch (stereotypeName) {
             case 'Event':
@@ -228,20 +235,12 @@ class MostFunction {
         return this._stereotypeName;
     }
 
-    setReturnTypeId(returnTypeId) {
-        this._returnTypeId = returnTypeId;
+    setReturnType(returnType) {
+        this._returnType = returnType;
     }
 
-    getReturnTypeId() {
-        return this._returnTypeId;
-    }
-
-    setReturnTypeName(returnTypeName) {
-        this._returnTypeName = returnTypeName;
-    }
-
-    getReturnTypeName() {
-        return this._returnTypeName;
+    getReturnType() {
+        return this._returnType;
     }
 
     setSupportsNotification(supportsNotification) {

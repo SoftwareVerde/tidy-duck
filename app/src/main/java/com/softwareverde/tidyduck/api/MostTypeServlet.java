@@ -41,6 +41,8 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 mostTypesJson.add(mostTypeJson);
             }
             response.put("mostTypes", mostTypesJson);
+
+            super._setJsonSuccessFields(response);
             return response;
         } catch (DatabaseException e) {
             String msg = "Unable to inflate most types.";

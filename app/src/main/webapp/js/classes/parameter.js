@@ -1,8 +1,7 @@
 class Parameter {
     constructor() {
         this._parameterIndex    = null;
-        this._typeId            = null;
-        this._typeName          = "";
+        this._type              = null;
     }
 
     setParameterIndex(parameterIndex) {
@@ -13,19 +12,11 @@ class Parameter {
         return this._parameterIndex;
     }
 
-    setTypeId(typeId) {
-        this._typeId = typeId;
+    setType(type) {
+        this._type = type;
     }
 
-    getTypeId() {
-        return this._typeId;
-    }
-
-    setTypeName(typeName) {
-        this._typeName = typeName;
-    }
-
-    getTypeName() {
-        return this._typeName;
+    getType() {
+        return this._type;
     }
 }

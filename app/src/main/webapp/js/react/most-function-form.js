@@ -2,20 +2,7 @@ class MostFunctionForm extends React.Component {
     constructor(props) {
         super(props);
 
-        this.mostTypeNames = {
-            tBool:          'TBool',
-            tBitField:      'TBitField',
-            tNumber:        'TNumber',
-            tEnum:          'TEnum',
-            tString:        'TString',
-            tArray:         'TArray',
-            tRecord:        'TRecord',
-            tStream:        'TStream',
-            tCStream:       'TCStream',
-            tShortStream:   'TShortStream'
-        };
-
-        this.stereoTypeNames = {
+        this.stereotypeNames = {
             event:                      'Event',
             readOnlyProperty:           'ReadOnlyProperty',
             readOnlyPropertyWithEvent:  'ReadOnlyPropertyWithEvent',
@@ -30,15 +17,15 @@ class MostFunctionForm extends React.Component {
         };
 
         const isNewMostFunction = (! this.props.mostFunction);
-        const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : this.props.mostFunction));
-        let stereoTypeName = this.props.selectedFunctionStereotype;
+        const mostFunction = isNewMostFunction ? new MostFunction() : this.props.mostFunction;
 
         if (isNewMostFunction) {
-            mostFunction.setStereotypeName(stereoTypeName);
+            let stereotypeName = this.props.selectedFunctionStereotype;
+            mostFunction.setStereotypeName(stereotypeName);
 
-            switch (stereoTypeName) {
-                case this.stereoTypeNames.requestResponse:
-                case this.stereoTypeNames.commandWithAck:
+            switch (stereotypeName) {
+                case this.stereotypeNames.requestResponse:
+                case this.stereotypeNames.commandWithAck:
                     mostFunction.setFunctionType(this.functionTypes.method);
                     mostFunction.setSupportsNotification(false);
                     break;
@@ -47,12 +34,7 @@ class MostFunctionForm extends React.Component {
                     mostFunction.setSupportsNotification(true);
                     break;
             }
-
-            // TODO: pull in Most Type ids from Api and assign accordingly. Hardcoding for now.
-            mostFunction.setReturnTypeName('TBool');
-            mostFunction.setReturnTypeId(1);
         }
-        else {stereoTypeName = mostFunction.getStereotypeName();}
 
         this.state = {
             showTitle:                  this.props.showTitle,
@@ -60,8 +42,7 @@ class MostFunctionForm extends React.Component {
             mostFunction:               mostFunction,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
             defaultButtonTitle:         this.props.defaultButtonTitle,
-            selectedFunctionStereotype: stereoTypeName,
-            parameters:                 mostFunction.getParameters(),
+            shouldUpdateFunction:       !isNewMostFunction
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -84,13 +65,14 @@ class MostFunctionForm extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         const isNewMostFunction = (! newProperties.mostFunction);
-        const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : newProperties.mostFunction));
+        const mostFunction = isNewMostFunction ? new MostFunction() : newProperties.mostFunction;
         if (isNewMostFunction) {
-            mostFunction.setStereotypeName(newProperties.selectedFunctionStereotype);
+            let stereotypeName = this.props.selectedFunctionStereotype;
+            mostFunction.setStereotypeName(stereotypeName);
 
             switch (newProperties.selectedFunctionStereotype) {
-                case this.stereoTypeNames.requestResponse:
-                case this.stereoTypeNames.commandWithAck:
+                case this.stereotypeNames.requestResponse:
+                case this.stereotypeNames.commandWithAck:
                     mostFunction.setFunctionType(this.functionTypes.method);
                     mostFunction.setSupportsNotification(false);
                     break;
@@ -99,10 +81,6 @@ class MostFunctionForm extends React.Component {
                     mostFunction.setSupportsNotification(true);
                     break;
             }
-
-            // TODO: pull in Most Type ids from Api and assign accordingly. Hardcoding for now.
-            mostFunction.setReturnTypeName('TBool');
-            mostFunction.setReturnTypeId(1);
         }
 
         this.setState({
@@ -111,8 +89,7 @@ class MostFunctionForm extends React.Component {
             mostFunction:               mostFunction,
             buttonTitle:                (newProperties.buttonTitle || "Submit"),
             defaultButtonTitle:         newProperties.defaultButtonTitle,
-            selectedFunctionStereotype: newProperties.selectedFunctionStereotype,
-            parameters:                 mostFunction.getParameters(),
+            selectedFunctionStereotype: newProperties.selectedFunctionStereotype
         });
     }
 
@@ -169,8 +146,8 @@ class MostFunctionForm extends React.Component {
         mostFunction.setStereotypeName(newValue);
 
         switch (newValue) {
-            case this.stereoTypeNames.requestResponse:
-            case this.stereoTypeNames.commandWithAck:
+            case this.stereotypeNames.requestResponse:
+            case this.stereotypeNames.commandWithAck:
                 mostFunction.setFunctionType(this.functionTypes.method);
                 mostFunction.setSupportsNotification(false);
                 break;
@@ -187,8 +164,7 @@ class MostFunctionForm extends React.Component {
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({
             buttonTitle: defaultButtonTitle,
-            selectedFunctionStereotype: newValue,
-            parameters: mostFunction.getParameters()
+            selectedFunctionStereotype: newValue
         });
 
         if (typeof this.props.onUpdate == "function") {
@@ -198,10 +174,14 @@ class MostFunctionForm extends React.Component {
 
     onReturnTypeChanged(newValue) {
         const mostFunction = this.state.mostFunction;
-        mostFunction.setReturnTypeName(newValue);
 
-        // TODO: pull in Most Type ids from Api and assign accordingly. Hardcoding for now.
-        mostFunction.setReturnTypeId(1);
+        const mostTypes = this.props.mostTypes;
+        for (let i in mostTypes) {
+            if (mostTypes[i].getName() == newValue) {
+                mostFunction.setReturnType(mostTypes[i]);
+                break;
+            }
+        }
 
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
@@ -215,17 +195,13 @@ class MostFunctionForm extends React.Component {
         const mostFunction = this.state.mostFunction;
         const parameter = new Parameter();
 
-        // TODO: pull in most types from api and assign accordingly. This is hard coded for now.
-        parameter.setTypeName("TBool");
-        parameter.setTypeId(1);
-
         const parameters = mostFunction.getParameters();
         parameter.setParameterIndex(parameters.length);
         parameters.push(parameter);
 
         mostFunction.setParameters(parameters);
 
-        this.setState({parameters: parameters});
+        this.setState({mostFunction: mostFunction});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -249,7 +225,7 @@ class MostFunctionForm extends React.Component {
         mostFunction.setParameters(newParameters);
 
         this.setState({
-            parameters: newParameters
+            mostFunction: mostFunction
         });
 
         if (typeof this.props.onUpdate == "function") {
@@ -273,8 +249,9 @@ class MostFunctionForm extends React.Component {
             return null;
         }
 
-        if (this.props.shouldUpdateFunction) {
-            return (<div className="metadata-form-title">Update Function({this.state.selectedFunctionStereotype})</div>);
+        if (this.state.shouldUpdateFunction) {
+            const mostFunction = this.state.mostFunction;
+            return (<div className="metadata-form-title">Update Function: {mostFunction.getName()} ({mostFunction.getStereotypeName()})</div>);
         }
         return (<div className="metadata-form-title">New Function ({this.state.selectedFunctionStereotype})</div>);
     }
@@ -293,7 +270,7 @@ class MostFunctionForm extends React.Component {
         let shouldCheckNotification = false;
 
         const functionStereotypes = this.props.functionStereotypes;
-        switch(this.state.selectedFunctionStereotype) {
+        switch (this.state.mostFunction.getStereotypeName()) {
             case functionStereotypes.event:
                 shouldCheckStatus = true;
                 shouldCheckError = true;
@@ -351,25 +328,24 @@ class MostFunctionForm extends React.Component {
     renderParameters() {
         const parameterComponents = [];
 
-        //Check if selected stereotype is a method. If so, display parameters and add parameter button.
+        // Check if selected stereotype is a method. If so, display parameters and add parameter button.
         // TODO: can check string instead of using switch statement.
         const functionStereotypes = this.props.functionStereotypes;
-        switch (this.state.selectedFunctionStereotype) {
+        switch (this.state.mostFunction.getStereotypeName()) {
             case functionStereotypes.commandWithAck:
             case functionStereotypes.requestResponse:
-                const parameters = this.state.parameters;
-                    for (let i in parameters) {
-                        const parameter = parameters[i];
-                        const parameterKey = parameter.getTypeName() + i;
-                        // TODO: pass onParameterUpdate function as props, if needed.
-                        parameterComponents.push(<app.MostFunctionParameter
-                            key={parameterKey}
-                            parameter={parameter}
-                            onDeleteParameterClicked={this.onDeleteParameterClicked}
-                            mostTypeNames={this.mostTypeNames}
-                        />);
-                    }
-
+                const parameters = this.state.mostFunction.getParameters();
+                for (let i in parameters) {
+                    const parameter = parameters[i];
+                    const parameterKey = "parameter" + i;
+                    // TODO: pass onParameterUpdate function as props, if needed.
+                    parameterComponents.push(<app.MostFunctionParameter
+                        key={parameterKey}
+                        parameter={parameter}
+                        onDeleteParameterClicked={this.onDeleteParameterClicked}
+                        mostTypes={this.props.mostTypes}
+                    />);
+                }
                 // Push button for adding parameters.
                 parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
                 break;
@@ -394,6 +370,7 @@ class MostFunctionForm extends React.Component {
 
     render() {
         const mostFunction = this.state.mostFunction;
+
         const stereotypeOptions = [];
         stereotypeOptions.push('Event');
         stereotypeOptions.push('ReadOnlyProperty');
@@ -402,11 +379,14 @@ class MostFunctionForm extends React.Component {
         stereotypeOptions.push('CommandWithAck');
         stereotypeOptions.push('Request/Response');
 
-        const returnTypeOptions = [];
-        const mostTypeNames = this.mostTypeNames;
+        const stereotypeName = mostFunction.getStereotypeName();
 
-        for (let i in mostTypeNames) {
-            returnTypeOptions.push(mostTypeNames[i]);
+        const returnTypeName = mostFunction.getReturnType() ? mostFunction.getReturnType().getName() : "";
+
+        const mostTypeNames = [];
+        for (let i in this.props.mostTypes) {
+            const typeName = this.props.mostTypes[i].getName();
+            mostTypeNames.push(typeName);
         }
 
         const reactComponents = [];
@@ -414,8 +394,8 @@ class MostFunctionForm extends React.Component {
         reactComponents.push(<app.InputField key="most-function-name" id="most-function-name" name="name" type="text" label="Name" value={mostFunction.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
         reactComponents.push(<app.InputField key="most-function-description" id="most-function-description" name="description" type="textarea" label="Description" value={mostFunction.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />);
         reactComponents.push(<app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" value={mostFunction.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />);
-        reactComponents.push(<app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={this.state.selectedFunctionStereotype} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />);
-        reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={mostFunction.getReturnTypeName()} options={returnTypeOptions} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
+        reactComponents.push(<app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={stereotypeName} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />);
+        reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={returnTypeName} options={mostTypeNames} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
 
         return (
             <div className="metadata-form" onClick={this.onClick}>
@@ -428,6 +408,5 @@ class MostFunctionForm extends React.Component {
         );
     }
 }
-
 
 registerClassWithGlobalScope("MostFunctionForm", MostFunctionForm);

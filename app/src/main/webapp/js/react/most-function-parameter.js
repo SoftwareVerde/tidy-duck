@@ -19,7 +19,16 @@ class MostFunctionParameter extends React.Component {
 
     onTypeNameChanged(newValue) {
         const parameter = this.state.parameter;
-        parameter.setTypeName(newValue);
+
+        const mostTypes = this.props.mostTypes;
+        let newType = null;
+        for (let i in mostTypes) {
+            if (mostTypes[i].getName() == newValue) {
+                newType = mostTypes[i];
+                break;
+            }
+        }
+        parameter.setType(newType);
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate(parameter);
@@ -40,17 +49,18 @@ class MostFunctionParameter extends React.Component {
 
     render() {
         const parameter = this.state.parameter;
-        const options = [];
-        const mostTypeNames = this.props.mostTypeNames;
 
-        for (let i in mostTypeNames) {
-            options.push(mostTypeNames[i]);
+        const mostTypes = this.props.mostTypes;
+        const options = [];
+        for (let i in mostTypes) {
+            options.push(mostTypes[i].getName());
         }
 
+        const parameterTypeName = parameter.getType() ? parameter.getType().getName() : "";
 
         return (
           <div className="parameter">
-              <app.InputField id="type" name="type" type="select" label="Type" readOnly={this.props.readOnly} options={options} value={parameter.getTypeName()} onChange={this.onTypeNameChanged} />
+              <app.InputField id="type" name="type" type="select" label="Type" readOnly={this.props.readOnly} options={options} value={parameterTypeName} onChange={this.onTypeNameChanged} />
               {this.renderDeleteIcon()}
           </div>
         );
