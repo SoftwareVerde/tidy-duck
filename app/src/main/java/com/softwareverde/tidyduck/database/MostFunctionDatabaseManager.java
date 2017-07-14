@@ -23,6 +23,7 @@ class MostFunctionDatabaseManager {
 
     private void _insertMostFunction(MostFunction mostFunction) throws DatabaseException {
         final String name = mostFunction.getName();
+        final String mostId = mostFunction.getMostId();
         final long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
         final String description = mostFunction.getDescription();
         final String release = mostFunction.getRelease();
@@ -36,18 +37,20 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("INSERT INTO functions (name, function_stereotype_id, description, release_version, account_id, company_id, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO functions (name, most_id, function_stereotype_id, description, release_version, account_id, company_id, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(name)
+            .setParameter(mostId)
             .setParameter(functionStereotypeId)
             .setParameter(description)
             .setParameter(release)
             .setParameter(authorId)
             .setParameter(companyId)
             .setParameter(returnTypeId)
-            .setParameter(supportsNotification);
+            .setParameter(supportsNotification ? 1 : 0);
         ;
 
         final long newFunctionId = _databaseConnection.executeSql(query);
+        mostFunction.setId(newFunctionId);
 
         if ("Method".equals(mostFunction.getFunctionType())) {
             Method method = (Method) mostFunction;
@@ -86,6 +89,6 @@ class MostFunctionDatabaseManager {
             .setParameter(mostFunctionId)
         ;
 
-        _databaseConnection.query(query);
+        _databaseConnection.executeSql(query);
     }
 }

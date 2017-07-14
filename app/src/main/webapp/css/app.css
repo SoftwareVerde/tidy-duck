@@ -200,11 +200,20 @@
 .parameter-display-area {
     float: left;
     width:  100%;
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
 }
 
 .parameter-display-area i {
     cursor: pointer;
     margin-left: 0.25em;
+}
+
+.operation-display-area {
+    justify-content: center;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .child-display-area {

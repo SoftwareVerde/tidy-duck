@@ -22,6 +22,7 @@ public abstract class MostFunction extends XmlNode {
     private String _name;
     private String _description;
     private String _release;
+    private boolean _isCommitted;
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
     private Company _company;
@@ -68,6 +69,14 @@ public abstract class MostFunction extends XmlNode {
         _release = release;
     }
 
+    public boolean isCommitted() {
+        return _isCommitted;
+    }
+
+    public void setCommitted(boolean committed) {
+        _isCommitted = committed;
+    }
+
     public MostFunctionStereotype getFunctionStereotype() {
         return _functionStereotype;
     }
@@ -106,6 +115,10 @@ public abstract class MostFunction extends XmlNode {
 
     public void addOperation(Operation operation) {
         _operations.add(operation);
+    }
+
+    public void setOperations(final List<Operation> operations) {
+        _operations = new ArrayList<>(operations);
     }
 
     public abstract String getFunctionType();

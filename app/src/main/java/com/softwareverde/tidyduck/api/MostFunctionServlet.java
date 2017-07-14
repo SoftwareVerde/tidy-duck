@@ -1,10 +1,12 @@
 package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
+import com.softwareverde.tidyduck.database.MostFunctionInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
@@ -13,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
+import java.util.List;
 
 public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -30,7 +34,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return super._generateErrorJson("Invalid interface id.");
                 }
-                //return _listMostFunctions(mostInterfaceId, environment);
+                return _listMostFunctions(mostInterfaceId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
@@ -55,7 +59,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
             DatabaseManager databaseManager = new DatabaseManager(environment);
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
-            response.put("mostInterfaceId", mostFunction.getId());
+            response.put("mostFunctionId", mostFunction.getId());
         }
         catch (final Exception exception) {
             _logger.error("Unable to insert function.", exception);
@@ -65,6 +69,29 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    protected Json _listMostFunctions(long mostInterfaceId, Environment environment) {
+        try(final DatabaseConnection<Connection> databaseConnection = environment.getNewDatabaseConnection()) {
+            final Json response = new Json(false);
+
+            final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
+            final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+
+            final Json mostFunctionsJson = new Json(true);
+            for (MostFunction mostFunction : mostFunctions) {
+                final Json mostFunctionJson = _toJson(mostFunction);
+                mostFunctionsJson.add(mostFunctionJson);
+            }
+            response.put("mostFunctions", mostFunctionsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+
+        } catch (final DatabaseException exception) {
+            _logger.error("Unable to list functions.", exception);
+            return super._generateErrorJson("Unable to list functions.");
+        }
+    }
+
     protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final long accountId, final Environment environment) throws Exception {
         final String mostId = mostFunctionJson.getString("mostId");
         final String name = mostFunctionJson.getString("name");
@@ -72,6 +99,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final String description = mostFunctionJson.getString("description");
         final String functionType = mostFunctionJson.getString("functionType");
         final Long returnTypeId = mostFunctionJson.getLong("returnTypeId");
+        final Long stereotypeId = mostFunctionJson.getLong("stereotypeId");
         final Long authorId = mostFunctionJson.getLong("authorId");
         final Long companyId = mostFunctionJson.getLong("companyId");
 
@@ -88,7 +116,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 throw new Exception("Description field is required.");
             }
 
-            if (Util.isBlank(functionType)) {
+            if (Util.isBlank(release)) {
                 throw new Exception("Version field is required.");
             }
 
@@ -121,6 +149,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final MostType mostReturnType = new MostType();
         mostReturnType.setId(returnTypeId);
 
+        final MostFunctionStereotype mostFunctionStereotype = new MostFunctionStereotype();
+        mostFunctionStereotype.setId(stereotypeId);
+
         MostFunction mostFunction;
         switch (functionType) {
             case "Property": {
@@ -142,7 +173,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                     mostType.setId(inputParameterJson.getLong("typeId"));
 
                     MostFunctionParameter mostFunctionParameter = new MostFunctionParameter();
-                    mostFunctionParameter.setParameterIndex(inputParameterJson.getInteger("id"));
+                    mostFunctionParameter.setParameterIndex(inputParameterJson.getInteger("parameterIndex"));
                     mostFunctionParameter.setMostType(mostType);
 
                     method.addInputParameter(mostFunctionParameter);
@@ -160,6 +191,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunction.setRelease(release);
         mostFunction.setDescription(description);
         mostFunction.setReturnType(mostReturnType);
+        mostFunction.setFunctionStereotype(mostFunctionStereotype);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
 
@@ -187,6 +219,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
         mostFunctionJson.put("returnTypeId", mostFunction.getReturnType().getId());
         mostFunctionJson.put("returnTypeName", mostFunction.getReturnType().getName());
+        mostFunctionJson.put("stereotypeId", mostFunction.getFunctionStereotype().getId());
+        mostFunctionJson.put("stereotypeName", mostFunction.getFunctionStereotype().getName());
         mostFunctionJson.put("authorId", mostFunction.getAuthor().getId());
         mostFunctionJson.put("authorName", mostFunction.getAuthor().getName());
         mostFunctionJson.put("companyId", mostFunction.getCompany().getId());
