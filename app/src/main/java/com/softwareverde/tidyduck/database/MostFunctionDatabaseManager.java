@@ -46,7 +46,7 @@ class MostFunctionDatabaseManager {
             .setParameter(authorId)
             .setParameter(companyId)
             .setParameter(returnTypeId)
-            .setParameter(supportsNotification ? 1 : 0);
+            .setParameter(supportsNotification ? 1 : 0)
         ;
 
         final long newFunctionId = _databaseConnection.executeSql(query);
@@ -71,7 +71,7 @@ class MostFunctionDatabaseManager {
             .setParameter(parameter.getMostType().getId())
         ;
 
-        _databaseConnection.query(query);
+        _databaseConnection.executeSql(query);
     }
 
     private void _addOperationToFunction(final long newFunctionId, final Operation operation) throws DatabaseException {
@@ -80,7 +80,7 @@ class MostFunctionDatabaseManager {
             .setParameter(operation.getId())
         ;
 
-        _databaseConnection.query(query);
+        _databaseConnection.executeSql(query);
     }
 
     private void _associateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
