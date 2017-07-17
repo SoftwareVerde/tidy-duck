@@ -37,9 +37,10 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("INSERT INTO functions (name, most_id, function_stereotype_id, description, release_version, account_id, company_id, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO functions (name, most_id, category, function_stereotype_id, description, release_version, account_id, company_id, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(mostId)
+            .setParameter(mostFunction.getFunctionType())
             .setParameter(functionStereotypeId)
             .setParameter(description)
             .setParameter(release)

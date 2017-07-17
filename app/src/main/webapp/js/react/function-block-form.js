@@ -8,7 +8,7 @@ class FunctionBlockForm extends React.Component {
         super(props);
 
         const isNewFunctionBlock = (! this.props.functionBlock);
-        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(isNewFunctionBlock ? new FunctionBlock() : this.props.functionBlock));
+        const functionBlock = isNewFunctionBlock ? new FunctionBlock() : copyMostObject(FunctionBlock, this.props.functionBlock);
 
         // Default values for the function block...
         if (isNewFunctionBlock) {

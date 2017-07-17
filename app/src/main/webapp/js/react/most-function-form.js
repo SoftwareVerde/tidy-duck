@@ -17,7 +17,7 @@ class MostFunctionForm extends React.Component {
         };
 
         const isNewMostFunction = (! this.props.mostFunction);
-        const mostFunction = isNewMostFunction ? new MostFunction() : this.props.mostFunction;
+        const mostFunction = isNewMostFunction ? new MostFunction() : copyMostObject(MostFunction, this.props.mostFunction);
 
         if (isNewMostFunction) {
             let stereotypeName = this.props.selectedFunctionStereotype;
@@ -67,7 +67,7 @@ class MostFunctionForm extends React.Component {
         const isNewMostFunction = (! newProperties.mostFunction);
         const mostFunction = isNewMostFunction ? new MostFunction() : newProperties.mostFunction;
         if (isNewMostFunction) {
-            let stereotypeName = this.props.selectedFunctionStereotype;
+            let stereotypeName = newProperties.selectedFunctionStereotype;
             mostFunction.setStereotypeName(stereotypeName);
 
             switch (newProperties.selectedFunctionStereotype) {
@@ -164,7 +164,7 @@ class MostFunctionForm extends React.Component {
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({
             buttonTitle: defaultButtonTitle,
-            selectedFunctionStereotype: newValue
+            mostFunction: mostFunction
         });
 
         if (typeof this.props.onUpdate == "function") {
@@ -249,11 +249,11 @@ class MostFunctionForm extends React.Component {
             return null;
         }
 
+        const mostFunction = this.state.mostFunction;
         if (this.state.shouldUpdateFunction) {
-            const mostFunction = this.state.mostFunction;
             return (<div className="metadata-form-title">Update Function: {mostFunction.getName()} ({mostFunction.getStereotypeName()})</div>);
         }
-        return (<div className="metadata-form-title">New Function ({this.state.selectedFunctionStereotype})</div>);
+        return (<div className="metadata-form-title">New Function ({mostFunction.getStereotypeName()})</div>);
     }
 
     renderOperationCheckboxes() {

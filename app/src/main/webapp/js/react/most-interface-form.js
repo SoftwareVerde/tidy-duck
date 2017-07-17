@@ -3,7 +3,7 @@ class MostInterfaceForm extends React.Component {
         super(props);
 
         const isNewMostInterface = (! this.props.mostInterface);
-        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : this.props.mostInterface));
+        const mostInterface = isNewMostInterface ? new MostInterface() : copyMostObject(MostInterface, this.props.mostInterface);
 
         this.state = {
             showTitle:                  this.props.showTitle,

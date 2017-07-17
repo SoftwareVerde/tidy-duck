@@ -2,7 +2,7 @@ class FunctionCatalogForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const functionCatalog = FunctionCatalog.fromJson(FunctionCatalog.toJson(this.props.functionCatalog || new FunctionCatalog()));
+        const functionCatalog = copyMostObject(FunctionCatalog, this.props.functionCatalog || new FunctionCatalog());
         this.state = {
             showTitle:                  this.props.showTitle,
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,

@@ -15,3 +15,11 @@ function shortenString(string, maxLength, useWordBoundary){
         return subString + "...";
     }
 }
+
+// Performs a deep copy of a MOST object
+// The first parameter, clazz, must have a toJson and fromJson function.
+// It is expected that clazz will be a reference to the class itself while
+//  object is a reference an actual instance of that class
+function copyMostObject(clazz, object) {
+    return clazz.fromJson(clazz.toJson(object));
+}
