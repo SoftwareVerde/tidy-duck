@@ -34,6 +34,8 @@ class MostFunctionForm extends React.Component {
                     mostFunction.setSupportsNotification(true);
                     break;
             }
+
+            mostFunction.setReturnType(this.props.mostTypes[0]);
         }
 
         this.state = {
@@ -51,6 +53,7 @@ class MostFunctionForm extends React.Component {
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
         this.onStereotypeChanged = this.onStereotypeChanged.bind(this);
         this.onReturnTypeChanged = this.onReturnTypeChanged.bind(this);
+        this.onParameterChanged = this.onParameterChanged.bind(this);
 
         this.onAddParameterClicked = this.onAddParameterClicked.bind(this);
         this.onDeleteParameterClicked = this.onDeleteParameterClicked.bind(this);
@@ -155,7 +158,6 @@ class MostFunctionForm extends React.Component {
                 mostFunction.setFunctionType(this.functionTypes.property);
                 mostFunction.setSupportsNotification(true);
 
-                // TODO: should changing the function type via stereotypes wipe out parameters, or should we temporarily save them?
                 const newParameters = [];
                 mostFunction.setParameters(newParameters);
                 break;
@@ -193,10 +195,12 @@ class MostFunctionForm extends React.Component {
 
     onAddParameterClicked() {
         const mostFunction = this.state.mostFunction;
-        const parameter = new Parameter();
-
         const parameters = mostFunction.getParameters();
+
+        const parameter = new Parameter();
         parameter.setParameterIndex(parameters.length);
+        parameter.setType(this.props.mostTypes[0]);
+
         parameters.push(parameter);
 
         mostFunction.setParameters(parameters);
@@ -206,6 +210,12 @@ class MostFunctionForm extends React.Component {
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
         }
+    }
+
+    onParameterChanged(parameter) {
+        const mostFunction = this.state.mostFunction;
+        // TODO: verify this is the right thing to do
+        mostFunction.getParameters()[parameters.getParameterIndex()] = parameter;
     }
 
     onDeleteParameterClicked(parameter) {
@@ -338,10 +348,10 @@ class MostFunctionForm extends React.Component {
                 for (let i in parameters) {
                     const parameter = parameters[i];
                     const parameterKey = "parameter" + i;
-                    // TODO: pass onParameterUpdate function as props, if needed.
                     parameterComponents.push(<app.MostFunctionParameter
                         key={parameterKey}
                         parameter={parameter}
+                        onUpdate={this.onParameterChanged}
                         onDeleteParameterClicked={this.onDeleteParameterClicked}
                         mostTypes={this.props.mostTypes}
                     />);
@@ -362,7 +372,7 @@ class MostFunctionForm extends React.Component {
     }
 
     renderSubmitButton() {
-        if(this.state.shouldShowSaveAnimation)  {
+        if (this.state.shouldShowSaveAnimation)  {
             return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
         }
         return(<div className="center"><div className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);

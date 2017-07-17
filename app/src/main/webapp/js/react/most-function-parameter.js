@@ -3,7 +3,7 @@ class MostFunctionParameter extends React.Component {
         super(props);
 
         this.state = {
-            parameter:  (this.props.parameter || new Parameter()),
+            parameter: this.props.parameter,
         };
 
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
@@ -13,7 +13,7 @@ class MostFunctionParameter extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         this.setState({
-            parameter:  (newProperties.parameter || new Parameter()),
+            parameter:  newProperties.parameter,
         });
     }
 
