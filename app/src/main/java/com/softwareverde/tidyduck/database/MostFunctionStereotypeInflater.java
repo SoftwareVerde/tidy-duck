@@ -19,7 +19,19 @@ public class MostFunctionStereotypeInflater {
         _databaseConnection = connection;
     }
 
-    public MostFunctionStereotype inflateStereotype(final Long mostFunctionStereotypeId) throws DatabaseException {
+    public List<MostFunctionStereotype> inflateMostFunctionStereotypes() throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_stereotypes");
+
+        List<Row> rows = _databaseConnection.query(query);
+        ArrayList<MostFunctionStereotype> stereotypes = new ArrayList<>();
+        for (final Row row : rows) {
+            MostFunctionStereotype mostFunctionStereotype = inflateMostFunctionStereotype(row.getLong("id"));
+            stereotypes.add(mostFunctionStereotype);
+        }
+        return stereotypes;
+    }
+
+    public MostFunctionStereotype inflateMostFunctionStereotype(final Long mostFunctionStereotypeId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name, supports_notification, category FROM function_stereotypes WHERE id = ?"
         );
