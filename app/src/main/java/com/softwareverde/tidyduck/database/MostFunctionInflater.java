@@ -60,7 +60,7 @@ public class MostFunctionInflater {
         final Long companyId = row.getLong("company_id");
 
         MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(_databaseConnection);
-        final MostFunctionStereotype mostFunctionStereotype = mostFunctionStereotypeInflater.inflateStereotype(mostFunctionStereotypeId);
+        final MostFunctionStereotype mostFunctionStereotype = mostFunctionStereotypeInflater.inflateMostFunctionStereotype(mostFunctionStereotypeId);
         MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
         final MostType mostType = mostTypeInflater.inflateMostType(returnTypeId);
 
