@@ -36,7 +36,7 @@ public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
 
             MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(databaseConnection);
             List<MostFunctionStereotype> mostFunctionStereotypes = mostFunctionStereotypeInflater.inflateMostFunctionStereotypes();
-            Json mostFunctionStereotypesJson = new Json(false);
+            Json mostFunctionStereotypesJson = new Json(true);
             for (MostFunctionStereotype mostFunctionStereotype : mostFunctionStereotypes) {
                 Json mostFunctionStereotypeJson = _toJson(mostFunctionStereotype);
                 mostFunctionStereotypesJson.add(mostFunctionStereotypeJson);

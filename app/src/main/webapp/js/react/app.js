@@ -37,6 +37,7 @@ class App extends React.Component {
             mostInterfaces:             [],
             mostFunctions:              [],
             mostTypes:                  [],
+            mostFunctionStereotypes:    [],
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -82,6 +83,7 @@ class App extends React.Component {
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
         this.updateMostTypes = this.updateMostTypes.bind(this);
+        this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -900,6 +902,7 @@ class App extends React.Component {
         const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
 
         this.updateMostTypes();
+        this.updateMostFunctionStereotypes();
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1157,6 +1160,24 @@ class App extends React.Component {
         });
     }
 
+    updateMostFunctionStereotypes() {
+        const thisApp = this;
+        // get most types (used cached ones for now but set the new ones in the callback)
+        getMostFunctionStereotypes(function (mostFunctionStereotypesJson) {
+            if (!mostFunctionStereotypesJson) {
+                console.log("Invalid stereotype JSON data.");
+                return;
+            }
+            const mostFunctionStereotypes = [];
+            for (let i in mostFunctionStereotypesJson) {
+                const mostFunctionStereotype = MostFunctionStereotype.fromJson(mostFunctionStereotypesJson[i]);
+                mostFunctionStereotypes.push(mostFunctionStereotype);
+            }
+            thisApp.setState({
+                mostFunctionStereotypes: mostFunctionStereotypes
+            });
+        });
+    }
 
     handleSettingsClick() {
         this.setState({
@@ -1238,7 +1259,7 @@ class App extends React.Component {
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
                     defaultButtonTitle="Save"
-                    functionStereotypes={this.FunctionStereotypes}
+                    mostFunctionStereotypes={this.state.mostFunctionStereotypes}
                     mostTypes={this.state.mostTypes}
                     mostFunction={this.state.selectedItem}
                     />)
@@ -1360,7 +1381,7 @@ class App extends React.Component {
                            showTitle={true}
                            onSubmit={this.onCreateMostFunction}
                            defaultButtonTitle="Submit"
-                           functionStereotypes={this.FunctionStereotypes}
+                           mostFunctionStereotypes={this.state.mostFunctionStereotypes}
                            selectedFunctionStereotype={this.state.selectedFunctionStereotype}
                            mostTypes={this.state.mostTypes}
                         />

@@ -1,17 +1,17 @@
 class MostType {
     static fromJson(json) {
-        const mostInterface = new MostInterface();
+        const mostType = new MostType();
 
-        mostInterface.setId(json.id);
-        mostInterface.setName(json.name);
+        mostType.setId(json.id);
+        mostType.setName(json.name);
 
-        return mostInterface;
+        return mostType;
     }
 
-    static toJson(mostInterface) {
+    static toJson(mostType) {
         return {
-            id:     mostInterface.getId(),
-            name:   mostInterface.getName()
+            id:     mostType.getId(),
+            name:   mostType.getName()
         };
     }
 

@@ -42,6 +42,7 @@ class MostFunctionForm extends React.Component {
             showTitle:                  this.props.showTitle,
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             mostFunction:               mostFunction,
+            mostFunctionStereotypes:    this.props.mostFunctionStereotypes,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
             defaultButtonTitle:         this.props.defaultButtonTitle,
             shouldUpdateFunction:       !isNewMostFunction
@@ -73,6 +74,7 @@ class MostFunctionForm extends React.Component {
             let stereotypeName = newProperties.selectedFunctionStereotype;
             mostFunction.setStereotypeName(stereotypeName);
 
+            // TODO: grab stereotype OBJECT and set most-function's data accordingly. Below logic is incorrect!
             switch (newProperties.selectedFunctionStereotype) {
                 case this.stereotypeNames.requestResponse:
                 case this.stereotypeNames.commandWithAck:
@@ -90,6 +92,7 @@ class MostFunctionForm extends React.Component {
             showTitle:                  newProperties.showTitle,
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
             mostFunction:               mostFunction,
+            mostFunctionStereotypes:    newProperties.mostFunctionStereotypes,
             buttonTitle:                (newProperties.buttonTitle || "Submit"),
             defaultButtonTitle:         newProperties.defaultButtonTitle,
             selectedFunctionStereotype: newProperties.selectedFunctionStereotype
@@ -146,21 +149,25 @@ class MostFunctionForm extends React.Component {
 
     onStereotypeChanged(newValue) {
         const mostFunction = this.state.mostFunction;
+        const mostFunctionStereotypes = this.state.mostFunctionStereotypes;
         mostFunction.setStereotypeName(newValue);
 
-        switch (newValue) {
-            case this.stereotypeNames.requestResponse:
-            case this.stereotypeNames.commandWithAck:
-                mostFunction.setFunctionType(this.functionTypes.method);
-                mostFunction.setSupportsNotification(false);
-                break;
-            default:
-                mostFunction.setFunctionType(this.functionTypes.property);
-                mostFunction.setSupportsNotification(true);
+        for (let i in mostFunctionStereotypes) {
+            const mostFunctionStereotype = mostFunctionStereotypes[i];
+            if (newValue === mostFunctionStereotype.getName()) {
+                const mostFunctionCategory = mostFunctionStereotype.getCategory();
+                mostFunction.setStereotypeId(mostFunctionStereotype.getId());
+                mostFunction.setFunctionType(mostFunctionCategory);
+                mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
 
-                const newParameters = [];
-                mostFunction.setParameters(newParameters);
+                // Clear array of parameters if new stereotype is a property.
+                if (mostFunctionCategory === "property") {
+                    const newParameters = [];
+                    mostFunction.setParameters(newParameters);
+                }
+
                 break;
+            }
         }
 
         const defaultButtonTitle = this.state.defaultButtonTitle;
@@ -266,102 +273,66 @@ class MostFunctionForm extends React.Component {
         return (<div className="metadata-form-title">New Function ({mostFunction.getStereotypeName()})</div>);
     }
 
-    renderOperationCheckboxes() {
-        const readOnly = false;
-        let shouldCheckGet = false;
-        let shouldCheckSet = false;
-        let shouldCheckStatus = false;
-        let shouldCheckError = false;
-        let shouldCheckStartResultAck = false;
-        let shouldCheckErrorAck = false;
-        let shouldCheckResultAck = false;
-        let shouldCheckProcessingAck = false
-        let shouldCheckAbortAck = false;
-        let shouldCheckNotification = false;
+    getStereotypeOperations(mostFunctionStereotypeName) {
+        const mostFunctionStereotypes = this.props.mostFunctionStereotypes;
+        const operationsJson = {};
+        for (let i in mostFunctionStereotypes) {
+            const mostFunctionStereotype = mostFunctionStereotypes[i];
+            if (mostFunctionStereotypeName === mostFunctionStereotype.getName()) {
+                const operations = mostFunctionStereotype.getOperations();
+                for (let j in operations) {
+                    const operation = operations[j];
+                    operationsJson[operation.getName()] = true;
+                }
 
-        const functionStereotypes = this.props.functionStereotypes;
-        switch (this.state.mostFunction.getStereotypeName()) {
-            case functionStereotypes.event:
-                shouldCheckStatus = true;
-                shouldCheckError = true;
-                shouldCheckNotification = true;
-                break;
-            case functionStereotypes.readOnlyProperty:
-                shouldCheckGet = true;
-                shouldCheckStatus = true;
-                shouldCheckError = true;
-                break;
-            case functionStereotypes.readOnlyPropertyWithEvent:
-                shouldCheckGet = true;
-                shouldCheckStatus = true;
-                shouldCheckError = true;
-                shouldCheckNotification = true;
-                break;
-            case functionStereotypes.propertyWithEvent:
-                shouldCheckGet = true;
-                shouldCheckSet = true;
-                shouldCheckStatus = true;
-                shouldCheckError = true;
-                shouldCheckNotification = true;
-                break;
-            case functionStereotypes.commandWithAck:
-                shouldCheckStartResultAck = true;
-                shouldCheckErrorAck = true;
-                shouldCheckResultAck = true;
-                shouldCheckProcessingAck = true;
-                break;
-            case functionStereotypes.requestResponse:
-                shouldCheckStartResultAck = true;
-                shouldCheckAbortAck = true;
-                shouldCheckErrorAck = true;
-                shouldCheckResultAck = true;
-                shouldCheckProcessingAck = true;
-                break;
+                return operationsJson;
+            }
         }
+        return operationsJson;
+    }
+
+    renderOperationCheckboxes() {
+        const readOnly = true;
+        const mostFunction = this.state.mostFunction;
+        const supportsNotification = mostFunction.getSupportsNotification();
+        const operationsJson = this.getStereotypeOperations(mostFunction.getStereotypeName());
 
         return (
             <div className="operation-display-area">
-                <app.InputField id="operation-get" name="get" type="checkbox" label="Get" value={shouldCheckGet} checked={shouldCheckGet} readOnly={readOnly}/>
-                <app.InputField id="operation-set" name="set" type="checkbox" label="Set" value={shouldCheckSet} checked={shouldCheckSet} readOnly={readOnly}/>
-                <app.InputField id="operation-status" name="status" type="checkbox" label="Status" value={shouldCheckStatus} checked={shouldCheckStatus} readOnly={readOnly}/>
-                <app.InputField id="operation-error" name="error" type="checkbox" label="Error" value={shouldCheckError} checked={shouldCheckError} readOnly={readOnly}/>
-                <app.InputField id="operation-start-result-ack" name="startResultAck" type="checkbox" label="StartResultAck" value={shouldCheckStartResultAck} checked={shouldCheckStartResultAck} readOnly={readOnly}/>
-                <app.InputField id="operation-error-ack" name="errorAck" type="checkbox" label="ErrorAck" value={shouldCheckErrorAck} checked={shouldCheckErrorAck} readOnly={readOnly}/>
-                <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" value={shouldCheckResultAck} checked={shouldCheckResultAck} readOnly={readOnly}/>
-                <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" value={shouldCheckProcessingAck} checked={shouldCheckProcessingAck} readOnly={readOnly}/>
-                <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" value={shouldCheckAbortAck} checked={shouldCheckAbortAck} readOnly={readOnly}/>
-                <app.InputField id="operation-notification" name="notification" type="checkbox" label="Notification" value={shouldCheckNotification} checked={shouldCheckNotification} readOnly={readOnly}/>
+                <app.InputField id="operation-get" name="get" type="checkbox" label="Get" value={operationsJson["Get"] == true} checked={operationsJson["Get"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-set" name="set" type="checkbox" label="Set" value={operationsJson["Set"] == true} checked={operationsJson["Set"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-status" name="status" type="checkbox" label="Status" value={operationsJson["Status"] == true} checked={operationsJson["Status"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-error" name="error" type="checkbox" label="Error" value={operationsJson["Error"] == true} checked={operationsJson["Error"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-start-result-ack" name="startResultAck" type="checkbox" label="StartResultAck" value={operationsJson["StartResultAck"] == true} checked={operationsJson["StartResultAck"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-error-ack" name="errorAck" type="checkbox" label="ErrorAck" value={operationsJson["ErrorAck"] == true} checked={operationsJson["ErrorAck"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" value={operationsJson["ResultAck"] == true} checked={operationsJson["ResultAck"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" value={operationsJson["ProcessingAck"] == true} checked={operationsJson["ProcessingAck"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" value={operationsJson["AbortAct"] == true} checked={operationsJson["AbortAck"] == true} readOnly={readOnly}/>
+                <app.InputField id="operation-notification" name="notification" type="checkbox" label="Notification" value={supportsNotification} checked={supportsNotification} readOnly={readOnly}/>
             </div>
         );
     }
 
     renderParameters() {
-        const parameterComponents = [];
+        // Check if current function is a method. If so, display parameters and add parameter button.
+        if(this.state.mostFunction.getFunctionType() === this.functionTypes.method) {
+            const parameterComponents = [];
+            const parameters = this.state.mostFunction.getParameters();
 
-        // Check if selected stereotype is a method. If so, display parameters and add parameter button.
-        // TODO: can check string instead of using switch statement.
-        const functionStereotypes = this.props.functionStereotypes;
-        switch (this.state.mostFunction.getStereotypeName()) {
-            case functionStereotypes.commandWithAck:
-            case functionStereotypes.requestResponse:
-                const parameters = this.state.mostFunction.getParameters();
-                for (let i in parameters) {
-                    const parameter = parameters[i];
-                    const parameterKey = "parameter" + i;
-                    parameterComponents.push(<app.MostFunctionParameter
-                        key={parameterKey}
-                        parameter={parameter}
-                        onUpdate={this.onParameterChanged}
-                        onDeleteParameterClicked={this.onDeleteParameterClicked}
-                        mostTypes={this.props.mostTypes}
-                    />);
-                }
-                // Push button for adding parameters.
-                parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
-                break;
-        }
+            for (let i in parameters) {
+                const parameter = parameters[i];
+                const parameterKey = "parameter" + i;
+                parameterComponents.push(<app.MostFunctionParameter
+                    key={parameterKey}
+                    parameter={parameter}
+                    onUpdate={this.onParameterChanged}
+                    onDeleteParameterClicked={this.onDeleteParameterClicked}
+                    mostTypes={this.props.mostTypes}
+                />);
+            }
+            // Push button for adding parameters.
+            parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
 
-        if (parameterComponents.length > 0) {
             return(
                 <div className="parameter-display-area">
                     <div className="metadata-form-title">Function Parameters</div>
