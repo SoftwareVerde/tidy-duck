@@ -20,8 +20,8 @@ public abstract class MostFunction extends XmlNode {
     private String _name;
     private String _description;
     private String _release;
-    private Author _author;
-    private Company _company;
+    private String _author;
+    private String _company;
     private MostType _returnType;
     private List<Operation> _operations = new ArrayList<>();
 
@@ -57,19 +57,19 @@ public abstract class MostFunction extends XmlNode {
         _release = release;
     }
 
-    public Author getAuthor() {
+    public String getAuthor() {
         return _author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(String author) {
         _author = author;
     }
 
-    public Company getCompany() {
+    public String getCompany() {
         return _company;
     }
 
-    public void setCompany(Company company) {
+    public void setCompany(String company) {
         _company = company;
     }
 
@@ -112,9 +112,9 @@ public abstract class MostFunction extends XmlNode {
 
         Element functionRelease = super.createTextElement(document, "Release", _release);
         functionVersion.appendChild(functionRelease);
-        Element functionAuthor = super.createTextElement(document, "Author", _author.getName());
+        Element functionAuthor = super.createTextElement(document, "Author", _author);
         functionVersion.appendChild(functionAuthor);
-        Element functionCompany = super.createTextElement(document, "Company", _company.getName());
+        Element functionCompany = super.createTextElement(document, "Company", _company);
         functionCompany.appendChild(functionCompany);
 
         functionElement.appendChild(functionVersion);

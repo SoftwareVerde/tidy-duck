@@ -14,8 +14,8 @@ public class FunctionBlock extends XmlNode {
     private String _description;
     private String _release;
     private Date _lastModifiedDate;
-    private Author _author;
-    private Company _company;
+    private String _author;
+    private String _company;
     private String _access;
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
@@ -69,19 +69,19 @@ public class FunctionBlock extends XmlNode {
         _lastModifiedDate = lastModifiedDate;
     }
 
-    public Author getAuthor() {
+    public String getAuthor() {
         return _author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(String author) {
         _author = author;
     }
 
-    public Company getCompany() {
+    public String getCompany() {
         return _company;
     }
 
-    public void setCompany(Company company) {
+    public void setCompany(String company) {
         _company = company;
     }
 
@@ -137,9 +137,9 @@ public class FunctionBlock extends XmlNode {
         versionElement.appendChild(releaseElement);
         Element dateElement = super.createTextElement(document, "Date", super.formatDate(_lastModifiedDate));
         versionElement.appendChild(dateElement);
-        Element authorElement = super.createTextElement(document, "Author", _author.getName());
+        Element authorElement = super.createTextElement(document, "Author", _author);
         versionElement.appendChild(authorElement);
-        Element companyElement = super.createTextElement(document, "Company", _company.getName());
+        Element companyElement = super.createTextElement(document, "Company", _company);
         versionElement.appendChild(companyElement);
 
         for (final Modification modification : _modifications) {
