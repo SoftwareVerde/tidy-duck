@@ -1,6 +1,5 @@
-package com.softwareverde.tidyduck.mostadapter;
+package com.softwareverde.mostadapter;
 
-import com.softwareverde.tidyduck.FunctionCatalog;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;

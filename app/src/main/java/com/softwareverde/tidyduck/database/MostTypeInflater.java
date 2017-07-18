@@ -4,7 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.MostType;
+import com.softwareverde.tidyduck.most.MostType;
 
 import java.sql.Connection;
 import java.util.ArrayList;

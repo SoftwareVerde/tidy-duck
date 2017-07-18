@@ -1,5 +1,8 @@
 package com.softwareverde.tidyduck;
 
+import com.softwareverde.tidyduck.most.Author;
+import com.softwareverde.tidyduck.most.Company;
+
 public class Account {
     protected Long _id;
     protected String _username;

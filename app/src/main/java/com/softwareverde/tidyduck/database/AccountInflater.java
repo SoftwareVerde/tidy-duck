@@ -5,9 +5,8 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
 import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.most.Company;
 
 import java.sql.Connection;
 import java.util.List;

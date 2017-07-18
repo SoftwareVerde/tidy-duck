@@ -1,22 +1,13 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MostFunctionStereotype {
-    private Long _id;
     private String _name;
     private boolean _supportsNotification;
     private String _category;
     private List<Operation> _operations;
-
-    public Long getId() {
-        return _id;
-    }
-
-    public void setId(Long id) {
-        _id = id;
-    }
 
     public String getName() {
         return _name;

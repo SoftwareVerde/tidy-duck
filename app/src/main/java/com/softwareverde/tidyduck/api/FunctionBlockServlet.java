@@ -4,11 +4,15 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.*;
+import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.most.Author;
+import com.softwareverde.tidyduck.most.Company;
+import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
@@ -272,8 +276,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final String name = functionBlockJson.getString("name");
         final String description = functionBlockJson.getString("description");
         final String release = functionBlockJson.getString("releaseVersion");
-        final Integer authorId = functionBlockJson.getInteger("authorId");
-        final Integer companyId = functionBlockJson.getInteger("companyId");
+        final Long authorId = functionBlockJson.getLong("authorId");
+        final Long companyId = functionBlockJson.getLong("companyId");
         final String access = functionBlockJson.getString("access");
 
         { // Validate Inputs

@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,8 +16,6 @@ import java.util.List;
  * on the function type.</p>
  */
 public abstract class MostFunction extends XmlNode {
-
-    private Long _id;
     private String _mostId;
     private String _name;
     private String _description;
@@ -28,14 +26,6 @@ public abstract class MostFunction extends XmlNode {
     private Company _company;
     private MostType _returnType;
     private List<Operation> _operations = new ArrayList<>();
-
-    public Long getId() {
-        return _id;
-    }
-
-    public void setId(Long id) {
-        _id = id;
-    }
 
     public String getMostId() {
         return _mostId;

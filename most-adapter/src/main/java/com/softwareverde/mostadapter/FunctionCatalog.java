@@ -1,9 +1,8 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

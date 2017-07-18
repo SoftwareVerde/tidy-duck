@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

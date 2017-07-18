@@ -1,9 +1,5 @@
-package com.softwareverde.tidyduck.mostadapter;
+package com.softwareverde.mostadapter;
 
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.FunctionBlock;
-import com.softwareverde.tidyduck.FunctionCatalog;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -1,4 +1,6 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.most;
+
+import com.softwareverde.mostadapter.Author;
 
 import java.util.ArrayList;
 import java.util.List;

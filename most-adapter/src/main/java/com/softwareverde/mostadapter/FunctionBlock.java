@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 public class FunctionBlock extends XmlNode {
-
-    private Long _id;
     private String _mostId;
     private String _kind = "Proprietary";
     private String _name;
@@ -22,14 +20,6 @@ public class FunctionBlock extends XmlNode {
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostInterface> _mostInterfaces = new ArrayList<>();
-
-    public Long getId() {
-        return _id;
-    }
-
-    public void setId(Long id) {
-        _id = id;
-    }
 
     public String getMostId() {
         return _mostId;

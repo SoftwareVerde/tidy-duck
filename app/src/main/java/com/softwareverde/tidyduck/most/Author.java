@@ -1,17 +1,16 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.most;
 
 public class Author {
-    protected Long _id;
-
-    protected String _name;
-    protected Company _company;
+    private Long _id;
+    private String _name;
+    private Company _company;
 
     public Long getId() {
         return _id;
     }
 
-    public void setId(long id) {
-        this._id = id;
+    public void setId(Long id) {
+        _id = id;
     }
 
     public String getName() {
