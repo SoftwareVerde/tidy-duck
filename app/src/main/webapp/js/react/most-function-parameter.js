@@ -60,7 +60,8 @@ class MostFunctionParameter extends React.Component {
 
         return (
           <div className="parameter">
-              <app.InputField id="type" name="type" type="select" label="Type" readOnly={this.props.readOnly} options={options} value={parameterTypeName} onChange={this.onTypeNameChanged} />
+              <div>Parameter {parameter.getParameterIndex()}</div>
+              <app.InputField id="type" name="type" type="select" label="Type" isSmallInputField={true} readOnly={this.props.readOnly} options={options} value={parameterTypeName} onChange={this.onTypeNameChanged} />
               {this.renderDeleteIcon()}
           </div>
         );

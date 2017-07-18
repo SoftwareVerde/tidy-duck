@@ -187,7 +187,7 @@
     width: auto;
     border: 1px solid;
     border-radius: 5px;
-    display: flex;
+    display: inline-block;
     margin: 1em;
     float: top;
 }

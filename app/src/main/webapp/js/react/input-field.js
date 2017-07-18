@@ -70,7 +70,7 @@ class InputField extends React.Component {
     }
 
     render() {
-        if (this.props.type === 'checkbox') {
+        if (this.props.isSmallInputField) {
             return (
                 <div className="input-field-small">
                     <label htmlFor={this.props.id}>{this.props.label}:</label>
