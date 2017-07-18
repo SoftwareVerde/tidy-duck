@@ -3,7 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Author;
+import com.softwareverde.tidyduck.most.Author;
 
 import java.sql.Connection;
 

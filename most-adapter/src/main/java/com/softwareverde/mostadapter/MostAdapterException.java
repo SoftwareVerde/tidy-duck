@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck.mostadapter;
+package com.softwareverde.mostadapter;
 
 public class MostAdapterException extends Exception {
 

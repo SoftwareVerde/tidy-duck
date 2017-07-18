@@ -1,21 +1,12 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class Operation extends XmlNode {
-    private Long _id;
     private String _name;
     private String _opcode;
     private boolean _isInput;
-
-    public Long getId() {
-        return _id;
-    }
-
-    public void setId(Long id) {
-        _id = id;
-    }
 
     public String getName() {
         return _name;

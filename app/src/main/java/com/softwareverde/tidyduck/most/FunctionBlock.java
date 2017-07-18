@@ -1,23 +1,25 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.most;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import com.softwareverde.mostadapter.Modification;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MostInterface extends XmlNode {
-
+public class FunctionBlock {
     private Long _id;
     private String _mostId;
+    private String _kind = "Proprietary";
     private String _name;
     private String _description;
-    private String _version;
+    private String _release;
     private Date _lastModifiedDate;
+    private Author _author;
+    private Company _company;
+    private String _access;
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
-    private List<MostFunction> _mostFunctions = new ArrayList<>();
+    private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -33,6 +35,14 @@ public class MostInterface extends XmlNode {
 
     public void setMostId(String mostId) {
         _mostId = mostId;
+    }
+
+    public String getKind() {
+        return _kind;
+    }
+
+    public void setKind(String kind) {
+        _kind = kind;
     }
 
     public String getName() {
@@ -51,12 +61,12 @@ public class MostInterface extends XmlNode {
         _description = description;
     }
 
-    public String getVersion() {
-        return _version;
+    public String getRelease() {
+        return _release;
     }
 
-    public void setVersion(String version) {
-        _version = version;
+    public void setRelease(String release) {
+        _release = release;
     }
 
     public Date getLastModifiedDate() {
@@ -65,6 +75,30 @@ public class MostInterface extends XmlNode {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         _lastModifiedDate = lastModifiedDate;
+    }
+
+    public Author getAuthor() {
+        return _author;
+    }
+
+    public void setAuthor(Author author) {
+        _author = author;
+    }
+
+    public Company getCompany() {
+        return _company;
+    }
+
+    public void setCompany(Company company) {
+        _company = company;
+    }
+
+    public void setAccess(String access) {
+        _access = access;
+    }
+
+    public String getAccess() {
+        return _access;
     }
 
     public boolean isCommitted() {
@@ -83,16 +117,11 @@ public class MostInterface extends XmlNode {
         _modifications.add(modification);
     }
 
-    public List<MostFunction> getMostFunctions() {
-        return new ArrayList<>(_mostFunctions);
+    public List<MostInterface> getMostInterfaces() {
+        return new ArrayList<>(_mostInterfaces);
     }
 
-    public void addMostFunction(MostFunction mostFunction) {
-        _mostFunctions.add(mostFunction);
-    }
-
-    @Override
-    public Element generateXmlElement(Document document) {
-        throw new UnsupportedOperationException("generateXmlElement is invalid for MostInterface as there is not associated XML for interfaces.");
+    public void addMostInterface(MostInterface mostInterface) {
+        _mostInterfaces.add(mostInterface);
     }
 }

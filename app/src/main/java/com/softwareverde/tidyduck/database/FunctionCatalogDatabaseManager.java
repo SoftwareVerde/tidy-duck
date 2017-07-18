@@ -5,8 +5,8 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
-import com.softwareverde.tidyduck.FunctionBlock;
-import com.softwareverde.tidyduck.FunctionCatalog;
+import com.softwareverde.tidyduck.most.FunctionBlock;
+import com.softwareverde.tidyduck.most.FunctionCatalog;
 
 import java.sql.Connection;
 import java.util.List;

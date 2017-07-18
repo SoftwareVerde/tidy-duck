@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.most;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,8 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,8 +11,8 @@ public class FunctionCatalog extends XmlNode {
     private Long _id;
     private String _name;
     private String _release;
-    private Author _author;
-    private Company _company;
+    private String _author;
+    private String _company;
     private List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
@@ -42,19 +41,19 @@ public class FunctionCatalog extends XmlNode {
         _release = release;
     }
 
-    public Author getAuthor() {
+    public String getAuthor() {
         return _author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(String author) {
         _author = author;
     }
 
-    public Company getCompany() {
+    public String getCompany() {
         return _company;
     }
 
-    public void setCompany(Company company) {
+    public void setCompany(String company) {
         _company = company;
     }
 
@@ -101,9 +100,9 @@ public class FunctionCatalog extends XmlNode {
         final Date currentDate = new Date();
         Element date = super.createTextElement(document, "Date", super.formatDate(currentDate));
         catalogVersion.appendChild(date);
-        Element author = super.createTextElement(document, "Author", _author.getName());
+        Element author = super.createTextElement(document, "Author", _author);
         catalogVersion.appendChild(author);
-        Element company = super.createTextElement(document, "Company", _company.getName());
+        Element company = super.createTextElement(document, "Company", _company);
         catalogVersion.appendChild(company);
 
         for (final Modification modification : _modifications) {

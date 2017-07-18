@@ -1,19 +1,19 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.tidyduck.most;
 
-public class Company {
+public class MostType {
     private Long _id;
     private String _name;
 
     public Long getId() {
-        return this._id;
+        return _id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this._id = id;
     }
 
     public String getName() {
-        return this._name;
+        return _name;
     }
 
     public void setName(String name) {

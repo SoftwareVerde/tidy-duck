@@ -4,8 +4,8 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.MostFunctionStereotype;
-import com.softwareverde.tidyduck.Operation;
+import com.softwareverde.tidyduck.most.MostFunctionStereotype;
+import com.softwareverde.tidyduck.most.Operation;
 
 import java.sql.Connection;
 import java.util.ArrayList;

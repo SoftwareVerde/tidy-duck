@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -8,28 +8,18 @@ import java.util.Date;
 import java.util.List;
 
 public class FunctionBlock extends XmlNode {
-
-    private Long _id;
     private String _mostId;
     private String _kind = "Proprietary";
     private String _name;
     private String _description;
     private String _release;
     private Date _lastModifiedDate;
-    private Author _author;
-    private Company _company;
+    private String _author;
+    private String _company;
     private String _access;
     private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
-    private List<MostInterface> _mostInterfaces = new ArrayList<>();
-
-    public Long getId() {
-        return _id;
-    }
-
-    public void setId(Long id) {
-        _id = id;
-    }
+    private List<MostFunction> _mostFunctions = new ArrayList<>();
 
     public String getMostId() {
         return _mostId;
@@ -79,19 +69,19 @@ public class FunctionBlock extends XmlNode {
         _lastModifiedDate = lastModifiedDate;
     }
 
-    public Author getAuthor() {
+    public String getAuthor() {
         return _author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(String author) {
         _author = author;
     }
 
-    public Company getCompany() {
+    public String getCompany() {
         return _company;
     }
 
-    public void setCompany(Company company) {
+    public void setCompany(String company) {
         _company = company;
     }
 
@@ -119,12 +109,12 @@ public class FunctionBlock extends XmlNode {
         _modifications.add(modification);
     }
 
-    public List<MostInterface> getMostInterfaces() {
-        return new ArrayList<>(_mostInterfaces);
+    public List<MostFunction> getMostFunctions() {
+        return new ArrayList<>(_mostFunctions);
     }
 
-    public void addMostInterface(MostInterface mostInterface) {
-        _mostInterfaces.add(mostInterface);
+    public void addMostFunction(MostFunction mostFunction) {
+        _mostFunctions.add(mostFunction);
     }
 
     @Override
@@ -147,9 +137,9 @@ public class FunctionBlock extends XmlNode {
         versionElement.appendChild(releaseElement);
         Element dateElement = super.createTextElement(document, "Date", super.formatDate(_lastModifiedDate));
         versionElement.appendChild(dateElement);
-        Element authorElement = super.createTextElement(document, "Author", _author.getName());
+        Element authorElement = super.createTextElement(document, "Author", _author);
         versionElement.appendChild(authorElement);
-        Element companyElement = super.createTextElement(document, "Company", _company.getName());
+        Element companyElement = super.createTextElement(document, "Company", _company);
         versionElement.appendChild(companyElement);
 
         for (final Modification modification : _modifications) {
@@ -157,12 +147,9 @@ public class FunctionBlock extends XmlNode {
             versionElement.appendChild(modificationElement);
         }
 
-        // append functions from all interfaces
-        for (final MostInterface mostInterface : _mostInterfaces) {
-            for (final MostFunction mostFunction : mostInterface.getMostFunctions()) {
-                Element functionElement = mostFunction.generateXmlElement(document);
-                functionBlock.appendChild(functionElement);
-            }
+        for (final MostFunction mostFunction : _mostFunctions) {
+            Element functionElement = mostFunction.generateXmlElement(document);
+            functionBlock.appendChild(functionElement);
         }
 
         functionBlock.appendChild(versionElement);

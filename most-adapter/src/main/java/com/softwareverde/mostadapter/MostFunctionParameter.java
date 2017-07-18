@@ -1,4 +1,4 @@
-package com.softwareverde.tidyduck;
+package com.softwareverde.mostadapter;
 
 public class MostFunctionParameter {
     private int _parameterIndex;

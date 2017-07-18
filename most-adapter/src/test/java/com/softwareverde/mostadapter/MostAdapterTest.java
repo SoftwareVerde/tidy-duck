@@ -1,9 +1,5 @@
-package com.softwareverde.tidyduck.mostadapter;
+package com.softwareverde.mostadapter;
 
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.FunctionBlock;
-import com.softwareverde.tidyduck.FunctionCatalog;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -105,8 +101,8 @@ public class MostAdapterTest {
         FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setRelease(release);
 
-        functionCatalog.setAuthor(createTestAuthor(author));
-        functionCatalog.setCompany(createTestCompany(company));
+        functionCatalog.setAuthor(author);
+        functionCatalog.setCompany(company);
         return functionCatalog;
     }
 
@@ -118,23 +114,11 @@ public class MostAdapterTest {
         functionBlock.setDescription(description);
         functionBlock.setRelease(release);
         functionBlock.setLastModifiedDate(lastModifiedDate);
-        functionBlock.setAuthor(createTestAuthor(author));
-        functionBlock.setCompany(createTestCompany(company));
+        functionBlock.setAuthor(author);
+        functionBlock.setCompany(company);
         functionBlock.setAccess(access);
 
         return functionBlock;
-    }
-
-    private Author createTestAuthor(String name) {
-        Author author = new Author();
-        author.setName(name);
-        return author;
-    }
-
-    private Company createTestCompany(String name) {
-        Company company = new Company();
-        company.setName(name);
-        return company;
     }
 
     private String getResourceAsString(String resourcePath) throws IOException {

@@ -5,14 +5,13 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Author;
-import com.softwareverde.tidyduck.Company;
-import com.softwareverde.tidyduck.FunctionCatalog;
 import com.softwareverde.tidyduck.database.AccountInflater;
-import com.softwareverde.tidyduck.database.AuthorInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.most.Author;
+import com.softwareverde.tidyduck.most.Company;
+import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
@@ -178,8 +177,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Database<Connection> database) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
-        final Integer authorId = functionCatalogJson.getInteger("authorId");
-        final Integer companyId = functionCatalogJson.getInteger("companyId");
+        final Long authorId = functionCatalogJson.getLong("authorId");
+        final Long companyId = functionCatalogJson.getLong("companyId");
 
         { // Validate Inputs
             if (Util.isBlank(name)) {

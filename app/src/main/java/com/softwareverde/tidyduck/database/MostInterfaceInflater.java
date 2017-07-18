@@ -7,7 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.MostInterface;
+import com.softwareverde.tidyduck.most.MostInterface;
 
 import java.sql.Connection;
 import java.util.ArrayList;

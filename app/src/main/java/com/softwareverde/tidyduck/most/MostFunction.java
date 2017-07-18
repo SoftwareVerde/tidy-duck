@@ -1,7 +1,4 @@
-package com.softwareverde.tidyduck;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+package com.softwareverde.tidyduck.most;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +12,7 @@ import java.util.List;
  * implements since the XML export may change depending
  * on the function type.</p>
  */
-public abstract class MostFunction extends XmlNode {
-
+public abstract class MostFunction {
     private Long _id;
     private String _mostId;
     private String _name;
@@ -122,33 +118,4 @@ public abstract class MostFunction extends XmlNode {
     }
 
     public abstract String getFunctionType();
-
-    protected abstract Element generateFunctionClassElement(Document document);
-
-    @Override
-    public Element generateXmlElement(Document document) {
-        Element functionElement = document.createElement("Function");
-
-        Element functionIdElement = super.createTextElement(document, "FunctionID", _mostId);
-        functionElement.appendChild(functionIdElement);
-        Element functionNameElement = super.createTextElement(document, "FunctionName", _name);
-        functionElement.appendChild(functionNameElement);
-        Element functionDescription = super.createTextElement(document, "FunctionDescription", _description);
-        functionElement.appendChild(functionDescription);
-
-        Element functionVersion = document.createElement("FunctionVersion");
-
-        Element functionRelease = super.createTextElement(document, "Release", _release);
-        functionVersion.appendChild(functionRelease);
-        Element functionAuthor = super.createTextElement(document, "Author", _author.getName());
-        functionVersion.appendChild(functionAuthor);
-        Element functionCompany = super.createTextElement(document, "Company", _company.getName());
-        functionCompany.appendChild(functionCompany);
-
-        functionElement.appendChild(functionVersion);
-
-        functionElement.appendChild(generateFunctionClassElement(document));
-
-        return functionElement;
-    }
 }
