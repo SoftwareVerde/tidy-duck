@@ -901,9 +901,6 @@ class App extends React.Component {
 
         const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
 
-        this.updateMostTypes();
-        this.updateMostFunctionStereotypes();
-
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
@@ -916,6 +913,10 @@ class App extends React.Component {
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
             isLoadingChildren:          !canUseCachedChildren
         });
+
+        this.updateMostTypes();
+        this.updateMostFunctionStereotypes();
+
 
         getMostFunctionsForMostInterfaceId(mostInterface.getId(), function(mostFunctionsJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
