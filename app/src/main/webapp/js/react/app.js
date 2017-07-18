@@ -899,7 +899,7 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
+        const parentItem = thisApp.state.selectedItem; // Preserve reference to previously selected item.
 
         thisApp.setState({
             navigationItems:            navigationItems,
