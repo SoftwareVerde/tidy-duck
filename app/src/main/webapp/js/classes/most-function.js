@@ -58,7 +58,7 @@ class MostFunction {
                 parameterType.setName(parameterJson.typeName);
 
                 const parameter = new Parameter();
-                parameter.setParameterIndex(parameterJson.index);
+                parameter.setParameterIndex(parameterJson.parameterIndex);
                 parameter.setType(parameterType);
 
                 parameters.push(parameter);
@@ -103,7 +103,8 @@ class MostFunction {
         for (let i in parameters) {
             const parameterJson = {
                 parameterIndex:     parameters[i].getParameterIndex(),
-                typeId:             parameters[i].getType().getId()
+                typeId:             parameters[i].getType().getId(),
+                typeName:           parameters[i].getType().getName()
             };
 
             parametersJson.push(parameterJson);

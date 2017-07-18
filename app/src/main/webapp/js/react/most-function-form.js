@@ -71,7 +71,7 @@ class MostFunctionForm extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         const isNewMostFunction = (! newProperties.mostFunction);
-        const mostFunction = isNewMostFunction ? new MostFunction() : newProperties.mostFunction;
+        const mostFunction = isNewMostFunction ? new MostFunction() : copyMostObject(MostFunction, newProperties.mostFunction);
 
         const mostFunctionStereotypes = newProperties.mostFunctionStereotypes;
         let stereotypeName = newProperties.selectedFunctionStereotype;

@@ -1077,8 +1077,6 @@ class App extends React.Component {
 
         const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
 
-        this.updateMostTypes();
-
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
@@ -1088,6 +1086,8 @@ class App extends React.Component {
             currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
             shouldShowCreateChildForm:  false
         });
+
+        // this.updateMostTypes();
     }
 
     onDeleteMostFunction(mostFunction, callbackFunction) {
