@@ -39,6 +39,20 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 }
                 return _listMostFunctions(mostInterfaceId, database);
             }
+        }  else {
+            // not base function, must have ID
+            final long mostFunctionId = Util.parseLong(finalUrlSegment);
+            if (mostFunctionId < 1) {
+                return _generateErrorJson("Invalid function id.");
+            }
+
+            if (httpMethod == HttpMethod.POST) {
+                return _updateMostFunction(request, mostFunctionId, accountId, database);
+            }
+            else if (httpMethod == HttpMethod.DELETE) {
+                // return _deleteMostFunctionFromMostInterface(request, mostFunctionId, database);
+            }
+
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
@@ -69,6 +83,38 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             return super._generateErrorJson("Unable to insert function: " + exception.getMessage());
         }
 
+        return response;
+    }
+
+    protected Json _updateMostFunction(final HttpServletRequest httpRequest, final long mostFunctionId, final long accountId, final Database<Connection> database) throws Exception {
+        final Json request = _getRequestDataAsJson(httpRequest);
+
+        final Long mostInterfaceId = Util.parseLong(request.getString("mostInterfaceId"));
+
+        final Json mostFunctionJson = request.get("mostFunction");
+
+        { // Validate Inputs
+            if (mostFunctionId < 1) {
+                _logger.error("Unable to parse Interface ID: " + mostInterfaceId);
+                return _generateErrorJson("Invalid Interface ID: " + mostInterfaceId);
+            }
+        }
+
+        try {
+            MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, accountId, database);
+            mostFunction.setId(mostFunctionId);
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.updateMostFunction(mostInterfaceId, mostFunction);
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to update function: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return _generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        _setJsonSuccessFields(response);
         return response;
     }
 

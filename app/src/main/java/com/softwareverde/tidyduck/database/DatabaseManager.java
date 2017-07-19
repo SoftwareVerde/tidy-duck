@@ -180,4 +180,14 @@ public class DatabaseManager {
             }
         });
     }
+
+    public void updateMostFunction(final long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
+                mostFunctionDatabaseManager.updateMostFunctionForMostInterface(mostInterfaceId, mostFunction);
+            }
+        });
+    }
 }

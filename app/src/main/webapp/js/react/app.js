@@ -358,9 +358,8 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
 
         //Update function block form to display saving animation.
-        var navigationItems = [];
-        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        var navigationItem = navigationItems.pop();
+        const navigationItems = thisApp.state.navigationItems;
+        const navigationItem = navigationItems.pop();
         navigationItem.setForm(
             <app.MostInterfaceForm
                 showTitle={false}
@@ -457,29 +456,42 @@ class App extends React.Component {
 
         // TODO: Update function metadata form to display saving animation.
 
-        // TODO: Currently debugging UI - replace with updateMostFunction when API is ready.
-        let mostFunctions = thisApp.state.mostFunctions.filter(function(value) {
-            return value.getId() != mostFunctionId;
-        });
-        mostFunctions.push(mostFunction);
-
-        //Update final navigation item to reflect any name changes.
-        var navigationItems = [];
-        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        var navigationItem = navigationItems.pop();
-        navigationItem.setTitle(mostFunction.getName());
-
-        //Update form to show changes were saved.
-        navigationItem.setForm(null);
-        navigationItems.push(navigationItem);
-
         thisApp.setState({
-            mostFunctions:          mostFunctions,
-            selectedItem:           mostFunction,
-            navigationItems:        navigationItems,
-            currentNavigationLevel: thisApp.NavigationLevel.mostFunctions
+            createButtonState:  this.CreateButtonState.animate,
+            selectedItem:       mostFunction
         });
 
+        updateMostFunction(mostInterfaceId, mostFunctionId, mostFunctionJson, function(wasSuccess) {
+            if (wasSuccess) {
+                const mostFunctions = thisApp.state.mostFunctions.filter(function(value) {
+                    return value.getId() != mostFunctionId;
+                });
+                mostFunctions.push(mostFunction);
+
+                //Update final navigation item to reflect any name changes.
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
+                navigationItem.setTitle(mostFunction.getName());
+
+                //Update form to show changes were saved.
+                navigationItem.setForm(null);
+                navigationItems.push(navigationItem);
+
+                thisApp.setState({
+                    mostFunctions:          mostFunctions,
+                    selectedItem:           mostFunction,
+                    navigationItems:        navigationItems,
+                    currentNavigationLevel: thisApp.NavigationLevel.mostFunctions,
+                    createButtonState:      thisApp.CreateButtonState.success
+                });
+            } else {
+                console.log("Unable to update Function.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal,
+                });
+                return;
+            }
+        });
     }
 
     onRootNavigationItemClicked() {
@@ -1256,13 +1268,17 @@ class App extends React.Component {
 
             case NavigationLevel.mostFunctions:
                 // add a form for the selected MOST function
+                const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
+                const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
+                    buttonTitle={buttonTitle}
                     defaultButtonTitle="Save"
                     mostFunctionStereotypes={this.state.mostFunctionStereotypes}
                     mostTypes={this.state.mostTypes}
                     mostFunction={this.state.selectedItem}
+                    shouldShowSaveAnimation={shouldAnimateCreateButton}
                     />)
                 break;
 

@@ -246,10 +246,12 @@ class MostFunctionForm extends React.Component {
         const newParameters = [];
         const parameterId = parameter.getParameterIndex();
 
+        let indexCounter = 0;
         for (let i in parameters) {
             if (parameters[i].getParameterIndex() !== parameterId) {
-                parameters[i].setParameterIndex(i);
+                parameters[i].setParameterIndex(indexCounter);
                 newParameters.push(parameters[i]);
+                indexCounter++;
             }
         }
 
