@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FunctionBlock extends XmlNode {
+public class FunctionBlock implements XmlNode {
     private String _mostId;
     private String _kind = "Proprietary";
     private String _name;
@@ -121,25 +121,25 @@ public class FunctionBlock extends XmlNode {
     public Element generateXmlElement(Document document) {
         Element functionBlock = document.createElement("FBlock");
 
-        Element mostIdElement = super.createTextElement(document, "FBlockID", _mostId);
+        Element mostIdElement = XmlUtil.createTextElement(document, "FBlockID", _mostId);
         functionBlock.appendChild(mostIdElement);
-        Element kindElement = super.createTextElement(document, "FBlockKind", _kind);
+        Element kindElement = XmlUtil.createTextElement(document, "FBlockKind", _kind);
         functionBlock.appendChild(kindElement);
-        Element nameElement = super.createTextElement(document, "FBlockName", _name);
+        Element nameElement = XmlUtil.createTextElement(document, "FBlockName", _name);
         functionBlock.appendChild(nameElement);
-        Element descriptionElement = super.createTextElement(document, "FBlockDescription", _description);
+        Element descriptionElement = XmlUtil.createTextElement(document, "FBlockDescription", _description);
         functionBlock.appendChild(descriptionElement);
 
         Element versionElement = document.createElement("FBlockVersion");
         versionElement.setAttribute("Access", _access);
 
-        Element releaseElement = super.createTextElement(document, "Release", _release);
+        Element releaseElement = XmlUtil.createTextElement(document, "Release", _release);
         versionElement.appendChild(releaseElement);
-        Element dateElement = super.createTextElement(document, "Date", super.formatDate(_lastModifiedDate));
+        Element dateElement = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(_lastModifiedDate));
         versionElement.appendChild(dateElement);
-        Element authorElement = super.createTextElement(document, "Author", _author);
+        Element authorElement = XmlUtil.createTextElement(document, "Author", _author);
         versionElement.appendChild(authorElement);
-        Element companyElement = super.createTextElement(document, "Company", _company);
+        Element companyElement = XmlUtil.createTextElement(document, "Company", _company);
         versionElement.appendChild(companyElement);
 
         for (final Modification modification : _modifications) {

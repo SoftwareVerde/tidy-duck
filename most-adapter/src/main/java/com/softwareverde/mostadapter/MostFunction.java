@@ -15,7 +15,7 @@ import java.util.List;
  * implements since the XML export may change depending
  * on the function type.</p>
  */
-public abstract class MostFunction extends XmlNode {
+public abstract class MostFunction implements XmlNode {
     private String _mostId;
     private String _name;
     private String _description;
@@ -23,7 +23,7 @@ public abstract class MostFunction extends XmlNode {
     private String _author;
     private String _company;
     private MostType _returnType;
-    private List<Operation> _operations = new ArrayList<>();
+    private List<MostParameter> _mostParameters;
 
     public String getMostId() {
         return _mostId;
@@ -81,46 +81,167 @@ public abstract class MostFunction extends XmlNode {
         _returnType = returnType;
     }
 
-    public List<Operation> getOperations() {
-        return new ArrayList<>(_operations);
+    public List<MostParameter> getMostParameters() {
+        return new ArrayList<>(_mostParameters);
     }
 
-    public void addOperation(Operation operation) {
-        _operations.add(operation);
+    public void addMostParameter(MostParameter parameter) {
+        _mostParameters.add(parameter);
     }
 
-    public void setOperations(final List<Operation> operations) {
-        _operations = new ArrayList<>(operations);
+    public void setMostParameters(final List<MostParameter> mostParameters) {
+        _mostParameters = new ArrayList<>(mostParameters);
     }
 
     public abstract String getFunctionType();
 
-    protected abstract Element generateFunctionClassElement(Document document);
+    protected abstract String getFunctionClassRef();
+
+    protected abstract String getFunctionClassDescription();
+
+    protected abstract String getFunctionClassTagName();
+
+    protected abstract String getParamTagName();
+
+    protected abstract String getParamOPTypeTagName();
+
+    protected abstract String getCommandTagName();
+
+    protected abstract String getReportTagName();
+
+    protected abstract String getParamTypeTagName();
 
     @Override
     public Element generateXmlElement(Document document) {
         Element functionElement = document.createElement("Function");
 
-        Element functionIdElement = super.createTextElement(document, "FunctionID", _mostId);
+        Element functionIdElement = XmlUtil.createTextElement(document, "FunctionID", _mostId);
         functionElement.appendChild(functionIdElement);
-        Element functionNameElement = super.createTextElement(document, "FunctionName", _name);
+        Element functionNameElement = XmlUtil.createTextElement(document, "FunctionName", _name);
         functionElement.appendChild(functionNameElement);
-        Element functionDescription = super.createTextElement(document, "FunctionDescription", _description);
+        Element functionDescription = XmlUtil.createTextElement(document, "FunctionDescription", _description);
         functionElement.appendChild(functionDescription);
 
         Element functionVersion = document.createElement("FunctionVersion");
 
-        Element functionRelease = super.createTextElement(document, "Release", _release);
+        Element functionRelease = XmlUtil.createTextElement(document, "Release", _release);
         functionVersion.appendChild(functionRelease);
-        Element functionAuthor = super.createTextElement(document, "Author", _author);
+        Element functionAuthor = XmlUtil.createTextElement(document, "Author", _author);
         functionVersion.appendChild(functionAuthor);
-        Element functionCompany = super.createTextElement(document, "Company", _company);
+        Element functionCompany = XmlUtil.createTextElement(document, "Company", _company);
         functionCompany.appendChild(functionCompany);
 
         functionElement.appendChild(functionVersion);
 
-        functionElement.appendChild(generateFunctionClassElement(document));
+        Element functionClassElement = getFunctionClassElement(document);
+
+        functionElement.appendChild(functionClassElement);
 
         return functionElement;
+    }
+
+    protected Element getFunctionClassElement(Document document) {
+        Element functionClassElement = document.createElement("FunctionClass");
+        functionClassElement.setAttribute("ClassRef", getFunctionClassRef());
+        Element functionClassDescriptionElement = XmlUtil.createTextElement(document, "FunctionClassDesc", getFunctionClassDescription());
+        functionClassElement.appendChild(functionClassDescriptionElement);
+
+        Element functionTypeElement = document.createElement(getFunctionType());
+        Element trueClassElement = document.createElement(getFunctionClassTagName());
+
+        // TODO: determine how to add attributes for classElement
+        populateTrueClassElement(document, trueClassElement);
+
+        functionTypeElement.appendChild(trueClassElement);
+        functionClassElement.appendChild(functionTypeElement);
+
+        return functionClassElement;
+    }
+
+    /**
+     * <p></p>
+     *
+     * <p>Should be overridden by function class implementations as necessary.  Most will not need to since
+     * these elements only apply to certain function classes.</p>
+     * @param document
+     * @param trueClassElement
+     */
+    protected void setClassAttributes(Document document, Element trueClassElement) {
+        // do nothing, not required for most function classes
+    }
+
+    /**
+     * <p></p>
+     *
+     * <p>Should be overridden by function class implementations as necessary.  Most will not need to since
+     * these elements only apply to certain function classes.</p>
+     * @param document
+     * @param functionClassElement
+     */
+    protected void appendPositionDescriptionElements(Document document, Element functionClassElement) {
+        // do nothing, not required for most function classes
+    }
+
+    protected void populateTrueClassElement(Document document, Element trueClassElement) {
+        setClassAttributes(document, trueClassElement);
+        appendPositionDescriptionElements(document, trueClassElement);
+
+        for (final MostParameter mostParameter : _mostParameters) {
+            Element paramElement = document.createElement(this.getParamTagName());
+            paramElement.setAttribute("details", mostParameter.hasDetails() ? "true" : "false");
+
+            Element paramNameElement = XmlUtil.createTextElement(document, "ParamName", mostParameter.getName());
+            paramNameElement.setAttribute("ParamIdx", mostParameter.getIndex());
+            paramElement.appendChild(paramNameElement);
+
+            Element paramDescriptionElement = XmlUtil.createTextElement(document, "ParamDescription", mostParameter.getDescription());
+            paramElement.appendChild(paramDescriptionElement);
+            
+            Element paramOpTypeElement = document.createElement(getParamOPTypeTagName());
+            populateParamOpTypeElement(document, paramOpTypeElement, mostParameter.getOperations());
+            paramElement.appendChild(paramOpTypeElement);
+
+            Element paramTypeElement = document.createElement(getParamTypeTagName());
+            populateParamTypeElement(document, paramTypeElement, mostParameter.getType());
+            paramElement.appendChild(paramTypeElement);
+
+            trueClassElement.appendChild(paramElement);
+        }
+    }
+
+    protected void populateParamOpTypeElement(Document document, Element paramOpTypeElement, List<Operation> operations) {
+        Element commandElement = document.createElement(getCommandTagName());
+        Element reportElement = document.createElement(getReportTagName());
+        int commands = 0;
+        int reports = 0;
+
+        for (final Operation operation : operations) {
+            Element operationElement = document.createElement(operation.getOperationType().getName());
+            operationElement.setAttribute("OPTypeRef", operation.getOperationType().getName());
+
+            Long parameterPosition = operation.getParameterPosition();
+            if (parameterPosition != null) {
+                Element paramPosElement = XmlUtil.createTextElement(document, "ParamPos", Long.toString(parameterPosition));
+                operationElement.appendChild(paramPosElement);
+            }
+
+            if (operation.getOperationType().isInput()) {
+                commandElement.appendChild(operationElement);
+            } else {
+                reportElement.appendChild(operationElement);
+            }
+        }
+
+        if (commands > 0) {
+            paramOpTypeElement.appendChild(commandElement);
+        }
+        if (reports > 0) {
+            paramOpTypeElement.appendChild(reportElement);
+        }
+    }
+
+    protected void populateParamTypeElement(Document document, Element paramTypeElement, MostType type) {
+        Element mostTypeElement = type.generateXmlElement(document);
+        paramTypeElement.appendChild(mostTypeElement);
     }
 }

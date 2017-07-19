@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FunctionCatalog extends XmlNode {
+public class FunctionCatalog implements XmlNode {
     private Long _id;
     private String _name;
     private String _release;
@@ -95,14 +95,14 @@ public class FunctionCatalog extends XmlNode {
 
         Element catalogVersion = document.createElement("CatalogVersion");
 
-        Element release = super.createTextElement(document, "Release", _release);
+        Element release = XmlUtil.createTextElement(document, "Release", _release);
         catalogVersion.appendChild(release);
         final Date currentDate = new Date();
-        Element date = super.createTextElement(document, "Date", super.formatDate(currentDate));
+        Element date = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(currentDate));
         catalogVersion.appendChild(date);
-        Element author = super.createTextElement(document, "Author", _author);
+        Element author = XmlUtil.createTextElement(document, "Author", _author);
         catalogVersion.appendChild(author);
-        Element company = super.createTextElement(document, "Company", _company);
+        Element company = XmlUtil.createTextElement(document, "Company", _company);
         catalogVersion.appendChild(company);
 
         for (final Modification modification : _modifications) {

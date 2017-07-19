@@ -3,33 +3,68 @@ package com.softwareverde.mostadapter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class Operation extends XmlNode {
-    private String _name;
-    private String _opcode;
-    private boolean _isInput;
+public class Operation implements XmlNode {
+    public enum OperationType {
+        // Property operations
+        SET("PCmdSet", true),
+        GET("PCmdGet", true),
+        SET_GET("PCmdSetGet", true),
+        INCREMENT("PCmdIncrement", true),
+        DECREMENT("PCmdDecrement", true),
+        GET_PROPERTY_INTERFACE("PcmdGetInterface", true),
+        STATUS("PReportStatus", false),
+        PROPERTY_INTERFACE("PReportInterface", false),
+        PROPERTY_ERROR("PReportError", false),
+        // Method operations
+        START("MCmdStart", true),
+        START_RESULT("MCmdStartResult", true),
+        START_RESULT_ACK("MCmdStartResultAck", true),
+        GET_METHOD_INTERFACE("MCmdGetInterface", true),
+        START_ACK("MCmdStartAck", true),
+        ABORT("MCmdAbort", true),
+        ABORT_ACK("MCmdAbortAck", true),
+        ERROR_ACK("MReportErrorAck", false),
+        PROCESSING_ACK("MReportProcessingAck", false),
+        PROCESSING("MReportProcessing", false),
+        RESULT("MReportResult", false),
+        RESULT_ACK("MReportResultAck", false),
+        METHOD_INTERFACE("MReportInterface", false),
+        METHOD_ERROR("MReportError", false);
 
-    public String getName() {
-        return _name;
-    }
+        private String _name;
+        private boolean _isInput;
 
-    public void setName(String name) {
-        _name = name;
-    }
+        OperationType(String name, boolean isInput) {
+            _name = name;
+            _isInput = isInput;
+        }
 
-    public String getOpcode() {
-        return _opcode;
-    }
+        public String getName() {
+            return _name;
+        }
 
-    public void setOpcode(String opcode) {
-        _opcode = opcode;
-    }
-
-    public boolean isInput() {
+        public boolean isInput() {
         return _isInput;
     }
+    }
 
-    public void setInput(boolean input) {
-        _isInput = input;
+    private OperationType _operationType;
+    private Long _parameterPosition;
+
+    public OperationType getOperationType() {
+        return _operationType;
+    }
+
+    public void setOperationType(OperationType operationType) {
+        _operationType = operationType;
+    }
+
+    public Long getParameterPosition() {
+        return _parameterPosition;
+    }
+
+    public void setParameterPosition(Long parameterPosition) {
+        _parameterPosition = parameterPosition;
     }
 
     @Override
