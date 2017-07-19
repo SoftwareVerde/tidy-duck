@@ -171,7 +171,7 @@ public class DatabaseManager {
 
     // MOST FUNCTION METHODS
 
-    public void insertMostFunction(final long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
+    public void insertMostFunction(final Long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {

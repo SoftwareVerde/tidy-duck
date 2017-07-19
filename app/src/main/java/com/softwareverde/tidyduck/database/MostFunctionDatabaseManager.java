@@ -16,7 +16,7 @@ class MostFunctionDatabaseManager {
     }
 
 
-    public void insertMostFunctionForMostInterface(final long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
+    public void insertMostFunctionForMostInterface(final Long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
         _insertMostFunction(mostFunction);
         _associateMostFunctionWithMostInterface(mostInterfaceId, mostFunction.getId());
     }
@@ -42,7 +42,7 @@ class MostFunctionDatabaseManager {
     }
 
     // TODO: update committed MostFunction method.
-    private void _updateUncommittedMostFunction(MostFunction proposedMostFunction) throws DatabaseException {
+    private void _updateUncommittedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
         final String name = proposedMostFunction.getName();
         final String mostId = proposedMostFunction.getMostId();
         final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
@@ -91,15 +91,15 @@ class MostFunctionDatabaseManager {
         }
     }
 
-    private void _insertMostFunction(MostFunction mostFunction) throws DatabaseException {
+    private void _insertMostFunction(final MostFunction mostFunction) throws DatabaseException {
         final String name = mostFunction.getName();
         final String mostId = mostFunction.getMostId();
-        final long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
+        final Long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
         final String description = mostFunction.getDescription();
         final String release = mostFunction.getRelease();
-        final long authorId = mostFunction.getAuthor().getId();
-        final long companyId = mostFunction.getCompany().getId();
-        final long returnTypeId = mostFunction.getReturnType().getId();
+        final Long authorId = mostFunction.getAuthor().getId();
+        final Long companyId = mostFunction.getCompany().getId();
+        final Long returnTypeId = mostFunction.getReturnType().getId();
 
         boolean supportsNotification = false;
         if ("Property".equals(mostFunction.getFunctionType())) {
@@ -179,7 +179,7 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _disassociateMostFunctionWithMostInterface(long mostInterfaceId, long mostFunctionId) throws DatabaseException {
+    private void _disassociateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         final Query query = new Query("DELETE FROM interfaces_functions WHERE inteface_id = ? AND function_id = ?")
                 .setParameter(mostInterfaceId)
                 .setParameter(mostFunctionId)

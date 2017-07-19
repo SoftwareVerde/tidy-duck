@@ -118,7 +118,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listMostFunctions(long mostInterfaceId, Database<Connection> database) {
+    protected Json _listMostFunctions(final long mostInterfaceId, final Database<Connection> database) {
         try(final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
@@ -126,7 +126,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
 
             final Json mostFunctionsJson = new Json(true);
-            for (MostFunction mostFunction : mostFunctions) {
+            for (final MostFunction mostFunction : mostFunctions) {
                 final Json mostFunctionJson = _toJson(mostFunction);
                 mostFunctionsJson.add(mostFunctionJson);
             }

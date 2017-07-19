@@ -31,7 +31,7 @@ public class MostFunctionStereotypeInflater {
         return stereotypes;
     }
 
-    public MostFunctionStereotype inflateMostFunctionStereotype(final Long mostFunctionStereotypeId) throws DatabaseException {
+    public MostFunctionStereotype inflateMostFunctionStereotype(final long mostFunctionStereotypeId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name, supports_notification, category FROM function_stereotypes WHERE id = ?"
         );

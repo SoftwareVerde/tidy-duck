@@ -23,7 +23,7 @@ public class MostInterfaceInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(long functionBlockId) throws DatabaseException {
+    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final Long functionBlockId) throws DatabaseException {
         final Query query = new Query(
             "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
         );

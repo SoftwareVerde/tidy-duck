@@ -17,7 +17,7 @@ public class OperationInflater {
         _databaseConnection = connection;
     }
 
-    public Operation inflateOperation(final Long operationId) throws DatabaseException {
+    public Operation inflateOperation(final long operationId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name, opcode, is_input FROM operations WHERE id = ?"
         );

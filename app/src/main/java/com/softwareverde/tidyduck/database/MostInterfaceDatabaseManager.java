@@ -5,6 +5,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.most.MostInterface;
+import com.softwareverde.tidyduck.most.MostFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,15 +77,28 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteMostInterfaceIfUncommitted(long mostInterfaceId) throws DatabaseException {
+    private void _deleteMostInterfaceIfUncommitted(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
         if (!mostInterface.isCommitted() && isOrphaned(mostInterfaceId)) {
             // interface isn't committed and isn't associated with any function blocks, we can delete it
-            // TODO: delete functions from interface
+            _deleteMostFunctionsFromMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
         }
+    }
+
+    private void _deleteMostFunctionsFromMostInterface(final long mostInterfaceId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+
+        final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
+        for (final MostFunction mostFunction : mostFunctions) {
+            // function is not committed, we can delete it.
+            // TODO: delete method for Most Functions
+            //mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
+        }
+
     }
 
     private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
