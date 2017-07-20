@@ -196,6 +196,9 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onFunctionCatalogSelected(functionCatalog, true);
+                });
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(
@@ -294,6 +297,9 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onFunctionBlockSelected(functionBlock, true);
+                });
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(
@@ -388,6 +394,9 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onMostInterfaceSelected(mostInterface, true);
+                });
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(
@@ -475,6 +484,9 @@ class App extends React.Component {
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(null);
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onMostFunctionSelected(mostFunction, true);
+                });
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
