@@ -1,24 +1,48 @@
 package com.softwareverde.mostadapter;
 
-public class PropertyPositionDescription {
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class PropertyPositionDescription implements XmlNode {
     public static final String DEFAULT_POSITION_Y = "0";
 
-    private String positionX;
-    private String positionY = DEFAULT_POSITION_Y;
+    private String _value;
+    private String _positionX;
+    private String _positionY = DEFAULT_POSITION_Y;
+
+    public String getValue() {
+        return _value;
+    }
+
+    public void setValue(String value) {
+        this._value = value;
+    }
 
     public String getPositionX() {
-        return positionX;
+        return _positionX;
     }
 
     public void setPositionX(String positionX) {
-        this.positionX = positionX;
+        this._positionX = positionX;
     }
 
     public String getPositionY() {
-        return positionY;
+        return _positionY;
     }
 
     public void setPositionY(String positionY) {
-        this.positionY = positionY;
+        this._positionY = positionY;
+    }
+
+    @Override
+    public Element generateXmlElement(Document document) {
+        Element posDescriptionElement = document.createElement("PosDescription");
+
+        posDescriptionElement.setAttribute("PosX", _positionX);
+        posDescriptionElement.setAttribute("PosY", _positionY);
+
+        posDescriptionElement.setTextContent(_value);
+
+        return posDescriptionElement;
     }
 }

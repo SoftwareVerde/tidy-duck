@@ -101,15 +101,27 @@ public abstract class MostFunction implements XmlNode {
 
     protected abstract String getFunctionClassTagName();
 
-    protected abstract String getParamTagName();
+    protected abstract String getTagPrefix();
 
-    protected abstract String getParamOPTypeTagName();
+    protected String getParamTagName() {
+        return getTagPrefix() + "Param";
+    }
 
-    protected abstract String getCommandTagName();
+    protected String getParamOPTypeTagName() {
+        return getTagPrefix() + "ParamOPType";
+    }
 
-    protected abstract String getReportTagName();
+    protected String getCommandTagName() {
+        return getTagPrefix() + "Command";
+    }
 
-    protected abstract String getParamTypeTagName();
+    protected String getReportTagName() {
+        return getTagPrefix() + "Report";
+    }
+
+    protected String getParamTypeTagName() {
+        return getTagPrefix() + "ParamType";
+    }
 
     @Override
     public Element generateXmlElement(Document document) {
