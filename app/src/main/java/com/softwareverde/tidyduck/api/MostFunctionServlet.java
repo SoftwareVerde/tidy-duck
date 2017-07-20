@@ -50,7 +50,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 return _updateMostFunction(request, mostFunctionId, accountId, database);
             }
             else if (httpMethod == HttpMethod.DELETE) {
-                // return _deleteMostFunctionFromMostInterface(request, mostFunctionId, database);
+                return _deleteMostFunctionFromMostInterface(request, mostFunctionId, database);
             }
 
         }
@@ -115,6 +115,30 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         final Json response = new Json(false);
         _setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Database<Connection> database) {
+        final String mostInterfaceString = request.getParameter("most_interface_id");
+        final Long mostInterfaceId = Util.parseLong(mostInterfaceString);
+
+        // Validate Inputs
+        if (mostInterfaceId == null || mostInterfaceId < 1) {
+            return super._generateErrorJson(String.format("Invalid interface id: %s", mostInterfaceString));
+        }
+
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.deleteMostFunction(mostInterfaceId, mostFunctionId);
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to delete function %d from interface %d.", mostFunctionId, mostInterfaceId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        super._setJsonSuccessFields(response);
         return response;
     }
 

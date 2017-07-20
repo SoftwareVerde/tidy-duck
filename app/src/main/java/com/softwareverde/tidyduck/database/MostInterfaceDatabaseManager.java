@@ -95,8 +95,7 @@ public class MostInterfaceDatabaseManager {
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
             // function is not committed, we can delete it.
-            // TODO: delete method for Most Functions
-            //mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
+            mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
         }
 
     }

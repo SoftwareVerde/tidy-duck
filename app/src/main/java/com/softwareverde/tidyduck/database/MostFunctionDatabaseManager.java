@@ -35,7 +35,7 @@ class MostFunctionDatabaseManager {
             // need to insert a new function to replace this one
             _insertMostFunction(proposedMostFunction);
             final long newMostFunctionId = proposedMostFunction.getId();
-            // change association with inteface
+            // change association with interface
             _disassociateMostFunctionWithMostInterface(mostInterfaceId, inputMostFunctionId);
             _associateMostFunctionWithMostInterface(mostInterfaceId, newMostFunctionId);
         }
@@ -180,10 +180,37 @@ class MostFunctionDatabaseManager {
     }
 
     private void _disassociateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
-        final Query query = new Query("DELETE FROM interfaces_functions WHERE inteface_id = ? AND function_id = ?")
+        final Query query = new Query("DELETE FROM interfaces_functions WHERE interface_id = ? AND function_id = ?")
                 .setParameter(mostInterfaceId)
                 .setParameter(mostFunctionId)
                 ;
+        _databaseConnection.executeSql(query);
+    }
+
+    public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
+        _deleteMostFunctionIfUncommitted(mostFunctionId);
+    }
+
+    private void _deleteMostFunctionIfUncommitted(final long mostFunctionId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
+
+        if (! mostFunction.isCommitted()) {
+            _deleteMostFunctionFromDatabase(mostFunctionId);
+        }
+
+    }
+
+    private void _deleteMostFunctionFromDatabase(final long mostFunctionId) throws DatabaseException {
+        // Delete most function's operations and parameters first, then delete function.
+        _removeOperationsFromFunction(mostFunctionId);
+        _removeInputParametersFromFunction(mostFunctionId);
+
+        final Query query = new Query("DELETE FROM functions WHERE id = ?")
+                .setParameter(mostFunctionId)
+                ;
+
         _databaseConnection.executeSql(query);
     }
 }

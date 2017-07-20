@@ -1120,40 +1120,32 @@ class App extends React.Component {
         const mostInterfaceId = this.state.selectedItem.getId();
         const mostFunctionId = mostFunction.getId();
 
-        listMostInterfacesContainingMostFunction(mostFunctionId, this.state.currentVersionId, function (data) {
-            if (data.wasSuccess) {
-                let shouldDelete = false;
-                const mostInterfaceIds = data.mostInterfaceIds;
-                if (mostInterfaceIds.length > 1) {
-                    shouldDelete = true;
-                } else {
-                    shouldDelete = confirm("This action will delete the last reference to this function.  Are you sure you want to delete it?");
-                }
-
-                if (shouldDelete) {
-                    deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
-                        if (success) {
-                            const newMostFunctions = [];
-                            const existingMostFunctions = thisApp.state.mostFunctions;
-                            for (let i in existingMostFunctions) {
-                                const existingMostFunction = existingMostFunctions[i];
-                                if (existingMostFunction.getId() != mostFunction.getId()) {
-                                    newMostFunctions.push(existingMostFunction);
-                                }
-                            }
-                            thisApp.setState({
-                                mostFunctions:         newMostFunctions,
-                                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
-                            });
-                        } else {
-                            alert("Request to delete function failed: " + errorMessage);
+        const shouldDelete = confirm("This action will delete the only reference to this function. Are you sure you want to delete it?");
+        if (shouldDelete) {
+            deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
+                if (success) {
+                    const newMostFunctions = [];
+                    const existingMostFunctions = thisApp.state.mostFunctions;
+                    for (let i in existingMostFunctions) {
+                        const existingMostFunction = existingMostFunctions[i];
+                        if (existingMostFunction.getId() !== mostFunction.getId()) {
+                            newMostFunctions.push(existingMostFunction);
                         }
+                    }
+                    thisApp.setState({
+                        mostFunctions: newMostFunctions,
+                        currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
                     });
+                } else {
+                    alert("Request to delete function failed: " + errorMessage);
+                    // let component know delete was unsuccessful
+                    callbackFunction();
                 }
-            }
-            // let component know action is complete
+            });
+        } else {
+            // let component know delete was canceled
             callbackFunction();
-        });
+        }
     }
 
     handleFunctionStereotypeClick(selectedFunctionStereotype) {
