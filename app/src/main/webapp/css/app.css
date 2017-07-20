@@ -273,6 +273,7 @@
     float: right;
     margin-right: 5px;
     margin-top: 2px;
+    cursor: pointer;
 }
 
 .navigation-item-menu {
