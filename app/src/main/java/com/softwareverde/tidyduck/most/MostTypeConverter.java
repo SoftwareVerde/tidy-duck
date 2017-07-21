@@ -112,18 +112,32 @@ public class MostTypeConverter {
     protected com.softwareverde.mostadapter.MostFunction createPropertyFunction(Property property) {
         com.softwareverde.mostadapter.Property convertedProperty = null;
         switch (property.getReturnType().getName()) {
+            case "TBool": {
+                SwitchProperty switchProperty = new SwitchProperty();
+                convertedProperty = switchProperty;
+            } break;
+            case "TEnum": {
+                EnumProperty enumProperty = new EnumProperty();
+                convertedProperty = enumProperty;
+            } break;
             case "TUByte":
             case "TSByte":
             case "TUWord":
             case "TSWord":
             case "TULong":
-            case "TSLong": {
+            case "TSLong":
+            case "TNumber": {
                 NumberProperty numberProperty = new NumberProperty();
                 convertedProperty = numberProperty;
             } break;
             case "TString": {
                 TextProperty textProperty = new TextProperty();
                 convertedProperty = textProperty;
+            } break;
+            case "TStream":
+            case "TShortStream": {
+                ContainerProperty containerProperty = new ContainerProperty();
+                convertedProperty = containerProperty;
             } break;
             default: {
                 UnclassifiedProperty unclassifiedProperty = new UnclassifiedProperty();
