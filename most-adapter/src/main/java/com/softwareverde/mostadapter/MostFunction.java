@@ -23,7 +23,7 @@ public abstract class MostFunction implements XmlNode {
     private String _release;
     private String _author;
     private String _company;
-    private List<MostParameter> _mostParameters;
+    private List<MostParameter> _mostParameters = new ArrayList<>();
 
     public String getMostId() {
         return _mostId;

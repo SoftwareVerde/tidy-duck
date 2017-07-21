@@ -124,4 +124,8 @@ public class FunctionBlock {
     public void addMostInterface(MostInterface mostInterface) {
         _mostInterfaces.add(mostInterface);
     }
+
+    public void setMostInterfaces(final List<MostInterface> mostInterfaces) {
+        _mostInterfaces = new ArrayList<>(mostInterfaces);
+    }
 }

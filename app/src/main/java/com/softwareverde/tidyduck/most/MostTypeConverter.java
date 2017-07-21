@@ -298,6 +298,7 @@ public class MostTypeConverter {
         if (operationNames.contains("ErrorAck")) {
             addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
         }
+        convertedMethod.addMostParameter(senderHandleParameter);
 
         // add return type parameter
         MostParameter returnTypeParameter = createReturnTypeParameter(method, operationNames, "2");

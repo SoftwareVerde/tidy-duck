@@ -142,6 +142,8 @@ public class FunctionBlock implements XmlNode {
         Element companyElement = XmlUtil.createTextElement(document, "Company", _company);
         versionElement.appendChild(companyElement);
 
+        functionBlock.appendChild(versionElement);
+
         for (final Modification modification : _modifications) {
             Element modificationElement = modification.generateXmlElement(document);
             versionElement.appendChild(modificationElement);
@@ -151,8 +153,6 @@ public class FunctionBlock implements XmlNode {
             Element functionElement = mostFunction.generateXmlElement(document);
             functionBlock.appendChild(functionElement);
         }
-
-        functionBlock.appendChild(versionElement);
 
         return functionBlock;
     }

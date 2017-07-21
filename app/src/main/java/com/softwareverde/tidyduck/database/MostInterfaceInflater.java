@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 
 import java.sql.Connection;
@@ -23,7 +24,11 @@ public class MostInterfaceInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(long functionBlockId) throws DatabaseException {
+    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId) throws DatabaseException {
+        return inflateMostInterfacesFromFunctionBlockId(functionBlockId, false);
+    }
+
+    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
             "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
         );
@@ -33,7 +38,7 @@ public class MostInterfaceInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long mostInterfaceId = row.getLong("interface_id");
-            MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
+            MostInterface mostInterface = inflateMostInterface(mostInterfaceId, inflateChildren);
             mostInterfaces.add(mostInterface);
         }
         return mostInterfaces;
@@ -62,6 +67,10 @@ public class MostInterfaceInflater {
     }
 
     public MostInterface inflateMostInterface(final long mostInterfaceId) throws DatabaseException {
+        return inflateMostInterface(mostInterfaceId, false);
+    }
+
+    public MostInterface inflateMostInterface(final long mostInterfaceId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
             "SELECT * FROM interfaces WHERE id = ?"
         );
@@ -91,6 +100,12 @@ public class MostInterfaceInflater {
         mostInterface.setLastModifiedDate(lastModifiedDate);
         mostInterface.setVersion(version);
         mostInterface.setCommitted(isCommitted);
+
+        if (inflateChildren) {
+            MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+            List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+            mostInterface.setMostFunctions(mostFunctions);
+        }
 
         return mostInterface;
     }

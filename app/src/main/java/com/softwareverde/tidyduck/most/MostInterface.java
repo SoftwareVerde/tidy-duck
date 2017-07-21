@@ -88,4 +88,8 @@ public class MostInterface {
     public void addMostFunction(MostFunction mostFunction) {
         _mostFunctions.add(mostFunction);
     }
+
+    public void setMostFunctions(List<MostFunction> mostFunctions) {
+        _mostFunctions = new ArrayList<>(mostFunctions);
+    }
 }

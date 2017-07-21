@@ -8,6 +8,7 @@ import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
+import com.softwareverde.tidyduck.most.MostInterface;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -90,7 +91,9 @@ public class FunctionBlockInflater {
         functionBlock.setCommitted(isCommitted);
 
         if (inflateChildren) {
-            // TODO: inflate interfaces
+            MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+            List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId, true);
+            functionBlock.setMostInterfaces(mostInterfaces);
         }
 
         return functionBlock;
