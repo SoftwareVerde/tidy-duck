@@ -16,20 +16,90 @@ class MostFunctionDatabaseManager {
     }
 
 
-    public void insertMostFunctionForMostInterface(final long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
+    public void insertMostFunctionForMostInterface(final Long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
         _insertMostFunction(mostFunction);
         _associateMostFunctionWithMostInterface(mostInterfaceId, mostFunction.getId());
     }
 
-    private void _insertMostFunction(MostFunction mostFunction) throws DatabaseException {
+    public void updateMostFunctionForMostInterface(final long mostInterfaceId, final MostFunction proposedMostFunction) throws DatabaseException {
+        final long inputMostFunctionId = proposedMostFunction.getId();
+
+        MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        MostFunction databaseMostFunction = mostFunctionInflater.inflateMostFunction(inputMostFunctionId);
+
+        if(!databaseMostFunction.isCommitted()) {
+            // not committed, can update existing function
+            _updateUncommittedMostFunction(proposedMostFunction);
+        } else {
+            // current function is committed to an interface
+            // need to insert a new function to replace this one
+            _insertMostFunction(proposedMostFunction);
+            final long newMostFunctionId = proposedMostFunction.getId();
+            // change association with interface
+            _disassociateMostFunctionWithMostInterface(mostInterfaceId, inputMostFunctionId);
+            _associateMostFunctionWithMostInterface(mostInterfaceId, newMostFunctionId);
+        }
+    }
+
+    // TODO: update committed MostFunction method.
+    private void _updateUncommittedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
+        final String name = proposedMostFunction.getName();
+        final String mostId = proposedMostFunction.getMostId();
+        final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
+        final String description = proposedMostFunction.getDescription();
+        final String release = proposedMostFunction.getRelease();
+        final long authorId = proposedMostFunction.getAuthor().getId();
+        final long companyId = proposedMostFunction.getCompany().getId();
+        final long returnTypeId = proposedMostFunction.getReturnType().getId();
+        final long mostFunctionId = proposedMostFunction.getId();
+
+        boolean supportsNotification = false;
+        if ("Property".equals(proposedMostFunction.getFunctionType())) {
+            Property property = (Property) proposedMostFunction;
+            supportsNotification = property.supportsNotification();
+        }
+
+        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_type_id = ?, supports_notification = ? WHERE id = ? ")
+                .setParameter(name)
+                .setParameter(mostId)
+                .setParameter(proposedMostFunction.getFunctionType())
+                .setParameter(functionStereotypeId)
+                .setParameter(description)
+                .setParameter(release)
+                .setParameter(authorId)
+                .setParameter(companyId)
+                .setParameter(returnTypeId)
+                .setParameter(supportsNotification ? 1 : 0)
+                .setParameter(mostFunctionId)
+        ;
+
+        _databaseConnection.executeSql(query);
+
+        // Clear out operations and parameters, then add current ones if necessary.
+        _removeInputParametersFromFunction(mostFunctionId);
+        _removeOperationsFromFunction(mostFunctionId);
+
+        if ("Method".equals(proposedMostFunction.getFunctionType())) {
+            Method method = (Method) proposedMostFunction;
+            for (final MostFunctionParameter parameter : method.getInputParameters()) {
+                _addInputParameterToFunction(mostFunctionId, parameter);
+            }
+        }
+
+        for (final Operation operation : proposedMostFunction.getOperations()) {
+            _addOperationToFunction(mostFunctionId, operation);
+        }
+    }
+
+    private void _insertMostFunction(final MostFunction mostFunction) throws DatabaseException {
         final String name = mostFunction.getName();
         final String mostId = mostFunction.getMostId();
-        final long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
+        final Long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
         final String description = mostFunction.getDescription();
         final String release = mostFunction.getRelease();
-        final long authorId = mostFunction.getAuthor().getId();
-        final long companyId = mostFunction.getCompany().getId();
-        final long returnTypeId = mostFunction.getReturnType().getId();
+        final Long authorId = mostFunction.getAuthor().getId();
+        final Long companyId = mostFunction.getCompany().getId();
+        final Long returnTypeId = mostFunction.getReturnType().getId();
 
         boolean supportsNotification = false;
         if ("Property".equals(mostFunction.getFunctionType())) {
@@ -75,6 +145,14 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    private void _removeInputParametersFromFunction(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_parameters WHERE function_id = ?")
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     private void _addOperationToFunction(final long newFunctionId, final Operation operation) throws DatabaseException {
         final Query query = new Query("INSERT INTO functions_operations (function_id, operation_id) VALUES (?, ?)")
             .setParameter(newFunctionId)
@@ -84,11 +162,54 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    private void _removeOperationsFromFunction(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM functions_operations WHERE function_id = ?")
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     private void _associateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         final Query query = new Query("INSERT INTO interfaces_functions (interface_id, function_id) VALUES (?, ?)")
             .setParameter(mostInterfaceId)
             .setParameter(mostFunctionId)
         ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _disassociateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM interfaces_functions WHERE interface_id = ? AND function_id = ?")
+                .setParameter(mostInterfaceId)
+                .setParameter(mostFunctionId)
+                ;
+        _databaseConnection.executeSql(query);
+    }
+
+    public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
+        _deleteMostFunctionIfUncommitted(mostFunctionId);
+    }
+
+    private void _deleteMostFunctionIfUncommitted(final long mostFunctionId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
+
+        if (! mostFunction.isCommitted()) {
+            _deleteMostFunctionFromDatabase(mostFunctionId);
+        }
+
+    }
+
+    private void _deleteMostFunctionFromDatabase(final long mostFunctionId) throws DatabaseException {
+        // Delete most function's operations and parameters first, then delete function.
+        _removeOperationsFromFunction(mostFunctionId);
+        _removeInputParametersFromFunction(mostFunctionId);
+
+        final Query query = new Query("DELETE FROM functions WHERE id = ?")
+                .setParameter(mostFunctionId)
+                ;
 
         _databaseConnection.executeSql(query);
     }

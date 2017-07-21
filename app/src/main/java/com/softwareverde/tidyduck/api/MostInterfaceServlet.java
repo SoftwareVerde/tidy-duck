@@ -134,7 +134,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             mostInterface.setId(mostInterfaceId);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.updateMostInterface(mostInterfaceId, mostInterface);
+            databaseManager.updateMostInterface(functionBlockId, mostInterface);
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update interface: " + exception.getMessage();

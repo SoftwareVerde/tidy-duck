@@ -115,6 +115,10 @@
     color: #FFF;
 }
 
+.parameter .input-field-small label {
+    color: #FFF;
+}
+
 .parameter i:hover {
     color: #9CF;
 }

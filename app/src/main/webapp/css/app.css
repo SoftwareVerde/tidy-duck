@@ -187,7 +187,8 @@
     width: auto;
     border: 1px solid;
     border-radius: 5px;
-    display: flex;
+    display: inline-block;
+    text-align: center;
     margin: 1em;
     float: top;
 }
@@ -255,6 +256,7 @@
     float: right;
     padding: 5px;
     margin: -5px;
+    cursor: pointer;
 }
 
 .child-item-menu-item {
@@ -272,6 +274,7 @@
     float: right;
     margin-right: 5px;
     margin-top: 2px;
+    cursor: pointer;
 }
 
 .navigation-item-menu {

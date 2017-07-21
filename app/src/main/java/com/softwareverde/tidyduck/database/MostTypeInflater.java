@@ -30,7 +30,7 @@ public class MostTypeInflater {
         return types;
     }
 
-    public MostType inflateMostType(final Long mostTypeId) throws DatabaseException {
+    public MostType inflateMostType(final long mostTypeId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT id, name FROM most_types WHERE id = ?"
         );

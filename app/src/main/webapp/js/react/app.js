@@ -196,6 +196,9 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onFunctionCatalogSelected(functionCatalog, true);
+                });
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(
@@ -294,6 +297,9 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onFunctionBlockSelected(functionBlock, true);
+                });
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(
@@ -358,9 +364,8 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
 
         //Update function block form to display saving animation.
-        var navigationItems = [];
-        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        var navigationItem = navigationItems.pop();
+        const navigationItems = thisApp.state.navigationItems;
+        const navigationItem = navigationItems.pop();
         navigationItem.setForm(
             <app.MostInterfaceForm
                 showTitle={false}
@@ -389,6 +394,9 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onMostInterfaceSelected(mostInterface, true);
+                });
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(
@@ -457,29 +465,45 @@ class App extends React.Component {
 
         // TODO: Update function metadata form to display saving animation.
 
-        // TODO: Currently debugging UI - replace with updateMostFunction when API is ready.
-        let mostFunctions = thisApp.state.mostFunctions.filter(function(value) {
-            return value.getId() != mostFunctionId;
-        });
-        mostFunctions.push(mostFunction);
-
-        //Update final navigation item to reflect any name changes.
-        var navigationItems = [];
-        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        var navigationItem = navigationItems.pop();
-        navigationItem.setTitle(mostFunction.getName());
-
-        //Update form to show changes were saved.
-        navigationItem.setForm(null);
-        navigationItems.push(navigationItem);
-
         thisApp.setState({
-            mostFunctions:          mostFunctions,
-            selectedItem:           mostFunction,
-            navigationItems:        navigationItems,
-            currentNavigationLevel: thisApp.NavigationLevel.mostFunctions
+            createButtonState:  this.CreateButtonState.animate,
+            selectedItem:       mostFunction
         });
 
+        updateMostFunction(mostInterfaceId, mostFunctionId, mostFunctionJson, function(wasSuccess) {
+            if (wasSuccess) {
+                const mostFunctions = thisApp.state.mostFunctions.filter(function(value) {
+                    return value.getId() != mostFunctionId;
+                });
+                mostFunctions.push(mostFunction);
+
+                //Update final navigation item to reflect any name changes.
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
+                navigationItem.setTitle(mostFunction.getName());
+
+                //Update form to show changes were saved.
+                navigationItem.setForm(null);
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onMostFunctionSelected(mostFunction, true);
+                });
+                navigationItems.push(navigationItem);
+
+                thisApp.setState({
+                    mostFunctions:          mostFunctions,
+                    selectedItem:           mostFunction,
+                    navigationItems:        navigationItems,
+                    currentNavigationLevel: thisApp.NavigationLevel.mostFunctions,
+                    createButtonState:      thisApp.CreateButtonState.success
+                });
+            } else {
+                console.log("Unable to update Function.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal,
+                });
+                return;
+            }
+        });
     }
 
     onRootNavigationItemClicked() {
@@ -899,10 +923,7 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
-
-        this.updateMostTypes();
-        this.updateMostFunctionStereotypes();
+        const parentItem = thisApp.state.selectedItem; // Preserve reference to previously selected item.
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -916,6 +937,10 @@ class App extends React.Component {
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
             isLoadingChildren:          !canUseCachedChildren
         });
+
+        this.updateMostTypes();
+        this.updateMostFunctionStereotypes();
+
 
         getMostFunctionsForMostInterfaceId(mostInterface.getId(), function(mostFunctionsJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
@@ -1076,8 +1101,6 @@ class App extends React.Component {
 
         const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
 
-        this.updateMostTypes();
-
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
@@ -1087,6 +1110,8 @@ class App extends React.Component {
             currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
             shouldShowCreateChildForm:  false
         });
+
+        // this.updateMostTypes();
     }
 
     onDeleteMostFunction(mostFunction, callbackFunction) {
@@ -1095,40 +1120,32 @@ class App extends React.Component {
         const mostInterfaceId = this.state.selectedItem.getId();
         const mostFunctionId = mostFunction.getId();
 
-        listMostInterfacesContainingMostFunction(mostFunctionId, this.state.currentVersionId, function (data) {
-            if (data.wasSuccess) {
-                let shouldDelete = false;
-                const mostInterfaceIds = data.mostInterfaceIds;
-                if (mostInterfaceIds.length > 1) {
-                    shouldDelete = true;
-                } else {
-                    shouldDelete = confirm("This action will delete the last reference to this function.  Are you sure you want to delete it?");
-                }
-
-                if (shouldDelete) {
-                    deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
-                        if (success) {
-                            const newMostFunctions = [];
-                            const existingMostFunctions = thisApp.state.mostFunctions;
-                            for (let i in existingMostFunctions) {
-                                const existingMostFunction = existingMostFunctions[i];
-                                if (existingMostFunction.getId() != mostFunction.getId()) {
-                                    newMostFunctions.push(existingMostFunction);
-                                }
-                            }
-                            thisApp.setState({
-                                mostFunctions:         newMostFunctions,
-                                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
-                            });
-                        } else {
-                            alert("Request to delete function failed: " + errorMessage);
+        const shouldDelete = confirm("This action will delete the only reference to this function. Are you sure you want to delete it?");
+        if (shouldDelete) {
+            deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
+                if (success) {
+                    const newMostFunctions = [];
+                    const existingMostFunctions = thisApp.state.mostFunctions;
+                    for (let i in existingMostFunctions) {
+                        const existingMostFunction = existingMostFunctions[i];
+                        if (existingMostFunction.getId() !== mostFunction.getId()) {
+                            newMostFunctions.push(existingMostFunction);
                         }
+                    }
+                    thisApp.setState({
+                        mostFunctions: newMostFunctions,
+                        currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
                     });
+                } else {
+                    alert("Request to delete function failed: " + errorMessage);
+                    // let component know delete was unsuccessful
+                    callbackFunction();
                 }
-            }
-            // let component know action is complete
+            });
+        } else {
+            // let component know delete was canceled
             callbackFunction();
-        });
+        }
     }
 
     handleFunctionStereotypeClick(selectedFunctionStereotype) {
@@ -1255,13 +1272,17 @@ class App extends React.Component {
 
             case NavigationLevel.mostFunctions:
                 // add a form for the selected MOST function
+                const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
+                const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
+                    buttonTitle={buttonTitle}
                     defaultButtonTitle="Save"
                     mostFunctionStereotypes={this.state.mostFunctionStereotypes}
                     mostTypes={this.state.mostTypes}
                     mostFunction={this.state.selectedItem}
+                    shouldShowSaveAnimation={shouldAnimateCreateButton}
                     />)
                 break;
 

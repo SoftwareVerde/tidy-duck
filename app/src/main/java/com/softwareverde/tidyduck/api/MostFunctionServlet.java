@@ -39,6 +39,20 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 }
                 return _listMostFunctions(mostInterfaceId, database);
             }
+        }  else {
+            // not base function, must have ID
+            final long mostFunctionId = Util.parseLong(finalUrlSegment);
+            if (mostFunctionId < 1) {
+                return _generateErrorJson("Invalid function id.");
+            }
+
+            if (httpMethod == HttpMethod.POST) {
+                return _updateMostFunction(request, mostFunctionId, accountId, database);
+            }
+            else if (httpMethod == HttpMethod.DELETE) {
+                return _deleteMostFunctionFromMostInterface(request, mostFunctionId, database);
+            }
+
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
@@ -72,7 +86,63 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listMostFunctions(long mostInterfaceId, Database<Connection> database) {
+    protected Json _updateMostFunction(final HttpServletRequest httpRequest, final long mostFunctionId, final long accountId, final Database<Connection> database) throws Exception {
+        final Json request = _getRequestDataAsJson(httpRequest);
+
+        final Long mostInterfaceId = Util.parseLong(request.getString("mostInterfaceId"));
+
+        final Json mostFunctionJson = request.get("mostFunction");
+
+        { // Validate Inputs
+            if (mostFunctionId < 1) {
+                _logger.error("Unable to parse Interface ID: " + mostInterfaceId);
+                return _generateErrorJson("Invalid Interface ID: " + mostInterfaceId);
+            }
+        }
+
+        try {
+            MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, accountId, database);
+            mostFunction.setId(mostFunctionId);
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.updateMostFunction(mostInterfaceId, mostFunction);
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to update function: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return _generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        _setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Database<Connection> database) {
+        final String mostInterfaceString = request.getParameter("most_interface_id");
+        final Long mostInterfaceId = Util.parseLong(mostInterfaceString);
+
+        // Validate Inputs
+        if (mostInterfaceId == null || mostInterfaceId < 1) {
+            return super._generateErrorJson(String.format("Invalid interface id: %s", mostInterfaceString));
+        }
+
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.deleteMostFunction(mostInterfaceId, mostFunctionId);
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to delete function %d from interface %d.", mostFunctionId, mostInterfaceId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _listMostFunctions(final long mostInterfaceId, final Database<Connection> database) {
         try(final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
@@ -80,7 +150,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
 
             final Json mostFunctionsJson = new Json(true);
-            for (MostFunction mostFunction : mostFunctions) {
+            for (final MostFunction mostFunction : mostFunctions) {
                 final Json mostFunctionJson = _toJson(mostFunction);
                 mostFunctionsJson.add(mostFunctionJson);
             }
@@ -241,7 +311,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 Json inputParametersJson = new Json(true);
                 for (MostFunctionParameter parameter : method.getInputParameters()) {
                     Json parameterJson = new Json();
-                    parameterJson.put("index", parameter.getParameterIndex());
+                    parameterJson.put("parameterIndex", parameter.getParameterIndex());
                     parameterJson.put("typeId", parameter.getMostType().getId());
                     parameterJson.put("typeName", parameter.getMostType().getName());
                     inputParametersJson.add(parameterJson);

@@ -24,7 +24,7 @@ dependencies {
     compileOnly 'org.apache.tomcat:tomcat-servlet-api:7.0.37'
 
     compile group: 'com.github.softwareverde', name: 'json', version: 'v1.+'
-    compile group: 'com.github.softwareverde', name: 'java-util', version: 'v+'
+    compile group: 'com.github.softwareverde', name: 'java-util', version: 'v0.1.4'
     compile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.0.2+'
 
     // Logging

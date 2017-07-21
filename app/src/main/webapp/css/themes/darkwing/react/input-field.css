@@ -33,7 +33,6 @@
 .input-field-small {
     float: left;
     position: relative;
-    min-width: 15%;
     display: inline-block;
     box-sizing: border-box;
     padding: 1em 1em;
@@ -41,23 +40,27 @@
 }
 
 .input-field-small label {
-    display: block;
+    display: inline;
     color: #032334;
     font-family: 'Lato', sans-serif !important;
     font-weight: 700 !important;
     text-align: left;
 }
 
-.input-field-small input, .input-field textarea {
+.input-field-small input, .input-field-small select {
+    margin-left: 0.5em;
+    font-weight: normal !important;
+    padding: 0.50em;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+
+.input-field-small input, .input-field-small textarea {
     border: none;
     color: #032334;
 }
 
-.input-field-small input, .input-field select, .input-field textarea {
+.input-field-small .input-field-small select, .input-field-small textarea {
     width: 100%;
-    font-weight: normal !important;
-    padding: 0.50em;
-    font-size: 1rem;
-    margin: 0px;
-    box-sizing: border-box;
 }

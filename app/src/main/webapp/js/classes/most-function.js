@@ -27,6 +27,11 @@ class MostFunction {
         returnType.setId(json.returnTypeId);
         returnType.setName(json.returnTypeName);
 
+        // Only grabbing name and id from JSON. Create and Update Forms will provide all stereotype info from api.
+        const mostFunctionStereotype = new MostFunctionStereotype();
+        mostFunctionStereotype.setId(json.stereotypeId);
+        mostFunctionStereotype.setName(json.stereotypeName);
+
         mostFunction.setId(json.id);
         mostFunction.setMostId(json.mostId);
         mostFunction.setName(json.name);
@@ -35,8 +40,7 @@ class MostFunction {
         mostFunction.setReleaseVersion(json.releaseVersion);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
-        mostFunction.setStereotypeId(json.stereotypeId);
-        mostFunction.setStereotypeName(json.stereotypeName);
+        mostFunction.setStereotype(mostFunctionStereotype);
         mostFunction.setReturnType(returnType);
         mostFunction.setOperations(operations);
 
@@ -54,7 +58,7 @@ class MostFunction {
                 parameterType.setName(parameterJson.typeName);
 
                 const parameter = new Parameter();
-                parameter.setParameterIndex(parameterJson.index);
+                parameter.setParameterIndex(parameterJson.parameterIndex);
                 parameter.setType(parameterType);
 
                 parameters.push(parameter);
@@ -73,14 +77,16 @@ class MostFunction {
             description:            mostFunction.getDescription(),
             releaseVersion:         mostFunction.getReleaseVersion(),
             functionType:           mostFunction.getFunctionType(),
-            stereotypeId:           mostFunction.getStereotypeId(),
-            stereotypeName:         mostFunction.getStereotypeName(),
             supportsNotification:   mostFunction.getSupportsNotification(),
         };
 
         const returnType = (mostFunction.getReturnType() || new MostType());
         jsonMostFunction.returnTypeId = returnType.getId();
         jsonMostFunction.returnTypeName = returnType.getName();
+
+        const stereotype = (mostFunction.getStereotype() || new MostFunctionStereotype());
+        jsonMostFunction.stereotypeId = stereotype.getId();
+        jsonMostFunction.stereotypeName = stereotype.getName();
 
         const author = (mostFunction.getAuthor() || new Author());
         const company = (mostFunction.getCompany() || new Company());
@@ -97,7 +103,8 @@ class MostFunction {
         for (let i in parameters) {
             const parameterJson = {
                 parameterIndex:     parameters[i].getParameterIndex(),
-                typeId:             parameters[i].getType().getId()
+                typeId:             parameters[i].getType().getId(),
+                typeName:           parameters[i].getType().getName()
             };
 
             parametersJson.push(parameterJson);
@@ -125,8 +132,7 @@ class MostFunction {
       this._author                = null;
       this._company               = null;
 
-      this._stereotypeId          = null;
-      this._stereotypeName        = "";
+      this._stereotype            = null;
       this._returnType            = null;
       this._supportsNotification  = false;
 
@@ -198,20 +204,12 @@ class MostFunction {
         return this._company;
     }
 
-    setStereotypeId(stereotypeId) {
-        this._stereotypeId = stereotypeId;
+    setStereotype(stereotype) {
+        this._stereotype = stereotype;
     }
 
-    getStereotypeId() {
-        return this._stereotypeId;
-    }
-
-    setStereotypeName(stereotypeName) {
-        this._stereotypeName = stereotypeName;
-    }
-
-    getStereotypeName() {
-        return this._stereotypeName;
+    getStereotype() {
+        return this._stereotype;
     }
 
     setReturnType(returnType) {

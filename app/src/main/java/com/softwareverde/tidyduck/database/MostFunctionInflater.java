@@ -17,7 +17,7 @@ public class MostFunctionInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(long mostInterfaceId) throws DatabaseException {
+    public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
         final Query query = new Query(
             "SELECT function_id FROM interfaces_functions WHERE interface_id = ?"
         );
@@ -26,7 +26,7 @@ public class MostFunctionInflater {
         List<MostFunction> mostFunctions = new ArrayList<MostFunction>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final Long mostFunctionId = row.getLong("function_id");
+            final long mostFunctionId = row.getLong("function_id");
             MostFunction mostFunction = inflateMostFunction(mostFunctionId);
             mostFunctions.add(mostFunction);
         }
@@ -53,10 +53,10 @@ public class MostFunctionInflater {
         final String releaseVersion = row.getString("release_version");
         final String category = row.getString("category");
         final boolean isCommitted = row.getBoolean("is_committed");
-        final Long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
-        final Long returnTypeId = row.getLong("return_type_id");
+        final long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
+        final long returnTypeId = row.getLong("return_type_id");
         final Long accountId = row.getLong("account_id");
-        final Long companyId = row.getLong("company_id");
+        final long companyId = row.getLong("company_id");
 
         MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(_databaseConnection);
         final MostFunctionStereotype mostFunctionStereotype = mostFunctionStereotypeInflater.inflateMostFunctionStereotype(mostFunctionStereotypeId);
