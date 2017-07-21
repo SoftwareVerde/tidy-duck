@@ -220,6 +220,30 @@ public class MostTypeConverter {
 
                 convertedMostType = boolType;
             } break;
+            case "TBitField": {
+                BitFieldType bitFieldType = new BitFieldType();
+
+                // TODO: allow other bool fields
+                BoolField boolField = new BoolField();
+                boolField.setBitPosition("0");
+                boolField.setTrueDescription("On.");
+                boolField.setFalseDescription("Off.");
+                bitFieldType.addBoolField(boolField);
+
+                convertedMostType = bitFieldType;
+            } break;
+            case "TEnum": {
+                EnumType enumType = new EnumType();
+
+                // TODO: populate with supplied enum values
+                EnumValue enumValue = new EnumValue("0x01", "Test Value");
+                enumType.addEnumValue(enumValue);
+
+                convertedMostType = enumType;
+            } break;
+            case "TVoid": {
+                convertedMostType = new VoidType();
+            }
             case "TUByte": {
                 convertedMostType = new UnsignedByteType();
             } break;
@@ -239,10 +263,66 @@ public class MostTypeConverter {
                 convertedMostType = new SignedLongType();
             } break;
             case "TString": {
-                convertedMostType = new StringType();
+                StringType stringType = new StringType();
+
+                // TODO: optionally set max size
+
+                convertedMostType = stringType;
             } break;
-            case "TEnum": {
-                convertedMostType = new EnumType();
+            case "TStream": {
+                StreamType streamType = new StreamType();
+
+                // TODO: add stream cases
+
+                convertedMostType = streamType;
+            } break;
+            case "TCStream": {
+                ClassifiedStreamType classifiedStreamType = new ClassifiedStreamType();
+
+                // TODO: optionally set max length and media type
+
+                convertedMostType = classifiedStreamType;
+            } break;
+            case "TShortStream": {
+                ShortStreamType shortStreamType = new ShortStreamType();
+
+                // TODO: optionally set max length
+
+                convertedMostType = shortStreamType;
+            } break;
+            case "TArray": {
+                ArrayType arrayType = new ArrayType();
+
+                // TODO: populate with supplied values
+                arrayType.setName("Test Array");
+                arrayType.setDescription("Test array of unsigned long.");
+                arrayType.setElementType(new UnsignedLongType());
+
+                convertedMostType = arrayType;
+            } break;
+            case "TRecord": {
+                RecordType recordType = new RecordType();
+
+                // TODO: populate with supplied values
+                recordType.setName("Test Record");
+                recordType.setDescription("Test Record with two elements.");
+
+                RecordField recordField1 = new RecordField();
+                recordField1.setName("Field 1");
+                recordField1.setDescription("First field in test record.");
+                recordField1.setIndex("1");
+                recordField1.setType(new UnsignedLongType());
+
+                RecordField recordField2 = new RecordField();
+                recordField2.setName("Field 2");
+                recordField2.setDescription("Second field in test record.");
+                recordField2.setIndex("2");
+                recordField2.setType(new StringType());
+
+                recordType.addRecordField(recordField1);
+                recordType.addRecordField(recordField2);
+
+                convertedMostType = recordType;
             } break;
             default: {
                 throw new IllegalArgumentException("Invalid most type provided: " + mostType.getName());
