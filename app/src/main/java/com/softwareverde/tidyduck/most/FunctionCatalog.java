@@ -11,8 +11,8 @@ public class FunctionCatalog {
     private String _release;
     private Author _author;
     private Company _company;
-    private List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private boolean _isCommitted;
+    private List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private List<Modification> _modifications = new ArrayList<>();
 
     public Long getId() {
@@ -85,11 +85,5 @@ public class FunctionCatalog {
 
     public void setModifications(List<Modification> modifications) {
         _modifications = new ArrayList<>(modifications);
-    }
-
-    public com.softwareverde.mostadapter.FunctionCatalog toMostAdapterFunctionCatalog() {
-        com.softwareverde.mostadapter.FunctionCatalog functionCatalog = new com.softwareverde.mostadapter.FunctionCatalog();
-        // TODO: convert to MostAdapter classes
-        return functionCatalog;
     }
 }

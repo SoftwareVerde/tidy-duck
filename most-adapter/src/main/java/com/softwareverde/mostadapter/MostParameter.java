@@ -9,7 +9,6 @@ public class MostParameter {
     private String _name;
     private String _index = NULL_PARAMETER_INDEX;
     private String _description;
-    private boolean _hasDetails;
     private MostType _type;
     private List<Operation> _operations = new ArrayList<>();
 
@@ -38,11 +37,7 @@ public class MostParameter {
     }
 
     public boolean hasDetails() {
-        return _hasDetails;
-    }
-
-    public void setHasDetails(boolean hasDetails) {
-        _hasDetails = hasDetails;
+        return _description != null && _description.length() == 0;
     }
 
     public MostType getType() {

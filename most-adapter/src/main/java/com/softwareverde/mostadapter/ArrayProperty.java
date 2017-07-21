@@ -7,8 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayProperty extends Property {
-    private String _maxSize;
     private List<PropertyPositionDescription> _propertyPositionDescriptions = new ArrayList<>();
+
+    @Override
+    protected void setClassAttributes(Document document, Element trueClassElement) {
+        super.setClassAttributes(document, trueClassElement);
+
+        trueClassElement.setAttribute("NMax", getMaxSize());
+    }
+
+    @Override
+    protected void appendPositionDescriptionElements(Document document, Element functionClassElement) {
+        super.appendPositionDescriptionElements(document, functionClassElement);
+
+        for (PropertyPositionDescription propertyPositionDescription : _propertyPositionDescriptions) {
+            Element posDescriptionElement = propertyPositionDescription.generateXmlElement(document);
+            functionClassElement.appendChild(posDescriptionElement);
+        }
+    }
 
     @Override
     protected String getFunctionClassRef() {
@@ -31,11 +47,7 @@ public class ArrayProperty extends Property {
     }
 
     public String getMaxSize() {
-        return _maxSize;
-    }
-
-    public void setMaxSize(String maxSize) {
-        _maxSize = maxSize;
+        return "255";
     }
 
     public List<PropertyPositionDescription> getPropertyPositionDescriptions() {
@@ -48,22 +60,5 @@ public class ArrayProperty extends Property {
 
     public void setPropertyPositionDescriptions(List<PropertyPositionDescription> propertyPositionDescriptions) {
         _propertyPositionDescriptions = new ArrayList<>(propertyPositionDescriptions);
-    }
-
-    @Override
-    protected void setClassAttributes(Document document, Element trueClassElement) {
-        super.setClassAttributes(document, trueClassElement);
-
-        trueClassElement.setAttribute("NMax", _maxSize);
-    }
-
-    @Override
-    protected void appendPositionDescriptionElements(Document document, Element functionClassElement) {
-        super.appendPositionDescriptionElements(document, functionClassElement);
-
-        for (PropertyPositionDescription propertyPositionDescription : _propertyPositionDescriptions) {
-            Element posDescriptionElement = propertyPositionDescription.generateXmlElement(document);
-            functionClassElement.appendChild(posDescriptionElement);
-        }
     }
 }

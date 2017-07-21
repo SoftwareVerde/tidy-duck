@@ -6,6 +6,7 @@ import com.softwareverde.mostadapter.MostAdapter;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
+import com.softwareverde.tidyduck.most.MostTypeConverter;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.Util;
@@ -47,7 +48,9 @@ public class MostGeneratorServlet extends BaseServlet {
 
             final MostAdapter mostAdapter = new MostAdapter();
             mostAdapter.setIndented(true);
-            final String mostXml = mostAdapter.getMostXml(functionCatalog.toMostAdapterFunctionCatalog());
+
+            MostTypeConverter mostTypeConverter = new MostTypeConverter();
+            final String mostXml = mostAdapter.getMostXml(mostTypeConverter.convertFunctionCatalog(functionCatalog));
 
             final int mostXmlLength = mostXml.getBytes().length;
             final String functionCatalogName = functionCatalog.getName();

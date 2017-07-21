@@ -11,6 +11,23 @@ public class RecordProperty extends Property {
     private List<PropertyPositionDescription> _propertyPositionDescriptions = new ArrayList<>();
 
     @Override
+    protected void setClassAttributes(Document document, Element trueClassElement) {
+        super.setClassAttributes(document, trueClassElement);
+
+        trueClassElement.setAttribute("NElements", _numberOfElements);
+    }
+
+    @Override
+    protected void appendPositionDescriptionElements(Document document, Element functionClassElement) {
+        super.appendPositionDescriptionElements(document, functionClassElement);
+
+        for (PropertyPositionDescription propertyPositionDescription : _propertyPositionDescriptions) {
+            Element posDescriptionElement = propertyPositionDescription.generateXmlElement(document);
+            functionClassElement.appendChild(posDescriptionElement);
+        }
+    }
+
+    @Override
     protected String getFunctionClassRef() {
         return "class_record";
     }
@@ -48,22 +65,5 @@ public class RecordProperty extends Property {
 
     public void setPropertyPositionDescriptions(List<PropertyPositionDescription> propertyPositionDescriptions) {
         _propertyPositionDescriptions = new ArrayList<>(propertyPositionDescriptions);
-    }
-
-    @Override
-    protected void setClassAttributes(Document document, Element trueClassElement) {
-        super.setClassAttributes(document, trueClassElement);
-
-        trueClassElement.setAttribute("NElements", _numberOfElements);
-    }
-
-    @Override
-    protected void appendPositionDescriptionElements(Document document, Element functionClassElement) {
-        super.appendPositionDescriptionElements(document, functionClassElement);
-
-        for (PropertyPositionDescription propertyPositionDescription : _propertyPositionDescriptions) {
-            Element posDescriptionElement = propertyPositionDescription.generateXmlElement(document);
-            functionClassElement.appendChild(posDescriptionElement);
-        }
     }
 }

@@ -8,22 +8,12 @@ import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalog implements XmlNode {
-    private Long _id;
     private String _name;
     private String _release;
     private String _author;
     private String _company;
-    private List<FunctionBlock> _functionBlocks = new ArrayList<>();
-    private boolean _isCommitted;
     private List<Modification> _modifications = new ArrayList<>();
-
-    public Long getId() {
-        return _id;
-    }
-
-    public void setId(long id) {
-        _id = id;
-    }
+    private List<FunctionBlock> _functionBlocks = new ArrayList<>();
 
     public String getName() {
         return _name;
@@ -55,14 +45,6 @@ public class FunctionCatalog implements XmlNode {
 
     public void setCompany(String company) {
         _company = company;
-    }
-
-    public boolean isCommitted() {
-        return _isCommitted;
-    }
-
-    public void setIsCommitted(boolean committed) {
-        _isCommitted = committed;
     }
 
     public List<FunctionBlock> getFunctionBlocks() {
