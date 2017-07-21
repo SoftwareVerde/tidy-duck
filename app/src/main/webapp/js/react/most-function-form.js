@@ -35,6 +35,7 @@ class MostFunctionForm extends React.Component {
                 mostFunction.setStereotype(mostFunctionStereotype);
                 mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
                 mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                mostFunction.setOperations(mostFunctionStereotype.getOperations());
                 break;
             }
         }
@@ -89,6 +90,7 @@ class MostFunctionForm extends React.Component {
                 mostFunction.setStereotype(mostFunctionStereotype);
                 mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
                 mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                mostFunction.setOperations(mostFunctionStereotype.getOperations());
                 break;
             }
         }
@@ -163,6 +165,7 @@ class MostFunctionForm extends React.Component {
                 mostFunction.setStereotype(mostFunctionStereotype);
                 mostFunction.setFunctionType(mostFunctionCategory);
                 mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                mostFunction.setOperations(mostFunctionStereotype.getOperations());
 
                 // Clear array of parameters if new stereotype is a property.
                 if (mostFunctionCategory === "property") {
