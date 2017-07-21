@@ -157,7 +157,6 @@ public class MostTypeConverter {
         if (operationNames.contains("Get")) {
             MostParameter getParameter = new MostParameter();
 
-
             com.softwareverde.mostadapter.type.MostType getType = new VoidType();
 
             getParameter.setType(getType);

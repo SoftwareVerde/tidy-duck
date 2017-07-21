@@ -68,40 +68,34 @@ public class MostFunctionInflater {
         CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(companyId);
 
-        if (category == "Property") {
+        MostFunction mostFunction = null;
+        if ("Property".equals(category)) {
             Property property = new Property();
-            property.setId(id);
-            property.setMostId(mostId);
-            property.setName(name);
-            property.setDescription(description);
-            property.setRelease(releaseVersion);
-            property.setCommitted(isCommitted);
-            property.setFunctionStereotype(mostFunctionStereotype);
-            property.setReturnType(mostType);
-            property.setAuthor(author);
-            property.setCompany(company);
-            property.setOperations(inflateOperationsFromMostFunctionId(mostFunctionId));
             final boolean supportsNotification = row.getBoolean("supports_notification");
             property.setSupportsNotification(supportsNotification);
 
-            return property;
+            mostFunction = property;
+        } else {
+            // Method
+            Method method = new Method();
+            method.setInputParameters(inflateMostFunctionParametersFromMostFunctionId(mostFunctionId));
+
+            mostFunction = method;
         }
 
-        Method method = new Method();
-        method.setId(id);
-        method.setMostId(mostId);
-        method.setName(name);
-        method.setDescription(description);
-        method.setRelease(releaseVersion);
-        method.setCommitted(isCommitted);
-        method.setFunctionStereotype(mostFunctionStereotype);
-        method.setReturnType(mostType);
-        method.setAuthor(author);
-        method.setCompany(company);
-        method.setOperations(inflateOperationsFromMostFunctionId(mostFunctionId));
-        method.setInputParameters(inflateMostFunctionParametersFromMostFunctionId(mostFunctionId));
+        mostFunction.setId(id);
+        mostFunction.setMostId(mostId);
+        mostFunction.setName(name);
+        mostFunction.setDescription(description);
+        mostFunction.setRelease(releaseVersion);
+        mostFunction.setCommitted(isCommitted);
+        mostFunction.setFunctionStereotype(mostFunctionStereotype);
+        mostFunction.setReturnType(mostType);
+        mostFunction.setAuthor(author);
+        mostFunction.setCompany(company);
+        mostFunction.setOperations(inflateOperationsFromMostFunctionId(mostFunctionId));
 
-        return method;
+        return mostFunction;
     }
 
     public List<Operation> inflateOperationsFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
