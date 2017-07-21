@@ -35,7 +35,11 @@ public class ClassifiedStreamType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        typeElement.setAttribute("MaxLength", _maxLength);
-        typeElement.setAttribute("MediaType", _mediaType);
+        if (_maxLength != null) {
+            typeElement.setAttribute("MaxLength", _maxLength);
+        }
+        if (_mediaType != null) {
+            typeElement.setAttribute("MediaType", _mediaType);
+        }
     }
 }

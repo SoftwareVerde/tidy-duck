@@ -164,7 +164,7 @@ public class MostTypeConverter {
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(createErrorInfoType());
-            addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "2");
+            addOperationAtIndex(errorInfoParameter, OperationType.PROPERTY_ERROR, "2");
 
             convertedProperty.addMostParameter(errorCodeParameter);
             convertedProperty.addMostParameter(errorInfoParameter);
@@ -323,7 +323,7 @@ public class MostTypeConverter {
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(createErrorInfoType());
-            addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "3");
+            addOperationAtIndex(errorInfoParameter, OperationType.METHOD_ERROR, "3");
 
             convertedMethod.addMostParameter(errorCodeParameter);
             convertedMethod.addMostParameter(errorInfoParameter);

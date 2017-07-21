@@ -41,7 +41,11 @@ public class RecordType extends MostType {
         return _recordFields;
     }
 
-    public void setRecordFields(List<RecordField> recordFields) {
+    public void addRecordField(final RecordField recordField) {
+        _recordFields.add(recordField);
+    }
+
+    public void setRecordFields(final List<RecordField> recordFields) {
         _recordFields = recordFields;
     }
 
@@ -57,7 +61,9 @@ public class RecordType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        typeElement.setAttribute("NElements", _numberOfElements);
+        if (_numberOfElements != null) {
+            typeElement.setAttribute("NElements", _numberOfElements);
+        }
 
         if (_name != null) {
             Element recordNameElement = XmlUtil.createTextElement(document, "TRecordName", _name);

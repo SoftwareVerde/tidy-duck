@@ -4,6 +4,8 @@ public class EnumValue {
     private String _code;
     private String _value;
 
+    public EnumValue() {}
+
     public EnumValue(final String code, final String value) {
         _code = code;
         _value = value;

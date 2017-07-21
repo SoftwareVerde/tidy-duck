@@ -4,7 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class StringType extends MostType {
-    private String _maxSize = "255";
+    private String _maxSize;
 
     public String getMaxSize() {
         return _maxSize;
@@ -26,6 +26,8 @@ public class StringType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        typeElement.setAttribute("MaxSize", _maxSize);
+        if (_maxSize != null) {
+            typeElement.setAttribute("MaxSize", _maxSize);
+        }
     }
 }

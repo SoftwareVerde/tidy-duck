@@ -48,7 +48,9 @@ public class StreamParameter implements XmlNode {
         Element streamParameterElement = document.createElement("StreamParam");
 
         Element signalNameElement = XmlUtil.createTextElement(document, "ParamName", _name);
-        signalNameElement.setAttribute("ParamIdx", _index);
+        if (_index != null) {
+            signalNameElement.setAttribute("ParamIdx", _index);
+        }
 
         Element signalDescriptionElement = XmlUtil.createTextElement(document, "ParamDescription", _description);
 

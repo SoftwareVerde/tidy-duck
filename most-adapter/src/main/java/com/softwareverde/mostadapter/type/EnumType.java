@@ -43,7 +43,9 @@ public class EnumType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        typeElement.setAttribute("TEnumMax", _enumMax);
+        if (_enumMax != null) {
+            typeElement.setAttribute("TEnumMax", _enumMax);
+        }
 
         for (final EnumValue enumValue : _enumValues) {
             Element enumValueElement = XmlUtil.createTextElement(document, "TEnumValue", enumValue.getValue());

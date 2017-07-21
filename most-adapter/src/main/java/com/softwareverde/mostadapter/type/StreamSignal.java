@@ -48,7 +48,9 @@ public class StreamSignal implements XmlNode {
         Element streamSignalElement = document.createElement("StreamSignal");
 
         Element signalNameElement = XmlUtil.createTextElement(document, "SignalName", _name);
-        signalNameElement.setAttribute("SignalIdx", _index);
+        if (_index != null) {
+            signalNameElement.setAttribute("SignalIdx", _index);
+        }
 
         Element signalDescriptionElement = XmlUtil.createTextElement(document, "SignalDescription", _description);
 

@@ -54,7 +54,9 @@ public class ArrayType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        typeElement.setAttribute("NMax", _maxSize);
+        if (_maxSize != null) {
+            typeElement.setAttribute("NMax", _maxSize);
+        }
 
         if (_name != null) {
             Element arrayNameElement = XmlUtil.createTextElement(document, "TArrayName", _name);

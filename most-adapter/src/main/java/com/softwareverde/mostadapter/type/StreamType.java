@@ -42,7 +42,9 @@ public class StreamType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        typeElement.setAttribute("Length", _length);
+        if (_length != null) {
+            typeElement.setAttribute("Length", _length);
+        }
 
         for (final StreamCase streamCase : _streamCases) {
             Element streamCaseElement = streamCase.generateXmlElement(document);
