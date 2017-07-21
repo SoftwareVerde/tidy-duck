@@ -111,8 +111,8 @@ public class MostFunctionInflater {
         query.setParameter(mostFunctionId);
 
         OperationInflater operationInflater = new OperationInflater(_databaseConnection);
-
         List<Operation> operations = new ArrayList<Operation>();
+
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final Long operationId = row.getLong("operation_id");

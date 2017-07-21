@@ -143,32 +143,28 @@ public class MostTypeConverter {
         if (operationNames.contains("Get")) {
             MostParameter getParameter = new MostParameter();
 
-            com.softwareverde.mostadapter.Operation getOperation = createOperation(OperationType.GET);
-            getOperation.setParameterPosition("1");
 
             com.softwareverde.mostadapter.type.MostType getType = new VoidType();
 
-            getParameter.addOperation(getOperation);
             getParameter.setType(getType);
+            addOperationAtIndex(getParameter, OperationType.GET, "1");
 
             convertedProperty.addMostParameter(getParameter);
         }
 
         // add error parameters
         if (operationNames.contains("Error")) {
-            com.softwareverde.mostadapter.Operation errorOperation = createOperation(OperationType.PROPERTY_ERROR);
-
             MostParameter errorCodeParameter = new MostParameter();
             errorCodeParameter.setName("ErrorCode");
-            errorCodeParameter.setIndex("1");
+            errorCodeParameter.setIndex(MOST_NULL);
             errorCodeParameter.setType(createErrorCodeType());
-            errorCodeParameter.addOperation(errorOperation);
+            addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "1");
 
             MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
-            errorInfoParameter.setIndex("2");
+            errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(createErrorInfoType());
-            errorCodeParameter.addOperation(errorOperation);
+            addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "2");
 
             convertedProperty.addMostParameter(errorCodeParameter);
             convertedProperty.addMostParameter(errorInfoParameter);
@@ -192,7 +188,6 @@ public class MostTypeConverter {
         }
         if (operationNames.contains("Status")) {
             addOperationAtIndex(returnTypeParameter, OperationType.STATUS, parameterIndex);
-            returnTypeParameter.addOperation(createOperation(OperationType.STATUS));
         }
         // Methods
         if (operationNames.contains("ResultAck")) {
@@ -203,22 +198,28 @@ public class MostTypeConverter {
     }
 
     private void addOperationAtIndex(MostParameter mostParameter, OperationType operationType, String parameterIndex) {
-        com.softwareverde.mostadapter.Operation operation = createOperation(operationType);
-        operation.setParameterPosition(parameterIndex);
-        mostParameter.addOperation(operation);
-    }
-
-    private com.softwareverde.mostadapter.Operation createOperation(OperationType operationType) {
         com.softwareverde.mostadapter.Operation operation = new com.softwareverde.mostadapter.Operation();
         operation.setOperationType(operationType);
-
-        return operation;
+        operation.setParameterPosition(parameterIndex);
+        mostParameter.addOperation(operation);
     }
 
     protected com.softwareverde.mostadapter.type.MostType convertMostType(MostType mostType) {
         com.softwareverde.mostadapter.type.MostType convertedMostType = null;
 
         switch (mostType.getName()) {
+            case "TBool": {
+                BoolType boolType = new BoolType();
+
+                // TODO: allow other bool fields
+                BoolField boolField = new BoolField();
+                boolField.setBitPosition("0");
+                boolField.setTrueDescription("True.");
+                boolField.setFalseDescription("False.");
+                boolType.addBoolField(boolField);
+
+                convertedMostType = boolType;
+            } break;
             case "TUByte": {
                 convertedMostType = new UnsignedByteType();
             } break;
@@ -243,6 +244,9 @@ public class MostTypeConverter {
             case "TEnum": {
                 convertedMostType = new EnumType();
             } break;
+            default: {
+                throw new IllegalArgumentException("Invalid most type provided: " + mostType.getName());
+            }
         }
 
         return convertedMostType;
@@ -309,19 +313,17 @@ public class MostTypeConverter {
 
         // add error parameters
         if (operationNames.contains("ErrorAck")) {
-            com.softwareverde.mostadapter.Operation errorOperation = createOperation(OperationType.METHOD_ERROR);
-
             MostParameter errorCodeParameter = new MostParameter();
             errorCodeParameter.setName("ErrorCode");
-            errorCodeParameter.setIndex("2");
+            errorCodeParameter.setIndex(MOST_NULL);
             errorCodeParameter.setType(createErrorCodeType());
-            errorCodeParameter.addOperation(errorOperation);
+            addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "2");
 
             MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
-            errorInfoParameter.setIndex("3");
+            errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(createErrorInfoType());
-            errorCodeParameter.addOperation(errorOperation);
+            addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "3");
 
             convertedMethod.addMostParameter(errorCodeParameter);
             convertedMethod.addMostParameter(errorInfoParameter);
@@ -343,8 +345,9 @@ public class MostTypeConverter {
                 // TODO: add parameter names/description
                 mostParameter.setIndex(MOST_NULL);
                 mostParameter.setType(parameterType);
-
                 addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
+
+                convertedMethod.addMostParameter(mostParameter);
             }
         }
     }

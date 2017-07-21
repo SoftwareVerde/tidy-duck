@@ -77,7 +77,7 @@ public abstract class MostFunction implements XmlNode {
         return new ArrayList<>(_mostParameters);
     }
 
-    public void addMostParameter(MostParameter parameter) {
+    public void addMostParameter(final MostParameter parameter) {
         _mostParameters.add(parameter);
     }
 
@@ -193,12 +193,16 @@ public abstract class MostFunction implements XmlNode {
             Element paramElement = document.createElement(this.getParamTagName());
             paramElement.setAttribute("details", mostParameter.hasDetails() ? "true" : "false");
 
-            Element paramNameElement = XmlUtil.createTextElement(document, "ParamName", mostParameter.getName());
-            paramNameElement.setAttribute("ParamIdx", mostParameter.getIndex());
-            paramElement.appendChild(paramNameElement);
-
-            Element paramDescriptionElement = XmlUtil.createTextElement(document, "ParamDescription", mostParameter.getDescription());
-            paramElement.appendChild(paramDescriptionElement);
+            // TODO: remove null checks once these are being populated
+            if (mostParameter.getName() != null) {
+                Element paramNameElement = XmlUtil.createTextElement(document, "ParamName", mostParameter.getName());
+                paramNameElement.setAttribute("ParamIdx", mostParameter.getIndex());
+                paramElement.appendChild(paramNameElement);
+            }
+            if (mostParameter.getDescription() != null) {
+                Element paramDescriptionElement = XmlUtil.createTextElement(document, "ParamDescription", mostParameter.getDescription());
+                paramElement.appendChild(paramDescriptionElement);
+            }
             
             Element paramOpTypeElement = document.createElement(getParamOPTypeTagName());
             populateParamOpTypeElement(document, paramOpTypeElement, mostParameter.getOperations());
@@ -230,8 +234,10 @@ public abstract class MostFunction implements XmlNode {
 
             if (operation.getOperationType().isInput()) {
                 commandElement.appendChild(operationElement);
+                commands++;
             } else {
                 reportElement.appendChild(operationElement);
+                reports++;
             }
         }
 
