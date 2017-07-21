@@ -22,7 +22,6 @@ public abstract class MostFunction implements XmlNode {
     private String _release;
     private String _author;
     private String _company;
-    private MostType _returnType;
     private List<MostParameter> _mostParameters;
 
     public String getMostId() {
@@ -71,14 +70,6 @@ public abstract class MostFunction implements XmlNode {
 
     public void setCompany(String company) {
         _company = company;
-    }
-
-    public MostType getReturnType() {
-        return _returnType;
-    }
-
-    public void setReturnType(MostType returnType) {
-        _returnType = returnType;
     }
 
     public List<MostParameter> getMostParameters() {

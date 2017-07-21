@@ -3,7 +3,7 @@ package com.softwareverde.mostadapter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class Modification extends XmlNode {
+public class Modification implements XmlNode {
     private String _change;
     private String _reason;
 
@@ -27,9 +27,9 @@ public class Modification extends XmlNode {
     public Element generateXmlElement(Document document) {
         Element modification = document.createElement("Modification");
 
-        Element change = super.createTextElement(document, "Change", _change);
+        Element change = XmlUtil.createTextElement(document, "Change", _change);
         modification.appendChild(change);
-        Element reason = super.createTextElement(document, "Reason", _reason);
+        Element reason = XmlUtil.createTextElement(document, "Reason", _reason);
         modification.appendChild(reason);
 
         return modification;

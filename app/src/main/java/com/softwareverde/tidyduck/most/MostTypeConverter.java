@@ -2,10 +2,7 @@ package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
-import com.softwareverde.mostadapter.EnumProperty;
-import com.softwareverde.mostadapter.Modification;
-import com.softwareverde.mostadapter.NumberProperty;
-import com.softwareverde.mostadapter.TextProperty;
+import com.softwareverde.mostadapter.*;
 
 import java.util.Date;
 
@@ -78,37 +75,93 @@ public class MostTypeConverter {
     protected com.softwareverde.mostadapter.MostFunction convertMostFunction(MostFunction mostFunction) {
         com.softwareverde.mostadapter.MostFunction convertedMostFunction = null;
 
-        // TODO: determine method function class
-
-        if ("Property".equals(mostFunction.getFunctionType())) {
-            switch (convertedMostFunction.getReturnType().getName()) {
-                case "TUByte":
-                case "TSByte":
-                case "TUWord":
-                case "TSWord":
-                case "TULong":
-                case "TSLong": {
-                    convertedMostFunction = new NumberProperty();
-                    NumberProperty numberProperty = (NumberProperty) convertedMostFunction;
-                } break;
-                case "TString": {
-                    convertedMostFunction = new TextProperty();
-                    TextProperty textProperty = (TextProperty) convertedMostFunction;
-                } break;
-                case "TEnum": {
-                    convertedMostFunction = new EnumProperty();
-                    EnumProperty enumProperty = (EnumProperty) convertedMostFunction;
-                }
-                default: {
-                    throw new IllegalArgumentException("Unable to determine Property function class for function " + mostFunction.getName() + " with return type " + mostFunction.getReturnType().getName());
-                }
+        switch (mostFunction.getFunctionType()) {
+            case "Property": {
+                Property property = (Property) mostFunction;
+                convertedMostFunction = createPropertyFunction(property);
+            } break;
+            case "Method": {
+                Method method = (Method) mostFunction;
+                convertedMostFunction = createMethodFunction(method);
+            } break;
+            default: {
+                throw new IllegalArgumentException("Invalid function type: " + mostFunction.getFunctionType());
             }
-
-            Property property = (Property) mostFunction;
-            com.softwareverde.mostadapter.Property convertedProperty = (com.softwareverde.mostadapter.Property) convertedMostFunction;
-            convertedProperty.setSupportsNotification(property.supportsNotification());
         }
 
+        String mostId = mostFunction.getMostId();
+        String name = mostFunction.getName();
+        String description = mostFunction.getDescription();
+        String release = mostFunction.getRelease();
+        String author = mostFunction.getAuthor().getName();
+        String company = mostFunction.getCompany().getName();
+
+        convertedMostFunction.setMostId(mostId);
+        convertedMostFunction.setName(name);
+        convertedMostFunction.setDescription(description);
+        convertedMostFunction.setRelease(release);
+        convertedMostFunction.setAuthor(author);
+        convertedMostFunction.setCompany(company);
+
         return convertedMostFunction;
+    }
+
+    private com.softwareverde.mostadapter.MostFunction createPropertyFunction(Property property) {
+        com.softwareverde.mostadapter.Property convertedProperty = null;
+        switch (property.getReturnType().getName()) {
+            case "TUByte":
+            case "TSByte":
+            case "TUWord":
+            case "TSWord":
+            case "TULong":
+            case "TSLong": {
+                NumberProperty numberProperty = new NumberProperty();
+
+                convertedProperty = numberProperty;
+            } break;
+            case "TString": {
+                TextProperty textProperty = new TextProperty();
+
+                convertedProperty = textProperty;
+            } break;
+            case "TEnum": {
+                EnumProperty enumProperty = new EnumProperty();
+
+                convertedProperty = enumProperty;
+            }
+            default: {
+                throw new IllegalArgumentException("Unable to determine Property function class for function " + property.getName() + " with return type " + property.getReturnType().getName());
+            }
+        }
+
+        convertedProperty.setSupportsNotification(property.supportsNotification());
+
+        return convertedProperty;
+    }
+
+    private com.softwareverde.mostadapter.MostFunction createMethodFunction(Method method) {
+        com.softwareverde.mostadapter.MostFunction convertedMethod = null;
+
+        switch (method.getFunctionStereotype().getName()) {
+            case "CommandWithAck": {
+                if (method.getInputParameters().size() == 0) {
+                    // CommandWithAck with no parameters -> Trigger
+                    convertedMethod = new TriggerMethod();
+                } else {
+                    // CommandWithAck with parameters -> Sequence
+                    convertedMethod = new SequenceMethod();
+                }
+            } break;
+            default: {
+                // not a trigger or sequence
+                convertedMethod = new UnclassifiedMethod();
+            }
+        }
+
+        for (MostFunctionParameter mostFunctionParameter : method.getInputParameters()) {
+            // TODO: handle parameters
+        }
+
+        return convertedMethod;
     }
 }
