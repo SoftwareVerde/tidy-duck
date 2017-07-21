@@ -1,10 +1,7 @@
 package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.mostadapter.*;
-import com.softwareverde.mostadapter.type.EnumType;
-import com.softwareverde.mostadapter.type.EnumValue;
-import com.softwareverde.mostadapter.type.StreamCase;
-import com.softwareverde.mostadapter.type.StreamType;
+import com.softwareverde.mostadapter.type.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -134,16 +131,50 @@ public class MostTypeConverter {
 
         convertedProperty.setSupportsNotification(property.supportsNotification());
 
-        MostParameter returnTypeParameter = createReturnTypeParameter(property);
+
+        List<String> operationNames = getOperationNames(property.getOperations());
+
+        // add return type parameter
+        MostParameter returnTypeParameter = createReturnTypeParameter(property, operationNames);
         convertedProperty.addMostParameter(returnTypeParameter);
 
-        // TODO: add void parameter(s)
+        // add get parameter
+        if (operationNames.contains("Get")) {
+            MostParameter getParameter = new MostParameter();
+
+            com.softwareverde.mostadapter.Operation getOperation = createOperation(OperationType.GET);
+            getOperation.setParameterPosition("1");
+
+            com.softwareverde.mostadapter.type.MostType getType = new VoidType();
+
+            getParameter.addOperation(getOperation);
+            getParameter.setType(getType);
+
+            convertedProperty.addMostParameter(getParameter);
+        }
+
+        // add error parameters
+        if (operationNames.contains("Error")) {
+            com.softwareverde.mostadapter.Operation errorOperation = createOperation(OperationType.PROPERTY_ERROR);
+
+            MostParameter errorCodeParameter = new MostParameter();
+            errorCodeParameter.setIndex("1");
+            errorCodeParameter.setType(createErrorCodeType());
+            errorCodeParameter.addOperation(errorOperation);
+
+            MostParameter errorInfoParameter = new MostParameter();
+            errorInfoParameter.setIndex("2");
+            errorInfoParameter.setType(createErrorInfoType());
+            errorCodeParameter.addOperation(errorOperation);
+
+            convertedProperty.addMostParameter(errorCodeParameter);
+            convertedProperty.addMostParameter(errorInfoParameter);
+        }
 
         return convertedProperty;
     }
 
-    private MostParameter createReturnTypeParameter(MostFunction mostFunction) {
-        List<String> operationNames = getOperationNames(mostFunction.getOperations());
+    private MostParameter createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames) {
 
         MostType returnType = mostFunction.getReturnType();
 
@@ -220,7 +251,7 @@ public class MostTypeConverter {
         return convertedMethod;
     }
 
-    protected com.softwareverde.mostadapter.type.MostType createErrorInfo() {
+    protected com.softwareverde.mostadapter.type.MostType createErrorInfoType() {
         StreamType errorInfo = new StreamType();
 
         StreamCase streamCase = new StreamCase();
@@ -233,7 +264,7 @@ public class MostTypeConverter {
         return errorInfo;
     }
 
-    protected com.softwareverde.mostadapter.type.MostType createErrorCode() {
+    protected com.softwareverde.mostadapter.type.MostType createErrorCodeType() {
         EnumType errorCode = new EnumType();
 
         EnumValue value1 = new EnumValue("0x1", "FBlockIdNotAvailable");

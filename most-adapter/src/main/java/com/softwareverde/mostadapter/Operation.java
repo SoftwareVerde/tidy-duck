@@ -1,9 +1,6 @@
 package com.softwareverde.mostadapter;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-public class Operation implements XmlNode {
+public class Operation {
     public enum OperationType {
         // Property operations
         SET("PCmdSet", true),
@@ -49,7 +46,7 @@ public class Operation implements XmlNode {
     }
 
     private OperationType _operationType;
-    private Long _parameterPosition;
+    private String _parameterPosition;
 
     public OperationType getOperationType() {
         return _operationType;
@@ -59,17 +56,11 @@ public class Operation implements XmlNode {
         _operationType = operationType;
     }
 
-    public Long getParameterPosition() {
+    public String getParameterPosition() {
         return _parameterPosition;
     }
 
-    public void setParameterPosition(Long parameterPosition) {
+    public void setParameterPosition(final String parameterPosition) {
         _parameterPosition = parameterPosition;
-    }
-
-    @Override
-    public Element generateXmlElement(Document document) {
-        // TODO: implement
-        return null;
     }
 }
