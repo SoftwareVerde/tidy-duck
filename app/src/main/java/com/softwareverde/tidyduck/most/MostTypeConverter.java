@@ -3,6 +3,8 @@ package com.softwareverde.tidyduck.most;
 import com.softwareverde.mostadapter.*;
 import com.softwareverde.mostadapter.type.EnumType;
 import com.softwareverde.mostadapter.type.EnumValue;
+import com.softwareverde.mostadapter.type.StreamCase;
+import com.softwareverde.mostadapter.type.StreamType;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -218,9 +220,17 @@ public class MostTypeConverter {
         return convertedMethod;
     }
 
-    protected MostType createErrorInfo() {
-        // TODO: implement
-        return null;
+    protected com.softwareverde.mostadapter.type.MostType createErrorInfo() {
+        StreamType errorInfo = new StreamType();
+
+        StreamCase streamCase = new StreamCase();
+        PositionDescription positionDescription = new PositionDescription();
+        positionDescription.setPositionX(PositionDescription.NULL);
+        positionDescription.setPositionY(PositionDescription.NULL);
+
+        streamCase.setPositionDescription(positionDescription);
+
+        return errorInfo;
     }
 
     protected com.softwareverde.mostadapter.type.MostType createErrorCode() {

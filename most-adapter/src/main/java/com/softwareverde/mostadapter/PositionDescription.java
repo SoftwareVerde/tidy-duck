@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 
 public class PositionDescription implements XmlNode {
     public static final String DEFAULT_POSITION_Y = "0";
+    public static final String NULL = "#NULL#";
 
     private String _value;
     private String _positionX;
