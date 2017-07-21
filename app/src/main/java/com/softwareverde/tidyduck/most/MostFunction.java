@@ -109,7 +109,7 @@ public abstract class MostFunction {
         return new ArrayList<>(_operations);
     }
 
-    public void addOperation(Operation operation) {
+    public void addOperation(final Operation operation) {
         _operations.add(operation);
     }
 

@@ -368,6 +368,8 @@ public class MostTypeConverter {
     protected com.softwareverde.mostadapter.type.MostType createErrorCodeType() {
         EnumType errorCode = new EnumType();
 
+        errorCode.setEnumMax("67");
+
         EnumValue value1 = new EnumValue("0x1", "FBlockIdNotAvailable");
         EnumValue value3 = new EnumValue("0x3", "FunctionIdNotAvailable");
         EnumValue value4 = new EnumValue("0x4", "OpTypeNotAvailable");
