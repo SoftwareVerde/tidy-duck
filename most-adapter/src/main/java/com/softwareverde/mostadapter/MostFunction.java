@@ -133,12 +133,11 @@ public abstract class MostFunction implements XmlNode {
         Element functionAuthor = XmlUtil.createTextElement(document, "Author", _author);
         functionVersion.appendChild(functionAuthor);
         Element functionCompany = XmlUtil.createTextElement(document, "Company", _company);
-        functionCompany.appendChild(functionCompany);
+        functionVersion.appendChild(functionCompany);
 
         functionElement.appendChild(functionVersion);
 
         Element functionClassElement = getFunctionClassElement(document);
-
         functionElement.appendChild(functionClassElement);
 
         return functionElement;
