@@ -1,5 +1,6 @@
 package com.softwareverde.mostadapter;
 
+import com.softwareverde.mostadapter.type.MostType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

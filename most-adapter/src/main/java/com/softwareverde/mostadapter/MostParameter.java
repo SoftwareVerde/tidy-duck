@@ -1,5 +1,7 @@
 package com.softwareverde.mostadapter;
 
+import com.softwareverde.mostadapter.type.MostType;
+
 import java.util.ArrayList;
 import java.util.List;
 

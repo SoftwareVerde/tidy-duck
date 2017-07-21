@@ -1,14 +1,16 @@
 package com.softwareverde.tidyduck.most;
 
-import com.softwareverde.logging.Logger;
-import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.mostadapter.*;
+import com.softwareverde.mostadapter.type.EnumType;
+import com.softwareverde.mostadapter.type.EnumValue;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import static com.softwareverde.mostadapter.Operation.OperationType;
 
 public class MostTypeConverter {
-
-    private final Logger _logger = new Slf4jLogger(getClass());
 
     public com.softwareverde.mostadapter.FunctionCatalog convertFunctionCatalog(final FunctionCatalog functionCatalog) {
         com.softwareverde.mostadapter.FunctionCatalog convertedFunctionCatalog = new com.softwareverde.mostadapter.FunctionCatalog();
@@ -106,7 +108,7 @@ public class MostTypeConverter {
         return convertedMostFunction;
     }
 
-    private com.softwareverde.mostadapter.MostFunction createPropertyFunction(Property property) {
+    protected com.softwareverde.mostadapter.MostFunction createPropertyFunction(Property property) {
         com.softwareverde.mostadapter.Property convertedProperty = null;
         switch (property.getReturnType().getName()) {
             case "TUByte":
@@ -116,30 +118,81 @@ public class MostTypeConverter {
             case "TULong":
             case "TSLong": {
                 NumberProperty numberProperty = new NumberProperty();
-
                 convertedProperty = numberProperty;
             } break;
             case "TString": {
                 TextProperty textProperty = new TextProperty();
-
                 convertedProperty = textProperty;
             } break;
-            case "TEnum": {
-                EnumProperty enumProperty = new EnumProperty();
-
-                convertedProperty = enumProperty;
-            }
             default: {
-                throw new IllegalArgumentException("Unable to determine Property function class for function " + property.getName() + " with return type " + property.getReturnType().getName());
+                UnclassifiedProperty unclassifiedProperty = new UnclassifiedProperty();
+                convertedProperty = unclassifiedProperty;
             }
         }
 
         convertedProperty.setSupportsNotification(property.supportsNotification());
 
+        MostParameter returnTypeParameter = createReturnTypeParameter(property);
+        convertedProperty.addMostParameter(returnTypeParameter);
+
+        // TODO: add void parameter(s)
+
         return convertedProperty;
     }
 
-    private com.softwareverde.mostadapter.MostFunction createMethodFunction(Method method) {
+    private MostParameter createReturnTypeParameter(MostFunction mostFunction) {
+        List<String> operationNames = getOperationNames(mostFunction.getOperations());
+
+        MostType returnType = mostFunction.getReturnType();
+
+        MostParameter returnTypeParameter = new MostParameter();
+        // TODO: parameter name and description
+        returnTypeParameter.setIndex("1");
+        returnTypeParameter.setType(convertMostType(returnType));
+
+        // Properties
+        if (operationNames.contains("Set")) {
+            returnTypeParameter.addOperation(createOperation(OperationType.SET));
+        }
+        if (operationNames.contains("Status")) {
+            returnTypeParameter.addOperation(createOperation(OperationType.STATUS));
+        }
+        // Methods
+        if (operationNames.contains("ResultAck")) {
+            returnTypeParameter.addOperation(createOperation(OperationType.RESULT_ACK));
+        }
+
+        return returnTypeParameter;
+    }
+
+    private com.softwareverde.mostadapter.Operation createOperation(OperationType operationType) {
+        com.softwareverde.mostadapter.Operation operation = new com.softwareverde.mostadapter.Operation();
+        operation.setOperationType(operationType);
+
+        return operation;
+    }
+
+    protected com.softwareverde.mostadapter.type.MostType convertMostType(MostType mostType) {
+        com.softwareverde.mostadapter.type.MostType convertedMostType = null;
+
+        switch (mostType.getName()) {
+            case "TEnum": {
+                convertedMostType = new EnumType();
+            } break;
+        }
+
+        return convertedMostType;
+    }
+
+    protected List<String> getOperationNames(final List<Operation> operations) {
+        ArrayList<String> operationNames = new ArrayList<>();
+        for (Operation operation : operations) {
+            operationNames.add(operation.getName());
+        }
+        return operationNames;
+    }
+
+    protected com.softwareverde.mostadapter.MostFunction createMethodFunction(Method method) {
         com.softwareverde.mostadapter.MostFunction convertedMethod = null;
 
         switch (method.getFunctionStereotype().getName()) {
@@ -163,5 +216,48 @@ public class MostTypeConverter {
         }
 
         return convertedMethod;
+    }
+
+    protected MostType createErrorInfo() {
+        // TODO: implement
+        return null;
+    }
+
+    protected com.softwareverde.mostadapter.type.MostType createErrorCode() {
+        EnumType errorCode = new EnumType();
+
+        EnumValue value1 = new EnumValue("0x1", "FBlockIdNotAvailable");
+        EnumValue value3 = new EnumValue("0x3", "FunctionIdNotAvailable");
+        EnumValue value4 = new EnumValue("0x4", "OpTypeNotAvailable");
+        EnumValue value5 = new EnumValue("0x5", "InvalidLength");
+        EnumValue value6 = new EnumValue("0x6", "WrongParameter");
+        EnumValue value7 = new EnumValue("0x7", "ParameterNotAvailable");
+        EnumValue valueB = new EnumValue("0xB", "DeviceMalfunction");
+        EnumValue valueC = new EnumValue("0xC", "SegmentationError");
+        EnumValue value40 = new EnumValue("0x40", "Busy");
+        EnumValue value41 = new EnumValue("0x41", "FunctionTemporaryNotAvailable");
+        EnumValue value42 = new EnumValue("0x42", "ProcessingError");
+        EnumValue value43 = new EnumValue("0x43", "MethodAborted");
+        EnumValue valueC0 = new EnumValue("0xC0", "FunctionSignatureInvalid");
+        EnumValue valueC1 = new EnumValue("0xC1", "FunctionNotImplemented");
+        EnumValue valueC2 = new EnumValue("0xC2", "InsufficientAccess");
+
+        errorCode.addEnumValue(value1);
+        errorCode.addEnumValue(value3);
+        errorCode.addEnumValue(value4);
+        errorCode.addEnumValue(value5);
+        errorCode.addEnumValue(value6);
+        errorCode.addEnumValue(value7);
+        errorCode.addEnumValue(valueB);
+        errorCode.addEnumValue(valueC);
+        errorCode.addEnumValue(value40);
+        errorCode.addEnumValue(value41);
+        errorCode.addEnumValue(value42);
+        errorCode.addEnumValue(value43);
+        errorCode.addEnumValue(valueC0);
+        errorCode.addEnumValue(valueC1);
+        errorCode.addEnumValue(valueC2);
+
+        return errorCode;
     }
 }

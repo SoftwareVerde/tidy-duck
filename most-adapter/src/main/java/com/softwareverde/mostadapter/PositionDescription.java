@@ -3,7 +3,7 @@ package com.softwareverde.mostadapter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class PropertyPositionDescription implements XmlNode {
+public class PositionDescription implements XmlNode {
     public static final String DEFAULT_POSITION_Y = "0";
 
     private String _value;
@@ -36,12 +36,10 @@ public class PropertyPositionDescription implements XmlNode {
 
     @Override
     public Element generateXmlElement(Document document) {
-        Element posDescriptionElement = document.createElement("PosDescription");
+        Element posDescriptionElement = XmlUtil.createTextElement(document, "PosDescription", _value);
 
         posDescriptionElement.setAttribute("PosX", _positionX);
         posDescriptionElement.setAttribute("PosY", _positionY);
-
-        posDescriptionElement.setTextContent(_value);
 
         return posDescriptionElement;
     }

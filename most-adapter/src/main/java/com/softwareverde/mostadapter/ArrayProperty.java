@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayProperty extends Property {
-    private List<PropertyPositionDescription> _propertyPositionDescriptions = new ArrayList<>();
+    private List<PositionDescription> _positionDescriptions = new ArrayList<>();
 
     @Override
     protected void setClassAttributes(Document document, Element trueClassElement) {
@@ -20,8 +20,8 @@ public class ArrayProperty extends Property {
     protected void appendPositionDescriptionElements(Document document, Element functionClassElement) {
         super.appendPositionDescriptionElements(document, functionClassElement);
 
-        for (PropertyPositionDescription propertyPositionDescription : _propertyPositionDescriptions) {
-            Element posDescriptionElement = propertyPositionDescription.generateXmlElement(document);
+        for (PositionDescription positionDescription : _positionDescriptions) {
+            Element posDescriptionElement = positionDescription.generateXmlElement(document);
             functionClassElement.appendChild(posDescriptionElement);
         }
     }
@@ -50,15 +50,15 @@ public class ArrayProperty extends Property {
         return "255";
     }
 
-    public List<PropertyPositionDescription> getPropertyPositionDescriptions() {
-        return new ArrayList<>(_propertyPositionDescriptions);
+    public List<PositionDescription> getPositionDescriptions() {
+        return new ArrayList<>(_positionDescriptions);
     }
 
-    public void addPropertyPositionDescription(PropertyPositionDescription propertyPositionDescription) {
-        _propertyPositionDescriptions.add(propertyPositionDescription);
+    public void addPropertyPositionDescription(PositionDescription positionDescription) {
+        _positionDescriptions.add(positionDescription);
     }
 
-    public void setPropertyPositionDescriptions(List<PropertyPositionDescription> propertyPositionDescriptions) {
-        _propertyPositionDescriptions = new ArrayList<>(propertyPositionDescriptions);
+    public void setPositionDescriptions(List<PositionDescription> positionDescriptions) {
+        _positionDescriptions = new ArrayList<>(positionDescriptions);
     }
 }
