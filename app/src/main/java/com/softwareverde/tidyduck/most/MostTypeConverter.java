@@ -11,6 +11,8 @@ import static com.softwareverde.mostadapter.Operation.OperationType;
 
 public class MostTypeConverter {
 
+    private static final String MOST_NULL = "#NULL#";
+
     public com.softwareverde.mostadapter.FunctionCatalog convertFunctionCatalog(final FunctionCatalog functionCatalog) {
         com.softwareverde.mostadapter.FunctionCatalog convertedFunctionCatalog = new com.softwareverde.mostadapter.FunctionCatalog();
 
@@ -131,11 +133,10 @@ public class MostTypeConverter {
 
         convertedProperty.setSupportsNotification(property.supportsNotification());
 
-
         List<String> operationNames = getOperationNames(property.getOperations());
 
         // add return type parameter
-        MostParameter returnTypeParameter = createReturnTypeParameter(property, operationNames);
+        MostParameter returnTypeParameter = createReturnTypeParameter(property, operationNames, "1");
         convertedProperty.addMostParameter(returnTypeParameter);
 
         // add get parameter
@@ -158,11 +159,13 @@ public class MostTypeConverter {
             com.softwareverde.mostadapter.Operation errorOperation = createOperation(OperationType.PROPERTY_ERROR);
 
             MostParameter errorCodeParameter = new MostParameter();
+            errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex("1");
             errorCodeParameter.setType(createErrorCodeType());
             errorCodeParameter.addOperation(errorOperation);
 
             MostParameter errorInfoParameter = new MostParameter();
+            errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex("2");
             errorInfoParameter.setType(createErrorInfoType());
             errorCodeParameter.addOperation(errorOperation);
@@ -174,28 +177,35 @@ public class MostTypeConverter {
         return convertedProperty;
     }
 
-    private MostParameter createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames) {
+    private MostParameter createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterIndex) {
 
         MostType returnType = mostFunction.getReturnType();
 
         MostParameter returnTypeParameter = new MostParameter();
-        // TODO: parameter name and description
-        returnTypeParameter.setIndex("1");
+        returnTypeParameter.setName("ReturnValue"); // TODO: name should be passed in?
+        returnTypeParameter.setIndex(MOST_NULL);
         returnTypeParameter.setType(convertMostType(returnType));
 
         // Properties
         if (operationNames.contains("Set")) {
-            returnTypeParameter.addOperation(createOperation(OperationType.SET));
+            addOperationAtIndex(returnTypeParameter, OperationType.SET, parameterIndex);
         }
         if (operationNames.contains("Status")) {
+            addOperationAtIndex(returnTypeParameter, OperationType.STATUS, parameterIndex);
             returnTypeParameter.addOperation(createOperation(OperationType.STATUS));
         }
         // Methods
         if (operationNames.contains("ResultAck")) {
-            returnTypeParameter.addOperation(createOperation(OperationType.RESULT_ACK));
+            addOperationAtIndex(returnTypeParameter, OperationType.RESULT_ACK, parameterIndex);
         }
 
         return returnTypeParameter;
+    }
+
+    private void addOperationAtIndex(MostParameter mostParameter, OperationType operationType, String parameterIndex) {
+        com.softwareverde.mostadapter.Operation operation = createOperation(operationType);
+        operation.setParameterPosition(parameterIndex);
+        mostParameter.addOperation(operation);
     }
 
     private com.softwareverde.mostadapter.Operation createOperation(OperationType operationType) {
@@ -209,6 +219,27 @@ public class MostTypeConverter {
         com.softwareverde.mostadapter.type.MostType convertedMostType = null;
 
         switch (mostType.getName()) {
+            case "TUByte": {
+                convertedMostType = new UnsignedByteType();
+            } break;
+            case "TSByte": {
+                convertedMostType = new SignedByteType();
+            } break;
+            case "TUWord": {
+                convertedMostType = new UnsignedWordType();
+            } break;
+            case "TSWord": {
+                convertedMostType = new SignedWordType();
+            } break;
+            case "TULong": {
+                convertedMostType = new UnsignedLongType();
+            } break;
+            case "TSLong": {
+                convertedMostType = new SignedLongType();
+            } break;
+            case "TString": {
+                convertedMostType = new StringType();
+            } break;
             case "TEnum": {
                 convertedMostType = new EnumType();
             } break;
@@ -244,11 +275,77 @@ public class MostTypeConverter {
             }
         }
 
-        for (MostFunctionParameter mostFunctionParameter : method.getInputParameters()) {
-            // TODO: handle parameters
+        List<String> operationNames = getOperationNames(method.getOperations());
+
+        // add sender handle parameter
+        MostParameter senderHandleParameter = new MostParameter();
+
+        com.softwareverde.mostadapter.type.MostType senderHandleType = createSenderHandleType();
+
+        senderHandleParameter.setName("SenderHandle");
+        senderHandleParameter.setIndex(MOST_NULL);
+        senderHandleParameter.setType(senderHandleType);
+
+        if (operationNames.contains("StartResultAck")) {
+            addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
+        }
+        if (operationNames.contains("AbortAck")) {
+            addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
+        }
+        if (operationNames.contains("ProcessingAck")) {
+            addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
+        }
+        if (operationNames.contains("ErrorAck")) {
+            addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
+        }
+
+        // add return type parameter
+        MostParameter returnTypeParameter = createReturnTypeParameter(method, operationNames, "2");
+        convertedMethod.addMostParameter(returnTypeParameter);
+
+        // add input parameters
+        addInputParameterOperations(convertedMethod, method.getInputParameters(), operationNames);
+
+        // add error parameters
+        if (operationNames.contains("ErrorAck")) {
+            com.softwareverde.mostadapter.Operation errorOperation = createOperation(OperationType.METHOD_ERROR);
+
+            MostParameter errorCodeParameter = new MostParameter();
+            errorCodeParameter.setName("ErrorCode");
+            errorCodeParameter.setIndex("2");
+            errorCodeParameter.setType(createErrorCodeType());
+            errorCodeParameter.addOperation(errorOperation);
+
+            MostParameter errorInfoParameter = new MostParameter();
+            errorInfoParameter.setName("ErrorInfo");
+            errorInfoParameter.setIndex("3");
+            errorInfoParameter.setType(createErrorInfoType());
+            errorCodeParameter.addOperation(errorOperation);
+
+            convertedMethod.addMostParameter(errorCodeParameter);
+            convertedMethod.addMostParameter(errorInfoParameter);
         }
 
         return convertedMethod;
+    }
+
+    private void addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, List<String> operationNames) {
+        if (operationNames.contains("StartResultAck")) {
+            for (MostFunctionParameter mostFunctionParameter : inputParameters) {
+                MostParameter mostParameter = new MostParameter();
+
+                com.softwareverde.mostadapter.type.MostType parameterType = convertMostType(mostFunctionParameter.getMostType());
+                // add one to parameter index because of sender handle parameter
+                int parameterIndex = mostFunctionParameter.getParameterIndex()+1;
+                String parameterIndexString = Integer.toString(parameterIndex);
+
+                // TODO: add parameter names/description
+                mostParameter.setIndex(MOST_NULL);
+                mostParameter.setType(parameterType);
+
+                addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
+            }
+        }
     }
 
     protected com.softwareverde.mostadapter.type.MostType createErrorInfoType() {
@@ -300,5 +397,25 @@ public class MostTypeConverter {
         errorCode.addEnumValue(valueC2);
 
         return errorCode;
+    }
+
+    protected com.softwareverde.mostadapter.type.MostType createSenderHandleType() {
+        NumberType senderHandle = new NumberType();
+
+        UnsignedWordType basisDateType = new UnsignedWordType();
+        String exponent = "0";
+        String rangeMin = "0";
+        String rangeMax = "65535";
+        String step = "1";
+        String unit = "unit_none";
+
+        senderHandle.setBasisDataType(basisDateType);
+        senderHandle.setExponent(exponent);
+        senderHandle.setRangeMin(rangeMin);
+        senderHandle.setRangeMax(rangeMax);
+        senderHandle.setStep(step);
+        senderHandle.setUnit(unit);
+
+        return senderHandle;
     }
 }
