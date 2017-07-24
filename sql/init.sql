@@ -116,14 +116,21 @@ INSERT INTO most_types (name)
 VALUES
         ('TBool'),
         ('TBitField'),
-        ('TNumber'),
         ('TEnum'),
+        ('TNumber'),
+        ('TVoid'),
+        ('TUByte'),
+        ('TSByte'),
+        ('TUWord'),
+        ('TSWord'),
+        ('TULong'),
+        ('TSLong'),
         ('TString'),
-        ('TArray'),
-        ('TRecord'),
         ('TStream'),
         ('TCStream'),
-        ('TShortStream');
+        ('TShortStream'),
+        ('TArray'),
+        ('TRecord');
 
 CREATE TABLE function_categories (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
