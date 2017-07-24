@@ -245,6 +245,19 @@ public class MostTypeConverter {
 
                 convertedMostType = bitFieldType;
             } break;
+            case "TNumber": {
+                NumberType numberType = new NumberType();
+
+                // TODO: populated with supplied number fields
+                numberType.setBasisDataType(new UnsignedWordType());
+                numberType.setExponent("0");
+                numberType.setRangeMin("0");
+                numberType.setRangeMax("65535");
+                numberType.setStep("1");
+                numberType.setUnit("unit_none");
+
+                convertedMostType = numberType;
+            } break;
             case "TEnum": {
                 EnumType enumType = new EnumType();
 
