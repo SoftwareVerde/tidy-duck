@@ -256,7 +256,7 @@ public class MostTypeConverter {
             } break;
             case "TVoid": {
                 convertedMostType = new VoidType();
-            }
+            } break;
             case "TUByte": {
                 convertedMostType = new UnsignedByteType();
             } break;
