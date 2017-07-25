@@ -2,15 +2,6 @@ class MostFunctionForm extends React.Component {
     constructor(props) {
         super(props);
 
-        this.stereotypeNames = {
-            event:                      'Event',
-            readOnlyProperty:           'ReadOnlyProperty',
-            readOnlyPropertyWithEvent:  'ReadOnlyPropertyWithEvent',
-            PropertyWithEvent:          'PropertyWithEvent',
-            commandWithAck:             'CommandWithAck',
-            requestResponse:            'Request/Response',
-        };
-
         this.functionTypes = {
             property:   "Property",
             method:     "Method"
@@ -212,12 +203,12 @@ class MostFunctionForm extends React.Component {
         const parameters = mostFunction.getParameters();
 
         const parameter = new Parameter();
-        parameter.setParameterIndex(parameters.length);
+        parameter.setParameterIndex(parameters.length+1);
         parameter.setType(this.props.mostTypes[0]);
 
         parameters.push(parameter);
-
         mostFunction.setParameters(parameters);
+        //parameters[parameter.getParameterIndex()] = parameter;
 
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({
@@ -233,7 +224,7 @@ class MostFunctionForm extends React.Component {
     onParameterChanged(parameter) {
         const mostFunction = this.state.mostFunction;
         // TODO: verify this is the right thing to do
-        mostFunction.getParameters()[parameter.getParameterIndex()] = parameter;
+        mostFunction.getParameters()[parameter.getParameterIndex()-1] = parameter;
 
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({
@@ -249,7 +240,7 @@ class MostFunctionForm extends React.Component {
         const newParameters = [];
         const parameterId = parameter.getParameterIndex();
 
-        let indexCounter = 0;
+        let indexCounter = 1;
         for (let i in parameters) {
             if (parameters[i].getParameterIndex() !== parameterId) {
                 parameters[i].setParameterIndex(indexCounter);
