@@ -1211,24 +1211,54 @@ class App extends React.Component {
     handleRoleClick(roleName) {
         // TODO: contains dummy code for now, need to use it to switch what is displayed in main content container.
         // TODO: need to get all function blocks, all interfaces, or all functions for a selected interface.
-        // TODO: need to set childItems to whatever was grabbed in the previous TODO.
+        const thisApp = this;
 
         // If subRole is clicked, don't change activeRoleItem, change activeSubRoleItem. If not, default to Release Tidy Duck UI, starting at versions.
-        if (roleName !== this.roleItems.release && roleName !== this.roleItems.development) {
-
-            // set navigation level similar to onItemSelected() methods.
-            const currentNavigationLevel = roleName === this.roleItems.functionBlock ? this.NavigationLevel.functionCatalogs : this.NavigationLevel.functionBlocks;
+        if (roleName !== this.roleItems.release) {
+            // TODO: set const variables for currently active subRole, then use that to determine if functionBlocks or interfaces should be retrieved.
+            // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface, default to displaying functionBlocks.
+            const currentNavigationLevel = roleName === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
 
             this.setState({
+                navigationItems:            [],
+                searchResults:              [],
+                selectedItem:               null,
+                parentItem:                 null,
+                functionCatalogs:           null,
+                functionBlocks:             [],
+                shouldShowCreateChildForm:  false,
+                shouldShowSearchChildForm:  false,
+                createButtonState:          thisApp.CreateButtonState.normal,
+                isLoadingChildren:          true,
                 currentNavigationLevel:     currentNavigationLevel,
-                activeSubRoleItem:          roleName
+                activeRoleItem:             this.roleItems.development,
+                activeSubRoleItem:          roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock)
             });
+
+            getAllFunctionBlocks(function(functionBlocksJson) {
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                    // didn't navigate away while downloading children
+                    const functionBlocks = [];
+                    for (let i in functionBlocksJson) {
+                        const functionBlockJson = functionBlocksJson[i];
+                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                        functionBlocks.push(functionBlock);
+                    }
+                    thisApp.setState({
+                        functionBlocks:     functionBlocks,
+                        mostInterfaces:     [],
+                        isLoadingChildren:  false
+                    });
+                }
+            });
+
         } else {
             this.setState({
                 currentNavigationLevel:     this.NavigationLevel.versions,
                 activeRoleItem:             roleName
             });
         }
+
     }
 
     handleSettingsClick() {
@@ -1472,6 +1502,7 @@ class App extends React.Component {
                 <div id="main-content" className="container">
                     <div className="display-area">
                         <div id="child-display-area" className="clearfix">
+                            {this.renderChildItems()}
                         </div>
                     </div>
                 </div>

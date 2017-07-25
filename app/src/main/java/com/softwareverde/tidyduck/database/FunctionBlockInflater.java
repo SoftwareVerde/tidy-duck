@@ -32,7 +32,7 @@ public class FunctionBlockInflater {
         List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long functionBlockId = row.getLong("function_block_id");
+            final long functionBlockId = row.getLong("id");
             FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId, false);
             functionBlocks.add(functionBlock);
         }

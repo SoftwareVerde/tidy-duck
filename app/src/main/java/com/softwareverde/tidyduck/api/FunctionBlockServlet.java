@@ -74,6 +74,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return _listFunctionBlocksMatchingSearchString(searchString, versionId, database);
             }
         }
+        else if ("function-blocks".equals(finalUrlSegment)) {
+            if (httpMethod == HttpMethod.GET) {
+                // TODO: could check version if necessary, but need to update inflater method.
+                return _listAllFunctionBlocks(database);
+            }
+        }
         else {
             // not base function block, must have ID
             final long functionBlockId = Util.parseLong(finalUrlSegment);
@@ -208,6 +214,29 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
             final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
+
+            final Json functionBlocksJson = new Json(true);
+            for (final FunctionBlock functionBlock : functionBlocks) {
+                final Json functionBlockJson = _toJson(functionBlock);
+                functionBlocksJson.add(functionBlockJson);
+            }
+            response.put("functionBlocks", functionBlocksJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list function blocks.", exception);
+            return super._generateErrorJson("Unable to list function blocks.");
+        }
+    }
+
+    protected Json _listAllFunctionBlocks(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Json response = new Json(false);
+
+            final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateAllFunctionBlocks();
 
             final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {

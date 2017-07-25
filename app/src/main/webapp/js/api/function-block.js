@@ -23,6 +23,30 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
         }
     });
 }
+// calls callbackFunction with an array of all function blocks in database.
+function getAllFunctionBlocks(callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-block/function-blocks",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlocks = null;
+
+        if (data.wasSuccess) {
+            functionBlocks = data.functionBlocks;
+        } else {
+            console.log("Unable to get all function blocks:" + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlocks);
+        }
+    });
+}
 
 
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
