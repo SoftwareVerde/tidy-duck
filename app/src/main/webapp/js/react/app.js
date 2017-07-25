@@ -17,6 +17,13 @@ class App extends React.Component {
             success:    "success"
         };
 
+        this.roleItems = {
+          release:          "Release",
+          development:      "Development",
+          mostInterface:    "Interface",
+          functionBlock:    "Function Block"
+        };
+
         this.FunctionStereotypes = {
             event:                      "Event",
             readOnlyProperty:           "ReadOnlyProperty",
@@ -38,6 +45,8 @@ class App extends React.Component {
             mostFunctions:              [],
             mostTypes:                  [],
             mostFunctionStereotypes:    [],
+            activeRoleItem:             this.roleItems.release,
+            activeSubRoleItem:          this.roleItems.functionBlock,
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -53,6 +62,8 @@ class App extends React.Component {
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
         this.renderMainContent = this.renderMainContent.bind(this);
+        this.renderRoleToggle = this.renderRoleToggle.bind(this);
+        this.renderSubRoleToggle = this.renderSubRoleToggle.bind(this);
 
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
@@ -87,6 +98,7 @@ class App extends React.Component {
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
+        this.handleRoleClick = this.handleRoleClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
@@ -1195,6 +1207,29 @@ class App extends React.Component {
             });
         });
     }
+    
+    handleRoleClick(roleName) {
+        // TODO: contains dummy code for now, need to use it to switch what is displayed in main content container.
+        // TODO: need to get all function blocks, all interfaces, or all functions for a selected interface.
+        // TODO: need to set childItems to whatever was grabbed in the previous TODO.
+
+        // If subRole is clicked, don't change activeRoleItem, change activeSubRoleItem. If not, default to Release Tidy Duck UI, starting at versions.
+        if (roleName !== this.roleItems.release && roleName !== this.roleItems.development) {
+
+            // set navigation level similar to onItemSelected() methods.
+            const currentNavigationLevel = roleName === this.roleItems.functionBlock ? this.NavigationLevel.functionCatalogs : this.NavigationLevel.functionBlocks;
+
+            this.setState({
+                currentNavigationLevel:     currentNavigationLevel,
+                activeSubRoleItem:          roleName
+            });
+        } else {
+            this.setState({
+                currentNavigationLevel:     this.NavigationLevel.versions,
+                activeRoleItem:             roleName
+            });
+        }
+    }
 
     handleSettingsClick() {
         this.setState({
@@ -1430,6 +1465,17 @@ class App extends React.Component {
                     <app.SettingsPage theme={theme} onThemeChange={this.onThemeChange}/>
                 </div>
             );
+        } else if (this.state.activeRoleItem === this.roleItems.development) {
+            // TODO: determine currently selected subRole and display associated child items.
+            // TODO: might want to make rendering toolbar it's own method if renderForm() doesn't work.
+            return (
+                <div id="main-content" className="container">
+                    <div className="display-area">
+                        <div id="child-display-area" className="clearfix">
+                        </div>
+                    </div>
+                </div>
+            );
         } else {
             return (
                 <div id="main-content" className="container">
@@ -1446,6 +1492,28 @@ class App extends React.Component {
 
     }
 
+    renderRoleToggle() {
+        const roleItems = [];
+        roleItems.push(this.roleItems.release);
+        roleItems.push(this.roleItems.development);
+
+        return (
+            <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeRoleItem} />
+        );
+    }
+
+    renderSubRoleToggle() {
+        if (this.state.activeRoleItem === this.roleItems.development) {
+            const roleItems = [];
+            roleItems.push(this.roleItems.functionBlock);
+            roleItems.push(this.roleItems.mostInterface);
+
+            return (
+                <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeSubRoleItem} />
+            );
+        }
+    }
+
     logout() {
         logout(function (data) {
             if (data.wasSuccess) {
@@ -1460,6 +1528,8 @@ class App extends React.Component {
             <div>
                 <div id="header" className="secondary-bg accent title-font">
                     Tidy Duck
+                    {this.renderRoleToggle()}
+                    {this.renderSubRoleToggle()}
                     <div id="account-area">
                         {accountName}
                         <a id="logout" href="#" onClick={this.logout}>logout</a>

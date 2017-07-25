@@ -34,6 +34,29 @@
     width: 100%;
 }
 
+.role-toggle {
+    display: inline-flex;
+    margin-top: auto;
+    margin-left: 2em;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 250%;
+    border: 0px solid;
+    border-radius: 5px;
+    background: lightgray;
+}
+
+.role-toggle .role, .active-role {
+    padding: 0 5px 0 5px;
+    border: 0px solid;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.active-role {
+    background: aliceblue;
+}
+
 .navigation-column {
     width: 300px;
     border-right: solid 1px;
