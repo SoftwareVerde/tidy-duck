@@ -61,6 +61,7 @@ class App extends React.Component {
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
+        this.renderDevelopmentChildItems = this.renderDevelopmentChildItems.bind(this);
         this.renderMainContent = this.renderMainContent.bind(this);
         this.renderRoleToggle = this.renderRoleToggle.bind(this);
         this.renderSubRoleToggle = this.renderSubRoleToggle.bind(this);
@@ -1208,39 +1209,33 @@ class App extends React.Component {
         });
     }
     
-    handleRoleClick(roleName) {
-        // TODO: contains dummy code for now, need to use it to switch what is displayed in main content container.
-        // TODO: need to get all function blocks, all interfaces, or all functions for a selected interface.
+    handleRoleClick(roleName, canUseCachedChildren) {
         const thisApp = this;
 
         // If subRole is clicked, don't change activeRoleItem, change activeSubRoleItem. If not, default to Release Tidy Duck UI, starting at versions.
         if (roleName !== this.roleItems.release) {
-            // TODO: set const variables for currently active subRole, then use that to determine if functionBlocks or interfaces should be retrieved.
-            // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface, default to displaying functionBlocks.
-            const activeSubRoleItem = roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock);
-            const currentNavigationLevel = activeSubRoleItem === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
+            // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
+            const newActiveSubRoleItem = roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock);
+            const newNavigationLevel = newActiveSubRoleItem === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
 
             this.setState({
                 navigationItems:            [],
                 searchResults:              [],
+                functionCatalogs:           [],
                 selectedItem:               null,
                 parentItem:                 null,
-                functionCatalogs:           null,
-                functionBlocks:             [],
-                mostInterfaces:             [],
-                mostFunctions:              [],
                 shouldShowCreateChildForm:  false,
                 shouldShowSearchChildForm:  false,
                 createButtonState:          thisApp.CreateButtonState.normal,
-                isLoadingChildren:          true,
-                currentNavigationLevel:     currentNavigationLevel,
+                isLoadingChildren:          !canUseCachedChildren,
+                currentNavigationLevel:     newNavigationLevel,
                 activeRoleItem:             this.roleItems.development,
-                activeSubRoleItem:          activeSubRoleItem
+                activeSubRoleItem:          newActiveSubRoleItem
             });
 
-            if (activeSubRoleItem === this.roleItems.functionBlock) {
+            if (newActiveSubRoleItem === this.roleItems.functionBlock) {
                 getAllFunctionBlocks(function(functionBlocksJson) {
-                    if (thisApp.state.currentNavigationLevel == currentNavigationLevel) {
+                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                         // didn't navigate away while downloading children
                         const functionBlocks = [];
                         for (let i in functionBlocksJson) {
@@ -1250,14 +1245,13 @@ class App extends React.Component {
                         }
                         thisApp.setState({
                             functionBlocks:     functionBlocks,
-                            mostInterfaces:     [],
                             isLoadingChildren:  false
                         });
                     }
                 });
             } else {
                 getAllMostInterfaces(function(mostInterfacesJson) {
-                    if (thisApp.state.currentNavigationLevel == currentNavigationLevel) {
+                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                         // didn't navigate away while downloading children
                         const mostInterfaces = [];
                         for (let i in mostInterfacesJson) {
@@ -1266,7 +1260,6 @@ class App extends React.Component {
                             mostInterfaces.push(mostInterface);
                         }
                         thisApp.setState({
-                            functionBlocks:     [],
                             mostFunctions:      [],
                             mostInterfaces:     mostInterfaces,
                             isLoadingChildren:  false
@@ -1278,12 +1271,15 @@ class App extends React.Component {
             // Return to default Tidy Duck UI.
             // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
             this.setState({
-                currentNavigationLevel: thisApp.NavigationLevel.versions,
-                activeRoleItem:     roleName,
-                functionBlocks:     [],
-                mostInterfaces:     [],
-                navigationItems:    [],
-                isLoadingChildren:  true
+                currentNavigationLevel:         thisApp.NavigationLevel.versions,
+                shouldShowCreateChildForm:      false,
+                shouldShowSearchChildForm:      false,
+                activeRoleItem:                 roleName,
+                searchResults:                  [],
+                functionBlocks:                 [],
+                mostInterfaces:                 [],
+                navigationItems:                [],
+                isLoadingChildren:              true
             });
 
             this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
@@ -1368,7 +1364,7 @@ class App extends React.Component {
                     const mostFunctionKey = "mostFunction" + i;
                     reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
                 }
-                break;
+            break;
 
             case NavigationLevel.mostFunctions:
                 // add a form for the selected MOST function
@@ -1384,6 +1380,117 @@ class App extends React.Component {
                     mostFunction={this.state.selectedItem}
                     shouldShowSaveAnimation={shouldAnimateCreateButton}
                     />)
+                break;
+
+            default:
+                console.log("renderChildItems: Unimplemented Navigation Level: "+ currentNavigationLevel);
+            break;
+        }
+
+        return reactComponents;
+    }
+
+    renderDevelopmentChildItems() {
+        const reactComponents = [];
+        const NavigationLevel = this.NavigationLevel;
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+        const selectedItem = this.state.selectedItem;
+
+        if (this.state.isLoadingChildren) {
+            // return loading icon
+            return (
+                <div className="form-loading"><i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i></div>
+            );
+
+        }
+        let childItems = [];
+        switch (currentNavigationLevel) {
+            case NavigationLevel.functionCatalogs:
+                childItems = this.state.functionBlocks;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const functionBlockKey = "FunctionBlock" + i;
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
+                }
+                break;
+
+            case NavigationLevel.functionBlocks:
+                if (selectedItem) {
+                    reactComponents.push(
+                        <app.FunctionBlockForm key="FunctionBlockForm"
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateFunctionBlock}
+                           functionBlock={selectedItem}
+                           buttonTitle="Save"
+                           defaultButtonTitle="Save"
+                        />
+                    );
+
+                    reactComponents.push(
+                        <div key="SearchForm">
+                        <app.SearchForm
+                            navigationLevel={NavigationLevel}
+                            currentNavigationLevel={currentNavigationLevel}
+                            formTitle={"Search Interfaces"}
+                            onUpdate={this.onSearchMostInterfaces}
+                            onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
+                            selectedItem={this.state.selectedItem}
+                            searchResults={this.state.searchResults}
+                            isLoadingSearchResults={this.state.isLoadingSearchResults}
+                        />
+                        </div>
+                    );
+                }
+
+                childItems = this.state.mostInterfaces;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const interfaceKey = "Interface" + i;
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                }
+                break;
+
+            case NavigationLevel.mostInterfaces:
+                if (selectedItem) {
+                    reactComponents.push(
+                        <app.MostInterfaceForm key="MostInterfaceForm"
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateMostInterface}
+                           mostInterface={selectedItem}
+                           buttonTitle="Save"
+                           defaultButtonTitle="Save"
+                        />
+                    );
+
+                    reactComponents.push(this.renderForm());
+                }
+
+                childItems = this.state.mostFunctions;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const mostFunctionKey = "mostFunction" + i;
+                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
+                }
+                break;
+
+            case NavigationLevel.mostFunctions:
+                // add a form for the selected MOST function
+                const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
+                const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
+                reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
+                   showTitle={true}
+                   onSubmit={this.onUpdateMostFunction}
+                   buttonTitle={buttonTitle}
+                   defaultButtonTitle="Save"
+                   mostFunctionStereotypes={this.state.mostFunctionStereotypes}
+                   mostTypes={this.state.mostTypes}
+                   mostFunction={this.state.selectedItem}
+                   shouldShowSaveAnimation={shouldAnimateCreateButton}
+                />);
                 break;
 
             default:
@@ -1531,15 +1638,14 @@ class App extends React.Component {
                 </div>
             );
         } else if (this.state.activeRoleItem === this.roleItems.development) {
-            // TODO: determine currently selected subRole and display associated child items.
-            // TODO: might want to make rendering toolbar it's own method if renderForm() doesn't work.
             return (
                 <div id="main-content" className="container">
                     <div className="display-area">
                         <div id="child-display-area" className="clearfix">
-                            {this.renderChildItems()}
+                            {this.renderDevelopmentChildItems()}
                         </div>
                     </div>
+                    {this.renderRoleReturnArrow()}
                 </div>
             );
         } else {
@@ -1578,6 +1684,20 @@ class App extends React.Component {
                 <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeSubRoleItem} />
             );
         }
+    }
+
+    renderRoleReturnArrow() {
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        if (currentNavigationLevel === this.NavigationLevel.mostFunctions) {
+            return (
+                <i className="role-return fa fa-arrow-circle-left fa-4x"
+                   onClick={() => this.onMostInterfaceSelected(this.state.parentItem, true)}/>
+            );
+        }
+        const roleReturnArrow = this.state.selectedItem ? <i className="role-return fa fa-arrow-circle-left fa-4x"
+                                                             onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/> : "";
+        return roleReturnArrow;
     }
 
     logout() {

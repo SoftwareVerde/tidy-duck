@@ -57,6 +57,18 @@
     background: aliceblue;
 }
 
+.role-return {
+    position: absolute;
+    margin-left: 24px;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.role-return:hover {
+    opacity: 1;
+    transition: 0.5s;
+}
+
 .navigation-column {
     width: 300px;
     border-right: solid 1px;

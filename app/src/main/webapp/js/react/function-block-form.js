@@ -144,7 +144,12 @@ class FunctionBlockForm extends React.Component {
             return null;
         }
 
-        return (<div className="metadata-form-title">New Function Block</div>);
+        let formTitle = "New Function Block";
+        if (this.props.showCustomTitle) {
+            formTitle = this.props.functionBlock.getName();
+        }
+
+        return (<div className="metadata-form-title">{formTitle}</div>);
     }
 
     render() {
