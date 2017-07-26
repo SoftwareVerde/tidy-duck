@@ -134,6 +134,10 @@ public class MostInterfaceDatabaseManager {
         _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
     }
 
+    public void insertOrphanedMostInterface(final MostInterface mostInterface) throws DatabaseException {
+        _insertMostInterface(mostInterface);
+    }
+
     public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
         final long inputMostInterfaceId = proposedMostInterface.getId();
 

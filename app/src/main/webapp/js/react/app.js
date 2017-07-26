@@ -77,6 +77,7 @@ class App extends React.Component {
 
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
+        this.onCreateOrphanedFunctionBlock = this.onCreateOrphanedFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
         this.onSearchFunctionBlocks = this.onSearchFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
@@ -84,6 +85,7 @@ class App extends React.Component {
 
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
+        this.onCreateOrphanedMostInterface = this.onCreateOrphanedMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
@@ -271,6 +273,37 @@ class App extends React.Component {
         });
     }
 
+    onCreateOrphanedFunctionBlock(functionBlock) {
+        const thisApp = this;
+        const functionBlockJson = FunctionBlock.toJson(functionBlock);
+
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
+        insertOrphanedFunctionBlock(functionBlockJson, function(functionBlockId) {
+            if (! (functionBlockId > 0)) {
+                console.log("Unable to create orphaned function block.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
+                return;
+            }
+
+            functionBlock.setId(functionBlockId);
+            functionBlock.setAuthor(thisApp.getCurrentAccountAuthor());
+            functionBlock.setCompany(thisApp.getCurrentAccountCompany());
+
+            const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+
+            thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
+                functionBlocks:         functionBlocks,
+                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+            });
+        });
+    }
+
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
@@ -352,6 +385,35 @@ class App extends React.Component {
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
+                return;
+            }
+
+            mostInterface.setId(mostInterfaceId);
+            const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+
+            thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
+                mostInterfaces:         mostInterfaces,
+                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+            });
+        });
+    }
+
+    onCreateOrphanedMostInterface(mostInterface) {
+        const thisApp = this;
+
+        const mostInterfaceJson = MostInterface.toJson(mostInterface);
+
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
+        insertOrphanedMostInterface(mostInterfaceJson, function(mostInterfaceId) {
+            if (! (mostInterfaceId > 0)) {
+                console.log("Unable to create orphaned interface.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
@@ -1226,6 +1288,7 @@ class App extends React.Component {
                 parentItem:                 null,
                 shouldShowCreateChildForm:  false,
                 shouldShowSearchChildForm:  false,
+                shouldShowToolbar:          true,
                 createButtonState:          thisApp.CreateButtonState.normal,
                 isLoadingChildren:          !canUseCachedChildren,
                 currentNavigationLevel:     newNavigationLevel,
@@ -1272,14 +1335,20 @@ class App extends React.Component {
             // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
             this.setState({
                 currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                shouldShowCreateChildForm:      false,
-                shouldShowSearchChildForm:      false,
                 activeRoleItem:                 roleName,
+                selectedItem:                   null,
+                parentItem:                     null,
+                shouldShowToolbar:              true,
+                shouldShowCreateChildForm:      false,
+                createButtonState:              this.CreateButtonState.normal,
+                selectedFunctionStereotype:     null,
+                shouldShowSearchChildForm:      false,
+                isLoadingChildren:              true,
+                isLoadingSearchResults:         false,
                 searchResults:                  [],
                 functionBlocks:                 [],
                 mostInterfaces:                 [],
                 navigationItems:                [],
-                isLoadingChildren:              true
             });
 
             this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
@@ -1403,9 +1472,11 @@ class App extends React.Component {
             );
 
         }
+
         let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.functionCatalogs:
+                reactComponents.push(this.renderForm());
                 childItems = this.state.functionBlocks;
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -1442,6 +1513,8 @@ class App extends React.Component {
                         />
                         </div>
                     );
+                } else {
+                    reactComponents.push(this.renderForm());
                 }
 
                 childItems = this.state.mostInterfaces;
@@ -1510,6 +1583,8 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
 
+        const createOrphan = this.state.activeRoleItem !== this.roleItems.release;
+
         const reactComponents = [];
 
         if (shouldShowToolbar) {
@@ -1551,7 +1626,7 @@ class App extends React.Component {
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
                             buttonTitle={buttonTitle}
                             showTitle={true}
-                            onSubmit={this.onCreateFunctionBlock}
+                            onSubmit={createOrphan ? this.onCreateOrphanedFunctionBlock : this.onCreateFunctionBlock}
                             defaultButtonTitle="Submit"
                         />
                     );

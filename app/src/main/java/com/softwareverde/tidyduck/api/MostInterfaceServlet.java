@@ -70,6 +70,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         }
         else if ("most-interfaces".equals(finalUrlSegment)) {
+            if (httpMethod == HttpMethod.POST) {
+                return _insertOrphanedMostInterface(request, database);
+            }
             if (httpMethod == HttpMethod.GET) {
                 // TODO: could check version if necessary, but need to update inflater method.
                 return _listAllMostInterfaces(database);
@@ -116,6 +119,26 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         catch (final Exception exception) {
             _logger.error("Unable to insert Interface.", exception);
             return _generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+        }
+
+        return response;
+    }
+
+    protected Json _insertOrphanedMostInterface(final HttpServletRequest request, final Database<Connection> database) throws Exception {
+        final Json jsonRequest = _getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+        final Json mostInterfaceJson = jsonRequest.get("mostInterface");
+
+        try {
+            MostInterface mostInterface = _populateMostInterfaceFromJson(mostInterfaceJson);
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.insertOrphanedMostInterface(mostInterface);
+            response.put("mostInterfaceId", mostInterface.getId());
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to insert orphaned Interface.", exception);
+            return super._generateErrorJson("Unable to insert orphaned Interface: " + exception.getMessage());
         }
 
         return response;

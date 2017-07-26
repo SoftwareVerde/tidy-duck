@@ -25,6 +25,10 @@ public class FunctionBlockDatabaseManager {
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
 
+    public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
+        _insertFunctionBlock(functionBlock);
+    }
+
     private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
         final String mostId = functionBlock.getMostId();
         final String kind = functionBlock.getKind();

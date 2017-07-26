@@ -123,6 +123,34 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
     });
 }
 
+// calls callbackFunction with new orphaned function block ID
+function insertOrphanedFunctionBlock(functionBlock, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-block/function-blocks",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlock":        functionBlock
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlockId = null;
+
+        if (data.wasSuccess) {
+            functionBlockId = data.functionBlockId;
+        } else {
+            console.log("Unable to insert orphaned function block: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlockId);
+        }
+    });
+}
+
 // calls callbackFunction with wasSuccess
 function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(

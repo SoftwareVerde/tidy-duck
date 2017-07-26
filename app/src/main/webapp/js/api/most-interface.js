@@ -123,6 +123,34 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     });
 }
 
+// calls callbackFunction with new MOST interface ID
+function insertOrphanedMostInterface(mostInterface, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/most-interfaces",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "mostInterface":        mostInterface
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaceId = null;
+
+        if (data.wasSuccess) {
+            mostInterfaceId = data.mostInterfaceId;
+        } else {
+            console.log("Unable to insert orphaned Interface: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaceId);
+        }
+    });
+}
+
 // calls callbackFunction with wasSuccess
 function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(

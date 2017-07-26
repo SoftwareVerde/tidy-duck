@@ -76,7 +76,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         else if ("function-blocks".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
-                // return _insertOrphanedFunctionBlock(request, accountId, database);
+                return _insertOrphanedFunctionBlock(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
                 // TODO: could check version if necessary, but need to update inflater method.
@@ -124,6 +124,26 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         catch (final Exception exception) {
             _logger.error("Unable to insert Function Block.", exception);
             return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
+        }
+
+        return response;
+    }
+
+    protected Json _insertOrphanedFunctionBlock(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
+        final Json jsonRequest = _getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+        final Json functionBlockJson = jsonRequest.get("functionBlock");
+
+        try {
+            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.insertOrphanedFunctionBlock(functionBlock);
+            response.put("functionBlockId", functionBlock.getId());
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to insert orphaned Function Block.", exception);
+            return super._generateErrorJson("Unable to insert orphaned Function Block: " + exception.getMessage());
         }
 
         return response;
