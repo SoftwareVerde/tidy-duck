@@ -64,18 +64,18 @@ public class FunctionBlockDatabaseManagerTests {
     }
 
     protected void _randomizeNextFunctionCatalogInsertId() throws DatabaseException {
-        final Integer autoIncrement = (int) ((Math.random() * 7777) % 1000);
+        final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
         // _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs AUTO_INCREMENT = "+ autoIncrement));
         _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs ALTER COLUMN id RESTART WITH "+ autoIncrement));
     }
 
     protected void _randomizeNextFunctionBlockInsertId() throws DatabaseException {
-        final Integer autoIncrement = (int) ((Math.random() * 7777) % 1000);
+        final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
         _databaseConnection.executeDdl(new Query("ALTER TABLE function_blocks ALTER COLUMN id RESTART WITH "+ autoIncrement));
     }
 
     protected void _randomizeNextMostInterfaceInsertId() throws DatabaseException {
-        final Integer autoIncrement = (int) ((Math.random() * 7777) % 1000);
+        final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
         _databaseConnection.executeDdl(new Query("ALTER TABLE interfaces ALTER COLUMN id RESTART WITH "+ autoIncrement));
     }
 

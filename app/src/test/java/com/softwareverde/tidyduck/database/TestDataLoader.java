@@ -9,6 +9,11 @@ import com.softwareverde.util.IoUtil;
 import java.sql.Connection;
 
 public class TestDataLoader {
+    public static int generateRandomAutoIncrementId() {
+        // generate random ID but make sure it's greater than zero
+        return (int) (((Math.random() * 7777) % 1000) + 1);
+    }
+
     public static void initDatabase(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/init.sql")));
     }
