@@ -27,11 +27,11 @@ class MostFunctionDatabaseManager {
         MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         MostFunction databaseMostFunction = mostFunctionInflater.inflateMostFunction(inputMostFunctionId);
 
-        if(!databaseMostFunction.isCommitted()) {
-            // not committed, can update existing function
-            _updateUncommittedMostFunction(proposedMostFunction);
+        if(!databaseMostFunction.isReleased()) {
+            // not released, can update existing function
+            _updateUnreleasedMostFunction(proposedMostFunction);
         } else {
-            // current function is committed to an interface
+            // current function is released to an interface
             // need to insert a new function to replace this one
             _insertMostFunction(proposedMostFunction);
             final long newMostFunctionId = proposedMostFunction.getId();
@@ -41,8 +41,8 @@ class MostFunctionDatabaseManager {
         }
     }
 
-    // TODO: update committed MostFunction method.
-    private void _updateUncommittedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
+    // TODO: update released MostFunction method.
+    private void _updateUnreleasedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
         final String name = proposedMostFunction.getName();
         final String mostId = proposedMostFunction.getMostId();
         final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
@@ -189,14 +189,14 @@ class MostFunctionDatabaseManager {
 
     public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
-        _deleteMostFunctionIfUncommitted(mostFunctionId);
+        _deleteMostFunctionIfUnreleased(mostFunctionId);
     }
 
-    private void _deleteMostFunctionIfUncommitted(final long mostFunctionId) throws DatabaseException {
+    private void _deleteMostFunctionIfUnreleased(final long mostFunctionId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 
-        if (! mostFunction.isCommitted()) {
+        if (! mostFunction.isReleased()) {
             _deleteMostFunctionFromDatabase(mostFunctionId);
         }
 

@@ -17,7 +17,7 @@ public class FunctionBlock {
     private Author _author;
     private Company _company;
     private String _access;
-    private boolean _isCommitted;
+    private boolean _isReleased;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
@@ -101,12 +101,12 @@ public class FunctionBlock {
         return _access;
     }
 
-    public boolean isCommitted() {
-        return _isCommitted;
+    public boolean isReleased() {
+        return _isReleased;
     }
 
-    public void setCommitted(boolean committed) {
-        _isCommitted = committed;
+    public void setReleased(boolean released) {
+        _isReleased = released;
     }
 
     public List<Modification> getModifications() {

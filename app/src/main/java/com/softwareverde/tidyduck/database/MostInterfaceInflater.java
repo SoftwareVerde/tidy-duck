@@ -90,7 +90,7 @@ public class MostInterfaceInflater {
         final String description = row.getString("description");
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
         final String version = row.getString("version");
-        final boolean isCommitted = row.getBoolean("is_committed");
+        final boolean isReleased = row.getBoolean("is_released");
 
         MostInterface mostInterface = new MostInterface();
         mostInterface.setId(id);
@@ -99,7 +99,7 @@ public class MostInterfaceInflater {
         mostInterface.setDescription(description);
         mostInterface.setLastModifiedDate(lastModifiedDate);
         mostInterface.setVersion(version);
-        mostInterface.setCommitted(isCommitted);
+        mostInterface.setReleased(isReleased);
 
         if (inflateChildren) {
             MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);

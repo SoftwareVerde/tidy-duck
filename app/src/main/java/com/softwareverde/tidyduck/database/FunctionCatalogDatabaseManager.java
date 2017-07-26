@@ -36,16 +36,7 @@ class FunctionCatalogDatabaseManager {
         functionCatalog.setId(functionCatalogId);
     }
 
-    private long _associateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("INSERT INTO versions_function_catalogs (version_id, function_catalog_id) VALUES (?, ?)")
-            .setParameter(versionId)
-            .setParameter(functionCatalogId)
-        ;
-
-        return _databaseConnection.executeSql(query);
-    }
-
-    private void _updateUncommittedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
+    private void _updateUnreleasedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
@@ -63,21 +54,12 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _disassociateFunctionCatalogWithVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("DELETE FROM versions_function_catalogs WHERE version_id = ? and function_catalog_id = ?")
-            .setParameter(versionId)
-            .setParameter(functionCatalogId)
-        ;
-
-        _databaseConnection.executeSql(query);
-    }
-
-    private void _deleteFunctionCatalogIfUncommitted(final long functionCatalogId) throws DatabaseException {
+    private void _deleteFunctionCatalogIfUnreleased(final long functionCatalogId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (! functionCatalog.isCommitted()) {
-            // function catalog isn't committed, we can delete it
+        if (! functionCatalog.isReleased()) {
+            // function catalog isn't released, we can delete it
             _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
             _deleteFunctionCatalogFromDatabase(functionCatalogId);
         }
@@ -105,32 +87,26 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection = databaseConnection;
     }
 
-    public void insertFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         _insertFunctionCatalog(functionCatalog);
-        _associateFunctionCatalogWithVersion(versionId, functionCatalog.getId());
     }
 
-    public void updateFunctionCatalogForVersion(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final long inputFunctionCatalogId = functionCatalog.getId();
 
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog databaseFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
-        if (databaseFunctionCatalog.isCommitted()) {
+        if (databaseFunctionCatalog.isReleased()) {
             // need to insert a new function catalog replace this one
             _insertFunctionCatalog(functionCatalog);
             final long newFunctionCatalogId = functionCatalog.getId();
-
-            // change association with version
-            _disassociateFunctionCatalogWithVersion(versionId, inputFunctionCatalogId);
-            _associateFunctionCatalogWithVersion(versionId, newFunctionCatalogId);
         }
         else {
-            _updateUncommittedFunctionCatalog(functionCatalog);
+            _updateUnreleasedFunctionCatalog(functionCatalog);
         }
     }
 
-    public void deleteFunctionCatalogFromVersion(final long versionId, final long functionCatalogId) throws DatabaseException {
-        _disassociateFunctionCatalogWithVersion(versionId, functionCatalogId);
-        _deleteFunctionCatalogIfUncommitted(functionCatalogId);
+    public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        _deleteFunctionCatalogIfUnreleased(functionCatalogId);
     }
 }

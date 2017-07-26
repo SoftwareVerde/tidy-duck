@@ -11,7 +11,7 @@ public class FunctionCatalog {
     private String _release;
     private Author _author;
     private Company _company;
-    private boolean _isCommitted;
+    private boolean _isReleased;
     private List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private List<Modification> _modifications = new ArrayList<>();
 
@@ -55,12 +55,12 @@ public class FunctionCatalog {
         _company = company;
     }
 
-    public boolean isCommitted() {
-        return _isCommitted;
+    public boolean isReleased() {
+        return _isReleased;
     }
 
-    public void setIsCommitted(boolean committed) {
-        _isCommitted = committed;
+    public void setReleased(boolean released) {
+        _isReleased = released;
     }
 
     public List<FunctionBlock> getFunctionBlocks() {

@@ -20,7 +20,7 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
-        // TODO: check to see whether function catalog is committed.
+        // TODO: check to see whether function catalog is released.
         _insertFunctionBlock(functionBlock);
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
@@ -70,7 +70,7 @@ public class FunctionBlockDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _updateUncommittedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
+    private void _updateUnreleasedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
         final String newMostId = proposedFunctionBlock.getMostId();
         final String newKind = proposedFunctionBlock.getKind();
         final String newName = proposedFunctionBlock.getName();
@@ -105,11 +105,11 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteFunctionBlockIfUncommitted(final long functionBlockId) throws DatabaseException {
+    private void _deleteFunctionBlockIfUnreleased(final long functionBlockId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (! functionBlock.isCommitted() && _isOrphaned(functionBlockId)) {
+        if (! functionBlock.isReleased() && _isOrphaned(functionBlockId)) {
             _deleteInterfacesFromFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
@@ -121,7 +121,7 @@ public class FunctionBlockDatabaseManager {
 
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
-            // function block isn't committed, we can delete it
+            // function block isn't released, we can delete it
             mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
     }
@@ -157,9 +157,9 @@ public class FunctionBlockDatabaseManager {
     }
 
     /**
-     * If the functionBlock already exists and is committed, a new one is inserted and associated with the functionCatalogId.
+     * If the functionBlock already exists and is released, a new one is inserted and associated with the functionCatalogId.
      *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
-     *  If the functionBlock is not committed, then the values are updated within the database.
+     *  If the functionBlock is not released, then the values are updated within the database.
      */
     public void updateFunctionBlockForFunctionCatalog(final long functionCatalogId, final FunctionBlock updatedFunctionBlock) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
@@ -167,25 +167,25 @@ public class FunctionBlockDatabaseManager {
         final long inputFunctionBlockId = updatedFunctionBlock.getId();
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
 
-        if (originalFunctionBlock.isCommitted()) {
-            // current block is committed to a function catalog
+        if (originalFunctionBlock.isReleased()) {
+            // current block is released to a function catalog
             // need to insert a new function block replace this one
             _insertFunctionBlock(updatedFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
 
             // change association with function catalog
-            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId); // TODO: Check if functionCatalog is also committed...?
+            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId); // TODO: Check if functionCatalog is also released...?
             _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
         }
         else {
-            // not committed, can update existing function block
-            _updateUncommittedFunctionBlock(updatedFunctionBlock);
+            // not released, can update existing function block
+            _updateUnreleasedFunctionBlock(updatedFunctionBlock);
         }
     }
 
     public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
         _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
-        _deleteFunctionBlockIfUncommitted(functionBlockId);
+        _deleteFunctionBlockIfUnreleased(functionBlockId);
     }
 
     public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {

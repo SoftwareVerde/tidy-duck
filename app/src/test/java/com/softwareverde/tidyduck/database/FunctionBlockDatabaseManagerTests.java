@@ -30,14 +30,13 @@ public class FunctionBlockDatabaseManagerTests {
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
 
-        final Long versionId = 1L;
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName("Name");
         functionCatalog.setRelease("v0.0.0");
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
-        _functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+        _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
         return functionCatalog;
     }
 
@@ -89,7 +88,6 @@ public class FunctionBlockDatabaseManagerTests {
         TestDataLoader.initDatabase(_databaseConnection);
         TestDataLoader.insertFakeCompany(_databaseConnection);
         TestDataLoader.insertFakeAccount(_databaseConnection);
-        TestDataLoader.insertFakeVersion(_databaseConnection);
 
         _randomizeNextFunctionCatalogInsertId();
         _randomizeNextFunctionBlockInsertId();

@@ -50,7 +50,7 @@ public class MostInterfaceDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _updateUncommittedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
+    private void _updateUnreleasedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
         final String newMostId = proposedMostInterface.getMostId();
         final String newName = proposedMostInterface.getName();
         final String newVersion = proposedMostInterface.getVersion();
@@ -77,12 +77,12 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteMostInterfaceIfUncommitted(final long mostInterfaceId) throws DatabaseException {
+    private void _deleteMostInterfaceIfUnreleased(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (!mostInterface.isCommitted() && isOrphaned(mostInterfaceId)) {
-            // interface isn't committed and isn't associated with any function blocks, we can delete it
+        if (!mostInterface.isReleased() && isOrphaned(mostInterfaceId)) {
+            // interface isn't released and isn't associated with any function blocks, we can delete it
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
         }
@@ -94,7 +94,7 @@ public class MostInterfaceDatabaseManager {
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
-            // function is not committed, we can delete it.
+            // function is not released, we can delete it.
             mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
         }
 
@@ -129,7 +129,7 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
-        // TODO: check to see whether function block is committed.
+        // TODO: check to see whether function block is released.
         _insertMostInterface(mostInterface);
         _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
     }
@@ -139,11 +139,11 @@ public class MostInterfaceDatabaseManager {
 
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface databaseMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
-        if (!databaseMostInterface.isCommitted()) {
-            // not committed, can update existing function block
-            _updateUncommittedMostInterface(proposedMostInterface);
+        if (!databaseMostInterface.isReleased()) {
+            // not released, can update existing function block
+            _updateUnreleasedMostInterface(proposedMostInterface);
         } else {
-            // current block is committed to a function catalog
+            // current block is released to a function catalog
             // need to insert a new function block replace this one
             _insertMostInterface(proposedMostInterface);
             final long newMostInterfaceId = proposedMostInterface.getId();
@@ -155,7 +155,7 @@ public class MostInterfaceDatabaseManager {
 
     public void deleteMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
         _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
-        _deleteMostInterfaceIfUncommitted(mostInterfaceId);
+        _deleteMostInterfaceIfUnreleased(mostInterfaceId);
     }
 
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {

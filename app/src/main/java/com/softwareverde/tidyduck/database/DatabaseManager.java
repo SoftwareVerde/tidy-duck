@@ -41,32 +41,32 @@ public class DatabaseManager {
 
     // FUNCTION CATALOG METHODS
 
-    public void insertFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+                functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
             }
         });
     }
 
-    public void updateFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.updateFunctionCatalogForVersion(versionId, functionCatalog);
+                functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog);
             }
         });
     }
 
-    public void deleteFunctionCatalog(final long versionId, final long functionCatalogId) throws DatabaseException {
+    public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.deleteFunctionCatalogFromVersion(versionId, functionCatalogId);
+                functionCatalogDatabaseManager.deleteFunctionCatalog(functionCatalogId);
             }
         });
     }
