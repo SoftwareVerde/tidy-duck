@@ -69,6 +69,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, database);
             }
         }
+        else if ("most-interfaces".equals(finalUrlSegment)) {
+            if (httpMethod == HttpMethod.GET) {
+                // TODO: could check version if necessary, but need to update inflater method.
+                return _listAllMostInterfaces(database);
+            }
+        }
         else {
             // not base interface, must have ID
             final long mostInterfaceId = Util.parseLong(finalUrlSegment);
@@ -217,6 +223,29 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         catch (final DatabaseException exception) {
             _logger.error("Unable to list interfaces", exception);
             return _generateErrorJson("Unable to list interfaces.");
+        }
+    }
+
+    protected Json _listAllMostInterfaces(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Json response = new Json(false);
+
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateAllMostInterfaces();
+
+            final Json mostInterfacesJson = new Json(true);
+            for (final MostInterface mostInterface : mostInterfaces) {
+                final Json mostInterfaceJson = _toJson(mostInterface);
+                mostInterfacesJson.add(mostInterfaceJson);
+            }
+            response.put("mostInterfaces", mostInterfacesJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list all interfaces.", exception);
+            return super._generateErrorJson("Unable to list all interfaces.");
         }
     }
 

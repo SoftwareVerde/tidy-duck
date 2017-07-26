@@ -1217,7 +1217,8 @@ class App extends React.Component {
         if (roleName !== this.roleItems.release) {
             // TODO: set const variables for currently active subRole, then use that to determine if functionBlocks or interfaces should be retrieved.
             // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface, default to displaying functionBlocks.
-            const currentNavigationLevel = roleName === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
+            const activeSubRoleItem = roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock);
+            const currentNavigationLevel = activeSubRoleItem === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
 
             this.setState({
                 navigationItems:            [],
@@ -1226,36 +1227,70 @@ class App extends React.Component {
                 parentItem:                 null,
                 functionCatalogs:           null,
                 functionBlocks:             [],
+                mostInterfaces:             [],
+                mostFunctions:              [],
                 shouldShowCreateChildForm:  false,
                 shouldShowSearchChildForm:  false,
                 createButtonState:          thisApp.CreateButtonState.normal,
                 isLoadingChildren:          true,
                 currentNavigationLevel:     currentNavigationLevel,
                 activeRoleItem:             this.roleItems.development,
-                activeSubRoleItem:          roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock)
+                activeSubRoleItem:          activeSubRoleItem
             });
 
-            getAllFunctionBlocks(function(functionBlocksJson) {
-                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
-                    // didn't navigate away while downloading children
-                    const functionBlocks = [];
-                    for (let i in functionBlocksJson) {
-                        const functionBlockJson = functionBlocksJson[i];
-                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                        functionBlocks.push(functionBlock);
+            if (activeSubRoleItem === this.roleItems.functionBlock) {
+                getAllFunctionBlocks(function(functionBlocksJson) {
+                    if (thisApp.state.currentNavigationLevel == currentNavigationLevel) {
+                        // didn't navigate away while downloading children
+                        const functionBlocks = [];
+                        for (let i in functionBlocksJson) {
+                            const functionBlockJson = functionBlocksJson[i];
+                            const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                            functionBlocks.push(functionBlock);
+                        }
+                        thisApp.setState({
+                            functionBlocks:     functionBlocks,
+                            mostInterfaces:     [],
+                            isLoadingChildren:  false
+                        });
                     }
-                    thisApp.setState({
-                        functionBlocks:     functionBlocks,
-                        mostInterfaces:     [],
-                        isLoadingChildren:  false
-                    });
-                }
+                });
+            } else {
+                getAllMostInterfaces(function(mostInterfacesJson) {
+                    if (thisApp.state.currentNavigationLevel == currentNavigationLevel) {
+                        // didn't navigate away while downloading children
+                        const mostInterfaces = [];
+                        for (let i in mostInterfacesJson) {
+                            const mostInterfaceJson = mostInterfacesJson[i];
+                            const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                            mostInterfaces.push(mostInterface);
+                        }
+                        thisApp.setState({
+                            functionBlocks:     [],
+                            mostFunctions:      [],
+                            mostInterfaces:     mostInterfaces,
+                            isLoadingChildren:  false
+                        });
+                    }
+                });
+            }
+        } else {
+            // Return to default Tidy Duck UI.
+            // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
+            this.setState({
+                currentNavigationLevel: thisApp.NavigationLevel.versions,
+                activeRoleItem:     roleName,
+                functionBlocks:     [],
+                mostInterfaces:     [],
+                navigationItems:    [],
+                isLoadingChildren:  true
             });
 
-        } else {
-            this.setState({
-                currentNavigationLevel:     this.NavigationLevel.versions,
-                activeRoleItem:             roleName
+            this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                thisApp.setState({
+                    functionCatalogs:       functionCatalogs,
+                    isLoadingChildren:      false
+                });
             });
         }
 
