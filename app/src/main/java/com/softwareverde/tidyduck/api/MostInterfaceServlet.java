@@ -42,14 +42,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         else if ("search".equals(finalUrlSegment)){
             if (httpMethod == HttpMethod.GET) {
                 final String searchString = Util.coalesce(request.getParameter("name"));
-                final Long versionId = Util.parseLong(request.getParameter("versionId"));
                 if (searchString.length() < 1) {
                     return _generateErrorJson("Invalid search string for interface.");
                 }
-                if (versionId < 1) {
-                    return _generateErrorJson("Invalid versionId for interface search.");
-                }
-                return _listMostInterfacesMatchingSearchString(searchString, versionId, database);
+                return _listMostInterfacesMatchingSearchString(searchString, database);
             }
         }
         else if ("function-blocks".equals(finalUrlSegment)) {
@@ -59,11 +55,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _generateErrorJson("Invalid function block id.");
             }
             if (httpMethod == HttpMethod.GET) {
-                final Long versionId = Util.parseLong(request.getParameter("versionId"));
-                if (versionId < 1) {
-                    return _generateErrorJson("Invalid versionId.");
-                }
-                return _listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId, database);
+                return _listFunctionBlocksContainingMostInterface(mostInterfaceId, database);
             }
             if (httpMethod == HttpMethod.POST) {
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, database);
@@ -220,12 +212,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Long versionId, final Database<Connection> database) {
+    protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString, versionId);
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
@@ -243,12 +235,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final Long versionId, final Database<Connection> database) {
+    protected Json _listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final Database<Connection> database) {
         try {
             final Json response = new Json(false);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            final List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
+            final List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
 
             final Json functionBlockIdsJson = new Json(true);
             for (Long functionBlockId : functionBlockIds) {

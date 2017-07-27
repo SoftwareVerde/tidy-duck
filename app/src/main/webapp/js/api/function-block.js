@@ -26,9 +26,9 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
 
 
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
-function getFunctionBlocksMatchingSearchString(versionId, searchString, callbackFunction) {
+function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/search?name=" + searchString + "&versionId=" + versionId,
+        ENDPOINT_PREFIX + "api/v1/function-block/search?name=" + searchString,
         {
             method: "GET",
             credentials: "include"
@@ -51,9 +51,9 @@ function getFunctionBlocksMatchingSearchString(versionId, searchString, callback
 }
 
 // calls callbackFunction with list of function catalog IDs
-function listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId, callbackFunction) {
+function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-block/" + functionBlockId + "/function-catalogs?versionId=" + versionId,
+        API_PREFIX + "function-block/" + functionBlockId + "/function-catalogs",
         {
             method: "GET",
             credentials: "include"

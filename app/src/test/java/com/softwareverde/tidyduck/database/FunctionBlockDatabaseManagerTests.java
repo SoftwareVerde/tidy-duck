@@ -235,7 +235,7 @@ public class FunctionBlockDatabaseManagerTests {
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
 
         // Action
-        final List<Long> functionCatalogIds = _functionBlockDatabaseManager.listFunctionCatalogIdsContainingFunctionBlock(functionBlock.getId(), 1L);
+        final List<Long> functionCatalogIds = _functionBlockDatabaseManager.listFunctionCatalogIdsContainingFunctionBlock(functionBlock.getId());
 
         // Assert
         Assert.assertEquals(2, functionCatalogIds.size());

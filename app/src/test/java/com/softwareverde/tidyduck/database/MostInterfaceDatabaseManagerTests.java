@@ -265,7 +265,7 @@ public class MostInterfaceDatabaseManagerTests {
         _mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlock2.getId(), mostInterface.getId());
 
         // Action
-        final List<Long> functionBlockIds = _mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterface.getId(), 1L);
+        final List<Long> functionBlockIds = _mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterface.getId());
 
         // Assert
         Assert.assertEquals(2, functionBlockIds.size());

@@ -99,15 +99,11 @@ public class FunctionBlockInflater {
         return functionBlock;
     }
 
-    public List<FunctionBlock> inflateFunctionBlocksMatchingSearchString(String searchString, Long versionId) throws DatabaseException {
+    public List<FunctionBlock> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query ("SELECT DISTINCT function_blocks.id\n" +
                                         "FROM function_blocks\n" +
-                                        " INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks.id\n" +
-                                        " INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id\n" +
-                                        "WHERE version_id = ?\n" +
-                                        "and function_blocks.name LIKE ?");
-        query.setParameter(versionId);
+                                        "WHERE function_blocks.name LIKE ?");
         query.setParameter("%" + searchString + "%");
 
         List<FunctionBlock> functionBlocks = new ArrayList<>();

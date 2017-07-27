@@ -99,7 +99,7 @@ public class FunctionCatalogDatabaseManagerTests {
         final FunctionCatalog inflatedFunctionCatalog = _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
 
         // Assert
-        Assert.assertEquals(false, inflatedFunctionCatalog.isCommitted());
+        Assert.assertEquals(false, inflatedFunctionCatalog.isReleased());
         Assert.assertEquals(1L, inflatedFunctionCatalog.getId().longValue());
         Assert.assertEquals("New Name", inflatedFunctionCatalog.getName());
         Assert.assertEquals("v0.0.1", inflatedFunctionCatalog.getRelease());

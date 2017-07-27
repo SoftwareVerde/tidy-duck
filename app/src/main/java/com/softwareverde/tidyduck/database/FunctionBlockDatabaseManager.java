@@ -188,13 +188,12 @@ public class FunctionBlockDatabaseManager {
         _deleteFunctionBlockIfUnreleased(functionBlockId);
     }
 
-    public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {
-        final Query query = new Query("SELECT DISTINCT function_catalogs_function_blocks.function_catalog_id FROM function_catalogs_function_blocks "
-            + "INNER JOIN versions_function_catalogs ON versions_function_catalogs.function_catalog_id = function_catalogs_function_blocks.function_catalog_id "
-            + "WHERE function_catalogs_function_blocks.function_block_id = ? and versions_function_catalogs.version_id = ?"
+    public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT DISTINCT function_catalogs_function_blocks.function_catalog_id\n" +
+                                        "FROM function_catalogs_function_blocks\n" +
+                                        "WHERE function_catalogs_function_blocks.function_block_id = ?"
         );
         query.setParameter(functionBlockId);
-        query.setParameter(versionId);
 
         final List<Row> rows =_databaseConnection.query(query);
         final ArrayList<Long> functionCatalogIds = new ArrayList<>();

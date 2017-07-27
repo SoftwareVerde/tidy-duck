@@ -51,11 +51,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson("Invalid function block id.");
             }
             if (httpMethod == HttpMethod.GET) {
-                final Long versionId = Util.parseLong(request.getParameter("versionId"));
-                if (versionId < 1) {
-                    return super._generateErrorJson("Invalid versionId.");
-                }
-                return _listFunctionCatalogsForFunctionBlock(functionBlockId, versionId, database);
+                return _listFunctionCatalogsForFunctionBlock(functionBlockId, database);
             }
             else if (httpMethod == HttpMethod.POST) {
                 return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, database);
@@ -64,14 +60,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         else if ("search".equals(finalUrlSegment)){
             if (httpMethod == HttpMethod.GET) {
                 final String searchString = Util.coalesce(request.getParameter("name"));
-                final Long versionId = Util.parseLong(request.getParameter("versionId"));
                 if (searchString.length() < 1) {
                     return super._generateErrorJson("Invalid search string for function block.");
                 }
-                if (versionId < 1) {
-                    return super._generateErrorJson("Invalid versionId for function block search.");
-                }
-                return _listFunctionBlocksMatchingSearchString(searchString, versionId, database);
+                return _listFunctionBlocksMatchingSearchString(searchString, database);
             }
         }
         else {
@@ -225,12 +217,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Long versionId, final Database<Connection> database) {
+    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString, versionId);
+            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
 
             final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {
@@ -248,12 +240,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listFunctionCatalogsForFunctionBlock(final long functionBlockId, final Long versionId, final Database<Connection> database) {
+    protected Json _listFunctionCatalogsForFunctionBlock(final long functionBlockId, final Database<Connection> database) {
         try {
             final Json response = new Json(false);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            final List<Long> functionCatalogIds = databaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId, versionId);
+            final List<Long> functionCatalogIds = databaseManager.listFunctionCatalogsContainingFunctionBlock(functionBlockId);
 
             Json functionCatalogIdsJson = new Json(true);
             for (Long functionCatalogId : functionCatalogIds) {
