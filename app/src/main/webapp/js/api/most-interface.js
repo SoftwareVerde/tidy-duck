@@ -123,7 +123,7 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     });
 }
 
-// calls callbackFunction with new MOST interface ID
+// calls callbackFunction with new orphaned MOST interface ID
 function insertOrphanedMostInterface(mostInterface, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interface/most-interfaces",

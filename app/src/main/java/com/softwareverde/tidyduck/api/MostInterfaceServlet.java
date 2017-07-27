@@ -74,7 +74,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _insertOrphanedMostInterface(request, database);
             }
             if (httpMethod == HttpMethod.GET) {
-                // TODO: could check version if necessary, but need to update inflater method.
                 return _listAllMostInterfaces(database);
             }
         }

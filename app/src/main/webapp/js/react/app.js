@@ -404,7 +404,6 @@ class App extends React.Component {
 
     onCreateOrphanedMostInterface(mostInterface) {
         const thisApp = this;
-
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
 
         this.setState({

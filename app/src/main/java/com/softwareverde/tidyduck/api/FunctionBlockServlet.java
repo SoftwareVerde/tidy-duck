@@ -79,7 +79,6 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return _insertOrphanedFunctionBlock(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
-                // TODO: could check version if necessary, but need to update inflater method.
                 return _listAllFunctionBlocks(database);
             }
         }
