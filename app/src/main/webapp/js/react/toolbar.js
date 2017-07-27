@@ -113,30 +113,32 @@ class Toolbar extends React.Component {
     }
 
     renderSearchButton() {
-        const navigationLevel = this.state.navigationLevel;
-        const currentNavigationLevel = this.state.currentNavigationLevel;
-        let shouldShowButton = false;
-        let buttonTitleType = "";
+        if (this.props.shouldShowSearchIcon) {
+            const navigationLevel = this.state.navigationLevel;
+            const currentNavigationLevel = this.state.currentNavigationLevel;
+            let shouldShowButton = false;
+            let buttonTitleType = "";
 
-        switch(currentNavigationLevel) {
-            case navigationLevel.functionCatalogs:
-                shouldShowButton = true;
-                buttonTitleType = "Function Blocks";
-                break;
-            case navigationLevel.functionBlocks:
-                shouldShowButton = true;
-                buttonTitleType = "Interfaces";
-                break;
-        }
+            switch(currentNavigationLevel) {
+                case navigationLevel.functionCatalogs:
+                    shouldShowButton = true;
+                    buttonTitleType = "Function Blocks";
+                    break;
+                case navigationLevel.functionBlocks:
+                    shouldShowButton = true;
+                    buttonTitleType = "Interfaces";
+                    break;
+            }
 
-        const buttonTitle = "Find and Associate " + buttonTitleType;
+            const buttonTitle = "Find and Associate " + buttonTitleType;
 
-        if (shouldShowButton) {
-            return (
-                <div className="toolbar-item search" onClick={this.props.onSearchClicked} title={buttonTitle}>
-                    <i className="fa fa-4 fa-search" />
-                </div>
-            );
+            if (shouldShowButton) {
+                return (
+                    <div className="toolbar-item search" onClick={this.props.onSearchClicked} title={buttonTitle}>
+                        <i className="fa fa-4 fa-search" />
+                    </div>
+                );
+            }
         }
     }
 

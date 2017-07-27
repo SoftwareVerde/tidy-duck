@@ -92,6 +92,7 @@ class App extends React.Component {
         this.onCreateOrphanedMostInterface = this.onCreateOrphanedMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
+        this.onFilterMostInterfaces = this.onFilterMostInterfaces.bind(this);
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
 
@@ -833,7 +834,7 @@ class App extends React.Component {
             shouldShowSearchChildForm:  false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
-            isLoadingChildren:          !canUseCachedChildren
+            isLoadingChildren:          !canUseCachedChildren,
         });
 
         getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
@@ -850,7 +851,8 @@ class App extends React.Component {
                     mostInterfaces:             mostInterfaces,
                     mostFunctions:              [],
                     isLoadingChildren:          false,
-                    shouldShowFilteredResults:  false
+                    shouldShowFilteredResults:  false,
+                    filterString:               ""
                 });
             }
 
@@ -1080,7 +1082,8 @@ class App extends React.Component {
                 thisApp.setState({
                     mostFunctions:                  mostFunctions,
                     isLoadingChildren:              false,
-                    shouldShowFilteredResults:      false
+                    shouldShowFilteredResults:      false,
+                    filterString:                   ""
                 });
             }
         });
@@ -1132,6 +1135,53 @@ class App extends React.Component {
                 isLoadingSearchResults: false
             });
         }
+    }
+
+    onFilterMostInterfaces(filterString) {
+        const requestTime = (new Date()).getTime();
+
+        if (filterString.length > 0) {
+            const thisApp = this;
+            this.setState({
+                isLoadingChildren: true,
+                filterString:      filterString
+            });
+
+            getMostInterfacesMatchingSearchString(filterString, function(mostInterfacesJson) {
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
+                    if (thisApp.state.lastSearchResultTimestamp > requestTime) {
+                        // old results, discard
+                        return;
+                    }
+
+                    const mostInterfaces = [];
+                    for (let i in mostInterfacesJson) {
+                        const mostInterfaceJson = mostInterfacesJson[i];
+                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                        mostInterfaces.push(mostInterface);
+                    }
+
+                    thisApp.setState({
+                        searchResults:              mostInterfaces,
+                        shouldShowFilteredResults:  true,
+                        lastSearchResultTimestamp:  requestTime,
+                        isLoadingChildren:          false,
+                        isLoadingSearchResults:     false
+                    });
+                }
+            });
+        } else {
+            // TODO: remove isLoadingChildren change and indicate that no results were found in child display area.
+            this.setState({
+                searchResults:                  [],
+                lastSearchResultTimestamp:      requestTime,
+                isLoadingChildren:              false,
+                isLoadingSearchResults:         false,
+                shouldShowFilteredResults:      false,
+                filterString:                   ""
+            });
+        }
+
     }
 
     onAssociateMostInterfaceWithFunctionBlock(mostInterface, functionBlock) {
@@ -1537,6 +1587,7 @@ class App extends React.Component {
                      currentNavigationLevel={this.state.currentNavigationLevel}
                      functionStereotypes={this.FunctionStereotypes}
                      handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
+                     shouldShowSearchIcon={!createOrphan}
                 />
             );
         }
@@ -1570,6 +1621,8 @@ class App extends React.Component {
                            defaultButtonTitle="Save"
                         />
                     );
+                } else {
+                    reactComponents.push(this.renderFilterBar());
                 }
 
                 if (shouldShowCreateChildForm) {
@@ -1682,7 +1735,7 @@ class App extends React.Component {
                 break;
 
             case NavigationLevel.functionBlocks:
-                childItems = this.state.mostInterfaces;
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
@@ -1911,6 +1964,8 @@ class App extends React.Component {
 
     renderFilterBar() {
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        const filterFunction = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? this.onFilterFunctionBlocks : this.onFilterMostInterfaces;
+        const defaultText = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? "Filter Function Blocks" : "Filter Interfaces";
 
         if (currentNavigationLevel === this.NavigationLevel.functionBlocks && this.state.selectedItem) {
             // Don't show filter bar when viewing interfaces in a selected Function Block.
@@ -1924,7 +1979,7 @@ class App extends React.Component {
 
         return (
             <div className="filter-form" key="filtered-search-form">
-                <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue="Filter Function Blocks" readOnly={false} onChange={this.onFilterFunctionBlocks}/>
+                <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue={defaultText} readOnly={false} onChange={filterFunction}/>
             </div>
         );
 
