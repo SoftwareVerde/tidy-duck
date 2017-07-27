@@ -9,6 +9,7 @@ import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostInterface;
+import jdk.nashorn.internal.objects.annotations.Function;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -21,6 +22,21 @@ public class FunctionBlockInflater {
 
     public FunctionBlockInflater(DatabaseConnection<Connection> databaseConnection) {
         _databaseConnection = databaseConnection;
+    }
+
+    public List<FunctionBlock> inflateAllFunctionBlocks() throws DatabaseException {
+        final Query query = new Query(
+                "SELECT id FROM function_blocks"
+        );
+
+        List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long functionBlockId = row.getLong("id");
+            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId, false);
+            functionBlocks.add(functionBlock);
+        }
+        return functionBlocks;
     }
 
     public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId) throws DatabaseException {

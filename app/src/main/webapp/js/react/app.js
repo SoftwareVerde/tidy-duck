@@ -17,6 +17,13 @@ class App extends React.Component {
             success:    "success"
         };
 
+        this.roleItems = {
+          release:          "Release",
+          development:      "Development",
+          mostInterface:    "Interface",
+          functionBlock:    "Function Block"
+        };
+
         this.FunctionStereotypes = {
             event:                      "Event",
             readOnlyProperty:           "ReadOnlyProperty",
@@ -38,6 +45,8 @@ class App extends React.Component {
             mostFunctions:              [],
             mostTypes:                  [],
             mostFunctionStereotypes:    [],
+            activeRoleItem:             this.roleItems.release,
+            activeSubRoleItem:          this.roleItems.functionBlock,
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -52,7 +61,10 @@ class App extends React.Component {
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
+        this.renderDevelopmentChildItems = this.renderDevelopmentChildItems.bind(this);
         this.renderMainContent = this.renderMainContent.bind(this);
+        this.renderRoleToggle = this.renderRoleToggle.bind(this);
+        this.renderSubRoleToggle = this.renderSubRoleToggle.bind(this);
 
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
@@ -65,6 +77,7 @@ class App extends React.Component {
 
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
+        this.onCreateOrphanedFunctionBlock = this.onCreateOrphanedFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
         this.onSearchFunctionBlocks = this.onSearchFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
@@ -72,6 +85,7 @@ class App extends React.Component {
 
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
+        this.onCreateOrphanedMostInterface = this.onCreateOrphanedMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
@@ -87,6 +101,7 @@ class App extends React.Component {
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
+        this.handleRoleClick = this.handleRoleClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
@@ -258,6 +273,37 @@ class App extends React.Component {
         });
     }
 
+    onCreateOrphanedFunctionBlock(functionBlock) {
+        const thisApp = this;
+        const functionBlockJson = FunctionBlock.toJson(functionBlock);
+
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
+        insertOrphanedFunctionBlock(functionBlockJson, function(functionBlockId) {
+            if (! (functionBlockId > 0)) {
+                console.log("Unable to create orphaned function block.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
+                return;
+            }
+
+            functionBlock.setId(functionBlockId);
+            functionBlock.setAuthor(thisApp.getCurrentAccountAuthor());
+            functionBlock.setCompany(thisApp.getCurrentAccountCompany());
+
+            const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+
+            thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
+                functionBlocks:         functionBlocks,
+                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+            });
+        });
+    }
+
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
@@ -339,6 +385,34 @@ class App extends React.Component {
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
+                thisApp.setState({
+                    createButtonState:  thisApp.CreateButtonState.normal
+                });
+                return;
+            }
+
+            mostInterface.setId(mostInterfaceId);
+            const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+
+            thisApp.setState({
+                createButtonState:      thisApp.CreateButtonState.success,
+                mostInterfaces:         mostInterfaces,
+                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+            });
+        });
+    }
+
+    onCreateOrphanedMostInterface(mostInterface) {
+        const thisApp = this;
+        const mostInterfaceJson = MostInterface.toJson(mostInterface);
+
+        this.setState({
+            createButtonState:  this.CreateButtonState.animate
+        });
+
+        insertOrphanedMostInterface(mostInterfaceJson, function(mostInterfaceId) {
+            if (! (mostInterfaceId > 0)) {
+                console.log("Unable to create orphaned interface.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
@@ -1195,6 +1269,96 @@ class App extends React.Component {
             });
         });
     }
+    
+    handleRoleClick(roleName, canUseCachedChildren) {
+        const thisApp = this;
+
+        // If subRole is clicked, don't change activeRoleItem, change activeSubRoleItem. If not, default to Release Tidy Duck UI, starting at versions.
+        if (roleName !== this.roleItems.release) {
+            // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
+            const newActiveSubRoleItem = roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock);
+            const newNavigationLevel = newActiveSubRoleItem === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
+
+            this.setState({
+                navigationItems:            [],
+                searchResults:              [],
+                functionCatalogs:           [],
+                selectedItem:               null,
+                parentItem:                 null,
+                shouldShowCreateChildForm:  false,
+                shouldShowSearchChildForm:  false,
+                shouldShowToolbar:          true,
+                createButtonState:          thisApp.CreateButtonState.normal,
+                isLoadingChildren:          !canUseCachedChildren,
+                currentNavigationLevel:     newNavigationLevel,
+                activeRoleItem:             this.roleItems.development,
+                activeSubRoleItem:          newActiveSubRoleItem
+            });
+
+            if (newActiveSubRoleItem === this.roleItems.functionBlock) {
+                getAllFunctionBlocks(function(functionBlocksJson) {
+                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                        // didn't navigate away while downloading children
+                        const functionBlocks = [];
+                        for (let i in functionBlocksJson) {
+                            const functionBlockJson = functionBlocksJson[i];
+                            const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                            functionBlocks.push(functionBlock);
+                        }
+                        thisApp.setState({
+                            functionBlocks:     functionBlocks,
+                            isLoadingChildren:  false
+                        });
+                    }
+                });
+            } else {
+                getAllMostInterfaces(function(mostInterfacesJson) {
+                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                        // didn't navigate away while downloading children
+                        const mostInterfaces = [];
+                        for (let i in mostInterfacesJson) {
+                            const mostInterfaceJson = mostInterfacesJson[i];
+                            const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                            mostInterfaces.push(mostInterface);
+                        }
+                        thisApp.setState({
+                            mostFunctions:      [],
+                            mostInterfaces:     mostInterfaces,
+                            isLoadingChildren:  false
+                        });
+                    }
+                });
+            }
+        } else {
+            // Return to default Tidy Duck UI.
+            // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
+            this.setState({
+                currentNavigationLevel:         thisApp.NavigationLevel.versions,
+                activeRoleItem:                 roleName,
+                selectedItem:                   null,
+                parentItem:                     null,
+                shouldShowToolbar:              true,
+                shouldShowCreateChildForm:      false,
+                createButtonState:              this.CreateButtonState.normal,
+                selectedFunctionStereotype:     null,
+                shouldShowSearchChildForm:      false,
+                isLoadingChildren:              true,
+                isLoadingSearchResults:         false,
+                searchResults:                  [],
+                functionBlocks:                 [],
+                mostInterfaces:                 [],
+                navigationItems:                [],
+            });
+
+            this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                thisApp.setState({
+                    functionCatalogs:       functionCatalogs,
+                    isLoadingChildren:      false
+                });
+            });
+        }
+
+    }
 
     handleSettingsClick() {
         this.setState({
@@ -1268,7 +1432,7 @@ class App extends React.Component {
                     const mostFunctionKey = "mostFunction" + i;
                     reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
                 }
-                break;
+            break;
 
             case NavigationLevel.mostFunctions:
                 // add a form for the selected MOST function
@@ -1294,6 +1458,121 @@ class App extends React.Component {
         return reactComponents;
     }
 
+    renderDevelopmentChildItems() {
+        const reactComponents = [];
+        const NavigationLevel = this.NavigationLevel;
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+        const selectedItem = this.state.selectedItem;
+
+        if (this.state.isLoadingChildren) {
+            // return loading icon
+            return (
+                <div className="form-loading"><i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i></div>
+            );
+
+        }
+
+        let childItems = [];
+        switch (currentNavigationLevel) {
+            case NavigationLevel.functionCatalogs:
+                reactComponents.push(this.renderForm());
+                childItems = this.state.functionBlocks;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const functionBlockKey = "FunctionBlock" + i;
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
+                }
+                break;
+
+            case NavigationLevel.functionBlocks:
+                if (selectedItem) {
+                    reactComponents.push(
+                        <app.FunctionBlockForm key="FunctionBlockForm"
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateFunctionBlock}
+                           functionBlock={selectedItem}
+                           buttonTitle="Save"
+                           defaultButtonTitle="Save"
+                        />
+                    );
+
+                    reactComponents.push(
+                        <div key="SearchForm">
+                        <app.SearchForm
+                            navigationLevel={NavigationLevel}
+                            currentNavigationLevel={currentNavigationLevel}
+                            formTitle={"Search Interfaces"}
+                            onUpdate={this.onSearchMostInterfaces}
+                            onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
+                            selectedItem={this.state.selectedItem}
+                            searchResults={this.state.searchResults}
+                            isLoadingSearchResults={this.state.isLoadingSearchResults}
+                        />
+                        </div>
+                    );
+                } else {
+                    reactComponents.push(this.renderForm());
+                }
+
+                childItems = this.state.mostInterfaces;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const interfaceKey = "Interface" + i;
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                }
+                break;
+
+            case NavigationLevel.mostInterfaces:
+                if (selectedItem) {
+                    reactComponents.push(
+                        <app.MostInterfaceForm key="MostInterfaceForm"
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateMostInterface}
+                           mostInterface={selectedItem}
+                           buttonTitle="Save"
+                           defaultButtonTitle="Save"
+                        />
+                    );
+
+                    reactComponents.push(this.renderForm());
+                }
+
+                childItems = this.state.mostFunctions;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const mostFunctionKey = "mostFunction" + i;
+                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
+                }
+                break;
+
+            case NavigationLevel.mostFunctions:
+                // add a form for the selected MOST function
+                const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
+                const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
+                reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
+                   showTitle={true}
+                   onSubmit={this.onUpdateMostFunction}
+                   buttonTitle={buttonTitle}
+                   defaultButtonTitle="Save"
+                   mostFunctionStereotypes={this.state.mostFunctionStereotypes}
+                   mostTypes={this.state.mostTypes}
+                   mostFunction={this.state.selectedItem}
+                   shouldShowSaveAnimation={shouldAnimateCreateButton}
+                />);
+                break;
+
+            default:
+                console.log("renderChildItems: Unimplemented Navigation Level: "+ currentNavigationLevel);
+            break;
+        }
+
+        return reactComponents;
+    }
+
     renderForm() {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
@@ -1302,6 +1581,8 @@ class App extends React.Component {
         const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
+
+        const createOrphan = this.state.activeRoleItem !== this.roleItems.release;
 
         const reactComponents = [];
 
@@ -1344,7 +1625,7 @@ class App extends React.Component {
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
                             buttonTitle={buttonTitle}
                             showTitle={true}
-                            onSubmit={this.onCreateFunctionBlock}
+                            onSubmit={createOrphan ? this.onCreateOrphanedFunctionBlock : this.onCreateFunctionBlock}
                             defaultButtonTitle="Submit"
                         />
                     );
@@ -1430,6 +1711,17 @@ class App extends React.Component {
                     <app.SettingsPage theme={theme} onThemeChange={this.onThemeChange}/>
                 </div>
             );
+        } else if (this.state.activeRoleItem === this.roleItems.development) {
+            return (
+                <div id="main-content" className="container">
+                    <div className="display-area">
+                        <div id="child-display-area" className="clearfix">
+                            {this.renderDevelopmentChildItems()}
+                        </div>
+                    </div>
+                    {this.renderRoleReturnArrow()}
+                </div>
+            );
         } else {
             return (
                 <div id="main-content" className="container">
@@ -1446,6 +1738,42 @@ class App extends React.Component {
 
     }
 
+    renderRoleToggle() {
+        const roleItems = [];
+        roleItems.push(this.roleItems.release);
+        roleItems.push(this.roleItems.development);
+
+        return (
+            <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeRoleItem} />
+        );
+    }
+
+    renderSubRoleToggle() {
+        if (this.state.activeRoleItem === this.roleItems.development) {
+            const roleItems = [];
+            roleItems.push(this.roleItems.functionBlock);
+            roleItems.push(this.roleItems.mostInterface);
+
+            return (
+                <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeSubRoleItem} />
+            );
+        }
+    }
+
+    renderRoleReturnArrow() {
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        if (currentNavigationLevel === this.NavigationLevel.mostFunctions) {
+            return (
+                <i className="role-return fa fa-arrow-circle-left fa-4x"
+                   onClick={() => this.onMostInterfaceSelected(this.state.parentItem, true)}/>
+            );
+        }
+        const roleReturnArrow = this.state.selectedItem ? <i className="role-return fa fa-arrow-circle-left fa-4x"
+                                                             onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/> : "";
+        return roleReturnArrow;
+    }
+
     logout() {
         logout(function (data) {
             if (data.wasSuccess) {
@@ -1460,6 +1788,8 @@ class App extends React.Component {
             <div>
                 <div id="header" className="secondary-bg accent title-font">
                     Tidy Duck
+                    {this.renderRoleToggle()}
+                    {this.renderSubRoleToggle()}
                     <div id="account-area">
                         {accountName}
                         <a id="logout" href="#" onClick={this.logout}>logout</a>

@@ -102,7 +102,12 @@ class MostInterfaceForm extends React.Component {
             return null;
         }
 
-        return (<div className="metadata-form-title">New Interface</div>);
+        let formTitle = "New Interface";
+        if (this.props.showCustomTitle) {
+            formTitle = this.props.mostInterface.getName();
+        }
+
+        return (<div className="metadata-form-title">{formTitle}</div>);
     }
 
     render() {

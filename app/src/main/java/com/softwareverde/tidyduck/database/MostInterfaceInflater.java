@@ -24,6 +24,21 @@ public class MostInterfaceInflater {
         _databaseConnection = databaseConnection;
     }
 
+    public List<MostInterface> inflateAllMostInterfaces() throws DatabaseException {
+        final Query query = new Query(
+                "SELECT id FROM interfaces"
+        );
+
+        List<MostInterface> mostInterfaces = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long mostInterfaceId = row.getLong("id");
+            MostInterface mostInterface = inflateMostInterface(mostInterfaceId, false);
+            mostInterfaces.add(mostInterface);
+        }
+        return mostInterfaces;
+    }
+
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId) throws DatabaseException {
         return inflateMostInterfacesFromFunctionBlockId(functionBlockId, false);
     }

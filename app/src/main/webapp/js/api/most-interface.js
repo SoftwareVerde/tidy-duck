@@ -24,6 +24,31 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
     });
 }
 
+// calls callbackFunction with an array of all interfaces in database.
+function getAllMostInterfaces(callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/most-interfaces",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaces = null;
+
+        if (data.wasSuccess) {
+            mostInterfaces = data.mostInterfaces;
+        } else {
+            console.log("Unable to get all interfaces:" + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaces);
+        }
+    });
+}
+
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
 function getMostInterfacesMatchingSearchString(versionId, searchString, callbackFunction) {
     const request = new Request(
@@ -90,6 +115,34 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
             mostInterfaceId = data.mostInterfaceId;
         } else {
             console.log("Unable to insert interface: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaceId);
+        }
+    });
+}
+
+// calls callbackFunction with new orphaned MOST interface ID
+function insertOrphanedMostInterface(mostInterface, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interface/most-interfaces",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "mostInterface":        mostInterface
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterfaceId = null;
+
+        if (data.wasSuccess) {
+            mostInterfaceId = data.mostInterfaceId;
+        } else {
+            console.log("Unable to insert orphaned Interface: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
