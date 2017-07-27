@@ -63,9 +63,11 @@ class App extends React.Component {
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
         this.renderDevelopmentChildItems = this.renderDevelopmentChildItems.bind(this);
+        this.renderDevelopmentForm = this.renderDevelopmentForm.bind(this);
         this.renderMainContent = this.renderMainContent.bind(this);
         this.renderRoleToggle = this.renderRoleToggle.bind(this);
         this.renderSubRoleToggle = this.renderSubRoleToggle.bind(this);
+        this.renderFilterBar = this.renderFilterBar.bind(this);
 
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
@@ -1510,30 +1512,49 @@ class App extends React.Component {
         return reactComponents;
     }
 
-    renderDevelopmentChildItems() {
-        const reactComponents = [];
+    renderDevelopmentForm() {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        const shouldShowToolbar = this.state.shouldShowToolbar;
+        const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
+        const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
+
         const selectedItem = this.state.selectedItem;
+        const createOrphan = !selectedItem;
+        const buttonTitle = (this.state.createButtonState === this.CreateButtonState.success) ? "Added" : "Submit";
+        const shouldAnimateCreateButton = (this.state.createButtonState === this.CreateButtonState.animate);
 
-        if (this.state.isLoadingChildren) {
-            // return loading icon
-            return (
-                <div className="form-loading"><i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i></div>
+        const reactComponents = [];
+
+        if (shouldShowToolbar) {
+            reactComponents.push(
+                <app.Toolbar key="Toolbar"
+                     onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false })}
+                     onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
+                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false })}
+                     navigationLevel={this.NavigationLevel}
+                     currentNavigationLevel={this.state.currentNavigationLevel}
+                     functionStereotypes={this.FunctionStereotypes}
+                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
+                />
             );
-
         }
 
-        let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.functionCatalogs:
-                reactComponents.push(this.renderForm());
-                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
-                for (let i in childItems) {
-                    const childItem = childItems[i];
-                    const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
+                if (shouldShowCreateChildForm) {
+                    reactComponents.push(
+                        <app.FunctionBlockForm key="FunctionBlockForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
+                           buttonTitle={buttonTitle}
+                           showTitle={true}
+                           onSubmit={createOrphan ? this.onCreateOrphanedFunctionBlock : this.onCreateFunctionBlock}
+                           defaultButtonTitle="Submit"
+                        />
+                    );
                 }
+                reactComponents.push(this.renderFilterBar());
                 break;
 
             case NavigationLevel.functionBlocks:
@@ -1549,12 +1570,26 @@ class App extends React.Component {
                            defaultButtonTitle="Save"
                         />
                     );
+                }
 
+                if (shouldShowCreateChildForm) {
                     reactComponents.push(
-                        <div key="SearchForm">
+                        <app.MostInterfaceForm
+                           key="MostInterfaceForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
+                           buttonTitle={buttonTitle}
+                           showTitle={true}
+                           onSubmit={createOrphan ? this.onCreateOrphanedMostInterface : this.onCreateMostInterface}
+                           defaultButtonTitle="Submit"
+                        />
+                    );
+                } else if (shouldShowSearchChildForm) {
+                    reactComponents.push(
                         <app.SearchForm
+                            key="SearchForm"
                             navigationLevel={NavigationLevel}
                             currentNavigationLevel={currentNavigationLevel}
+                            showTitle={true}
                             formTitle={"Search Interfaces"}
                             onUpdate={this.onSearchMostInterfaces}
                             onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
@@ -1562,17 +1597,7 @@ class App extends React.Component {
                             searchResults={this.state.searchResults}
                             isLoadingSearchResults={this.state.isLoadingSearchResults}
                         />
-                        </div>
                     );
-                } else {
-                    reactComponents.push(this.renderForm());
-                }
-
-                childItems = this.state.mostInterfaces;
-                for (let i in childItems) {
-                    const childItem = childItems[i];
-                    const interfaceKey = "Interface" + i;
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
                 }
                 break;
 
@@ -1589,15 +1614,21 @@ class App extends React.Component {
                            defaultButtonTitle="Save"
                         />
                     );
-
-                    reactComponents.push(this.renderForm());
                 }
 
-                childItems = this.state.mostFunctions;
-                for (let i in childItems) {
-                    const childItem = childItems[i];
-                    const mostFunctionKey = "mostFunction" + i;
-                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
+                if (shouldShowCreateChildForm) {
+                    reactComponents.push(
+                        <app.MostFunctionForm key="MostFunctionForm"
+                                  shouldShowSaveAnimation={shouldAnimateCreateButton}
+                                  buttonTitle={buttonTitle}
+                                  showTitle={true}
+                                  onSubmit={this.onCreateMostFunction}
+                                  defaultButtonTitle="Submit"
+                                  mostFunctionStereotypes={this.state.mostFunctionStereotypes}
+                                  selectedFunctionStereotype={this.state.selectedFunctionStereotype}
+                                  mostTypes={this.state.mostTypes}
+                        />
+                    );
                 }
                 break;
 
@@ -1615,6 +1646,57 @@ class App extends React.Component {
                    mostFunction={this.state.selectedItem}
                    shouldShowSaveAnimation={shouldAnimateCreateButton}
                 />);
+                break;
+
+            default:
+                console.log("renderChildItems: Unimplemented Navigation Level: " + currentNavigationLevel);
+                break;
+        }
+
+        return reactComponents;
+    }
+
+    renderDevelopmentChildItems() {
+        const reactComponents = [];
+        const NavigationLevel = this.NavigationLevel;
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+        const selectedItem = this.state.selectedItem;
+
+        if (this.state.isLoadingChildren) {
+            // return loading icon
+            return (
+                <div className="form-loading"><i id="loading-children-icon" className="fa fa-3x fa-refresh fa-spin"></i></div>
+            );
+
+        }
+
+        let childItems = [];
+        switch (currentNavigationLevel) {
+            case NavigationLevel.functionCatalogs:
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const functionBlockKey = "FunctionBlock" + i;
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
+                }
+                break;
+
+            case NavigationLevel.functionBlocks:
+                childItems = this.state.mostInterfaces;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const interfaceKey = "Interface" + i;
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                }
+                break;
+
+            case NavigationLevel.mostInterfaces:
+                childItems = this.state.mostFunctions;
+                for (let i in childItems) {
+                    const childItem = childItems[i];
+                    const mostFunctionKey = "mostFunction" + i;
+                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} />);
+                }
                 break;
 
             default:
@@ -1767,10 +1849,8 @@ class App extends React.Component {
             return (
                 <div id="main-content" className="container">
                     <div className="display-area">
+                        {this.renderDevelopmentForm()}
                         <div id="child-display-area" className="clearfix">
-                            <div className="search-form" key="filtered-search-form">
-                                <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue="Filter Function Blocks" readOnly={false} onChange={this.onFilterFunctionBlocks}/>
-                            </div>
                             {this.renderDevelopmentChildItems()}
                         </div>
                     </div>
@@ -1827,6 +1907,27 @@ class App extends React.Component {
         const roleReturnArrow = this.state.selectedItem ? <i className="role-return fa fa-arrow-circle-left fa-4x"
                                                              onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/> : "";
         return roleReturnArrow;
+    }
+
+    renderFilterBar() {
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        if (currentNavigationLevel === this.NavigationLevel.functionBlocks && this.state.selectedItem) {
+            // Don't show filter bar when viewing interfaces in a selected Function Block.
+            return;
+        }
+
+        if(currentNavigationLevel === this.NavigationLevel.mostInterfaces) {
+            // Don't show filter bar when viewing most functions in a selected interface.
+            return;
+        }
+
+        return (
+            <div className="filter-form" key="filtered-search-form">
+                <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue="Filter Function Blocks" readOnly={false} onChange={this.onFilterFunctionBlocks}/>
+            </div>
+        );
+
     }
 
     logout() {

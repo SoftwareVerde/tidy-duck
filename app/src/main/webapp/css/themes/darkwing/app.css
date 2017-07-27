@@ -90,7 +90,7 @@
     color: #032C46;
 }
 
-.search-form {
+.search-form, .filter-form {
     background-color: #9DA1AE;
     color: #032334;
 }

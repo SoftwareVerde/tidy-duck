@@ -75,7 +75,7 @@
     color: #A0A0A0;
 }
 
-.search-form {
+.search-form, .filter-form {
     background-color: #EDEDED;
     box-shadow: 0px 0px 15px #CCCCCC;
 }
