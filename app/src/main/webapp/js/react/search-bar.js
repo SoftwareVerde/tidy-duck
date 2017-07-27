@@ -3,7 +3,7 @@ class SearchBar extends React.Component {
         super(props);
 
         this.state = {
-            value: (this.props.value || "")
+            value:          (this.props.value || ""),
         };
 
         this.onInputChanged = this.onInputChanged.bind(this);
@@ -36,7 +36,7 @@ class SearchBar extends React.Component {
     render() {
         return (
             <span className="search-bar">
-                <input type="text" id="search-bar" name="search-bar" value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly}/>
+                <input type="text" id="search-bar" name="search-bar" value={this.state.value} placeholder={this.props.defaultValue} onChange={this.onInputChanged} readOnly={this.props.readOnly}/>
                 <i className="fa fa-search"/>
             </span>
         )

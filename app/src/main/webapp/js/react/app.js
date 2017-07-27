@@ -55,7 +55,9 @@ class App extends React.Component {
             selectedFunctionStereotype: null,
             shouldShowSearchChildForm:  false,
             isLoadingChildren:          true,
-            isLoadingSearchResults:     false
+            isLoadingSearchResults:     false,
+            filterString:               null,
+            shouldShowFilteredResults:  false
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -79,6 +81,7 @@ class App extends React.Component {
         this.onCreateOrphanedFunctionBlock = this.onCreateOrphanedFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
         this.onSearchFunctionBlocks = this.onSearchFunctionBlocks.bind(this);
+        this.onFilterFunctionBlocks = this.onFilterFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
 
@@ -842,9 +845,10 @@ class App extends React.Component {
                 }
 
                 thisApp.setState({
-                    mostInterfaces:     mostInterfaces,
-                    mostFunctions:      [],
-                    isLoadingChildren:  false
+                    mostInterfaces:             mostInterfaces,
+                    mostFunctions:              [],
+                    isLoadingChildren:          false,
+                    shouldShowFilteredResults:  false
                 });
             }
 
@@ -897,6 +901,53 @@ class App extends React.Component {
                 isLoadingSearchResults: false
             });
         }
+    }
+
+    onFilterFunctionBlocks(filterString) {
+        const requestTime = (new Date()).getTime();
+
+        if (filterString.length > 0) {
+            const thisApp = this;
+            this.setState({
+                isLoadingChildren: true,
+                filterString:      filterString
+            });
+
+            getFunctionBlocksMatchingSearchString(filterString, function(functionBlocksJson) {
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                    if (thisApp.state.lastSearchResultTimestamp > requestTime) {
+                        // old results, discard
+                        return;
+                    }
+
+                    const functionBlocks = [];
+                    for (let i in functionBlocksJson) {
+                        const functionBlockJson = functionBlocksJson[i];
+                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                        functionBlocks.push(functionBlock);
+                    }
+
+                    thisApp.setState({
+                        searchResults:              functionBlocks,
+                        shouldShowFilteredResults:  true,
+                        lastSearchResultTimestamp:  requestTime,
+                        isLoadingChildren:          false,
+                        isLoadingSearchResults:     false
+                    });
+                }
+            });
+        } else {
+            // TODO: remove isLoadingChildren change and indicate that no results were found in child display area.
+            this.setState({
+                searchResults:                  [],
+                lastSearchResultTimestamp:      requestTime,
+                isLoadingChildren:              false,
+                isLoadingSearchResults:         false,
+                shouldShowFilteredResults:      false,
+                filterString:                   ""
+            });
+        }
+
     }
 
     onAssociateFunctionBlockWithFunctionCatalog(functionBlock, functionCatalog) {
@@ -1025,8 +1076,9 @@ class App extends React.Component {
 
                 // TODO: if Functions have child elements that can be displayed, clear their array in setState.
                 thisApp.setState({
-                    mostFunctions:      mostFunctions,
-                    isLoadingChildren:  false
+                    mostFunctions:                  mostFunctions,
+                    isLoadingChildren:              false,
+                    shouldShowFilteredResults:      false
                 });
             }
         });
@@ -1179,7 +1231,8 @@ class App extends React.Component {
             parentItem:                 parentItem,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
-            shouldShowCreateChildForm:  false
+            shouldShowCreateChildForm:  false,
+            shouldShowFilteredResults:  false
         });
 
         // this.updateMostTypes();
@@ -1285,6 +1338,7 @@ class App extends React.Component {
                 shouldShowCreateChildForm:  false,
                 shouldShowSearchChildForm:  false,
                 shouldShowToolbar:          true,
+                shouldShowFilteredResults:  false,
                 createButtonState:          thisApp.CreateButtonState.normal,
                 isLoadingChildren:          !canUseCachedChildren,
                 currentNavigationLevel:     newNavigationLevel,
@@ -1341,6 +1395,7 @@ class App extends React.Component {
                 shouldShowSearchChildForm:      false,
                 isLoadingChildren:              true,
                 isLoadingSearchResults:         false,
+                shouldShowFilteredResults:      false,
                 searchResults:                  [],
                 functionBlocks:                 [],
                 mostInterfaces:                 [],
@@ -1473,7 +1528,7 @@ class App extends React.Component {
         switch (currentNavigationLevel) {
             case NavigationLevel.functionCatalogs:
                 reactComponents.push(this.renderForm());
-                childItems = this.state.functionBlocks;
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
@@ -1650,7 +1705,7 @@ class App extends React.Component {
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
                             buttonTitle={buttonTitle}
                             showTitle={true}
-                            onSubmit={this.onCreateMostInterface}
+                            onSubmit={createOrphan ? this.onCreateOrphanedMostInterface : this.onCreateMostInterface}
                             defaultButtonTitle="Submit"
                         />
                     );
@@ -1713,6 +1768,9 @@ class App extends React.Component {
                 <div id="main-content" className="container">
                     <div className="display-area">
                         <div id="child-display-area" className="clearfix">
+                            <div className="search-form" key="filtered-search-form">
+                                <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue="Filter Function Blocks" readOnly={false} onChange={this.onFilterFunctionBlocks}/>
+                            </div>
                             {this.renderDevelopmentChildItems()}
                         </div>
                     </div>
