@@ -7,7 +7,7 @@ public class Version {
     private Long _id;
     private String _name;
     private Author _owner;
-    private boolean _isCommitted;
+    private boolean _isReleased;
     private List<FunctionCatalog> _functionCatalogs = new ArrayList<FunctionCatalog>();
 
     public Long getId() {
@@ -34,12 +34,12 @@ public class Version {
         _owner = owner;
     }
 
-    public boolean isCommitted() {
-        return _isCommitted;
+    public boolean isReleased() {
+        return _isReleased;
     }
 
-    public void setCommitted(boolean committed) {
-        _isCommitted = committed;
+    public void setReleased(boolean released) {
+        _isReleased = released;
     }
 
     public List<FunctionCatalog> getFunctionCatalogs() {

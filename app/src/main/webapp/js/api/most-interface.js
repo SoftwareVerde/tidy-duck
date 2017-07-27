@@ -50,9 +50,9 @@ function getAllMostInterfaces(callbackFunction) {
 }
 
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
-function getMostInterfacesMatchingSearchString(versionId, searchString, callbackFunction) {
+function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString + "&versionId=" + versionId,
+        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString,
         {
             method: "GET",
             credentials: "include"
@@ -75,9 +75,9 @@ function getMostInterfacesMatchingSearchString(versionId, searchString, callback
 }
 
 // calls callbackFunction with list of function catalog IDs
-function listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId, callbackFunction) {
+function listFunctionBlocksContainingMostInterface(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-interface/" + mostInterfaceId + "/function-blocks?versionId=" + versionId,
+        API_PREFIX + "most-interface/" + mostInterfaceId + "/function-blocks",
         {
             method: "GET",
             credentials: "include"

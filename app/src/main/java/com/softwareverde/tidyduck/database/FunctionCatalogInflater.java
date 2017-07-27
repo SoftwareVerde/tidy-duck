@@ -26,26 +26,22 @@ public class FunctionCatalogInflater {
 
     /**
      * Inflates function catalogs without child objects.
-     * @param versionId
      * @return
      * @throws DatabaseException
      */
-    public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(final long versionId) throws DatabaseException {
-        return inflateFunctionCatalogsFromVersionId(versionId, false);
+    public List<FunctionCatalog> inflateFunctionCatalogs() throws DatabaseException {
+        return inflateFunctionCatalogs(false);
     }
 
-    public List<FunctionCatalog> inflateFunctionCatalogsFromVersionId(final long versionId, final boolean inflateChildren) throws DatabaseException {
+    public List<FunctionCatalog> inflateFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT function_catalog_id"
-                + " FROM versions_function_catalogs"
-                + " WHERE version_id = ?"
+                "SELECT id FROM function_catalogs"
         );
-        query.setParameter(versionId);
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long functionCatalogId = row.getLong("function_catalog_id");
+            final long functionCatalogId = row.getLong("id");
             FunctionCatalog functionCatalog = inflateFunctionCatalog(functionCatalogId, inflateChildren);
             functionCatalogs.add(functionCatalog);
         }
@@ -86,7 +82,7 @@ public class FunctionCatalogInflater {
         final String release = row.getString("release_version");
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
-        final boolean isCommitted = row.getBoolean("is_committed");
+        final boolean isReleased = row.getBoolean("is_released");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -100,7 +96,7 @@ public class FunctionCatalogInflater {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
-        functionCatalog.setIsCommitted(isCommitted);
+        functionCatalog.setReleased(isReleased);
 
         if (inflateChildren) {
             FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);

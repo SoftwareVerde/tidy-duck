@@ -31,7 +31,6 @@ public class FunctionCatalogDatabaseManagerTests {
         TestDataLoader.initDatabase(_databaseConnection);
         TestDataLoader.insertFakeCompany(_databaseConnection);
         TestDataLoader.insertFakeAccount(_databaseConnection);
-        TestDataLoader.insertFakeVersion(_databaseConnection);
     }
 
     @Test
@@ -51,8 +50,8 @@ public class FunctionCatalogDatabaseManagerTests {
         functionCatalog.setCompany(company);
 
         // Action
-        _functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
-        final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogsFromVersionId(1L);
+        _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
+        final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogs();
 
         // Assert
         Assert.assertEquals(1, inflatedFunctionCatalogs.size());
@@ -87,7 +86,7 @@ public class FunctionCatalogDatabaseManagerTests {
         functionCatalog.setCompany(company);
 
         // Save the function catalog's initial state.
-        _functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+        _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
 
         // Change the function catalog's properties (to values that were not saved in the database)...
         functionCatalog.setAuthor(newAuthor);
@@ -96,11 +95,11 @@ public class FunctionCatalogDatabaseManagerTests {
         functionCatalog.setRelease("v0.0.1");
 
         // Action
-        _functionCatalogDatabaseManager.updateFunctionCatalogForVersion(1L, functionCatalog);
+        _functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog);
         final FunctionCatalog inflatedFunctionCatalog = _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
 
         // Assert
-        Assert.assertEquals(false, inflatedFunctionCatalog.isCommitted());
+        Assert.assertEquals(false, inflatedFunctionCatalog.isReleased());
         Assert.assertEquals(1L, inflatedFunctionCatalog.getId().longValue());
         Assert.assertEquals("New Name", inflatedFunctionCatalog.getName());
         Assert.assertEquals("v0.0.1", inflatedFunctionCatalog.getRelease());
@@ -117,20 +116,19 @@ public class FunctionCatalogDatabaseManagerTests {
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
 
-        final Long versionId = 1L;
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName("Name");
         functionCatalog.setRelease("v0.0.0");
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
-        _functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+        _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
 
         // Action
-        _functionCatalogDatabaseManager.deleteFunctionCatalogFromVersion(1L, functionCatalog.getId());
+        _functionCatalogDatabaseManager.deleteFunctionCatalog(functionCatalog.getId());
 
         // Assert
-        final List<FunctionCatalog> functionCatalogs = _functionCatalogInflater.inflateFunctionCatalogsFromVersionId(1L);
+        final List<FunctionCatalog> functionCatalogs = _functionCatalogInflater.inflateFunctionCatalogs();
         Assert.assertEquals(0, functionCatalogs.size());
 
         final FunctionCatalog inflateFunctionCatalog = _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
@@ -146,13 +144,12 @@ public class FunctionCatalogDatabaseManagerTests {
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
 
-        final Long versionId = 1L;
         final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setName("Name");
         functionCatalog.setRelease("v0.0.0");
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
-        _functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+        _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
 
         final FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setAuthor(author);
@@ -165,7 +162,7 @@ public class FunctionCatalogDatabaseManagerTests {
         _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock);
 
         // Action
-        final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogsFromVersionId(1L, true);
+        final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogs(true);
 
         // Assert
         Assert.assertEquals(1, inflatedFunctionCatalogs.size());

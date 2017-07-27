@@ -41,32 +41,32 @@ public class DatabaseManager {
 
     // FUNCTION CATALOG METHODS
 
-    public void insertFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+                functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
             }
         });
     }
 
-    public void updateFunctionCatalog(final long versionId, final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.updateFunctionCatalogForVersion(versionId, functionCatalog);
+                functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog);
             }
         });
     }
 
-    public void deleteFunctionCatalog(final long versionId, final long functionCatalogId) throws DatabaseException {
+    public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.deleteFunctionCatalogFromVersion(versionId, functionCatalogId);
+                functionCatalogDatabaseManager.deleteFunctionCatalog(functionCatalogId);
             }
         });
     }
@@ -123,10 +123,10 @@ public class DatabaseManager {
         });
     }
 
-    public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId, final long versionId) throws DatabaseException {
+    public List<Long> listFunctionCatalogsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-            return functionBlockDatabaseManager.listFunctionCatalogIdsContainingFunctionBlock(functionBlockId, versionId);
+            return functionBlockDatabaseManager.listFunctionCatalogIdsContainingFunctionBlock(functionBlockId);
         }
     }
 
@@ -183,10 +183,10 @@ public class DatabaseManager {
         });
     }
 
-    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId, final long versionId) throws DatabaseException {
+    public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-            return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId, versionId);
+            return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
         }
     }
 

@@ -13,7 +13,7 @@ public class MostInterface {
     private String _description;
     private String _version;
     private Date _lastModifiedDate;
-    private boolean _isCommitted;
+    private boolean _isReleased;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostFunction> _mostFunctions = new ArrayList<>();
 
@@ -65,12 +65,12 @@ public class MostInterface {
         _lastModifiedDate = lastModifiedDate;
     }
 
-    public boolean isCommitted() {
-        return _isCommitted;
+    public boolean isReleased() {
+        return _isReleased;
     }
 
-    public void setCommitted(boolean committed) {
-        _isCommitted = committed;
+    public void setReleased(boolean released) {
+        _isReleased = released;
     }
 
     public List<Modification> getModifications() {

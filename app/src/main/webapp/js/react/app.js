@@ -38,7 +38,6 @@ class App extends React.Component {
             navigationItems:            [],
             searchResults:              [],
             lastSearchResultTimestamp:  0,
-            currentVersionId:           1, // TODO
             functionCatalogs:           [],
             functionBlocks:             [],
             mostInterfaces:             [],
@@ -136,7 +135,7 @@ class App extends React.Component {
             createButtonState:  this.CreateButtonState.animate
         });
 
-        insertFunctionCatalog(this.state.currentVersionId, functionCatalogJson, function(functionCatalogId) {
+        insertFunctionCatalog(functionCatalogJson, function(functionCatalogId) {
             if (! (functionCatalogId > 0)) {
                 console.log("Unable to create function catalog.");
                 thisApp.setState({
@@ -199,7 +198,7 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(this.state.currentVersionId, functionCatalogId, functionCatalogJson, function(wasSuccess) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, function(wasSuccess) {
             if (wasSuccess) {
                 var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
@@ -612,7 +611,7 @@ class App extends React.Component {
     }
 
     getFunctionCatalogsForCurrentVersion(callbackFunction) {
-        getFunctionCatalogsForVersionId(this.state.currentVersionId, function(functionCatalogsJson) {
+        getFunctionCatalogs(function(functionCatalogsJson) {
             const functionCatalogs = [];
 
             for (let i in functionCatalogsJson) {
@@ -690,9 +689,8 @@ class App extends React.Component {
     onDeleteFunctionCatalog(functionCatalog) {
         const thisApp = this;
         const functionCatalogId = functionCatalog.getId();
-        const currentVersionId = this.state.currentVersionId;
 
-        deleteFunctionCatalog(currentVersionId, functionCatalogId, function (success, errorMessage) {
+        deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
             if (success) {
                 const newFunctionCatalogs = [];
                 const existingFunctionCatalogs = thisApp.state.functionCatalogs;
@@ -714,7 +712,6 @@ class App extends React.Component {
         //Check if this function catalog contains any function blocks that are not referenced elsewhere.
         const thisApp = this;
         const functionCatalogId = functionCatalog.getId();
-        const currentVersionId = this.state.currentVersionId;
         const orphanedFunctionBlocks = [];
 
         getFunctionBlocksForFunctionCatalogId(functionCatalogId, function(functionBlocksJson) {
@@ -722,7 +719,7 @@ class App extends React.Component {
                 let functionBlockCounter = 0;
                 for (let i in functionBlocksJson) {
                     const functionBlock = functionBlocksJson[i];
-                    listFunctionCatalogsContainingFunctionBlock(functionBlock.id, currentVersionId, function(data) {
+                    listFunctionCatalogsContainingFunctionBlock(functionBlock.id, function(data) {
                         // TODO: add else statement if data request failed. User should attempt the delete again to be safe.
                         if (data.wasSuccess) {
                             const functionCatalogIds = data.functionCatalogIds;
@@ -746,7 +743,7 @@ class App extends React.Component {
                                 }
 
                                 if (confirm(confirmPromptText)) {
-                                    deleteFunctionCatalog(thisApp.state.currentVersionId, functionCatalogId, function (success, errorMessage) {
+                                    deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
                                         if (success) {
                                             const newFunctionCatalogs = [];
                                             const existingFunctionCatalogs = thisApp.state.functionCatalogs;
@@ -770,7 +767,7 @@ class App extends React.Component {
                     });
                 }
             } else {
-                deleteFunctionCatalog(thisApp.state.currentVersionId, functionCatalogId, function (success, errorMessage) {
+                deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
                     if (success) {
                         const newFunctionCatalogs = [];
                         const existingFunctionCatalogs = thisApp.state.functionCatalogs;
@@ -861,7 +858,7 @@ class App extends React.Component {
             const thisApp = this;
             this.setState({isLoadingSearchResults: true});
 
-            getFunctionBlocksMatchingSearchString(this.state.currentVersionId, searchString, function (functionBlocksJson) {
+            getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -933,7 +930,7 @@ class App extends React.Component {
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        listFunctionCatalogsContainingFunctionBlock(functionBlockId, this.state.currentVersionId, function (data) {
+        listFunctionCatalogsContainingFunctionBlock(functionBlockId, function (data) {
             if (data.wasSuccess) {
                 let shouldDelete = false;
                 const functionCatalogIds = data.functionCatalogIds;
@@ -1042,7 +1039,7 @@ class App extends React.Component {
             const thisApp = this;
             this.setState({isLoadingSearchResults: true});
 
-            getMostInterfacesMatchingSearchString(this.state.currentVersionId, searchString, function (mostInterfacesJson) {
+            getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1114,7 +1111,7 @@ class App extends React.Component {
         const functionBlockId = this.state.selectedItem.getId();
         const mostInterfaceId = mostInterface.getId();
 
-        listFunctionBlocksContainingMostInterface(mostInterfaceId, this.state.currentVersionId, function (data) {
+        listFunctionBlocksContainingMostInterface(mostInterfaceId, function (data) {
             if (data.wasSuccess) {
                 let shouldDelete = false;
                 const functionBlockIds = data.functionBlockIds;

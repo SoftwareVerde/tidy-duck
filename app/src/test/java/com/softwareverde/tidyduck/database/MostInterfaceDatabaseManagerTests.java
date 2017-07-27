@@ -38,7 +38,7 @@ public class MostInterfaceDatabaseManagerTests {
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
-        _functionCatalogDatabaseManager.insertFunctionCatalogForVersion(versionId, functionCatalog);
+        _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
         return functionCatalog;
     }
 
@@ -110,7 +110,6 @@ public class MostInterfaceDatabaseManagerTests {
         TestDataLoader.initDatabase(_databaseConnection);
         TestDataLoader.insertFakeCompany(_databaseConnection);
         TestDataLoader.insertFakeAccount(_databaseConnection);
-        TestDataLoader.insertFakeVersion(_databaseConnection);
 
         _randomizeNextFunctionCatalogInsertId();
         _randomizeNextFunctionBlockInsertId();
@@ -266,7 +265,7 @@ public class MostInterfaceDatabaseManagerTests {
         _mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(functionBlock2.getId(), mostInterface.getId());
 
         // Action
-        final List<Long> functionBlockIds = _mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterface.getId(), 1L);
+        final List<Long> functionBlockIds = _mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterface.getId());
 
         // Assert
         Assert.assertEquals(2, functionBlockIds.size());

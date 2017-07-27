@@ -18,7 +18,7 @@ public abstract class MostFunction {
     private String _name;
     private String _description;
     private String _release;
-    private boolean _isCommitted;
+    private boolean _isReleased;
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
     private Company _company;
@@ -65,12 +65,12 @@ public abstract class MostFunction {
         _release = release;
     }
 
-    public boolean isCommitted() {
-        return _isCommitted;
+    public boolean isReleased() {
+        return _isReleased;
     }
 
-    public void setCommitted(boolean committed) {
-        _isCommitted = committed;
+    public void setReleased(boolean released) {
+        _isReleased = released;
     }
 
     public MostFunctionStereotype getFunctionStereotype() {

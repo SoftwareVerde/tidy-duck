@@ -36,31 +36,17 @@ CREATE TABLE accounts (
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;
 
-CREATE TABLE versions (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE,
-    owner_id int unsigned NOT NULL,
-    FOREIGN KEY (owner_id) REFERENCES accounts (id)
-) ENGINE=INNODB;
-
 CREATE TABLE function_catalogs (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255) NOT NULL,
     release_version varchar(255) NOT NULL,
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE,
+    is_released boolean NOT NULL DEFAULT FALSE,
+    prior_version_id int unsigned NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
-    FOREIGN KEY (company_id) REFERENCES companies (id)
-) ENGINE=INNODB;
-
-CREATE TABLE versions_function_catalogs (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    version_id int unsigned NOT NULL,
-    function_catalog_id int unsigned NOT NULL,
-    FOREIGN KEY (version_id) REFERENCES versions (id),
-    FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id)
+    FOREIGN KEY (company_id) REFERENCES companies (id),
+    FOREIGN KEY (prior_version_id) REFERENCES function_catalogs (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_blocks (
@@ -74,9 +60,11 @@ CREATE TABLE function_blocks (
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
     access varchar(255) NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE,
+    is_released boolean NOT NULL DEFAULT FALSE,
+    prior_version_id int unsigned NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
-    FOREIGN KEY (company_id) REFERENCES companies (id)
+    FOREIGN KEY (company_id) REFERENCES companies (id),
+    FOREIGN KEY (prior_version_id) REFERENCES function_blocks (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_catalogs_function_blocks (
@@ -94,7 +82,9 @@ CREATE TABLE interfaces (
     description text NOT NULL,
     last_modified_date date NOT NULL,
     version varchar(255) NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE
+    is_released boolean NOT NULL DEFAULT FALSE,
+    prior_version_id int unsigned NULL,
+    FOREIGN KEY (prior_version_id) REFERENCES interfaces (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_blocks_interfaces (
@@ -171,12 +161,14 @@ CREATE TABLE functions (
     company_id int unsigned NOT NULL,
     return_type_id int unsigned NOT NULL,
     supports_notification boolean NOT NULL,
-    is_committed boolean NOT NULL DEFAULT FALSE,
+    is_released boolean NOT NULL DEFAULT FALSE,
+    prior_version_id int unsigned NULL,
     FOREIGN KEY (function_stereotype_id) REFERENCES function_stereotypes (id),
     FOREIGN KEY (category) REFERENCES function_categories (name),
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
-    FOREIGN KEY (return_type_id) REFERENCES most_types (id)
+    FOREIGN KEY (return_type_id) REFERENCES most_types (id),
+    FOREIGN KEY (prior_version_id) REFERENCES functions (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE interfaces_functions (

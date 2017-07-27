@@ -25,9 +25,9 @@ function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
 }
 
 // calls callbackFunction with list of function catalog IDs
-function listMostInterfacesContainingMostFunction(mostFunctionId, versionId, callbackFunction) {
+function listMostInterfacesContainingMostFunction(mostFunctionId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-function/" + mostFunctionId + "/interfaces?versionId=" + versionId,
+        API_PREFIX + "most-function/" + mostFunctionId + "/interfaces",
         {
             method: "GET",
             credentials: "include"
