@@ -80,7 +80,6 @@ class App extends React.Component {
 
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
-        this.onCreateOrphanedFunctionBlock = this.onCreateOrphanedFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
         this.onSearchFunctionBlocks = this.onSearchFunctionBlocks.bind(this);
         this.onFilterFunctionBlocks = this.onFilterFunctionBlocks.bind(this);
@@ -89,7 +88,6 @@ class App extends React.Component {
 
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
-        this.onCreateOrphanedMostInterface = this.onCreateOrphanedMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
         this.onFilterMostInterfaces = this.onFilterMostInterfaces.bind(this);
@@ -248,7 +246,7 @@ class App extends React.Component {
 
         const functionCatalog = this.state.selectedItem;
 
-        const functionCatalogId = functionCatalog.getId();
+        const functionCatalogId = functionCatalog ? functionCatalog.getId() : null;
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
 
         this.setState({
@@ -258,37 +256,6 @@ class App extends React.Component {
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
             if (! (functionBlockId > 0)) {
                 console.log("Unable to create function block.");
-                thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal
-                });
-                return;
-            }
-
-            functionBlock.setId(functionBlockId);
-            functionBlock.setAuthor(thisApp.getCurrentAccountAuthor());
-            functionBlock.setCompany(thisApp.getCurrentAccountCompany());
-
-            const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
-
-            thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                functionBlocks:         functionBlocks,
-                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-            });
-        });
-    }
-
-    onCreateOrphanedFunctionBlock(functionBlock) {
-        const thisApp = this;
-        const functionBlockJson = FunctionBlock.toJson(functionBlock);
-
-        this.setState({
-            createButtonState:  this.CreateButtonState.animate
-        });
-
-        insertOrphanedFunctionBlock(functionBlockJson, function(functionBlockId) {
-            if (! (functionBlockId > 0)) {
-                console.log("Unable to create orphaned function block.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
@@ -380,7 +347,7 @@ class App extends React.Component {
 
         const functionBlock = this.state.selectedItem;
 
-        const functionBlockId = functionBlock.getId();
+        const functionBlockId = functionBlock ? functionBlock.getId() : null;
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
 
         this.setState({
@@ -390,34 +357,6 @@ class App extends React.Component {
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
-                thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal
-                });
-                return;
-            }
-
-            mostInterface.setId(mostInterfaceId);
-            const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
-
-            thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                mostInterfaces:         mostInterfaces,
-                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-            });
-        });
-    }
-
-    onCreateOrphanedMostInterface(mostInterface) {
-        const thisApp = this;
-        const mostInterfaceJson = MostInterface.toJson(mostInterface);
-
-        this.setState({
-            createButtonState:  this.CreateButtonState.animate
-        });
-
-        insertOrphanedMostInterface(mostInterfaceJson, function(mostInterfaceId) {
-            if (! (mostInterfaceId > 0)) {
-                console.log("Unable to create orphaned interface.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
@@ -1600,7 +1539,7 @@ class App extends React.Component {
                            shouldShowSaveAnimation={shouldAnimateCreateButton}
                            buttonTitle={buttonTitle}
                            showTitle={true}
-                           onSubmit={createOrphan ? this.onCreateOrphanedFunctionBlock : this.onCreateFunctionBlock}
+                           onSubmit={this.onCreateFunctionBlock}
                            defaultButtonTitle="Submit"
                         />
                     );
@@ -1632,7 +1571,7 @@ class App extends React.Component {
                            shouldShowSaveAnimation={shouldAnimateCreateButton}
                            buttonTitle={buttonTitle}
                            showTitle={true}
-                           onSubmit={createOrphan ? this.onCreateOrphanedMostInterface : this.onCreateMostInterface}
+                           onSubmit={this.onCreateMostInterface}
                            defaultButtonTitle="Submit"
                         />
                     );
@@ -1769,8 +1708,6 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
 
-        const createOrphan = this.state.activeRoleItem !== this.roleItems.release;
-
         const reactComponents = [];
 
         if (shouldShowToolbar) {
@@ -1812,7 +1749,7 @@ class App extends React.Component {
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
                             buttonTitle={buttonTitle}
                             showTitle={true}
-                            onSubmit={createOrphan ? this.onCreateOrphanedFunctionBlock : this.onCreateFunctionBlock}
+                            onSubmit={this.onCreateFunctionBlock}
                             defaultButtonTitle="Submit"
                         />
                     );
@@ -1840,7 +1777,7 @@ class App extends React.Component {
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
                             buttonTitle={buttonTitle}
                             showTitle={true}
-                            onSubmit={createOrphan ? this.onCreateOrphanedMostInterface : this.onCreateMostInterface}
+                            onSubmit={this.onCreateMostInterface}
                             defaultButtonTitle="Submit"
                         />
                     );

@@ -75,20 +75,20 @@
 
     <servlet-mapping>
         <servlet-name>FunctionBlock</servlet-name>
-        <url-pattern>/api/v1/function-block</url-pattern>
+        <url-pattern>/api/v1/function-blocks</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FunctionBlock</servlet-name>
-        <url-pattern>/api/v1/function-block/*</url-pattern>
+        <url-pattern>/api/v1/function-blocks/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostInterface</servlet-name>
-        <url-pattern>/api/v1/most-interface</url-pattern>
+        <url-pattern>/api/v1/most-interfaces</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MostInterface</servlet-name>
-        <url-pattern>/api/v1/most-interface/*</url-pattern>
+        <url-pattern>/api/v1/most-interfaces/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

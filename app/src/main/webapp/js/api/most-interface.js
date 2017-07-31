@@ -2,7 +2,7 @@
 // calls callbackFunction with an array of MOST interfaces.
 function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface?function_block_id=" + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces?function_block_id=" + functionBlockId,
         {
             method: "GET",
             credentials: "include"
@@ -24,35 +24,10 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
     });
 }
 
-// calls callbackFunction with an array of all interfaces in database.
-function getAllMostInterfaces(callbackFunction) {
-    const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/most-interfaces",
-        {
-            method: "GET",
-            credentials: "include"
-        }
-    );
-
-    jsonFetch(request, function(data) {
-        let mostInterfaces = null;
-
-        if (data.wasSuccess) {
-            mostInterfaces = data.mostInterfaces;
-        } else {
-            console.log("Unable to get all interfaces:" + data.errorMessage);
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction(mostInterfaces);
-        }
-    });
-}
-
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
 function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/search?name=" + searchString,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/search?name=" + searchString,
         {
             method: "GET",
             credentials: "include"
@@ -77,7 +52,7 @@ function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
 // calls callbackFunction with list of function catalog IDs
 function listFunctionBlocksContainingMostInterface(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-interface/" + mostInterfaceId + "/function-blocks",
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/function-blocks",
         {
             method: "GET",
             credentials: "include"
@@ -97,7 +72,7 @@ function listFunctionBlocksContainingMostInterface(mostInterfaceId, callbackFunc
 // calls callbackFunction with new MOST interface ID
 function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-interface",
+        API_PREFIX + "most-interfaces",
         {
             method: "POST",
             credentials: "include",
@@ -123,38 +98,10 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
     });
 }
 
-// calls callbackFunction with new orphaned MOST interface ID
-function insertOrphanedMostInterface(mostInterface, callbackFunction) {
-    const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/most-interfaces",
-        {
-            method: "POST",
-            credentials: "include",
-            body: JSON.stringify({
-                "mostInterface":        mostInterface
-            })
-        }
-    );
-
-    jsonFetch(request, function(data) {
-        let mostInterfaceId = null;
-
-        if (data.wasSuccess) {
-            mostInterfaceId = data.mostInterfaceId;
-        } else {
-            console.log("Unable to insert orphaned Interface: " + data.errorMessage);
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction(mostInterfaceId);
-        }
-    });
-}
-
 // calls callbackFunction with wasSuccess
 function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId + "/function-blocks",
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks",
         {
             method: "POST",
             credentials: "include",
@@ -180,7 +127,7 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
 // calls callbackFunction with modified MOST interface ID
 function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
         {
             method: "POST",
             credentials: "include",
@@ -205,7 +152,7 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
 
 function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interface/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
         {
             method: "DELETE",
             credentials: "include"

@@ -2,7 +2,7 @@
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block?function_catalog_id=" + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-blocks?function_catalog_id=" + functionCatalogId,
         {
             method: "GET",
             credentials: "include"
@@ -23,36 +23,11 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
         }
     });
 }
-// calls callbackFunction with an array of all function blocks in database.
-function getAllFunctionBlocks(callbackFunction) {
-    const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/function-blocks",
-        {
-            method: "GET",
-            credentials: "include"
-        }
-    );
-
-    jsonFetch(request, function(data) {
-        let functionBlocks = null;
-
-        if (data.wasSuccess) {
-            functionBlocks = data.functionBlocks;
-        } else {
-            console.log("Unable to get all function blocks:" + data.errorMessage);
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction(functionBlocks);
-        }
-    });
-}
-
 
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
 function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/search?name=" + searchString,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/search?name=" + searchString,
         {
             method: "GET",
             credentials: "include"
@@ -77,7 +52,7 @@ function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
 // calls callbackFunction with list of function catalog IDs
 function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-block/" + functionBlockId + "/function-catalogs",
+        API_PREFIX + "function-blocks/" + functionBlockId + "/function-catalogs",
         {
             method: "GET",
             credentials: "include"
@@ -97,7 +72,7 @@ function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFu
 // calls callbackFunction with new function block ID
 function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-block",
+        API_PREFIX + "function-blocks",
         {
             method: "POST",
             credentials: "include",
@@ -123,38 +98,10 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
     });
 }
 
-// calls callbackFunction with new orphaned function block ID
-function insertOrphanedFunctionBlock(functionBlock, callbackFunction) {
-    const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/function-blocks",
-        {
-            method: "POST",
-            credentials: "include",
-            body: JSON.stringify({
-                "functionBlock":        functionBlock
-            })
-        }
-    );
-
-    jsonFetch(request, function(data) {
-        let functionBlockId = null;
-
-        if (data.wasSuccess) {
-            functionBlockId = data.functionBlockId;
-        } else {
-            console.log("Unable to insert orphaned function block: " + data.errorMessage);
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction(functionBlockId);
-        }
-    });
-}
-
 // calls callbackFunction with wasSuccess
 function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "/function-catalogs",
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/function-catalogs",
         {
             method: "POST",
             credentials: "include",
@@ -180,7 +127,7 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
 // calls callbackFunction with modified function block ID
 function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
         {
             method: "POST",
             credentials: "include",
@@ -205,7 +152,7 @@ function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, 
 
 function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-block/" + functionBlockId + "?functionCatalogId=" + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "?functionCatalogId=" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"

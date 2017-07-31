@@ -37,7 +37,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return _insertFunctionBlock(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
-                long functionCatalogId = Util.parseLong(Util.coalesce(request.getParameter("function_catalog_id")));
+                final String requestFunctionCatalogId = request.getParameter("function_catalog_id");
+
+                if (requestFunctionCatalogId == null) {
+                    return _listAllFunctionBlocks(database);
+                }
+
+                long functionCatalogId = Util.parseLong(Util.coalesce(requestFunctionCatalogId));
                 if (functionCatalogId < 1) {
                     return super._generateErrorJson("Invalid function catalog id.");
                 }
@@ -66,14 +72,6 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return _listFunctionBlocksMatchingSearchString(searchString, database);
             }
         }
-        else if ("function-blocks".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.POST) {
-                return _insertOrphanedFunctionBlock(request, accountId, database);
-            }
-            if (httpMethod == HttpMethod.GET) {
-                return _listAllFunctionBlocks(database);
-            }
-        }
         else {
             // not base function block, must have ID
             final long functionBlockId = Util.parseLong(finalUrlSegment);
@@ -94,47 +92,31 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     protected Json _insertFunctionBlock(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
-
-        final Long functionCatalogId = Util.parseLong(jsonRequest.getString("functionCatalogId"));
-
-        { // Validate Inputs
-            if (functionCatalogId < 1) {
-                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
-                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
-            }
-        }
-
         final Json functionBlockJson = jsonRequest.get("functionBlock");
-        try {
-            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
+        final String requestFunctionCatalogId = jsonRequest.getString("functionCatalogId");
 
-            DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.insertFunctionBlock(functionCatalogId, functionBlock);
+        try {
+            final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+
+            // If function catalog ID isn't null, insert function block for function catalog
+            if (requestFunctionCatalogId != null) {
+                final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
+                if (functionCatalogId < 1) {
+                    _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                    return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+                }
+                databaseManager.insertFunctionBlock(functionCatalogId, functionBlock);
+            }
+            else {
+                databaseManager.insertOrphanedFunctionBlock(functionBlock);
+            }
+
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
             _logger.error("Unable to insert Function Block.", exception);
             return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
-        }
-
-        return response;
-    }
-
-    protected Json _insertOrphanedFunctionBlock(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
-        final Json jsonRequest = _getRequestDataAsJson(request);
-        final Json response = _generateSuccessJson();
-        final Json functionBlockJson = jsonRequest.get("functionBlock");
-
-        try {
-            FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
-
-            DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.insertOrphanedFunctionBlock(functionBlock);
-            response.put("functionBlockId", functionBlock.getId());
-        }
-        catch (final Exception exception) {
-            _logger.error("Unable to insert orphaned Function Block.", exception);
-            return super._generateErrorJson("Unable to insert orphaned Function Block: " + exception.getMessage());
         }
 
         return response;

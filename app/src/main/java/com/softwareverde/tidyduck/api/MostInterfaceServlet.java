@@ -27,12 +27,18 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
         final Database<Connection> database = environment.getDatabase();
         final String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-interface".equals(finalUrlSegment)) {
+        if ("most-interfaces".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
                 return _insertMostInterface(request, database);
             }
             if (httpMethod == HttpMethod.GET) {
-                final long functionBlockId = Util.parseLong(Util.coalesce(request.getParameter("function_block_id")));
+                final String requestFunctionBlockId = request.getParameter("function_block_id");
+
+                if (requestFunctionBlockId == null) {
+                    return _listAllMostInterfaces(database);
+                }
+
+                final long functionBlockId = Util.parseLong(Util.coalesce(requestFunctionBlockId));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id.");
                 }
@@ -61,14 +67,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, database);
             }
         }
-        else if ("most-interfaces".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.POST) {
-                return _insertOrphanedMostInterface(request, database);
-            }
-            if (httpMethod == HttpMethod.GET) {
-                return _listAllMostInterfaces(database);
-            }
-        }
         else {
             // not base interface, must have ID
             final long mostInterfaceId = Util.parseLong(finalUrlSegment);
@@ -89,47 +87,31 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     protected Json _insertMostInterface(final HttpServletRequest request, final Database database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
-
-        final Long functionBlockId = Util.parseLong(jsonRequest.getString("functionBlockId"));
-
-        { // Validate Inputs
-            if (functionBlockId < 1) {
-                _logger.error("Unable to parse Function Block ID: " + functionBlockId);
-                return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
-            }
-        }
-
         final Json mostInterfaceJson = jsonRequest.get("mostInterface");
+        final String requestFunctionBlockID = jsonRequest.getString("functionBlockId");
+
         try {
             final MostInterface mostInterface = _populateMostInterfaceFromJson(mostInterfaceJson);
-
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.insertMostInterface(functionBlockId, mostInterface);
+
+            // If function block ID isn't null, insert interface for function block
+            if (requestFunctionBlockID != null) {
+                final Long functionBlockId = Util.parseLong(requestFunctionBlockID);
+                if (functionBlockId < 1) {
+                    _logger.error("Unable to parse Function Block ID: " + functionBlockId);
+                    return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
+                }
+                databaseManager.insertMostInterface(functionBlockId, mostInterface);
+            }
+            else {
+                databaseManager.insertOrphanedMostInterface(mostInterface);
+            }
+
             response.put("mostInterfaceId", mostInterface.getId());
         }
         catch (final Exception exception) {
             _logger.error("Unable to insert Interface.", exception);
             return _generateErrorJson("Unable to insert Interface: " + exception.getMessage());
-        }
-
-        return response;
-    }
-
-    protected Json _insertOrphanedMostInterface(final HttpServletRequest request, final Database<Connection> database) throws Exception {
-        final Json jsonRequest = _getRequestDataAsJson(request);
-        final Json response = _generateSuccessJson();
-        final Json mostInterfaceJson = jsonRequest.get("mostInterface");
-
-        try {
-            MostInterface mostInterface = _populateMostInterfaceFromJson(mostInterfaceJson);
-
-            DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.insertOrphanedMostInterface(mostInterface);
-            response.put("mostInterfaceId", mostInterface.getId());
-        }
-        catch (final Exception exception) {
-            _logger.error("Unable to insert orphaned Interface.", exception);
-            return super._generateErrorJson("Unable to insert orphaned Interface: " + exception.getMessage());
         }
 
         return response;
