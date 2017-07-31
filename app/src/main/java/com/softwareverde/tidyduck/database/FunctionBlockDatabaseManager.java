@@ -29,7 +29,7 @@ public class FunctionBlockDatabaseManager {
         _insertFunctionBlock(functionBlock);
     }
 
-    private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
+    private void _insertFunctionBlock(final FunctionBlock functionBlock, final FunctionBlock priorFunctionBlock) throws DatabaseException {
         final String mostId = functionBlock.getMostId();
         final String kind = functionBlock.getKind();
         final String name = functionBlock.getName();
@@ -38,8 +38,9 @@ public class FunctionBlockDatabaseManager {
         final Long authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
         final String access = functionBlock.getAccess();
+        final Long priorVersionId = priorFunctionBlock != null ? priorFunctionBlock.getId() : null;
 
-        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, prior_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)")
             .setParameter(mostId)
             .setParameter(kind)
             .setParameter(name)
@@ -48,10 +49,31 @@ public class FunctionBlockDatabaseManager {
             .setParameter(authorId)
             .setParameter(companyId)
             .setParameter(access)
+            .setParameter(priorVersionId)
         ;
 
         final long functionBlockId = _databaseConnection.executeSql(query);
         functionBlock.setId(functionBlockId);
+
+        if (priorFunctionBlock == null) {
+            _setBaseVersionId(functionBlockId, functionBlockId);
+        }
+        else {
+            _setBaseVersionId(functionBlockId, priorFunctionBlock.getBaseVersionId());
+        }
+    }
+
+    private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
+        _insertFunctionBlock(functionBlock, null);
+    }
+
+    private void _setBaseVersionId(long functionBlockId, long baseVersionId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET base_version_id = ? WHERE id = ?")
+            .setParameter(baseVersionId)
+            .setParameter(functionBlockId)
+        ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private Long _associateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
@@ -172,13 +194,13 @@ public class FunctionBlockDatabaseManager {
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
 
         if (originalFunctionBlock.isReleased()) {
-            // current block is released to a function catalog
-            // need to insert a new function block replace this one
-            _insertFunctionBlock(updatedFunctionBlock);
+            // current block is released, need to insert a new function block replace this one
+            _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
 
             // change association with function catalog
-            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId); // TODO: Check if functionCatalog is also released...?
+            // TODO: Check if functionCatalog is also released...?
+            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
             _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
         }
         else {

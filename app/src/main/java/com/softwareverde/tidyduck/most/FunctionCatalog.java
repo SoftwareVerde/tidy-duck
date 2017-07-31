@@ -12,6 +12,8 @@ public class FunctionCatalog {
     private Author _author;
     private Company _company;
     private boolean _isReleased;
+    private Long _baseVersionId;
+    private Long _priorVersionId;
     private List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private List<Modification> _modifications = new ArrayList<>();
 
@@ -61,6 +63,22 @@ public class FunctionCatalog {
 
     public void setReleased(boolean released) {
         _isReleased = released;
+    }
+
+    public Long getBaseVersionId() {
+        return _baseVersionId;
+    }
+
+    public void setBaseVersionId(Long baseVersionId) {
+        _baseVersionId = baseVersionId;
+    }
+
+    public Long getPriorVersionId() {
+        return _priorVersionId;
+    }
+
+    public void setPriorVersionId(Long priorVersionId) {
+        _priorVersionId = priorVersionId;
     }
 
     public List<FunctionBlock> getFunctionBlocks() {

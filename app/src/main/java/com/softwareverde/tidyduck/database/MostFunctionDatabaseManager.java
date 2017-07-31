@@ -21,16 +21,32 @@ class MostFunctionDatabaseManager {
         _associateMostFunctionWithMostInterface(mostInterfaceId, mostFunction.getId());
     }
 
+    /**
+     * <p>This method updates a function, provided its interface is not released.  If the interface is released, a new function is added
+     * and associated with the interface.</p>
+     *
+     * <p>This relies on the following assumptions:</p>
+     * <ol>
+     *     <li>When interfaces are released, their functions are also marked released</li>
+     *     <li>When a released interface is changed, a new version of that interface is created with references to the same functions</li>
+     *     <li>When a released function on an unreleased interface is changed, a new function should be added to contain the changes</li>
+     *     <li>No attempts will be made to update a function on a released interface</li>
+     * </ol>
+     * @param mostInterfaceId
+     * @param proposedMostFunction
+     * @throws DatabaseException
+     */
     public void updateMostFunctionForMostInterface(final long mostInterfaceId, final MostFunction proposedMostFunction) throws DatabaseException {
         final long inputMostFunctionId = proposedMostFunction.getId();
 
         MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         MostFunction databaseMostFunction = mostFunctionInflater.inflateMostFunction(inputMostFunctionId);
 
-        if(!databaseMostFunction.isReleased()) {
+        if (!databaseMostFunction.isReleased()) {
             // not released, can update existing function
             _updateUnreleasedMostFunction(proposedMostFunction);
-        } else {
+        }
+        else {
             // current function is released to an interface
             // need to insert a new function to replace this one
             _insertMostFunction(proposedMostFunction);
@@ -41,7 +57,6 @@ class MostFunctionDatabaseManager {
         }
     }
 
-    // TODO: update released MostFunction method.
     private void _updateUnreleasedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
         final String name = proposedMostFunction.getName();
         final String mostId = proposedMostFunction.getMostId();
@@ -147,8 +162,8 @@ class MostFunctionDatabaseManager {
 
     private void _removeInputParametersFromFunction(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query("DELETE FROM function_parameters WHERE function_id = ?")
-                .setParameter(mostFunctionId)
-                ;
+            .setParameter(mostFunctionId)
+        ;
 
         _databaseConnection.executeSql(query);
     }
@@ -164,8 +179,8 @@ class MostFunctionDatabaseManager {
 
     private void _removeOperationsFromFunction(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query("DELETE FROM functions_operations WHERE function_id = ?")
-                .setParameter(mostFunctionId)
-                ;
+            .setParameter(mostFunctionId)
+        ;
 
         _databaseConnection.executeSql(query);
     }
@@ -181,9 +196,9 @@ class MostFunctionDatabaseManager {
 
     private void _disassociateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         final Query query = new Query("DELETE FROM interfaces_functions WHERE interface_id = ? AND function_id = ?")
-                .setParameter(mostInterfaceId)
-                .setParameter(mostFunctionId)
-                ;
+            .setParameter(mostInterfaceId)
+            .setParameter(mostFunctionId)
+        ;
         _databaseConnection.executeSql(query);
     }
 
@@ -208,8 +223,8 @@ class MostFunctionDatabaseManager {
         _removeInputParametersFromFunction(mostFunctionId);
 
         final Query query = new Query("DELETE FROM functions WHERE id = ?")
-                .setParameter(mostFunctionId)
-                ;
+            .setParameter(mostFunctionId)
+        ;
 
         _databaseConnection.executeSql(query);
     }
