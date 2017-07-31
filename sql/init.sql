@@ -43,9 +43,11 @@ CREATE TABLE function_catalogs (
     account_id int unsigned NOT NULL,
     company_id int unsigned NOT NULL,
     is_released boolean NOT NULL DEFAULT FALSE,
+    base_version_id int unsigned NULL,
     prior_version_id int unsigned NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
+    FOREIGN KEY (base_version_id) REFERENCES function_catalogs (id),
     FOREIGN KEY (prior_version_id) REFERENCES function_catalogs (id)
 ) ENGINE=INNODB;
 
@@ -61,9 +63,11 @@ CREATE TABLE function_blocks (
     company_id int unsigned NOT NULL,
     access varchar(255) NOT NULL,
     is_released boolean NOT NULL DEFAULT FALSE,
+    base_version_id int unsigned NULL,
     prior_version_id int unsigned NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
+    FOREIGN KEY (base_version_id) REFERENCES function_blocks (id),
     FOREIGN KEY (prior_version_id) REFERENCES function_blocks (id)
 ) ENGINE=INNODB;
 
@@ -83,7 +87,9 @@ CREATE TABLE interfaces (
     last_modified_date date NOT NULL,
     version varchar(255) NOT NULL,
     is_released boolean NOT NULL DEFAULT FALSE,
+    base_version_id int unsigned NULL,
     prior_version_id int unsigned NULL,
+    FOREIGN KEY (base_version_id) REFERENCES interfaces (id),
     FOREIGN KEY (prior_version_id) REFERENCES interfaces (id)
 ) ENGINE=INNODB;
 

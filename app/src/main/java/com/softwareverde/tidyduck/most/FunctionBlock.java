@@ -18,6 +18,8 @@ public class FunctionBlock {
     private Company _company;
     private String _access;
     private boolean _isReleased;
+    private Long _baseVersionId;
+    private Long _priorVersionId;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
@@ -107,6 +109,22 @@ public class FunctionBlock {
 
     public void setReleased(boolean released) {
         _isReleased = released;
+    }
+
+    public Long getBaseVersionId() {
+        return _baseVersionId;
+    }
+
+    public void setBaseVersionId(Long baseVersionId) {
+        _baseVersionId = baseVersionId;
+    }
+
+    public Long getPriorVersionId() {
+        return _priorVersionId;
+    }
+
+    public void setPriorVersionId(Long priorVersionId) {
+        _priorVersionId = priorVersionId;
     }
 
     public List<Modification> getModifications() {

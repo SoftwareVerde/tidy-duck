@@ -19,21 +19,42 @@ class FunctionCatalogDatabaseManager {
      * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
      * Upon successful insert, the functionCatalog's Id is set to the database's insertId.
      */
-    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
+    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog, final FunctionCatalog priorFunctionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
         final Long accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
+        final Long priorVersionId = priorFunctionCatalog != null ? priorFunctionCatalog.getId() : null;
 
-        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id) VALUES (?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id) VALUES (?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(release)
             .setParameter(accountId)
             .setParameter(companyId)
+            .setParameter(priorVersionId)
         ;
 
         final long functionCatalogId = _databaseConnection.executeSql(query);
         functionCatalog.setId(functionCatalogId);
+
+        if (priorFunctionCatalog == null) {
+            _setBaseVersionId(functionCatalogId, functionCatalogId);
+        } else {
+            _setBaseVersionId(functionCatalogId, priorFunctionCatalog.getBaseVersionId());
+        }
+    }
+
+    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
+        _insertFunctionCatalog(functionCatalog, null);
+    }
+
+    private void _setBaseVersionId(long functionCatalogId, long baseVersionId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET base_version_id = ? WHERE id = ?")
+            .setParameter(baseVersionId)
+            .setParameter(functionCatalogId)
+        ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _updateUnreleasedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
@@ -95,10 +116,10 @@ class FunctionCatalogDatabaseManager {
         final long inputFunctionCatalogId = functionCatalog.getId();
 
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
-        final FunctionCatalog databaseFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
-        if (databaseFunctionCatalog.isReleased()) {
+        final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
+        if (originalFunctionCatalog.isReleased()) {
             // need to insert a new function catalog replace this one
-            _insertFunctionCatalog(functionCatalog);
+            _insertFunctionCatalog(functionCatalog, originalFunctionCatalog);
             final long newFunctionCatalogId = functionCatalog.getId();
         }
         else {
