@@ -31,7 +31,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final Database<Connection> database = environment.getDatabase();
 
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("function-catalog".equals(finalUrlSegment)) {
+        if ("function-catalogs".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
                 return _insertFunctionCatalog(request, accountId, database);
             }

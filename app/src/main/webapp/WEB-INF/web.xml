@@ -66,11 +66,11 @@
 
     <servlet-mapping>
         <servlet-name>FunctionCatalog</servlet-name>
-        <url-pattern>/api/v1/function-catalog</url-pattern>
+        <url-pattern>/api/v1/function-catalogs</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FunctionCatalog</servlet-name>
-        <url-pattern>/api/v1/function-catalog/*</url-pattern>
+        <url-pattern>/api/v1/function-catalogs/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -93,29 +93,29 @@
 
     <servlet-mapping>
         <servlet-name>MostFunction</servlet-name>
-        <url-pattern>/api/v1/most-function</url-pattern>
+        <url-pattern>/api/v1/most-functions</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MostFunction</servlet-name>
-        <url-pattern>/api/v1/most-function/*</url-pattern>
+        <url-pattern>/api/v1/most-functions/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostType</servlet-name>
-        <url-pattern>/api/v1/most-type</url-pattern>
+        <url-pattern>/api/v1/most-types</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MostType</servlet-name>
-        <url-pattern>/api/v1/most-type/*</url-pattern>
+        <url-pattern>/api/v1/most-types/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostFunctionStereotype</servlet-name>
-        <url-pattern>/api/v1/most-function-stereotype</url-pattern>
+        <url-pattern>/api/v1/most-function-stereotypes</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MostType</servlet-name>
-        <url-pattern>/api/v1/most-function-stereotype/*</url-pattern>
+        <url-pattern>/api/v1/most-function-stereotypes/*</url-pattern>
     </servlet-mapping>
 
 

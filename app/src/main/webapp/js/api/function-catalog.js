@@ -2,7 +2,7 @@
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogs(callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-catalog",
+        API_PREFIX + "function-catalogs",
         {
             method: "GET",
             credentials: "include"
@@ -27,7 +27,7 @@ function getFunctionCatalogs(callbackFunction) {
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(functionCatalog, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-catalog",
+        API_PREFIX + "function-catalogs",
         {
             method: "POST",
             credentials: "include",
@@ -55,7 +55,7 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
 //calls callbackFunction with modified function catalog ID
 function updateFunctionCatalog(functionCatalogId, functionCatalog, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalog/" + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
         {
             method: "POST",
             credentials: "include",
@@ -79,7 +79,7 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, callbackFunct
 
 function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalog/" + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"

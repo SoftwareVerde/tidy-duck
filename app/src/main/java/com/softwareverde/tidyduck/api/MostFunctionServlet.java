@@ -28,7 +28,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final Database<Connection> database = environment.getDatabase();
 
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-function".equals(finalUrlSegment)) {
+        if ("most-functions".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
                 return _insertMostFunction(request, accountId, database);
             }

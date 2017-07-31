@@ -32,14 +32,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Database<Connection> database = environment.getDatabase();
 
         final String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("function-block".equals(finalUrlSegment)) {
+        if ("function-blocks".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.POST) {
                 return _insertFunctionBlock(request, accountId, database);
             }
             if (httpMethod == HttpMethod.GET) {
                 final String requestFunctionCatalogId = request.getParameter("function_catalog_id");
 
-                if (requestFunctionCatalogId == null) {
+                if (Util.isBlank(requestFunctionCatalogId)) {
                     return _listAllFunctionBlocks(database);
                 }
 
@@ -121,6 +121,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         return response;
     }
+
 
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);

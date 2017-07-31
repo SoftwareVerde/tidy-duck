@@ -22,7 +22,7 @@ public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
     @Override
     protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, long accountId, Environment environment) throws Exception {
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-function-stereotype".equals(finalUrlSegment)) {
+        if ("most-function-stereotypes".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.GET) {
                 return _listMostFunctionStereotypes(environment);
             }

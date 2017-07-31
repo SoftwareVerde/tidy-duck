@@ -34,7 +34,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (httpMethod == HttpMethod.GET) {
                 final String requestFunctionBlockId = request.getParameter("function_block_id");
 
-                if (requestFunctionBlockId == null) {
+                if (Util.isBlank(requestFunctionBlockId)) {
                     return _listAllMostInterfaces(database);
                 }
 

@@ -2,7 +2,7 @@
 // calls callbackFunction with an array of functions
 function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-function?most_interface_id=" + mostInterfaceId,
+        API_PREFIX + "most-functions?most_interface_id=" + mostInterfaceId,
         {
             method: "GET",
             credentials: "include"
@@ -27,7 +27,7 @@ function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
 // calls callbackFunction with list of function catalog IDs
 function listMostInterfacesContainingMostFunction(mostFunctionId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-function/" + mostFunctionId + "/interfaces",
+        API_PREFIX + "most-functions/" + mostFunctionId + "/interfaces",
         {
             method: "GET",
             credentials: "include"
@@ -47,7 +47,7 @@ function listMostInterfacesContainingMostFunction(mostFunctionId, callbackFuncti
 // calls callbackFunction with new function ID
 function insertMostFunction(mostInterfaceId, mostFunction, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-function",
+        API_PREFIX + "most-functions",
         {
             method: "POST",
             credentials: "include",
@@ -76,7 +76,7 @@ function insertMostFunction(mostInterfaceId, mostFunction, callbackFunction) {
 //calls callbackFunction with modified function ID
 function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-function/" + mostFunctionId,
+        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId,
         {
             method: "POST",
             credentials: "include",
@@ -101,7 +101,7 @@ function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callb
 
 function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-function/" + mostFunctionId + "?most_interface_id=" + mostInterfaceId,
+        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "?most_interface_id=" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"

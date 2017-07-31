@@ -1,8 +1,13 @@
 
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
+    let url = ENDPOINT_PREFIX + "api/v1/function-blocks";
+    if (functionCatalogId) {
+        url.concat("?function_catalog_id=" + functionCatalogId)
+    }
+
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks?function_catalog_id=" + functionCatalogId,
+        url,
         {
             method: "GET",
             credentials: "include"

@@ -21,7 +21,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
     @Override
     protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, long accountId, Environment environment) throws Exception {
         String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-type".equals(finalUrlSegment)) {
+        if ("most-types".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.GET) {
                 return _listMostTypes(environment);
             }

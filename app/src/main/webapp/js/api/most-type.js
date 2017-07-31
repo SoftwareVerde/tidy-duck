@@ -1,7 +1,7 @@
 // calls callbackFunction with an array of MOST types.
 function getMostTypes(callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-type",
+        ENDPOINT_PREFIX + "api/v1/most-types",
         {
             method: "GET",
             credentials: "include"

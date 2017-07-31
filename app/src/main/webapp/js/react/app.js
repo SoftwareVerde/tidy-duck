@@ -1338,7 +1338,7 @@ class App extends React.Component {
             });
 
             if (newActiveSubRoleItem === this.roleItems.functionBlock) {
-                getAllFunctionBlocks(function(functionBlocksJson) {
+                getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
                     if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                         // didn't navigate away while downloading children
                         const functionBlocks = [];
@@ -1354,7 +1354,7 @@ class App extends React.Component {
                     }
                 });
             } else {
-                getAllMostInterfaces(function(mostInterfacesJson) {
+                getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
                     if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                         // didn't navigate away while downloading children
                         const mostInterfaces = [];
@@ -1451,7 +1451,7 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionCatalogs:
-                childItems = this.state.functionBlocks;
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
@@ -1460,7 +1460,7 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionBlocks:
-                childItems = this.state.mostInterfaces;
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
@@ -1707,6 +1707,11 @@ class App extends React.Component {
         const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
+        // Show the filter bar for development mode when viewing orphaned items
+        const shouldShowFilterBar = this.state.activeSubRoleItem && !this.state.selectedItem;
+        const selectedItem = this.state.selectedItem;
+        // Show the metadata form for a selected item when in development mode.
+        const shouldShowSelectedItemForm = selectedItem && this.state.activeSubRoleItem;
 
         const reactComponents = [];
 
@@ -1720,6 +1725,7 @@ class App extends React.Component {
                     currentNavigationLevel={this.state.currentNavigationLevel}
                     functionStereotypes={this.FunctionStereotypes}
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
+                    shouldShowSearchIcon={!shouldShowFilterBar}
                 />
             );
         }
@@ -1753,7 +1759,8 @@ class App extends React.Component {
                             defaultButtonTitle="Submit"
                         />
                     );
-                } else if (shouldShowSearchChildForm) {
+                }
+                else if (shouldShowSearchChildForm) {
                     reactComponents.push(
                         <app.SearchForm key="SearchForm"
                             navigationLevel={NavigationLevel}
@@ -1771,6 +1778,19 @@ class App extends React.Component {
                 break;
 
             case NavigationLevel.functionBlocks:
+                if (shouldShowSelectedItemForm) {
+                    reactComponents.push(
+                        <app.FunctionBlockForm key="FunctionBlockForm"
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateFunctionBlock}
+                           functionBlock={selectedItem}
+                           buttonTitle="Save"
+                           defaultButtonTitle="Save"
+                        />
+                    );
+                }
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
@@ -1781,7 +1801,8 @@ class App extends React.Component {
                             defaultButtonTitle="Submit"
                         />
                     );
-                } else if (shouldShowSearchChildForm) {
+                }
+                else if (shouldShowSearchChildForm) {
                     reactComponents.push(
                         <app.SearchForm key="SearchForm"
                             navigationLevel={NavigationLevel}
@@ -1799,6 +1820,19 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.mostInterfaces:
+                if (shouldShowSelectedItemForm) {
+                    reactComponents.push(
+                        <app.MostInterfaceForm key="MostInterfaceForm"
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateMostInterface}
+                           mostInterface={selectedItem}
+                           buttonTitle="Save"
+                           defaultButtonTitle="Save"
+                        />
+                    );
+                }
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.MostFunctionForm key="MostFunctionForm"
@@ -1824,6 +1858,7 @@ class App extends React.Component {
             break;
         }
 
+        if (shouldShowFilterBar) {reactComponents.push(this.renderFilterBar());}
         return reactComponents;
     }
 
@@ -1835,19 +1870,8 @@ class App extends React.Component {
                     <app.SettingsPage theme={theme} onThemeChange={this.onThemeChange}/>
                 </div>
             );
-        } else if (this.state.activeRoleItem === this.roleItems.development) {
-            return (
-                <div id="main-content" className="container">
-                    <div className="display-area">
-                        {this.renderDevelopmentForm()}
-                        <div id="child-display-area" className="clearfix">
-                            {this.renderDevelopmentChildItems()}
-                        </div>
-                    </div>
-                    {this.renderRoleReturnArrow()}
-                </div>
-            );
-        } else {
+        }
+        else {
             return (
                 <div id="main-content" className="container">
                     <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
@@ -1857,10 +1881,10 @@ class App extends React.Component {
                             {this.renderChildItems()}
                         </div>
                     </div>
+                    {this.renderDevelopmentBackButton()}
                 </div>
             );
         }
-
     }
 
     renderRoleToggle() {
@@ -1885,18 +1909,20 @@ class App extends React.Component {
         }
     }
 
-    renderRoleReturnArrow() {
-        const currentNavigationLevel = this.state.currentNavigationLevel;
+    renderDevelopmentBackButton() {
+        if (this.state.activeRoleItem === this.roleItems.development) {
+            const currentNavigationLevel = this.state.currentNavigationLevel;
 
-        if (currentNavigationLevel === this.NavigationLevel.mostFunctions) {
-            return (
-                <i className="role-return fa fa-arrow-circle-left fa-4x"
-                   onClick={() => this.onMostInterfaceSelected(this.state.parentItem, true)}/>
-            );
+            if (currentNavigationLevel === this.NavigationLevel.mostFunctions) {
+                return (
+                    <i className="role-return fa fa-arrow-circle-left fa-4x"
+                       onClick={() => this.onMostInterfaceSelected(this.state.parentItem, true)}/>
+                );
+            }
+            const roleReturnArrow = this.state.selectedItem ? <i className="role-return fa fa-arrow-circle-left fa-4x"
+                                                                 onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/> : "";
+            return roleReturnArrow;
         }
-        const roleReturnArrow = this.state.selectedItem ? <i className="role-return fa fa-arrow-circle-left fa-4x"
-                                                             onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/> : "";
-        return roleReturnArrow;
     }
 
     renderFilterBar() {
