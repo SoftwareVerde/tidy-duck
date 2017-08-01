@@ -44,6 +44,7 @@ class App extends React.Component {
             mostFunctions:              [],
             mostTypes:                  [],
             mostFunctionStereotypes:    [],
+            navigationHistory:          [],
             activeRoleItem:             this.roleItems.release,
             activeSubRoleItem:          this.roleItems.functionBlock,
             selectedItem:               null,
@@ -153,9 +154,10 @@ class App extends React.Component {
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
             thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions
+                createButtonState:          thisApp.CreateButtonState.success,
+                functionCatalogs:           functionCatalogs,
+                currentNavigationLevel:     thisApp.NavigationLevel.versions,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -213,7 +215,7 @@ class App extends React.Component {
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setOnClickCallback(function() {
-                    thisApp.onFunctionCatalogSelected(functionCatalog, true);
+                    thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
                 });
 
                 //Update form to show changes were saved.
@@ -269,7 +271,8 @@ class App extends React.Component {
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 functionBlocks:         functionBlocks,
-                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -314,7 +317,7 @@ class App extends React.Component {
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
                 navigationItem.setOnClickCallback(function() {
-                    thisApp.onFunctionBlockSelected(functionBlock, true);
+                    thisApp.onFunctionBlockSelected(functionBlock, true, false);
                 });
 
                 //Update form to show changes were saved.
@@ -367,7 +370,8 @@ class App extends React.Component {
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 mostInterfaces:         mostInterfaces,
-                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -411,7 +415,7 @@ class App extends React.Component {
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
                 navigationItem.setOnClickCallback(function() {
-                    thisApp.onMostInterfaceSelected(mostInterface, true);
+                    thisApp.onMostInterfaceSelected(mostInterface, true, false);
                 });
 
                 //Update form to show changes were saved.
@@ -467,7 +471,8 @@ class App extends React.Component {
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 mostFunctions:          mostFunctions,
-                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -567,7 +572,7 @@ class App extends React.Component {
         });
     }
 
-    onFunctionCatalogSelected(functionCatalog, canUseCachedChildren) {
+    onFunctionCatalogSelected(functionCatalog, canUseCachedChildren, canSaveHistory) {
         const thisApp = this;
         const navigationItems = [];
 
@@ -584,7 +589,7 @@ class App extends React.Component {
         });
         navigationItemConfig.addMenuItemConfig(navigationMenuItemConfig);
         navigationItemConfig.setOnClickCallback(function() {
-            thisApp.onFunctionCatalogSelected(functionCatalog, true);
+            thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
         });
 
         navigationItemConfig.setForm(
@@ -598,6 +603,8 @@ class App extends React.Component {
         );
 
         navigationItems.push(navigationItemConfig);
+        const navigationHistory = thisApp.state.navigationHistory;
+        if (canSaveHistory) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -620,9 +627,11 @@ class App extends React.Component {
                     const functionBlock = FunctionBlock.fromJson(functionBlockJson);
                     functionBlocks.push(functionBlock);
                 }
+
                 thisApp.setState({
                     functionBlocks:     functionBlocks,
                     mostInterfaces:     [],
+                    navigationHistory:  navigationHistory,
                     isLoadingChildren:  false
                 });
             }
@@ -732,7 +741,7 @@ class App extends React.Component {
         });
     }
 
-    onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
+    onFunctionBlockSelected(functionBlock, canUseCachedChildren, saveHistory) {
         const thisApp = this;
 
         const navigationItems = [];
@@ -746,7 +755,7 @@ class App extends React.Component {
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(functionBlock.getName());
         navigationItemConfig.setOnClickCallback(function() {
-            thisApp.onFunctionBlockSelected(functionBlock, true);
+            thisApp.onFunctionBlockSelected(functionBlock, true, false);
         });
         navigationItemConfig.setForm(
             <app.FunctionBlockForm key="FunctionBlockForm"
@@ -760,6 +769,8 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
+        const navigationHistory = thisApp.state.navigationHistory;
+        if(saveHistory) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -787,6 +798,7 @@ class App extends React.Component {
                 thisApp.setState({
                     mostInterfaces:             mostInterfaces,
                     mostFunctions:              [],
+                    navigationHistory:          navigationHistory,
                     isLoadingChildren:          false,
                     shouldShowFilteredResults:  false,
                     filterString:               ""
@@ -957,7 +969,7 @@ class App extends React.Component {
         });
     }
 
-    onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
+    onMostInterfaceSelected(mostInterface, canUseCachedChildren, saveHistory) {
         const thisApp = this;
 
         const navigationItems = [];
@@ -973,7 +985,7 @@ class App extends React.Component {
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setOnClickCallback(function() {
-            thisApp.onMostInterfaceSelected(mostInterface, true);
+            thisApp.onMostInterfaceSelected(mostInterface, true, false);
         });
         navigationItemConfig.setForm(
             <app.MostInterfaceForm key="MostInterfaceForm"
@@ -987,6 +999,9 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = thisApp.state.selectedItem; // Preserve reference to previously selected item.
+
+        const navigationHistory = thisApp.state.navigationHistory;
+        if (saveHistory) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1018,6 +1033,7 @@ class App extends React.Component {
                 // TODO: if Functions have child elements that can be displayed, clear their array in setState.
                 thisApp.setState({
                     mostFunctions:                  mostFunctions,
+                    navigationHistory:              navigationHistory,
                     isLoadingChildren:              false,
                     shouldShowFilteredResults:      false,
                     filterString:                   ""
@@ -1212,10 +1228,13 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
+        const navigationHistory = thisApp.state.navigationHistory;
+        navigationHistory.push(thisApp.state.selectedItem);
 
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
+            navigationHistory:          navigationHistory,
             selectedItem:               mostFunction,
             parentItem:                 parentItem,
             createButtonState:          thisApp.CreateButtonState.normal,
@@ -1320,6 +1339,7 @@ class App extends React.Component {
 
             this.setState({
                 navigationItems:            [],
+                navigationHistory:          [],
                 searchResults:              [],
                 functionCatalogs:           [],
                 selectedItem:               null,
@@ -1389,6 +1409,7 @@ class App extends React.Component {
                 functionBlocks:                 [],
                 mostInterfaces:                 [],
                 navigationItems:                [],
+                navigationHistory:              []
             });
 
             this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
@@ -1671,9 +1692,10 @@ class App extends React.Component {
             );
         }
         else {
+            const navigationItems = this.state.activeRoleItem === this.roleItems.release ? <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} /> : "";
             return (
                 <div id="main-content" className="container">
-                    <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />
+                    {navigationItems}
                     <div className="display-area">
                         {this.renderForm()}
                         <div id="child-display-area" className="clearfix">
@@ -1710,17 +1732,36 @@ class App extends React.Component {
 
     renderDevelopmentBackButton() {
         if (this.state.activeRoleItem === this.roleItems.development) {
+            const activeSubRoleItem = this.state.activeSubRoleItem;
             const currentNavigationLevel = this.state.currentNavigationLevel;
+            const navigationHistory = this.state.navigationHistory;
+            const selectedItem = this.state.selectedItem;
 
-            if (currentNavigationLevel === this.NavigationLevel.mostFunctions) {
-                return (
-                    <i className="role-return fa fa-arrow-circle-left fa-4x"
-                       onClick={() => this.onMostInterfaceSelected(this.state.parentItem, true)}/>
-                );
+            // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
+            if (selectedItem) {
+                switch (currentNavigationLevel) {
+                    case this.NavigationLevel.functionBlocks:
+                        return (
+                            <i className="role-return fa fa-arrow-circle-left fa-4x"
+                               onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/>
+                        );
+                        break;
+                    case this.NavigationLevel.mostInterfaces:
+                        return ( activeSubRoleItem === this.roleItems.functionBlock ?
+                            <i className="role-return fa fa-arrow-circle-left fa-4x"
+                               onClick={() => this.onFunctionBlockSelected(navigationHistory.pop(), true, false)}/> :
+                            <i className="role-return fa fa-arrow-circle-left fa-4x"
+                               onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/>
+                        );
+                        break;
+                    case this.NavigationLevel.mostFunctions:
+                        return (
+                            <i className="role-return fa fa-arrow-circle-left fa-4x"
+                               onClick={() => this.onMostInterfaceSelected(navigationHistory.pop(), true, false)}/>
+                        );
+                        break;
+                }
             }
-            const roleReturnArrow = this.state.selectedItem ? <i className="role-return fa fa-arrow-circle-left fa-4x"
-                                                                 onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/> : "";
-            return roleReturnArrow;
         }
     }
 

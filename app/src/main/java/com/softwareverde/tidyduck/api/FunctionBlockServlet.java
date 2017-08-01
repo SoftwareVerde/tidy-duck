@@ -101,7 +101,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function catalog ID isn't null, insert function block for function catalog
-            if (requestFunctionCatalogId != null) {
+            if (!requestFunctionCatalogId.equals("null")) {
                 final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
                 if (functionCatalogId < 1) {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
