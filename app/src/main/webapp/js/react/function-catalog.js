@@ -61,7 +61,7 @@ class FunctionCatalog extends React.Component {
 
     onClick() {
         if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionCatalog);
+            this.props.onClick(this.props.functionCatalog, false, true);
         }
     }
 
