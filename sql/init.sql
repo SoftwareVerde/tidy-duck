@@ -239,6 +239,9 @@ CREATE TABLE most_types (
     FOREIGN KEY (array_element_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
+CREATE INDEX most_types_primitive_type_id_index ON most_types (primitive_type_id);
+CREATE INDEX most_types_is_base_type_index ON most_types (is_base_type);
+
 -- Pre-load simple types:
 --  Create most types for any primitive types that are marked as pre-loaded.
 INSERT INTO most_types (name, primitive_type_id, is_base_type)
