@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS functions;
 DROP TABLE IF EXISTS function_stereotypes;
 DROP TABLE IF EXISTS function_categories;
 DROP TABLE IF EXISTS most_types;
+DROP TABLE IF EXISTS primitive_types;
+DROP TABLE IF EXISTS most_units;
 DROP TABLE IF EXISTS interfaces;
 DROP TABLE IF EXISTS function_blocks;
 DROP TABLE IF EXISTS function_catalogs;
@@ -101,32 +103,148 @@ CREATE TABLE function_blocks_interfaces (
     FOREIGN KEY (interface_id) REFERENCES interfaces (id)
 ) ENGINE=INNODB;
 
+CREATE TABLE most_units (
+    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    reference_name varchar(255) NOT NULL,
+    definition_name varchar(255) NOT NULL,
+    definition_code varchar(255) NOT NULL,
+    definition_group varchar(255) NOT NULL
+) ENGINE=INNODB;
+
+-- Units extracted from XML sample using:
+--
+-- Search:  <UnitDef UnitID="([^"]*)">\n<UnitDefName>([^<]*)</UnitDefName>\n<UnitDefCode>([^<]*)</UnitDefCode>\n<UnitDefGroup>([^<]*)</UnitDefGroup>\n</UnitDef>
+-- Replace: ('\1', '\2', '\3', '\4'),
+--
+INSERT INTO most_units (reference_name, definition_name, definition_code, definition_group)
+VALUES
+    ('unit_none', 'none', '0x00', ''),
+    ('unit_1_min', '1/min', '0x20', 'Frequency'),
+    ('unit_360_degree_2pow32', '360_deg/2pow32', '0xA3', 'Angle'),
+    ('unit_360_degree_2pow8', '360_deg/2pow8', '0xA4', 'Angle'),
+    ('unit_a', 'a', '0x17', 'Time'),
+    ('unit_A', 'A', '0x91', 'Current'),
+    ('unit_bar', 'bar', '0x63', 'Temperature and Pressure'),
+    ('unit_bit', 'bit', '0xC5', 'Data'),
+    ('unit_bps', 'bps', '0xD0', 'Data Rate'),
+    ('unit_Byte_s', 'Bps', '0xD3', 'Data Rate'),
+    ('unit_Byte', 'Byte', '0xC0', 'Data'),
+    ('unit_C', 'C', '0x60', 'Temperature and Pressure'),
+    ('unit_ccm', 'ccm', '0x33', 'Volume'),
+    ('unit_cm', 'cm', '0x01', 'Distance'),
+    ('unit_cm_s', 'cm/s', '0x53', 'Speed and Acceleration'),
+    ('unit_d', 'd', '0x15', 'Time'),
+    ('unit_dB', 'dB', '0x70', 'Miscellaneous'),
+    ('unit_deg_s', 'deg/s', '0x54', 'Speed and Acceleration'),
+    ('unit_degrees', 'degrees', '0xA0', 'Angle'),
+    ('unit_F', 'F', '0x61', 'Temperature and Pressure'),
+    ('unit_gal_UK', 'gal_UK', '0x31', 'Volume'),
+    ('unit_gal_US', 'gal_US', '0x32', 'Volume'),
+    ('unit_GByte', 'GByte', '0xC3', 'Data'),
+    ('unit_h', 'h', '0x14', 'Time'),
+    ('unit_Hz', 'Hz', '0x21', 'Frequency'),
+    ('unit_K', 'K', '0x62', 'Temperature and Pressure'),
+    ('unit_kByte_s', 'kBps', '0xD4', 'Data Rate'),
+    ('unit_kbps', 'kbps', '0xD1', 'Data Rate'),
+    ('unit_kByte', 'kByte', '0xC1', 'Data'),
+    ('unit_kHz', 'kHz', '0x22', 'Frequency'),
+    ('unit_km', 'km', '0x03', 'Distance'),
+    ('unit_km_h', 'km/h', '0x50', 'Speed and Acceleration'),
+    ('unit_km_l', 'km/l', '0x42', 'Consumption'),
+    ('unit_l', 'l', '0x30', 'Volume'),
+    ('unit_l_100km', 'l/100km', '0x40', 'Consumption'),
+    ('unit_m', 'm', '0x02', 'Distance'),
+    ('unit_m_s', 'm/s', '0x52', 'Speed and Acceleration'),
+    ('unit_m_s_2', 'm/s_2', '0x55', 'Speed and Acceleration'),
+    ('unit_mA', 'mA', '0x90', 'Current'),
+    ('unit_Mbps', 'Mbps', '0xD2', 'Data Rate'),
+    ('unit_MByte_s', 'MBps', '0xD5', 'Data Rate'),
+    ('unit_MByte', 'MByte', '0xC2', 'Data'),
+    ('unit_MHz', 'MHz', '0x23', 'Frequency'),
+    ('unit_min', 'min', '0x13', 'Time'),
+    ('unit_minutes', 'minutes', '0xA1', 'Angle'),
+    ('unit_mls', 'mls', '0x04', 'Distance'),
+    ('unit_mls_gal', 'mls/gal', '0x41', 'Consumption'),
+    ('unit_mls_h', 'mls/h', '0x51', 'Speed and Acceleration'),
+    ('unit_mon', 'mon', '0x16', 'Time'),
+    ('unit_ms', 'ms', '0x11', 'Time'),
+    ('unit_mV', 'mV', '0x80', 'Voltage'),
+    ('unit_percent', 'percent', '0x71', 'Miscellaneous'),
+    ('unit_pixel', 'pixel', '0xB0', 'Resolution'),
+    ('unit_psi', 'psi', '0x64', 'Temperature and Pressure'),
+    ('unit_s', 's', '0x12', 'Time'),
+    ('unit_seconds', 'seconds', '0xA2', 'Angle'),
+    ('unit_TByte', 'TByte', '0xC4', 'Data'),
+    ('unit_us', 'us', '0x10', 'Time'),
+    ('unit_V', 'V', '0x81', 'Voltage');
+
+CREATE TABLE primitive_types (
+    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name varchar(255) NOT NULL,
+    is_number_base_type boolean NOT NULL,
+    is_stream_param_type boolean NOT NULL,
+    is_array_type boolean NOT NULL,
+    is_record_type boolean NULL,
+) ENGINE=INNODB;
+
+-- Primitive type details manually pulled from DTD
+INSERT INTO primitive_types (id, name, is_preloaded_type, is_number_base_type, is_stream_param_type, is_array_type, is_record_type)
+VALUES
+        (1,  'TBool',        0, 0, 1, 1, 1),
+        (2,  'TBitField',    0, 0, 1, 1, 1),
+        (3,  'TEnum',        0, 0, 1, 1, 1),
+        (4,  'TNumber',      0, 0, 1, 1, 1),
+        (5,  'TVoid',        1, 1, 0, 0, 0),
+        (6,  'TUByte',       1, 1, 0, 0, 0),
+        (7,  'TSByte',       1, 1, 0, 0, 0),
+        (8,  'TUWord',       1, 1, 0, 0, 0),
+        (9,  'TSWord',       1, 1, 0, 0, 0),
+        (10, 'TULong',       1, 1, 0, 0, 0),
+        (11, 'TSLong',       1, 1, 0, 0, 0),
+        (12, 'TString',      0, 0, 1, 1, 1),
+        (13, 'TStream',      0, 0, 1, 1, 1),
+        (14, 'TCStream',     0, 0, 1, 1, 1),
+        (15, 'TShortStream', 0, 0, 1, 1, 1),
+        (16, 'TArray',       0, 0, 0, 1, 1),
+        (17, 'TRecord',      0, 0, 0, 0, 1);
+
 CREATE TABLE most_types (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(255) NOT NULL,
+    primitive_type_id int unsigned NOT NULL,
+    is_primary_type boolean NOT NULL,
+    is_base_type boolean NOT NULL,
+    bitfield_length varchar(255) NULL,
+    enum_max varchar(255) NULL,
+    number_base_type_id int unsigned NULL,
+    number_exponent varchar(255) NULL,
+    number_range_min varchar(255) NULL,
+    number_step varchar(255) NULL,
+    number_unit_id int unsigned NULL,
+    string_max_size varchar(255) NULL,
+    stream_length varchar(255) NULL,
+    stream_max_length varchar(255) NULL,
+    stream_media_type varchar(255) NULL,
+    array_name varchar(255) NULL,
+    array_description varchar(255) NULL,
+    array_element_type_id int unsigned NULL,
+    array_size varchar(255) NULL,
+    record_name varchar(255) NULL,
+    record_description varchar(255) NULL,
+    record_size varchar(255) NULL,
     function_catalog_id int unsigned NULL DEFAULT NULL,
-    FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id)
+    FOREIGN KEY (primitive_type_id) REFERENCES primitive_types (id),
+    FOREIGN KEY (number_base_type_id) REFERENCES most_types (id),
+    FOREIGN KEY (number_unit_id) REFERENCES most_units (id),
+    FOREIGN KEY (array_element_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
-INSERT INTO most_types (name)
-VALUES
-        ('TBool'),
-        ('TBitField'),
-        ('TEnum'),
-        ('TNumber'),
-        ('TVoid'),
-        ('TUByte'),
-        ('TSByte'),
-        ('TUWord'),
-        ('TSWord'),
-        ('TULong'),
-        ('TSLong'),
-        ('TString'),
-        ('TStream'),
-        ('TCStream'),
-        ('TShortStream'),
-        ('TArray'),
-        ('TRecord');
+-- Pre-load simple types:
+--  Create most types for any primitive types that are marked as pre-loaded.
+INSERT INTO most_types (name, primitive_type_id, is_base_type)
+SELECT name, id, 1
+FROM primitive_types
+WHERE is_preloaded_type = 1;
 
 CREATE TABLE function_categories (
     id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
