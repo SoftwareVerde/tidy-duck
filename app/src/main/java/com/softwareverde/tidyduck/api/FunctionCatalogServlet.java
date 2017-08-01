@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -59,19 +60,29 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
-            final List<FunctionCatalog> functionCatalogs = functionCatalogInflater.inflateFunctionCatalogs();
+            final Map<Long, List<FunctionCatalog>> functionCatalogs = functionCatalogInflater.inflateFunctionCatalogsGroupedByBaseVersionId();
 
             final Json catalogsJson = new Json();
-            for (final FunctionCatalog functionCatalog : functionCatalogs) {
-                final Json catalogJson = new Json();
-                catalogJson.put("id", functionCatalog.getId());
-                catalogJson.put("name", functionCatalog.getName());
-                catalogJson.put("releaseVersion", functionCatalog.getRelease());
-                catalogJson.put("authorId", functionCatalog.getAuthor().getId());
-                catalogJson.put("authorName", functionCatalog.getAuthor().getName());
-                catalogJson.put("companyId", functionCatalog.getCompany().getId());
-                catalogJson.put("companyName", functionCatalog.getCompany().getName());
-                catalogsJson.add(catalogJson);
+            for (final Long baseVersionId : functionCatalogs.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
+                    final Json catalogJson = new Json();
+                    catalogJson.put("id", functionCatalog.getId());
+                    catalogJson.put("name", functionCatalog.getName());
+                    catalogJson.put("releaseVersion", functionCatalog.getRelease());
+                    catalogJson.put("authorId", functionCatalog.getAuthor().getId());
+                    catalogJson.put("authorName", functionCatalog.getAuthor().getName());
+                    catalogJson.put("companyId", functionCatalog.getCompany().getId());
+                    catalogJson.put("companyName", functionCatalog.getCompany().getName());
+                    catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
+                    catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
+                    versionsJson.add(catalogJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                catalogsJson.add(versionSeriesJson);
             }
             response.put("functionCatalogs", catalogsJson);
 

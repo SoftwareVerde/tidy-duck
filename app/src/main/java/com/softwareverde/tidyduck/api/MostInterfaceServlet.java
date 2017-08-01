@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -227,12 +228,20 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateAllMostInterfaces();
+            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesGroupedByBaseVersionId();
 
             final Json mostInterfacesJson = new Json(true);
-            for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = _toJson(mostInterface);
-                mostInterfacesJson.add(mostInterfaceJson);
+            for (final Long baseVersionId : mostInterfaces.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
+                    final Json mostInterfaceJson = _toJson(mostInterface);
+                    versionsJson.add(mostInterfaceJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                mostInterfacesJson.add(versionSeriesJson);
             }
             response.put("mostInterfaces", mostInterfacesJson);
 

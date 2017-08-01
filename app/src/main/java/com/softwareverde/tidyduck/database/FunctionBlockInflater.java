@@ -9,12 +9,9 @@ import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostInterface;
-import jdk.nashorn.internal.objects.annotations.Function;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class FunctionBlockInflater {
 
@@ -24,19 +21,38 @@ public class FunctionBlockInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<FunctionBlock> inflateAllFunctionBlocks() throws DatabaseException {
+    public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-                "SELECT id FROM function_blocks"
+                "SELECT * FROM function_blocks"
         );
 
-        List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
+        final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long functionBlockId = row.getLong("id");
-            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId, false);
+            final FunctionBlock functionBlock = convertRowToFunctionBlock(row);
             functionBlocks.add(functionBlock);
         }
         return functionBlocks;
+    }
+
+
+    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksGroupedByBaseVersionId() throws DatabaseException {
+        List<FunctionBlock> functionBlocks = inflateFunctionBlocks();
+        return groupByBaseVersionId(functionBlocks);
+    }
+
+    private Map<Long, List<FunctionBlock>> groupByBaseVersionId(final List<FunctionBlock> functionBlocks) {
+        final HashMap<Long, List<FunctionBlock>> groupedFunctionBlocks = new HashMap<>();
+
+        for (final FunctionBlock functionBlock : functionBlocks) {
+            Long baseVersionId = functionBlock.getBaseVersionId();
+            if (!groupedFunctionBlocks.containsKey(baseVersionId)) {
+                groupedFunctionBlocks.put(baseVersionId, new ArrayList<FunctionBlock>());
+            }
+            groupedFunctionBlocks.get(baseVersionId).add(functionBlock);
+        }
+
+        return groupedFunctionBlocks;
     }
 
     public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
@@ -75,7 +91,39 @@ public class FunctionBlockInflater {
         }
 
         final Row row = rows.get(0);
+        final FunctionBlock functionBlock = convertRowToFunctionBlock(row);
 
+        if (inflateChildren) {
+            inflateChildren(functionBlock);
+        }
+
+        return functionBlock;
+    }
+
+    private void inflateChildren(FunctionBlock functionBlock) throws DatabaseException {
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId(), true);
+        functionBlock.setMostInterfaces(mostInterfaces);
+    }
+
+    public List<FunctionBlock> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
+        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
+        final Query query = new Query ("SELECT DISTINCT function_blocks.id\n" +
+                                        "FROM function_blocks\n" +
+                                        "WHERE function_blocks.name LIKE ?");
+        query.setParameter("%" + searchString + "%");
+
+        List<FunctionBlock> functionBlocks = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long functionBlockId = row.getLong("id");
+            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId);
+            functionBlocks.add(functionBlock);
+        }
+        return functionBlocks;
+    }
+
+    private FunctionBlock convertRowToFunctionBlock(final Row row) throws DatabaseException {
         final Long id = row.getLong("id");
         final String mostId = row.getString("most_id");
         final String kind = row.getString("kind");
@@ -87,6 +135,8 @@ public class FunctionBlockInflater {
         final Long companyId = row.getLong("company_id");
         final String access = row.getString("access");
         final boolean isReleased = row.getBoolean("is_released");
+        final Long baseVersionId = row.getLong("base_version_id");
+        final Long priorVersionId = row.getLong("prior_version_id");
 
         AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -105,30 +155,9 @@ public class FunctionBlockInflater {
         functionBlock.setCompany(company);
         functionBlock.setAccess(access);
         functionBlock.setReleased(isReleased);
-
-        if (inflateChildren) {
-            MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-            List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId, true);
-            functionBlock.setMostInterfaces(mostInterfaces);
-        }
+        functionBlock.setBaseVersionId(baseVersionId);
+        functionBlock.setPriorVersionId(priorVersionId);
 
         return functionBlock;
-    }
-
-    public List<FunctionBlock> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
-        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query ("SELECT DISTINCT function_blocks.id\n" +
-                                        "FROM function_blocks\n" +
-                                        "WHERE function_blocks.name LIKE ?");
-        query.setParameter("%" + searchString + "%");
-
-        List<FunctionBlock> functionBlocks = new ArrayList<>();
-        final List<Row> rows = _databaseConnection.query(query);
-        for (final Row row : rows) {
-            final long functionBlockId = row.getLong("id");
-            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId);
-            functionBlocks.add(functionBlock);
-        }
-        return functionBlocks;
     }
 }

@@ -14,7 +14,9 @@ import com.softwareverde.util.Util;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FunctionCatalogInflater {
     protected final Logger _logger = new Slf4jLogger(this.getClass());
@@ -25,7 +27,7 @@ public class FunctionCatalogInflater {
     }
 
     /**
-     * Inflates function catalogs without child objects.
+     * <p>Inflates function catalogs without child objects.</p>
      * @return
      * @throws DatabaseException
      */
@@ -35,32 +37,55 @@ public class FunctionCatalogInflater {
 
     public List<FunctionCatalog> inflateFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT id FROM function_catalogs"
+                "SELECT * FROM function_catalogs ORDER BY base_version_id"
         );
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long functionCatalogId = row.getLong("id");
-            FunctionCatalog functionCatalog = inflateFunctionCatalog(functionCatalogId, inflateChildren);
+            FunctionCatalog functionCatalog = convertRowToFunctionCatalog(row);
+
+            if (inflateChildren) {
+                inflateChildren(functionCatalog);
+            }
             functionCatalogs.add(functionCatalog);
         }
+
         return functionCatalogs;
     }
 
+    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
+        List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
+        return groupByBaseVersionId(functionCatalogs);
+    }
+
+    private Map<Long, List<FunctionCatalog>> groupByBaseVersionId(final List<FunctionCatalog> functionCatalogs) {
+        final HashMap<Long, List<FunctionCatalog>> groupedFunctionCatalogs = new HashMap<>();
+
+        for (final FunctionCatalog functionCatalog : functionCatalogs) {
+            Long baseVersionId = functionCatalog.getBaseVersionId();
+            if (!groupedFunctionCatalogs.containsKey(baseVersionId)) {
+                groupedFunctionCatalogs.put(baseVersionId, new ArrayList<FunctionCatalog>());
+            }
+            groupedFunctionCatalogs.get(baseVersionId).add(functionCatalog);
+        }
+
+        return groupedFunctionCatalogs;
+    }
+
     /**
-     * Returns the FunctionCatalog for the specified functionCatalogId.
-     *  FunctionCatalog's children are NOT inflated.
-     *  Returns null if a FunctionCatalog with the functionCatalogId is not found.
+     * <p>Returns the FunctionCatalog for the specified functionCatalogId.</p>
+     *  <p>FunctionCatalog's children are NOT inflated.</p>
+     *  <p>Returns null if a FunctionCatalog with the functionCatalogId is not found.</p>
      */
     public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         return inflateFunctionCatalog(functionCatalogId, false);
     }
 
     /**
-     * Returns the FunctionCatalog for the specified functionCatalogId.
-     *  If inflateChildren is true, the FunctionCatalog and all of its children are inflated.
-     *  Returns null if a FunctionCatalog with the functionCatalogId is not found.
+     * <p>Returns the FunctionCatalog for the specified functionCatalogId.</p>
+     *  <p>If inflateChildren is true, the FunctionCatalog and all of its children are inflated.</p>
+     *  <p>Returns null if a FunctionCatalog with the functionCatalogId is not found.</p>
      */
     public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
@@ -76,13 +101,24 @@ public class FunctionCatalogInflater {
 
         // get first (should be only) row
         final Row row = rows.get(0);
+        FunctionCatalog functionCatalog = convertRowToFunctionCatalog(row);
 
+        if (inflateChildren) {
+            inflateChildren(functionCatalog);
+        }
+
+        return functionCatalog;
+    }
+
+    private FunctionCatalog convertRowToFunctionCatalog(final Row row) throws DatabaseException {
         final Long id = Util.parseLong(row.getString("id"));
         final String name = row.getString("name");
         final String release = row.getString("release_version");
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
         final boolean isReleased = row.getBoolean("is_released");
+        final Long baseVersionId = row.getLong("base_version_id");
+        final Long priorVersionId = row.getLong("prior_version_id");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -97,14 +133,16 @@ public class FunctionCatalogInflater {
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
         functionCatalog.setReleased(isReleased);
-
-        if (inflateChildren) {
-            FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-            List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, inflateChildren);
-            functionCatalog.setFunctionBlocks(functionBlocks);
-        }
+        functionCatalog.setBaseVersionId(baseVersionId);
+        functionCatalog.setPriorVersionId(priorVersionId);
 
         return functionCatalog;
+    }
+
+    private void inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
+        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), true);
+        functionCatalog.setFunctionBlocks(functionBlocks);
     }
 
 }
