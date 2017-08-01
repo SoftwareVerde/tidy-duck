@@ -1361,9 +1361,18 @@ class App extends React.Component {
                         // didn't navigate away while downloading children
                         const functionBlocks = [];
                         for (let i in functionBlocksJson) {
-                            const functionBlockJson = functionBlocksJson[i];
-                            const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                            functionBlocks.push(functionBlock);
+                            const versionSeriesJson = functionBlocksJson[i];
+                            const baseVersionId = versionSeriesJson.baseVersionId;
+                            const versions = versionSeriesJson.versions;
+                            // TODO: need to get highest version object, which involves comparing version strings. Using base version id for now.
+                            for (let j in versions) {
+                                const functionBlockJson = versions[j];
+                                const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                                if (functionBlock.getId() === baseVersionId) {
+                                    functionBlock.setVersionsJson(versions);
+                                    functionBlocks.push(functionBlock);
+                                }
+                            }
                         }
                         thisApp.setState({
                             functionBlocks:     functionBlocks,

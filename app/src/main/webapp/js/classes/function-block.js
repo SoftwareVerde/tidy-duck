@@ -57,6 +57,7 @@ class FunctionBlock {
         this._author                = null;
         this._company               = null;
         this._access                = "";
+        this._versionsJson          = null;
 
         this._interfaces            = [];
     };
@@ -143,5 +144,13 @@ class FunctionBlock {
 
     getAccess() {
         return this._access;
+    }
+
+    setVersionsJson(versionsJson) {
+        this._versionsJson = versionsJson;
+    }
+
+    getVersionsJson() {
+        return this._versionsJson;
     }
 }
