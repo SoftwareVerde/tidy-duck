@@ -3,7 +3,7 @@
 function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
     let url = ENDPOINT_PREFIX + "api/v1/most-interfaces";
     if (functionBlockId) {
-        url.concat("?function_block_id=" + functionBlockId);
+        url = url.concat("?function_block_id=" + functionBlockId);
     }
 
     const request = new Request(

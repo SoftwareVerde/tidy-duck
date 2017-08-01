@@ -95,7 +95,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function block ID isn't null, insert interface for function block
-            if (requestFunctionBlockID != null) {
+            if (!requestFunctionBlockID.equals("null")) {
                 final Long functionBlockId = Util.parseLong(requestFunctionBlockID);
                 if (functionBlockId < 1) {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);

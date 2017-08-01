@@ -154,9 +154,10 @@ class App extends React.Component {
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
             thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions
+                createButtonState:          thisApp.CreateButtonState.success,
+                functionCatalogs:           functionCatalogs,
+                currentNavigationLevel:     thisApp.NavigationLevel.versions,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -270,7 +271,8 @@ class App extends React.Component {
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 functionBlocks:         functionBlocks,
-                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -368,7 +370,8 @@ class App extends React.Component {
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 mostInterfaces:         mostInterfaces,
-                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -468,7 +471,8 @@ class App extends React.Component {
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 mostFunctions:          mostFunctions,
-                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
+                shouldShowCreateChildForm:  false
             });
         });
     }
@@ -1735,8 +1739,6 @@ class App extends React.Component {
 
             // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
             if (selectedItem) {
-                // TODO: need to rely on push/pop for navigationHistory array items. This is broken!
-
                 switch (currentNavigationLevel) {
                     case this.NavigationLevel.functionBlocks:
                         return (
