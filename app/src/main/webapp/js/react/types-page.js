@@ -36,7 +36,7 @@ class TypesPage extends React.Component {
     render() {
         return (
             <div id="types-container">
-                <div className="center types-options-container">
+                <div id="types-options-container" className="center">
                     <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick} activeRole={this.state.selectedOption} />
                 </div>
                 {this.renderChildElements}

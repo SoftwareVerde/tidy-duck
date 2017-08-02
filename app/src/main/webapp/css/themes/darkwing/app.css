@@ -153,3 +153,7 @@
 .child-item:hover .child-item-menu-item {
     background-color: #838EA4;
 }
+
+.role, .active-role {
+    color: #032334;
+}
