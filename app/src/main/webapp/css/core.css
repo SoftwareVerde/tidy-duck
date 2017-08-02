@@ -1,5 +1,7 @@
-html, body {
-    height: 100%;
+html, body, #main, #app-root {
+    display: flex;
+    min-height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
 }
@@ -14,14 +16,10 @@ body * {
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    padding-top: 50px;
 }
 
 #header {
@@ -38,20 +36,16 @@ body * {
 }
 
 #main-content {
-    position: absolute;
     top: 50px;
     border-top: solid 2px;
+    min-height: 100%;
+    width: 100%;
 }
 
 .container {
     display: -ms-flex;
     display: -webkit-flex;
     display: flex;
-    position: absolute;
-    top: 0px;
-    right: 0;
-    left: 0;
-    bottom: 0;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;

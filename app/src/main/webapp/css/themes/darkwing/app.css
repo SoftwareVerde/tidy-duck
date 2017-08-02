@@ -7,6 +7,11 @@
     background-color: #369;
 }
 
+#types-container {
+    background-color: #9DA1AE;
+    color: #FFF !important;
+}
+
 .navigation-column {
     background-color: #032C46;
     color: #101010;
