@@ -114,6 +114,9 @@ class MostInterface extends React.Component {
         const shortDescription = shortenString(this.props.mostInterface.getDescription(), 25);
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+        // TODO: remove displayVersion if Release mode allows changing versions and saving those changes to a parent function block.
+        const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getVersion()}</div> :
+            <select name={"Version"} value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
 
         return (
             <div className="child-item" onClick={this.onClick}>
@@ -125,8 +128,7 @@ class MostInterface extends React.Component {
                 </div>
                 <div className="child-function-catalog-property">{this.props.mostInterface.getMostId()}</div>
                 <div className="child-function-catalog-property">{shortDescription}</div>
-                <select name={"Version"} value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
-                <div className="child-function-catalog-property">{this.props.mostInterface.getVersion()}</div>
+                {displayVersion}
             </div>
         );
     }

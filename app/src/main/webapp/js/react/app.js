@@ -1299,14 +1299,16 @@ class App extends React.Component {
 
     onChildItemVersionChanged(oldChildItem, newChildItemJson, versionsJson) {
         const currentNavigationLevel = this.state.currentNavigationLevel;
-        const newChildItem = FunctionBlock.fromJson(newChildItemJson);
-        newChildItem.setVersionsJson(versionsJson);
+        // TODO: need to call update API if currently working within an object.
+        // TODO: e.g. when viewing an interface in a function block, update the interface for the function block ID.
 
         switch (currentNavigationLevel) {
             case this.NavigationLevel.versions:
                 const functionCatalogs = this.state.functionCatalogs;
                 for (let i in functionCatalogs) {
                     if (functionCatalogs[i].getId() === oldChildItem.getId()) {
+                        const newChildItem = FunctionCatalog.fromJson(newChildItemJson);
+                        newChildItem.setVersionsJson(versionsJson);
                         functionCatalogs[i] = newChildItem;
                         this.setState({functionCatalogs: functionCatalogs});
                         break;
@@ -1317,6 +1319,8 @@ class App extends React.Component {
                 const functionBlocks = this.state.functionBlocks;
                 for (let i in functionBlocks) {
                     if (functionBlocks[i].getId() === oldChildItem.getId()) {
+                        const newChildItem = FunctionBlock.fromJson(newChildItemJson);
+                        newChildItem.setVersionsJson(versionsJson);
                         functionBlocks[i] = newChildItem;
                         this.setState({functionBlocks: functionBlocks});
                         break;
@@ -1327,6 +1331,8 @@ class App extends React.Component {
                 const mostInterfaces = this.state.mostInterfaces;
                 for (let i in mostInterfaces) {
                     if (mostInterfaces[i].getId() === oldChildItem.getId()) {
+                        const newChildItem = MostInterface.fromJson(newChildItemJson);
+                        newChildItem.setVersionsJson(versionsJson);
                         mostInterfaces[i] = newChildItem;
                         this.setState({mostInterfaces: mostInterfaces});
                         break;
@@ -1521,7 +1527,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} onVersionChanged={this.onChildItemVersionChanged} />);
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} displayVersionsList={this.state.selectedItem} onDelete={this.onDeleteFunctionBlock} onVersionChanged={this.onChildItemVersionChanged} />);
                 }
             break;
 
@@ -1530,7 +1536,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} onVersionChanged={this.onChildItemVersionChanged} />);
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} displayVersionsList={this.state.selectedItem} onDelete={this.onDeleteMostInterface} onVersionChanged={this.onChildItemVersionChanged} />);
                 }
             break;
 

@@ -116,6 +116,10 @@ class FunctionBlock extends React.Component {
         const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+
+        // TODO: remove displayVersion if Release mode allows changing versions and saving those changes to a parent function catalog.
+        const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div> :
+            <select name={"Version"} value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
         
         return (
             <div className="child-item" onClick={this.onClick}>
@@ -128,7 +132,7 @@ class FunctionBlock extends React.Component {
                 <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
                 <div className="child-function-catalog-property">{shortDescription}</div>
-                <select name={"Version"} value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
+                {displayVersion}
                 <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
             </div>
