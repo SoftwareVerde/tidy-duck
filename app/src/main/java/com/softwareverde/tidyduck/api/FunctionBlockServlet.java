@@ -385,6 +385,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("description", functionBlock.getDescription());
         blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
         blockJson.put("releaseVersion", functionBlock.getRelease());
+        blockJson.put("isReleased", functionBlock.isReleased());
+        blockJson.put("baseVersionId", functionBlock.getBaseVersionId());
+        blockJson.put("priorVersionId", functionBlock.getPriorVersionId());
         blockJson.put("authorId", functionBlock.getAuthor().getId());
         blockJson.put("authorName", functionBlock.getAuthor().getName());
         blockJson.put("companyId", functionBlock.getCompany().getId());

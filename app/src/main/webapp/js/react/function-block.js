@@ -31,8 +31,26 @@ class FunctionBlock extends React.Component {
         });
     }
 
-    onVersionChanged(newValue) {
-        this.props.functionBlock.setReleaseVersion(newValue);
+    onVersionChanged(event) {
+        const newValue = event.target.value;
+        const functionBlock = this.props.functionBlock;
+        const versionsJson = functionBlock.getVersionsJson();
+
+
+        for (let i in versionsJson) {
+            const newFunctionBlockJson = versionsJson[i];
+            let newVersion = newFunctionBlockJson.releaseVersion;
+            if (!newFunctionBlockJson.isReleased) {
+                newVersion += "-" + newFunctionBlockJson.id;
+            }
+
+            if (newVersion === newValue) {
+                if (typeof this.props.onVersionChanged == "function") {
+                    this.props.onVersionChanged(functionBlock, newFunctionBlockJson, versionsJson);
+                }
+                break;
+            }
+        }
     }
 
     onVersionClicked(event) {
@@ -79,11 +97,13 @@ class FunctionBlock extends React.Component {
         const versionsJson = this.props.functionBlock.getVersionsJson();
 
         for (let i in versionsJson) {
-            const optionName = versionsJson[i].releaseVersion;
+            let optionName = versionsJson[i].releaseVersion;
+            if (!versionsJson[i].isReleased) {
+                optionName += "-" + versionsJson[i].id;
+            }
             versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
         }
 
-        versionOptions.push(<option key="dummyOption" value={"Dummy Option"}>Dummy Option</option>);
         return versionOptions;
     }
 
@@ -106,7 +126,7 @@ class FunctionBlock extends React.Component {
                 <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
                 <div className="child-function-catalog-property">{shortDescription}</div>
-                <select name={"Version"} value={this.props.functionBlock.getReleaseVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
+                <select name={"Version"} value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
                 <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
             </div>

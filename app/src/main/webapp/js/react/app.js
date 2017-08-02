@@ -98,6 +98,7 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
+        this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
 
@@ -1280,6 +1281,45 @@ class App extends React.Component {
         }
     }
 
+    onChildItemVersionChanged(oldChildItem, newChildItemJson, versionsJson) {
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+        const newChildItem = FunctionBlock.fromJson(newChildItemJson);
+        newChildItem.setVersionsJson(versionsJson);
+
+        switch (currentNavigationLevel) {
+            case this.NavigationLevel.versions:
+                const functionCatalogs = this.state.functionCatalogs;
+                for (let i in functionCatalogs) {
+                    if (functionCatalogs[i].getId() === oldChildItem.getId()) {
+                        functionCatalogs[i] = newChildItem;
+                        this.setState({functionCatalogs: functionCatalogs});
+                        break;
+                    }
+                }
+            break;
+            case this.NavigationLevel.functionCatalogs:
+                const functionBlocks = this.state.functionBlocks;
+                for (let i in functionBlocks) {
+                    if (functionBlocks[i].getId() === oldChildItem.getId()) {
+                        functionBlocks[i] = newChildItem;
+                        this.setState({functionBlocks: functionBlocks});
+                        break;
+                    }
+                }
+            break;
+            case this.NavigationLevel.functionBlocks:
+                const mostInterfaces = this.state.mostInterfaces;
+                for (let i in mostInterfaces) {
+                    if (mostInterfaces[i].getId() === oldChildItem.getId()) {
+                        mostInterfaces[i] = newChildItem;
+                        this.setState({mostInterfaces: mostInterfaces});
+                        break;
+                    }
+                }
+            break;
+        }
+    }
+
     handleFunctionStereotypeClick(selectedFunctionStereotype) {
         const shouldShowCreateChildForm = this.state.selectedFunctionStereotype == selectedFunctionStereotype ? !this.state.shouldShowCreateChildForm : true;
         this.setState({
@@ -1474,7 +1514,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
-                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} />);
+                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged}/>);
                 }
             break;
 
@@ -1483,7 +1523,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} onVersionChanged={this.onChildItemVersionChanged} />);
                 }
             break;
 
@@ -1492,7 +1532,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} onVersionChanged={this.onChildItemVersionChanged} />);
                 }
             break;
 
