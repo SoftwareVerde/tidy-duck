@@ -825,9 +825,9 @@ class App extends React.Component {
                         const functionBlock = proposedFunctionBlocks[i];
 
                         // Filter any existing child elements that appear in the search results.
-                        var pushToSearchResults = true;
+                        let pushToSearchResults = true;
                         for (let m in existingFunctionBlocks) {
-                            if (existingFunctionBlocks[m].getId() == functionBlock.getId()) {
+                            if (existingFunctionBlocks[m].getBaseVersionId() === functionBlock.getBaseVersionId()) {
                                 pushToSearchResults = false;
                                 break;
                             }
@@ -1055,10 +1055,10 @@ class App extends React.Component {
                     for (let i in proposedMostInterfaces) {
                         const mostInterface = proposedMostInterfaces[i];
 
-                        //Filter any existing child elements that appear in the search results.
+                        //Filter any existing child elements or versions that appear in the search results.
                         let pushToSearchResults = true;
                         for(let m in existingMostInterfaces) {
-                            if (existingMostInterfaces[m].getId() == mostInterface.getId()) {
+                            if (existingMostInterfaces[m].getBaseVersionId() === mostInterface.getBaseVersionId()) {
                                 pushToSearchResults = false;
                                 break;
                             }
@@ -1662,6 +1662,7 @@ class App extends React.Component {
                             showTitle={true}
                             formTitle={"Search Function Blocks"}
                             onUpdate={this.onSearchFunctionBlocks}
+                            onVersionChanged={this.onChildItemVersionChanged}
                             onPlusButtonClick={this.onAssociateFunctionBlockWithFunctionCatalog}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}
@@ -1704,6 +1705,7 @@ class App extends React.Component {
                             showTitle={true}
                             formTitle={"Search Interfaces"}
                             onUpdate={this.onSearchMostInterfaces}
+                            onVersionChanged={this.onChildItemVersionChanged}
                             onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}

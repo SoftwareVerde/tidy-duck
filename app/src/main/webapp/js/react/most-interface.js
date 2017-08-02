@@ -41,7 +41,7 @@ class MostInterface extends React.Component {
 
         for (let i in versionsJson) {
             const newMostInterfaceJson = versionsJson[i];
-            let newVersion = newMostInterfaceJson.version;
+            let newVersion = newMostInterfaceJson.releaseVersion;
             if (!newMostInterfaceJson.isReleased) {
                 newVersion += "-" + newMostInterfaceJson.id;
             }
@@ -99,7 +99,7 @@ class MostInterface extends React.Component {
         const versionsJson = this.props.mostInterface.getVersionsJson();
 
         for (let i in versionsJson) {
-            let optionName = versionsJson[i].version;
+            let optionName = versionsJson[i].releaseVersion;
             if (!versionsJson[i].isReleased) {
                 optionName += "-" + versionsJson[i].id;
             }
@@ -115,7 +115,7 @@ class MostInterface extends React.Component {
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
         // TODO: remove displayVersion if Release mode allows changing versions and saving those changes to a parent function block.
-        const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getVersion()}</div> :
+        const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getReleaseVersion()}</div> :
             <select name={"Version"} value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
 
         return (

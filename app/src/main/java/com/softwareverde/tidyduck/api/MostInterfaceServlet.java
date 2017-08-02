@@ -311,7 +311,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final String mostId = mostInterfaceJson.getString("mostId");
         final String name = mostInterfaceJson.getString("name");
         final String description = mostInterfaceJson.getString("description");
-        final String version = mostInterfaceJson.getString("version");
+        final String releaseVersion = mostInterfaceJson.getString("releaseVersion");
 
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
@@ -326,7 +326,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 throw new Exception("Description field is required.");
             }
 
-            if (Util.isBlank(version)) {
+            if (Util.isBlank(releaseVersion)) {
                 throw new Exception("Version field is required.");
             }
 
@@ -335,7 +335,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final MostInterface mostInterface = new MostInterface();
         mostInterface.setMostId(mostId);
         mostInterface.setName(name);
-        mostInterface.setVersion(version);
+        mostInterface.setVersion(releaseVersion);
         mostInterface.setDescription(description);
 
         return mostInterface;
@@ -348,7 +348,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterfaceJson.put("name", mostInterface.getName());
         mostInterfaceJson.put("description", mostInterface.getDescription());
         mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
-        mostInterfaceJson.put("version", mostInterface.getVersion());
+        mostInterfaceJson.put("releaseVersion", mostInterface.getVersion());
+        mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());
+        mostInterfaceJson.put("priorVersionId", mostInterface.getPriorVersionId());
         return mostInterfaceJson;
     }
 }

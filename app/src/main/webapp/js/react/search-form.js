@@ -99,6 +99,7 @@ class SearchForm extends React.Component {
                                                    searchResult={searchResult}
                                                    onPlusButtonClick={this.props.onPlusButtonClick}
                                                    navigationLevel={navigationLevel}
+                                                   onVersionChanged={this.props.onVersionChanged}
                                                    currentNavigationLevel={currentNavigationLevel}/>);
         }
 

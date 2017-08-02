@@ -7,7 +7,7 @@ class MostInterface {
         mostInterface.setName(json.name);
         mostInterface.setDescription(json.description);
         mostInterface.setLastModifiedDate(json.lastModifiedDate);
-        mostInterface.setVersion(json.version);
+        mostInterface.setReleaseVersion(json.releaseVersion);
         mostInterface.setBaseVersionId(json.baseVersionId);
         mostInterface.setPriorVersionId(json.priorVersionId);
         mostInterface.setIsReleased(json.isReleased);
@@ -22,7 +22,7 @@ class MostInterface {
             name:               mostInterface.getName(),
             description:        mostInterface.getDescription(),
             lastModifiedDate:   mostInterface.getLastModifiedDate(),
-            version:            mostInterface.getVersion(),
+            releaseVersion:     mostInterface.getReleaseVersion(),
             baseVersionId:      mostInterface.getBaseVersionId(),
             priorVersionId:     mostInterface.getPriorVersionId(),
             isReleased:         mostInterface.isReleased(),
@@ -84,11 +84,11 @@ class MostInterface {
         return this._lastModifiedDate;
     }
 
-    setVersion(version) {
+    setReleaseVersion(version) {
         this._version = version;
     }
 
-    getVersion() {
+    getReleaseVersion() {
         return this._version;
     }
 
