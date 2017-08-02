@@ -259,16 +259,24 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
+            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
 
             final Json mostInterfacesJson = new Json(true);
-            for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = _toJson(mostInterface);
-                mostInterfacesJson.add(mostInterfaceJson);
+            for (final Long baseVersionId : mostInterfaces.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
+                    final Json mostInterfaceJson = _toJson(mostInterface);
+                    versionsJson.add(mostInterfaceJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                mostInterfacesJson.add(versionSeriesJson);
             }
             response.put("mostInterfaces", mostInterfacesJson);
 
-            _setJsonSuccessFields(response);
+            super._setJsonSuccessFields(response);
             return response;
         }
         catch (final DatabaseException exception) {

@@ -265,12 +265,20 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
 
             final Json functionBlocksJson = new Json(true);
-            for (final FunctionBlock functionBlock : functionBlocks) {
-                final Json functionBlockJson = _toJson(functionBlock);
-                functionBlocksJson.add(functionBlockJson);
+            for (final Long baseVersionId : functionBlocks.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
+                    final Json functionBlockJson = _toJson(functionBlock);
+                    versionsJson.add(functionBlockJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                functionBlocksJson.add(versionSeriesJson);
             }
             response.put("functionBlocks", functionBlocksJson);
 

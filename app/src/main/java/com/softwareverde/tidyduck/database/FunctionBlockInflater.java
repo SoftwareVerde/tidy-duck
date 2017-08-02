@@ -106,21 +106,22 @@ public class FunctionBlockInflater {
         functionBlock.setMostInterfaces(mostInterfaces);
     }
 
-    public List<FunctionBlock> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
+    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query ("SELECT DISTINCT function_blocks.id\n" +
-                                        "FROM function_blocks\n" +
-                                        "WHERE function_blocks.name LIKE ?");
+        final Query query = new Query ("SELECT * FROM function_blocks\n" +
+                                        "WHERE base_version_id IN (" +
+                                            "SELECT DISTINCT function_blocks.base_version_id\n" +
+                                            "FROM function_blocks\n" +
+                                            "WHERE function_blocks.name LIKE ?)");
         query.setParameter("%" + searchString + "%");
 
         List<FunctionBlock> functionBlocks = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long functionBlockId = row.getLong("id");
-            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId);
+            FunctionBlock functionBlock = convertRowToFunctionBlock(row);
             functionBlocks.add(functionBlock);
         }
-        return functionBlocks;
+        return groupByBaseVersionId(functionBlocks);
     }
 
     private FunctionBlock convertRowToFunctionBlock(final Row row) throws DatabaseException {

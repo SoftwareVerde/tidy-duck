@@ -817,21 +817,22 @@ class App extends React.Component {
                         // old results, discard
                         return;
                     }
+                    const proposedFunctionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
                     const functionBlocks = [];
-                    const existingFunctionBlocks = thisApp.state.functionBlocks;
-                    for (let i in functionBlocksJson) {
-                        const functionBlockJson = functionBlocksJson[i];
 
-                        //Filter any existing child elements that appear in the search results.
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in proposedFunctionBlocks) {
+                        const functionBlock = proposedFunctionBlocks[i];
+
+                        // Filter any existing child elements that appear in the search results.
                         var pushToSearchResults = true;
-                        for(let m in existingFunctionBlocks) {
-                            if (existingFunctionBlocks[m].getId() == functionBlockJson.id) {
+                        for (let m in existingFunctionBlocks) {
+                            if (existingFunctionBlocks[m].getId() == functionBlock.getId()) {
                                 pushToSearchResults = false;
                                 break;
                             }
                         }
                         if (pushToSearchResults) {
-                            const functionBlock = FunctionBlock.fromJson(functionBlockJson);
                             functionBlocks.push(functionBlock);
                         }
                     }
@@ -869,12 +870,7 @@ class App extends React.Component {
                         return;
                     }
 
-                    const functionBlocks = [];
-                    for (let i in functionBlocksJson) {
-                        const functionBlockJson = functionBlocksJson[i];
-                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                        functionBlocks.push(functionBlock);
-                    }
+                    const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
 
                     thisApp.setState({
                         searchResults:              functionBlocks,
@@ -1051,21 +1047,24 @@ class App extends React.Component {
                         // old results, discard
                         return;
                     }
+
+                    const proposedMostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
                     const mostInterfaces = [];
                     const existingMostInterfaces = thisApp.state.mostInterfaces;
-                    for (let i in mostInterfacesJson) {
-                        const mostInterfaceJson = mostInterfacesJson[i];
+
+                    for (let i in proposedMostInterfaces) {
+                        const mostInterface = proposedMostInterfaces[i];
 
                         //Filter any existing child elements that appear in the search results.
-                        var pushToSearchResults = true;
+                        let pushToSearchResults = true;
                         for(let m in existingMostInterfaces) {
-                            if (existingMostInterfaces[m].getId() == mostInterfaceJson.id) {
+                            if (existingMostInterfaces[m].getId() == mostInterface.getId()) {
                                 pushToSearchResults = false;
                                 break;
                             }
                         }
+                        // Add to search results if no duplicates are found.
                         if (pushToSearchResults) {
-                            const mostInterface = MostInterface.fromJson(mostInterfaceJson);
                             mostInterfaces.push(mostInterface);
                         }
                     }
@@ -1281,17 +1280,25 @@ class App extends React.Component {
 
         for (let i in childItemsJson) {
             const versionSeriesJson = childItemsJson[i];
-            const baseVersionId = versionSeriesJson.baseVersionId;
             const versions = versionSeriesJson.versions;
-            // TODO: need to get highest version object, which involves comparing version strings. Using base version id for now.
+
+            // Set default version to be displayed, in case no versions have been released.
+            let displayedVersionId = versions[0].id;
+            let displayedVersionJson = versions[0];
+
+            // Get highest version object that is released, using IDs.
             for (let j in versions) {
                 const childItemJson = versions[j];
-                const childItem = fromJsonFunction(childItemJson);
-                if (childItem.getId() === baseVersionId) {
-                    childItem.setVersionsJson(versions);
-                    childItems.push(childItem);
+                if (childItemJson.isReleased) {
+                    if (childItemJson.id > displayedVersionId) {
+                        displayedVersionId = childItemJson.id;
+                        displayedVersionJson = childItemJson;
+                    }
                 }
             }
+            const childItem = fromJsonFunction(displayedVersionJson);
+            childItem.setVersionsJson(versions);
+            childItems.push(childItem);
         }
 
         return childItems;
@@ -1299,12 +1306,12 @@ class App extends React.Component {
 
     onChildItemVersionChanged(oldChildItem, newChildItemJson, versionsJson) {
         const currentNavigationLevel = this.state.currentNavigationLevel;
-        // TODO: need to call update API if currently working within an object.
-        // TODO: e.g. when viewing an interface in a function block, update the interface for the function block ID.
+        let fromJsonFunction = null;
 
         switch (currentNavigationLevel) {
             case this.NavigationLevel.versions:
                 const functionCatalogs = this.state.functionCatalogs;
+                fromJsonFunction = FunctionCatalog.fromJson;
                 for (let i in functionCatalogs) {
                     if (functionCatalogs[i].getId() === oldChildItem.getId()) {
                         const newChildItem = FunctionCatalog.fromJson(newChildItemJson);
@@ -1317,6 +1324,7 @@ class App extends React.Component {
             break;
             case this.NavigationLevel.functionCatalogs:
                 const functionBlocks = this.state.functionBlocks;
+                fromJsonFunction = FunctionBlock.fromJson;
                 for (let i in functionBlocks) {
                     if (functionBlocks[i].getId() === oldChildItem.getId()) {
                         const newChildItem = FunctionBlock.fromJson(newChildItemJson);
@@ -1329,6 +1337,7 @@ class App extends React.Component {
             break;
             case this.NavigationLevel.functionBlocks:
                 const mostInterfaces = this.state.mostInterfaces;
+                fromJsonFunction = MostInterface.fromJson;
                 for (let i in mostInterfaces) {
                     if (mostInterfaces[i].getId() === oldChildItem.getId()) {
                         const newChildItem = MostInterface.fromJson(newChildItemJson);
@@ -1339,6 +1348,18 @@ class App extends React.Component {
                     }
                 }
             break;
+        }
+
+        // Need to update search results as well.
+        const searchResults = this.state.searchResults;
+        for (let i in searchResults) {
+            if (searchResults[i].getId() === oldChildItem.getId()) {
+                const searchResult = fromJsonFunction(newChildItemJson);
+                searchResult.setVersionsJson(versionsJson);
+                searchResults[i] = searchResult;
+                this.setState({searchResults: searchResults});
+                break;
+            }
         }
     }
 
