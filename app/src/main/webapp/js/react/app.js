@@ -98,6 +98,7 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
+        this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
@@ -560,15 +561,9 @@ class App extends React.Component {
     }
 
     getFunctionCatalogsForCurrentVersion(callbackFunction) {
+        const thisApp = this;
         getFunctionCatalogs(function(functionCatalogsJson) {
-            const functionCatalogs = [];
-
-            for (let i in functionCatalogsJson) {
-                const functionCatalogJson = functionCatalogsJson[i];
-                const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
-                functionCatalogs.push(functionCatalog);
-            }
-
+            const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
             callbackFunction(functionCatalogs);
         });
     }
@@ -1281,6 +1276,27 @@ class App extends React.Component {
         }
     }
 
+    getChildItemsFromVersions(childItemsJson, fromJsonFunction) {
+        const childItems = [];
+
+        for (let i in childItemsJson) {
+            const versionSeriesJson = childItemsJson[i];
+            const baseVersionId = versionSeriesJson.baseVersionId;
+            const versions = versionSeriesJson.versions;
+            // TODO: need to get highest version object, which involves comparing version strings. Using base version id for now.
+            for (let j in versions) {
+                const childItemJson = versions[j];
+                const childItem = fromJsonFunction(childItemJson);
+                if (childItem.getId() === baseVersionId) {
+                    childItem.setVersionsJson(versions);
+                    childItems.push(childItem);
+                }
+            }
+        }
+
+        return childItems;
+    }
+
     onChildItemVersionChanged(oldChildItem, newChildItemJson, versionsJson) {
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const newChildItem = FunctionBlock.fromJson(newChildItemJson);
@@ -1399,21 +1415,7 @@ class App extends React.Component {
                 getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
                     if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                         // didn't navigate away while downloading children
-                        const functionBlocks = [];
-                        for (let i in functionBlocksJson) {
-                            const versionSeriesJson = functionBlocksJson[i];
-                            const baseVersionId = versionSeriesJson.baseVersionId;
-                            const versions = versionSeriesJson.versions;
-                            // TODO: need to get highest version object, which involves comparing version strings. Using base version id for now.
-                            for (let j in versions) {
-                                const functionBlockJson = versions[j];
-                                const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                                if (functionBlock.getId() === baseVersionId) {
-                                    functionBlock.setVersionsJson(versions);
-                                    functionBlocks.push(functionBlock);
-                                }
-                            }
-                        }
+                        const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
                         thisApp.setState({
                             functionBlocks:     functionBlocks,
                             isLoadingChildren:  false
@@ -1424,12 +1426,8 @@ class App extends React.Component {
                 getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
                     if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                         // didn't navigate away while downloading children
-                        const mostInterfaces = [];
-                        for (let i in mostInterfacesJson) {
-                            const mostInterfaceJson = mostInterfacesJson[i];
-                            const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                            mostInterfaces.push(mostInterface);
-                        }
+                        const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
+
                         thisApp.setState({
                             mostFunctions:      [],
                             mostInterfaces:     mostInterfaces,

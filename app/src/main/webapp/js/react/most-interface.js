@@ -9,8 +9,11 @@ class MostInterface extends React.Component {
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
+        this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteMostInterface = this.deleteMostInterface.bind(this);
+        this.onVersionChanged = this.onVersionChanged.bind(this);
+        this.onVersionClicked = this.onVersionClicked.bind(this);
 
         window.app.navigation = this;
     }
@@ -29,6 +32,33 @@ class MostInterface extends React.Component {
             showMenu: shouldShowMenu
         });
     }
+
+    onVersionChanged(event) {
+        const newValue = event.target.value;
+        const mostInterface = this.props.mostInterface;
+        const versionsJson = mostInterface.getVersionsJson();
+
+
+        for (let i in versionsJson) {
+            const newMostInterfaceJson = versionsJson[i];
+            let newVersion = newMostInterfaceJson.version;
+            if (!newMostInterfaceJson.isReleased) {
+                newVersion += "-" + newMostInterfaceJson.id;
+            }
+
+            if (newVersion === newValue) {
+                if (typeof this.props.onVersionChanged == "function") {
+                    this.props.onVersionChanged(mostInterface, newMostInterfaceJson, versionsJson);
+                }
+                break;
+            }
+        }
+    }
+
+    onVersionClicked(event) {
+        event.stopPropagation();
+    }
+
 
     deleteMostInterface(event) {
         event.stopPropagation();
@@ -64,6 +94,21 @@ class MostInterface extends React.Component {
         }
     }
 
+    renderVersionOptions() {
+        const versionOptions = [];
+        const versionsJson = this.props.mostInterface.getVersionsJson();
+
+        for (let i in versionsJson) {
+            let optionName = versionsJson[i].version;
+            if (!versionsJson[i].isReleased) {
+                optionName += "-" + versionsJson[i].id;
+            }
+            versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
+        }
+
+        return versionOptions;
+    }
+
     render() {
         const name = this.props.mostInterface.getName();
         const shortDescription = shortenString(this.props.mostInterface.getDescription(), 25);
@@ -80,6 +125,7 @@ class MostInterface extends React.Component {
                 </div>
                 <div className="child-function-catalog-property">{this.props.mostInterface.getMostId()}</div>
                 <div className="child-function-catalog-property">{shortDescription}</div>
+                <select name={"Version"} value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
                 <div className="child-function-catalog-property">{this.props.mostInterface.getVersion()}</div>
             </div>
         );

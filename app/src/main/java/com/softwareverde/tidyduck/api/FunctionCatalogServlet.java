@@ -77,6 +77,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     catalogJson.put("authorName", functionCatalog.getAuthor().getName());
                     catalogJson.put("companyId", functionCatalog.getCompany().getId());
                     catalogJson.put("companyName", functionCatalog.getCompany().getName());
+                    catalogJson.put("isReleased", functionCatalog.isReleased());
                     catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
                     catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
                     versionsJson.add(catalogJson);

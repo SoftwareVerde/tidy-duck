@@ -9,9 +9,11 @@ class FunctionBlock extends React.Component {
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderMenu = this.renderMenu.bind(this);
+        this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
+        this.onVersionClicked = this.onVersionClicked.bind(this);
 
         window.app.navigation = this;
     }
