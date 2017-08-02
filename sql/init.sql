@@ -30,29 +30,29 @@ DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS companies;
 
 CREATE TABLE companies (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL
 ) ENGINE=INNODB;
 
 CREATE TABLE accounts (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    username varchar(255) NOT NULL,
-    password varchar(255) NOT NULL,
-    name varchar(255) NOT NULL,
-    theme varchar(255) NOT NULL DEFAULT 'Tidy',
-    company_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    theme VARCHAR(255) NOT NULL DEFAULT 'Tidy',
+    company_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_catalogs (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
-    release_version varchar(255) NOT NULL,
-    account_id int unsigned NOT NULL,
-    company_id int unsigned NOT NULL,
-    is_released boolean NOT NULL DEFAULT FALSE,
-    base_version_id int unsigned NULL,
-    prior_version_id int unsigned NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    release_version VARCHAR(255) NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+    is_released BOOLEAN NOT NULL DEFAULT FALSE,
+    base_version_id INT UNSIGNED NULL,
+    prior_version_id INT UNSIGNED NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
     FOREIGN KEY (base_version_id) REFERENCES function_catalogs (id),
@@ -60,19 +60,19 @@ CREATE TABLE function_catalogs (
 ) ENGINE=INNODB;
 
 CREATE TABLE function_blocks (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    most_id varchar(255) NOT NULL,
-    kind varchar(255) NOT NULL,
-    name varchar(255) NOT NULL,
-    description text NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    most_id VARCHAR(255) NOT NULL,
+    kind VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     last_modified_date date NOT NULL,
-    release_version varchar(255) NOT NULL,
-    account_id int unsigned NOT NULL,
-    company_id int unsigned NOT NULL,
-    access varchar(255) NOT NULL,
-    is_released boolean NOT NULL DEFAULT FALSE,
-    base_version_id int unsigned NULL,
-    prior_version_id int unsigned NULL,
+    release_version VARCHAR(255) NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+    access VARCHAR(255) NOT NULL,
+    is_released BOOLEAN NOT NULL DEFAULT FALSE,
+    base_version_id INT UNSIGNED NULL,
+    prior_version_id INT UNSIGNED NULL,
     FOREIGN KEY (account_id) REFERENCES accounts (id),
     FOREIGN KEY (company_id) REFERENCES companies (id),
     FOREIGN KEY (base_version_id) REFERENCES function_blocks (id),
@@ -80,41 +80,41 @@ CREATE TABLE function_blocks (
 ) ENGINE=INNODB;
 
 CREATE TABLE function_catalogs_function_blocks (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    function_catalog_id int unsigned NOT NULL,
-    function_block_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    function_catalog_id INT UNSIGNED NOT NULL,
+    function_block_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id),
     FOREIGN KEY (function_block_id) REFERENCES function_blocks (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE interfaces (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    most_id varchar(255) NOT NULL,
-    name varchar(255) NOT NULL,
-    description text NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    most_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     last_modified_date date NOT NULL,
-    version varchar(255) NOT NULL,
-    is_released boolean NOT NULL DEFAULT FALSE,
-    base_version_id int unsigned NULL,
-    prior_version_id int unsigned NULL,
+    version VARCHAR(255) NOT NULL,
+    is_released BOOLEAN NOT NULL DEFAULT FALSE,
+    base_version_id INT UNSIGNED NULL,
+    prior_version_id INT UNSIGNED NULL,
     FOREIGN KEY (base_version_id) REFERENCES interfaces (id),
     FOREIGN KEY (prior_version_id) REFERENCES interfaces (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_blocks_interfaces (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    function_block_id int unsigned NOT NULL,
-    interface_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    function_block_id INT UNSIGNED NOT NULL,
+    interface_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_block_id) REFERENCES function_blocks (id),
     FOREIGN KEY (interface_id) REFERENCES interfaces (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE most_units (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    reference_name varchar(255) NOT NULL,
-    definition_name varchar(255) NOT NULL,
-    definition_code varchar(255) NOT NULL,
-    definition_group varchar(255) NOT NULL
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    reference_name VARCHAR(255) NOT NULL,
+    definition_name VARCHAR(255) NOT NULL,
+    definition_code VARCHAR(255) NOT NULL,
+    definition_group VARCHAR(255) NOT NULL
 ) ENGINE=INNODB;
 
 -- Units extracted from XML sample using:
@@ -185,12 +185,12 @@ VALUES
     ('unit_V', 'V', '0x81', 'Voltage');
 
 CREATE TABLE primitive_types (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
-    is_number_base_type boolean NOT NULL,
-    is_stream_param_type boolean NOT NULL,
-    is_array_type boolean NOT NULL,
-    is_record_type boolean NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    is_number_base_type BOOLEAN NOT NULL,
+    is_stream_param_type BOOLEAN NOT NULL,
+    is_array_type BOOLEAN NOT NULL,
+    is_record_type BOOLEAN NULL,
 ) ENGINE=INNODB;
 
 -- Primitive type details manually pulled from DTD
@@ -215,30 +215,28 @@ VALUES
         (17, 'TRecord',      0, 0, 0, 0, 1);
 
 CREATE TABLE most_types (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
-    primitive_type_id int unsigned NOT NULL,
-    is_primary_type boolean NOT NULL,
-    is_base_type boolean NOT NULL,
-    bitfield_length varchar(255) NULL DEFAULT NULL,
-    enum_max varchar(255) NULL DEFAULT NULL,
-    number_base_type_id int unsigned NULL DEFAULT NULL,
-    number_exponent varchar(255) NULL DEFAULT NULL,
-    number_range_min varchar(255) NULL DEFAULT NULL,
-    number_step varchar(255) NULL DEFAULT NULL,
-    number_unit_id int unsigned NULL DEFAULT NULL,
-    string_max_size varchar(255) NULL DEFAULT NULL,
-    stream_length varchar(255) NULL DEFAULT NULL,
-    stream_max_length varchar(255) NULL DEFAULT NULL,
-    stream_media_type varchar(255) NULL DEFAULT NULL,
-    array_name varchar(255) NULL DEFAULT NULL,
-    array_description varchar(255) NULL DEFAULT NULL,
-    array_element_type_id int unsigned NULL DEFAULT NULL,
-    array_size varchar(255) NULL DEFAULT NULL,
-    record_name varchar(255) NULL DEFAULT NULL,
-    record_description varchar(255) NULL DEFAULT NULL,
-    record_size varchar(255) NULL DEFAULT NULL,
-    function_catalog_id int unsigned NULL DEFAULT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    primitive_type_id INT UNSIGNED NOT NULL,
+    is_primary_type BOOLEAN NOT NULL,
+    bitfield_length VARCHAR(255) NULL DEFAULT NULL,
+    enum_max VARCHAR(255) NULL DEFAULT NULL,
+    number_base_type_id INT UNSIGNED NULL DEFAULT NULL,
+    number_exponent VARCHAR(255) NULL DEFAULT NULL,
+    number_range_min VARCHAR(255) NULL DEFAULT NULL,
+    number_step VARCHAR(255) NULL DEFAULT NULL,
+    number_unit_id INT UNSIGNED NULL DEFAULT NULL,
+    string_max_size VARCHAR(255) NULL DEFAULT NULL,
+    stream_length VARCHAR(255) NULL DEFAULT NULL,
+    stream_max_length VARCHAR(255) NULL DEFAULT NULL,
+    stream_media_type VARCHAR(255) NULL DEFAULT NULL,
+    array_name VARCHAR(255) NULL DEFAULT NULL,
+    array_description TEXT NULL DEFAULT NULL,
+    array_element_type_id INT UNSIGNED NULL DEFAULT NULL,
+    array_size VARCHAR(255) NULL DEFAULT NULL,
+    record_name VARCHAR(255) NULL DEFAULT NULL,
+    record_description TEXT NULL DEFAULT NULL,
+    record_size VARCHAR(255) NULL DEFAULT NULL,
     FOREIGN KEY (primitive_type_id) REFERENCES primitive_types (id),
     FOREIGN KEY (number_base_type_id) REFERENCES most_types (id),
     FOREIGN KEY (number_unit_id) REFERENCES most_units (id),
@@ -325,8 +323,8 @@ CREATE TABLE record_fields (
 CREATE INDEX records_fields_type_id_index ON record_fields (type_id);
 
 CREATE TABLE function_categories (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL UNIQUE
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
 ) ENGINE=INNODB;
 
 INSERT INTO function_categories (name)
@@ -335,10 +333,10 @@ VALUES
         ('Method');
 
 CREATE TABLE function_stereotypes (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
-    supports_notification boolean NOT NULL,
-    category varchar(255) NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    supports_notification BOOLEAN NOT NULL,
+    category VARCHAR(255) NOT NULL,
     FOREIGN KEY (category) REFERENCES function_categories (name)
 ) ENGINE=INNODB;
 
@@ -352,19 +350,19 @@ VALUES
         (6, 'Request/Response',            0, 'Method');
 
 CREATE TABLE functions (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    most_id varchar(255) NOT NULL,
-    name varchar(255) NOT NULL,
-    function_stereotype_id int unsigned NOT NULL,
-    category varchar(255) NOT NULL,
-    description text NOT NULL,
-    release_version varchar(255) NOT NULL,
-    account_id int unsigned NOT NULL,
-    company_id int unsigned NOT NULL,
-    return_type_id int unsigned NOT NULL,
-    supports_notification boolean NOT NULL,
-    is_released boolean NOT NULL DEFAULT FALSE,
-    prior_version_id int unsigned NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    most_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    function_stereotype_id INT UNSIGNED NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    release_version VARCHAR(255) NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+    return_type_id INT UNSIGNED NOT NULL,
+    supports_notification BOOLEAN NOT NULL,
+    is_released BOOLEAN NOT NULL DEFAULT FALSE,
+    prior_version_id INT UNSIGNED NULL,
     FOREIGN KEY (function_stereotype_id) REFERENCES function_stereotypes (id),
     FOREIGN KEY (category) REFERENCES function_categories (name),
     FOREIGN KEY (account_id) REFERENCES accounts (id),
@@ -374,27 +372,27 @@ CREATE TABLE functions (
 ) ENGINE=INNODB;
 
 CREATE TABLE interfaces_functions (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    interface_id int unsigned NOT NULL,
-    function_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    interface_id INT UNSIGNED NOT NULL,
+    function_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (interface_id) REFERENCES interfaces (id),
     FOREIGN KEY (function_id) REFERENCES functions (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE function_parameters (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    function_id int unsigned NOT NULL,
-    parameter_index int unsigned NOT NULL,
-    most_type_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    function_id INT UNSIGNED NOT NULL,
+    parameter_index INT UNSIGNED NOT NULL,
+    most_type_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_id) REFERENCES functions (id),
     FOREIGN KEY (most_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE TABLE operations (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name varchar(255) NOT NULL,
-    opcode varchar(255) NOT NULL UNIQUE,
-    is_input boolean NOT NULL
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    opcode VARCHAR(255) NOT NULL UNIQUE,
+    is_input BOOLEAN NOT NULL
 ) ENGINE=INNODB;
 
 INSERT INTO operations (id, name, opcode, is_input)
@@ -410,9 +408,9 @@ VALUES
         (9, 'ErrorAck',         '0x9', 0);
 
 CREATE TABLE function_stereotypes_operations (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    function_stereotype_id int unsigned NOT NULL,
-    operation_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    function_stereotype_id INT UNSIGNED NOT NULL,
+    operation_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_stereotype_id) REFERENCES function_stereotypes (id),
     FOREIGN KEY (operation_id) REFERENCES operations (id)
 ) ENGINE=INNODB;
@@ -448,9 +446,9 @@ VALUES
         (6, 9);
 
 CREATE TABLE functions_operations (
-    id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    function_id int unsigned NOT NULL,
-    operation_id int unsigned NOT NULL,
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    function_id INT UNSIGNED NOT NULL,
+    operation_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_id) REFERENCES functions (id),
     FOREIGN KEY (operation_id) REFERENCES operations (id)
 ) ENGINE=INNODB;
