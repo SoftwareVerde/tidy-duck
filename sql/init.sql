@@ -187,10 +187,11 @@ VALUES
 CREATE TABLE primitive_types (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
+    is_preloaded_type BOOLEAN NOT NULL,
     is_number_base_type BOOLEAN NOT NULL,
     is_stream_param_type BOOLEAN NOT NULL,
     is_array_type BOOLEAN NOT NULL,
-    is_record_type BOOLEAN NULL,
+    is_record_type BOOLEAN NOT NULL
 ) ENGINE=INNODB;
 
 -- Primitive type details manually pulled from DTD
@@ -224,6 +225,7 @@ CREATE TABLE most_types (
     number_base_type_id INT UNSIGNED NULL DEFAULT NULL,
     number_exponent VARCHAR(255) NULL DEFAULT NULL,
     number_range_min VARCHAR(255) NULL DEFAULT NULL,
+    number_range_max VARCHAR(255) NULL DEFAULT NULL,
     number_step VARCHAR(255) NULL DEFAULT NULL,
     number_unit_id INT UNSIGNED NULL DEFAULT NULL,
     string_max_size VARCHAR(255) NULL DEFAULT NULL,

@@ -25,6 +25,9 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             if (httpMethod == HttpMethod.GET) {
                 return _listMostTypes(environment);
             }
+            if (httpMethod == HttpMethod.POST) {
+                return _insertType(request, environment);
+            }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
@@ -49,6 +52,22 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             _logger.error(msg, e);
             return super._generateErrorJson(msg);
         }
+    }
+
+    private Json _insertType(HttpServletRequest request, Environment environment) {
+        Json response = new Json(false);
+
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
+            // TODO: implement
+
+            super._setJsonSuccessFields(response);
+        } catch (DatabaseException e) {
+            String msg = "Unable to inflate most types.";
+            _logger.error(msg, e);
+            return super._generateErrorJson(msg);
+        }
+
+        return response;
     }
 
     private Json _toJson(final MostType mostType) {
