@@ -153,6 +153,9 @@ class App extends React.Component {
             functionCatalog.setAuthor(thisApp.getCurrentAccountAuthor());
             functionCatalog.setCompany(thisApp.getCurrentAccountCompany());
 
+            const versions = [ FunctionCatalog.toJson(functionCatalog) ];
+            functionCatalog.setVersionsJson(versions);
+
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
             thisApp.setState({
@@ -268,6 +271,9 @@ class App extends React.Component {
             functionBlock.setAuthor(thisApp.getCurrentAccountAuthor());
             functionBlock.setCompany(thisApp.getCurrentAccountCompany());
 
+            const versions = [ FunctionBlock.toJson(functionBlock) ];
+            functionBlock.setVersionsJson(versions);
+
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
             thisApp.setState({
@@ -376,6 +382,9 @@ class App extends React.Component {
 
             mostInterface.setId(mostInterfaceId);
             const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+
+            const versions = [ MostInterface.toJson(mostInterface) ];
+            mostInterface.setVersionsJson(versions);
 
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
