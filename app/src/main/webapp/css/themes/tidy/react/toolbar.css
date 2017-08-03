@@ -1,6 +1,8 @@
 .toolbar {
     background-color: #4A4A4A;
     min-height: 75px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .toolbar .toolbar-item {
@@ -19,6 +21,30 @@
 
     transition: color 0.5s ease;
 }
+
+.toolbar .navigation-indicator {
+    background-color: #FFFFFF;
+    color: #4A4A4A;
+    border-radius: 5px;
+    margin: 2px;
+    height: 75px;
+    min-width: 75px;
+    padding-right: 1em;
+    padding-left: 1em;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+}
+
+.toolbar .navigation-indicator i {
+    margin: 5px;
+}
+
 .toolbar .toolbar-item:hover i {
     color: #000000;
 }

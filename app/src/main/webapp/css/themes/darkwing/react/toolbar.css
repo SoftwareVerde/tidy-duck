@@ -1,6 +1,8 @@
 .toolbar {
     background-color: #032C46;
     min-height: 75px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .toolbar .toolbar-item {
@@ -19,7 +21,35 @@
 
     transition: color 0.5s ease;
 }
+
+.toolbar .navigation-indicator {
+    background-color: #505C71;
+    color: #FFFFFF;
+    border-radius: 5px;
+    margin: 2px;
+    height: 75px;
+    min-width: 75px;
+    padding-right: 1em;
+    padding-left: 1em;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+}
+
+.toolbar .navigation-indicator i {
+    margin: 5px;
+}
+
 .toolbar .toolbar-item:hover {
+    background-color: #9DA1AE;
+}
+
+.toolbar .navigation-indicator:hover {
     background-color: #9DA1AE;
 }
 

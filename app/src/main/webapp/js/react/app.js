@@ -1629,6 +1629,37 @@ class App extends React.Component {
 
         const reactComponents = [];
 
+        // Determine correct behavior for back button in development mode
+        let backFunction = null;
+        if (this.state.activeRoleItem === this.roleItems.development) {
+            const activeSubRoleItem = this.state.activeSubRoleItem;
+            const currentNavigationLevel = this.state.currentNavigationLevel;
+            const navigationHistory = this.state.navigationHistory;
+            const selectedItem = this.state.selectedItem;
+
+
+            // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
+            if (selectedItem) {
+                switch (currentNavigationLevel) {
+                    case this.NavigationLevel.functionBlocks:
+                        backFunction = function() {this.handleRoleClick(this.state.activeRoleItem, true)};
+                        break;
+                    case this.NavigationLevel.mostInterfaces:
+                        if (activeSubRoleItem === this.roleItems.functionBlock) {
+                            backFunction = function() {this.onFunctionBlockSelected(navigationHistory.pop(), true, false)};
+                        }
+                        else {
+                            backFunction = function() {this.handleRoleClick(this.state.activeRoleItem, true)};
+                        }
+                        break;
+                    case this.NavigationLevel.mostFunctions:
+                        backFunction = function() {this.onMostInterfaceSelected(navigationHistory.pop(), true, false)};
+                        break;
+                }
+            }
+        }
+        const shouldShowBackButton = backFunction !== null;
+
         if (shouldShowToolbar) {
             reactComponents.push(
                 <app.Toolbar key="Toolbar"
@@ -1640,6 +1671,8 @@ class App extends React.Component {
                     functionStereotypes={this.FunctionStereotypes}
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
                     shouldShowSearchIcon={!shouldShowFilterBar}
+                    shouldShowBackButton={shouldShowBackButton}
+                    onBackButtonClicked={backFunction}
                 />
             );
         }

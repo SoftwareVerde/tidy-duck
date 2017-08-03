@@ -165,9 +165,17 @@ class Toolbar extends React.Component {
     render() {
         return (
             <div className="toolbar">
-                {this.renderItemCreateButton()}
-                {this.renderSearchButton()}
-                {this.renderAddFunctionButtons()}
+                <div className="toolbar-item"><i className="fa fa-arrow-circle-left fa-4x"/></div>
+                <div>
+                    <div className="navigation-indicator"><i className="fa fa-chevron-right fa-1x"/>FUNCTION CATALOG: AUDIO</div>
+                    <div className="navigation-indicator"><i className="fa fa-chevron-right fa-1x"/>FUNCTION BLOCK: SPEAKER</div>
+                    <div className="navigation-indicator"><i className="fa fa-chevron-right fa-1x"/>INTERFACE: MAIN VOLUME</div>
+                </div>
+                <div>
+                    {this.renderItemCreateButton()}
+                    {this.renderSearchButton()}
+                    {this.renderAddFunctionButtons()}
+                </div>
             </div>
         );
     }
