@@ -1497,12 +1497,7 @@ class App extends React.Component {
                     getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
                         if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                             // didn't navigate away while downloading children
-                            const functionBlocks = [];
-                            for (let i in functionBlocksJson) {
-                                const functionBlockJson = functionBlocksJson[i];
-                                const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                                functionBlocks.push(functionBlock);
-                            }
+                            const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
                             thisApp.setState({
                                 functionBlocks:     functionBlocks,
                                 isLoadingChildren:  false
@@ -1513,12 +1508,7 @@ class App extends React.Component {
                     getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
                         if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                             // didn't navigate away while downloading children
-                            const mostInterfaces = [];
-                            for (let i in mostInterfacesJson) {
-                                const mostInterfaceJson = mostInterfacesJson[i];
-                                const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                                mostInterfaces.push(mostInterface);
-                            }
+                            const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
                             thisApp.setState({
                                 mostFunctions:      [],
                                 mostInterfaces:     mostInterfaces,
