@@ -1458,7 +1458,8 @@ class App extends React.Component {
                     functionBlocks:                 [],
                     mostInterfaces:                 [],
                     navigationItems:                [],
-                    navigationHistory:              []
+                    navigationHistory:              [],
+                    showSettingsPage:               false
                 });
 
                 this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
