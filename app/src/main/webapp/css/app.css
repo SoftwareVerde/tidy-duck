@@ -59,7 +59,7 @@
     line-height: 250%;
     border: solid 0px #EEEEEE;
     border-radius: 5px;
-    background-color: #648AAF;
+    background-color: rgba(0, 0, 0, 0.1);
     margin-top: -5px;
     box-shadow: inset 0px 0px 5px #000000;
     color: #FFFFFF;
@@ -76,6 +76,10 @@
 
 #header .role-toggle {
     margin-left: 2em;
+}
+
+.role-toggle, .role {
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .active-role {
