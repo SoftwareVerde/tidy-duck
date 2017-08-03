@@ -57,9 +57,12 @@
     text-align: center;
     vertical-align: middle;
     line-height: 250%;
-    border: 0px solid;
+    border: solid 0px #EEEEEE;
     border-radius: 5px;
-    background: lightgray;
+    background-color: #648AAF;
+    margin-top: -5px;
+    box-shadow: inset 0px 0px 5px #000000;
+    color: #FFFFFF;
 }
 
 .role-toggle .role, .active-role {
@@ -67,6 +70,8 @@
     border: 0px solid;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.5s ease;
+    color: #222222;
 }
 
 #header .role-toggle {
@@ -74,7 +79,8 @@
 }
 
 .active-role {
-    background: aliceblue;
+    background: #F0F8FF;
+    border: solid 1px #AAAAAA;
 }
 
 .role-return {
