@@ -53,8 +53,7 @@
 
 .role-toggle {
     display: inline-flex;
-    margin-top: auto;
-    margin-left: 2em;
+    margin: auto 0.5em;
     text-align: center;
     vertical-align: middle;
     line-height: 250%;
@@ -68,6 +67,10 @@
     border: 0px solid;
     border-radius: 5px;
     cursor: pointer;
+}
+
+#header .role-toggle {
+    margin-left: 2em;
 }
 
 .active-role {

@@ -52,7 +52,7 @@ body * {
 }
 
 .button {
-    margin: 2em 1em 1em .5em;
+    margin: 2em 0.5em 1em 0.5em;
     width: 95%;
     text-transform: uppercase;
     font-weight: bold;

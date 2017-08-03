@@ -2,13 +2,14 @@ class TypesPage extends React.Component {
     constructor(props) {
         super(props);
 
-        this.options = ["Create Type", "Edit Type"]
+        this.options = ["Create Type", "Edit Type"];
 
         this.state = {
             selectedOption: this.options[0]
         };
 
         this.handleOptionClick = this.handleOptionClick.bind(this);
+        this.renderChildElements = this.renderChildElements.bind(this);
         this.onSave = this.onSave.bind(this);
     }
 
@@ -19,16 +20,17 @@ class TypesPage extends React.Component {
     }
 
     onSave() {
-        // TODO: handle saving type
+        // TODO: save type
+        console.log("Type save button clicked.");
     }
 
     renderChildElements() {
         return (
-            <div>
+            <div className="center">
                 <div>
                     <span>Placeholder for inputs.</span>
                 </div>
-                <button onClick={this.onSave} value="Save"/>
+                <div className="button" onClick={this.onSave}>Save</div>
             </div>
         )
     }
@@ -39,7 +41,7 @@ class TypesPage extends React.Component {
                 <div id="types-options-container" className="center">
                     <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick} activeRole={this.state.selectedOption} />
                 </div>
-                {this.renderChildElements}
+                {this.renderChildElements()}
             </div>
         );
     }
