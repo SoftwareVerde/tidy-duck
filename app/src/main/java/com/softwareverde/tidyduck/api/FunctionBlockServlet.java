@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -125,24 +126,28 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
-
-        final Long functionCatalogId = Util.parseLong(request.getString("functionCatalogId"));
+        final String requestFunctionCatalogId = request.getString("functionCatalogId");
 
         final Json functionBlockJson = request.get("functionBlock");
-
-        { // Validate Inputs
-            if (functionCatalogId < 1) {
-                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
-                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
-            }
-        }
 
         try {
             final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
             functionBlock.setId(functionBlockId);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+
+            if (!requestFunctionCatalogId.equals("null")) {
+                // Validate Inputs
+                final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
+                if (functionCatalogId < 1) {
+                    _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                    return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+                }
+                databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+            }
+            else {
+                databaseManager.updateFunctionBlock(0, functionBlock);
+            }
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function block: " + exception.getMessage();
@@ -233,12 +238,20 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateAllFunctionBlocks();
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId();
 
             final Json functionBlocksJson = new Json(true);
-            for (final FunctionBlock functionBlock : functionBlocks) {
-                final Json functionBlockJson = _toJson(functionBlock);
-                functionBlocksJson.add(functionBlockJson);
+            for (final Long baseVersionId : functionBlocks.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
+                    final Json functionBlockJson = _toJson(functionBlock);
+                    versionsJson.add(functionBlockJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                functionBlocksJson.add(versionSeriesJson);
             }
             response.put("functionBlocks", functionBlocksJson);
 
@@ -256,12 +269,20 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
 
             final Json functionBlocksJson = new Json(true);
-            for (final FunctionBlock functionBlock : functionBlocks) {
-                final Json functionBlockJson = _toJson(functionBlock);
-                functionBlocksJson.add(functionBlockJson);
+            for (final Long baseVersionId : functionBlocks.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
+                    final Json functionBlockJson = _toJson(functionBlock);
+                    versionsJson.add(functionBlockJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                functionBlocksJson.add(versionSeriesJson);
             }
             response.put("functionBlocks", functionBlocksJson);
 
@@ -376,6 +397,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("description", functionBlock.getDescription());
         blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
         blockJson.put("releaseVersion", functionBlock.getRelease());
+        blockJson.put("isReleased", functionBlock.isReleased());
+        blockJson.put("baseVersionId", functionBlock.getBaseVersionId());
+        blockJson.put("priorVersionId", functionBlock.getPriorVersionId());
         blockJson.put("authorId", functionBlock.getAuthor().getId());
         blockJson.put("authorName", functionBlock.getAuthor().getName());
         blockJson.put("companyId", functionBlock.getCompany().getId());

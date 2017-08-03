@@ -17,6 +17,9 @@ class FunctionBlock {
         functionBlock.setDescription(json.description);
         functionBlock.setLastModifiedDate(json.lastModifiedDate);
         functionBlock.setReleaseVersion(json.releaseVersion);
+        functionBlock.setBaseVersionId(json.baseVersionId);
+        functionBlock.setPriorVersionId(json.priorVersionId);
+        functionBlock.setIsReleased(json.isReleased);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(json.access);
@@ -33,6 +36,9 @@ class FunctionBlock {
             description:        functionBlock.getDescription(),
             lastModifiedDate:   functionBlock.getLastModifiedDate(),
             releaseVersion:     functionBlock.getReleaseVersion(),
+            baseVersionId:      functionBlock.getBaseVersionId(),
+            priorVersionId:     functionBlock.getPriorVersionId(),
+            isReleased:         functionBlock.isReleased(),
             access:             functionBlock.getAccess()
         };
         const author = (functionBlock.getAuthor() || new Author());
@@ -57,6 +63,10 @@ class FunctionBlock {
         this._author                = null;
         this._company               = null;
         this._access                = "";
+        this._versionsJson          = null;
+        this._isReleased            = null;
+        this._priorVersionId        = null;
+        this._baseVersionId         = null;
 
         this._interfaces            = [];
     };
@@ -143,5 +153,44 @@ class FunctionBlock {
 
     getAccess() {
         return this._access;
+    }
+
+    setVersionsJson(versionsJson) {
+        this._versionsJson = versionsJson;
+    }
+
+    getVersionsJson() {
+        return this._versionsJson;
+    }
+
+    setBaseVersionId(baseVersionId) {
+        this._baseVersionId = baseVersionId;
+    }
+
+    getBaseVersionId() {
+        return this._baseVersionId;
+    }
+
+    setPriorVersionId(priorVersionId) {
+        this._priorVersionId = priorVersionId;
+    }
+
+    getPriorVersionId() {
+        return this._priorVersionId;
+    }
+
+    setIsReleased(isReleased) {
+        this._isReleased = isReleased;
+    }
+
+    isReleased() {
+        return this._isReleased;
+    }
+
+    getDisplayVersion() {
+        if (this._isReleased) {
+            return this._releaseVersion;
+        }
+        return this._releaseVersion + "-" + this._id;
     }
 }

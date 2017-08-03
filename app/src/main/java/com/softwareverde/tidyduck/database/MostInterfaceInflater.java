@@ -11,9 +11,7 @@ import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class MostInterfaceInflater {
 
@@ -24,19 +22,37 @@ public class MostInterfaceInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<MostInterface> inflateAllMostInterfaces() throws DatabaseException {
+    public List<MostInterface> inflateMostInterfaces() throws DatabaseException {
         final Query query = new Query(
-                "SELECT id FROM interfaces"
+                "SELECT * FROM interfaces"
         );
 
         List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long mostInterfaceId = row.getLong("id");
-            MostInterface mostInterface = inflateMostInterface(mostInterfaceId, false);
+            final MostInterface mostInterface = convertRowToMostInterface(row);
             mostInterfaces.add(mostInterface);
         }
         return mostInterfaces;
+    }
+
+    public Map<Long, List<MostInterface>> inflateMostInterfacesGroupedByBaseVersionId() throws DatabaseException {
+        List<MostInterface> mostInterfaces = inflateMostInterfaces();
+        return groupByBaseVersionId(mostInterfaces);
+    }
+
+    private Map<Long,List<MostInterface>> groupByBaseVersionId(List<MostInterface> mostInterfaces) {
+        final HashMap<Long, List<MostInterface>> groupedFunctionBlocks = new HashMap<>();
+
+        for (final MostInterface functionBlock : mostInterfaces) {
+            Long baseVersionId = functionBlock.getBaseVersionId();
+            if (!groupedFunctionBlocks.containsKey(baseVersionId)) {
+                groupedFunctionBlocks.put(baseVersionId, new ArrayList<MostInterface>());
+            }
+            groupedFunctionBlocks.get(baseVersionId).add(functionBlock);
+        }
+
+        return groupedFunctionBlocks;
     }
 
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId) throws DatabaseException {
@@ -59,11 +75,13 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
-    public List<MostInterface> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
+    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query ("SELECT DISTINCT interfaces.id\n" +
-                                        "FROM interfaces\n" +
-                                        "WHERE interfaces.name LIKE ?");
+        final Query query = new Query ("SELECT * FROM interfaces\n" +
+                                        "WHERE base_version_id IN (" +
+                                            "SELECT DISTINCT interfaces.base_version_id\n" +
+                                            "FROM interfaces\n" +
+                                            "WHERE interfaces.name LIKE ?)");
         query.setParameter("%" + searchString + "%");
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
@@ -73,7 +91,7 @@ public class MostInterfaceInflater {
             MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
             mostInterfaces.add(mostInterface);
         }
-        return mostInterfaces;
+        return groupByBaseVersionId(mostInterfaces);
     }
 
     public MostInterface inflateMostInterface(final long mostInterfaceId) throws DatabaseException {
@@ -93,7 +111,22 @@ public class MostInterfaceInflater {
         }
 
         final Row row = rows.get(0);
+        MostInterface mostInterface = convertRowToMostInterface(row);
 
+        if (inflateChildren) {
+            inflateChildren(mostInterface);
+        }
+
+        return mostInterface;
+    }
+
+    private void inflateChildren(final MostInterface mostInterface) throws DatabaseException {
+        MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterface.getId());
+        mostInterface.setMostFunctions(mostFunctions);
+    }
+
+    private MostInterface convertRowToMostInterface(final Row row) {
         final Long id = row.getLong("id");
         final String mostId = row.getString("most_id");
         final String name = row.getString("name");
@@ -101,6 +134,8 @@ public class MostInterfaceInflater {
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
         final String version = row.getString("version");
         final boolean isReleased = row.getBoolean("is_released");
+        final Long baseVersionId = row.getLong("base_version_id");
+        final Long priorVersionId = row.getLong("prior_version_id");
 
         MostInterface mostInterface = new MostInterface();
         mostInterface.setId(id);
@@ -110,12 +145,8 @@ public class MostInterfaceInflater {
         mostInterface.setLastModifiedDate(lastModifiedDate);
         mostInterface.setVersion(version);
         mostInterface.setReleased(isReleased);
-
-        if (inflateChildren) {
-            MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
-            List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
-            mostInterface.setMostFunctions(mostFunctions);
-        }
+        mostInterface.setBaseVersionId(baseVersionId);
+        mostInterface.setPriorVersionId(priorVersionId);
 
         return mostInterface;
     }

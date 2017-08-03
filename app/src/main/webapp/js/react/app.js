@@ -102,6 +102,8 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
+        this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
+        this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
 
@@ -154,6 +156,9 @@ class App extends React.Component {
             functionCatalog.setId(functionCatalogId);
             functionCatalog.setAuthor(thisApp.getCurrentAccountAuthor());
             functionCatalog.setCompany(thisApp.getCurrentAccountCompany());
+
+            const versions = [ FunctionCatalog.toJson(functionCatalog) ];
+            functionCatalog.setVersionsJson(versions);
 
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
@@ -270,12 +275,15 @@ class App extends React.Component {
             functionBlock.setAuthor(thisApp.getCurrentAccountAuthor());
             functionBlock.setCompany(thisApp.getCurrentAccountCompany());
 
+            const versions = [ FunctionBlock.toJson(functionBlock) ];
+            functionBlock.setVersionsJson(versions);
+
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
             thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                functionBlocks:         functionBlocks,
-                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs,
+                createButtonState:          thisApp.CreateButtonState.normal,
+                functionBlocks:             functionBlocks,
+                currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
                 shouldShowCreateChildForm:  false
             });
         });
@@ -284,7 +292,7 @@ class App extends React.Component {
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const functionCatalogId = this.state.parentItem.getId();
+        const functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
         const functionBlockId = functionBlock.getId();
 
@@ -304,8 +312,14 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
+        // If not in release mode, show save animation on metadata form.
+        const createButtonState = this.state.activeRoleItem !== this.roleItems.release ?
+            this.CreateButtonState.animate : this.CreateButtonState.normal;
+
         this.setState({
-           navigationItems: navigationItems
+            navigationItems: navigationItems,
+            selectedItem:   functionBlock,
+            createButtonState: createButtonState
         });
 
         updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess) {
@@ -338,10 +352,12 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionBlocks:         functionBlocks,
-                    selectedItem:           functionBlock,
-                    navigationItems:        navigationItems,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                    functionBlocks:             functionBlocks,
+                    selectedItem:               functionBlock,
+                    navigationItems:            navigationItems,
+                    currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
+                    createButtonState:          thisApp.CreateButtonState.success
+
                 });
             }
         });
@@ -371,6 +387,9 @@ class App extends React.Component {
             mostInterface.setId(mostInterfaceId);
             const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
 
+            const versions = [ MostInterface.toJson(mostInterface) ];
+            mostInterface.setVersionsJson(versions);
+
             thisApp.setState({
                 createButtonState:      thisApp.CreateButtonState.success,
                 mostInterfaces:         mostInterfaces,
@@ -383,7 +402,7 @@ class App extends React.Component {
     onUpdateMostInterface(mostInterface) {
         const thisApp = this;
 
-        const functionBlockId = this.state.parentItem.getId();
+        const functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
         const mostInterfaceId = mostInterface.getId();
 
@@ -402,10 +421,15 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
-        this.setState({
-            navigationItems: navigationItems
-        });
+        // If not in release mode, show save animation on metadata form.
+        const createButtonState = this.state.activeRoleItem !== this.roleItems.release ?
+            this.CreateButtonState.animate : this.CreateButtonState.normal;
 
+        this.setState({
+            navigationItems: navigationItems,
+            selectedItem:   mostInterface,
+            createButtonState: createButtonState
+        });
         updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess) {
             if (wasSuccess) {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
@@ -439,7 +463,8 @@ class App extends React.Component {
                     mostInterfaces:         mostInterfaces,
                     selectedItem:           mostInterface,
                     navigationItems:        navigationItems,
-                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
+                    createButtonState:      thisApp.CreateButtonState.success
                 });
             }
         });
@@ -563,15 +588,9 @@ class App extends React.Component {
     }
 
     getFunctionCatalogsForCurrentVersion(callbackFunction) {
+        const thisApp = this;
         getFunctionCatalogs(function(functionCatalogsJson) {
-            const functionCatalogs = [];
-
-            for (let i in functionCatalogsJson) {
-                const functionCatalogJson = functionCatalogsJson[i];
-                const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
-                functionCatalogs.push(functionCatalog);
-            }
-
+            const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
             callbackFunction(functionCatalogs);
         });
     }
@@ -825,21 +844,22 @@ class App extends React.Component {
                         // old results, discard
                         return;
                     }
+                    const proposedFunctionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
                     const functionBlocks = [];
-                    const existingFunctionBlocks = thisApp.state.functionBlocks;
-                    for (let i in functionBlocksJson) {
-                        const functionBlockJson = functionBlocksJson[i];
 
-                        //Filter any existing child elements that appear in the search results.
-                        var pushToSearchResults = true;
-                        for(let m in existingFunctionBlocks) {
-                            if (existingFunctionBlocks[m].getId() == functionBlockJson.id) {
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in proposedFunctionBlocks) {
+                        const functionBlock = proposedFunctionBlocks[i];
+
+                        // Filter any existing child elements that appear in the search results.
+                        let pushToSearchResults = true;
+                        for (let m in existingFunctionBlocks) {
+                            if (existingFunctionBlocks[m].getBaseVersionId() === functionBlock.getBaseVersionId()) {
                                 pushToSearchResults = false;
                                 break;
                             }
                         }
                         if (pushToSearchResults) {
-                            const functionBlock = FunctionBlock.fromJson(functionBlockJson);
                             functionBlocks.push(functionBlock);
                         }
                     }
@@ -877,12 +897,7 @@ class App extends React.Component {
                         return;
                     }
 
-                    const functionBlocks = [];
-                    for (let i in functionBlocksJson) {
-                        const functionBlockJson = functionBlocksJson[i];
-                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                        functionBlocks.push(functionBlock);
-                    }
+                    const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
 
                     thisApp.setState({
                         searchResults:              functionBlocks,
@@ -1059,21 +1074,24 @@ class App extends React.Component {
                         // old results, discard
                         return;
                     }
+
+                    const proposedMostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
                     const mostInterfaces = [];
                     const existingMostInterfaces = thisApp.state.mostInterfaces;
-                    for (let i in mostInterfacesJson) {
-                        const mostInterfaceJson = mostInterfacesJson[i];
 
-                        //Filter any existing child elements that appear in the search results.
-                        var pushToSearchResults = true;
+                    for (let i in proposedMostInterfaces) {
+                        const mostInterface = proposedMostInterfaces[i];
+
+                        //Filter any existing child elements or versions that appear in the search results.
+                        let pushToSearchResults = true;
                         for(let m in existingMostInterfaces) {
-                            if (existingMostInterfaces[m].getId() == mostInterfaceJson.id) {
+                            if (existingMostInterfaces[m].getBaseVersionId() === mostInterface.getBaseVersionId()) {
                                 pushToSearchResults = false;
                                 break;
                             }
                         }
+                        // Add to search results if no duplicates are found.
                         if (pushToSearchResults) {
-                            const mostInterface = MostInterface.fromJson(mostInterfaceJson);
                             mostInterfaces.push(mostInterface);
                         }
                     }
@@ -1111,12 +1129,7 @@ class App extends React.Component {
                         return;
                     }
 
-                    const mostInterfaces = [];
-                    for (let i in mostInterfacesJson) {
-                        const mostInterfaceJson = mostInterfacesJson[i];
-                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                        mostInterfaces.push(mostInterface);
-                    }
+                    const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
 
                     thisApp.setState({
                         searchResults:              mostInterfaces,
@@ -1284,6 +1297,94 @@ class App extends React.Component {
         }
     }
 
+    getChildItemsFromVersions(childItemsJson, fromJsonFunction) {
+        const childItems = [];
+
+        for (let i in childItemsJson) {
+            const versionSeriesJson = childItemsJson[i];
+            const versions = versionSeriesJson.versions;
+
+            // Set default version to be displayed, in case no versions have been released.
+            let displayedVersionId = versions[0].id;
+            let displayedVersionJson = versions[0];
+
+            // Get highest version object that is released, using IDs.
+            for (let j in versions) {
+                const childItemJson = versions[j];
+                if (childItemJson.isReleased) {
+                    if (childItemJson.id > displayedVersionId) {
+                        displayedVersionId = childItemJson.id;
+                        displayedVersionJson = childItemJson;
+                    }
+                }
+            }
+            const childItem = fromJsonFunction(displayedVersionJson);
+            childItem.setVersionsJson(versions);
+            childItems.push(childItem);
+        }
+
+        return childItems;
+    }
+
+    onChildItemVersionChanged(oldChildItem, newChildItemJson, versionsJson) {
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+        let fromJsonFunction = null;
+
+        switch (currentNavigationLevel) {
+            case this.NavigationLevel.versions:
+                const functionCatalogs = this.state.functionCatalogs;
+                fromJsonFunction = FunctionCatalog.fromJson;
+                for (let i in functionCatalogs) {
+                    if (functionCatalogs[i].getId() === oldChildItem.getId()) {
+                        const newChildItem = FunctionCatalog.fromJson(newChildItemJson);
+                        newChildItem.setVersionsJson(versionsJson);
+                        functionCatalogs[i] = newChildItem;
+                        this.setState({functionCatalogs: functionCatalogs});
+                        break;
+                    }
+                }
+            break;
+            case this.NavigationLevel.functionCatalogs:
+                const functionBlocks = this.state.functionBlocks;
+                fromJsonFunction = FunctionBlock.fromJson;
+                for (let i in functionBlocks) {
+                    if (functionBlocks[i].getId() === oldChildItem.getId()) {
+                        const newChildItem = FunctionBlock.fromJson(newChildItemJson);
+                        newChildItem.setVersionsJson(versionsJson);
+                        functionBlocks[i] = newChildItem;
+                        this.setState({functionBlocks: functionBlocks});
+                        break;
+                    }
+                }
+            break;
+            case this.NavigationLevel.functionBlocks:
+                const mostInterfaces = this.state.mostInterfaces;
+                fromJsonFunction = MostInterface.fromJson;
+                for (let i in mostInterfaces) {
+                    if (mostInterfaces[i].getId() === oldChildItem.getId()) {
+                        const newChildItem = MostInterface.fromJson(newChildItemJson);
+                        newChildItem.setVersionsJson(versionsJson);
+                        mostInterfaces[i] = newChildItem;
+                        this.setState({mostInterfaces: mostInterfaces});
+                        break;
+                    }
+                }
+            break;
+        }
+
+        // Need to update search results as well.
+        const searchResults = this.state.searchResults;
+        for (let i in searchResults) {
+            if (searchResults[i].getId() === oldChildItem.getId()) {
+                const searchResult = fromJsonFunction(newChildItemJson);
+                searchResult.setVersionsJson(versionsJson);
+                searchResults[i] = searchResult;
+                this.setState({searchResults: searchResults});
+                break;
+            }
+        }
+    }
+
     handleFunctionStereotypeClick(selectedFunctionStereotype) {
         const shouldShowCreateChildForm = this.state.selectedFunctionStereotype == selectedFunctionStereotype ? !this.state.shouldShowCreateChildForm : true;
         this.setState({
@@ -1388,7 +1489,8 @@ class App extends React.Component {
                     isLoadingChildren:          !canUseCachedChildren,
                     currentNavigationLevel:     newNavigationLevel,
                     activeRole:                 roleName,
-                    activeSubRole:              newActiveSubRole
+                    activeSubRole:              newActiveSubRole,
+                    showSettingsPage:           false
                 });
 
                 if (newActiveSubRole === this.developmentRoles.functionBlock) {
@@ -1441,14 +1543,14 @@ class App extends React.Component {
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
-                    activeSubRole:              null
+                    activeSubRole:              null,
+                    showSettingsPage:           false
                 });
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
             }
         }
-
     }
 
     handleSettingsClick() {
@@ -1494,7 +1596,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
-                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} />);
+                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged}/>);
                 }
             break;
 
@@ -1503,7 +1605,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} onDelete={this.onDeleteFunctionBlock} />);
+                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} displayVersionsList={this.state.selectedItem} onDelete={this.onDeleteFunctionBlock} onVersionChanged={this.onChildItemVersionChanged} />);
                 }
             break;
 
@@ -1512,7 +1614,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} onDelete={this.onDeleteMostInterface} />);
+                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} displayVersionsList={this.state.selectedItem} onDelete={this.onDeleteMostInterface} onVersionChanged={this.onChildItemVersionChanged} />);
                 }
             break;
 
@@ -1580,6 +1682,7 @@ class App extends React.Component {
         }
 
         const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Added" : "Submit";
+        const developmentButtonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
         const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
 
         switch (currentNavigationLevel) {
@@ -1617,6 +1720,7 @@ class App extends React.Component {
                             showTitle={true}
                             formTitle={"Search Function Blocks"}
                             onUpdate={this.onSearchFunctionBlocks}
+                            onVersionChanged={this.onChildItemVersionChanged}
                             onPlusButtonClick={this.onAssociateFunctionBlockWithFunctionCatalog}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}
@@ -1630,12 +1734,13 @@ class App extends React.Component {
                 if (shouldShowSelectedItemForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
                            showTitle={true}
                            showCustomTitle={true}
                            formTitle={selectedItem.getName()}
                            onSubmit={this.onUpdateFunctionBlock}
                            functionBlock={selectedItem}
-                           buttonTitle="Save"
+                           buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
                         />
                     );
@@ -1659,6 +1764,7 @@ class App extends React.Component {
                             showTitle={true}
                             formTitle={"Search Interfaces"}
                             onUpdate={this.onSearchMostInterfaces}
+                            onVersionChanged={this.onChildItemVersionChanged}
                             onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
                             selectedItem={this.state.selectedItem}
                             searchResults={this.state.searchResults}
@@ -1672,12 +1778,13 @@ class App extends React.Component {
                 if (shouldShowSelectedItemForm) {
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
                            showTitle={true}
                            showCustomTitle={true}
                            formTitle={selectedItem.getName()}
                            onSubmit={this.onUpdateMostInterface}
                            mostInterface={selectedItem}
-                           buttonTitle="Save"
+                           buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
                         />
                     );

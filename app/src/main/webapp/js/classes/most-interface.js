@@ -7,7 +7,10 @@ class MostInterface {
         mostInterface.setName(json.name);
         mostInterface.setDescription(json.description);
         mostInterface.setLastModifiedDate(json.lastModifiedDate);
-        mostInterface.setVersion(json.version);
+        mostInterface.setReleaseVersion(json.releaseVersion);
+        mostInterface.setBaseVersionId(json.baseVersionId);
+        mostInterface.setPriorVersionId(json.priorVersionId);
+        mostInterface.setIsReleased(json.isReleased);
 
         return mostInterface;
     }
@@ -19,7 +22,10 @@ class MostInterface {
             name:               mostInterface.getName(),
             description:        mostInterface.getDescription(),
             lastModifiedDate:   mostInterface.getLastModifiedDate(),
-            version:            mostInterface.getVersion(),
+            releaseVersion:     mostInterface.getReleaseVersion(),
+            baseVersionId:      mostInterface.getBaseVersionId(),
+            priorVersionId:     mostInterface.getPriorVersionId(),
+            isReleased:         mostInterface.isReleased(),
         };
     }
 
@@ -30,6 +36,10 @@ class MostInterface {
         this._description           = "";
         this._lastModifiedDate      = "";
         this._version               = "";
+        this._versionsJson          = null;
+        this._isReleased            = null;
+        this._priorVersionId        = null;
+        this._baseVersionId         = null;
 
         this._functions             = [];
     };
@@ -74,15 +84,54 @@ class MostInterface {
         return this._lastModifiedDate;
     }
 
-    setVersion(version) {
+    setReleaseVersion(version) {
         this._version = version;
     }
 
-    getVersion() {
+    getReleaseVersion() {
         return this._version;
     }
 
     getFunctions() {
         return this._functions;
+    }
+
+    setVersionsJson(versionsJson) {
+        this._versionsJson = versionsJson;
+    }
+
+    getVersionsJson() {
+        return this._versionsJson;
+    }
+
+    setBaseVersionId(baseVersionId) {
+        this._baseVersionId = baseVersionId;
+    }
+
+    getBaseVersionId() {
+        return this._baseVersionId;
+    }
+
+    setPriorVersionId(priorVersionId) {
+        this._priorVersionId = priorVersionId;
+    }
+
+    getPriorVersionId() {
+        return this._priorVersionId;
+    }
+
+    setIsReleased(isReleased) {
+        this._isReleased = isReleased;
+    }
+
+    isReleased() {
+        return this._isReleased;
+    }
+
+    getDisplayVersion() {
+        if (this._isReleased) {
+            return this._version;
+        }
+        return this._version + "-" + this._id;
     }
 }

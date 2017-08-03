@@ -172,10 +172,12 @@ public class MostInterfaceDatabaseManager {
             // current block is released, need to insert a new interface replace this one
             _insertMostInterface(proposedMostInterface, originalMostInterface);
             final long newMostInterfaceId = proposedMostInterface.getId();
-            // change association with function block
-            // TODO: check if function block is released?
-            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
-            _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
+            // change association with function block if id isn't 0
+            if (functionBlockId != 0) {
+                // TODO: check if function block is released?
+                _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
+                _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
+            }
         }
     }
 

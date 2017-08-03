@@ -124,7 +124,7 @@ class MostFunction {
 
     constructor() {
       this._id                    = null;
-      this._mostId                = null;
+      this._mostId                = "";
       this._name                  = "";
       this._description           = "";
       this._functionType          = "";
