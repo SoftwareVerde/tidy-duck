@@ -1444,7 +1444,8 @@ class App extends React.Component {
                 isLoadingChildren:          !canUseCachedChildren,
                 currentNavigationLevel:     newNavigationLevel,
                 activeRoleItem:             this.roleItems.development,
-                activeSubRoleItem:          newActiveSubRoleItem
+                activeSubRoleItem:          newActiveSubRoleItem,
+                showSettingsPage:           false
             });
 
             if (newActiveSubRoleItem === this.roleItems.functionBlock) {
@@ -1492,7 +1493,8 @@ class App extends React.Component {
                 functionBlocks:                 [],
                 mostInterfaces:                 [],
                 navigationItems:                [],
-                navigationHistory:              []
+                navigationHistory:              [],
+                showSettingsPage:               false
             });
 
             this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
