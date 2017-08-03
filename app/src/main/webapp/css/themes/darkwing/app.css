@@ -149,6 +149,6 @@
     background-color: #838EA4;
 }
 
-.role-toggle {
-    color: #032334;
+#header .role-toggle, #header .role {
+    color: #DDD;
 }
