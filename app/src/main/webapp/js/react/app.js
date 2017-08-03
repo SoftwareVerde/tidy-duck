@@ -271,9 +271,9 @@ class App extends React.Component {
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
             thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                functionBlocks:         functionBlocks,
-                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs,
+                createButtonState:          thisApp.CreateButtonState.normal,
+                functionBlocks:             functionBlocks,
+                currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
                 shouldShowCreateChildForm:  false
             });
         });
