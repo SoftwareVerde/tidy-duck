@@ -198,10 +198,12 @@ public class FunctionBlockDatabaseManager {
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
 
-            // change association with function catalog
-            // TODO: Check if functionCatalog is also released...?
-            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
-            _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
+            // change association with function catalog if provided id isn't 0
+            if (functionCatalogId != 0) {
+                // TODO: Check if functionCatalog is also released...?
+                _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
+                _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
+            }
         }
         else {
             // not released, can update existing function block

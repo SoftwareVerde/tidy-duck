@@ -282,7 +282,7 @@ class App extends React.Component {
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const functionCatalogId = this.state.parentItem.getId();
+        const functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
         const functionBlockId = functionBlock.getId();
 
@@ -302,8 +302,14 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
+        // If not in release mode, show save animation on metadata form.
+        const createButtonState = this.state.activeRoleItem !== this.roleItems.release ?
+            this.CreateButtonState.animate : this.CreateButtonState.normal;
+
         this.setState({
-           navigationItems: navigationItems
+            navigationItems: navigationItems,
+            selectedItem:   functionBlock,
+            createButtonState: createButtonState
         });
 
         updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess) {
@@ -336,10 +342,12 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionBlocks:         functionBlocks,
-                    selectedItem:           functionBlock,
-                    navigationItems:        navigationItems,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                    functionBlocks:             functionBlocks,
+                    selectedItem:               functionBlock,
+                    navigationItems:            navigationItems,
+                    currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
+                    createButtonState:          thisApp.CreateButtonState.success
+
                 });
             }
         });
@@ -400,10 +408,15 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
-        this.setState({
-            navigationItems: navigationItems
-        });
+        // If not in release mode, show save animation on metadata form.
+        const createButtonState = this.state.activeRoleItem !== this.roleItems.release ?
+            this.CreateButtonState.animate : this.CreateButtonState.normal;
 
+        this.setState({
+            navigationItems: navigationItems,
+            selectedItem:   mostInterface,
+            createButtonState: createButtonState
+        });
         updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess) {
             if (wasSuccess) {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
@@ -437,7 +450,8 @@ class App extends React.Component {
                     mostInterfaces:         mostInterfaces,
                     selectedItem:           mostInterface,
                     navigationItems:        navigationItems,
-                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
+                    createButtonState:      thisApp.CreateButtonState.success
                 });
             }
         });
@@ -1625,6 +1639,7 @@ class App extends React.Component {
         }
 
         const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Added" : "Submit";
+        const developmentButtonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
         const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
 
         switch (currentNavigationLevel) {
@@ -1676,12 +1691,13 @@ class App extends React.Component {
                 if (shouldShowSelectedItemForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
                            showTitle={true}
                            showCustomTitle={true}
                            formTitle={selectedItem.getName()}
                            onSubmit={this.onUpdateFunctionBlock}
                            functionBlock={selectedItem}
-                           buttonTitle="Save"
+                           buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
                         />
                     );
@@ -1719,12 +1735,13 @@ class App extends React.Component {
                 if (shouldShowSelectedItemForm) {
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
                            showTitle={true}
                            showCustomTitle={true}
                            formTitle={selectedItem.getName()}
                            onSubmit={this.onUpdateMostInterface}
                            mostInterface={selectedItem}
-                           buttonTitle="Save"
+                           buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
                         />
                     );

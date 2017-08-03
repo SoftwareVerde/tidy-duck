@@ -126,24 +126,28 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
-
-        final Long functionCatalogId = Util.parseLong(request.getString("functionCatalogId"));
+        final String requestFunctionCatalogId = request.getString("functionCatalogId");
 
         final Json functionBlockJson = request.get("functionBlock");
-
-        { // Validate Inputs
-            if (functionCatalogId < 1) {
-                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
-                return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
-            }
-        }
 
         try {
             final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
             functionBlock.setId(functionBlockId);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+
+            if (!requestFunctionCatalogId.equals("null")) {
+                // Validate Inputs
+                final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
+                if (functionCatalogId < 1) {
+                    _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                    return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
+                }
+                databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+            }
+            else {
+                databaseManager.updateFunctionBlock(0, functionBlock);
+            }
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function block: " + exception.getMessage();
