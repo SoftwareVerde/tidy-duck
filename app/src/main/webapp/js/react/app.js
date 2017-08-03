@@ -389,7 +389,7 @@ class App extends React.Component {
     onUpdateMostInterface(mostInterface) {
         const thisApp = this;
 
-        const functionBlockId = this.state.parentItem.getId();
+        const functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
         const mostInterfaceId = mostInterface.getId();
 
@@ -1116,12 +1116,7 @@ class App extends React.Component {
                         return;
                     }
 
-                    const mostInterfaces = [];
-                    for (let i in mostInterfacesJson) {
-                        const mostInterfaceJson = mostInterfacesJson[i];
-                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                        mostInterfaces.push(mostInterface);
-                    }
+                    const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
 
                     thisApp.setState({
                         searchResults:              mostInterfaces,

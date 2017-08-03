@@ -120,24 +120,29 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _updateMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
+        final String requestFunctionBlockId = request.getString("functionBlockId");
 
-        final Long functionBlockId = Util.parseLong(request.getString("functionBlockId"));
 
         final Json mostInterfaceJson = request.get("mostInterface");
 
-        { // Validate Inputs
-            if (functionBlockId < 1) {
-                _logger.error("Unable to parse Function Block ID: " + functionBlockId);
-                return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
-            }
-        }
-
         try {
-            MostInterface mostInterface = _populateMostInterfaceFromJson(mostInterfaceJson);
+            final MostInterface mostInterface = _populateMostInterfaceFromJson(mostInterfaceJson);
             mostInterface.setId(mostInterfaceId);
 
-            DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.updateMostInterface(functionBlockId, mostInterface);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+
+            if (!requestFunctionBlockId.equals("null")){
+                // Validate Inputs
+                final Long functionBlockId = Util.parseLong(requestFunctionBlockId);
+                if (functionBlockId < 1) {
+                    _logger.error("Unable to parse Function Block ID: " + functionBlockId);
+                    return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
+                }
+                databaseManager.updateMostInterface(functionBlockId, mostInterface);
+            }
+            else {
+                databaseManager.updateMostInterface(0, mostInterface);
+            }
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update interface: " + exception.getMessage();
