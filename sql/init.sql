@@ -243,11 +243,11 @@ CREATE TABLE most_types (
 ) ENGINE=INNODB;
 
 CREATE INDEX most_types_primitive_type_id_index ON most_types (primitive_type_id);
-CREATE INDEX most_types_is_base_type_index ON most_types (is_base_type);
+CREATE INDEX most_types_is_primary_type_index ON most_types (is_primary_type);
 
 -- Pre-load simple types:
 --  Create most types for any primitive types that are marked as pre-loaded.
-INSERT INTO most_types (name, primitive_type_id, is_base_type)
+INSERT INTO most_types (name, primitive_type_id, is_primary_type)
 SELECT name, id, 1
 FROM primitive_types
 WHERE is_preloaded_type = 1;
@@ -258,7 +258,7 @@ CREATE TABLE bool_fields (
     bit_position VARCHAR(255) NOT NULL,
     true_description TEXT NOT NULL,
     false_description TEXT NOT NULL,
-    FOREIGN KEY (type_id) most_types (id)
+    FOREIGN KEY (type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX bool_fields_type_id_index ON bool_fields (type_id);
@@ -268,7 +268,7 @@ CREATE TABLE enum_values (
     type_id INT UNSIGNED NOT NULL,
     name VARCHAR(255) NOT NULL,
     code VARCHAR(255) NOT NULL,
-    FOREIGN KEY (type_id) most_types (id)
+    FOREIGN KEY (type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX enum_values_type_id_index ON enum_values (type_id);
@@ -278,7 +278,7 @@ CREATE TABLE stream_cases (
     type_id INT UNSIGNED NOT NULL,
     stream_position_x VARCHAR(255) NOT NULL,
     stream_position_y VARCHAR(255) NOT NULL,
-    FOREIGN KEY (type_id) most_types (id)
+    FOREIGN KEY (type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX stream_cases_type_id_index ON stream_cases (type_id);
@@ -290,8 +290,8 @@ CREATE TABLE stream_case_parameters (
     parameter_index VARCHAR(255) NOT NULL,
     parameter_description TEXT NOT NULL,
     parameter_type_id INT UNSIGNED NOT NULL,
-    FOREIGN KEY (stream_case_id) stream_cases (id),
-    FOREIGN KEY (parameter_type_id) most_types (id)
+    FOREIGN KEY (stream_case_id) REFERENCES stream_cases (id),
+    FOREIGN KEY (parameter_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX stream_case_parameters_stream_case_id_index ON stream_case_parameters (stream_case_id);
@@ -303,7 +303,7 @@ CREATE TABLE stream_case_signals (
     signal_index VARCHAR(255) NOT NULL,
     signal_description TEXT NOT NULL,
     signal_bit_length VARCHAR(255) NOT NULL,
-    FOREIGN KEY (stream_case_id) stream_cases (id)
+    FOREIGN KEY (stream_case_id) REFERENCES stream_cases (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX stream_case_signals_stream_case_id_index ON stream_case_signals (stream_case_id);
@@ -315,8 +315,8 @@ CREATE TABLE record_fields (
     field_index VARCHAR(255) NOT NULL,
     field_description TEXT NOT NULL,
     field_type_id INT UNSIGNED NOT NULL,
-    FOREIGN KEY (type_id) most_types (id),
-    FOREIGN KEY (field_type_id) most_types (id)
+    FOREIGN KEY (type_id) REFERENCES most_types (id),
+    FOREIGN KEY (field_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX records_fields_type_id_index ON record_fields (type_id);
