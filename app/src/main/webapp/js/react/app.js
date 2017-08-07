@@ -64,7 +64,8 @@ class App extends React.Component {
             isLoadingChildren:          true,
             isLoadingSearchResults:     false,
             filterString:               null,
-            shouldShowFilteredResults:  false
+            shouldShowFilteredResults:  false,
+            shouldShowEditForm:         false
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -641,6 +642,7 @@ class App extends React.Component {
             functionBlocks:             canUseCachedChildren ? this.state.functionBlocks : [],
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
+            shouldShowEditForm:         false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
             isLoadingChildren:          !canUseCachedChildren
@@ -772,7 +774,7 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
-        if (this.state.activeSubRoleItem != this.roleItems.functionBlock) {
+        if (this.state.activeRoleItem === this.roleItems.release) {
             for (let i in this.state.navigationItems) {
                 const navigationItem = this.state.navigationItems[i];
                 navigationItem.setForm(null);
@@ -808,6 +810,7 @@ class App extends React.Component {
             mostInterfaces:             canUseCachedChildren ? this.state.mostInterfaces : [],
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
+            shouldShowEditForm:         false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
             isLoadingChildren:          !canUseCachedChildren,
@@ -996,7 +999,17 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
-        if (this.state.activeSubRoleItem != this.roleItems.mostInterface) {
+        if(this.state.activeRoleItem == this.roleItems.release) {
+            for (let i in this.state.navigationItems) {
+                const navigationItem = this.state.navigationItems[i];
+                navigationItem.setForm(null);
+                navigationItems.push(navigationItem);
+                if (i >= 1) {
+                    break;
+                }
+            }
+        }
+        else if (this.state.activeSubRoleItem != this.roleItems.mostInterface) {
             for (let i in this.state.navigationItems) {
                 const navigationItem = this.state.navigationItems[i];
                 navigationItem.setForm(null);
@@ -1004,7 +1017,7 @@ class App extends React.Component {
                 if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
                     break;
                 }
-                if (i >= 1) {
+                else if (i >= 1) {
                     break;
                 }
             }
@@ -1036,6 +1049,7 @@ class App extends React.Component {
             parentItem:                 parentItem,
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
+            shouldShowEditForm:         false,
             mostFunctions:              canUseCachedChildren ? this.state.mostFunctions : [],
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
@@ -1238,15 +1252,17 @@ class App extends React.Component {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            if (this.state.activeSubRoleItem == this.roleItems.mostInterface) {
-                break;
-            }
-            if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
-                if (i >= 1) {
+            if (this.state.activeRoleItem == this.roleItems.development) {
+                if (this.state.activeSubRoleItem == this.roleItems.mostInterface) {
                     break;
                 }
+                if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
+                    if (i >= 1) {
+                        break;
+                    }
+                }
             }
-            else if (i >= 2) {
+            if (i >= 2) {
                 break;
             }
         }
@@ -1270,7 +1286,8 @@ class App extends React.Component {
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
             shouldShowCreateChildForm:  false,
-            shouldShowFilteredResults:  false
+            shouldShowFilteredResults:  false,
+            shouldShowEditForm:         false,
         });
 
         // this.updateMostTypes();
@@ -1637,11 +1654,10 @@ class App extends React.Component {
         const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
+        const shouldShowEditForm = this.state.shouldShowEditForm;
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
         const shouldShowFilterBar = (this.state.activeRoleItem === this.roleItems.development) && !selectedItem;
-        // Show the metadata form for a selected item when in development mode.
-        const shouldShowSelectedItemForm = (this.state.activeRoleItem === this.roleItems.development) && selectedItem;
 
         const reactComponents = [];
         const thisApp = this;
@@ -1650,6 +1666,8 @@ class App extends React.Component {
             // Determine correct behavior for back button in development mode
             let backFunction = null;
             let shouldShowBackButton = false;
+            const shouldShowEditButton = (this.state.activeRoleItem === this.roleItems.development) && selectedItem;
+            const shouldShowNavigationItems = this.state.activeRoleItem === this.roleItems.development;
             if (this.state.activeRoleItem === this.roleItems.development) {
                 const activeSubRoleItem = this.state.activeSubRoleItem;
 
@@ -1677,9 +1695,10 @@ class App extends React.Component {
 
             reactComponents.push(
                 <app.Toolbar key="Toolbar"
-                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false })}
-                    onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
-                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false })}
+                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
+                    onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
+                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false })}
+                    onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
                     navigationItems={navigationItems}
@@ -1687,6 +1706,8 @@ class App extends React.Component {
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
                     shouldShowSearchIcon={!shouldShowFilterBar}
                     shouldShowBackButton={shouldShowBackButton}
+                    shouldShowEditButton={shouldShowEditButton}
+                    shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
                 />
             );
@@ -1742,7 +1763,7 @@ class App extends React.Component {
                 break;
 
             case NavigationLevel.functionBlocks:
-                if (shouldShowSelectedItemForm) {
+                if (shouldShowEditForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
                            shouldShowSaveAnimation={shouldAnimateCreateButton}
@@ -1786,7 +1807,7 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.mostInterfaces:
-                if (shouldShowSelectedItemForm) {
+                if (shouldShowEditForm) {
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
                            shouldShowSaveAnimation={shouldAnimateCreateButton}

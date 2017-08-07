@@ -15,6 +15,7 @@ class Toolbar extends React.Component {
         this.onStereotypeCommandWithAckClicked = this.onStereotypeCommandWithAckClicked.bind(this);
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
         this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
+        this.renderEditButton = this.renderEditButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
         this.renderAddFunctionButtons = this.renderAddFunctionButtons.bind(this);
@@ -85,6 +86,40 @@ class Toolbar extends React.Component {
     onBackButtonClicked() {
         if (typeof this.props.onBackButtonClicked == "function") {
             this.props.onBackButtonClicked();
+        }
+    }
+
+    renderEditButton() {
+        if (this.props.shouldShowEditButton) {
+            const navigationLevel = this.state.navigationLevel;
+            const currentNavigationLevel = this.state.currentNavigationLevel;
+            let shouldShowButton = false;
+            let buttonTitleType = "";
+
+            switch(currentNavigationLevel) {
+                case navigationLevel.functionCatalogs:
+                    shouldShowButton = true;
+                    buttonTitleType = "Function Catalog";
+                    break;
+                case navigationLevel.functionBlocks:
+                    shouldShowButton = true;
+                    buttonTitleType = "Function Block";
+                    break;
+                case navigationLevel.mostInterfaces:
+                    shouldShowButton = true;
+                    buttonTitleType = "Interface";
+                    break;
+            }
+
+            const buttonTitle = "Edit Current " + buttonTitleType;
+
+            if (shouldShowButton) {
+                return (
+                    <div className="toolbar-item edit" onClick={this.props.onEditClicked} title={buttonTitle}>
+                        <i className="fa fa-4 fa-edit" />
+                    </div>
+                );
+            }
         }
     }
 
@@ -171,25 +206,27 @@ class Toolbar extends React.Component {
     }
 
     renderNavigationItems() {
-        const reactComponents = [];
-        const navigationItems = this.props.navigationItems;
-        if (this.props.shouldShowBackButton) {
-            reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-left fa-4x"/></div>);
-        }
+        if (this.props.shouldShowNavigationItems) {
+            const reactComponents = [];
+            const navigationItems = this.props.navigationItems;
+            if (this.props.shouldShowBackButton) {
+                reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-left fa-4x"/></div>);
+            }
 
-        for (let i in navigationItems) {
-            const title = navigationItems[i].getTitle();
-            const header = navigationItems[i].getHeader();
-            const onClickCallback = navigationItems[i].getOnClickCallback();
-            const navKey = "navigation-item" + i;
-            reactComponents.push(<div key={navKey}
-                                    className="navigation-indicator"
-                                    onClick={onClickCallback}>
-                                    <div>{header}</div>
-                                    <i className="fa fa-chevron-right fa-1x"/>{title}
-                                 </div>);
+            for (let i in navigationItems) {
+                const title = navigationItems[i].getTitle();
+                const header = navigationItems[i].getHeader();
+                const onClickCallback = navigationItems[i].getOnClickCallback();
+                const navKey = "navigation-item" + i;
+                reactComponents.push(<div key={navKey}
+                                          className="navigation-indicator"
+                                          onClick={onClickCallback}>
+                    <div>{header}</div>
+                    <i className="fa fa-chevron-right fa-1x"/>{title}
+                </div>);
+            }
+            return reactComponents;
         }
-        return reactComponents;
     }
 
     render() {
@@ -199,6 +236,7 @@ class Toolbar extends React.Component {
                     {this.renderNavigationItems()}
                 </div>
                 <div>
+                    {this.renderEditButton()}
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}
                     {this.renderAddFunctionButtons()}
