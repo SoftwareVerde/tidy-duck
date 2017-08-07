@@ -14,9 +14,11 @@ class Toolbar extends React.Component {
         this.onStereotypeRequestResponseClicked = this.onStereotypeRequestResponseClicked.bind(this);
         this.onStereotypeCommandWithAckClicked = this.onStereotypeCommandWithAckClicked.bind(this);
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
+        this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
         this.renderAddFunctionButtons = this.renderAddFunctionButtons.bind(this);
+        this.renderNavigationItems = this.renderNavigationItems.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -77,6 +79,12 @@ class Toolbar extends React.Component {
     onStereotypePropertyWithEventClicked() {
         if (typeof this.props.handleFunctionStereotypeClick == "function") {
             this.props.handleFunctionStereotypeClick(this.props.functionStereotypes.propertyWithEvent);
+        }
+    }
+
+    onBackButtonClicked() {
+        if (typeof this.props.onBackButtonClicked == "function") {
+            this.props.onBackButtonClicked();
         }
     }
 
@@ -162,14 +170,31 @@ class Toolbar extends React.Component {
         }
     }
 
+    renderNavigationItems() {
+        const reactComponents = [];
+        const navigationItems = this.props.navigationItems;
+        if (this.props.shouldShowBackButton) {
+            reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-left fa-4x"/></div>);
+        }
+
+        for (let i in navigationItems) {
+            const title = navigationItems[i].getTitle();
+            const onClickCallback = navigationItems[i].getOnClickCallback();
+            const navKey = "navigation-item" + i;
+            reactComponents.push(<div key={navKey}
+                                    className="navigation-indicator"
+                                    onClick={onClickCallback}>
+                                    <i className="fa fa-chevron-right fa-1x"/>{title}
+                                 </div>);
+        }
+        return reactComponents;
+    }
+
     render() {
         return (
             <div className="toolbar">
-                <div className="toolbar-item"><i className="fa fa-arrow-circle-left fa-4x"/></div>
                 <div>
-                    <div className="navigation-indicator"><i className="fa fa-chevron-right fa-1x"/>FUNCTION CATALOG: AUDIO</div>
-                    <div className="navigation-indicator"><i className="fa fa-chevron-right fa-1x"/>FUNCTION BLOCK: SPEAKER</div>
-                    <div className="navigation-indicator"><i className="fa fa-chevron-right fa-1x"/>INTERFACE: MAIN VOLUME</div>
+                    {this.renderNavigationItems()}
                 </div>
                 <div>
                     {this.renderItemCreateButton()}

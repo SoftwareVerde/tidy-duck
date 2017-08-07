@@ -16,6 +16,7 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    vertical-align: middle;
 
     cursor: pointer;
 
@@ -35,6 +36,7 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    vertical-align: middle;
 
     cursor: pointer;
 
@@ -43,6 +45,10 @@
 
 .toolbar .navigation-indicator i {
     margin: 5px;
+}
+
+.toolbar .navigation-indicator:hover {
+    color: #000000;
 }
 
 .toolbar .toolbar-item:hover i {

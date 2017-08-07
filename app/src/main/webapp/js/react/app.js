@@ -764,11 +764,13 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
-        for (let i in this.state.navigationItems) {
-            const navigationItem = this.state.navigationItems[i];
-            navigationItem.setForm(null);
-            navigationItems.push(navigationItem);
+        if (this.state.activeSubRoleItem != this.roleItems.functionBlock) {
+            for (let i in this.state.navigationItems) {
+                const navigationItem = this.state.navigationItems[i];
+                navigationItem.setForm(null);
+                navigationItems.push(navigationItem);
                 break;
+            }
         }
 
         const navigationItemConfig = new NavigationItemConfig();
@@ -988,12 +990,17 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
-        for (let i in this.state.navigationItems) {
-            const navigationItem = this.state.navigationItems[i];
-            navigationItem.setForm(null);
-            navigationItems.push(navigationItem);
-            if (i >= 1) {
-                break;
+        if (this.state.activeSubRoleItem != this.roleItems.mostInterface) {
+            for (let i in this.state.navigationItems) {
+                const navigationItem = this.state.navigationItems[i];
+                navigationItem.setForm(null);
+                navigationItems.push(navigationItem);
+                if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
+                    break;
+                }
+                if (i >= 1) {
+                    break;
+                }
             }
         }
 
@@ -1223,11 +1230,20 @@ class App extends React.Component {
         // Set all navigation forms to null, since editing functions occurs in metadata form.
 
         const navigationItems = [];
+
         for (let i in this.state.navigationItems) {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            if (i >= 2) {
+            if (this.state.activeSubRoleItem == this.roleItems.mostInterface) {
+                break;
+            }
+            if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
+                if (i >= 1) {
+                    break;
+                }
+            }
+            else if (i >= 2) {
                 break;
             }
         }
@@ -1617,6 +1633,7 @@ class App extends React.Component {
     renderForm() {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        const navigationItems = this.state.navigationItems;
 
         const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
@@ -1628,39 +1645,38 @@ class App extends React.Component {
         const shouldShowSelectedItemForm = (this.state.activeRoleItem === this.roleItems.development) && selectedItem;
 
         const reactComponents = [];
-
-        // Determine correct behavior for back button in development mode
-        let backFunction = null;
-        if (this.state.activeRoleItem === this.roleItems.development) {
-            const activeSubRoleItem = this.state.activeSubRoleItem;
-            const currentNavigationLevel = this.state.currentNavigationLevel;
-            const navigationHistory = this.state.navigationHistory;
-            const selectedItem = this.state.selectedItem;
-
-
-            // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
-            if (selectedItem) {
-                switch (currentNavigationLevel) {
-                    case this.NavigationLevel.functionBlocks:
-                        backFunction = function() {this.handleRoleClick(this.state.activeRoleItem, true)};
-                        break;
-                    case this.NavigationLevel.mostInterfaces:
-                        if (activeSubRoleItem === this.roleItems.functionBlock) {
-                            backFunction = function() {this.onFunctionBlockSelected(navigationHistory.pop(), true, false)};
-                        }
-                        else {
-                            backFunction = function() {this.handleRoleClick(this.state.activeRoleItem, true)};
-                        }
-                        break;
-                    case this.NavigationLevel.mostFunctions:
-                        backFunction = function() {this.onMostInterfaceSelected(navigationHistory.pop(), true, false)};
-                        break;
-                }
-            }
-        }
-        const shouldShowBackButton = backFunction !== null;
+        const thisApp = this;
 
         if (shouldShowToolbar) {
+            // Determine correct behavior for back button in development mode
+            let backFunction = null;
+            let shouldShowBackButton = false;
+            const navigationHistory = this.state.navigationHistory;
+            if (this.state.activeRoleItem === this.roleItems.development) {
+                const activeSubRoleItem = this.state.activeSubRoleItem;
+
+                // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
+                if (selectedItem) {
+                    shouldShowBackButton = true;
+                    switch (currentNavigationLevel) {
+                        case this.NavigationLevel.functionBlocks:
+                            backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRoleItem, true)};
+                            break;
+                        case this.NavigationLevel.mostInterfaces:
+                            if (activeSubRoleItem === thisApp.roleItems.functionBlock) {
+                                backFunction = function() {thisApp.onFunctionBlockSelected(navigationHistory.pop(), true, false);};
+                            }
+                            else {
+                                backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRoleItem, true);};
+                            }
+                            break;
+                        case this.NavigationLevel.mostFunctions:
+                            backFunction = function() {thisApp.onMostInterfaceSelected(navigationHistory.pop(), true, false);};
+                            break;
+                    }
+                }
+            }
+
             reactComponents.push(
                 <app.Toolbar key="Toolbar"
                     onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false })}
@@ -1668,6 +1684,7 @@ class App extends React.Component {
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false })}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
+                    navigationItems={navigationItems}
                     functionStereotypes={this.FunctionStereotypes}
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
                     shouldShowSearchIcon={!shouldShowFilterBar}
@@ -1834,7 +1851,6 @@ class App extends React.Component {
                             {this.renderChildItems()}
                         </div>
                     </div>
-                    {this.renderDevelopmentBackButton()}
                 </div>
             );
         }
