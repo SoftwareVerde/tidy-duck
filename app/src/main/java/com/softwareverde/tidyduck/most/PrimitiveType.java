@@ -29,7 +29,7 @@ public class PrimitiveType {
         return _isPreloadedType;
     }
 
-    public void setPreloadedType(boolean preloadedType) {
+    public void setIsPreloadedType(boolean preloadedType) {
         _isPreloadedType = preloadedType;
     }
 
@@ -37,7 +37,7 @@ public class PrimitiveType {
         return _isNumberBaseType;
     }
 
-    public void setNumberBaseType(boolean numberBaseType) {
+    public void setIsNumberBaseType(boolean numberBaseType) {
         _isNumberBaseType = numberBaseType;
     }
 
@@ -45,7 +45,7 @@ public class PrimitiveType {
         return _isStreamParameterType;
     }
 
-    public void setStreamParameterType(boolean streamParameterType) {
+    public void setIsStreamParameterType(boolean streamParameterType) {
         _isStreamParameterType = streamParameterType;
     }
 
@@ -53,7 +53,7 @@ public class PrimitiveType {
         return _isArrayType;
     }
 
-    public void setArrayType(boolean arrayType) {
+    public void setIsArrayType(boolean arrayType) {
         _isArrayType = arrayType;
     }
 
@@ -61,7 +61,7 @@ public class PrimitiveType {
         return _isRecordType;
     }
 
-    public void setRecordType(boolean recordType) {
+    public void setIsRecordType(boolean recordType) {
         _isRecordType = recordType;
     }
 }

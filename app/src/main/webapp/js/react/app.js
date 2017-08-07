@@ -1402,9 +1402,11 @@ class App extends React.Component {
             }
             const mostTypes = [];
             for (let i in mostTypesJson) {
+                const jsonType = mostTypesJson[i];
+
                 const mostType = new MostType();
-                mostType.setId(mostTypesJson[i].id);
-                mostType.setName(mostTypesJson[i].name);
+                mostType.setId(jsonType.id);
+                mostType.setName(jsonType[i].name);
 
                 mostTypes.push(mostType);
             }

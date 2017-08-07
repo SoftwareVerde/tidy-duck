@@ -52,7 +52,7 @@ public class MostType {
         return _primitiveType;
     }
 
-    public void setPrimitiveType(PrimitiveType primitiveType) {
+    public void setIsPrimitiveType(PrimitiveType primitiveType) {
         _primitiveType = primitiveType;
     }
 
@@ -60,7 +60,7 @@ public class MostType {
         return _isPrimaryType;
     }
 
-    public void setPrimaryType(boolean primaryType) {
+    public void setIsPrimaryType(boolean primaryType) {
         _isPrimaryType = primaryType;
     }
 

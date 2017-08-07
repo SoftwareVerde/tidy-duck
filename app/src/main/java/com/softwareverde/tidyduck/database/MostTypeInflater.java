@@ -149,7 +149,7 @@ public class MostTypeInflater {
         final MostType mostType = new MostType();
         mostType.setId(id);
         mostType.setName(name);
-        mostType.setPrimitiveType(primitiveType);
+        mostType.setIsPrimitiveType(primitiveType);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setEnumMax(enumMax);
@@ -345,11 +345,11 @@ public class MostTypeInflater {
         final PrimitiveType primitiveType = new PrimitiveType();
         primitiveType.setId(id);
         primitiveType.setName(name);
-        primitiveType.setPreloadedType(isPreloadedType);
-        primitiveType.setArrayType(isArrayType);
-        primitiveType.setStreamParameterType(isStreamParameterType);
-        primitiveType.setNumberBaseType(isNumberBaseType);
-        primitiveType.setRecordType(isRecordType);
+        primitiveType.setIsPreloadedType(isPreloadedType);
+        primitiveType.setIsArrayType(isArrayType);
+        primitiveType.setIsStreamParameterType(isStreamParameterType);
+        primitiveType.setIsNumberBaseType(isNumberBaseType);
+        primitiveType.setIsRecordType(isRecordType);
         return primitiveType;
     }
 

@@ -29,6 +29,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 return _insertType(request, environment);
             }
         }
+        if ("primitive-types".equals(finalUrlSegment)) {
+            if (httpMethod == HttpMethod.GET) {
+                return _listPrimitiveTypes(environment);
+            }
+        }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
@@ -70,6 +75,28 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    private Json _listPrimitiveTypes(Environment environment) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
+            Json response = new Json(false);
+
+            MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
+            List<PrimitiveType> primitiveTypes = mostTypeInflater.inflatePrimitiveTypes();
+            Json primitiveTypesJson = new Json(true);
+            for (PrimitiveType primitiveType : primitiveTypes) {
+                Json primitiveTypeJson = _toJson(primitiveType);
+                primitiveTypesJson.add(primitiveTypeJson);
+            }
+            response.put("primitiveTypes", primitiveTypesJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (DatabaseException e) {
+            String msg = "Unable to inflate primitive types.";
+            _logger.error(msg, e);
+            return super._generateErrorJson(msg);
+        }
+    }
+
     private Json _toJson(final MostType mostType) {
         final Json json = new Json(false);
 
@@ -89,7 +116,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             case "TBitField": {
                 final String bitfieldLength = mostType.getBitfieldLength();
                 json.put("bitfieldLength", bitfieldLength);
-            } // continue into TBool logic
+            } // fall through
             case "TBool": {
                 // add boolean fields
                 Json booleanFieldsJson = new Json(true);
@@ -311,6 +338,28 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         json.put("definitionName", definitionName);
         json.put("definitionCode", definitionCode);
         json.put("definitionGroup", definitionGroup);
+
+        return json;
+    }
+
+    private Json _toJson(final PrimitiveType primitiveType) {
+        final Json json = new Json(false);
+
+        final long id = primitiveType.getId();
+        final String name = primitiveType.getName();
+        final boolean isPreloadedType = primitiveType.isPreloadedType();
+        final boolean isNumberBaseType = primitiveType.isNumberBaseType();
+        final boolean isStreamParameterType = primitiveType.isStreamParameterType();
+        final boolean isArrayType = primitiveType.isArrayType();
+        final boolean isRecordType = primitiveType.isRecordType();
+
+        json.put("id", id);
+        json.put("name", name);
+        json.put("isPreloadedType", isPreloadedType);
+        json.put("isNumberBaseType", isNumberBaseType);
+        json.put("isStreamParameterType", isStreamParameterType);
+        json.put("isArrayType", isArrayType);
+        json.put("isRecordType", isRecordType);
 
         return json;
     }

@@ -47,6 +47,12 @@
     padding-bottom: 1em;
 }
 
+#type-name-input-field, #base-type-input-field {
+    float: none;
+    display: block;
+    padding: 1em 3em;
+}
+
 #types-options-container {
     padding: 1em;
 }
