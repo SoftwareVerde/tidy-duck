@@ -206,24 +206,24 @@ class Toolbar extends React.Component {
     }
 
     renderNavigationItems() {
-        if (this.props.shouldShowNavigationItems) {
+        if (this.props.shouldShowBackButton) {
             const reactComponents = [];
-            const navigationItems = this.props.navigationItems;
-            if (this.props.shouldShowBackButton) {
-                reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-left fa-4x"/></div>);
-            }
+            reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-left fa-4x"/></div>);
 
-            for (let i in navigationItems) {
-                const title = navigationItems[i].getTitle();
-                const header = navigationItems[i].getHeader();
-                const onClickCallback = navigationItems[i].getOnClickCallback();
-                const navKey = "navigation-item" + i;
-                reactComponents.push(<div key={navKey}
-                                          className="navigation-indicator"
-                                          onClick={onClickCallback}>
-                    <div>{header}</div>
-                    <i className="fa fa-chevron-right fa-1x"/>{title}
-                </div>);
+            if (this.props.shouldShowNavigationItems) {
+                const navigationItems = this.props.navigationItems;
+                for (let i in navigationItems) {
+                    const title = navigationItems[i].getTitle();
+                    const header = navigationItems[i].getHeader();
+                    const onClickCallback = navigationItems[i].getOnClickCallback();
+                    const navKey = "navigation-item" + i;
+                    reactComponents.push(<div key={navKey}
+                                              className="navigation-indicator"
+                                              onClick={onClickCallback}>
+                        <div>{header}</div>
+                        <i className="fa fa-chevron-right fa-1x"/>{title}
+                    </div>);
+                }
             }
             return reactComponents;
         }

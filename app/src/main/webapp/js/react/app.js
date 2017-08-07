@@ -1659,11 +1659,14 @@ class App extends React.Component {
             let shouldShowBackButton = false;
             const shouldShowEditButton = (this.state.activeRoleItem === this.roleItems.development) && selectedItem;
             const shouldShowNavigationItems = this.state.activeRoleItem === this.roleItems.development;
-            if (this.state.activeRoleItem === this.roleItems.development) {
-                const activeSubRoleItem = this.state.activeSubRoleItem;
 
-                // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
-                if (selectedItem) {
+            // Check if back button should be rendered.
+            if (selectedItem) {
+                shouldShowBackButton = true;
+                if (this.state.activeRoleItem === this.roleItems.development) {
+                    const activeSubRoleItem = this.state.activeSubRoleItem;
+
+                    // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
                     shouldShowBackButton = true;
                     switch (currentNavigationLevel) {
                         case this.NavigationLevel.functionBlocks:
@@ -1678,8 +1681,16 @@ class App extends React.Component {
                             }
                             break;
                         case this.NavigationLevel.mostFunctions:
-                            backFunction = backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                            backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             break;
+                    }
+                }
+                else {
+                    if (currentNavigationLevel == this.NavigationLevel.functionCatalogs) {
+                        backFunction = this.onRootNavigationItemClicked;
+                    }
+                    else {
+                        backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                     }
                 }
             }
