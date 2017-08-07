@@ -4,9 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.most.MostType;
-import com.softwareverde.tidyduck.most.MostUnit;
-import com.softwareverde.tidyduck.most.PrimitiveType;
+import com.softwareverde.tidyduck.most.*;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -126,10 +124,10 @@ public class MostTypeInflater {
         final String recordDescription = row.getString("record_description");
         final String recordSize = row.getString("record_size");
 
-        // TODO: inflate boolean fields
-        // TODO: inflate enum values
-        // TODO: inflate stream cases
-        // TODO: inflate record fields
+        List<BooleanField> booleanFields = getBooleanFields(id);
+        List<EnumValue> enumValues = getEnumValues(id);
+        List<StreamCase> streamCases = getStreamCases(id);
+        List<RecordField> recordFields = getRecordFields(id);
 
         PrimitiveType primitiveType = inflatePrimitiveType(primitiveTypeId);
 
@@ -171,10 +169,171 @@ public class MostTypeInflater {
         mostType.setRecordName(recordName);
         mostType.setRecordDescription(recordDescription);
         mostType.setRecordSize(recordSize);
+
+        mostType.setBooleanFields(booleanFields);
+        mostType.setEnumValues(enumValues);
+        mostType.setStreamCases(streamCases);
+        mostType.setRecordFields(recordFields);
         return mostType;
     }
 
-    protected PrimitiveType convertRowToPrimitiveType(Row row) {
+    private List<BooleanField> getBooleanFields(final long typeId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM bool_fields WHERE type_id = ?"
+        );
+        query.setParameter(typeId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final ArrayList<BooleanField> booleanFields = new ArrayList<>();
+        for (final Row row : rows) {
+            BooleanField booleanField = convertRowToBooleanField(row);
+            booleanFields.add(booleanField);
+        }
+        return booleanFields;
+    }
+
+    private List<EnumValue> getEnumValues(final long typeId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM enum_values WHERE type_id = ?"
+        );
+        query.setParameter(typeId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final ArrayList<EnumValue> enumValues = new ArrayList<>();
+        for (final Row row : rows) {
+            EnumValue enumValue = convertRowToEnumValue(row);
+            enumValues.add(enumValue);
+        }
+
+        return enumValues;
+    }
+
+    private List<StreamCase> getStreamCases(final long typeId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM stream_cases WHERE type_id = ?"
+        );
+        query.setParameter(typeId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final ArrayList<StreamCase> streamCases = new ArrayList<>();
+        for (final Row row : rows) {
+            final StreamCase streamCase = new StreamCase();
+
+            final Long id = row.getLong("id");
+            final String streamPositionX = row.getString("stream_position_x");
+            final String streamPositionY = row.getString("stream_position_y");
+
+            streamCase.setId(id);
+            streamCase.setStreamPositionX(streamPositionX);
+            streamCase.setStreamPositionY(streamPositionY);
+
+            // stream parameters
+            List<StreamCaseParameter> streamCaseParameters = getStreamCaseParameters(id);
+            streamCase.setStreamCaseParameters(streamCaseParameters);
+
+            // stream signals
+            List<StreamCaseSignal> streamCaseSignals = getStreamCaseSignals(id);
+            streamCase.setStreamCaseSignals(streamCaseSignals);
+
+            streamCases.add(streamCase);
+        }
+        return streamCases;
+    }
+
+    private List<StreamCaseParameter> getStreamCaseParameters(final long streamCaseId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM stream_case_parameters WHERE stream_case_id = ?"
+        );
+        query.setParameter(streamCaseId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final ArrayList<StreamCaseParameter> streamCaseParameters = new ArrayList<>();
+        for (final Row row : rows) {
+            final StreamCaseParameter streamCaseParameter = new StreamCaseParameter();
+
+            final Long id = row.getLong("id");
+            final String parameterName = row.getString("parameter_name");
+            final String parameterIndex = row.getString("parameter_index");
+            final String parameterDescription = row.getString("parameter_description");
+            final Long parameterTypeId = row.getLong("parameter_type_id");
+
+            final MostType parameterType = inflateMostType(parameterTypeId);
+
+            streamCaseParameter.setId(id);
+            streamCaseParameter.setParameterName(parameterName);
+            streamCaseParameter.setParameterIndex(parameterIndex);
+            streamCaseParameter.setParameterDescription(parameterDescription);
+            streamCaseParameter.setParameterType(parameterType);
+
+            streamCaseParameters.add(streamCaseParameter);
+        }
+        return streamCaseParameters;
+    }
+
+    private List<StreamCaseSignal> getStreamCaseSignals(final long streamCaseId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM stream_case_signals WHERE stream_case_id = ?"
+        );
+        query.setParameter(streamCaseId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final ArrayList<StreamCaseSignal> streamCaseSignals = new ArrayList<>();
+        for (final Row row : rows) {
+            final StreamCaseSignal streamCaseSignal = new StreamCaseSignal();
+
+            final Long id = row.getLong("id");
+            final String signalName = row.getString("signal_name");
+            final String signalIndex = row.getString("signal_index");
+            final String signalDescription = row.getString("signal_description");
+            final String signalBitLength = row.getString("signal_bit_length");
+
+            streamCaseSignal.setId(id);
+            streamCaseSignal.setSignalName(signalName);
+            streamCaseSignal.setSignalIndex(signalIndex);
+            streamCaseSignal.setSignalDescription(signalDescription);
+            streamCaseSignal.setSignalBitLength(signalBitLength);
+
+            streamCaseSignals.add(streamCaseSignal);
+        }
+        return streamCaseSignals;
+    }
+
+    private List<RecordField> getRecordFields(final long typeId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM record_fields WHERE type_id = ?"
+        );
+        query.setParameter(typeId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final ArrayList<RecordField> recordFields = new ArrayList<>();
+        for (final Row row : rows) {
+            final RecordField recordField = new RecordField();
+
+            final Long id = row.getLong("id");
+            final String fieldName = row.getString("field_name");
+            final String fieldIndex = row.getString("field_index");
+            final String fieldDescription = row.getString("field_description");
+            final Long fieldTypeId = row.getLong("field_type_id");
+            final MostType fieldType = inflateMostType(fieldTypeId);
+
+            recordField.setId(id);
+            recordField.setFieldName(fieldName);
+            recordField.setFieldIndex(fieldIndex);
+            recordField.setFieldDescription(fieldDescription);
+            recordField.setFieldType(fieldType);
+
+            recordFields.add(recordField);
+        }
+        return recordFields;
+    }
+
+    protected PrimitiveType convertRowToPrimitiveType(final Row row) {
         final Long id = row.getLong("id");
         final String name = row.getString("name");
         final boolean isPreloadedType = row.getBoolean("is_preloaded_type");
@@ -194,7 +353,7 @@ public class MostTypeInflater {
         return primitiveType;
     }
 
-    private MostUnit convertRowToMostUnit(Row row) {
+    private MostUnit convertRowToMostUnit(final Row row) {
         final Long id = row.getLong("id");
         final String referenceName = row.getString("reference_name");
         final String definitionName = row.getString("definition_name");
@@ -208,5 +367,33 @@ public class MostTypeInflater {
         mostUnit.setDefinitionCode(definitionCode);
         mostUnit.setDefinitionGroup(definitionGroup);
         return mostUnit;
+    }
+
+    private BooleanField convertRowToBooleanField(final Row row) {
+        final Long id = row.getLong("id");
+        final String bitPosition = row.getString("bit_position");
+        final String trueDescription = row.getString("true_description");
+        final String falseDescription = row.getString("false_description");
+
+        final BooleanField booleanField = new BooleanField();
+        booleanField.setId(id);
+        booleanField.setBitPosition(bitPosition);
+        booleanField.setTrueDescription(trueDescription);
+        booleanField.setFalseDescription(falseDescription);
+
+        return booleanField;
+    }
+
+    private EnumValue convertRowToEnumValue(final Row row) {
+        final Long id = row.getLong("id");
+        final String name = row.getString("name");
+        final String code = row.getString("code");
+
+        final EnumValue enumValue = new EnumValue();
+        enumValue.setId(id);
+        enumValue.setName(name);
+        enumValue.setCode(code);
+
+        return enumValue;
     }
 }
