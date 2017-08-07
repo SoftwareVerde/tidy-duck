@@ -1741,7 +1741,7 @@ class App extends React.Component {
                             navigationLevel={NavigationLevel}
                             currentNavigationLevel={currentNavigationLevel}
                             showTitle={true}
-                            formTitle={"Search Function Blocks"}
+                            formTitle={"Find and Associate Function Blocks"}
                             onUpdate={this.onSearchFunctionBlocks}
                             onVersionChanged={this.onChildItemVersionChanged}
                             onPlusButtonClick={this.onAssociateFunctionBlockWithFunctionCatalog}
@@ -1785,7 +1785,7 @@ class App extends React.Component {
                             navigationLevel={NavigationLevel}
                             currentNavigationLevel={currentNavigationLevel}
                             showTitle={true}
-                            formTitle={"Search Interfaces"}
+                            formTitle={"Find and Associate Interfaces"}
                             onUpdate={this.onSearchMostInterfaces}
                             onVersionChanged={this.onChildItemVersionChanged}
                             onPlusButtonClick={this.onAssociateMostInterfaceWithFunctionBlock}
