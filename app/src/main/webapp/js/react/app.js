@@ -791,7 +791,7 @@ class App extends React.Component {
 
         const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
         const navigationHistory = thisApp.state.navigationHistory;
-        if(saveHistory) {navigationHistory.push(thisApp.state.selectedItem);}
+        if(saveHistory && thisApp.state.selectedItem) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1023,7 +1023,7 @@ class App extends React.Component {
         const parentItem = thisApp.state.selectedItem; // Preserve reference to previously selected item.
 
         const navigationHistory = thisApp.state.navigationHistory;
-        if (saveHistory) {navigationHistory.push(thisApp.state.selectedItem);}
+        if (saveHistory && thisApp.state.selectedItem) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1651,7 +1651,6 @@ class App extends React.Component {
             // Determine correct behavior for back button in development mode
             let backFunction = null;
             let shouldShowBackButton = false;
-            const navigationHistory = this.state.navigationHistory;
             if (this.state.activeRoleItem === this.roleItems.development) {
                 const activeSubRoleItem = this.state.activeSubRoleItem;
 
@@ -1664,14 +1663,14 @@ class App extends React.Component {
                             break;
                         case this.NavigationLevel.mostInterfaces:
                             if (activeSubRoleItem === thisApp.roleItems.functionBlock) {
-                                backFunction = function() {thisApp.onFunctionBlockSelected(navigationHistory.pop(), true, false);};
+                                backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
                                 backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRoleItem, true);};
                             }
                             break;
                         case this.NavigationLevel.mostFunctions:
-                            backFunction = function() {thisApp.onMostInterfaceSelected(navigationHistory.pop(), true, false);};
+                            backFunction = backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             break;
                     }
                 }
@@ -1877,42 +1876,7 @@ class App extends React.Component {
             );
         }
     }
-
-    renderDevelopmentBackButton() {
-        if (this.state.activeRoleItem === this.roleItems.development) {
-            const activeSubRoleItem = this.state.activeSubRoleItem;
-            const currentNavigationLevel = this.state.currentNavigationLevel;
-            const navigationHistory = this.state.navigationHistory;
-            const selectedItem = this.state.selectedItem;
-
-            // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
-            if (selectedItem) {
-                switch (currentNavigationLevel) {
-                    case this.NavigationLevel.functionBlocks:
-                        return (
-                            <i className="role-return fa fa-arrow-circle-left fa-4x"
-                               onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/>
-                        );
-                        break;
-                    case this.NavigationLevel.mostInterfaces:
-                        return ( activeSubRoleItem === this.roleItems.functionBlock ?
-                            <i className="role-return fa fa-arrow-circle-left fa-4x"
-                               onClick={() => this.onFunctionBlockSelected(navigationHistory.pop(), true, false)}/> :
-                            <i className="role-return fa fa-arrow-circle-left fa-4x"
-                               onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/>
-                        );
-                        break;
-                    case this.NavigationLevel.mostFunctions:
-                        return (
-                            <i className="role-return fa fa-arrow-circle-left fa-4x"
-                               onClick={() => this.onMostInterfaceSelected(navigationHistory.pop(), true, false)}/>
-                        );
-                        break;
-                }
-            }
-        }
-    }
-
+    
     renderFilterBar() {
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const filterFunction = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? this.onFilterFunctionBlocks : this.onFilterMostInterfaces;
