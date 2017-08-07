@@ -1,5 +1,5 @@
 .toolbar {
-    background-color: #4A4A4A;
+    background: none;
     min-height: 75px;
     display: flex;
     justify-content: space-between;
@@ -9,6 +9,7 @@
     background-color: #FFFFFF;
     color: #4A4A4A;
     border-radius: 5px;
+    border: 1px solid #4A4A4A;
     margin: 2px;
     height: 75px;
     width: 75px;
@@ -27,6 +28,7 @@
     background-color: #FFFFFF;
     color: #4A4A4A;
     border-radius: 5px;
+    border: 1px solid #4A4A4A;
     margin: 2px;
     height: 75px;
     min-width: 75px;

@@ -1,5 +1,5 @@
 .toolbar {
-    background-color: #032C46;
+    background: none;
     min-height: 75px;
     display: flex;
     justify-content: space-between;
