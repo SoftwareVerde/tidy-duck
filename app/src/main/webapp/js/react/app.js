@@ -1419,7 +1419,8 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.selectedFunctionStereotype == selectedFunctionStereotype ? !this.state.shouldShowCreateChildForm : true;
         this.setState({
             shouldShowCreateChildForm:  shouldShowCreateChildForm,
-            selectedFunctionStereotype: selectedFunctionStereotype
+            selectedFunctionStereotype: selectedFunctionStereotype,
+            shouldShowEditForm:         false
         });
     }
 
