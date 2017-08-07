@@ -775,12 +775,9 @@ class App extends React.Component {
 
         const navigationItems = [];
         if (this.state.activeRoleItem === this.roleItems.release) {
-            for (let i in this.state.navigationItems) {
-                const navigationItem = this.state.navigationItems[i];
-                navigationItem.setForm(null);
-                navigationItems.push(navigationItem);
-                break;
-            }
+            const navigationItem = this.state.navigationItems[0];
+            navigationItem.setForm(null);
+            navigationItems.push(navigationItem);
         }
 
         const navigationItemConfig = new NavigationItemConfig();
@@ -1010,17 +1007,8 @@ class App extends React.Component {
             }
         }
         else if (this.state.activeSubRoleItem != this.roleItems.mostInterface) {
-            for (let i in this.state.navigationItems) {
-                const navigationItem = this.state.navigationItems[i];
-                navigationItem.setForm(null);
-                navigationItems.push(navigationItem);
-                if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
-                    break;
-                }
-                else if (i >= 1) {
-                    break;
-                }
-            }
+            const navigationItem = this.state.navigationItems[0];
+            navigationItems.push(navigationItem);
         }
 
         const navigationItemConfig = new NavigationItemConfig();
@@ -1256,13 +1244,13 @@ class App extends React.Component {
                 if (this.state.activeSubRoleItem == this.roleItems.mostInterface) {
                     break;
                 }
-                if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
+                else if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
                     if (i >= 1) {
                         break;
                     }
                 }
             }
-            if (i >= 2) {
+            else if (i >= 2) {
                 break;
             }
         }
