@@ -179,11 +179,13 @@ class Toolbar extends React.Component {
 
         for (let i in navigationItems) {
             const title = navigationItems[i].getTitle();
+            const header = navigationItems[i].getHeader();
             const onClickCallback = navigationItems[i].getOnClickCallback();
             const navKey = "navigation-item" + i;
             reactComponents.push(<div key={navKey}
                                     className="navigation-indicator"
                                     onClick={onClickCallback}>
+                                    <div>{header}</div>
                                     <i className="fa fa-chevron-right fa-1x"/>{title}
                                  </div>);
         }

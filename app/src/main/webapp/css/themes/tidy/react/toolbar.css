@@ -33,7 +33,7 @@
     padding-right: 1em;
     padding-left: 1em;
 
-    display: inline-flex;
+    display: inline-grid;
     justify-content: center;
     align-items: center;
     vertical-align: middle;
@@ -45,10 +45,6 @@
 
 .toolbar .navigation-indicator i {
     margin: 5px;
-}
-
-.toolbar .navigation-indicator:hover {
-    color: #000000;
 }
 
 .toolbar .toolbar-item:hover i {

@@ -24,6 +24,13 @@ class App extends React.Component {
           functionBlock:    "Function Block"
         };
 
+        this.headers = {
+          functionCatalog:  "FCAT",
+          functionBlock:    "FBLOCK",
+          mostInterface:    "INTERFACE",
+          mostFunction:     "FUNCTION"
+        };
+
         this.FunctionStereotypes = {
             event:                      "Event",
             readOnlyProperty:           "ReadOnlyProperty",
@@ -44,7 +51,6 @@ class App extends React.Component {
             mostFunctions:              [],
             mostTypes:                  [],
             mostFunctionStereotypes:    [],
-            navigationHistory:          [],
             activeRoleItem:             this.roleItems.release,
             activeSubRoleItem:          this.roleItems.functionBlock,
             selectedItem:               null,
@@ -219,6 +225,7 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
+                navigationItem.setHeader(thisApp.headers.functionCatalog);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
                 });
@@ -330,6 +337,7 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
+                navigationItem.setHeader(thisApp.headers.functionBlock);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionBlockSelected(functionBlock, true, false);
                 });
@@ -438,6 +446,7 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
+                navigationItem.setHeader(thisApp.headers.mostInterface);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostInterfaceSelected(mostInterface, true, false);
                 });
@@ -527,6 +536,7 @@ class App extends React.Component {
                 const navigationItems = thisApp.state.navigationItems;
                 const navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostFunction.getName());
+                navigationItem.setHeader(thisApp.headers.mostFunction);
 
                 //Update form to show changes were saved.
                 navigationItem.setForm(null);
@@ -597,6 +607,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(functionCatalog.getName());
+        navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
         navigationItemConfig.setIconName("fa-bars");
 
         const navigationMenuItemConfig = new NavigationItemConfig();
@@ -622,8 +633,6 @@ class App extends React.Component {
         );
 
         navigationItems.push(navigationItemConfig);
-        const navigationHistory = thisApp.state.navigationHistory;
-        if (canSaveHistory) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -650,7 +659,6 @@ class App extends React.Component {
                 thisApp.setState({
                     functionBlocks:     functionBlocks,
                     mostInterfaces:     [],
-                    navigationHistory:  navigationHistory,
                     isLoadingChildren:  false
                 });
             }
@@ -760,7 +768,7 @@ class App extends React.Component {
         });
     }
 
-    onFunctionBlockSelected(functionBlock, canUseCachedChildren, saveHistory) {
+    onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
         const thisApp = this;
 
         const navigationItems = [];
@@ -775,6 +783,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(functionBlock.getName());
+        navigationItemConfig.setHeader(thisApp.headers.functionBlock);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock, true, false);
         });
@@ -790,8 +799,6 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
-        const navigationHistory = thisApp.state.navigationHistory;
-        if(saveHistory && thisApp.state.selectedItem) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -819,7 +826,6 @@ class App extends React.Component {
                 thisApp.setState({
                     mostInterfaces:             mostInterfaces,
                     mostFunctions:              [],
-                    navigationHistory:          navigationHistory,
                     isLoadingChildren:          false,
                     shouldShowFilteredResults:  false,
                     filterString:               ""
@@ -986,7 +992,7 @@ class App extends React.Component {
         });
     }
 
-    onMostInterfaceSelected(mostInterface, canUseCachedChildren, saveHistory) {
+    onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
         const thisApp = this;
 
         const navigationItems = [];
@@ -1006,6 +1012,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostInterface.getName());
+        navigationItemConfig.setHeader(thisApp.headers.mostInterface);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostInterfaceSelected(mostInterface, true, false);
         });
@@ -1021,9 +1028,6 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = thisApp.state.selectedItem; // Preserve reference to previously selected item.
-
-        const navigationHistory = thisApp.state.navigationHistory;
-        if (saveHistory && thisApp.state.selectedItem) {navigationHistory.push(thisApp.state.selectedItem);}
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1055,7 +1059,6 @@ class App extends React.Component {
                 // TODO: if Functions have child elements that can be displayed, clear their array in setState.
                 thisApp.setState({
                     mostFunctions:                  mostFunctions,
-                    navigationHistory:              navigationHistory,
                     isLoadingChildren:              false,
                     shouldShowFilteredResults:      false,
                     filterString:                   ""
@@ -1250,6 +1253,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostFunction.getName());
+        navigationItemConfig.setHeader(thisApp.headers.mostFunction);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
@@ -1257,13 +1261,10 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
-        const navigationHistory = thisApp.state.navigationHistory;
-        navigationHistory.push(thisApp.state.selectedItem);
 
         thisApp.setState({
             navigationItems:            navigationItems,
             searchResults:              [],
-            navigationHistory:          navigationHistory,
             selectedItem:               mostFunction,
             parentItem:                 parentItem,
             createButtonState:          thisApp.CreateButtonState.normal,
@@ -1456,7 +1457,6 @@ class App extends React.Component {
 
             this.setState({
                 navigationItems:            [],
-                navigationHistory:          [],
                 searchResults:              [],
                 functionCatalogs:           [],
                 selectedItem:               null,
@@ -1518,7 +1518,6 @@ class App extends React.Component {
                 functionBlocks:                 [],
                 mostInterfaces:                 [],
                 navigationItems:                [],
-                navigationHistory:              [],
                 showSettingsPage:               false
             });
 
@@ -1876,7 +1875,7 @@ class App extends React.Component {
             );
         }
     }
-    
+
     renderFilterBar() {
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const filterFunction = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? this.onFilterFunctionBlocks : this.onFilterMostInterfaces;
