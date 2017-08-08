@@ -33,16 +33,63 @@ class MostType {
         mostType.setRecordName(json.recordName);
         mostType.setRecordDescription(json.recordDescription);
         mostType.setRecordSize(json.recordSize);
-        
+
+        for (let i in json.booleanFields) {
+            let booleanField = BooleanField.fromJson(json.booleanFields[i]);
+            mostType.addBooleanField(booleanField);
+        }
+
+        for (let i in json.enumValues) {
+            let enumValue = EnumValue.fromJson(json.enumValues[i]);
+            mostType.addEnumValue(enumValue);
+        }
+
+        for (let i in json.streamCases) {
+            let streamCase = StreamCase.fromJson(json.streamCases[i]);
+            mostType.addStreamCase(streamCase);
+        }
+
+        for (let i in json.recordFields) {
+            let recordField = RecordField.fromJson(json.recordFields[i]);
+            mostType.addRecordField(recordField);
+        }
 
         return mostType;
     }
 
     static toJson(mostType) {
-        return {
-            id:     mostType.getId(),
-            name:   mostType.getName()
+        if (mostType == null) {
+            return null;
+        }
+
+        const jsonMostType = {
+            id:                 mostType.getId(),
+            name:               mostType.getName(),
+            primitiveTypeId:    mostType.getPrimitiveType().getId(),
+            isPrimaryType:      mostType.isPrimaryType(),
+            bitfieldLength:     mostType.getBitFieldLength(),
+            enumMax:            mostType.getEnumMax(),
+            numberBaseTypeId:   mostType.getNumberBaseType().getId(),
+            numberExponent:     mostType.getNumberExponent(),
+            numberRangeMin:     mostType.getNumberRangeMin(),
+            numberRangeMax:     mostType.getNumberRangeMax(),
+            numberStep:         mostType.getNumberStep(),
+            numberUnitId:       mostType.getNumberUnit().getId(),
+            stringMaxSize:      mostType.getStringMaxSize(),
+            streamLength:       mostType.getStreamLength(),
+            streamMaxLength:    mostType.getStreamMaxLength(),
+            streamMediaType:    mostType.getStreamMediaType(),
+            arrayName:          mostType.getArrayName(),
+            arraySize:          mostType.getArraySize(),
+            recordName:         mostType.getRecordName(),
+            recordDescription:  mostType.getRecordDescription(),
+            recordSize:         mostType.getRecordSize()
         };
+
+        addConvertedJsonArray(jsonMostType, "booleanFields",    mostType.getBooleanFields(),    BooleanField.toJson);
+        addConvertedJsonArray(jsonMostType, "enumValues",       mostType.getEnumValues(),       EnumValue.toJson);
+        addConvertedJsonArray(jsonMostType, "streamCases",      mostType.getStreamCases(),      StreamCase.toJson);
+        addConvertedJsonArray(jsonMostType, "recordFields",     mostType.getRecordFields(),     RecordField.toJson);
     }
 
     constructor() {
