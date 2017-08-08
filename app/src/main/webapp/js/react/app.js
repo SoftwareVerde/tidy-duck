@@ -155,7 +155,7 @@ class App extends React.Component {
 
         insertFunctionCatalog(functionCatalogJson, function(functionCatalogId) {
             if (! (functionCatalogId > 0)) {
-                console.log("Unable to create function catalog.");
+                console.error("Unable to create function catalog.");
                 thisApp.setState({
                     createButtonState: thisApp.CreateButtonState.normal
                 });
@@ -276,7 +276,7 @@ class App extends React.Component {
 
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
             if (! (functionBlockId > 0)) {
-                console.log("Unable to create function block.");
+                console.error("Unable to create function block.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
@@ -392,7 +392,7 @@ class App extends React.Component {
 
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
-                console.log("Unable to create interface.");
+                console.error("Unable to create interface.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal,
                 });
@@ -502,7 +502,7 @@ class App extends React.Component {
 
         insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
             if (! (mostFunctionId > 0)) {
-                console.log("Unable to create function.");
+                console.error("Unable to create function.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal
                 });
@@ -567,7 +567,7 @@ class App extends React.Component {
                     createButtonState:      thisApp.CreateButtonState.success
                 });
             } else {
-                console.log("Unable to update Function.");
+                console.error("Unable to update Function.");
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal,
                 });
@@ -652,6 +652,7 @@ class App extends React.Component {
             navigationItems:            navigationItems,
             searchResults:              [],
             selectedItem:               functionCatalog,
+            proposedItem:               null,
             functionBlocks:             canUseCachedChildren ? this.state.functionBlocks : [],
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
@@ -817,6 +818,7 @@ class App extends React.Component {
             searchResults:              [],
             selectedItem:               functionBlock,
             parentItem:                 parentItem,
+            proposedItem:               null,
             mostInterfaces:             canUseCachedChildren ? this.state.mostInterfaces : [],
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
@@ -1048,6 +1050,7 @@ class App extends React.Component {
             searchResults:              [],
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
+            proposedItem:               null,
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
             shouldShowEditForm:         false,
@@ -1284,6 +1287,7 @@ class App extends React.Component {
             searchResults:              [],
             selectedItem:               mostFunction,
             parentItem:                 parentItem,
+            proposedItem:               null,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
             shouldShowCreateChildForm:  false,
@@ -1450,7 +1454,7 @@ class App extends React.Component {
         // get most types (used cached ones for now but set the new ones in the callback)
         getMostFunctionStereotypes(function (mostFunctionStereotypesJson) {
             if (!mostFunctionStereotypesJson) {
-                console.log("Invalid stereotype JSON data.");
+                console.error("Invalid stereotype JSON data.");
                 return;
             }
             const mostFunctionStereotypes = [];
@@ -1477,6 +1481,7 @@ class App extends React.Component {
                     activeSubRole:                  null,
                     selectedItem:                   null,
                     parentItem:                     null,
+                    proposedItem:               null,
                     shouldShowToolbar:              true,
                     shouldShowCreateChildForm:      false,
                     shouldShowSearchChildForm:      false,
@@ -1512,6 +1517,7 @@ class App extends React.Component {
                     functionCatalogs:           [],
                     selectedItem:               null,
                     parentItem:                 null,
+                    proposedItem:               null,
                     shouldShowCreateChildForm:  false,
                     shouldShowSearchChildForm:  false,
                     shouldShowEditForm:         false,
@@ -1557,6 +1563,7 @@ class App extends React.Component {
                     functionCatalogs:           [],
                     selectedItem:               null,
                     parentItem:                 null,
+                    proposedItem:               null,
                     shouldShowCreateChildForm:  false,
                     shouldShowSearchChildForm:  false,
                     shouldShowEditForm:         false,
@@ -1885,7 +1892,7 @@ class App extends React.Component {
                 break;
 
             default:
-                console.log("renderForm: Unimplemented Navigation Level: "+ currentNavigationLevel);
+                console.error("renderForm: Unimplemented Navigation Level: "+ currentNavigationLevel);
             break;
         }
 

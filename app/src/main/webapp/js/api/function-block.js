@@ -20,7 +20,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
         if (data.wasSuccess) {
             functionBlocks = data.functionBlocks;
         } else {
-            console.log("Unable to get function blocks for function catalog " + functionCatalogId + ": " + data.errorMessage);
+            console.error("Unable to get function blocks for function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -45,7 +45,7 @@ function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
         if (data.wasSuccess) {
             functionBlocks = data.functionBlocks;
         } else {
-            console.log("Unable to get Function Blocks for search string " + searchString + ": " + data.errorMessage);
+            console.error("Unable to get Function Blocks for search string " + searchString + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -66,7 +66,7 @@ function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFu
 
     jsonFetch(request, function (data) {
         if (!data.wasSuccess) {
-            console.log("Unable to get function catalogs associated with function block " + functionBlockId);
+            console.error("Unable to get function catalogs associated with function block " + functionBlockId);
         }
         if (typeof callbackFunction == "function") {
             callbackFunction(data);
@@ -94,7 +94,7 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
         if (data.wasSuccess) {
             functionBlockId = data.functionBlockId;
         } else {
-            console.log("Unable to insert function block: " + data.errorMessage);
+            console.error("Unable to insert function block: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -119,7 +119,7 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (! wasSuccess) {
-            console.log("Unable to associate function block " + functionBlockId + " with function catalog: " + data.errorMessage);
+            console.error("Unable to associate function block " + functionBlockId + " with function catalog: " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 
@@ -146,7 +146,7 @@ function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, 
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (! wasSuccess) {
-            console.log("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
+            console.error("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -168,7 +168,7 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.log("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
+            console.error("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

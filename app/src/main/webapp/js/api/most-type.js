@@ -14,7 +14,7 @@ function getMostTypes(callbackFunction) {
         if (data.wasSuccess) {
             mostTypes = data.mostTypes;
         } else {
-            console.log("Unable to get types: " + data.errorMessage);
+            console.error("Unable to get types: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {

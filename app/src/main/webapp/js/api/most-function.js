@@ -15,7 +15,7 @@ function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
         if (data.wasSuccess) {
             mostFunctions = data.mostFunctions;
         } else {
-            console.log("Unable to get functions for interface " + mostInterfaceId + ": " + data.errorMessage);
+            console.error("Unable to get functions for interface " + mostInterfaceId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -36,7 +36,7 @@ function listMostInterfacesContainingMostFunction(mostFunctionId, callbackFuncti
 
     jsonFetch(request, function (data) {
         if (!data.wasSuccess) {
-            console.log("Unable to get interfaces associated with function " + mostFunctionId);
+            console.error("Unable to get interfaces associated with function " + mostFunctionId);
         }
         if (typeof callbackFunction == "function") {
             callbackFunction(data);
@@ -64,7 +64,7 @@ function insertMostFunction(mostInterfaceId, mostFunction, callbackFunction) {
         if (data.wasSuccess) {
             mostFunctionId = data.mostFunctionId;
         } else {
-            console.log("Unable to insert function for version " + mostInterfaceId + ": " + data.errorMessage);
+            console.error("Unable to insert function for version " + mostInterfaceId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -90,7 +90,7 @@ function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callb
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (!wasSuccess) {
-            console.log("Unable to modify function " + mostFunctionId + " from interface " + mostInterfaceId + ": " + data.errorMessage);
+            console.error("Unable to modify function " + mostFunctionId + " from interface " + mostInterfaceId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -112,7 +112,7 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.log("Unable to delete function " + mostFunctionId + " from interface " + mostInterfaceId + ": " + data.errorMessage);
+            console.error("Unable to delete function " + mostFunctionId + " from interface " + mostInterfaceId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

@@ -15,7 +15,7 @@ function getFunctionCatalogs(callbackFunction) {
         if (data.wasSuccess) {
             functionCatalogs = data.functionCatalogs;
         } else {
-            console.log("Unable to get function catalogs: " + data.errorMessage);
+            console.error("Unable to get function catalogs: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -43,7 +43,7 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
         if (data.wasSuccess) {
             functionCatalogId = data.functionCatalogId;
         } else {
-            console.log("Unable to insert function catalog: " + data.errorMessage);
+            console.error("Unable to insert function catalog: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -68,7 +68,7 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, callbackFunct
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (!wasSuccess) {
-            console.log("Unable to modify function catalog " + functionCatalogId + ": " + data.errorMessage);
+            console.error("Unable to modify function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -90,7 +90,7 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.log("Unable to delete function catalog " + functionCatalogId + ": " + data.errorMessage);
+            console.error("Unable to delete function catalog " + functionCatalogId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 
