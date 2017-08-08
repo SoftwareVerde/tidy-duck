@@ -89,7 +89,7 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField type="select" label="Record Field Type" name="record-field-type" options={this.props.types} />);
             } break;
             default: {
-                if (this.state.baseType != '') {
+                if (this.state.baseType != null) {
                     console.error("Base type " + this.state.baseType + " is not implemented.");
                 }
             }

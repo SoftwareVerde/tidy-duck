@@ -1,5 +1,8 @@
 class MostUnit {
     static fromJson(json) {
+        if (json == null) {
+            return null;
+        }
         const mostUnit = new MostUnit();
 
         mostUnit.setId(json.id);
@@ -11,12 +14,25 @@ class MostUnit {
         return mostUnit;
     }
 
+    static toJson(mostUnit) {
+        if (mostUnit == null) {
+            return null;
+        }
+        return {
+            id:                 mostUnit.getId(),
+            referenceName:      mostUnit.getReferenceName(),
+            definitionName:     mostUnit.getDefinitionName(),
+            definitionCode:     mostUnit.getDefinitionCode(),
+            definitionGroup:    mostUnit.getDefinitionGroup(),
+        };
+    }
+
     constructor() {
-        this._id    = null;
-        this._referenceName  = null;
-        this._definitionName = null;
-        this._definitionCode = null;
-        this._definitionGroup = null;
+        this._id                = null;
+        this._referenceName     = null;
+        this._definitionName    = null;
+        this._definitionCode    = null;
+        this._definitionGroup   = null;
     };
 
     setId(id) {

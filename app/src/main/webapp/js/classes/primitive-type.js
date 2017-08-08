@@ -5,11 +5,11 @@ class PrimitiveType {
 
         primitiveType.setId(json.id);
         primitiveType.setName(json.name);
-        primitiveType.setPreloadedType(json.isPreloadedType);
-        primitiveType.setNumberBaseType(json.isNumberBaseType);
-        primitiveType.setStreamParamType(json.isStreamParamType);
-        primitiveType.setArrayType(json.isArrayType);
-        primitiveType.setRecordType(json.isRecordType);
+        primitiveType.setIsPreloadedType(json.isPreloadedType);
+        primitiveType.setIsNumberBaseType(json.isNumberBaseType);
+        primitiveType.setIsStreamParamType(json.isStreamParamType);
+        primitiveType.setIsArrayType(json.isArrayType);
+        primitiveType.setIsRecordType(json.isRecordType);
 
         return primitiveType;
     }

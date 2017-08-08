@@ -26,7 +26,7 @@ function copyMostObject(clazz, object) {
 
 // Converts the array data using convertFunction and stores the converted
 // data into the json object at jsonKey
-addConvertedJsonArray(json, jsonKey, data, convertFunction) {
+function addConvertedJsonArray(json, jsonKey, data, convertFunction) {
     const convertedArray = [];
     for (let i in data) {
         let convertedItem = convertFunction(data[i]);

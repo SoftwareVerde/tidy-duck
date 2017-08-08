@@ -20,7 +20,7 @@ class EnumValue {
         return {
             id:     enumValue.getId(),
             name:   enumValue.getName(),
-            code:   enumValue.getCode();
+            code:   enumValue.getCode()
         };
     }
 

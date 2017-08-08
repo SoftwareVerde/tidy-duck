@@ -103,16 +103,14 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long id = mostType.getId();
         final String name = mostType.getName();
         final boolean isPrimaryType = mostType.isPrimaryType();
-        final Long primitiveTypeId = mostType.getPrimitiveType().getId();
-        final String primitiveTypeName = mostType.getPrimitiveType().getName();
+        final PrimitiveType primitiveType = mostType.getPrimitiveType();
 
         json.put("id", id);
         json.put("name", name);
         json.put("isPrimaryType", isPrimaryType);
-        json.put("primitiveTypeId", primitiveTypeId);
-        json.put("primitiveTypeName", primitiveTypeName);
+        json.put("primitiveType", _toJson(primitiveType));
 
-        switch (primitiveTypeName) {
+        switch (primitiveType.getName()) {
             case "TBitField": {
                 final String bitfieldLength = mostType.getBitfieldLength();
                 json.put("bitfieldLength", bitfieldLength);
