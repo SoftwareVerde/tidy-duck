@@ -17,11 +17,15 @@ class App extends React.Component {
             success:    "success"
         };
 
-        this.roleItems = {
-          release:          "Release",
-          development:      "Development",
-          mostInterface:    "Interface",
-          functionBlock:    "Function Block"
+        this.roles = {
+            release:          "Release",
+            development:      "Development",
+            types:            "Types"
+        };
+
+        this.developmentRoles = {
+            mostInterface:    "Interface",
+            functionBlock:    "Function Block"
         };
 
         this.headers = {
@@ -51,8 +55,8 @@ class App extends React.Component {
             mostFunctions:              [],
             mostTypes:                  [],
             mostFunctionStereotypes:    [],
-            activeRoleItem:             this.roleItems.release,
-            activeSubRoleItem:          this.roleItems.functionBlock,
+            activeRole:                 this.roles.release,
+            activeSubRole:              null,
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -195,9 +199,9 @@ class App extends React.Component {
         const functionCatalogId = functionCatalog.getId();
 
         //Update function catalog form to display saving animation.
-        var navigationItems = [];
+        let navigationItems = [];
         navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        var navigationItem = navigationItems.pop();
+        let navigationItem = navigationItems.pop();
         navigationItem.setForm(
             <app.FunctionCatalogForm
                 showTitle={false}
@@ -216,15 +220,15 @@ class App extends React.Component {
 
         updateFunctionCatalog(functionCatalogId, functionCatalogJson, function(wasSuccess) {
             if (wasSuccess) {
-                var functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
+                let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
                 });
                 functionCatalogs.push(functionCatalog);
 
                 //Update final navigation item to reflect any name changes.
-                var navigationItems = [];
+                let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                var navigationItem = navigationItems.pop();
+                let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setHeader(thisApp.headers.functionCatalog);
                 navigationItem.setOnClickCallback(function() {
@@ -301,9 +305,9 @@ class App extends React.Component {
         const functionBlockId = functionBlock.getId();
 
         //Update function block form to display saving animation.
-        var navigationItems = [];
+        let navigationItems = [];
         navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        var navigationItem = navigationItems.pop();
+        let navigationItem = navigationItems.pop();
         navigationItem.setForm(
             <app.FunctionBlockForm
                 showTitle={false}
@@ -317,7 +321,7 @@ class App extends React.Component {
         navigationItems.push(navigationItem);
 
         // If not in release mode, show save animation on metadata form.
-        const createButtonState = this.state.activeRoleItem !== this.roleItems.release ?
+        const createButtonState = this.state.activeRole !== this.roles.release ?
             this.CreateButtonState.animate : this.CreateButtonState.normal;
 
         this.setState({
@@ -427,7 +431,7 @@ class App extends React.Component {
         navigationItems.push(navigationItem);
 
         // If not in release mode, show save animation on metadata form.
-        const createButtonState = this.state.activeRoleItem !== this.roleItems.release ?
+        const createButtonState = this.state.activeRole !== this.roles.release ?
             this.CreateButtonState.animate : this.CreateButtonState.normal;
 
         this.setState({
@@ -774,7 +778,7 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
-        if (this.state.activeRoleItem === this.roleItems.release) {
+        if (this.state.activeRole === this.roles.release) {
             const navigationItem = this.state.navigationItems[0];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
@@ -996,7 +1000,7 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
-        if(this.state.activeRoleItem == this.roleItems.release) {
+        if(this.state.activeRole == this.roles.release) {
             for (let i in this.state.navigationItems) {
                 const navigationItem = this.state.navigationItems[i];
                 navigationItem.setForm(null);
@@ -1006,7 +1010,7 @@ class App extends React.Component {
                 }
             }
         }
-        else if (this.state.activeSubRoleItem != this.roleItems.mostInterface) {
+        else if (this.state.activeSubRole != this.developmentRoles.mostInterface) {
             const navigationItem = this.state.navigationItems[0];
             navigationItems.push(navigationItem);
         }
@@ -1015,7 +1019,7 @@ class App extends React.Component {
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
         navigationItemConfig.setOnClickCallback(function() {
-            thisApp.onMostInterfaceSelected(mostInterface, true, false);
+            thisApp.onMostInterfaceSelected(mostInterface, true);
         });
         navigationItemConfig.setForm(
             <app.MostInterfaceForm key="MostInterfaceForm"
@@ -1240,11 +1244,11 @@ class App extends React.Component {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
-            if (this.state.activeRoleItem == this.roleItems.development) {
-                if (this.state.activeSubRoleItem == this.roleItems.mostInterface) {
+            if (this.state.activeRole == this.roles.development) {
+                if (this.state.activeSubRole == this.developmentRoles.mostInterface) {
                     break;
                 }
-                else if (this.state.activeSubRoleItem == this.roleItems.functionBlock) {
+                else if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
                     if (i >= 1) {
                         break;
                     }
@@ -1421,10 +1425,9 @@ class App extends React.Component {
             }
             const mostTypes = [];
             for (let i in mostTypesJson) {
-                const mostType = new MostType();
-                mostType.setId(mostTypesJson[i].id);
-                mostType.setName(mostTypesJson[i].name);
+                const jsonType = mostTypesJson[i];
 
+                const mostType = MostType.fromJson(jsonType);
                 mostTypes.push(mostType);
             }
             thisApp.setState({
@@ -1452,91 +1455,113 @@ class App extends React.Component {
         });
     }
     
-    handleRoleClick(roleName, canUseCachedChildren) {
+    handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
-        // If subRole is clicked, don't change activeRoleItem, change activeSubRoleItem. If not, default to Release Tidy Duck UI, starting at versions.
-        if (roleName !== this.roleItems.release) {
-            // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
-            const newActiveSubRoleItem = roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock);
-            const newNavigationLevel = newActiveSubRoleItem === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
-
-            this.setState({
-                navigationItems:            [],
-                searchResults:              [],
-                functionCatalogs:           [],
-                selectedItem:               null,
-                parentItem:                 null,
-                shouldShowCreateChildForm:  false,
-                shouldShowSearchChildForm:  false,
-                shouldShowEditForm:         false,
-                shouldShowToolbar:          true,
-                shouldShowFilteredResults:  false,
-                createButtonState:          thisApp.CreateButtonState.normal,
-                isLoadingChildren:          !canUseCachedChildren,
-                currentNavigationLevel:     newNavigationLevel,
-                activeRoleItem:             this.roleItems.development,
-                activeSubRoleItem:          newActiveSubRoleItem,
-                showSettingsPage:           false
-            });
-
-            if (newActiveSubRoleItem === this.roleItems.functionBlock) {
-                getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
-                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
-                        // didn't navigate away while downloading children
-                        const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
-                        thisApp.setState({
-                            functionBlocks:     functionBlocks,
-                            isLoadingChildren:  false
-                        });
-                    }
+        switch (roleName) {
+            case this.roles.release: {
+                // Release Mode
+                // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
+                this.setState({
+                    currentNavigationLevel:         thisApp.NavigationLevel.versions,
+                    activeRole:                     roleName,
+                    activeSubRole:                  null,
+                    selectedItem:                   null,
+                    parentItem:                     null,
+                    shouldShowToolbar:              true,
+                    shouldShowCreateChildForm:      false,
+                    shouldShowSearchChildForm:      false,
+                    shouldShowEditForm:             false,
+                    createButtonState:              this.CreateButtonState.normal,
+                    selectedFunctionStereotype:     null,
+                    isLoadingChildren:              true,
+                    isLoadingSearchResults:         false,
+                    shouldShowFilteredResults:      false,
+                    searchResults:                  [],
+                    functionBlocks:                 [],
+                    mostInterfaces:                 [],
+                    navigationItems:                [],
+                    showSettingsPage:               false
                 });
-            } else {
-                getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
-                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
-                        // didn't navigate away while downloading children
-                        const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
 
-                        thisApp.setState({
-                            mostFunctions:      [],
-                            mostInterfaces:     mostInterfaces,
-                            isLoadingChildren:  false
-                        });
-                    }
+                this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                    thisApp.setState({
+                        functionCatalogs:       functionCatalogs,
+                        isLoadingChildren:      false
+                    });
                 });
+            } break;
+            case this.roles.development: {
+                // Development Mode
+                // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
+                const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
+                const newNavigationLevel = newActiveSubRole === this.developmentRoles.mostInterface ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
+
+                this.setState({
+                    navigationItems:            [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowToolbar:          true,
+                    shouldShowFilteredResults:  false,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    isLoadingChildren:          !canUseCachedChildren,
+                    currentNavigationLevel:     newNavigationLevel,
+                    activeRole:                 roleName,
+                    activeSubRole:              newActiveSubRole,
+                    showSettingsPage:           false
+                });
+
+                if (newActiveSubRole === this.developmentRoles.functionBlock) {
+                    getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
+                        if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                            // didn't navigate away while downloading children
+                            const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
+                            thisApp.setState({
+                                functionBlocks:     functionBlocks,
+                                isLoadingChildren:  false
+                            });
+                        }
+                    });
+                } else {
+                    getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
+                        if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                            // didn't navigate away while downloading children
+                            const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
+                            thisApp.setState({
+                                mostFunctions:      [],
+                                mostInterfaces:     mostInterfaces,
+                                isLoadingChildren:  false
+                            });
+                        }
+                    });
+                }
+            } break;
+            case this.roles.types: {
+                this.setState({
+                    navigationItems:            [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowToolbar:          false,
+                    shouldShowFilteredResults:  false,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:     null,
+                    activeRole:                 roleName,
+                    activeSubRole:              null,
+                    showSettingsPage:           false
+                });
+            } break;
+            default: {
+                console.error("Invalid role " + roleName + " selected.");
             }
-        } else {
-            // Return to default Tidy Duck UI.
-            // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
-            this.setState({
-                currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                activeRoleItem:                 roleName,
-                selectedItem:                   null,
-                parentItem:                     null,
-                shouldShowToolbar:              true,
-                shouldShowCreateChildForm:      false,
-                shouldShowSearchChildForm:      false,
-                shouldShowEditForm:             false,
-                createButtonState:              this.CreateButtonState.normal,
-                selectedFunctionStereotype:     null,
-                isLoadingChildren:              true,
-                isLoadingSearchResults:         false,
-                shouldShowFilteredResults:      false,
-                searchResults:                  [],
-                functionBlocks:                 [],
-                mostInterfaces:                 [],
-                navigationItems:                [],
-                showSettingsPage:               false
-            });
-
-            this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-                thisApp.setState({
-                    functionCatalogs:       functionCatalogs,
-                    isLoadingChildren:      false
-                });
-            });
         }
-
     }
 
     handleSettingsClick() {
@@ -1626,11 +1651,11 @@ class App extends React.Component {
                     mostTypes={this.state.mostTypes}
                     mostFunction={this.state.selectedItem}
                     shouldShowSaveAnimation={shouldAnimateCreateButton}
-                    />)
+                    />);
                 break;
 
             default:
-                console.log("renderChildItems: Unimplemented Navigation Level: "+ currentNavigationLevel);
+                console.error("renderChildItems: Unimplemented Navigation Level: " + currentNavigationLevel);
             break;
         }
 
@@ -1648,7 +1673,8 @@ class App extends React.Component {
         const shouldShowEditForm = this.state.shouldShowEditForm;
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
-        const shouldShowFilterBar = (this.state.activeRoleItem === this.roleItems.development) && !selectedItem;
+        const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
+        // Show the metadata form for a selected item when in development mode.
 
         const reactComponents = [];
         const thisApp = this;
@@ -1657,27 +1683,27 @@ class App extends React.Component {
             // Determine correct behavior for back button in development mode
             let backFunction = null;
             let shouldShowBackButton = false;
-            const shouldShowEditButton = (this.state.activeRoleItem === this.roleItems.development) && selectedItem;
-            const shouldShowNavigationItems = this.state.activeRoleItem === this.roleItems.development;
+            const shouldShowEditButton = (this.state.activeRole === this.roles.development) && selectedItem;
+            const shouldShowNavigationItems = this.state.activeRole === this.roles.development;
 
             // Check if back button should be rendered.
             if (selectedItem) {
                 shouldShowBackButton = true;
-                if (this.state.activeRoleItem === this.roleItems.development) {
-                    const activeSubRoleItem = this.state.activeSubRoleItem;
+                if (this.state.activeRole === this.roles.development) {
+                    const activeSubRole = this.state.activeSubRole;
 
                     // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
                     shouldShowBackButton = true;
                     switch (currentNavigationLevel) {
                         case this.NavigationLevel.functionBlocks:
-                            backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRoleItem, true)};
+                            backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true)};
                             break;
                         case this.NavigationLevel.mostInterfaces:
-                            if (activeSubRoleItem === thisApp.roleItems.functionBlock) {
+                            if (activeSubRole === thisApp.developmentRoles.functionBlock) {
                                 backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
-                                backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRoleItem, true);};
+                                backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);};
                             }
                             break;
                         case this.NavigationLevel.mostFunctions:
@@ -1862,39 +1888,56 @@ class App extends React.Component {
             );
         }
         else {
-            const navigationItems = this.state.activeRoleItem === this.roleItems.release ? <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} /> : "";
-            return (
-                <div id="main-content" className="container">
-                    {navigationItems}
-                    <div className="display-area">
-                        {this.renderForm()}
-                        <div id="child-display-area" className="clearfix">
-                            {this.renderChildItems()}
+            switch (this.state.activeRole) {
+                case this.roles.types: {
+                    // types role
+                    return (
+                        <div id="main-content" className="container">
+                            <app.TypesPage />
                         </div>
-                    </div>
-                </div>
-            );
+                    );
+                } break;
+                default: {
+                    // other roles
+                    let navigationItems = "";
+                    if (this.state.activeRole === this.roles.release) {
+                        navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
+                    }
+                    return (
+                        <div id="main-content" className="container">
+                            {navigationItems}
+                            <div className="display-area">
+                                {this.renderForm()}
+                                <div id="child-display-area" className="clearfix">
+                                    {this.renderChildItems()}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
         }
     }
 
     renderRoleToggle() {
         const roleItems = [];
-        roleItems.push(this.roleItems.release);
-        roleItems.push(this.roleItems.development);
+        roleItems.push(this.roles.release);
+        roleItems.push(this.roles.development);
+        roleItems.push(this.roles.types);
 
         return (
-            <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeRoleItem} />
+            <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />
         );
     }
 
     renderSubRoleToggle() {
-        if (this.state.activeRoleItem === this.roleItems.development) {
+        if (this.state.activeRole === this.roles.development) {
             const roleItems = [];
-            roleItems.push(this.roleItems.functionBlock);
-            roleItems.push(this.roleItems.mostInterface);
+            roleItems.push(this.developmentRoles.functionBlock);
+            roleItems.push(this.developmentRoles.mostInterface);
 
             return (
-                <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeSubRoleItem} />
+                <app.RoleToggle roleItems={roleItems} handleClick={(subRole, canUseCachedChildren) => this.handleRoleClick(this.roles.development, subRole, canUseCachedChildren)} activeRole={this.state.activeSubRole} />
             );
         }
     }
@@ -1933,7 +1976,7 @@ class App extends React.Component {
     render() {
         const accountName = this.state.account ? this.state.account.name : "";
         return (
-            <div>
+            <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
                     Tidy Duck
                     {this.renderRoleToggle()}

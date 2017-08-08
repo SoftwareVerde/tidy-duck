@@ -262,7 +262,7 @@ public class MostTypeConverter {
                 EnumType enumType = new EnumType();
 
                 // TODO: populate with supplied enum values
-                EnumValue enumValue = new EnumValue("0x01", "Test Value");
+                com.softwareverde.mostadapter.type.EnumValue enumValue = new com.softwareverde.mostadapter.type.EnumValue("0x01", "Test Value");
                 enumType.addEnumValue(enumValue);
 
                 convertedMostType = enumType;
@@ -327,19 +327,19 @@ public class MostTypeConverter {
                 convertedMostType = arrayType;
             } break;
             case "TRecord": {
-                RecordType recordType = new RecordType();
+                com.softwareverde.mostadapter.type.RecordType recordType = new com.softwareverde.mostadapter.type.RecordType();
 
                 // TODO: populate with supplied values
                 recordType.setName("Test Record");
                 recordType.setDescription("Test Record with two elements.");
 
-                RecordField recordField1 = new RecordField();
+                com.softwareverde.mostadapter.type.RecordField recordField1 = new com.softwareverde.mostadapter.type.RecordField();
                 recordField1.setName("Field 1");
                 recordField1.setDescription("First field in test record.");
                 recordField1.setIndex("1");
                 recordField1.setType(new UnsignedLongType());
 
-                RecordField recordField2 = new RecordField();
+                com.softwareverde.mostadapter.type.RecordField recordField2 = new com.softwareverde.mostadapter.type.RecordField();
                 recordField2.setName("Field 2");
                 recordField2.setDescription("Second field in test record.");
                 recordField2.setIndex("2");
@@ -461,7 +461,7 @@ public class MostTypeConverter {
     protected com.softwareverde.mostadapter.type.MostType createErrorInfoType() {
         StreamType errorInfo = new StreamType();
 
-        StreamCase streamCase = new StreamCase();
+        com.softwareverde.mostadapter.type.StreamCase streamCase = new com.softwareverde.mostadapter.type.StreamCase();
         PositionDescription positionDescription = new PositionDescription();
         positionDescription.setPositionX(PositionDescription.NULL);
         positionDescription.setPositionY(PositionDescription.NULL);
@@ -476,21 +476,21 @@ public class MostTypeConverter {
 
         errorCode.setEnumMax("67");
 
-        EnumValue value1 = new EnumValue("0x1", "FBlockIdNotAvailable");
-        EnumValue value3 = new EnumValue("0x3", "FunctionIdNotAvailable");
-        EnumValue value4 = new EnumValue("0x4", "OpTypeNotAvailable");
-        EnumValue value5 = new EnumValue("0x5", "InvalidLength");
-        EnumValue value6 = new EnumValue("0x6", "WrongParameter");
-        EnumValue value7 = new EnumValue("0x7", "ParameterNotAvailable");
-        EnumValue valueB = new EnumValue("0xB", "DeviceMalfunction");
-        EnumValue valueC = new EnumValue("0xC", "SegmentationError");
-        EnumValue value40 = new EnumValue("0x40", "Busy");
-        EnumValue value41 = new EnumValue("0x41", "FunctionTemporaryNotAvailable");
-        EnumValue value42 = new EnumValue("0x42", "ProcessingError");
-        EnumValue value43 = new EnumValue("0x43", "MethodAborted");
-        EnumValue valueC0 = new EnumValue("0xC0", "FunctionSignatureInvalid");
-        EnumValue valueC1 = new EnumValue("0xC1", "FunctionNotImplemented");
-        EnumValue valueC2 = new EnumValue("0xC2", "InsufficientAccess");
+        com.softwareverde.mostadapter.type.EnumValue value1 = new com.softwareverde.mostadapter.type.EnumValue("0x1", "FBlockIdNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value3 = new com.softwareverde.mostadapter.type.EnumValue("0x3", "FunctionIdNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value4 = new com.softwareverde.mostadapter.type.EnumValue("0x4", "OpTypeNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value5 = new com.softwareverde.mostadapter.type.EnumValue("0x5", "InvalidLength");
+        com.softwareverde.mostadapter.type.EnumValue value6 = new com.softwareverde.mostadapter.type.EnumValue("0x6", "WrongParameter");
+        com.softwareverde.mostadapter.type.EnumValue value7 = new com.softwareverde.mostadapter.type.EnumValue("0x7", "ParameterNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue valueB = new com.softwareverde.mostadapter.type.EnumValue("0xB", "DeviceMalfunction");
+        com.softwareverde.mostadapter.type.EnumValue valueC = new com.softwareverde.mostadapter.type.EnumValue("0xC", "SegmentationError");
+        com.softwareverde.mostadapter.type.EnumValue value40 = new com.softwareverde.mostadapter.type.EnumValue("0x40", "Busy");
+        com.softwareverde.mostadapter.type.EnumValue value41 = new com.softwareverde.mostadapter.type.EnumValue("0x41", "FunctionTemporaryNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value42 = new com.softwareverde.mostadapter.type.EnumValue("0x42", "ProcessingError");
+        com.softwareverde.mostadapter.type.EnumValue value43 = new com.softwareverde.mostadapter.type.EnumValue("0x43", "MethodAborted");
+        com.softwareverde.mostadapter.type.EnumValue valueC0 = new com.softwareverde.mostadapter.type.EnumValue("0xC0", "FunctionSignatureInvalid");
+        com.softwareverde.mostadapter.type.EnumValue valueC1 = new com.softwareverde.mostadapter.type.EnumValue("0xC1", "FunctionNotImplemented");
+        com.softwareverde.mostadapter.type.EnumValue valueC2 = new com.softwareverde.mostadapter.type.EnumValue("0xC2", "InsufficientAccess");
 
         errorCode.addEnumValue(value1);
         errorCode.addEnumValue(value3);

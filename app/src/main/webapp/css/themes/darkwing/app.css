@@ -7,6 +7,11 @@
     background-color: #369;
 }
 
+#types-container {
+    background-color: #9DA1AE;
+    color: #FFF !important;
+}
+
 .navigation-column {
     background-color: #032C46;
     color: #101010;
@@ -149,6 +154,7 @@
     background-color: #838EA4;
 }
 
-.role-toggle {
-    color: #032334;
+#header .role-toggle, #header .role {
+    border: 1px solid rgba(0, 0, 0, 0.5) !important;
+    color: #DDD;
 }

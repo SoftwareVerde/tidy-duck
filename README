@@ -1,0 +1,16 @@
+///////////////
+// Tidy Duck //
+///////////////
+
+Tidy Duck is an application for building and maintaining MOST
+(http://www.mostcooperation.com/) function catalogs.
+
+The function catalogs use a model that introduces interfaces (collections of
+functions that can be applied to one or more function blocks) as well as
+function stereotypes that provide additional restrictions to the kinds of
+properties and methods that can be created.
+
+For installation instructions, see the accompanying INSTALL file.
+
+Tidy Duck was developed by Software Verde, LLC in 2017.
+

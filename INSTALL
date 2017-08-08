@@ -1,0 +1,35 @@
+////////////////////////////
+// Tidy Duck Installation //
+////////////////////////////
+
+============
+Dependencies
+============
+- Tomcat (7.0 or newer)
+- MySQL  (5.5 or newer)
+- Java   (1.7 or newer)
+
+===========
+MySQL Setup
+===========
+----------------------
+Database Configuration
+----------------------
+For each environment, put the connection details in the file:
+
+app/src/{environment}/resources/server.conf
+
+------------------
+Enable strict mode
+------------------
+Edit /etc/mysql/my.cnf, add the following line below the 'query-cache-size' property (under the [mysqld] heading):
+
+sql_mode = TRADITIONAL
+
+This will enable strict mode in order to enforce various database-level constraints.
+
+==========
+Deployment
+==========
+[TBD]
+
