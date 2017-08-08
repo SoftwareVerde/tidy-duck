@@ -47,6 +47,8 @@ class App extends React.Component {
             mostInterfaces:             [],
             mostFunctions:              [],
             mostTypes:                  [],
+            primitiveTypes:             [],
+            mostUnits:                  [],
             mostFunctionStereotypes:    [],
             navigationHistory:          [],
             activeRole:                 this.roles.release,
@@ -1411,6 +1413,37 @@ class App extends React.Component {
                 mostTypes: mostTypes
             });
         });
+        getPrimitiveTypes(function (primitiveTypesJson) {
+            if (!primitiveTypesJson) {
+                return;
+            }
+            const primitiveTypes = [];
+            for (let i in primitiveTypesJson) {
+                const jsonType = primitiveTypesJson[i];
+
+                const primitiveType = PrimitiveType.fromJson(jsonType);
+                primitiveTypes.push(primitiveType);
+            }
+            thisApp.setState({
+                primitiveTypes: primitiveTypes
+            });
+        });
+        getUnits(function (unitsJson) {
+            if (!unitsJson) {
+                return;
+            }
+
+            const units = [];
+            for (let i in unitsJson) {
+                const jsonUnit = unitsJson[i];
+
+                const unit = MostUnit.fromJson(jsonUnit);
+                units.push(unit);
+            }
+            thisApp.setState({
+                mostUnits: units
+            });
+        });
     }
 
     updateMostFunctionStereotypes() {
@@ -1536,6 +1569,7 @@ class App extends React.Component {
                     activeSubRole:              null,
                     showSettingsPage:           false
                 });
+                thisApp.updateMostTypes();
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
@@ -1823,7 +1857,7 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage />
+                            <app.TypesPage mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits} />
                         </div>
                     );
                 } break;

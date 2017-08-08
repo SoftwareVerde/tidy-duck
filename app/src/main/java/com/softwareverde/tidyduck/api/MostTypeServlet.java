@@ -34,6 +34,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 return _listPrimitiveTypes(environment);
             }
         }
+        if ("most-units".equals(finalUrlSegment)) {
+            if (httpMethod == HttpMethod.GET) {
+                return _listUnits(environment);
+            }
+        }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
@@ -92,6 +97,28 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String msg = "Unable to inflate primitive types.";
+            _logger.error(msg, e);
+            return super._generateErrorJson(msg);
+        }
+    }
+
+    private Json _listUnits(final Environment environment) {
+        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
+            Json response = new Json(false);
+
+            MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
+            List<MostUnit> units = mostTypeInflater.inflateMostUnits();
+            Json unitsJson = new Json(true);
+            for (MostUnit mostUnit : units) {
+                Json primitiveTypeJson = _toJson(mostUnit);
+                unitsJson.add(primitiveTypeJson);
+            }
+            response.put("units", unitsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (DatabaseException e) {
+            String msg = "Unable to inflate units.";
             _logger.error(msg, e);
             return super._generateErrorJson(msg);
         }

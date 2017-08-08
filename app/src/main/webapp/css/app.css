@@ -47,13 +47,22 @@
     padding-bottom: 1em;
 }
 
-#type-name-input-field, #base-type-input-field {
+#types-main-inputs .input-field {
     float: none;
     display: block;
     padding: 1em 3em;
 }
 
 #types-options-container {
+    padding: 1em;
+}
+
+#extended-type-fields {
+    clear: left;
+    border: #AAA solid thin;
+    border-radius: 5px;
+    background-color: rgba(128, 128, 128, 0.25);
+    margin: 1em 3em;
     padding: 1em;
 }
 
