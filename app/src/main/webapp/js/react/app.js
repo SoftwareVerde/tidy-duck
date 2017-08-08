@@ -59,6 +59,7 @@ class App extends React.Component {
             activeSubRole:              null,
             selectedItem:               null,
             parentItem:                 null,
+            proposedItem:               null,
             currentNavigationLevel:     this.NavigationLevel.versions,
             shouldShowToolbar:          true,
             shouldShowCreateChildForm:  false,
@@ -148,7 +149,8 @@ class App extends React.Component {
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
         this.setState({
-            createButtonState:  this.CreateButtonState.animate
+            createButtonState:  this.CreateButtonState.animate,
+            proposedItem:       functionCatalog
         });
 
         insertFunctionCatalog(functionCatalogJson, function(functionCatalogId) {
@@ -173,6 +175,7 @@ class App extends React.Component {
                 createButtonState:          thisApp.CreateButtonState.success,
                 functionCatalogs:           functionCatalogs,
                 currentNavigationLevel:     thisApp.NavigationLevel.versions,
+                proposedItem:               null,
                 shouldShowCreateChildForm:  false
             });
         });
@@ -267,7 +270,8 @@ class App extends React.Component {
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
 
         this.setState({
-            createButtonState:  this.CreateButtonState.animate
+            createButtonState:  this.CreateButtonState.animate,
+            proposedItem:       functionBlock,
         });
 
         insertFunctionBlock(functionCatalogId, functionBlockJson, function(functionBlockId) {
@@ -292,7 +296,8 @@ class App extends React.Component {
                 createButtonState:          thisApp.CreateButtonState.normal,
                 functionBlocks:             functionBlocks,
                 currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
-                shouldShowCreateChildForm:  false
+                shouldShowCreateChildForm:  false,
+                proposedItem:               null
             });
         });
     }
@@ -381,14 +386,15 @@ class App extends React.Component {
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
 
         this.setState({
-            createButtonState:  this.CreateButtonState.animate
+            createButtonState:  this.CreateButtonState.animate,
+            proposedItem:       mostInterface
         });
 
         insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
                 console.log("Unable to create interface.");
                 thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal
+                    createButtonState:  thisApp.CreateButtonState.normal,
                 });
                 return;
             }
@@ -400,9 +406,10 @@ class App extends React.Component {
             mostInterface.setVersionsJson(versions);
 
             thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                mostInterfaces:         mostInterfaces,
-                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks,
+                createButtonState:          thisApp.CreateButtonState.success,
+                mostInterfaces:             mostInterfaces,
+                currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
+                proposedItem:               null,
                 shouldShowCreateChildForm:  false
             });
         });
@@ -489,7 +496,8 @@ class App extends React.Component {
         const mostFunctionJson = MostFunction.toJson(mostFunction);
 
         this.setState({
-            createButtonState:  this.CreateButtonState.animate
+            createButtonState:  this.CreateButtonState.animate,
+            proposedItem:       mostFunction
         });
 
         insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
@@ -508,9 +516,10 @@ class App extends React.Component {
             const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
 
             thisApp.setState({
-                createButtonState:      thisApp.CreateButtonState.success,
-                mostFunctions:          mostFunctions,
-                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
+                createButtonState:          thisApp.CreateButtonState.success,
+                mostFunctions:              mostFunctions,
+                currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
+                proposedItem:               null,
                 shouldShowCreateChildForm:  false
             });
         });
@@ -1753,6 +1762,7 @@ class App extends React.Component {
                     reactComponents.push(
                         <app.FunctionCatalogForm key="FunctionCatalogForm"
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
+                            functionCatalog={this.state.proposedItem}
                             buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateFunctionCatalog}
@@ -1767,6 +1777,7 @@ class App extends React.Component {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
+                            functionBlock={this.state.proposedItem}
                             buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateFunctionBlock}
@@ -1811,6 +1822,7 @@ class App extends React.Component {
                     reactComponents.push(
                         <app.MostInterfaceForm key="MostInterfaceForm"
                             shouldShowSaveAnimation={shouldAnimateCreateButton}
+                            mostInterface={this.state.proposedItem}
                             buttonTitle={buttonTitle}
                             showTitle={true}
                             onSubmit={this.onCreateMostInterface}
@@ -1855,6 +1867,7 @@ class App extends React.Component {
                     reactComponents.push(
                         <app.MostFunctionForm key="MostFunctionForm"
                            shouldShowSaveAnimation={shouldAnimateCreateButton}
+                           mostFunction={this.state.proposedItem}
                            buttonTitle={buttonTitle}
                            showTitle={true}
                            onSubmit={this.onCreateMostFunction}

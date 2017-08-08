@@ -22,6 +22,7 @@
     cursor: pointer;
 
     transition: color 0.5s ease;
+    transition: background-color 0.25s ease;
 }
 
 .toolbar .navigation-indicator {
@@ -43,6 +44,7 @@
     cursor: pointer;
 
     transition: color 0.5s ease;
+    transition: background-color 0.25s ease;
 }
 
 .toolbar .navigation-indicator i {
@@ -50,7 +52,13 @@
 }
 
 .toolbar .navigation-indicator:hover {
-    background-color: #FFDD66;
+    background-color: #FFEE77;
+    border: solid 1px #C0C0C0;
+}
+
+.toolbar .toolbar-item:hover {
+    background-color: #FFEE77;
+    border: solid 1px #C0C0C0;
 }
 
 .toolbar .toolbar-item:hover i {
