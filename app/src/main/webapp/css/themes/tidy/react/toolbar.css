@@ -49,6 +49,10 @@
     margin: 5px;
 }
 
+.toolbar .navigation-indicator:hover {
+    background-color: #FFDD66;
+}
+
 .toolbar .toolbar-item:hover i {
     color: #000000;
 }
