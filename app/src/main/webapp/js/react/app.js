@@ -1036,10 +1036,12 @@ class App extends React.Component {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
                     // TODO: some indication that disassociation completed. Maybe an icon on the child element?
-                    const shouldDelete = confirm("Would you like to delete this function block version from the database?");
-                    if (shouldDelete) {
-                        executeCallback = false;
-                        thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
+                    if (!functionBlock.isReleased()) {
+                        const shouldDelete = confirm("Would you like to delete this function block version from the database?");
+                        if (shouldDelete) {
+                            executeCallback = false;
+                            thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
+                        }
                     }
                 } else {
                     alert("Request to disassociate Function Block failed: " + errorMessage);
@@ -1054,55 +1056,61 @@ class App extends React.Component {
     }
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
-        const thisApp = this;
-
-        const functionCatalogId = null;
-        const functionBlockId = functionBlock.getId();
-
-        let shouldDelete = false;
-        if (shouldSkipConfirmation) {
-            shouldDelete = true;
+        if (functionBlock.isReleased()) {
+            alert("The currently selected Function Block version is released. Released function blocks cannot be deleted.")
         }
         else {
-            shouldDelete = confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?");
-        }
+            const thisApp = this;
 
-        if (shouldDelete) {
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-                if (success) {
-                    const newFunctionBlocks = [];
-                    const existingFunctionBlocks = thisApp.state.functionBlocks;
-                    for (let i in existingFunctionBlocks) {
-                        const existingFunctionBlock = existingFunctionBlocks[i];
-                        const existingFunctionBlockId = existingFunctionBlock.getId();
-                        if (existingFunctionBlockId != functionBlockId) {
-                            newFunctionBlocks.push(existingFunctionBlock);
-                        }
-                        else {
-                            // Remove deleted version from child item. Don't push to new array if no versions remain.
-                            const existingVersionsJson = existingFunctionBlock.getVersionsJson();
-                            if (existingVersionsJson.length > 1) {
-                                for (let j in existingVersionsJson) {
-                                    const existingVersionJson = existingVersionsJson[j];
-                                    if (existingFunctionBlockId == existingVersionJson.id) {
-                                        delete existingVersionsJson[j];
-                                        break;
-                                    }
-                                }
+            const functionCatalogId = null;
+            const functionBlockId = functionBlock.getId();
+
+            let shouldDelete = false;
+            if (shouldSkipConfirmation) {
+                shouldDelete = true;
+            }
+            else {
+                shouldDelete = confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?");
+            }
+
+            if (shouldDelete) {
+                deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                    if (success) {
+                        const newFunctionBlocks = [];
+                        const existingFunctionBlocks = thisApp.state.functionBlocks;
+                        for (let i in existingFunctionBlocks) {
+                            const existingFunctionBlock = existingFunctionBlocks[i];
+                            const existingFunctionBlockId = existingFunctionBlock.getId();
+                            if (existingFunctionBlockId != functionBlockId) {
                                 newFunctionBlocks.push(existingFunctionBlock);
                             }
+                            else {
+                                // Remove deleted version from child item. Don't push to new array if no versions remain.
+                                const existingVersionsJson = existingFunctionBlock.getVersionsJson();
+                                if (existingVersionsJson.length > 1) {
+                                    for (let j in existingVersionsJson) {
+                                        const existingVersionJson = existingVersionsJson[j];
+                                        if (existingFunctionBlockId == existingVersionJson.id) {
+                                            delete existingVersionsJson[j];
+                                            break;
+                                        }
+                                    }
+                                    newFunctionBlocks.push(existingFunctionBlock);
+                                }
+                            }
                         }
+                        thisApp.setState({
+                            functionBlocks:         newFunctionBlocks,
+                            currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                        });
                     }
-                    thisApp.setState({
-                        functionBlocks:         newFunctionBlocks,
-                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                    });
-                }
-                else {
-                    alert("Request to delete Function Block failed: " + errorMessage);
-                }
-            });
+                    else {
+                        alert("Request to delete Function Block failed: " + errorMessage);
+                    }
+                });
+            }
         }
+
         // let component know action is complete
         callbackFunction();
     }
@@ -1367,10 +1375,12 @@ class App extends React.Component {
             deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
                 if (success) {
                     // TODO: some indication that disassociation completed. Maybe an icon on the child element?
-                    const shouldDelete = confirm("Would you like to delete this function block version from the database?");
-                    if (shouldDelete) {
-                        executeCallback = false;
-                        thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
+                    if (!mostInterface.isReleased()) {
+                        const shouldDelete = confirm("Would you like to delete this function block version from the database?");
+                        if (shouldDelete) {
+                            executeCallback = false;
+                            thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
+                        }
                     }
                 } else {
                     alert("Request to disassociate Interface failed: " + errorMessage);
@@ -1385,54 +1395,59 @@ class App extends React.Component {
     }
 
     deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, shouldSkipConfirmation) {
-        const thisApp = this;
-
-        const functionBlockId = null;
-        const mostInterfaceId = mostInterface.getId();
-
-        let shouldDelete = false;
-        if (shouldSkipConfirmation) {
-            shouldDelete = true;
+        if (mostInterface.isReleased()) {
+            alert("The currently selected interface version is released. Released interfaces cannot be deleted.")
         }
         else {
-            shouldDelete = confirm("This action will delete the last reference to this Interface version.  Are you sure you want to delete it?");
-        }
+            const thisApp = this;
 
-        if (shouldDelete) {
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-                if (success) {
-                    const newMostInterfaces = [];
-                    const existingMostInterfaces = thisApp.state.mostInterfaces;
-                    for (let i in existingMostInterfaces) {
-                        const existingMostInterface = existingMostInterfaces[i];
-                        const existingMostInterfaceId = existingMostInterface.getId();
-                        if (existingMostInterfaceId != mostInterfaceId) {
-                            newMostInterfaces.push(existingMostInterface);
-                        }
-                        else {
-                            // Remove deleted version from child item. Don't push to new array if no versions remain.
-                            const existingVersionsJson = existingMostInterface.getVersionsJson();
-                            if (existingVersionsJson.length > 1) {
-                                for (let j in existingVersionsJson) {
-                                    const existingVersionJson = existingVersionsJson[j];
-                                    if (existingMostInterfaceId == existingVersionJson.id) {
-                                        delete existingVersionsJson[j];
-                                        break;
-                                    }
-                                }
+            const functionBlockId = null;
+            const mostInterfaceId = mostInterface.getId();
+
+            let shouldDelete = false;
+            if (shouldSkipConfirmation) {
+                shouldDelete = true;
+            }
+            else {
+                shouldDelete = confirm("This action will delete the last reference to this Interface version.  Are you sure you want to delete it?");
+            }
+
+            if (shouldDelete) {
+                deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+                    if (success) {
+                        const newMostInterfaces = [];
+                        const existingMostInterfaces = thisApp.state.mostInterfaces;
+                        for (let i in existingMostInterfaces) {
+                            const existingMostInterface = existingMostInterfaces[i];
+                            const existingMostInterfaceId = existingMostInterface.getId();
+                            if (existingMostInterfaceId != mostInterfaceId) {
                                 newMostInterfaces.push(existingMostInterface);
                             }
+                            else {
+                                // Remove deleted version from child item. Don't push to new array if no versions remain.
+                                const existingVersionsJson = existingMostInterface.getVersionsJson();
+                                if (existingVersionsJson.length > 1) {
+                                    for (let j in existingVersionsJson) {
+                                        const existingVersionJson = existingVersionsJson[j];
+                                        if (existingMostInterfaceId == existingVersionJson.id) {
+                                            delete existingVersionsJson[j];
+                                            break;
+                                        }
+                                    }
+                                    newMostInterfaces.push(existingMostInterface);
+                                }
+                            }
                         }
+                        thisApp.setState({
+                            mostInterfaces:         newMostInterfaces,
+                            currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                        });
                     }
-                    thisApp.setState({
-                        mostInterfaces:         newMostInterfaces,
-                        currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-                    });
-                }
-                else {
-                    alert("Request to delete Interface failed: " + errorMessage);
-                }
-            });
+                    else {
+                        alert("Request to delete Interface failed: " + errorMessage);
+                    }
+                });
+            }
         }
         // let component know action is complete
         callbackFunction();

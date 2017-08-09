@@ -98,19 +98,14 @@ public class MostInterfaceDatabaseManager {
 
         _databaseConnection.executeSql(query);
     }
-    private void _disassociateMostInterfaceFromAllFunctionBlocksIfUnreleased(final long mostInterfaceId) throws DatabaseException {
-        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+    private void _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE interface_id = ? and function_block_id IN (" +
+                "SELECT DISTINCT function_blocks.id\n" +
+                    "FROM function_blocks\n" +
+                    "WHERE function_blocks.is_released=0)")
+                .setParameter(mostInterfaceId);
 
-        if (! mostInterface.isReleased()) {
-            final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE interface_id = ? and function_block_id IN (" +
-                    "SELECT DISTINCT function_blocks.id\n" +
-                        "FROM function_blocks\n" +
-                        "WHERE function_blocks.is_released=0)")
-                    .setParameter(mostInterfaceId);
-
-            _databaseConnection.executeSql(query);
-        }
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteMostInterfaceIfUnreleased(final long mostInterfaceId) throws DatabaseException {
@@ -201,7 +196,7 @@ public class MostInterfaceDatabaseManager {
         }
         else {
             if (!isOrphaned(mostInterfaceId)) {
-                _disassociateMostInterfaceFromAllFunctionBlocksIfUnreleased(mostInterfaceId);
+                _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(mostInterfaceId);
             }
             else {
                 _deleteMostInterfaceIfUnreleased(mostInterfaceId);

@@ -131,19 +131,15 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _disassociateFunctionBlockFromAllFunctionCatalogsIfUnreleased(final long functionBlockId) throws DatabaseException {
-        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+    private void _disassociateFunctionBlockFromAllUnreleasedFunctionCatalogs(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_block_id = ? and function_catalog_id IN (" +
+                                        "SELECT DISTINCT function_catalogs.id\n" +
+                                                "FROM function_catalogs\n" +
+                                                "WHERE function_catalogs.is_released=0)")
+                .setParameter(functionBlockId);
 
-        if (! functionBlock.isReleased()) {
-            final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_block_id = ? and function_catalog_id IN (" +
-                                            "SELECT DISTINCT function_catalogs.id\n" +
-                                                    "FROM function_catalogs\n" +
-                                                    "WHERE function_catalogs.is_released=0)")
-                    .setParameter(functionBlockId);
+        _databaseConnection.executeSql(query);
 
-            _databaseConnection.executeSql(query);
-        }
     }
 
     private void _deleteFunctionBlockIfUnreleased(final long functionBlockId) throws DatabaseException {
@@ -232,7 +228,7 @@ public class FunctionBlockDatabaseManager {
         }
         else {
             if (!_isOrphaned(functionBlockId)) {
-                _disassociateFunctionBlockFromAllFunctionCatalogsIfUnreleased(functionBlockId);
+                _disassociateFunctionBlockFromAllUnreleasedFunctionCatalogs(functionBlockId);
             }
             else {
                 _deleteFunctionBlockIfUnreleased(functionBlockId);
