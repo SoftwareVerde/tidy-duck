@@ -189,15 +189,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final String functionCatalogIdString = request.getParameter("functionCatalogId");
         final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
-        { // Validate Inputs
-            if (functionCatalogId == null || functionCatalogId < 1) {
-                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
-            }
-        }
-
         try {
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
+
+            // Validate inputs. If null, send catalogId of 0, which will disassociate function block from all catalogs.
+            if (functionCatalogIdString.equals("null")) {
+                databaseManager.deleteFunctionBlock(0, functionBlockId);
+            }
+            else {
+                if (functionCatalogId < 1) {
+                    return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
+                }
+                databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
+            }
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);

@@ -96,6 +96,9 @@ class App extends React.Component {
         this.onFilterFunctionBlocks = this.onFilterFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
+        this.disassociateFunctionBlockFromFunctionCatalog = this.disassociateFunctionBlockFromFunctionCatalog.bind(this);
+        this.disassociateFunctionBlockFromAllFunctionCatalogs = this.disassociateFunctionBlockFromAllFunctionCatalogs.bind(this);
+        this.deleteFunctionBlockFromDatabase = this.deleteFunctionBlockFromDatabase.bind(this);
 
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
@@ -967,44 +970,138 @@ class App extends React.Component {
     }
 
     onDeleteFunctionBlock(functionBlock, callbackFunction) {
+        const selectedItem = this.state.selectedItem;
+        const thisApp = this;
+
+        // If this item has a containing parent, simply disassociate it.
+        if (selectedItem) {
+            thisApp.disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction);
+        }
+        else {
+            listFunctionCatalogsContainingFunctionBlock(functionBlock.getId(), function (data) {
+               if (data.wasSuccess) {
+                   if (data.functionCatalogIds.length > 0) {
+                       thisApp.disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction);
+                   }
+                   else {
+                       thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction);
+                   }
+               }
+            });
+        }
+    }
+
+    disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction) {
         const thisApp = this;
 
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        listFunctionCatalogsContainingFunctionBlock(functionBlockId, function (data) {
-            if (data.wasSuccess) {
-                let shouldDelete = false;
-                const functionCatalogIds = data.functionCatalogIds;
-                if (functionCatalogIds.length > 1) {
-                    shouldDelete = true;
-                } else {
-                    shouldDelete = confirm("This action will delete the last reference to this function block.  Are you sure you want to delete it?");
+        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            if (success) {
+                const newFunctionBlocks = [];
+                const existingFunctionBlocks = thisApp.state.functionBlocks;
+                for (let i in existingFunctionBlocks) {
+                    const existingFunctionBlock = existingFunctionBlocks[i];
+                    if (existingFunctionBlock.getId() != functionBlock.getId()) {
+                        newFunctionBlocks.push(existingFunctionBlock);
+                    }
                 }
-                if (shouldDelete) {
-                    deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-                        if (success) {
-                            const newFunctionBlocks = [];
-                            const existingFunctionBlocks = thisApp.state.functionBlocks;
-                            for (let i in existingFunctionBlocks) {
-                                const existingFunctionBlock = existingFunctionBlocks[i];
-                                if (existingFunctionBlock.getId() != functionBlock.getId()) {
-                                    newFunctionBlocks.push(existingFunctionBlock);
-                                }
-                            }
-                            thisApp.setState({
-                                functionBlocks:         newFunctionBlocks,
-                                currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                            });
-                        } else {
-                            alert("Request to delete Function Block failed: " + errorMessage);
+                thisApp.setState({
+                    functionBlocks:         newFunctionBlocks,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                });
+            } else {
+                alert("Request to delete Function Block failed: " + errorMessage);
+            }
+        });
+
+        // let component know action is complete
+        callbackFunction();
+    }
+
+    disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
+        const thisApp = this;
+
+        const functionCatalogId = null;
+        const functionBlockId = functionBlock.getId();
+        let executeCallback = true;
+
+        const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unreleased function catalogs?");
+
+        if (shouldDisassociate) {
+            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                if (success) {
+                    // TODO: some indication that disassociation completed. Maybe an icon on the child element?
+                    const shouldDelete = confirm("Would you like to delete this function block version from the database?");
+                    if (shouldDelete) {
+                        executeCallback = false;
+                        thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
+                    }
+                } else {
+                    alert("Request to disassociate Function Block failed: " + errorMessage);
+                }
+                // let component know action is complete
+                if (executeCallback) {callbackFunction();}
+            });
+        }
+        else {
+            callbackFunction();
+        }
+    }
+
+    deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
+        const thisApp = this;
+
+        const functionCatalogId = null;
+        const functionBlockId = functionBlock.getId();
+
+        let shouldDelete = false;
+        if (shouldSkipConfirmation) {
+            shouldDelete = true;
+        }
+        else {
+            shouldDelete = confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?");
+        }
+
+        if (shouldDelete) {
+            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionBlocks = [];
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in existingFunctionBlocks) {
+                        const existingFunctionBlock = existingFunctionBlocks[i];
+                        const existingFunctionBlockId = existingFunctionBlock.getId();
+                        if (existingFunctionBlockId != functionBlockId) {
+                            newFunctionBlocks.push(existingFunctionBlock);
                         }
+                        else {
+                            // Remove deleted version from child item. Don't push to new array if no versions remain.
+                            const existingVersionsJson = existingFunctionBlock.getVersionsJson();
+                            if (existingVersionsJson.length > 1) {
+                                for (let j in existingVersionsJson) {
+                                    const existingVersionJson = existingVersionsJson[j];
+                                    if (existingFunctionBlockId == existingVersionJson.id) {
+                                        delete existingVersionsJson[j];
+                                        break;
+                                    }
+                                }
+                                newFunctionBlocks.push(existingFunctionBlock);
+                            }
+                        }
+                    }
+                    thisApp.setState({
+                        functionBlocks:         newFunctionBlocks,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                     });
                 }
-            }
+                else {
+                    alert("Request to delete Function Block failed: " + errorMessage);
+                }
+            });
             // let component know action is complete
             callbackFunction();
-        });
+        }
     }
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
