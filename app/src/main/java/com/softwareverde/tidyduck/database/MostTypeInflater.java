@@ -131,9 +131,9 @@ public class MostTypeInflater {
 
         PrimitiveType primitiveType = inflatePrimitiveType(primitiveTypeId);
 
-        MostType numberBaseType = null;
+        PrimitiveType numberBaseType = null;
         if (numberBaseTypeId != null) {
-            numberBaseType = inflateMostType(numberBaseTypeId);
+            numberBaseType = inflatePrimitiveType(numberBaseTypeId);
         }
 
         MostUnit numberUnit = null;
@@ -149,7 +149,7 @@ public class MostTypeInflater {
         final MostType mostType = new MostType();
         mostType.setId(id);
         mostType.setName(name);
-        mostType.setIsPrimitiveType(primitiveType);
+        mostType.setPrimitiveType(primitiveType);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setEnumMax(enumMax);
@@ -336,7 +336,7 @@ public class MostTypeInflater {
     protected PrimitiveType convertRowToPrimitiveType(final Row row) {
         final Long id = row.getLong("id");
         final String name = row.getString("name");
-        final boolean isPreloadedType = row.getBoolean("is_preloaded_type");
+        final boolean isBaseType = row.getBoolean("is_base_type");
         final boolean isArrayType = row.getBoolean("is_array_type");
         final boolean isStreamParameterType = row.getBoolean("is_stream_param_type");
         final boolean isNumberBaseType = row.getBoolean("is_number_base_type");
@@ -345,7 +345,7 @@ public class MostTypeInflater {
         final PrimitiveType primitiveType = new PrimitiveType();
         primitiveType.setId(id);
         primitiveType.setName(name);
-        primitiveType.setIsPreloadedType(isPreloadedType);
+        primitiveType.setIsBaseType(isBaseType);
         primitiveType.setIsArrayType(isArrayType);
         primitiveType.setIsStreamParameterType(isStreamParameterType);
         primitiveType.setIsNumberBaseType(isNumberBaseType);

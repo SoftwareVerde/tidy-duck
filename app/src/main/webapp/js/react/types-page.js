@@ -67,8 +67,7 @@ class TypesPage extends React.Component {
 
         for (let i in this.props.primitiveTypes) {
             let type = this.props.primitiveTypes[i];
-            // base types are those that are not preloaded
-            if (!type.isPreloadedType()) {
+            if (type.isBaseType()) {
                 baseTypes.push(type.getName());
             }
         }
@@ -92,9 +91,9 @@ class TypesPage extends React.Component {
     getNumberBaseTypes() {
         const numberBaseTypes = [];
 
-        for (let i in this.props.mostTypes) {
-            let type = this.props.mostTypes[i];
-            if (type.getPrimitiveType().isNumberBaseType()) {
+        for (let i in this.props.primitiveTypes) {
+            let type = this.props.primitiveTypes[i];
+            if (type.isNumberBaseType()) {
                 numberBaseTypes.push(type.getName());
             }
         }

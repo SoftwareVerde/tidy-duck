@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostTypeInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -64,11 +66,15 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _insertType(HttpServletRequest request, Environment environment) {
+    private Json _insertType(HttpServletRequest request, Environment environment) throws IOException {
         Json response = new Json(false);
+        final Json jsonRequest = _getRequestDataAsJson(request);
 
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
-            // TODO: implement
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(environment.getDatabase());
+
+            final MostType mostType = _populateMostTypeFromJson(jsonRequest);
+            databaseManager.insertMostType(mostType);
 
             super._setJsonSuccessFields(response);
         } catch (DatabaseException e) {
@@ -78,6 +84,201 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
+    }
+
+    private MostType _populateMostTypeFromJson(final Json jsonRequest) {
+        final Long id = jsonRequest.getLong("id");
+        final String name = jsonRequest.getString("name");
+        final Long primitiveTypeId = jsonRequest.getLong("primitiveTypeId");
+        final Boolean isPrimaryType = jsonRequest.getBoolean("isPrimaryType");
+        final String bitfieldLength = jsonRequest.getString("bitfieldLength");
+        final String enumMax = jsonRequest.getString("enumMax");
+        final Long numberBaseTypeId = jsonRequest.getLong("numberBaseTypeId");
+        final String numberExponent = jsonRequest.getString("numberExponent");
+        final String numberRangeMin = jsonRequest.getString("numberRangeMin");
+        final String numberRangeMax = jsonRequest.getString("numberRangeMax");
+        final String numberStep = jsonRequest.getString("numberStep");
+        final Long numberUnitId = jsonRequest.getLong("numberUnitId");
+        final String stringMaxSize = jsonRequest.getString("stringMaxSize");
+        final String streamLength = jsonRequest.getString("streamLength");
+        final String streamMaxLength = jsonRequest.getString("streamMaxLength");
+        final String streamMediaType = jsonRequest.getString("streamMediaType");
+        final String arrayName = jsonRequest.getString("arrayName");
+        final String arrayDescription = jsonRequest.getString("arrayDescription");
+        final Long arrayElementTypeId = jsonRequest.getLong("arrayElementTypeId");
+        final String arraySize = jsonRequest.getString("arraySize");
+        final String recordName = jsonRequest.getString("recordName");
+        final String recordDescription = jsonRequest.getString("recordDescription");
+        final String recordSize = jsonRequest.getString("recordSize");
+
+        final PrimitiveType primitiveType = new PrimitiveType();
+        primitiveType.setId(primitiveTypeId);
+
+        final PrimitiveType numberBaseType = new PrimitiveType();
+        numberBaseType.setId(numberBaseTypeId);
+
+        final MostUnit numberUnit = new MostUnit();
+        numberUnit.setId(numberUnitId);
+
+        final MostType arrayElementType = new MostType();
+        arrayElementType.setId(arrayElementTypeId);
+
+        final MostType mostType = new MostType();
+        mostType.setId(id);
+        mostType.setName(name);
+        mostType.setPrimitiveType(primitiveType);
+        mostType.setIsPrimaryType(isPrimaryType);
+        mostType.setBitfieldLength(bitfieldLength);
+        mostType.setEnumMax(enumMax);
+        mostType.setNumberBaseType(numberBaseType);
+        mostType.setNumberExponent(numberExponent);
+        mostType.setNumberRangeMinimum(numberRangeMin);
+        mostType.setNumberRangeMaximum(numberRangeMax);
+        mostType.setNumberStep(numberStep);
+        mostType.setNumberUnit(numberUnit);
+        mostType.setStringMaxSize(stringMaxSize);
+        mostType.setStreamLength(streamLength);
+        mostType.setStreamMaxLength(streamMaxLength);
+        mostType.setStreamMediaType(streamMediaType);
+        mostType.setArrayName(arrayName);
+        mostType.setArrayDescription(arrayDescription);
+        mostType.setArrayElementType(arrayElementType);
+        mostType.setArraySize(arraySize);
+        mostType.setRecordName(recordName);
+        mostType.setRecordDescription(recordDescription);
+        mostType.setRecordSize(recordSize);
+
+        Json booleanFieldsJson = jsonRequest.get("booleanFields");
+        for (int i=0; i<booleanFieldsJson.length(); i++) {
+            final BooleanField booleanField = _populateBooleanFieldFromJson(booleanFieldsJson.get(i));
+            mostType.addBooleanField(booleanField);
+        }
+
+        Json enumValuesJson = jsonRequest.get("enumValues");
+        for (int i=0; i<enumValuesJson.length(); i++) {
+            final EnumValue enumValue = _populateEnumValueFromJson(enumValuesJson.get(i));
+            mostType.addEnumValue(enumValue);
+        }
+
+        Json streamCasesJson = jsonRequest.get("streamCases");
+        for (int i=0; i<streamCasesJson.length(); i++) {
+            final StreamCase streamCase = _populateStreamCaseFromJson(streamCasesJson.get(i));
+            mostType.addStreamCase(streamCase);
+        }
+
+        Json recordFieldsJson = jsonRequest.get("recordFields");
+        for (int i=0; i<recordFieldsJson.length(); i++) {
+            final RecordField recordField = _populateRecordFieldFromJson(recordFieldsJson.get(i));
+            mostType.addRecordField(recordField);
+        }
+
+        return mostType;
+    }
+
+    private BooleanField _populateBooleanFieldFromJson(final Json json) {
+        final Long id = json.getLong("id");
+        final String bitPosition = json.getString("bitPosition");
+        final String trueDescription = json.getString("trueDescription");
+        final String falseDescription = json.getString("falseDescription");
+
+        final BooleanField booleanField = new BooleanField();
+        booleanField.setId(id);
+        booleanField.setBitPosition(bitPosition);
+        booleanField.setTrueDescription(trueDescription);
+        booleanField.setFalseDescription(falseDescription);
+        return booleanField;
+    }
+
+    private EnumValue _populateEnumValueFromJson(final Json json) {
+        final Long id = json.getLong("id");
+        final String name = json.getString("name");
+        final String code = json.getString("code");
+
+        final EnumValue enumValue = new EnumValue();
+        enumValue.setId(id);
+        enumValue.setName(name);
+        enumValue.setCode(code);
+        return enumValue;
+    }
+
+    private StreamCase _populateStreamCaseFromJson(final Json json) {
+        final Long id = json.getLong("id");
+        final String streamPositionX = json.getString("streamPositionX");
+        final String streamPositionY = json.getString("streamPositionY");
+
+        final StreamCase streamCase = new StreamCase();
+        streamCase.setId(id);
+        streamCase.setStreamPositionX(streamPositionX);
+        streamCase.setStreamPositionY(streamPositionY);
+
+        final Json streamParametersJson = json.get("streamParameters");
+        for (int i=0; i<streamParametersJson.length(); i++) {
+            final StreamCaseParameter streamCaseParameter = _populateStreamCaseParameterFromJson(json.get(i));
+            streamCase.addStreamCaseParameter(streamCaseParameter);
+        }
+
+        final Json streamSignalsJson = json.get("streamSignals");
+        for (int i=0; i<streamSignalsJson.length(); i++) {
+            final StreamCaseSignal streamCaseSignal = _populateStreamCaseSignalFromJson(json.get(i));
+            streamCase.addStreamCaseSignal(streamCaseSignal);
+        }
+        return streamCase;
+    }
+
+    private StreamCaseParameter _populateStreamCaseParameterFromJson(final Json json) {
+        final Long id = json.getLong("id");
+        final String parameterName = json.getString("parameterName");
+        final String parameterIndex = json.getString("parameterIndex");
+        final String parameterDescription = json.getString("parameterDescription");
+        final Json parameterTypeJson = json.get("parameterType");
+        final Long parameterTypeId = parameterTypeJson.getLong("id");
+
+        final MostType parameterType = new MostType();
+        parameterType.setId(parameterTypeId);
+
+        final StreamCaseParameter streamCaseParameter = new StreamCaseParameter();
+        streamCaseParameter.setId(id);
+        streamCaseParameter.setParameterName(parameterName);
+        streamCaseParameter.setParameterIndex(parameterIndex);
+        streamCaseParameter.setParameterDescription(parameterDescription);
+        streamCaseParameter.setParameterType(parameterType);
+        return streamCaseParameter;
+    }
+
+    private StreamCaseSignal _populateStreamCaseSignalFromJson(final Json json) {
+        final Long id = json.getLong("id");
+        final String signalName = json.getString("signalName");
+        final String signalIndex = json.getString("signalIndex");
+        final String signalDescription = json.getString("signalDescription");
+        final String signalBitLength = json.getString("signalBitLength");
+
+        final StreamCaseSignal streamCaseSignal = new StreamCaseSignal();
+        streamCaseSignal.setId(id);
+        streamCaseSignal.setSignalName(signalName);
+        streamCaseSignal.setSignalIndex(signalIndex);
+        streamCaseSignal.setSignalDescription(signalDescription);
+        streamCaseSignal.setSignalBitLength(signalBitLength);
+        return streamCaseSignal;
+    }
+
+    private RecordField _populateRecordFieldFromJson(final Json json) {
+        final Long id = json.getLong("id");
+        final String fieldName = json.getString("fieldName");
+        final String fieldIndex = json.getString("fieldIndex");
+        final String fieldDescription = json.getString("fieldDescription");
+        final Json fieldTypeJson = json.get("fieldTypeId");
+        final Long fieldTypeId = fieldTypeJson.getLong("id");
+
+        final MostType fieldType = new MostType();
+        fieldType.setId(fieldTypeId);
+
+        final RecordField recordField = new RecordField();
+        recordField.setId(id);
+        recordField.setFieldName(fieldName);
+        recordField.setFieldIndex(fieldIndex);
+        recordField.setFieldDescription(fieldDescription);
+        recordField.setFieldType(fieldType);
+        return recordField;
     }
 
     private Json _listPrimitiveTypes(Environment environment) {
@@ -164,7 +365,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             } break;
 
             case "TNumber": {
-                final MostType numberBaseType = mostType.getNumberBaseType();
+                final PrimitiveType numberBaseType = mostType.getNumberBaseType();
                 final String numberExponent = mostType.getNumberExponent();
                 final String numberRangeMin = mostType.getNumberRangeMinimum();
                 final String numberRangeMax = mostType.getNumberRangeMaximum();
@@ -372,7 +573,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
         final long id = primitiveType.getId();
         final String name = primitiveType.getName();
-        final boolean isPreloadedType = primitiveType.isPreloadedType();
+        final boolean isBaseType = primitiveType.isBaseType();
         final boolean isNumberBaseType = primitiveType.isNumberBaseType();
         final boolean isStreamParameterType = primitiveType.isStreamParameterType();
         final boolean isArrayType = primitiveType.isArrayType();
@@ -380,7 +581,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
         json.put("id", id);
         json.put("name", name);
-        json.put("isPreloadedType", isPreloadedType);
+        json.put("isBaseType", isBaseType);
         json.put("isNumberBaseType", isNumberBaseType);
         json.put("isStreamParameterType", isStreamParameterType);
         json.put("isArrayType", isArrayType);

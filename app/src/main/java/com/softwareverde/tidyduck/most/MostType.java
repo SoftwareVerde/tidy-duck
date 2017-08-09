@@ -10,7 +10,7 @@ public class MostType {
     private boolean _isPrimaryType;
     private String _bitfieldLength;
     private String _enumMax;
-    private MostType _numberBaseType;
+    private PrimitiveType _numberBaseType;
     private String _numberExponent;
     private String _numberRangeMinimum;
     private String _numberRangeMaximum;
@@ -52,7 +52,7 @@ public class MostType {
         return _primitiveType;
     }
 
-    public void setIsPrimitiveType(PrimitiveType primitiveType) {
+    public void setPrimitiveType(PrimitiveType primitiveType) {
         _primitiveType = primitiveType;
     }
 
@@ -80,11 +80,11 @@ public class MostType {
         _enumMax = enumMax;
     }
 
-    public MostType getNumberBaseType() {
+    public PrimitiveType getNumberBaseType() {
         return _numberBaseType;
     }
 
-    public void setNumberBaseType(MostType numberBaseType) {
+    public void setNumberBaseType(PrimitiveType numberBaseType) {
         _numberBaseType = numberBaseType;
     }
 

@@ -23,7 +23,7 @@ class MostUnit {
             referenceName:      mostUnit.getReferenceName(),
             definitionName:     mostUnit.getDefinitionName(),
             definitionCode:     mostUnit.getDefinitionCode(),
-            definitionGroup:    mostUnit.getDefinitionGroup(),
+            definitionGroup:    mostUnit.getDefinitionGroup()
         };
     }
 

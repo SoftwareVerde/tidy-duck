@@ -3,7 +3,7 @@ package com.softwareverde.tidyduck.most;
 public class PrimitiveType {
     private long _id;
     private String _name;
-    private boolean _isPreloadedType;
+    private boolean _isBaseType;
     private boolean _isNumberBaseType;
     private boolean _isStreamParameterType;
     private boolean _isArrayType;
@@ -25,12 +25,12 @@ public class PrimitiveType {
         _name = name;
     }
 
-    public boolean isPreloadedType() {
-        return _isPreloadedType;
+    public boolean isBaseType() {
+        return _isBaseType;
     }
 
-    public void setIsPreloadedType(boolean preloadedType) {
-        _isPreloadedType = preloadedType;
+    public void setIsBaseType(boolean isBaseType) {
+        _isBaseType = isBaseType;
     }
 
     public boolean isNumberBaseType() {
