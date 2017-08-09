@@ -23,6 +23,28 @@ function getMostTypes(callbackFunction) {
     });
 }
 
+// calls callbackFunction with the new MOST Type ID
+function insertMostType(mostType, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-types",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(mostType)
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        if (!data.wasSuccess) {
+            console.error("Unable to create MOST type: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
 // calls callbackFunction with an array of primitive types.
 function getPrimitiveTypes(callbackFunction) {
     const request = new Request(

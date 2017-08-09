@@ -78,7 +78,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
             super._setJsonSuccessFields(response);
         } catch (DatabaseException e) {
-            String msg = "Unable to inflate most types.";
+            String msg = "Unable to create type.";
             _logger.error(msg, e);
             return super._generateErrorJson(msg);
         }
@@ -114,14 +114,24 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final PrimitiveType primitiveType = new PrimitiveType();
         primitiveType.setId(primitiveTypeId);
 
-        final PrimitiveType numberBaseType = new PrimitiveType();
-        numberBaseType.setId(numberBaseTypeId);
+        PrimitiveType numberBaseType = null;
+        _logger.info("numberBaseTypeID: " + numberBaseTypeId);
+        if (numberBaseTypeId > 0) {
+            numberBaseType = new PrimitiveType();
+            numberBaseType.setId(numberBaseTypeId);
+        }
 
-        final MostUnit numberUnit = new MostUnit();
-        numberUnit.setId(numberUnitId);
+        MostUnit numberUnit = null;
+        if (numberUnitId > 0) {
+            numberUnit = new MostUnit();
+            numberUnit.setId(numberUnitId);
+        }
 
-        final MostType arrayElementType = new MostType();
-        arrayElementType.setId(arrayElementTypeId);
+        MostType arrayElementType = null;
+        if (arrayElementTypeId > 0) {
+            arrayElementType = new MostType();
+            arrayElementType.setId(arrayElementTypeId);
+        }
 
         final MostType mostType = new MostType();
         mostType.setId(id);

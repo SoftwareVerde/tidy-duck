@@ -90,6 +90,8 @@ class MostType {
         addConvertedJsonArray(jsonMostType, "enumValues",       mostType.getEnumValues(),       EnumValue.toJson);
         addConvertedJsonArray(jsonMostType, "streamCases",      mostType.getStreamCases(),      StreamCase.toJson);
         addConvertedJsonArray(jsonMostType, "recordFields",     mostType.getRecordFields(),     RecordField.toJson);
+
+        return jsonMostType;
     }
 
     constructor() {

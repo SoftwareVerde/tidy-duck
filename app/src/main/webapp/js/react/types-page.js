@@ -4,14 +4,11 @@ class TypesPage extends React.Component {
 
         this.options = ["Create Type", "Edit Type"];
 
-        let baseType = null;
-        if (this.props.primitiveTypes && this.props.primitiveTypes.length > 0) {
-            baseType = this.props.primitiveTypes[0].getName();
-        }
+        let mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
 
         this.state = {
             selectedOption: this.options[0],
-            baseType:       baseType
+            mostType:       mostType
         };
 
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
@@ -31,6 +28,9 @@ class TypesPage extends React.Component {
         this.onArrayDescriptionChanged = this.onArrayDescriptionChanged.bind(this);
         this.onArrayElementTypeChanged = this.onArrayElementTypeChanged.bind(this);
 
+        this.getMostTypeByName = this.getMostTypeByName.bind(this);
+        this.getPrimitiveTypeByName = this.getPrimitiveTypeByName.bind(this);
+        this.getMostUnitByName = this.getMostUnitByName.bind(this);
         this.getBaseTypes = this.getBaseTypes.bind(this);
         this.getPrimaryTypes = this.getPrimaryTypes.bind(this);
         this.getNumberBaseTypes = this.getNumberBaseTypes.bind(this);
@@ -46,20 +46,60 @@ class TypesPage extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        let baseType = null;
-        if (this.props.primitiveTypes && this.props.primitiveTypes.length > 0) {
-            baseType = this.props.primitiveTypes[0].getName();
-        }
+        let mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
+
         this.state = {
             selectedOption: this.options[0],
-            baseType:       baseType
+            mostType:       mostType
         };
     }
 
+    static createNewMostType(primitiveTypes) {
+        const mostType = new MostType();
+        // for now, always create a primary type
+        mostType.setIsPrimaryType(true);
+        // default base type to the first primitive type
+        let baseType = null;
+        if (primitiveTypes && primitiveTypes.length > 0) {
+            mostType.setPrimitiveType(primitiveTypes[0]);
+        }
+        return mostType;
+    }
+
     handleOptionClick(option) {
+        // TODO: determine if this is the right action
+        const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
         this.setState({
-            selectedOption: option
+            selectedOption: option,
+            mostType:       mostType
         });
+    }
+
+    getMostTypeByName(name) {
+        for (let i in this.props.mostTypes) {
+            const mostType = this.props.mostTypes[i];
+            if (mostType.getName() == name) {
+                return mostType;
+            }
+        }
+    }
+
+    getPrimitiveTypeByName(name) {
+        for (let i in this.props.primitiveTypes) {
+            const primitiveType = this.props.primitiveTypes[i];
+            if (primitiveType.getName() == name) {
+                return primitiveType;
+            }
+        }
+    }
+
+    getMostUnitByName(name) {
+        for (let i in this.props.mostUnits) {
+            const mostUnit = this.props.mostUnits[i];
+            if (mostUnit.getDefinitionName() == name) {
+                return mostUnit;
+            }
+        }
     }
 
     getBaseTypes() {
@@ -152,103 +192,172 @@ class TypesPage extends React.Component {
     }
 
     onSave() {
-        // TODO: save type
-        console.log("Type save button clicked.");
-    }
-
-    onStringMaxSizeChanged(value) {
-        this.setState({
-            stringMaxSize: value
-        });
-    }
-
-    onTypeNameChanged(value) {
-        this.setState({
-            typeName: value
-        });
-    }
-
-    onBaseTypeChanged(value) {
-        this.setState({
-            baseType: value
+        const mostTypeJson = MostType.toJson(this.state.mostType);
+        insertMostType(mostTypeJson, function(data) {
+            // TODO: implement
+            console.log(data);
         });
     }
 
     onTypeSelected(value) {
+        const newMostType = this.getMostTypeByName(value);
+
         this.setState({
-            selectedType: value
+            mostType: newMostType
+        })
+    }
+
+    onTypeNameChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setName(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onBaseTypeChanged(value) {
+        const mostType = this.state.mostType;
+
+        const newPrimitiveType = this.getPrimitiveTypeByName(value);
+        mostType.setPrimitiveType(newPrimitiveType);
+
+        this.setState({
+            mostType: mostType
         });
     }
 
     onNumberBaseTypeChanged(value) {
+        const mostType = this.state.mostType;
+
+        const newNumberBaseType = this.getPrimitiveTypeByName(value);
+        mostType.setNumberBaseType(newNumberBaseType);
+
         this.setState({
-            numberBaseType: value
+            mostType: mostType
         });
     }
 
     onNumberExponentChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setExponent(value);
+
         this.setState({
-            numberExponent: value
+            mostType: mostType
         });
     }
 
     onNumberRangeMinChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setNumberRangeMin(value);
+
         this.setState({
-            numberRangeMin: value
+            mostType: mostType
         });
     }
 
     onNumberRangeMaxChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setNumberRangeMax(value);
+
         this.setState({
-            numberRangeMax: value
+            mostType: mostType
         });
     }
 
     onNumberStepChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setNumberStep(value);
+
         this.setState({
-            numberStep: value
+            mostType: mostType
         });
     }
 
     onNumberUnitChanged(value) {
+        const mostType = this.state.mostType;
+
+        const newMostUnit = this.getMostUnitByName(value);
+        mostType.setName(newMostUnit);
+
         this.setState({
-            numberUnit: value
+            mostType: mostType
+        });
+    }
+
+    onStringMaxSizeChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setStringMaxSize(value);
+
+        this.setState({
+            mostType: mostType
         });
     }
 
     onClassifiedStreamMaxLengthChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setStreamMaxLength(value);
+
         this.setState({
-            classifiedStreamMaxLength: value
+            mostType: mostType
         });
     }
 
     onClassifiedStreamMediaTypeChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setStreamMediaType(value);
+
         this.setState({
-            classifiedStreamMediaType: value
+            mostType: mostType
         });
     }
 
     onShortStreamMaxLengthChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setStreamMaxLength(value);
+
         this.setState({
-            shortStreamMaxLength: value
+            mostType: mostType
         });
     }
 
     onArrayNameChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setArrayName(value);
+
         this.setState({
-            arrayName: value
+            mostType: mostType
         });
     }
 
     onArrayDescriptionChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setArrayDescription(value);
+
         this.setState({
-            arrayDescription: value
+            mostType: mostType
         });
     }
 
     onArrayElementTypeChanged(value) {
+        const mostType = this.state.mostType;
+
+        const newArrayElementType = this.getMostTypeByName(value);
+        mostType.setArrayElementType(newArrayElementType);
+
         this.setState({
-            arrayElementType: value
+            mostType: mostType
         });
     }
 
@@ -263,12 +372,17 @@ class TypesPage extends React.Component {
             typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector" value={selectedType} options={primaryTypes} onChange={this.onTypeSelected} />
         }
 
+        const mostType = this.state.mostType;
+
+        const typeName = mostType.getName();
+        const baseTypeName = mostType.getPrimitiveType() == null ? null : mostType.getPrimitiveType().getName();
+
         return (
             <div>
                 <div id="types-main-inputs">
                     {typeSelector}
-                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={this.state.typeName} onChange={this.onTypeNameChanged}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={this.state.baseType} options={this.getBaseTypes()} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged}/>
+                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={this.getBaseTypes()} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
             </div>
@@ -277,8 +391,13 @@ class TypesPage extends React.Component {
 
     renderBaseTypeSpecificInputs() {
         const reactComponents = [];
+        const mostType = this.state.mostType;
 
-        switch (this.state.baseType) {
+        if (!mostType.getPrimitiveType()) {
+            return;
+        }
+
+        switch (mostType.getPrimitiveType().getName()) {
             case 'TBitField': {
                 reactComponents.push(<app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"/>)
             } // fall through
@@ -292,30 +411,43 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code" />);
             } break;
             case 'TNumber': {
-                reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type" name="basis-data-type" value={this.state.numberBaseType} options={this.getNumberBaseTypes()} onChange={this.onNumberBaseTypeChanged} />);
-                reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent" value={this.state.numberExponent} onChange={this.onNumberExponentChanged} />);
-                reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min" value={this.state.numberRangeMin} onChange={this.onNumberRangeMinChanged} />);
-                reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max" value={this.state.numberRangeMax} onChange={this.onNumberRangeMaxChanged} />);
-                reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step" value={this.state.numberStep} onChange={this.onNumberStepChanged} />);
-                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit" value={this.state.numberUnit} options={this.getUnits()} onChange={this.onNumberUnitChanged} />);
+                const numberBaseTypeName = mostType.getNumberBaseType() == null ? null : mostType.getNumberBaseType().getName();
+                const numberExponent = mostType.getNumberExponent();
+                const numberRangeMin = mostType.getNumberRangeMin();
+                const numberRangeMax = mostType.getNumberRangeMax();
+                const numberStep = mostType.getNumberStep();
+                const numberUnitName = mostType.getNumberUnit() == null ? null : mostType.getNumberUnit().getDefinitionName();
+                reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type" name="basis-data-type" value={numberBaseTypeName} options={this.getNumberBaseTypes()} onChange={this.onNumberBaseTypeChanged} />);
+                reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent" value={numberExponent} onChange={this.onNumberExponentChanged} />);
+                reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min" value={numberRangeMin} onChange={this.onNumberRangeMinChanged} />);
+                reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max" value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} />);
+                reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step" value={numberStep} onChange={this.onNumberStepChanged} />);
+                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit" value={numberUnitName} options={this.getUnits()} onChange={this.onNumberUnitChanged} />);
             } break;
             case 'TString': {
-                reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size" value={this.state.stringMaxSize} onChange={this.onStringMaxSizeChanged} />);
+                const stringMaxSize = mostType.getStringMaxSize();
+                reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size" value={stringMaxSize} onChange={this.onStringMaxSizeChanged} />);
             } break;
             case 'TStream': {
                 // TODO: implement
             } break;
             case 'TCStream': {
-                reactComponents.push(<app.InputField key="cstream1" type="text" label="Max Length" name="cstream-max-length" value={this.state.classifiedStreamMaxLength} onChange={this.onClassifiedStreamMaxLengthChanged} />);
-                reactComponents.push(<app.InputField key="cstream2" type="text" label="Media Type" name="cstream-media-type" value={this.state.classifiedStreamMediaType} onChange={this.onClassifiedStreamMediaTypeChanged} />);
+                const streamMaxLength = mostType.getStreamMaxLength();
+                const streamMediaType = mostType.getStreamMediaType();
+                reactComponents.push(<app.InputField key="cstream1" type="text" label="Max Length" name="cstream-max-length" value={streamMaxLength} onChange={this.onClassifiedStreamMaxLengthChanged} />);
+                reactComponents.push(<app.InputField key="cstream2" type="text" label="Media Type" name="cstream-media-type" value={streamMediaType} onChange={this.onClassifiedStreamMediaTypeChanged} />);
             } break;
             case 'TShortStream': {
-                reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length" name="short-stream-max-length" value={this.state.shortStreamMaxLength} onChange={this.onShortStreamMaxLengthChanged} />);
+                const streamMaxLength = mostType.getStreamMaxLength();
+                reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length" name="short-stream-max-length" value={streamMaxLength} onChange={this.onShortStreamMaxLengthChanged} />);
             } break;
             case 'TArray': {
-                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={this.state.arrayName} onChange={this.onArrayNameChanged} />);
-                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={this.state.arrayDescription} onChange={this.onArrayDescriptionChanged} />);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" options={this.getArrayTypes()} value={this.state.arrayElementType} onChange={this.onArrayElementTypeChanged} />);
+                const arrayName = mostType.getArrayName();
+                const arrayDescription = mostType.getArrayDescription();
+                const arrayElementTypeName = mostType.getArrayElementType() == null ? null : mostType.getArrayElementType().getName();
+                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} />);
+                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} />);
+                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={this.getArrayTypes()} onChange={this.onArrayElementTypeChanged} />);
             } break;
             case 'TRecord': {
                 reactComponents.push(<app.InputField key="record1" type="text" label="Record Name" name="record-name"/>);
