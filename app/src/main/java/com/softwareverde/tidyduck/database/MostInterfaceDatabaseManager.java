@@ -117,7 +117,7 @@ public class MostInterfaceDatabaseManager {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (!mostInterface.isReleased() && isOrphaned(mostInterfaceId)) {
+        if (!mostInterface.isReleased()) {
             // interface isn't released and isn't associated with any function blocks, we can delete it
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
