@@ -257,7 +257,7 @@ class TypesPage extends React.Component {
         if (this.state.selectedOption == "Edit Type") {
             const primaryTypes = this.getPrimaryTypes();
             let selectedType = this.state.selectedType;
-            if (selectedType == "") {
+            if (!selectedType) {
                 selectedType = primaryTypes[0];
             }
             typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector" value={selectedType} options={primaryTypes} onChange={this.onTypeSelected} />
