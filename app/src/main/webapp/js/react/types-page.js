@@ -30,6 +30,9 @@ class TypesPage extends React.Component {
         this.onNumberRangeMaxChanged = this.onNumberRangeMaxChanged.bind(this);
         this.onNumberStepChanged = this.onNumberStepChanged.bind(this);
         this.onNumberUnitChanged = this.onNumberUnitChanged.bind(this);
+        this.onStreamCaseAddButtonClicked = this.onStreamCaseAddButtonClicked.bind(this);
+        this.onStreamCasePositionXChanged = this.onStreamCasePositionXChanged.bind(this);
+        this.onStreamCasePositionYChanged = this.onStreamCasePositionYChanged.bind(this);
         this.onClassifiedStreamMaxLengthChanged = this.onClassifiedStreamMaxLengthChanged.bind(this);
         this.onClassifiedStreamMediaTypeChanged = this.onClassifiedStreamMediaTypeChanged.bind(this);
         this.onShortStreamMaxLengthChanged = this.onShortStreamMaxLengthChanged.bind(this);
@@ -377,6 +380,24 @@ class TypesPage extends React.Component {
         });
     }
 
+    onStreamCaseAddButtonClicked() {
+        const mostType = this.state.mostType;
+
+        mostType.addStreamCase(new StreamCase());
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onStreamCasePositionXChanged(streamCase, positionX) {
+        streamCase.setStreamPositionX(positionX);
+    }
+
+    onStreamCasePositionYChanged(streamCase, positionY) {
+        streamCase.setStreamPositionY(positionY);
+    }
+
     onClassifiedStreamMaxLengthChanged(value) {
         const mostType = this.state.mostType;
 
@@ -570,7 +591,25 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size" value={stringMaxSize} onChange={this.onStringMaxSizeChanged} />);
             } break;
             case 'TStream': {
-                // TODO: implement
+                const thisPage = this;
+                let i = 1;
+                mostType.getStreamCases().forEach(function (streamCase) {
+                    const key = "streamCase" + i;
+                    const streamParameters = [];
+                    // TODO: populate stream parameters (repeats)
+                    const streamSignals = [];
+                    // TODO: populate stream signals (repeats)
+                    reactComponents.push(
+                        <div key={key} className="repeating-field clearfix">
+                            <app.InputField key="streamcase1" type="text" label="Position X" name="position-x" value={streamCase.getStreamPositionX()} onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} />
+                            <app.InputField key="streamcase2" type="text" label="Position Y" name="position-y" value={streamCase.getStreamPositionY()} onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)} />
+                            {streamParameters}
+                            {streamSignals}
+                        </div>
+                    );
+                    i++;
+                });
+                reactComponents.push(<div key="plus-button" className="button" onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i></div>);
             } break;
             case 'TCStream': {
                 const streamMaxLength = mostType.getStreamMaxLength();
