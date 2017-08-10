@@ -2,13 +2,13 @@ package com.softwareverde.mostadapter.type;
 
 public class EnumValue {
     private String _code;
-    private String _value;
+    private String _name;
 
     public EnumValue() {}
 
-    public EnumValue(final String code, final String value) {
+    public EnumValue(final String code, final String name) {
         _code = code;
-        _value = value;
+        _name = name;
     }
 
     public String getCode() {
@@ -19,11 +19,11 @@ public class EnumValue {
         _code = code;
     }
 
-    public String getValue() {
-        return _value;
+    public String getName() {
+        return _name;
     }
 
-    public void setValue(String value) {
-        _value = value;
+    public void setName(String value) {
+        _name = value;
     }
 }

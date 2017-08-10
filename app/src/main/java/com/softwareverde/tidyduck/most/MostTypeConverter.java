@@ -150,7 +150,7 @@ public class MostTypeConverter {
         List<String> operationNames = getOperationNames(property.getOperations());
 
         // add return type parameter
-        MostParameter returnTypeParameter = createReturnTypeParameter(property, operationNames, "1");
+        MostParameter returnTypeParameter = createReturnTypeParameter(property, operationNames, property.getName(), "1");
         convertedProperty.addMostParameter(returnTypeParameter);
 
         // add get parameter
@@ -186,12 +186,12 @@ public class MostTypeConverter {
         return convertedProperty;
     }
 
-    private MostParameter createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterIndex) {
+    private MostParameter createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterName, String parameterIndex) {
 
         MostType returnType = mostFunction.getReturnType();
 
         MostParameter returnTypeParameter = new MostParameter();
-        returnTypeParameter.setName("ReturnValue"); // TODO: name should be passed in?
+        returnTypeParameter.setName(parameterName);
         returnTypeParameter.setIndex(MOST_NULL);
         returnTypeParameter.setType(convertMostType(returnType));
 
@@ -254,24 +254,28 @@ public class MostTypeConverter {
             case "TBool": {
                 BoolType boolType = new BoolType();
 
-                // TODO: allow other bool fields
-                BoolField boolField = new BoolField();
-                boolField.setBitPosition("0");
-                boolField.setTrueDescription("True.");
-                boolField.setFalseDescription("False.");
-                boolType.addBoolField(boolField);
+                for (final BooleanField booleanField : mostType.getBooleanFields()) {
+                    BoolField boolField = new BoolField();
+                    boolField.setBitPosition(booleanField.getBitPosition());
+                    boolField.setTrueDescription(booleanField.getTrueDescription());
+                    boolField.setFalseDescription(booleanField.getFalseDescription());
+
+                    boolType.addBoolField(boolField);
+                }
 
                 convertedMostType = boolType;
             } break;
             case "TBitField": {
                 BitFieldType bitFieldType = new BitFieldType();
 
-                // TODO: allow other bool fields
-                BoolField boolField = new BoolField();
-                boolField.setBitPosition("0");
-                boolField.setTrueDescription("On.");
-                boolField.setFalseDescription("Off.");
-                bitFieldType.addBoolField(boolField);
+                for (final BooleanField booleanField : mostType.getBooleanFields()) {
+                    BoolField boolField = new BoolField();
+                    boolField.setBitPosition(booleanField.getBitPosition());
+                    boolField.setTrueDescription(booleanField.getTrueDescription());
+                    boolField.setFalseDescription(booleanField.getFalseDescription());
+
+                    bitFieldType.addBoolField(boolField);
+                }
 
                 convertedMostType = bitFieldType;
             } break;
@@ -292,9 +296,13 @@ public class MostTypeConverter {
             case "TEnum": {
                 EnumType enumType = new EnumType();
 
-                // TODO: populate with supplied enum values
-                com.softwareverde.mostadapter.type.EnumValue enumValue = new com.softwareverde.mostadapter.type.EnumValue("0x01", "Test Value");
-                enumType.addEnumValue(enumValue);
+                for (final EnumValue enumValue : mostType.getEnumValues()) {
+                    com.softwareverde.mostadapter.type.EnumValue mostEnumValue = new com.softwareverde.mostadapter.type.EnumValue();
+                    mostEnumValue.setName(enumValue.getName());
+                    mostEnumValue.setCode(enumValue.getCode());
+
+                    enumType.addEnumValue(mostEnumValue);
+                }
 
                 convertedMostType = enumType;
             } break;
@@ -313,7 +321,39 @@ public class MostTypeConverter {
             case "TStream": {
                 StreamType streamType = new StreamType();
 
-                // TODO: add stream cases
+                streamType.setLength(mostType.getStreamLength());
+
+                for (final StreamCase streamCase : mostType.getStreamCases()) {
+                    final com.softwareverde.mostadapter.type.StreamCase mostStreamCase = new com.softwareverde.mostadapter.type.StreamCase();
+
+                    final PositionDescription positionDescription = new PositionDescription();
+                    positionDescription.setPositionX(streamCase.getStreamPositionX());
+                    positionDescription.setPositionY(streamCase.getStreamPositionY());
+
+                    mostStreamCase.setPositionDescription(positionDescription);
+
+                    for (final StreamCaseParameter streamCaseParameter : streamCase.getStreamCaseParameters()) {
+                        final com.softwareverde.mostadapter.type.MostType parameterType = convertMostType(streamCaseParameter.getParameterType());
+
+                        final StreamParameter streamParameter = new StreamParameter();
+                        streamParameter.setName(streamCaseParameter.getParameterName());
+                        streamParameter.setIndex(streamCaseParameter.getParameterIndex());
+                        streamParameter.setDescription(streamCaseParameter.getParameterDescription());
+                        streamParameter.setType(parameterType);
+
+                        mostStreamCase.addStreamParameter(streamParameter);
+                    }
+                    for (final StreamCaseSignal streamCaseSignal : streamCase.getStreamCaseSignals()) {
+                        final StreamSignal streamSignal = new StreamSignal();
+                        streamSignal.setName(streamCaseSignal.getSignalName());
+                        streamSignal.setIndex(streamCaseSignal.getSignalIndex());
+                        streamSignal.setDescription(streamCaseSignal.getSignalDescription());
+                        streamSignal.setBitLength(streamCaseSignal.getSignalBitLength());
+
+                        mostStreamCase.addStreamSignal(streamSignal);
+                    }
+                    streamType.addStreamCase(mostStreamCase);
+                }
 
                 convertedMostType = streamType;
             } break;
@@ -353,24 +393,19 @@ public class MostTypeConverter {
             case "TRecord": {
                 com.softwareverde.mostadapter.type.RecordType recordType = new com.softwareverde.mostadapter.type.RecordType();
 
-                // TODO: populate with supplied values
-                recordType.setName("Test Record");
-                recordType.setDescription("Test Record with two elements.");
+                recordType.setName(mostType.getRecordName());
+                recordType.setDescription(mostType.getRecordDescription());
 
-                com.softwareverde.mostadapter.type.RecordField recordField1 = new com.softwareverde.mostadapter.type.RecordField();
-                recordField1.setName("Field 1");
-                recordField1.setDescription("First field in test record.");
-                recordField1.setIndex("1");
-                recordField1.setType(new UnsignedLongType());
+                for (final RecordField recordField : mostType.getRecordFields()) {
+                    com.softwareverde.mostadapter.type.MostType recordFieldType = convertMostType(recordField.getFieldType());
 
-                com.softwareverde.mostadapter.type.RecordField recordField2 = new com.softwareverde.mostadapter.type.RecordField();
-                recordField2.setName("Field 2");
-                recordField2.setDescription("Second field in test record.");
-                recordField2.setIndex("2");
-                recordField2.setType(new StringType());
-
-                recordType.addRecordField(recordField1);
-                recordType.addRecordField(recordField2);
+                    com.softwareverde.mostadapter.type.RecordField mostRecordField = new com.softwareverde.mostadapter.type.RecordField();
+                    mostRecordField.setName(recordField.getFieldName());
+                    mostRecordField.setIndex(recordField.getFieldIndex());
+                    mostRecordField.setDescription(recordField.getFieldDescription());
+                    mostRecordField.setType(recordFieldType);
+                    recordType.addRecordField(mostRecordField);
+                }
 
                 convertedMostType = recordType;
             } break;
@@ -435,7 +470,7 @@ public class MostTypeConverter {
         convertedMethod.addMostParameter(senderHandleParameter);
 
         // add return type parameter
-        MostParameter returnTypeParameter = createReturnTypeParameter(method, operationNames, "2");
+        MostParameter returnTypeParameter = createReturnTypeParameter(method, operationNames, "ReturnValue", "2");
         convertedMethod.addMostParameter(returnTypeParameter);
 
         // add input parameters
