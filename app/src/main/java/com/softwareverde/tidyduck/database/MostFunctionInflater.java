@@ -27,7 +27,7 @@ public class MostFunctionInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long mostFunctionId = row.getLong("function_id");
-            MostFunction mostFunction = inflateMostFunction(mostFunctionId);
+            final MostFunction mostFunction = inflateMostFunction(mostFunctionId);
             mostFunctions.add(mostFunction);
         }
         return mostFunctions;
@@ -58,14 +58,14 @@ public class MostFunctionInflater {
         final Long accountId = row.getLong("account_id");
         final long companyId = row.getLong("company_id");
 
-        MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(_databaseConnection);
+        final MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(_databaseConnection);
         final MostFunctionStereotype mostFunctionStereotype = mostFunctionStereotypeInflater.inflateMostFunctionStereotype(mostFunctionStereotypeId);
-        MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
-        final MostType mostType = mostTypeInflater.inflateMostType(returnTypeId);
+        final MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
+        final MostType returnType = mostTypeInflater.inflateMostType(returnTypeId);
 
-        AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
+        final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
-        CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
+        final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(companyId);
 
         MostFunction mostFunction = null;
@@ -90,7 +90,7 @@ public class MostFunctionInflater {
         mostFunction.setRelease(releaseVersion);
         mostFunction.setReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
-        mostFunction.setReturnType(mostType);
+        mostFunction.setReturnType(returnType);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
         mostFunction.setOperations(inflateOperationsFromMostFunctionId(mostFunctionId));
@@ -118,7 +118,7 @@ public class MostFunctionInflater {
 
     public List<MostFunctionParameter> inflateMostFunctionParametersFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT parameter_index, most_type_id, name FROM function_parameters INNER JOIN most_types ON function_parameters.most_type_id = most_types.id WHERE function_id = ?"
+                "SELECT parameter_index, most_type_id FROM function_parameters WHERE function_id = ?"
         );
         query.setParameter(mostFunctionId);
 
@@ -126,16 +126,13 @@ public class MostFunctionInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final Integer parameterIndex = row.getInteger("parameter_index");
-            final Long mostTypeId = row.getLong("most_type_id");
-            final String mostTypeName = row.getString("name");
-
-            MostType mostType = new MostType();
-            mostType.setId(mostTypeId);
-            mostType.setName(mostTypeName);
+            final Long parameterTypeId = row.getLong("most_type_id");
+            final MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
+            final MostType parameterType = mostTypeInflater.inflateMostType(parameterTypeId);
 
             MostFunctionParameter mostFunctionParameter = new MostFunctionParameter();
             mostFunctionParameter.setParameterIndex(parameterIndex);
-            mostFunctionParameter.setMostType(mostType);
+            mostFunctionParameter.setMostType(parameterType);
             mostFunctionParameters.add(mostFunctionParameter);
         }
         return mostFunctionParameters;

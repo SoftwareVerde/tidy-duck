@@ -1,11 +1,14 @@
 class PrimitiveType {
 
     static fromJson(json) {
+        if (json == null) {
+            return null;
+        }
         const primitiveType = new PrimitiveType();
 
         primitiveType.setId(json.id);
         primitiveType.setName(json.name);
-        primitiveType.setIsPreloadedType(json.isPreloadedType);
+        primitiveType.setIsBaseType(json.isBaseType);
         primitiveType.setIsNumberBaseType(json.isNumberBaseType);
         primitiveType.setIsStreamParamType(json.isStreamParamType);
         primitiveType.setIsArrayType(json.isArrayType);
@@ -17,7 +20,7 @@ class PrimitiveType {
     constructor() {
         this._id    = null;
         this._name  = null;
-        this._isPreloadedType = false;
+        this._isBaseType = false;
         this._isNumberBaseType = false;
         this._isStreamParamType = false;
         this._isArrayType = false;
@@ -40,12 +43,12 @@ class PrimitiveType {
         return this._name;
     }
 
-    setIsPreloadedType(isPreloadedType) {
-        this._isPreloadedType = isPreloadedType;
+    setIsBaseType(isBaseType) {
+        this._isBaseType = isBaseType;
     }
 
-    isPreloadedType() {
-        return this._isPreloadedType;
+    isBaseType() {
+        return this._isBaseType;
     }
 
     setIsNumberBaseType(isNumberBaseType) {

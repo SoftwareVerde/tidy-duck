@@ -15,9 +15,9 @@ DROP TABLE IF EXISTS function_stereotypes;
 DROP TABLE IF EXISTS function_categories;
 DROP TABLE IF EXISTS bool_fields;
 DROP TABLE IF EXISTS enum_values;
-DROP TABLE IF EXISTS stream_cases;
-DROP TABLE IF EXISTS stream_case_paramters;
+DROP TABLE IF EXISTS stream_case_parameters;
 DROP TABLE IF EXISTS stream_case_signals;
+DROP TABLE IF EXISTS stream_cases;
 DROP TABLE IF EXISTS record_fields;
 DROP TABLE IF EXISTS most_types;
 DROP TABLE IF EXISTS primitive_types;
@@ -184,7 +184,7 @@ VALUES
 CREATE TABLE primitive_types (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
-    is_preloaded_type BOOLEAN NOT NULL,
+    is_base_type BOOLEAN NOT NULL,
     is_number_base_type BOOLEAN NOT NULL,
     is_stream_param_type BOOLEAN NOT NULL,
     is_array_type BOOLEAN NOT NULL,
@@ -192,29 +192,29 @@ CREATE TABLE primitive_types (
 ) ENGINE=INNODB;
 
 -- Primitive type details manually pulled from DTD
-INSERT INTO primitive_types (id, name, is_preloaded_type, is_number_base_type, is_stream_param_type, is_array_type, is_record_type)
+INSERT INTO primitive_types (id, name, is_base_type, is_number_base_type, is_stream_param_type, is_array_type, is_record_type)
 VALUES
-        (1,  'TBool',        0, 0, 1, 1, 1),
-        (2,  'TBitField',    0, 0, 1, 1, 1),
-        (3,  'TEnum',        0, 0, 1, 1, 1),
-        (4,  'TNumber',      0, 0, 1, 1, 1),
-        (5,  'TVoid',        1, 1, 0, 0, 0),
-        (6,  'TUByte',       1, 1, 0, 0, 0),
-        (7,  'TSByte',       1, 1, 0, 0, 0),
-        (8,  'TUWord',       1, 1, 0, 0, 0),
-        (9,  'TSWord',       1, 1, 0, 0, 0),
-        (10, 'TULong',       1, 1, 0, 0, 0),
-        (11, 'TSLong',       1, 1, 0, 0, 0),
-        (12, 'TString',      0, 0, 1, 1, 1),
-        (13, 'TStream',      0, 0, 1, 1, 1),
-        (14, 'TCStream',     0, 0, 1, 1, 1),
-        (15, 'TShortStream', 0, 0, 1, 1, 1),
-        (16, 'TArray',       0, 0, 0, 1, 1),
-        (17, 'TRecord',      0, 0, 0, 0, 1);
+        (1,  'TBool',        1, 0, 1, 1, 1),
+        (2,  'TBitField',    1, 0, 1, 1, 1),
+        (3,  'TEnum',        1, 0, 1, 1, 1),
+        (4,  'TNumber',      1, 0, 1, 1, 1),
+        (5,  'TVoid',        0, 1, 0, 0, 0),
+        (6,  'TUByte',       0, 1, 0, 0, 0),
+        (7,  'TSByte',       0, 1, 0, 0, 0),
+        (8,  'TUWord',       0, 1, 0, 0, 0),
+        (9,  'TSWord',       0, 1, 0, 0, 0),
+        (10, 'TULong',       0, 1, 0, 0, 0),
+        (11, 'TSLong',       0, 1, 0, 0, 0),
+        (12, 'TString',      1, 0, 1, 1, 1),
+        (13, 'TStream',      1, 0, 1, 1, 1),
+        (14, 'TCStream',     1, 0, 1, 1, 1),
+        (15, 'TShortStream', 1, 0, 1, 1, 1),
+        (16, 'TArray',       1, 0, 0, 1, 1),
+        (17, 'TRecord',      1, 0, 0, 0, 1);
 
 CREATE TABLE most_types (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     primitive_type_id INT UNSIGNED NOT NULL,
     is_primary_type BOOLEAN NOT NULL,
     bitfield_length VARCHAR(255) NULL DEFAULT NULL,
@@ -237,20 +237,13 @@ CREATE TABLE most_types (
     record_description TEXT NULL DEFAULT NULL,
     record_size VARCHAR(255) NULL DEFAULT NULL,
     FOREIGN KEY (primitive_type_id) REFERENCES primitive_types (id),
-    FOREIGN KEY (number_base_type_id) REFERENCES most_types (id),
+    FOREIGN KEY (number_base_type_id) REFERENCES primitive_types (id),
     FOREIGN KEY (number_unit_id) REFERENCES most_units (id),
     FOREIGN KEY (array_element_type_id) REFERENCES most_types (id)
 ) ENGINE=INNODB;
 
 CREATE INDEX most_types_primitive_type_id_index ON most_types (primitive_type_id);
 CREATE INDEX most_types_is_primary_type_index ON most_types (is_primary_type);
-
--- Pre-load simple types:
---  Create most types for any primitive types that are marked as pre-loaded.
-INSERT INTO most_types (name, primitive_type_id, is_primary_type)
-SELECT name, id, 1
-FROM primitive_types
-WHERE is_preloaded_type = 1;
 
 CREATE TABLE bool_fields (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,

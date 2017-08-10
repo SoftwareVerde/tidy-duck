@@ -54,6 +54,8 @@ class App extends React.Component {
             mostInterfaces:             [],
             mostFunctions:              [],
             mostTypes:                  [],
+            primitiveTypes:             [],
+            mostUnits:                  [],
             mostFunctionStereotypes:    [],
             activeRole:                 this.roles.release,
             activeSubRole:              null,
@@ -119,6 +121,7 @@ class App extends React.Component {
         this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
+        this.onTypeCreated = this.onTypeCreated.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
@@ -1536,16 +1539,16 @@ class App extends React.Component {
         }
 
         const navigationItemConfig = new NavigationItemConfig();
+        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
+
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
-        navigationItemConfig.setIsReleased(thisApp.state.parentItem.isReleased());
+        navigationItemConfig.setIsReleased(parentItem.isReleased());
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
         navigationItemConfig.setForm(null);
         navigationItems.push(navigationItemConfig);
-
-        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -1712,6 +1715,47 @@ class App extends React.Component {
                 mostTypes: mostTypes
             });
         });
+        getPrimitiveTypes(function (primitiveTypesJson) {
+            if (!primitiveTypesJson) {
+                return;
+            }
+            const primitiveTypes = [];
+            for (let i in primitiveTypesJson) {
+                const jsonType = primitiveTypesJson[i];
+
+                const primitiveType = PrimitiveType.fromJson(jsonType);
+                primitiveTypes.push(primitiveType);
+            }
+            thisApp.setState({
+                primitiveTypes: primitiveTypes
+            });
+        });
+        getUnits(function (unitsJson) {
+            if (!unitsJson) {
+                return;
+            }
+
+            const units = [];
+            for (let i in unitsJson) {
+                const jsonUnit = unitsJson[i];
+
+                const unit = MostUnit.fromJson(jsonUnit);
+                units.push(unit);
+            }
+            thisApp.setState({
+                mostUnits: units
+            });
+        });
+    }
+
+    onTypeCreated(newType) {
+        const mostTypes = this.state.mostTypes;
+
+        mostTypes.push(newType);
+
+        this.setState({
+            mostTypes: mostTypes
+        });
     }
 
     updateMostFunctionStereotypes() {
@@ -1840,6 +1884,7 @@ class App extends React.Component {
                     activeSubRole:              null,
                     showSettingsPage:           false
                 });
+                thisApp.updateMostTypes();
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
@@ -1977,7 +2022,7 @@ class App extends React.Component {
             // Determine what buttons should be displayed.
             if (selectedItem) {
                 shouldShowBackButton = true;
-                shouldShowForkButton = selectedItem.isReleased();
+                shouldShowForkButton = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : false;
 
                 // Determine fork button functionality
                 if (shouldShowForkButton) {
@@ -2209,7 +2254,7 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage />
+                            <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits} />
                         </div>
                     );
                 } break;

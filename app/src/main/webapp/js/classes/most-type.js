@@ -7,7 +7,7 @@ class MostType {
         const mostType = new MostType();
 
         const primitiveType = PrimitiveType.fromJson(json.primitiveType);
-        const numberBaseType = MostType.fromJson(json.numberBaseType);
+        const numberBaseType = PrimitiveType.fromJson(json.numberBaseType);
         const numberUnit = MostUnit.fromJson(json.numberUnit);
         const arrayElementType = MostType.fromJson(json.arrayElementType);
 
@@ -17,7 +17,7 @@ class MostType {
         mostType.setIsPrimaryType(json.isPrimaryType);
         mostType.setBitFieldLength(json.bitfieldLength);
         mostType.setEnumMax(json.enumMax);
-        mostType.setNumberBaseType(json.numberBaseType);
+        mostType.setNumberBaseType(numberBaseType);
         mostType.setNumberExponent(json.numberExponent);
         mostType.setNumberRangeMin(json.numberRangeMin);
         mostType.setNumberRangeMax(json.numberRangeMax);
@@ -30,6 +30,7 @@ class MostType {
         mostType.setArrayName(json.arrayName);
         mostType.setArrayDescription(json.arrayDescription);
         mostType.setArrayElementType(arrayElementType);
+        mostType.setArraySize(json.arraySize);
         mostType.setRecordName(json.recordName);
         mostType.setRecordDescription(json.recordDescription);
         mostType.setRecordSize(json.recordSize);
@@ -69,17 +70,19 @@ class MostType {
             isPrimaryType:      mostType.isPrimaryType(),
             bitfieldLength:     mostType.getBitFieldLength(),
             enumMax:            mostType.getEnumMax(),
-            numberBaseTypeId:   mostType.getNumberBaseType().getId(),
+            numberBaseTypeId:   mostType.getNumberBaseType() == null ? null : mostType.getNumberBaseType().getId(),
             numberExponent:     mostType.getNumberExponent(),
             numberRangeMin:     mostType.getNumberRangeMin(),
             numberRangeMax:     mostType.getNumberRangeMax(),
             numberStep:         mostType.getNumberStep(),
-            numberUnitId:       mostType.getNumberUnit().getId(),
+            numberUnitId:       mostType.getNumberUnit() == null ? null : mostType.getNumberUnit().getId(),
             stringMaxSize:      mostType.getStringMaxSize(),
             streamLength:       mostType.getStreamLength(),
             streamMaxLength:    mostType.getStreamMaxLength(),
             streamMediaType:    mostType.getStreamMediaType(),
             arrayName:          mostType.getArrayName(),
+            arrayElementTypeId: mostType.getArrayElementType() == null ? null : mostType.getArrayElementType().getId(),
+            arrayDescription:   mostType.getArrayDescription(),
             arraySize:          mostType.getArraySize(),
             recordName:         mostType.getRecordName(),
             recordDescription:  mostType.getRecordDescription(),
@@ -90,6 +93,8 @@ class MostType {
         addConvertedJsonArray(jsonMostType, "enumValues",       mostType.getEnumValues(),       EnumValue.toJson);
         addConvertedJsonArray(jsonMostType, "streamCases",      mostType.getStreamCases(),      StreamCase.toJson);
         addConvertedJsonArray(jsonMostType, "recordFields",     mostType.getRecordFields(),     RecordField.toJson);
+
+        return jsonMostType;
     }
 
     constructor() {

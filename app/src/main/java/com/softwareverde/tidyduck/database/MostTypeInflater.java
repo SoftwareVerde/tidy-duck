@@ -105,12 +105,14 @@ public class MostTypeInflater {
         final Long id = row.getLong("id");
         final String name = row.getString("name");
         final long primitiveTypeId = row.getLong("primitive_type_id");
+        final boolean isPrimaryType = row.getBoolean("is_primary_type");
         final String bitfieldLength = row.getString("bitfield_length");
         final String enumMax = row.getString("enum_max");
         final Long numberBaseTypeId = row.getLong("number_base_type_id");
         final String numberExponent = row.getString("number_exponent");
         final String numberRangeMin = row.getString("number_range_min");
         final String numberRangeMax = row.getString("number_range_max");
+        final String numberStep = row.getString("number_step");
         final Long numberUnitId = row.getLong("number_unit_id");
         final String stringMaxSize = row.getString("string_max_size");
         final String streamLength = row.getString("stream_length");
@@ -131,9 +133,9 @@ public class MostTypeInflater {
 
         PrimitiveType primitiveType = inflatePrimitiveType(primitiveTypeId);
 
-        MostType numberBaseType = null;
+        PrimitiveType numberBaseType = null;
         if (numberBaseTypeId != null) {
-            numberBaseType = inflateMostType(numberBaseTypeId);
+            numberBaseType = inflatePrimitiveType(numberBaseTypeId);
         }
 
         MostUnit numberUnit = null;
@@ -149,7 +151,8 @@ public class MostTypeInflater {
         final MostType mostType = new MostType();
         mostType.setId(id);
         mostType.setName(name);
-        mostType.setIsPrimitiveType(primitiveType);
+        mostType.setPrimitiveType(primitiveType);
+        mostType.setIsPrimaryType(isPrimaryType);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setEnumMax(enumMax);
@@ -157,6 +160,7 @@ public class MostTypeInflater {
         mostType.setNumberExponent(numberExponent);
         mostType.setNumberRangeMinimum(numberRangeMin);
         mostType.setNumberRangeMaximum(numberRangeMax);
+        mostType.setNumberStep(numberStep);
         mostType.setNumberUnit(numberUnit);
         mostType.setStringMaxSize(stringMaxSize);
         mostType.setStreamLength(streamLength);
@@ -336,7 +340,7 @@ public class MostTypeInflater {
     protected PrimitiveType convertRowToPrimitiveType(final Row row) {
         final Long id = row.getLong("id");
         final String name = row.getString("name");
-        final boolean isPreloadedType = row.getBoolean("is_preloaded_type");
+        final boolean isBaseType = row.getBoolean("is_base_type");
         final boolean isArrayType = row.getBoolean("is_array_type");
         final boolean isStreamParameterType = row.getBoolean("is_stream_param_type");
         final boolean isNumberBaseType = row.getBoolean("is_number_base_type");
@@ -345,7 +349,7 @@ public class MostTypeInflater {
         final PrimitiveType primitiveType = new PrimitiveType();
         primitiveType.setId(id);
         primitiveType.setName(name);
-        primitiveType.setIsPreloadedType(isPreloadedType);
+        primitiveType.setIsBaseType(isBaseType);
         primitiveType.setIsArrayType(isArrayType);
         primitiveType.setIsStreamParameterType(isStreamParameterType);
         primitiveType.setIsNumberBaseType(isNumberBaseType);
