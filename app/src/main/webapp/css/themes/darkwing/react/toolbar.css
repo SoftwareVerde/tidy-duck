@@ -45,7 +45,7 @@
 
 .unreleased-navigation-indicator {
     box-sizing: border-box;
-    border: 1px dashed #FFFFFF;
+    border: 2px dashed #FFFFFF;
 }
 
 .toolbar .navigation-indicator i {
