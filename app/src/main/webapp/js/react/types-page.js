@@ -15,6 +15,11 @@ class TypesPage extends React.Component {
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
         this.onBaseTypeChanged = this.onBaseTypeChanged.bind(this);
         this.onTypeSelected = this.onTypeSelected.bind(this);
+        this.onBitFieldLengthChanged = this.onBitFieldLengthChanged.bind(this);
+        this.onBoolFieldAddButtonClicked = this.onBoolFieldAddButtonClicked.bind(this);
+        this.onBooleanFieldBitPositionChanged = this.onBooleanFieldBitPositionChanged.bind(this);
+        this.onBooleanFieldTrueDescriptionChanged = this.onBooleanFieldTrueDescriptionChanged.bind(this);
+        this.onBooleanFieldFalseDescriptionChanged = this.onBooleanFieldFalseDescriptionChanged.bind(this);
         this.onEnumValueAddButtonClicked = this.onEnumValueAddButtonClicked.bind(this);
         this.onEnumValueNameChanged = this.onEnumValueNameChanged.bind(this);
         this.onEnumValueCodeChanged = this.onEnumValueCodeChanged.bind(this);
@@ -250,6 +255,38 @@ class TypesPage extends React.Component {
         });
     }
 
+    onBitFieldLengthChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setBitFieldLength(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onBoolFieldAddButtonClicked() {
+        const mostType = this.state.mostType;
+
+        mostType.addBooleanField(new BooleanField());
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onBooleanFieldBitPositionChanged(booleanField, bitPosition) {
+        booleanField.setBitPosition(bitPosition);
+    }
+
+    onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription) {
+        booleanField.setTrueDescription(trueDescription);
+    }
+
+    onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription) {
+        booleanField.setFalseDescription(falseDescription);
+    }
+
     onEnumValueAddButtonClicked() {
         const mostType = this.state.mostType;
 
@@ -473,12 +510,23 @@ class TypesPage extends React.Component {
 
         switch (mostType.getPrimitiveType().getName()) {
             case 'TBitField': {
-                reactComponents.push(<app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"/>)
+                reactComponents.push(<div key="bitfield-length" className="clearfix"><app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length" value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} /></div>);
             } // fall through
             case 'TBool': {
-                reactComponents.push(<app.InputField key="bool1" type="text" label="Bit Position" name="bit-position"/>);
-                reactComponents.push(<app.InputField key="bool2" type="text" label="True Description" name="true-description"/>);
-                reactComponents.push(<app.InputField key="bool3" type="text" label="False Description" name="false-description"/>);
+                const thisPage = this;
+                let i = 1;
+                mostType.getBooleanFields().forEach(function (booleanField) {
+                    const key = "boolfield" + i;
+                    reactComponents.push(
+                        <div key={key} className="repeating-field clearfix">
+                            <app.InputField key="bool1" type="text" label="Bit Position" name="bit-position" value={booleanField.getBitPosition()} onChange={(bitPosition) => thisPage.onBooleanFieldBitPositionChanged(booleanField, bitPosition)} />
+                            <app.InputField key="bool2" type="text" label="True Description" name="true-description" value={booleanField.getTrueDescription()} onChange={(trueDescription) => thisPage.onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription)} />
+                            <app.InputField key="bool3" type="text" label="False Description" name="false-description" value={booleanField.getFalseDescription()} onChange={(falseDescription) => thisPage.onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription)} />
+                        </div>
+                    );
+                    i++;
+                });
+                reactComponents.push(<div key="plus-button" className="button" onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i></div>);
             } break;
             case 'TEnum': {
                 const thisPage = this;
@@ -549,6 +597,7 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
             } break;
             case 'TRecord': {
+                // TODO: make repeating
                 reactComponents.push(<app.InputField key="record1" type="text" label="Record Name" name="record-name"/>);
                 reactComponents.push(<app.InputField key="record2" type="textarea" label="Record Description" name="record-description" />);
                 reactComponents.push(<app.InputField key="record3" type="text" label="Record Field Name" name="record-field-name" />);
