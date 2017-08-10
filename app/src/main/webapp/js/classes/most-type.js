@@ -30,6 +30,7 @@ class MostType {
         mostType.setArrayName(json.arrayName);
         mostType.setArrayDescription(json.arrayDescription);
         mostType.setArrayElementType(arrayElementType);
+        mostType.setArraySize(json.arraySize);
         mostType.setRecordName(json.recordName);
         mostType.setRecordDescription(json.recordDescription);
         mostType.setRecordSize(json.recordSize);
@@ -80,6 +81,8 @@ class MostType {
             streamMaxLength:    mostType.getStreamMaxLength(),
             streamMediaType:    mostType.getStreamMediaType(),
             arrayName:          mostType.getArrayName(),
+            arrayElementTypeId: mostType.getArrayElementType() == null ? null : mostType.getArrayElementType().getId(),
+            arrayDescription:   mostType.getArrayDescription(),
             arraySize:          mostType.getArraySize(),
             recordName:         mostType.getRecordName(),
             recordDescription:  mostType.getRecordDescription(),

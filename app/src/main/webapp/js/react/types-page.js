@@ -27,6 +27,7 @@ class TypesPage extends React.Component {
         this.onArrayNameChanged = this.onArrayNameChanged.bind(this);
         this.onArrayDescriptionChanged = this.onArrayDescriptionChanged.bind(this);
         this.onArrayElementTypeChanged = this.onArrayElementTypeChanged.bind(this);
+        this.onArraySizeChanged = this.onArraySizeChanged.bind(this);
 
         this.getMostTypeByName = this.getMostTypeByName.bind(this);
         this.getPrimitiveTypeByName = this.getPrimitiveTypeByName.bind(this);
@@ -193,9 +194,17 @@ class TypesPage extends React.Component {
 
     onSave() {
         const mostTypeJson = MostType.toJson(this.state.mostType);
+        const thisApp = this;
         insertMostType(mostTypeJson, function(data) {
-            // TODO: implement
-            console.log(data);
+            if (data.wasSuccess) {
+                if (typeof thisApp.props.onTypeCreated == "function") {
+                    thisApp.props.onTypeCreated(thisApp.state.mostType);
+                }
+            }
+            // reset fields
+            thisApp.setState({
+                mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes)
+            })
         });
     }
 
@@ -361,6 +370,16 @@ class TypesPage extends React.Component {
         });
     }
 
+    onArraySizeChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setArraySize(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
     renderFormElements() {
         let typeSelector = "";
         if (this.state.selectedOption == "Edit Type") {
@@ -445,9 +464,11 @@ class TypesPage extends React.Component {
                 const arrayName = mostType.getArrayName();
                 const arrayDescription = mostType.getArrayDescription();
                 const arrayElementTypeName = mostType.getArrayElementType() == null ? null : mostType.getArrayElementType().getName();
+                const arraySize = mostType.getArraySize();
                 reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} />);
                 reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} />);
                 reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={this.getArrayTypes()} onChange={this.onArrayElementTypeChanged} />);
+                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
             } break;
             case 'TRecord': {
                 reactComponents.push(<app.InputField key="record1" type="text" label="Record Name" name="record-name"/>);

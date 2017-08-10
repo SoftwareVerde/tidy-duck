@@ -336,6 +336,9 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
     }
 
     private Json _toJson(final MostType mostType) {
+        if (mostType == null) {
+            return null;
+        }
         final Json json = new Json(false);
 
         final Long id = mostType.getId();
