@@ -217,10 +217,40 @@ public class MostTypeConverter {
         mostParameter.addOperation(operation);
     }
 
-    protected com.softwareverde.mostadapter.type.MostType convertMostType(MostType mostType) {
+    protected com.softwareverde.mostadapter.type.MostType convertPrimitiveType(final PrimitiveType primitiveType) {
         com.softwareverde.mostadapter.type.MostType convertedMostType = null;
 
-        switch (mostType.getName()) {
+        switch (primitiveType.getName()) {
+            case "TVoid": {
+                convertedMostType = new VoidType();
+            } break;
+            case "TUByte": {
+                convertedMostType = new UnsignedByteType();
+            } break;
+            case "TSByte": {
+                convertedMostType = new SignedByteType();
+            } break;
+            case "TUWord": {
+                convertedMostType = new UnsignedWordType();
+            } break;
+            case "TSWord": {
+                convertedMostType = new SignedWordType();
+            } break;
+            case "TULong": {
+                convertedMostType = new UnsignedLongType();
+            } break;
+            case "TSLong": {
+                convertedMostType = new SignedLongType();
+            } break;
+        }
+
+        return convertedMostType;
+    }
+
+    protected com.softwareverde.mostadapter.type.MostType convertMostType(final MostType mostType) {
+        com.softwareverde.mostadapter.type.MostType convertedMostType = null;
+
+        switch (mostType.getPrimitiveType().getName()) {
             case "TBool": {
                 BoolType boolType = new BoolType();
 
@@ -248,13 +278,14 @@ public class MostTypeConverter {
             case "TNumber": {
                 NumberType numberType = new NumberType();
 
-                // TODO: populated with supplied number fields
-                numberType.setBasisDataType(new UnsignedWordType());
-                numberType.setExponent("0");
-                numberType.setRangeMin("0");
-                numberType.setRangeMax("65535");
-                numberType.setStep("1");
-                numberType.setUnit("unit_none");
+                com.softwareverde.mostadapter.type.MostType basisDataType = convertPrimitiveType(mostType.getNumberBaseType());
+
+                numberType.setBasisDataType(basisDataType);
+                numberType.setExponent(mostType.getNumberExponent());
+                numberType.setRangeMin(mostType.getNumberRangeMinimum());
+                numberType.setRangeMax(mostType.getNumberRangeMaximum());
+                numberType.setStep(mostType.getNumberStep());
+                numberType.setUnit(mostType.getNumberUnit().getReferenceName());
 
                 convertedMostType = numberType;
             } break;
@@ -270,28 +301,12 @@ public class MostTypeConverter {
             case "TVoid": {
                 convertedMostType = new VoidType();
             } break;
-            case "TUByte": {
-                convertedMostType = new UnsignedByteType();
-            } break;
-            case "TSByte": {
-                convertedMostType = new SignedByteType();
-            } break;
-            case "TUWord": {
-                convertedMostType = new UnsignedWordType();
-            } break;
-            case "TSWord": {
-                convertedMostType = new SignedWordType();
-            } break;
-            case "TULong": {
-                convertedMostType = new UnsignedLongType();
-            } break;
-            case "TSLong": {
-                convertedMostType = new SignedLongType();
-            } break;
             case "TString": {
                 StringType stringType = new StringType();
 
-                // TODO: optionally set max size
+                if (mostType.getStringMaxSize() != null) {
+                    stringType.setMaxSize(mostType.getStringMaxSize());
+                }
 
                 convertedMostType = stringType;
             } break;
@@ -305,24 +320,33 @@ public class MostTypeConverter {
             case "TCStream": {
                 ClassifiedStreamType classifiedStreamType = new ClassifiedStreamType();
 
-                // TODO: optionally set max length and media type
+                if (mostType.getStreamMaxLength() != null) {
+                    classifiedStreamType.setMaxLength(mostType.getStreamMaxLength());
+                }
+                if (mostType.getStreamMediaType() != null) {
+                    classifiedStreamType.setMediaType(mostType.getStreamMediaType());
+                }
 
                 convertedMostType = classifiedStreamType;
             } break;
             case "TShortStream": {
                 ShortStreamType shortStreamType = new ShortStreamType();
 
-                // TODO: optionally set max length
+                if (mostType.getStreamMaxLength() != null) {
+                    shortStreamType.setMaxLength(mostType.getStreamMaxLength());
+                }
 
                 convertedMostType = shortStreamType;
             } break;
             case "TArray": {
                 ArrayType arrayType = new ArrayType();
 
-                // TODO: populate with supplied values
-                arrayType.setName("Test Array");
-                arrayType.setDescription("Test array of unsigned long.");
-                arrayType.setElementType(new UnsignedLongType());
+                com.softwareverde.mostadapter.type.MostType arrayElementType = convertMostType(mostType.getArrayElementType());
+
+                arrayType.setName(mostType.getArrayName());
+                arrayType.setDescription(mostType.getArrayDescription());
+                arrayType.setElementType(arrayElementType);
+                arrayType.setMaxSize(mostType.getArraySize());
 
                 convertedMostType = arrayType;
             } break;

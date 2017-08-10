@@ -17,7 +17,7 @@ class MostType {
         mostType.setIsPrimaryType(json.isPrimaryType);
         mostType.setBitFieldLength(json.bitfieldLength);
         mostType.setEnumMax(json.enumMax);
-        mostType.setNumberBaseType(json.numberBaseType);
+        mostType.setNumberBaseType(numberBaseType);
         mostType.setNumberExponent(json.numberExponent);
         mostType.setNumberRangeMin(json.numberRangeMin);
         mostType.setNumberRangeMax(json.numberRangeMax);

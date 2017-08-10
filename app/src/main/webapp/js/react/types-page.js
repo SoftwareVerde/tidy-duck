@@ -70,10 +70,10 @@ class TypesPage extends React.Component {
     }
 
     handleOptionClick(option) {
-        // TODO: determine if this is the right action
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
         this.setState({
             selectedOption: option,
+            selectedType:   null,
             mostType:       mostType
         });
     }
@@ -394,15 +394,29 @@ class TypesPage extends React.Component {
     renderFormElements() {
         let typeSelector = "";
         if (this.state.selectedOption == "Edit Type") {
-            const primaryTypes = this.getPrimaryTypes();
+            // add empty option in selector
+            const primaryTypes = [''].concat(this.getPrimaryTypes());
             let selectedType = this.state.selectedType;
             if (!selectedType) {
                 selectedType = primaryTypes[0];
             }
             typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector" value={selectedType} options={primaryTypes} onChange={this.onTypeSelected} />
+            // if no type is selected, only render that
+            if (selectedType == '') {
+                return (
+                    <div id="types-main-inputs">
+                        {typeSelector}
+                    </div>
+                );
+            }
         }
 
         const mostType = this.state.mostType;
+
+        const baseTypes = this.getBaseTypes();
+        if (mostType.getPrimitiveType() == null && baseTypes.length > 0) {
+            mostType.setPrimitiveType(this.getPrimitiveTypeByName(baseTypes[0]));
+        }
 
         const typeName = mostType.getName();
         const baseTypeName = mostType.getPrimitiveType() == null ? null : mostType.getPrimitiveType().getName();
@@ -412,9 +426,10 @@ class TypesPage extends React.Component {
                 <div id="types-main-inputs">
                     {typeSelector}
                     <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={this.getBaseTypes()} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
+                <div key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</div>
             </div>
         );
     }
@@ -441,18 +456,26 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code" />);
             } break;
             case 'TNumber': {
-                const numberBaseTypeName = mostType.getNumberBaseType() == null ? null : mostType.getNumberBaseType().getName();
+                const numberBaseTypes = this.getNumberBaseTypes();
+                if (mostType.getNumberBaseType() == null) {
+                    mostType.setNumberBaseType(this.getPrimitiveTypeByName(numberBaseTypes[0]));
+                }
+                const units = this.getUnits();
+                if (mostType.getNumberUnit() == null) {
+                    mostType.setNumberUnit(this.getMostUnitByName(units[0]));
+                }
+                const numberBaseTypeName = mostType.getNumberBaseType().getName();
                 const numberExponent = mostType.getNumberExponent();
                 const numberRangeMin = mostType.getNumberRangeMin();
                 const numberRangeMax = mostType.getNumberRangeMax();
                 const numberStep = mostType.getNumberStep();
-                const numberUnitName = mostType.getNumberUnit() == null ? null : mostType.getNumberUnit().getDefinitionName();
-                reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type" name="basis-data-type" value={numberBaseTypeName} options={this.getNumberBaseTypes()} onChange={this.onNumberBaseTypeChanged} />);
+                const numberUnitName = mostType.getNumberUnit().getDefinitionName();
+                reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type" name="basis-data-type" value={numberBaseTypeName} options={numberBaseTypes} onChange={this.onNumberBaseTypeChanged} />);
                 reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent" value={numberExponent} onChange={this.onNumberExponentChanged} />);
                 reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min" value={numberRangeMin} onChange={this.onNumberRangeMinChanged} />);
                 reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max" value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} />);
                 reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step" value={numberStep} onChange={this.onNumberStepChanged} />);
-                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit" value={numberUnitName} options={this.getUnits()} onChange={this.onNumberUnitChanged} />);
+                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit" value={numberUnitName} options={units} onChange={this.onNumberUnitChanged} />);
             } break;
             case 'TString': {
                 const stringMaxSize = mostType.getStringMaxSize();
@@ -472,13 +495,17 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length" name="short-stream-max-length" value={streamMaxLength} onChange={this.onShortStreamMaxLengthChanged} />);
             } break;
             case 'TArray': {
+                const arrayElementTypes = this.getArrayTypes();
+                if (mostType.getArrayElementType() == null) {
+                    mostType.setArrayElementType(this.getMostTypeByName(arrayElementTypes[0]));
+                }
                 const arrayName = mostType.getArrayName();
                 const arrayDescription = mostType.getArrayDescription();
-                const arrayElementTypeName = mostType.getArrayElementType() == null ? null : mostType.getArrayElementType().getName();
+                const arrayElementTypeName = mostType.getArrayElementType().getName();
                 const arraySize = mostType.getArraySize();
                 reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} />);
                 reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} />);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={this.getArrayTypes()} onChange={this.onArrayElementTypeChanged} />);
+                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} />);
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
             } break;
             case 'TRecord': {
@@ -509,7 +536,6 @@ class TypesPage extends React.Component {
                     <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick} activeRole={this.state.selectedOption} />
                 </div>
                 {this.renderFormElements()}
-                <div key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</div>
             </div>
         );
     }

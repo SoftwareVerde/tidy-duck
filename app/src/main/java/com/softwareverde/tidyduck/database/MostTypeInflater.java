@@ -112,6 +112,7 @@ public class MostTypeInflater {
         final String numberExponent = row.getString("number_exponent");
         final String numberRangeMin = row.getString("number_range_min");
         final String numberRangeMax = row.getString("number_range_max");
+        final String numberStep = row.getString("number_step");
         final Long numberUnitId = row.getLong("number_unit_id");
         final String stringMaxSize = row.getString("string_max_size");
         final String streamLength = row.getString("stream_length");
@@ -159,6 +160,7 @@ public class MostTypeInflater {
         mostType.setNumberExponent(numberExponent);
         mostType.setNumberRangeMinimum(numberRangeMin);
         mostType.setNumberRangeMaximum(numberRangeMax);
+        mostType.setNumberStep(numberStep);
         mostType.setNumberUnit(numberUnit);
         mostType.setStringMaxSize(stringMaxSize);
         mostType.setStreamLength(streamLength);
