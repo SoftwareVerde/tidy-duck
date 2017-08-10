@@ -227,11 +227,12 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(functionCatalogId, functionCatalogJson, function(wasSuccess) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, function(wasSuccess, newFunctionCatalogId) {
             if (wasSuccess) {
                 let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
                 });
+                functionCatalog.setId(newFunctionCatalogId);
                 functionCatalogs.push(functionCatalog);
 
                 //Update final navigation item to reflect any name changes.
@@ -341,17 +342,18 @@ class App extends React.Component {
             createButtonState: createButtonState
         });
 
-        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess) {
+        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess, newFunctionBlockId) {
             if (wasSuccess) {
-                var functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
+                let functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                     return value.getId() != functionBlockId;
                 });
+                functionBlock.setId(newFunctionBlockId);
                 functionBlocks.push(functionBlock);
 
                 //Update final navigation item to reflect any name changes.
-                var navigationItems = [];
+                let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                var navigationItem = navigationItems.pop();
+                let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
                 navigationItem.setHeader(thisApp.headers.functionBlock);
                 navigationItem.setOnClickCallback(function() {
@@ -452,11 +454,12 @@ class App extends React.Component {
             selectedItem:   mostInterface,
             createButtonState: createButtonState
         });
-        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess) {
+        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess, newMostInterfaceId) {
             if (wasSuccess) {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
                     return value.getId() != mostInterfaceId;
                 });
+                mostInterface.setId(newMostInterfaceId);
                 mostInterfaces.push(mostInterface);
 
                 //Update final navigation item to reflect any name changes.

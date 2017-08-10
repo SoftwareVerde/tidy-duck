@@ -119,7 +119,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _updateFunctionCatalog(final HttpServletRequest httpRequest, final long functionCatalogId, final long accountId, final Database<Connection> database) throws IOException {
         final Json request = super._getRequestDataAsJson(httpRequest);
-
+        final Json response = new Json(false);
         final Json functionCatalogJson = request.get("functionCatalog");
 
         try {
@@ -128,13 +128,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateFunctionCatalog(functionCatalog);
+            response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
             String errorMessage = "Unable to update function catalog: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
-        Json response = new Json(false);
         super._setJsonSuccessFields(response);
         return response;
     }

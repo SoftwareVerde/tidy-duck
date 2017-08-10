@@ -67,12 +67,17 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, callbackFunct
 
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        if (!wasSuccess) {
+        let functionCatalogId = null;
+
+        if (wasSuccess) {
+            functionCatalogId = data.functionCatalogId;
+        }
+        else {
             console.error("Unable to modify function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, functionCatalogId);
         }
     });
 }

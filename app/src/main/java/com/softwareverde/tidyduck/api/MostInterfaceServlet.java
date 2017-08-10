@@ -120,6 +120,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _updateMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
+        final Json response = new Json(false);
         final String requestFunctionBlockId = request.getString("functionBlockId");
 
 
@@ -143,6 +144,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             else {
                 databaseManager.updateMostInterface(0, mostInterface);
             }
+            response.put("mostInterfaceId", mostInterface.getId());
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update interface: " + exception.getMessage();
@@ -150,7 +152,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             return _generateErrorJson(errorMessage);
         }
 
-        final Json response = new Json(false);
         _setJsonSuccessFields(response);
         return response;
     }

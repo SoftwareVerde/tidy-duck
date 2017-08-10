@@ -145,12 +145,17 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
 
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        if (! wasSuccess) {
+        let mostInterfaceId = null;
+
+        if (wasSuccess) {
+            mostInterfaceId = data.mostInterfaceId;
+        }
+        else {
             console.error("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, mostInterfaceId);
         }
     });
 }

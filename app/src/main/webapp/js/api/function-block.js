@@ -145,12 +145,17 @@ function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, 
 
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        if (! wasSuccess) {
+        let functionBlockId = null;
+
+        if (wasSuccess) {
+            functionBlockId = data.functionBlockId;
+        }
+        else {
             console.error("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, functionBlockId);
         }
     });
 }

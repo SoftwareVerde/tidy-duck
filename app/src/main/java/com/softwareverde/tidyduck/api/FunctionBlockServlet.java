@@ -127,7 +127,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
         final String requestFunctionCatalogId = request.getString("functionCatalogId");
-
+        final Json response = new Json(false);
         final Json functionBlockJson = request.get("functionBlock");
 
         try {
@@ -148,6 +148,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             else {
                 databaseManager.updateFunctionBlock(0, functionBlock);
             }
+            response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function block: " + exception.getMessage();
@@ -155,7 +156,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return super._generateErrorJson(errorMessage);
         }
 
-        final Json response = new Json(false);
+
         super._setJsonSuccessFields(response);
         return response;
     }
