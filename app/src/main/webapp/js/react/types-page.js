@@ -8,7 +8,8 @@ class TypesPage extends React.Component {
 
         this.state = {
             selectedOption: this.options[0],
-            mostType:       mostType
+            mostType:       mostType,
+            saveButtonText: 'Save'
         };
 
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
@@ -51,7 +52,8 @@ class TypesPage extends React.Component {
 
         this.state = {
             selectedOption: this.options[0],
-            mostType:       mostType
+            mostType:       mostType,
+            saveButtonText: 'Save'
         };
     }
 
@@ -195,15 +197,21 @@ class TypesPage extends React.Component {
     onSave() {
         const mostTypeJson = MostType.toJson(this.state.mostType);
         const thisApp = this;
+        this.setState({
+            saveButtonText: <i className="fa fa-refresh fa-spin"></i>
+        });
         insertMostType(mostTypeJson, function(data) {
             if (data.wasSuccess) {
                 if (typeof thisApp.props.onTypeCreated == "function") {
                     thisApp.props.onTypeCreated(thisApp.state.mostType);
                 }
+            } else {
+                alert("Unable to create type: " + data.errorMessage);
             }
             // reset fields
             thisApp.setState({
-                mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes)
+                mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes),
+                saveButtonText: 'Saved'
             })
         });
     }
@@ -212,7 +220,9 @@ class TypesPage extends React.Component {
         const newMostType = this.getMostTypeByName(value);
 
         this.setState({
-            mostType: newMostType
+            mostType: newMostType,
+            selectedType: value,
+            saveButtonText: 'Save'
         })
     }
 
@@ -222,7 +232,8 @@ class TypesPage extends React.Component {
         mostType.setName(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -251,7 +262,7 @@ class TypesPage extends React.Component {
     onNumberExponentChanged(value) {
         const mostType = this.state.mostType;
 
-        mostType.setExponent(value);
+        mostType.setNumberExponent(value);
 
         this.setState({
             mostType: mostType
@@ -292,7 +303,7 @@ class TypesPage extends React.Component {
         const mostType = this.state.mostType;
 
         const newMostUnit = this.getMostUnitByName(value);
-        mostType.setName(newMostUnit);
+        mostType.setNumberUnit(newMostUnit);
 
         this.setState({
             mostType: mostType
@@ -498,7 +509,7 @@ class TypesPage extends React.Component {
                     <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick} activeRole={this.state.selectedOption} />
                 </div>
                 {this.renderFormElements()}
-                <div key="save-button" className="button" onClick={this.onSave}>Save</div>
+                <div key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</div>
             </div>
         );
     }
