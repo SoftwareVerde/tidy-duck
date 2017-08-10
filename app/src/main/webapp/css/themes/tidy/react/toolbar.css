@@ -47,11 +47,33 @@
     transition: background-color 0.25s ease;
 }
 
+.toolbar .unreleased-navigation-indicator {
+    background-color: #FFFFFF;
+    color: #4A4A4A;
+    border-radius: 5px;
+    border: 1px dashed #4A4A4A;
+    margin: 2px;
+    height: 75px;
+    min-width: 75px;
+    padding-right: 1em;
+    padding-left: 1em;
+
+    display: inline-grid;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+    transition: background-color 0.25s ease;
+}
+
 .toolbar .navigation-indicator i {
     margin: 5px;
 }
 
-.toolbar .navigation-indicator:hover {
+.toolbar .unreleased-navigation-indicator:hover, .navigation-indicator:hover {
     background-color: #FFEE77;
     border: solid 1px #C0C0C0;
 }

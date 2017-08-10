@@ -213,12 +213,19 @@ class Toolbar extends React.Component {
             if (this.props.shouldShowNavigationItems) {
                 const navigationItems = this.props.navigationItems;
                 for (let i in navigationItems) {
-                    const title = navigationItems[i].getTitle();
-                    const header = navigationItems[i].getHeader();
-                    const onClickCallback = navigationItems[i].getOnClickCallback();
+                    const navigationItem = navigationItems[i];
+                    const title = navigationItem.getTitle();
+                    let header =  navigationItem.getHeader();
+                    let navigationItemStyle = "navigation-indicator";
+                    if (! navigationItem.isReleased()) {
+                        header = "UNRELEASED ".concat(header);
+                        navigationItemStyle = "unreleased-navigation-indicator";
+                    }
+
+                    const onClickCallback = navigationItem.getOnClickCallback();
                     const navKey = "navigation-item" + i;
                     reactComponents.push(<div key={navKey}
-                                              className="navigation-indicator"
+                                              className={navigationItemStyle}
                                               onClick={onClickCallback}>
                         <div>{header}</div>
                         <i className="fa fa-chevron-right fa-1x"/>{title}

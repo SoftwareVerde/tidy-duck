@@ -240,6 +240,7 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
+                navigationItem.setIsReleased(functionCatalog.isReleased());
                 navigationItem.setHeader(thisApp.headers.functionCatalog);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
@@ -355,6 +356,7 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
+                navigationItem.setIsReleased(functionBlock.isReleased());
                 navigationItem.setHeader(thisApp.headers.functionBlock);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionBlockSelected(functionBlock, true, false);
@@ -467,6 +469,7 @@ class App extends React.Component {
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
+                navigationItem.setIsReleased(mostInterface.isReleased());
                 navigationItem.setHeader(thisApp.headers.mostInterface);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostInterfaceSelected(mostInterface, true, false);
@@ -559,6 +562,7 @@ class App extends React.Component {
                 const navigationItems = thisApp.state.navigationItems;
                 const navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostFunction.getName());
+                navigationItem.setIsReleased(thisApp.state.parentItem.isReleased());
                 navigationItem.setHeader(thisApp.headers.mostFunction);
 
                 //Update form to show changes were saved.
@@ -630,6 +634,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(functionCatalog.getName());
+        navigationItemConfig.setIsReleased(functionCatalog.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
         navigationItemConfig.setIconName("fa-bars");
 
@@ -805,6 +810,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(functionBlock.getName());
+        navigationItemConfig.setIsReleased(functionBlock.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.functionBlock);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock, true, false);
@@ -1139,6 +1145,7 @@ class App extends React.Component {
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostInterface.getName());
+        navigationItemConfig.setIsReleased(mostInterface.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostInterfaceSelected(mostInterface, true);
@@ -1485,6 +1492,7 @@ class App extends React.Component {
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
+        navigationItemConfig.setIsReleased(thisApp.state.parentItem.isReleased());
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });

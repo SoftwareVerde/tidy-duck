@@ -2,6 +2,7 @@ class NavigationItemConfig {
     constructor() {
         this._title = null;
         this._header = null;
+        this._isReleased = null;
         this._onClickCallback = null;
         this._menuItemConfigs = [];
         this._iconName = "";
@@ -23,6 +24,14 @@ class NavigationItemConfig {
 
     getHeader() {
         return this._header;
+    }
+
+    setIsReleased(isReleased) {
+        this._isReleased = isReleased;
+    }
+
+    isReleased() {
+        return this._isReleased;
     }
 
     setOnClickCallback(callback) {
