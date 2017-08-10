@@ -74,7 +74,7 @@ class StreamCase {
     }
 
     addStreamParameter(streamParameter) {
-        this._streamParameter.push(streamParameter);
+        this._streamParameters.push(streamParameter);
     }
 
     getStreamParameters() {
@@ -86,7 +86,7 @@ class StreamCase {
     }
 
     addStreamSignal(streamSignal) {
-        this._streamSignal.push(streamSignal);
+        this._streamSignals.push(streamSignal);
     }
 
     getStreamSignals() {

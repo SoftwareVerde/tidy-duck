@@ -404,3 +404,8 @@
     padding: 1em;
     font-size: 2em;
 }
+
+.repeating-field {
+    margin: 10px 0px;
+    background-color: rgba(100, 100, 100, 0.1);
+}

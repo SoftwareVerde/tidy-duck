@@ -33,6 +33,6 @@ function addConvertedJsonArray(json, jsonKey, data, convertFunction) {
         convertedArray.push(convertedItem);
     }
     if (convertedArray.length > 0) {
-        json.push(jsonKey, convertedArray);
+        json[jsonKey] = convertedArray;
     }
 }

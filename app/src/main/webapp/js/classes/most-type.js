@@ -316,7 +316,7 @@ class MostType {
     }
 
     addBooleanField(booleanField) {
-        this._booleanField.push(booleanField);
+        this._booleanFields.push(booleanField);
     }
 
     getBooleanFields() {
@@ -328,7 +328,7 @@ class MostType {
     }
 
     addEnumValue(enumValue) {
-        this._enumValue.push(enumValue);
+        this._enumValues.push(enumValue);
     }
 
     getEnumValues() {
@@ -340,7 +340,7 @@ class MostType {
     }
 
     addStreamCase(streamCase) {
-        this._streamCase.push(streamCase);
+        this._streamCases.push(streamCase);
     }
 
     getStreamCases() {
@@ -352,7 +352,7 @@ class MostType {
     }
 
     addRecordField(recordField) {
-        this._recordField.push(recordField);
+        this._recordFields.push(recordField);
     }
 
     getRecordFields() {

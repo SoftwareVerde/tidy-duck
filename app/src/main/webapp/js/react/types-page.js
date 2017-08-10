@@ -15,6 +15,9 @@ class TypesPage extends React.Component {
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
         this.onBaseTypeChanged = this.onBaseTypeChanged.bind(this);
         this.onTypeSelected = this.onTypeSelected.bind(this);
+        this.onEnumValueAddButtonClicked = this.onEnumValueAddButtonClicked.bind(this);
+        this.onEnumValueNameChanged = this.onEnumValueNameChanged.bind(this);
+        this.onEnumValueCodeChanged = this.onEnumValueCodeChanged.bind(this);
         this.onStringMaxSizeChanged = this.onStringMaxSizeChanged.bind(this);
         this.onNumberBaseTypeChanged = this.onNumberBaseTypeChanged.bind(this);
         this.onNumberExponentChanged = this.onNumberExponentChanged.bind(this);
@@ -135,8 +138,8 @@ class TypesPage extends React.Component {
                 numberBaseTypes.push(type.getName());
             }
         }
-
-        return numberBaseTypes.sort();
+        // not sorted, should be displayed in the provided order
+        return numberBaseTypes;
     }
 
     getStreamParamTypes() {
@@ -185,8 +188,8 @@ class TypesPage extends React.Component {
             let unit = this.props.mostUnits[i];
             units.push(unit.getDefinitionName());
         }
-
-        return units.sort();
+        // not sorted, should be displayed in the provided order
+        return units;
     }
 
     onSave() {
@@ -233,7 +236,11 @@ class TypesPage extends React.Component {
     }
 
     onBaseTypeChanged(value) {
-        const mostType = this.state.mostType;
+        const oldMostType = this.state.mostType;
+
+        const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
+
+        mostType.setName(oldMostType.getName());
 
         const newPrimitiveType = this.getPrimitiveTypeByName(value);
         mostType.setPrimitiveType(newPrimitiveType);
@@ -241,6 +248,24 @@ class TypesPage extends React.Component {
         this.setState({
             mostType: mostType
         });
+    }
+
+    onEnumValueAddButtonClicked() {
+        const mostType = this.state.mostType;
+
+        mostType.addEnumValue(new EnumValue());
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onEnumValueNameChanged(enumValue, name) {
+        enumValue.setName(name);
+    }
+
+    onEnumValueCodeChanged(enumValue, code) {
+        enumValue.setCode(code);
     }
 
     onNumberBaseTypeChanged(value) {
@@ -456,8 +481,19 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="bool3" type="text" label="False Description" name="false-description"/>);
             } break;
             case 'TEnum': {
-                reactComponents.push(<app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name" />);
-                reactComponents.push(<app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code" />);
+                const thisPage = this;
+                let i = 1;
+                mostType.getEnumValues().forEach(function (enumValue) {
+                    const key = "enum" + i;
+                    reactComponents.push(
+                        <div className="repeating-field clearfix" key={key}>
+                            <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name" value={enumValue.getName()} onChange={(value) => thisPage.onEnumValueNameChanged(enumValue, value)}/>
+                            <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code" value={enumValue.getCode()} onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)}/>
+                        </div>
+                    );
+                    i++;
+                });
+                reactComponents.push(<div key="plus-button" className="button" onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i></div>);
             } break;
             case 'TNumber': {
                 const numberBaseTypes = this.getNumberBaseTypes();
