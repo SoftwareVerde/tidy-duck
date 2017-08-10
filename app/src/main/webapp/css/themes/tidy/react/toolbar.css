@@ -25,7 +25,7 @@
     transition: background-color 0.25s ease;
 }
 
-.toolbar .navigation-indicator {
+.toolbar .navigation-indicator, .unreleased-navigation-indicator {
     background-color: #FFFFFF;
     color: #4A4A4A;
     border-radius: 5px;
@@ -47,26 +47,8 @@
     transition: background-color 0.25s ease;
 }
 
-.toolbar .unreleased-navigation-indicator {
-    background-color: #FFFFFF;
-    color: #4A4A4A;
-    border-radius: 5px;
+.unreleased-navigation-indicator {
     border: 1px dashed #4A4A4A;
-    margin: 2px;
-    height: 75px;
-    min-width: 75px;
-    padding-right: 1em;
-    padding-left: 1em;
-
-    display: inline-grid;
-    justify-content: center;
-    align-items: center;
-    vertical-align: middle;
-
-    cursor: pointer;
-
-    transition: color 0.5s ease;
-    transition: background-color 0.25s ease;
 }
 
 .toolbar .navigation-indicator i {
