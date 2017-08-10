@@ -101,7 +101,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function catalog ID isn't null, insert function block for function catalog
-            if (!requestFunctionCatalogId.equals("null")) {
+            if (!Util.isBlank(requestFunctionCatalogId)) {
                 final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
                 if (functionCatalogId < 1) {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
@@ -136,7 +136,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
-            if (!requestFunctionCatalogId.equals("null")) {
+            if (! Util.isBlank(requestFunctionCatalogId)) {
                 // Validate Inputs
                 final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
                 if (functionCatalogId < 1) {
@@ -194,7 +194,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // Validate inputs. If null, send catalogId of 0, which will disassociate function block from all catalogs.
-            if (functionCatalogIdString.equals("null")) {
+            if (Util.isBlank(functionCatalogIdString)) {
                 databaseManager.deleteFunctionBlock(0, functionBlockId);
             }
             else {

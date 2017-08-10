@@ -96,7 +96,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function block ID isn't null, insert interface for function block
-            if (!requestFunctionBlockID.equals("null")) {
+            if (! Util.isBlank(requestFunctionBlockID)) {
                 final Long functionBlockId = Util.parseLong(requestFunctionBlockID);
                 if (functionBlockId < 1) {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
@@ -132,7 +132,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
-            if (!requestFunctionBlockId.equals("null")){
+            if (! Util.isBlank(requestFunctionBlockId)) {
                 // Validate Inputs
                 final Long functionBlockId = Util.parseLong(requestFunctionBlockId);
                 if (functionBlockId < 1) {
@@ -189,7 +189,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // Validate inputs. If null, send blockId of 0, which will disassociate interface from all fblocks.
-            if (functionBlockIdString.equals("null")) {
+            if (Util.isBlank(functionBlockIdString)) {
                 databaseManager.deleteMostInterface(0, mostInterfaceId);
             }
             else {

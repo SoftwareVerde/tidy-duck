@@ -232,6 +232,12 @@ class App extends React.Component {
                 let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
                 });
+
+                // If returned ID is different, a new unreleased version was created.
+                if (newFunctionCatalogId != functionCatalogId) {
+                    functionCatalog.setIsReleased(false);
+                }
+
                 functionCatalog.setId(newFunctionCatalogId);
                 functionCatalogs.push(functionCatalog);
 
@@ -348,6 +354,12 @@ class App extends React.Component {
                 let functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                     return value.getId() != functionBlockId;
                 });
+
+                // If returned ID is different, a new unreleased version was created.
+                if (newFunctionBlockId != functionBlockId) {
+                    functionBlock.setIsReleased(false);
+                }
+
                 functionBlock.setId(newFunctionBlockId);
                 functionBlocks.push(functionBlock);
 
@@ -461,6 +473,12 @@ class App extends React.Component {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
                     return value.getId() != mostInterfaceId;
                 });
+
+                // If returned ID is different, a new unreleased version was created.
+                if (newMostInterfaceId != mostInterfaceId) {
+                    mostInterface.setIsReleased(false);
+                }
+
                 mostInterface.setId(newMostInterfaceId);
                 mostInterfaces.push(mostInterface);
 
@@ -1035,7 +1053,7 @@ class App extends React.Component {
     disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
         const thisApp = this;
 
-        const functionCatalogId = null;
+        const functionCatalogId = "";
         const functionBlockId = functionBlock.getId();
         let executeCallback = true;
 
@@ -1071,7 +1089,7 @@ class App extends React.Component {
         else {
             const thisApp = this;
 
-            const functionCatalogId = null;
+            const functionCatalogId = "";
             const functionBlockId = functionBlock.getId();
 
             let shouldDelete = false;
@@ -1375,7 +1393,7 @@ class App extends React.Component {
     disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction) {
         const thisApp = this;
 
-        const functionBlockId = null;
+        const functionBlockId = "";
         const mostInterfaceId = mostInterface.getId();
         let executeCallback = true;
 
@@ -1411,7 +1429,7 @@ class App extends React.Component {
         else {
             const thisApp = this;
 
-            const functionBlockId = null;
+            const functionBlockId = "";
             const mostInterfaceId = mostInterface.getId();
 
             let shouldDelete = false;
@@ -1919,15 +1937,41 @@ class App extends React.Component {
         if (shouldShowToolbar) {
             // Determine correct behavior for back button in development mode
             let backFunction = null;
-            let shouldShowBackButton = false;
-            const shouldShowEditButton = (this.state.activeRole === this.roles.development) && selectedItem;
-            const shouldShowNavigationItems = this.state.activeRole === this.roles.development;
 
-            // Check if back button should be rendered.
+            let shouldShowForkButton = false;
+            let shouldShowBackButton = false;
+            let shouldShowEditButton = false;
+            let shouldShowSearchButton = false;
+            let shouldShowCreateButton = true;
+            let shouldShowNavigationItems = false;
+            let forkFunction = null;
+
+            // Determine what buttons should be displayed.
             if (selectedItem) {
                 shouldShowBackButton = true;
+                shouldShowForkButton = selectedItem.isReleased();
+
+                // Determine fork button functionality
+                if (shouldShowForkButton) {
+                    switch (currentNavigationLevel) {
+                        case this.NavigationLevel.functionCatalogs:
+                            forkFunction = this.onUpdateFunctionCatalog;
+                            break;
+                        case this.NavigationLevel.functionBlocks:
+                            forkFunction = this.onUpdateFunctionBlock;
+                            break;
+                        case this.NavigationLevel.mostInterfaces:
+                            forkFunction = this.onUpdateMostInterface;
+                            break;
+                    }
+                }
+                shouldShowCreateButton = ! shouldShowForkButton;
+                shouldShowSearchButton = ! shouldShowFilterBar && ! shouldShowForkButton;
+
                 if (this.state.activeRole === this.roles.development) {
                     const activeSubRole = this.state.activeSubRole;
+                    shouldShowEditButton = true;
+                    shouldShowNavigationItems = true;
 
                     // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
                     shouldShowBackButton = true;
@@ -1964,12 +2008,15 @@ class App extends React.Component {
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false })}
                     onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
+                    onForkClicked={() => forkFunction(selectedItem)}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
                     navigationItems={navigationItems}
                     functionStereotypes={this.FunctionStereotypes}
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
-                    shouldShowSearchIcon={!shouldShowFilterBar}
+                    shouldShowForkButton={shouldShowForkButton}
+                    shouldShowCreateButton={shouldShowCreateButton}
+                    shouldShowSearchIcon={shouldShowSearchButton}
                     shouldShowBackButton={shouldShowBackButton}
                     shouldShowEditButton={shouldShowEditButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}

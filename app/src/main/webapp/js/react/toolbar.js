@@ -15,6 +15,7 @@ class Toolbar extends React.Component {
         this.onStereotypeCommandWithAckClicked = this.onStereotypeCommandWithAckClicked.bind(this);
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
         this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
+        this.renderForkButton = this.renderForkButton.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
@@ -89,6 +90,18 @@ class Toolbar extends React.Component {
         }
     }
 
+    renderForkButton() {
+        if (this.props.shouldShowForkButton) {
+            const buttonTitle = "Fork Version";
+
+            return (
+                <div className="toolbar-item fork" onClick={this.props.onForkClicked} title={buttonTitle}>
+                    <i className="fa fa-4 fa-code-fork" />
+                </div>
+            );
+        }
+    }
+
     renderEditButton() {
         if (this.props.shouldShowEditButton) {
             const navigationLevel = this.state.navigationLevel;
@@ -124,34 +137,36 @@ class Toolbar extends React.Component {
     }
 
     renderItemCreateButton() {
-        const navigationLevel = this.state.navigationLevel;
-        const currentNavigationLevel = this.state.currentNavigationLevel;
-        let shouldShowButton = false;
-        let buttonTitleType = "";
+        if (this.props.shouldShowCreateButton) {
+            const navigationLevel = this.state.navigationLevel;
+            const currentNavigationLevel = this.state.currentNavigationLevel;
+            let shouldShowButton = false;
+            let buttonTitleType = "";
 
-        switch(currentNavigationLevel) {
-            case navigationLevel.versions:
-                shouldShowButton = true;
-                buttonTitleType = "Function Catalog";
-                break;
-            case navigationLevel.functionCatalogs:
-                shouldShowButton = true;
-                buttonTitleType = "Function Block";
-                break;
-            case navigationLevel.functionBlocks:
-                shouldShowButton = true;
-                buttonTitleType = "Interface";
-                break;
-        }
+            switch(currentNavigationLevel) {
+                case navigationLevel.versions:
+                    shouldShowButton = true;
+                    buttonTitleType = "Function Catalog";
+                    break;
+                case navigationLevel.functionCatalogs:
+                    shouldShowButton = true;
+                    buttonTitleType = "Function Block";
+                    break;
+                case navigationLevel.functionBlocks:
+                    shouldShowButton = true;
+                    buttonTitleType = "Interface";
+                    break;
+            }
 
-        const buttonTitle = "Create New " + buttonTitleType;
+            const buttonTitle = "Create New " + buttonTitleType;
 
-        if (shouldShowButton) {
-            return (
-                <div className="toolbar-item create" onClick={this.props.onCreateClicked} title={buttonTitle}>
-                    <i className="fa fa-4 fa-plus" />
-                </div>
-            );
+            if (shouldShowButton) {
+                return (
+                    <div className="toolbar-item create" onClick={this.props.onCreateClicked} title={buttonTitle}>
+                        <i className="fa fa-4 fa-plus" />
+                    </div>
+                );
+            }
         }
     }
 
@@ -243,6 +258,7 @@ class Toolbar extends React.Component {
                     {this.renderNavigationItems()}
                 </div>
                 <div>
+                    {this.renderForkButton()}
                     {this.renderEditButton()}
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}
