@@ -1115,17 +1115,31 @@ class App extends React.Component {
                                 // Remove deleted version from child item. Don't push to new array if no versions remain.
                                 const existingVersionsJson = existingFunctionBlock.getVersionsJson();
                                 if (existingVersionsJson.length > 1) {
+                                    // Find newest released version to be displayed on screen.
+                                    let displayedVersionId = existingVersionsJson[0].id;
+                                    let displayedVersionJson = existingVersionsJson[0];
+
                                     for (let j in existingVersionsJson) {
                                         const existingVersionJson = existingVersionsJson[j];
                                         if (existingFunctionBlockId == existingVersionJson.id) {
                                             delete existingVersionsJson[j];
-                                            break;
+                                        }
+                                        else {
+                                            if (existingVersionJson.isReleased) {
+                                                if (existingVersionJson.id > displayedVersionId) {
+                                                    displayedVersionId = existingVersionJson.id;
+                                                    displayedVersionJson = existingVersionJson;
+                                                }
+                                            }
                                         }
                                     }
-                                    newFunctionBlocks.push(existingFunctionBlock);
+                                    const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
+                                    newFunctionBlock.setVersionsJson(existingVersionsJson);
+                                    newFunctionBlocks.push(newFunctionBlock);
                                 }
                             }
                         }
+
                         thisApp.setState({
                             functionBlocks:         newFunctionBlocks,
                             currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
@@ -1455,17 +1469,31 @@ class App extends React.Component {
                                 // Remove deleted version from child item. Don't push to new array if no versions remain.
                                 const existingVersionsJson = existingMostInterface.getVersionsJson();
                                 if (existingVersionsJson.length > 1) {
+                                    // Find newest released version to be displayed on screen.
+                                    let displayedVersionId = existingVersionsJson[0].id;
+                                    let displayedVersionJson = existingVersionsJson[0];
+
                                     for (let j in existingVersionsJson) {
                                         const existingVersionJson = existingVersionsJson[j];
                                         if (existingMostInterfaceId == existingVersionJson.id) {
                                             delete existingVersionsJson[j];
-                                            break;
+                                        }
+                                        else {
+                                            if (existingVersionJson.isReleased) {
+                                                if (existingVersionJson.id > displayedVersionId) {
+                                                    displayedVersionId = existingVersionJson.id;
+                                                    displayedVersionJson = existingVersionJson;
+                                                }
+                                            }
                                         }
                                     }
-                                    newMostInterfaces.push(existingMostInterface);
+                                    const newMostInterface = MostInterface.fromJson(displayedVersionJson);
+                                    newMostInterface.setVersionsJson(existingVersionsJson);
+                                    newMostInterfaces.push(newMostInterface);
                                 }
                             }
                         }
+
                         thisApp.setState({
                             mostInterfaces:         newMostInterfaces,
                             currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
