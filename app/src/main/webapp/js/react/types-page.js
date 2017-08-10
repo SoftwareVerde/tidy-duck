@@ -48,7 +48,7 @@ class TypesPage extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        let mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
+        let mostType = TypesPage.createNewMostType(newProps.primitiveTypes);
 
         this.state = {
             selectedOption: this.options[0],
@@ -61,11 +61,6 @@ class TypesPage extends React.Component {
         const mostType = new MostType();
         // for now, always create a primary type
         mostType.setIsPrimaryType(true);
-        // default base type to the first primitive type
-        let baseType = null;
-        if (primitiveTypes && primitiveTypes.length > 0) {
-            mostType.setPrimitiveType(primitiveTypes[0]);
-        }
         return mostType;
     }
 
@@ -115,7 +110,7 @@ class TypesPage extends React.Component {
             }
         }
 
-        return baseTypes;
+        return baseTypes.sort();
     }
 
     getPrimaryTypes() {
@@ -128,7 +123,7 @@ class TypesPage extends React.Component {
             }
         }
 
-        return primaryTypes;
+        return primaryTypes.sort();
     }
 
     getNumberBaseTypes() {
@@ -141,7 +136,7 @@ class TypesPage extends React.Component {
             }
         }
 
-        return numberBaseTypes;
+        return numberBaseTypes.sort();
     }
 
     getStreamParamTypes() {
@@ -154,7 +149,7 @@ class TypesPage extends React.Component {
             }
         }
 
-        return streamParamTypes;
+        return streamParamTypes.sort();
     }
 
     getArrayTypes() {
@@ -167,7 +162,7 @@ class TypesPage extends React.Component {
             }
         }
 
-        return arrayTypes;
+        return arrayTypes.sort();
     }
 
     getRecordTypes() {
@@ -180,7 +175,7 @@ class TypesPage extends React.Component {
             }
         }
 
-        return recordTypes;
+        return recordTypes.sort();
     }
 
     getUnits() {
@@ -191,7 +186,7 @@ class TypesPage extends React.Component {
             units.push(unit.getDefinitionName());
         }
 
-        return units;
+        return units.sort();
     }
 
     onSave() {
@@ -392,6 +387,15 @@ class TypesPage extends React.Component {
     }
 
     renderFormElements() {
+        if (this.props.mostTypes.length == 0 || this.props.primitiveTypes.length == 0 || this.props.mostUnits.length == 0) {
+            // types props must not have been populated yet, show loading icon
+            return (
+                <div className="center">
+                    <i className="fa fa-spin fa-3x fa-refresh"></i>
+                </div>
+            );
+        }
+
         let typeSelector = "";
         if (this.state.selectedOption == "Edit Type") {
             // add empty option in selector
@@ -419,7 +423,7 @@ class TypesPage extends React.Component {
         }
 
         const typeName = mostType.getName();
-        const baseTypeName = mostType.getPrimitiveType() == null ? null : mostType.getPrimitiveType().getName();
+        const baseTypeName = mostType.getPrimitiveType().getName();
 
         return (
             <div>
