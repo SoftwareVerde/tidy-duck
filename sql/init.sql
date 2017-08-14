@@ -28,6 +28,35 @@ DROP TABLE IF EXISTS function_catalogs;
 DROP TABLE IF EXISTS versions;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS companies;
+DROP TABLE IF EXISTS class_definitions;
+
+CREATE TABLE class_definitions (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    class_id VARCHAR(255) NOT NULL,
+    class_name VARCHAR(255) NOT NULL,
+    class_description TEXT NULL
+) ENGINE=INNODB;
+
+INSERT INTO class_definitions (class_id, class_name, class_description)
+    VALUES
+        ('class_trigger', 'Trigger', null),
+        ('class_switch', 'Switch', null),
+        ('class_number', 'Number', null),
+        ('class_enumeration', 'Enumeration', null),
+        ('class_text', 'Text', null),
+        ('class_unclassified_property', 'Unclassified Property', null),
+        ('class_unclassified_method', 'Unclassified Method', null),
+        ('class_record', 'Record', null),
+        ('class_array', 'Array', null),
+        ('class_dynamic_array', 'Dynamic Array', null),
+        ('class_long_array', 'Long Array', null),
+        ('class_container', 'Container', null),
+        ('class_sequence_property', 'Sequence Property', null),
+        ('class_array_window', 'ArrayWindow', null),
+        ('class_sequence_method', 'Sequence Method', null),
+        ('class_boolfield', 'Boolfield', null),
+        ('class_bitset', 'Bitset', null),
+        ('class_map', 'Map', null);
 
 CREATE TABLE companies (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,

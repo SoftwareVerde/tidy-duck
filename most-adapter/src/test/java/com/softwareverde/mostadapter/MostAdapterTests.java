@@ -9,7 +9,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 
-public class MostAdapterTest {
+public class MostAdapterTests {
 
     // function catalog tests
     private static final String FUNCTION_CATALOG_WITHOUT_FUNCTION_BLOCKS_XML = "/function_catalog_without_function_blocks.xml";
@@ -18,21 +18,21 @@ public class MostAdapterTest {
     private static final String MULTIPLE_FUNCTION_BLOCKS_WITHOUT_INTERFACES_XML = "/multiple_function_blocks_without_functions_indented.xml";
 
     @Test
-    public void testFunctionCatalogWithoutFunctionBlocks() throws MostAdapterException, IOException {
-        FunctionCatalog functionCatalog = createTestFunctionCatalog("3.0.3.2", "WG DA", "MOST Cooperation");
+    public void should_generate_xml_for_functionCatalog_without_functionBlocks() throws Exception {
+        final FunctionCatalog functionCatalog = createTestFunctionCatalog("3.0.3.2", "WG DA", "MOST Cooperation");
 
-        MostAdapter adapter = new MostAdapter();
-        String mostXml = adapter.getMostXml(functionCatalog);
+        final MostAdapter adapter = new MostAdapter();
+        final String mostXml = adapter.getMostXml(functionCatalog);
 
         assertEquals(getCorrectXml(FUNCTION_CATALOG_WITHOUT_FUNCTION_BLOCKS_XML), mostXml);
     }
 
     @Test
-    public void testFunctionBlockWithoutFunctions_Indented() throws MostAdapterException, IOException {
-        FunctionCatalog functionCatalog = createDefaultTestFunctionCatalog();
+    public void should_generate_xml_for_functionCatalog_without_functionBlocks_with_indented_output() throws Exception {
+        final FunctionCatalog functionCatalog = createDefaultTestFunctionCatalog();
 
-        Date lastModifiedDate = new Date(1297702800000L); // date -d "2011-02-14 12:00:00" +%s (converted to ms)
-        FunctionBlock functionBlock = createTestFunctionBlock(
+        final Date lastModifiedDate = new Date(1297702800000L); // date -d "2011-02-14 12:00:00" +%s (converted to ms)
+        final FunctionBlock functionBlock = createTestFunctionBlock(
                 "0x0F",
                 "EnhancedTestability",
                 "Proprietary",
@@ -44,19 +44,19 @@ public class MostAdapterTest {
                 "public");
         functionCatalog.addFunctionBlock(functionBlock);
 
-        MostAdapter adapter = new MostAdapter();
+        final MostAdapter adapter = new MostAdapter();
         adapter.setIndented(true);
-        String mostXml = adapter.getMostXml(functionCatalog);
+        final String mostXml = adapter.getMostXml(functionCatalog);
 
         assertEquals(getCorrectXml(FUNCTION_BLOCK_WITHOUT_INTERFACES_XML), mostXml);
     }
 
     @Test
-    public void testMultipleFunctionBlocksWithoutFunctions_Indented() throws MostAdapterException, IOException {
-        FunctionCatalog functionCatalog = createDefaultTestFunctionCatalog();
+    public void should_generate_xml_for_functionCatalog_with_multiple_functionBlocks_with_indented_output() throws Exception {
+        final FunctionCatalog functionCatalog = createDefaultTestFunctionCatalog();
 
-        Date lastModifiedDate1 = new Date(1297702800000L); // date -d "14-FEB-2011 12:00:00" +%s (converted to ms)
-        FunctionBlock functionBlock1 = createTestFunctionBlock(
+        final Date lastModifiedDate1 = new Date(1297702800000L); // date -d "14-FEB-2011 12:00:00" +%s (converted to ms)
+        final FunctionBlock functionBlock1 = createTestFunctionBlock(
             "0x0F",
             "EnhancedTestability",
             "Proprietary",
@@ -69,8 +69,8 @@ public class MostAdapterTest {
         );
         functionCatalog.addFunctionBlock(functionBlock1);
 
-        Date lastModifiedDate2 = new Date(1489852800000L); // date -d "18-MAR-2017 12:00:00" +%s (converted to ms)
-        FunctionBlock functionBlock2 = createTestFunctionBlock(
+        final Date lastModifiedDate2 = new Date(1489852800000L); // date -d "18-MAR-2017 12:00:00" +%s (converted to ms)
+        final FunctionBlock functionBlock2 = createTestFunctionBlock(
                 "0x10",
                 "SecondFunctionBlock",
                 "Test",
@@ -82,9 +82,9 @@ public class MostAdapterTest {
                 "private");
         functionCatalog.addFunctionBlock(functionBlock2);
 
-        MostAdapter adapter = new MostAdapter();
+        final MostAdapter adapter = new MostAdapter();
         adapter.setIndented(true);
-        String mostXml = adapter.getMostXml(functionCatalog);
+        final String mostXml = adapter.getMostXml(functionCatalog);
 
         assertEquals(getCorrectXml(MULTIPLE_FUNCTION_BLOCKS_WITHOUT_INTERFACES_XML), mostXml);
     }
@@ -103,6 +103,10 @@ public class MostAdapterTest {
 
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+
+        functionCatalog.addClassDefinition(new ClassDefinition("class_trigger", "Trigger", null));
+        functionCatalog.addClassDefinition(new ClassDefinition("class_switch", "Switch", null));
+
         return functionCatalog;
     }
 

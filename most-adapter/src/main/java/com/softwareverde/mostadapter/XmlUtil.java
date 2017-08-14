@@ -8,14 +8,14 @@ import java.util.Date;
 
 public class XmlUtil {
 
-    public static Element createTextElement(Document document, String name, String value) {
-        Element element = document.createElement(name);
+    public static Element createTextElement(final Document document, final String name, final String value) {
+        final Element element = document.createElement(name);
         element.appendChild(document.createTextNode(value));
         return element;
     }
 
-    public static String formatDate(Date date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+    public static String formatDate(final Date date) {
+        final SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
         return formatter.format(date).toUpperCase();
     }
 }

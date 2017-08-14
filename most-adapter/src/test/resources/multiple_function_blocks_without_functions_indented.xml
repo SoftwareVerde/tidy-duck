@@ -31,4 +31,14 @@
             <Company>Software Verde</Company>
         </FBlockVersion>
     </FBlock>
+    <Definition>
+        <ClassDef ClassID="class_trigger">
+            <ClassDefName>Trigger</ClassDefName>
+            <ClassDefDesc/>
+        </ClassDef>
+        <ClassDef ClassID="class_switch">
+            <ClassDefName>Switch</ClassDefName>
+            <ClassDefDesc/>
+        </ClassDef>
+    </Definition>
 </FunctionCatalog>

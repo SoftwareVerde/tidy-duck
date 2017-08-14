@@ -1,5 +1,6 @@
 package com.softwareverde.mostadapter;
 
+import com.softwareverde.util.Util;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -12,8 +13,9 @@ public class FunctionCatalog implements XmlNode {
     private String _release;
     private String _author;
     private String _company;
-    private List<Modification> _modifications = new ArrayList<>();
-    private List<FunctionBlock> _functionBlocks = new ArrayList<>();
+    private final List<Modification> _modifications = new ArrayList<>();
+    private final List<FunctionBlock> _functionBlocks = new ArrayList<>();
+    private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
 
     public String getName() {
         return _name;
@@ -48,56 +50,77 @@ public class FunctionCatalog implements XmlNode {
     }
 
     public List<FunctionBlock> getFunctionBlocks() {
-        return _functionBlocks;
+        return Util.copyList(_functionBlocks);
     }
 
     public void addFunctionBlock(final FunctionBlock functionBlock) {
         _functionBlocks.add(functionBlock);
     }
 
-    public void setFunctionBlocks(List<FunctionBlock> functionBlocks) {
-        _functionBlocks = new ArrayList<>(functionBlocks);
+    public void setFunctionBlocks(final List<FunctionBlock> functionBlocks) {
+        _functionBlocks.clear();
+        _functionBlocks.addAll(functionBlocks);
+    }
+
+    public void addClassDefinition(final ClassDefinition classDefinition) {
+        _classDefinitions.add(classDefinition);
+    }
+
+    public void setClassDefinitions(final List<ClassDefinition> classDefinitions) {
+        _classDefinitions.clear();
+        _classDefinitions.addAll(classDefinitions);
+    }
+
+    public List<ClassDefinition> getClassDefinitions() {
+        return Util.copyList(_classDefinitions);
     }
 
     public List<Modification> getModifications() {
-        return _modifications;
+        return Util.copyList(_modifications);
     }
 
-    public void addModification(Modification modification) {
+    public void addModification(final Modification modification) {
         _modifications.add(modification);
     }
 
-    public void setModifications(List<Modification> modifications) {
-        _modifications = new ArrayList<>(modifications);
+    public void setModifications(final List<Modification> modifications) {
+        _modifications.clear();
+        _modifications.addAll(modifications);
     }
 
     @Override
     public Element generateXmlElement(Document document) {
-        Element rootElement = document.createElement("FunctionCatalog");
+        final Element rootElement = document.createElement("FunctionCatalog");
 
-        Element catalogVersion = document.createElement("CatalogVersion");
+        final Element catalogVersionElement = document.createElement("CatalogVersion");
 
-        Element release = XmlUtil.createTextElement(document, "Release", _release);
-        catalogVersion.appendChild(release);
+        final Element releaseElement = XmlUtil.createTextElement(document, "Release", _release);
+        catalogVersionElement.appendChild(releaseElement);
         final Date currentDate = new Date();
-        Element date = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(currentDate));
-        catalogVersion.appendChild(date);
-        Element author = XmlUtil.createTextElement(document, "Author", _author);
-        catalogVersion.appendChild(author);
-        Element company = XmlUtil.createTextElement(document, "Company", _company);
-        catalogVersion.appendChild(company);
+        final Element dateElement = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(currentDate));
+        catalogVersionElement.appendChild(dateElement);
+        final Element authorAuthor = XmlUtil.createTextElement(document, "Author", _author);
+        catalogVersionElement.appendChild(authorAuthor);
+        final Element companyElement = XmlUtil.createTextElement(document, "Company", _company);
+        catalogVersionElement.appendChild(companyElement);
 
         for (final Modification modification : _modifications) {
-            Element modificationElement = modification.generateXmlElement(document);
-            catalogVersion.appendChild(modificationElement);
+            final Element modificationElement = modification.generateXmlElement(document);
+            catalogVersionElement.appendChild(modificationElement);
         }
 
-        rootElement.appendChild(catalogVersion);
+        rootElement.appendChild(catalogVersionElement);
 
         for (final FunctionBlock functionBlock : _functionBlocks) {
-            Element functionBlockElement = functionBlock.generateXmlElement(document);
+            final Element functionBlockElement = functionBlock.generateXmlElement(document);
             rootElement.appendChild(functionBlockElement);
         }
+
+        final Element definitionElement = document.createElement("Definition");
+        for (final ClassDefinition classDefinition : _classDefinitions) {
+            definitionElement.appendChild(classDefinition.generateXmlElement(document));
+        }
+        rootElement.appendChild(definitionElement);
 
         return rootElement;
     }
