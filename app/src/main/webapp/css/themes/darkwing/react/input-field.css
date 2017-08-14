@@ -47,7 +47,7 @@
     text-align: left;
 }
 
-.input-field-small input, .input-field-small select {
+.input-field-small input, .input-field-small select, .input-field-small textarea {
     margin-left: 0.5em;
     font-weight: normal !important;
     padding: 0.50em;
@@ -61,6 +61,3 @@
     color: #032334;
 }
 
-.input-field-small .input-field-small select, .input-field-small textarea {
-    width: 100%;
-}

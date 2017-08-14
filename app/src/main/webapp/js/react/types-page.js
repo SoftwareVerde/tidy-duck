@@ -31,12 +31,16 @@ class TypesPage extends React.Component {
         this.onNumberStepChanged = this.onNumberStepChanged.bind(this);
         this.onNumberUnitChanged = this.onNumberUnitChanged.bind(this);
         this.onStreamCaseAddButtonClicked = this.onStreamCaseAddButtonClicked.bind(this);
+        this.onStreamCaseSignalAddButtonClicked = this.onStreamCaseSignalAddButtonClicked.bind(this);
         this.onStreamCaseParameterAddButtonClicked = this.onStreamCaseParameterAddButtonClicked.bind(this);
         this.onStreamCasePositionXChanged = this.onStreamCasePositionXChanged.bind(this);
         this.onStreamCasePositionYChanged = this.onStreamCasePositionYChanged.bind(this);
         this.onStreamCaseParameterNameChanged = this.onStreamCaseParameterNameChanged.bind(this);
         this.onStreamCaseParameterDescriptionChanged = this.onStreamCaseParameterDescriptionChanged.bind(this);
         this.onStreamCaseParameterTypeChanged = this.onStreamCaseParameterTypeChanged.bind(this);
+        this.onStreamSignalNameChanged = this.onStreamSignalNameChanged.bind(this);
+        this.onStreamSignalDescriptionChanged = this.onStreamSignalDescriptionChanged.bind(this);
+        this.onStreamSignalBitLengthChanged = this.onStreamSignalBitLengthChanged.bind(this);
         this.onClassifiedStreamMaxLengthChanged = this.onClassifiedStreamMaxLengthChanged.bind(this);
         this.onClassifiedStreamMediaTypeChanged = this.onClassifiedStreamMediaTypeChanged.bind(this);
         this.onShortStreamMaxLengthChanged = this.onShortStreamMaxLengthChanged.bind(this);
@@ -397,8 +401,19 @@ class TypesPage extends React.Component {
     onStreamCaseParameterAddButtonClicked(streamCase) {
         const mostType = this.state.mostType;
         const streamCaseParameter = new StreamCaseParameter();
-        streamCaseParameter.setParameterIndex(streamCase.getStreamParameters().length);
         streamCase.addStreamParameter(streamCaseParameter);
+        streamCaseParameter.setParameterIndex(streamCase.getStreamParameters().length);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onStreamCaseSignalAddButtonClicked(streamCase) {
+        const mostType = this.state.mostType;
+        const streamCaseSignal = new StreamCaseSignal();
+        streamCase.addStreamSignal(streamCaseSignal);
+        streamCaseSignal.setSignalIndex(streamCase.getStreamSignals().length);
 
         this.setState({
             mostType: mostType
@@ -422,8 +437,20 @@ class TypesPage extends React.Component {
     }
 
     onStreamCaseParameterTypeChanged(caseParameter, typeName) {
-        const newBaseType = this.getPrimitiveTypeByName(typeName);
+        const newBaseType = this.getMostTypeByName(typeName);
         caseParameter.setParameterType(newBaseType);
+    }
+
+    onStreamSignalNameChanged(streamSignal, name) {
+        streamSignal.setSignalName(name);
+    }
+
+    onStreamSignalDescriptionChanged(streamSignal, description) {
+        streamSignal.setSignalDescription(description);
+    }
+
+    onStreamSignalBitLengthChanged(streamSignal, bitLength) {
+        streamSignal.setSignalBitLength(bitLength);
     }
 
     onClassifiedStreamMaxLengthChanged(value) {
@@ -620,18 +647,18 @@ class TypesPage extends React.Component {
             } break;
             case 'TStream': {
                 const thisPage = this;
-                const baseTypes = this.getBaseTypes();
+                const primaryTypes = this.getPrimaryTypes();
                 let i = 1;
                 mostType.getStreamCases().forEach(function (streamCase) {
                     const key = "streamCase" + i;
+                    // Populate stream parameters (repeats)
                     const streamParameters = [];
-                    // TODO: populate stream parameters (repeats)
                     const parameterAddButtonKey = "addStreamParameter" + i;
                     let j = 1;
                     streamCase.getStreamParameters().forEach(function (streamParameter) {
                         const parameterKey = ("streamParameter" + i) + j;
                         if (streamParameter.getParameterType() == null) {
-                            streamParameter.setParameterType(thisPage.getPrimitiveTypeByName(baseTypes[0]));
+                            streamParameter.setParameterType(thisPage.getMostTypeByName(primaryTypes[0]));
                         }
                         const parameterTypeName = streamParameter.getParameterType().getName();
 
@@ -640,13 +667,28 @@ class TypesPage extends React.Component {
                                 <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
                                 <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamParameter.getParameterDescription()} onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={baseTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
+                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={primaryTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
                             </div>
                         );
                        j++;
                     });
-                    const streamSignals = [];
                     // TODO: populate stream signals (repeats)
+                    const streamSignals = [];
+                    const signalAddKey = "addStreamSignal" + i;
+                    j = 1;
+                    streamCase.getStreamSignals().forEach(function (streamSignal) {
+                        const signalKey = ("streamSignal" + i) + j;
+                        streamSignals.push(
+                            <div key={signalKey} className="parameter">
+                                <div>Stream Signal {streamSignal.getSignalIndex()}</div>
+                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamSignal.getSignalName()} onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)}/>
+                                <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamSignal.getSignalDescription()} onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
+                                <app.InputField name="bit-length" type="text" label="Bit Length" isSmallInputField={true} value={streamSignal.getSignalBitLength()} onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)}/>
+                            </div>
+                        );
+                        j++;
+                    });
+
                     reactComponents.push(
                         <div key={key} className="repeating-field clearfix">
                             <app.InputField key="streamcase1" type="text" label="Position X" name="position-x" value={streamCase.getStreamPositionX()} onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} />
@@ -659,6 +701,7 @@ class TypesPage extends React.Component {
                             <div key="signal-display-area" className="parameter-display-area clearfix">
                                 <div className="metadata-form-title">Stream Signals</div>
                                 {streamSignals}
+                                <i key={signalAddKey} className="assign-button fa fa-plus-square fa-3x" onClick={() => thisPage.onStreamCaseSignalAddButtonClicked(streamCase)}/>
                             </div>
                         </div>
                     );
