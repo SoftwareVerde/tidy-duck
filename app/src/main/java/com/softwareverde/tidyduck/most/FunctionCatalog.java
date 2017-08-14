@@ -18,6 +18,8 @@ public class FunctionCatalog {
     private final List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private final List<Modification> _modifications = new ArrayList<>();
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
+    private final List<PropertyCommandDefinition> _propertyCommandDefinitions = new ArrayList<>();
+    private final List<MethodCommandDefinition> _methodCommandDefinitions = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -91,6 +93,14 @@ public class FunctionCatalog {
         return Util.copyList(_classDefinitions);
     }
 
+    public List<PropertyCommandDefinition> getPropertyCommandDefinitions() {
+        return Util.copyList(_propertyCommandDefinitions);
+    }
+
+    public List<MethodCommandDefinition> getMethodCommandDefinitions() {
+        return Util.copyList(_methodCommandDefinitions);
+    }
+
     public void addClassDefinition(final ClassDefinition classDefinition) {
         _classDefinitions.add(classDefinition);
     }
@@ -98,6 +108,24 @@ public class FunctionCatalog {
     public void setClassDefinitions(final List<ClassDefinition> classDefinitions) {
         _classDefinitions.clear();
         _classDefinitions.addAll(classDefinitions);
+    }
+
+    public void addPropertyCommandDefinition(final PropertyCommandDefinition commandDefinition) {
+        _propertyCommandDefinitions.add(commandDefinition);
+    }
+
+    public void setPropertyCommandDefinitions(final List<PropertyCommandDefinition> commandDefinitions) {
+        _propertyCommandDefinitions.clear();
+        _propertyCommandDefinitions.addAll(commandDefinitions);
+    }
+
+    public void addMethodCommandDefinition(final MethodCommandDefinition commandDefinition) {
+        _methodCommandDefinitions.add(commandDefinition);
+    }
+
+    public void setMethodCommandDefinitions(final List<MethodCommandDefinition> commandDefinitions) {
+        _methodCommandDefinitions.clear();
+        _methodCommandDefinitions.addAll(commandDefinitions);
     }
 
     public void addFunctionBlock(final FunctionBlock functionBlock) {

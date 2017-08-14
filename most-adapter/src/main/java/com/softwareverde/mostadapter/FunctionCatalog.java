@@ -16,6 +16,8 @@ public class FunctionCatalog implements XmlNode {
     private final List<Modification> _modifications = new ArrayList<>();
     private final List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
+    private final List<PropertyCommandDefinition> _propertyCommandDefinitions = new ArrayList<>();
+    private final List<MethodCommandDefinition> _methodCommandDefinitions = new ArrayList<>();
 
     public String getName() {
         return _name;
@@ -75,6 +77,32 @@ public class FunctionCatalog implements XmlNode {
         return Util.copyList(_classDefinitions);
     }
 
+    public void addPropertyCommandDefinition(final PropertyCommandDefinition commandDefinition) {
+        _propertyCommandDefinitions.add(commandDefinition);
+    }
+
+    public void setPropertyCommandDefinitions(final List<PropertyCommandDefinition> commandDefinitions) {
+        _propertyCommandDefinitions.clear();
+        _propertyCommandDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<PropertyCommandDefinition> getPropertyCommandDefinitions() {
+        return Util.copyList(_propertyCommandDefinitions);
+    }
+
+    public void addMethodCommandDefinition(final MethodCommandDefinition commandDefinition) {
+        _methodCommandDefinitions.add(commandDefinition);
+    }
+
+    public void setMethodCommandDefinitions(final List<MethodCommandDefinition> commandDefinitions) {
+        _methodCommandDefinitions.clear();
+        _methodCommandDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<MethodCommandDefinition> getMethodCommandDefinitions() {
+        return Util.copyList(_methodCommandDefinitions);
+    }
+
     public List<Modification> getModifications() {
         return Util.copyList(_modifications);
     }
@@ -117,8 +145,18 @@ public class FunctionCatalog implements XmlNode {
         }
 
         final Element definitionElement = document.createElement("Definition");
-        for (final ClassDefinition classDefinition : _classDefinitions) {
-            definitionElement.appendChild(classDefinition.generateXmlElement(document));
+        {
+            for (final ClassDefinition classDefinition : _classDefinitions) {
+                definitionElement.appendChild(classDefinition.generateXmlElement(document));
+            }
+
+            for (final PropertyCommandDefinition commandDefinition : _propertyCommandDefinitions) {
+                definitionElement.appendChild(commandDefinition.generateXmlElement(document));
+            }
+
+            for (final MethodCommandDefinition commandDefinition : _methodCommandDefinitions) {
+                definitionElement.appendChild(commandDefinition.generateXmlElement(document));
+            }
         }
         rootElement.appendChild(definitionElement);
 

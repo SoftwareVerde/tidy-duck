@@ -40,14 +40,42 @@ public class MostTypeConverter {
             convertedFunctionCatalog.addClassDefinition(convertedClassDefinition);
         }
 
+        for (final PropertyCommandDefinition commandDefinition : functionCatalog.getPropertyCommandDefinitions()) {
+            final com.softwareverde.mostadapter.PropertyCommandDefinition convertedCommandDefinition = _convertPropertyCommandDefinition(commandDefinition);
+            convertedFunctionCatalog.addPropertyCommandDefinition(convertedCommandDefinition);
+        }
+
+        for (final MethodCommandDefinition commandDefinition : functionCatalog.getMethodCommandDefinitions()) {
+            final com.softwareverde.mostadapter.MethodCommandDefinition convertedCommandDefinition = _convertMethodCommandDefinition(commandDefinition);
+            convertedFunctionCatalog.addMethodCommandDefinition(convertedCommandDefinition);
+        }
+
         return convertedFunctionCatalog;
     }
 
     private com.softwareverde.mostadapter.ClassDefinition _convertClassDefinition(final ClassDefinition classDefinition) {
         return new com.softwareverde.mostadapter.ClassDefinition(
-            classDefinition.getClassId(),
-            classDefinition.getClassName(),
-            classDefinition.getClassDescription()
+                classDefinition.getClassId(),
+                classDefinition.getClassName(),
+                classDefinition.getClassDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.PropertyCommandDefinition _convertPropertyCommandDefinition(final PropertyCommandDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.PropertyCommandDefinition(
+            commandDefinition.getCommandId(),
+            commandDefinition.getCommandOperationType(),
+            commandDefinition.getCommandName(),
+            commandDefinition.getCommandDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.MethodCommandDefinition _convertMethodCommandDefinition(final MethodCommandDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.MethodCommandDefinition(
+            commandDefinition.getCommandId(),
+            commandDefinition.getCommandOperationType(),
+            commandDefinition.getCommandName(),
+            commandDefinition.getCommandDescription()
         );
     }
 

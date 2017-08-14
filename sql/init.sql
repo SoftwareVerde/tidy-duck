@@ -29,6 +29,8 @@ DROP TABLE IF EXISTS versions;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS companies;
 DROP TABLE IF EXISTS class_definitions;
+DROP TABLE IF EXISTS property_command_definitions;
+DROP TABLE IF EXISTS method_command_definitions;
 
 CREATE TABLE class_definitions (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -57,6 +59,42 @@ INSERT INTO class_definitions (class_id, class_name, class_description)
         ('class_boolfield', 'Boolfield', null),
         ('class_bitset', 'Bitset', null),
         ('class_map', 'Map', null);
+
+CREATE TABLE property_command_definitions (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    command_id VARCHAR(255) NOT NULL,
+    command_operation_type VARCHAR(255) NOT NULL,
+    command_name VARCHAR(255) NOT NULL,
+    command_description TEXT NULL
+) ENGINE=INNODB;
+
+INSERT INTO property_command_definitions (command_id, command_operation_type, command_name, command_description)
+    VALUES
+        ('PCmdSet', '0x0', 'Set', null),
+        ('PCmdGet', '0x1', 'Get', null),
+        ('PCmdSetGet', '0x2', 'SetGet', null),
+        ('PCmdIncrement', '0x3', 'Increment', null),
+        ('PCmdDecrement', '0x4', 'Decrement', null),
+        ('PCmdGetInterface', '0x5', 'GetInterface', null);
+
+CREATE TABLE method_command_definitions (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    command_id VARCHAR(255) NOT NULL,
+    command_operation_type VARCHAR(255) NOT NULL,
+    command_name VARCHAR(255) NOT NULL,
+    command_description TEXT NULL
+) ENGINE=INNODB;
+
+INSERT INTO property_command_definitions (command_id, command_operation_type, command_name, command_description)
+    VALUES
+        ('MCmdStart', 'Start', '0x0', null),
+        ('MCmdAbort', 'Abort', '0x1', null),
+        ('MCmdStartResult', 'StartResult', '0x2', null),
+        ('MCmdGetInterface', 'GetInterface', '0x5', null),
+        ('MCmdStartResultAck', 'StartResultAck', '0x6', null),
+        ('MCmdAbortAck', 'AbortAck', '0x7', null),
+        ('MCmdStartAck', 'StartAck', '0x8', null);
+
 
 CREATE TABLE companies (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
