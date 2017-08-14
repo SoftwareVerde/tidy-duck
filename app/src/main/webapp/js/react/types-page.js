@@ -31,8 +31,10 @@ class TypesPage extends React.Component {
         this.onNumberStepChanged = this.onNumberStepChanged.bind(this);
         this.onNumberUnitChanged = this.onNumberUnitChanged.bind(this);
         this.onStreamCaseAddButtonClicked = this.onStreamCaseAddButtonClicked.bind(this);
+        this.onStreamCaseParameterAddButtonClicked = this.onStreamCaseParameterAddButtonClicked.bind(this);
         this.onStreamCasePositionXChanged = this.onStreamCasePositionXChanged.bind(this);
         this.onStreamCasePositionYChanged = this.onStreamCasePositionYChanged.bind(this);
+        this.onStreamCaseParameterNameChanged = this.onStreamCaseParameterNameChanged.bind(this);
         this.onClassifiedStreamMaxLengthChanged = this.onClassifiedStreamMaxLengthChanged.bind(this);
         this.onClassifiedStreamMediaTypeChanged = this.onClassifiedStreamMediaTypeChanged.bind(this);
         this.onShortStreamMaxLengthChanged = this.onShortStreamMaxLengthChanged.bind(this);
@@ -390,12 +392,37 @@ class TypesPage extends React.Component {
         });
     }
 
+    onStreamCaseParameterAddButtonClicked(streamCaseIndex) {
+        const mostType = this.state.mostType;
+        const streamCases = mostType.getStreamCases();
+        const streamCase = streamCases[streamCaseIndex-1];
+        const streamCaseParameter = new StreamCaseParameter();
+        streamCaseParameter.setParameterIndex(streamCase.getStreamParameters().length);
+
+        streamCase.addStreamParameter(streamCaseParameter);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
     onStreamCasePositionXChanged(streamCase, positionX) {
         streamCase.setStreamPositionX(positionX);
     }
 
     onStreamCasePositionYChanged(streamCase, positionY) {
         streamCase.setStreamPositionY(positionY);
+    }
+
+    onStreamCaseParameterNameChanged(streamCaseIndex, streamParameterIndex, name) {
+        const mostType = this.state.mostType;
+        const streamCase = mostType.getStreamCases()[streamCaseIndex-1];
+        const streamCaseParameter = streamCase.getStreamParameters()[streamParameterIndex-1];
+        streamCaseParameter.setParameterName(name);
+
+        this.setState({
+            mostType: mostType
+        });
     }
 
     onClassifiedStreamMaxLengthChanged(value) {
@@ -596,15 +623,37 @@ class TypesPage extends React.Component {
                 mostType.getStreamCases().forEach(function (streamCase) {
                     const key = "streamCase" + i;
                     const streamParameters = [];
+                    const caseIndex = i;
                     // TODO: populate stream parameters (repeats)
+                    const parameterAddButtonKey = "addStreamParameter" + i;
+                    let j = 1;
+                    streamCase.getStreamParameters().forEach(function (streamParameter) {
+                        const parameterIndex = i;
+                        const parameterKey = ("streamParameter" + i) + j;
+                        streamParameters.push(
+                            <div key={parameterKey} className="parameter">
+                                <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
+                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(caseIndex, parameterIndex, name)}/>
+                                <app.InputField name="description" type="textarea" label="Description" value={streamParameter.getParameterDescription()}/>
+                            </div>
+                        );
+                       j++;
+                    });
                     const streamSignals = [];
                     // TODO: populate stream signals (repeats)
                     reactComponents.push(
                         <div key={key} className="repeating-field clearfix">
                             <app.InputField key="streamcase1" type="text" label="Position X" name="position-x" value={streamCase.getStreamPositionX()} onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} />
                             <app.InputField key="streamcase2" type="text" label="Position Y" name="position-y" value={streamCase.getStreamPositionY()} onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)} />
-                            {streamParameters}
-                            {streamSignals}
+                            <div key="parameter-display-area" className="parameter-display-area clearfix">
+                                <div className="metadata-form-title">Stream Parameters</div>
+                                {streamParameters}
+                                <i key={parameterAddButtonKey} className="assign-button fa fa-plus-square fa-3x" onClick={() => thisPage.onStreamCaseParameterAddButtonClicked(caseIndex)}/>
+                            </div>
+                            <div key="signal-display-area" className="parameter-display-area clearfix">
+                                <div className="metadata-form-title">Stream Signals</div>
+                                {streamSignals}
+                            </div>
                         </div>
                     );
                     i++;

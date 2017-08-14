@@ -161,7 +161,7 @@
     padding: 0px;
 }
 
-.metadata-form .metadata-form-title {
+.metadata-form, .parameter-display-area .metadata-form-title {
     font-size: 1.2em;
     font-weight: bold;
     padding-left: 0.5em;
