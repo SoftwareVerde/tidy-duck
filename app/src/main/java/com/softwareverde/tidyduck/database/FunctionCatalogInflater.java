@@ -45,6 +45,10 @@ public class FunctionCatalogInflater {
             if (inflateChildren) {
                 _inflateChildren(functionCatalog);
                 _inflateClassDefinitions(functionCatalog);
+                _inflatePropertyCommandDefinitions(functionCatalog);
+                _inflateMethodCommandDefinitions(functionCatalog);
+                _inflatePropertyReportDefinitions(functionCatalog);
+                _inflateMethodReportDefinitions(functionCatalog);
             }
             functionCatalogs.add(functionCatalog);
         }
@@ -104,6 +108,10 @@ public class FunctionCatalogInflater {
         if (inflateChildren) {
             _inflateChildren(functionCatalog);
             _inflateClassDefinitions(functionCatalog);
+            _inflatePropertyCommandDefinitions(functionCatalog);
+            _inflateMethodCommandDefinitions(functionCatalog);
+            _inflatePropertyReportDefinitions(functionCatalog);
+            _inflateMethodReportDefinitions(functionCatalog);
         }
 
         return functionCatalog;
@@ -150,4 +158,27 @@ public class FunctionCatalogInflater {
         functionCatalog.setClassDefinitions(classDefinitions);
     }
 
+    private void _inflatePropertyCommandDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final PropertyCommandDefinitionInflater commandDefinitionInflater = new PropertyCommandDefinitionInflater(_databaseConnection);
+        final List<PropertyCommandDefinition> commandDefinitions = commandDefinitionInflater.inflateCommandDefinitions();
+        functionCatalog.setPropertyCommandDefinitions(commandDefinitions);
+    }
+
+    private void _inflateMethodCommandDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final MethodCommandDefinitionInflater commandDefinitionInflater = new MethodCommandDefinitionInflater(_databaseConnection);
+        final List<MethodCommandDefinition> commandDefinitions = commandDefinitionInflater.inflateCommandDefinitions();
+        functionCatalog.setMethodCommandDefinitions(commandDefinitions);
+    }
+
+    private void _inflatePropertyReportDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final PropertyReportDefinitionInflater reportDefinitionInflater = new PropertyReportDefinitionInflater(_databaseConnection);
+        final List<PropertyReportDefinition> reportDefinitions = reportDefinitionInflater.inflateReportDefinitions();
+        functionCatalog.setPropertyReportDefinitions(reportDefinitions);
+    }
+
+    private void _inflateMethodReportDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final MethodReportDefinitionInflater reportDefinitionInflater = new MethodReportDefinitionInflater(_databaseConnection);
+        final List<MethodReportDefinition> reportDefinitions = reportDefinitionInflater.inflateReportDefinitions();
+        functionCatalog.setMethodReportDefinitions(reportDefinitions);
+    }
 }

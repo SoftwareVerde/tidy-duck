@@ -20,6 +20,8 @@ public class FunctionCatalog {
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
     private final List<PropertyCommandDefinition> _propertyCommandDefinitions = new ArrayList<>();
     private final List<MethodCommandDefinition> _methodCommandDefinitions = new ArrayList<>();
+    private final List<PropertyReportDefinition> _propertyReportDefinitions = new ArrayList<>();
+    private final List<MethodReportDefinition> _methodReportDefinitions = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -101,6 +103,14 @@ public class FunctionCatalog {
         return Util.copyList(_methodCommandDefinitions);
     }
 
+    public List<PropertyReportDefinition> getPropertyReportDefinitions() {
+        return Util.copyList(_propertyReportDefinitions);
+    }
+
+    public List<MethodReportDefinition> getMethodReportDefinitions() {
+        return Util.copyList(_methodReportDefinitions);
+    }
+
     public void addClassDefinition(final ClassDefinition classDefinition) {
         _classDefinitions.add(classDefinition);
     }
@@ -126,6 +136,24 @@ public class FunctionCatalog {
     public void setMethodCommandDefinitions(final List<MethodCommandDefinition> commandDefinitions) {
         _methodCommandDefinitions.clear();
         _methodCommandDefinitions.addAll(commandDefinitions);
+    }
+
+    public void addPropertyReportDefinition(final PropertyReportDefinition reportDefinition) {
+        _propertyReportDefinitions.add(reportDefinition);
+    }
+
+    public void setPropertyReportDefinitions(final List<PropertyReportDefinition> reportDefinitions) {
+        _propertyReportDefinitions.clear();
+        _propertyReportDefinitions.addAll(reportDefinitions);
+    }
+
+    public void addMethodReportDefinition(final MethodReportDefinition reportDefinition) {
+        _methodReportDefinitions.add(reportDefinition);
+    }
+
+    public void setMethodReportDefinitions(final List<MethodReportDefinition> reportDefinitions) {
+        _methodReportDefinitions.clear();
+        _methodReportDefinitions.addAll(reportDefinitions);
     }
 
     public void addFunctionBlock(final FunctionBlock functionBlock) {

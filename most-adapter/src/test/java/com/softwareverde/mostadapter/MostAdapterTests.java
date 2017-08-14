@@ -33,15 +33,15 @@ public class MostAdapterTests {
 
         final Date lastModifiedDate = new Date(1297702800000L); // date -d "2011-02-14 12:00:00" +%s (converted to ms)
         final FunctionBlock functionBlock = createTestFunctionBlock(
-                "0x0F",
-                "EnhancedTestability",
-                "Proprietary",
-                "This is an FBlock description.",
-                "3.0.2",
-                lastModifiedDate,
-                "Specification Support",
-                "MOST Cooperation",
-                "public");
+            "0x0F",
+            "EnhancedTestability",
+            "Proprietary",
+            "This is an FBlock description.",
+            "3.0.2",
+            lastModifiedDate,
+            "Specification Support",
+            "MOST Cooperation",
+            "public");
         functionCatalog.addFunctionBlock(functionBlock);
 
         final MostAdapter adapter = new MostAdapter();
@@ -71,15 +71,16 @@ public class MostAdapterTests {
 
         final Date lastModifiedDate2 = new Date(1489852800000L); // date -d "18-MAR-2017 12:00:00" +%s (converted to ms)
         final FunctionBlock functionBlock2 = createTestFunctionBlock(
-                "0x10",
-                "SecondFunctionBlock",
-                "Test",
-                "This is a second FBlock description.",
-                "3.0.3",
-                lastModifiedDate2,
-                "Test User",
-                "Software Verde",
-                "private");
+            "0x10",
+            "SecondFunctionBlock",
+            "Test",
+            "This is a second FBlock description.",
+            "3.0.3",
+            lastModifiedDate2,
+            "Test User",
+            "Software Verde",
+            "private"
+        );
         functionCatalog.addFunctionBlock(functionBlock2);
 
         final MostAdapter adapter = new MostAdapter();
@@ -91,14 +92,14 @@ public class MostAdapterTests {
 
     private FunctionCatalog createDefaultTestFunctionCatalog() {
         return createTestFunctionCatalog(
-                "3.0.2.2",
-                "Specification Support",
-                "MOST Cooperation"
+            "3.0.2.2",
+            "Specification Support",
+            "MOST Cooperation"
         );
     }
 
-    private FunctionCatalog createTestFunctionCatalog(String release, String author, String company) {
-        FunctionCatalog functionCatalog = new FunctionCatalog();
+    private FunctionCatalog createTestFunctionCatalog(final String release, final String author, final String company) {
+        final FunctionCatalog functionCatalog = new FunctionCatalog();
         functionCatalog.setRelease(release);
 
         functionCatalog.setAuthor(author);
@@ -107,11 +108,23 @@ public class MostAdapterTests {
         functionCatalog.addClassDefinition(new ClassDefinition("class_trigger", "Trigger", null));
         functionCatalog.addClassDefinition(new ClassDefinition("class_switch", "Switch", null));
 
+        functionCatalog.addPropertyCommandDefinition(new PropertyCommandDefinition("PCmdSet", "0x0", "Set", null));
+        functionCatalog.addPropertyCommandDefinition(new PropertyCommandDefinition("PCmdGet", "0x1", "Get", null));
+
+        functionCatalog.addMethodCommandDefinition(new MethodCommandDefinition("MCmdStart", "0x0", "Start", null));
+        functionCatalog.addMethodCommandDefinition(new MethodCommandDefinition("MCmdAbort", "0x1", "Abort", null));
+
+        functionCatalog.addPropertyReportDefinition(new PropertyReportDefinition("PReportStatus", "0xC", "Status", null));
+        functionCatalog.addPropertyReportDefinition(new PropertyReportDefinition("PReportInterface", "0xE", "Interface", null));
+
+        functionCatalog.addMethodReportDefinition(new MethodReportDefinition("MReportErrorAck", "0x9", "ErrorAck", null));
+        functionCatalog.addMethodReportDefinition(new MethodReportDefinition("MReportProcessingAck", "0xA", "ProcessingAck", null));
+
         return functionCatalog;
     }
 
-    private FunctionBlock createTestFunctionBlock(String mostId, String name, String kind, String description, String release, Date lastModifiedDate, String author, String company, String access) {
-        FunctionBlock functionBlock = new FunctionBlock();
+    private FunctionBlock createTestFunctionBlock(final String mostId, final String name, final String kind, final String description, final String release, final Date lastModifiedDate, final String author, final String company, final String access) {
+        final FunctionBlock functionBlock = new FunctionBlock();
         functionBlock.setMostId(mostId);
         functionBlock.setName(name);
         functionBlock.setKind(kind);
@@ -125,20 +138,20 @@ public class MostAdapterTests {
         return functionBlock;
     }
 
-    private String getResourceAsString(String resourcePath) throws IOException {
-        InputStream inputStream = getClass().getResource(resourcePath).openStream();
+    private String getResourceAsString(final String resourcePath) throws IOException {
+        final InputStream inputStream = getClass().getResource(resourcePath).openStream();
         java.util.Scanner s = new java.util.Scanner(inputStream).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
     }
 
-    private String getCorrectXml(String resourcePath) throws IOException {
-        String xml = getResourceAsString(resourcePath);
-        String correctedXml = xml.replace("%CURRENT_DATE%", getCurrentDate());
+    private String getCorrectXml(final String resourcePath) throws IOException {
+        final String xml = getResourceAsString(resourcePath);
+        final String correctedXml = xml.replace("%CURRENT_DATE%", getCurrentDate());
         return correctedXml;
     }
 
     private String getCurrentDate() {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+        final SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
         return formatter.format(new Date()).toUpperCase();
     }
 }

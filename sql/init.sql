@@ -85,7 +85,7 @@ CREATE TABLE method_command_definitions (
     command_description TEXT NULL
 ) ENGINE=INNODB;
 
-INSERT INTO property_command_definitions (command_id, command_operation_type, command_name, command_description)
+INSERT INTO method_command_definitions (command_id, command_operation_type, command_name, command_description)
     VALUES
         ('MCmdStart', 'Start', '0x0', null),
         ('MCmdAbort', 'Abort', '0x1', null),
@@ -95,6 +95,37 @@ INSERT INTO property_command_definitions (command_id, command_operation_type, co
         ('MCmdAbortAck', 'AbortAck', '0x7', null),
         ('MCmdStartAck', 'StartAck', '0x8', null);
 
+CREATE TABLE property_report_definitions (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    report_id VARCHAR(255) NOT NULL,
+    report_operation_type VARCHAR(255) NOT NULL,
+    report_name VARCHAR(255) NOT NULL,
+    report_description TEXT NULL
+) ENGINE=INNODB;
+
+INSERT INTO property_report_definitions (report_id, report_operation_type, report_name, report_description)
+    VALUES
+        ('PReportStatus', 'Status', '0xC', null),
+        ('PReportInterface', 'Interface', '0xE', null),
+        ('PReportError', 'Error', '0xF', null);
+
+CREATE TABLE method_report_definitions (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    report_id VARCHAR(255) NOT NULL,
+    report_operation_type VARCHAR(255) NOT NULL,
+    report_name VARCHAR(255) NOT NULL,
+    report_description TEXT NULL
+) ENGINE=INNODB;
+
+INSERT INTO method_report_definitions (report_id, report_operation_type, report_name, report_description)
+    VALUES
+        ('MReportErrorAck', 'ErrorAck', '0x9', null),
+        ('MReportProcessingAck', 'ProcessingAck', '0xA', null),
+        ('MReportProcessing', 'Processing', '0xB', null),
+        ('MReportResult', 'Result', '0xC', null),
+        ('MReportResultAck', 'ResultAck', '0xD', null),
+        ('MReportInterface', 'Interface', '0xE', null),
+        ('MReportError', 'Error', '0xF', null);
 
 CREATE TABLE companies (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,

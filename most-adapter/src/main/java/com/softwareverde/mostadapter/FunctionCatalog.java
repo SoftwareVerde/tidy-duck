@@ -18,6 +18,8 @@ public class FunctionCatalog implements XmlNode {
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
     private final List<PropertyCommandDefinition> _propertyCommandDefinitions = new ArrayList<>();
     private final List<MethodCommandDefinition> _methodCommandDefinitions = new ArrayList<>();
+    private final List<PropertyReportDefinition> _propertyReportDefinitions = new ArrayList<>();
+    private final List<MethodReportDefinition> _methodReportDefinitions = new ArrayList<>();
 
     public String getName() {
         return _name;
@@ -103,6 +105,32 @@ public class FunctionCatalog implements XmlNode {
         return Util.copyList(_methodCommandDefinitions);
     }
 
+    public void addPropertyReportDefinition(final PropertyReportDefinition commandDefinition) {
+        _propertyReportDefinitions.add(commandDefinition);
+    }
+
+    public void setPropertyReportDefinitions(final List<PropertyReportDefinition> commandDefinitions) {
+        _propertyReportDefinitions.clear();
+        _propertyReportDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<PropertyReportDefinition> getPropertyReportDefinitions() {
+        return Util.copyList(_propertyReportDefinitions);
+    }
+
+    public void addMethodReportDefinition(final MethodReportDefinition commandDefinition) {
+        _methodReportDefinitions.add(commandDefinition);
+    }
+
+    public void setMethodReportDefinitions(final List<MethodReportDefinition> commandDefinitions) {
+        _methodReportDefinitions.clear();
+        _methodReportDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<MethodReportDefinition> getMethodReportDefinitions() {
+        return Util.copyList(_methodReportDefinitions);
+    }
+
     public List<Modification> getModifications() {
         return Util.copyList(_modifications);
     }
@@ -156,6 +184,14 @@ public class FunctionCatalog implements XmlNode {
 
             for (final MethodCommandDefinition commandDefinition : _methodCommandDefinitions) {
                 definitionElement.appendChild(commandDefinition.generateXmlElement(document));
+            }
+
+            for (final PropertyReportDefinition reportDefinition : _propertyReportDefinitions) {
+                definitionElement.appendChild(reportDefinition.generateXmlElement(document));
+            }
+
+            for (final MethodReportDefinition reportDefinition : _methodReportDefinitions) {
+                definitionElement.appendChild(reportDefinition.generateXmlElement(document));
             }
         }
         rootElement.appendChild(definitionElement);

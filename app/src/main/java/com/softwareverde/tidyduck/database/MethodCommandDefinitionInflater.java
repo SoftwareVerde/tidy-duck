@@ -18,7 +18,7 @@ public class MethodCommandDefinitionInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<MethodCommandDefinition> inflateClassDefinitions() throws DatabaseException {
+    public List<MethodCommandDefinition> inflateCommandDefinitions() throws DatabaseException {
         final Query query = new Query(
             "SELECT * FROM method_command_definitions"
         );

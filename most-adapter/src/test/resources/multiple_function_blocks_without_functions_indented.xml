@@ -40,5 +40,45 @@
             <ClassDefName>Switch</ClassDefName>
             <ClassDefDesc/>
         </ClassDef>
+        <PCmdDef PCmdID="PCmdSet">
+            <CmdDefName>Set</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x0</CmdDefOPType>
+        </PCmdDef>
+        <PCmdDef PCmdID="PCmdGet">
+            <CmdDefName>Get</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x1</CmdDefOPType>
+        </PCmdDef>
+        <MCmdDef MCmdID="MCmdStart">
+            <CmdDefName>Start</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x0</CmdDefOPType>
+        </MCmdDef>
+        <MCmdDef MCmdID="MCmdAbort">
+            <CmdDefName>Abort</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x1</CmdDefOPType>
+        </MCmdDef>
+        <PReportDef PReportID="PReportStatus">
+            <ReportDefName>Status</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0xC</ReportDefOPType>
+        </PReportDef>
+        <PReportDef PReportID="PReportInterface">
+            <ReportDefName>Interface</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0xE</ReportDefOPType>
+        </PReportDef>
+        <MReportDef MReportID="MReportErrorAck">
+            <ReportDefName>ErrorAck</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0x9</ReportDefOPType>
+        </MReportDef>
+        <MReportDef MReportID="MReportProcessingAck">
+            <ReportDefName>ProcessingAck</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0xA</ReportDefOPType>
+        </MReportDef>
     </Definition>
 </FunctionCatalog>

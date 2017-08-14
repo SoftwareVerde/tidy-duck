@@ -18,7 +18,7 @@ public class PropertyCommandDefinitionInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<PropertyCommandDefinition> inflateClassDefinitions() throws DatabaseException {
+    public List<PropertyCommandDefinition> inflateCommandDefinitions() throws DatabaseException {
         final Query query = new Query(
                 "SELECT * FROM property_command_definitions"
         );

@@ -50,6 +50,16 @@ public class MostTypeConverter {
             convertedFunctionCatalog.addMethodCommandDefinition(convertedCommandDefinition);
         }
 
+        for (final PropertyReportDefinition commandDefinition : functionCatalog.getPropertyReportDefinitions()) {
+            final com.softwareverde.mostadapter.PropertyReportDefinition convertedReportDefinition = _convertPropertyReportDefinition(commandDefinition);
+            convertedFunctionCatalog.addPropertyReportDefinition(convertedReportDefinition);
+        }
+
+        for (final MethodReportDefinition commandDefinition : functionCatalog.getMethodReportDefinitions()) {
+            final com.softwareverde.mostadapter.MethodReportDefinition convertedReportDefinition = _convertMethodReportDefinition(commandDefinition);
+            convertedFunctionCatalog.addMethodReportDefinition(convertedReportDefinition);
+        }
+
         return convertedFunctionCatalog;
     }
 
@@ -76,6 +86,24 @@ public class MostTypeConverter {
             commandDefinition.getCommandOperationType(),
             commandDefinition.getCommandName(),
             commandDefinition.getCommandDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.PropertyReportDefinition _convertPropertyReportDefinition(final PropertyReportDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.PropertyReportDefinition(
+            commandDefinition.getReportId(),
+            commandDefinition.getReportOperationType(),
+            commandDefinition.getReportName(),
+            commandDefinition.getReportDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.MethodReportDefinition _convertMethodReportDefinition(final MethodReportDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.MethodReportDefinition(
+            commandDefinition.getReportId(),
+            commandDefinition.getReportOperationType(),
+            commandDefinition.getReportName(),
+            commandDefinition.getReportDescription()
         );
     }
 
