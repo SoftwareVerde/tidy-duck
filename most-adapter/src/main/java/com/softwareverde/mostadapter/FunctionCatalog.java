@@ -20,6 +20,7 @@ public class FunctionCatalog implements XmlNode {
     private final List<MethodCommandDefinition> _methodCommandDefinitions = new ArrayList<>();
     private final List<PropertyReportDefinition> _propertyReportDefinitions = new ArrayList<>();
     private final List<MethodReportDefinition> _methodReportDefinitions = new ArrayList<>();
+    private final List<TypeDefinition> _typeDefinitions = new ArrayList<>();
 
     public String getName() {
         return _name;
@@ -131,6 +132,19 @@ public class FunctionCatalog implements XmlNode {
         return Util.copyList(_methodReportDefinitions);
     }
 
+    public void addTypeDefinition(final TypeDefinition commandDefinition) {
+        _typeDefinitions.add(commandDefinition);
+    }
+
+    public void setTypeDefinitions(final List<TypeDefinition> commandDefinitions) {
+        _typeDefinitions.clear();
+        _typeDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<TypeDefinition> getTypeDefinitions() {
+        return Util.copyList(_typeDefinitions);
+    }
+
     public List<Modification> getModifications() {
         return Util.copyList(_modifications);
     }
@@ -192,6 +206,10 @@ public class FunctionCatalog implements XmlNode {
 
             for (final MethodReportDefinition reportDefinition : _methodReportDefinitions) {
                 definitionElement.appendChild(reportDefinition.generateXmlElement(document));
+            }
+
+            for (final TypeDefinition typeDefinition : _typeDefinitions) {
+                definitionElement.appendChild(typeDefinition.generateXmlElement(document));
             }
         }
         rootElement.appendChild(definitionElement);

@@ -80,5 +80,15 @@
             <ReportDefDesc/>
             <ReportDefOPType>0xA</ReportDefOPType>
         </MReportDef>
+        <TypeDef TypeID="type_record">
+            <TDefName>Record</TDefName>
+            <TDefDesc/>
+            <TDefSize>255</TDefSize>
+        </TypeDef>
+        <TypeDef TypeID="type_array">
+            <TDefName>Array</TDefName>
+            <TDefDesc/>
+            <TDefSize>255</TDefSize>
+        </TypeDef>
     </Definition>
 </FunctionCatalog>

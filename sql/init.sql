@@ -31,6 +31,9 @@ DROP TABLE IF EXISTS companies;
 DROP TABLE IF EXISTS class_definitions;
 DROP TABLE IF EXISTS property_command_definitions;
 DROP TABLE IF EXISTS method_command_definitions;
+DROP TABLE IF EXISTS property_report_definitions;
+DROP TABLE IF EXISTS method_report_definitions;
+DROP TABLE IF EXISTS type_definitions;
 
 CREATE TABLE class_definitions (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -126,6 +129,35 @@ INSERT INTO method_report_definitions (report_id, report_operation_type, report_
         ('MReportResultAck', 'ResultAck', '0xD', null),
         ('MReportInterface', 'Interface', '0xE', null),
         ('MReportError', 'Error', '0xF', null);
+
+CREATE TABLE type_definitions (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    type_id VARCHAR(255) NOT NULL,
+    type_name VARCHAR(255) NOT NULL,
+    type_size INT NULL,
+    type_description TEXT NULL
+) ENGINE=INNODB;
+
+INSERT INTO type_definitions (type_id, type_name, type_description, type_size)
+    VALUES
+        ('type_record', 'Record', null, '255'),
+        ('type_array', 'Array', null, '255'),
+        ('type_array_of_record', 'ArrayOfRecord', null, null),
+        ('type_dynamic_array', 'DynamicArray', null, null),
+        ('type_boolean', 'Boolean', null, '1'),
+        ('type_bitfield', 'BitField', null, null),
+        ('type_enum', 'Enum', null, '1'),
+        ('type_unsigned_byte', 'Unsigned Byte', null, '1'),
+        ('type_signed_byte', 'Signed Byte', null, '1'),
+        ('type_unsigned_word', 'Unsigned Word', null, '2'),
+        ('type_signed_word', 'Signed Word', null, '2'),
+        ('type_unsigned_long', 'Unsigned Long', null, '4'),
+        ('type_signed_long', 'Signed Long', null, '4'),
+        ('type_string', 'String', null, '255'),
+        ('type_stream', 'Stream', null, '4095'),
+        ('type_void', 'Void', null, '0'),
+        ('type_shortstream', 'Short Stream', null, null),
+        ('type_cstream', 'Classified Stream', null, null);
 
 CREATE TABLE companies (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,

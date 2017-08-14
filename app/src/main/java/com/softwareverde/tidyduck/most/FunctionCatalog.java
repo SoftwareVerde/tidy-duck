@@ -22,6 +22,7 @@ public class FunctionCatalog {
     private final List<MethodCommandDefinition> _methodCommandDefinitions = new ArrayList<>();
     private final List<PropertyReportDefinition> _propertyReportDefinitions = new ArrayList<>();
     private final List<MethodReportDefinition> _methodReportDefinitions = new ArrayList<>();
+    private final List<TypeDefinition> _typeDefinitions = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -111,6 +112,10 @@ public class FunctionCatalog {
         return Util.copyList(_methodReportDefinitions);
     }
 
+    public List<TypeDefinition> getTypeDefinitions() {
+        return Util.copyList(_typeDefinitions);
+    }
+
     public void addClassDefinition(final ClassDefinition classDefinition) {
         _classDefinitions.add(classDefinition);
     }
@@ -154,6 +159,15 @@ public class FunctionCatalog {
     public void setMethodReportDefinitions(final List<MethodReportDefinition> reportDefinitions) {
         _methodReportDefinitions.clear();
         _methodReportDefinitions.addAll(reportDefinitions);
+    }
+
+    public void addTypeDefinition(final TypeDefinition typeDefinition) {
+        _typeDefinitions.add(typeDefinition);
+    }
+
+    public void setTypeDefinitions(final List<TypeDefinition> typeDefinitions) {
+        _typeDefinitions.clear();
+        _typeDefinitions.addAll(typeDefinitions);
     }
 
     public void addFunctionBlock(final FunctionBlock functionBlock) {

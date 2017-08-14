@@ -60,6 +60,11 @@ public class MostTypeConverter {
             convertedFunctionCatalog.addMethodReportDefinition(convertedReportDefinition);
         }
 
+        for (final TypeDefinition typeDefinition : functionCatalog.getTypeDefinitions()) {
+            final com.softwareverde.mostadapter.TypeDefinition convertedTypeDefinition = _convertTypeDefinition(typeDefinition);
+            convertedFunctionCatalog.addTypeDefinition(convertedTypeDefinition);
+        }
+
         return convertedFunctionCatalog;
     }
 
@@ -104,6 +109,15 @@ public class MostTypeConverter {
             commandDefinition.getReportOperationType(),
             commandDefinition.getReportName(),
             commandDefinition.getReportDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.TypeDefinition _convertTypeDefinition(final TypeDefinition typeDefinition) {
+        return new com.softwareverde.mostadapter.TypeDefinition(
+            typeDefinition.getTypeId(),
+            typeDefinition.getTypeName(),
+            typeDefinition.getTypeSize(),
+            typeDefinition.getTypeDescription()
         );
     }
 

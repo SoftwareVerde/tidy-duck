@@ -120,6 +120,9 @@ public class MostAdapterTests {
         functionCatalog.addMethodReportDefinition(new MethodReportDefinition("MReportErrorAck", "0x9", "ErrorAck", null));
         functionCatalog.addMethodReportDefinition(new MethodReportDefinition("MReportProcessingAck", "0xA", "ProcessingAck", null));
 
+        functionCatalog.addTypeDefinition(new TypeDefinition("type_record", "Record", 255, null));
+        functionCatalog.addTypeDefinition(new TypeDefinition("type_array", "Array", 255, null));
+
         return functionCatalog;
     }
 
