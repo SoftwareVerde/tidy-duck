@@ -35,6 +35,8 @@ class StreamCase {
 
         addConvertedJsonArray(streamCaseJson, "streamParameters",   streamCase.getStreamParameters(),   StreamCaseParameter.toJson);
         addConvertedJsonArray(streamCaseJson, "streamSignals",      streamCase.getStreamSignals(),      StreamCaseSignal.toJson);
+
+        return streamCaseJson;
     }
 
     constructor() {

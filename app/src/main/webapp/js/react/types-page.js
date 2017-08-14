@@ -437,8 +437,14 @@ class TypesPage extends React.Component {
     }
 
     onStreamCaseParameterTypeChanged(caseParameter, typeName) {
-        const newBaseType = this.getMostTypeByName(typeName);
-        caseParameter.setParameterType(newBaseType);
+        const mostType = this.state.mostType;
+
+        const newParameterType = this.getMostTypeByName(typeName);
+        caseParameter.setParameterType(newParameterType);
+
+        this.setState({
+            mostType: mostType
+        });
     }
 
     onStreamSignalNameChanged(streamSignal, name) {
