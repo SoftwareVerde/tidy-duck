@@ -283,7 +283,7 @@
     float: top;
 }
 
-.parameter, .repeating-field i.remove-button {
+.parameter i.remove-button, .repeating-field i.remove-button {
     margin: 0 2px 0 auto;
     cursor: pointer;
 }

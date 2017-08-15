@@ -25,9 +25,10 @@ class EnumValue {
     }
 
     constructor() {
-        this._id    = null;
-        this._name  = null;
-        this._code  = null;
+        this._id            = null;
+        this._name          = null;
+        this._code          = null;
+        this._valueIndex    = null;
     }
 
     setId(id) {
@@ -52,6 +53,14 @@ class EnumValue {
 
     getCode() {
         return this._code;
+    }
+
+    setValueIndex(valueIndex) {
+        this._valueIndex = valueIndex;
+    }
+
+    getValueIndex() {
+        return this._valueIndex;
     }
 
 }

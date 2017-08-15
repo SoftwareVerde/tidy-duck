@@ -17,10 +17,12 @@ class TypesPage extends React.Component {
         this.onTypeSelected = this.onTypeSelected.bind(this);
         this.onBitFieldLengthChanged = this.onBitFieldLengthChanged.bind(this);
         this.onBoolFieldAddButtonClicked = this.onBoolFieldAddButtonClicked.bind(this);
+        this.onBoolFieldRemoveButtonClicked = this.onBoolFieldRemoveButtonClicked.bind(this);
         this.onBooleanFieldBitPositionChanged = this.onBooleanFieldBitPositionChanged.bind(this);
         this.onBooleanFieldTrueDescriptionChanged = this.onBooleanFieldTrueDescriptionChanged.bind(this);
         this.onBooleanFieldFalseDescriptionChanged = this.onBooleanFieldFalseDescriptionChanged.bind(this);
         this.onEnumValueAddButtonClicked = this.onEnumValueAddButtonClicked.bind(this);
+        this.onEnumValueRemoveButtonClicked = this.onEnumValueRemoveButtonClicked.bind(this);
         this.onEnumValueNameChanged = this.onEnumValueNameChanged.bind(this);
         this.onEnumValueCodeChanged = this.onEnumValueCodeChanged.bind(this);
         this.onStringMaxSizeChanged = this.onStringMaxSizeChanged.bind(this);
@@ -31,6 +33,7 @@ class TypesPage extends React.Component {
         this.onNumberStepChanged = this.onNumberStepChanged.bind(this);
         this.onNumberUnitChanged = this.onNumberUnitChanged.bind(this);
         this.onStreamCaseAddButtonClicked = this.onStreamCaseAddButtonClicked.bind(this);
+        this.onStreamCaseRemoveButtonClicked = this.onStreamCaseRemoveButtonClicked.bind(this);
         this.onStreamCaseSignalAddButtonClicked = this.onStreamCaseSignalAddButtonClicked.bind(this);
         this.onStreamCaseParameterAddButtonClicked = this.onStreamCaseParameterAddButtonClicked.bind(this);
         this.onStreamCasePositionXChanged = this.onStreamCasePositionXChanged.bind(this);
@@ -288,9 +291,33 @@ class TypesPage extends React.Component {
 
     onBoolFieldAddButtonClicked() {
         const mostType = this.state.mostType;
+        const booleanField = new BooleanField();
 
-        mostType.addBooleanField(new BooleanField());
+        mostType.addBooleanField(booleanField);
+        booleanField.setFieldIndex(mostType.getBooleanFields().length);
 
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onBoolFieldRemoveButtonClicked(booleanField) {
+        const mostType = this.state.mostType;
+        const booleanFields = mostType.getBooleanFields();
+        const newBooleanFields = [];
+        const booleanFieldIndex = booleanField.getFieldIndex();
+
+        let indexCounter = 1;
+        for (let i in booleanFields) {
+            const existingBooleanField = booleanFields[i];
+            if (existingBooleanField.getFieldIndex() !== booleanFieldIndex) {
+                existingBooleanField.setFieldIndex(indexCounter);
+                newBooleanFields.push(existingBooleanField);
+                indexCounter++;
+            }
+        }
+
+        mostType.setBooleanFields(newBooleanFields);
         this.setState({
             mostType: mostType
         });
@@ -310,9 +337,33 @@ class TypesPage extends React.Component {
 
     onEnumValueAddButtonClicked() {
         const mostType = this.state.mostType;
+        const enumValue = new EnumValue();
 
-        mostType.addEnumValue(new EnumValue());
+        mostType.addEnumValue(enumValue);
+        enumValue.setValueIndex(mostType.getEnumValues().length);
 
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onEnumValueRemoveButtonClicked(enumValue) {
+        const mostType = this.state.mostType;
+        const enumValues = mostType.getEnumValues();
+        const newEnumValues = [];
+        const enumValueIndex = enumValue.getValueIndex();
+
+        let indexCounter = 1;
+        for (let i in enumValues) {
+            const existingEnumValue = enumValues[i];
+            if (existingEnumValue.getValueIndex() !== enumValueIndex) {
+                existingEnumValue.setValueIndex(indexCounter);
+                newEnumValues.push(existingEnumValue);
+                indexCounter++;
+            }
+        }
+
+        mostType.setEnumValues(newEnumValues);
         this.setState({
             mostType: mostType
         });
@@ -400,9 +451,33 @@ class TypesPage extends React.Component {
 
     onStreamCaseAddButtonClicked() {
         const mostType = this.state.mostType;
+        const streamCase = new StreamCase();
 
-        mostType.addStreamCase(new StreamCase());
+        mostType.addStreamCase(streamCase);
+        streamCase.setCaseIndex(mostType.getStreamCases().length);
 
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onStreamCaseRemoveButtonClicked(streamCase) {
+        const mostType = this.state.mostType;
+        const streamCases = mostType.getStreamCases();
+        const newStreamCases = [];
+        const streamCaseIndex = streamCase.getCaseIndex();
+
+        let indexCounter = 1;
+        for (let i in streamCases) {
+            const existingStreamCase = streamCases[i];
+            if (existingStreamCase.getCaseIndex() !== streamCaseIndex) {
+                existingStreamCase.setCaseIndex(indexCounter);
+                newStreamCases.push(existingStreamCase);
+                indexCounter++;
+            }
+        }
+
+        mostType.setStreamCases(newStreamCases);
         this.setState({
             mostType: mostType
         });
@@ -736,6 +811,9 @@ class TypesPage extends React.Component {
                     const key = "boolfield" + i;
                     reactComponents.push(
                         <div key={key} className="repeating-field clearfix">
+                            <div className="repeating-field-header clearfix">Field {booleanField.getFieldIndex()}
+                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onBoolFieldRemoveButtonClicked(booleanField)} />
+                            </div>
                             <app.InputField key="bool1" type="text" label="Bit Position" name="bit-position" value={booleanField.getBitPosition()} onChange={(bitPosition) => thisPage.onBooleanFieldBitPositionChanged(booleanField, bitPosition)} />
                             <app.InputField key="bool2" type="text" label="True Description" name="true-description" value={booleanField.getTrueDescription()} onChange={(trueDescription) => thisPage.onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription)} />
                             <app.InputField key="bool3" type="text" label="False Description" name="false-description" value={booleanField.getFalseDescription()} onChange={(falseDescription) => thisPage.onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription)} />
@@ -752,6 +830,9 @@ class TypesPage extends React.Component {
                     const key = "enum" + i;
                     reactComponents.push(
                         <div className="repeating-field clearfix" key={key}>
+                            <div className="repeating-field-header clearfix">Enum Value {enumValue.getValueIndex()}
+                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onEnumValueRemoveButtonClicked(enumValue)} />
+                            </div>
                             <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name" value={enumValue.getName()} onChange={(value) => thisPage.onEnumValueNameChanged(enumValue, value)}/>
                             <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code" value={enumValue.getCode()} onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)}/>
                         </div>
@@ -834,6 +915,9 @@ class TypesPage extends React.Component {
 
                     reactComponents.push(
                         <div key={key} className="repeating-field clearfix">
+                            <div className="repeating-field-header clearfix">Stream Case {streamCase.getCaseIndex()}
+                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)} />
+                            </div>
                             <app.InputField key="streamcase1" type="text" label="Position X" name="position-x" value={streamCase.getStreamPositionX()} onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} />
                             <app.InputField key="streamcase2" type="text" label="Position Y" name="position-y" value={streamCase.getStreamPositionY()} onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)} />
                             <div key="parameter-display-area" className="parameter-display-area clearfix">

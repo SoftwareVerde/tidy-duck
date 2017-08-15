@@ -35,19 +35,28 @@ class MostType {
         mostType.setRecordDescription(json.recordDescription);
         mostType.setRecordSize(json.recordSize);
 
+        let indexCounter = 1;
         for (let i in json.booleanFields) {
             let booleanField = BooleanField.fromJson(json.booleanFields[i]);
+            booleanField.setFieldIndex(indexCounter);
             mostType.addBooleanField(booleanField);
+            indexCounter++;
         }
 
+        indexCounter = 1;
         for (let i in json.enumValues) {
             let enumValue = EnumValue.fromJson(json.enumValues[i]);
+            enumValue.setValueIndex(indexCounter);
             mostType.addEnumValue(enumValue);
+            indexCounter++;
         }
 
+        indexCounter = 1;
         for (let i in json.streamCases) {
             let streamCase = StreamCase.fromJson(json.streamCases[i]);
+            streamCase.setCaseIndex(indexCounter);
             mostType.addStreamCase(streamCase);
+            indexCounter++;
         }
 
         for (let i in json.recordFields) {
