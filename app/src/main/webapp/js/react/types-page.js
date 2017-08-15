@@ -862,18 +862,20 @@ class TypesPage extends React.Component {
                 let i = 1;
                 // TODO: make repeating
                 const recordFields = [];
+                const recordTypes = this.getRecordTypes();
                 mostType.getRecordFields().forEach(function (recordField) {
                     if (recordField.getFieldType() == null) {
                         recordField.setFieldType(thisPage.getMostTypeByName(thisPage.getRecordTypes()[0]));
                     }
 
                     const key = "recordField" + i;
+                    const recordFieldTypeName = recordField.getFieldType().getName();
                     recordFields.push(
                         <div className="repeating-field clearfix" key={key}>
                             <div className="clearfix">Record Field {recordField.getFieldIndex()}</div>
                             <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
                             <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
-                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" options={thisPage.getRecordTypes()} onChange={(type) => thisPage.onRecordFieldTypeChanged(recordField, type)} />
+                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
                         </div>
                     );
                     i++;
