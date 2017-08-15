@@ -276,7 +276,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final String fieldName = json.getString("fieldName");
         final String fieldIndex = json.getString("fieldIndex");
         final String fieldDescription = json.getString("fieldDescription");
-        final Json fieldTypeJson = json.get("fieldTypeId");
+        final Json fieldTypeJson = json.get("fieldType");
         final Long fieldTypeId = fieldTypeJson.getLong("id");
 
         final MostType fieldType = new MostType();

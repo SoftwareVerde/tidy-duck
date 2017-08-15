@@ -38,9 +38,11 @@ class TypesPage extends React.Component {
         this.onStreamCaseParameterNameChanged = this.onStreamCaseParameterNameChanged.bind(this);
         this.onStreamCaseParameterDescriptionChanged = this.onStreamCaseParameterDescriptionChanged.bind(this);
         this.onStreamCaseParameterTypeChanged = this.onStreamCaseParameterTypeChanged.bind(this);
+        this.onStreamCaseParameterRemoveButtonClicked = this.onStreamCaseParameterRemoveButtonClicked.bind(this);
         this.onStreamSignalNameChanged = this.onStreamSignalNameChanged.bind(this);
         this.onStreamSignalDescriptionChanged = this.onStreamSignalDescriptionChanged.bind(this);
         this.onStreamSignalBitLengthChanged = this.onStreamSignalBitLengthChanged.bind(this);
+        this.onStreamCaseSignalRemoveButtonClicked = this.onStreamCaseSignalRemoveButtonClicked.bind(this);
         this.onClassifiedStreamMaxLengthChanged = this.onClassifiedStreamMaxLengthChanged.bind(this);
         this.onClassifiedStreamMediaTypeChanged = this.onClassifiedStreamMediaTypeChanged.bind(this);
         this.onShortStreamMaxLengthChanged = this.onShortStreamMaxLengthChanged.bind(this);
@@ -48,6 +50,13 @@ class TypesPage extends React.Component {
         this.onArrayDescriptionChanged = this.onArrayDescriptionChanged.bind(this);
         this.onArrayElementTypeChanged = this.onArrayElementTypeChanged.bind(this);
         this.onArraySizeChanged = this.onArraySizeChanged.bind(this);
+        this.onRecordFieldAddButtonClicked = this.onRecordFieldAddButtonClicked.bind(this);
+        this.onRecordNameChanged = this.onRecordNameChanged.bind(this);
+        this.onRecordDescriptionChanged = this.onRecordDescriptionChanged.bind(this);
+        this.onRecordSizeChanged = this.onRecordSizeChanged.bind(this);
+        this.onRecordFieldNameChanged = this.onRecordFieldNameChanged.bind(this);
+        this.onRecordFieldDescriptionChanged = this.onRecordFieldDescriptionChanged.bind(this);
+        this.onRecordFieldTypeChanged = this.onRecordFieldTypeChanged.bind(this);
 
         this.getMostTypeByName = this.getMostTypeByName.bind(this);
         this.getPrimitiveTypeByName = this.getPrimitiveTypeByName.bind(this);
@@ -411,12 +420,44 @@ class TypesPage extends React.Component {
 
     onStreamCaseParameterRemoveButtonClicked(streamCase, streamCaseParameter) {
         const mostType = this.state.mostType;
+        const streamCaseParameters = streamCase.getStreamParameters();
+        const newStreamParameters = [];
+        const streamParameterIndex = streamCaseParameter.getParameterIndex();
 
+        let indexCounter = 1;
+        for (let i in streamCaseParameters) {
+            if (streamCaseParameters[i].getParameterIndex() !== streamParameterIndex) {
+                streamCaseParameters[i].setParameterIndex(indexCounter);
+                newStreamParameters.push(streamCaseParameters[i]);
+                indexCounter++;
+            }
+        }
 
+        streamCase.setStreamParameters(newStreamParameters);
+        this.setState({
+            mostType: mostType
+        });
     }
 
     onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal) {
+        const mostType = this.state.mostType;
+        const streamCaseSignals = streamCase.getStreamSignals();
+        const newStreamSignals = [];
+        const streamSignalIndex = streamSignal.getSignalIndex();
 
+        let indexCounter = 1;
+        for (let i in streamCaseSignals) {
+            if (streamCaseSignals[i].getSignalIndex() !== streamSignalIndex) {
+                streamCaseSignals[i].setSignalIndex(indexCounter);
+                newStreamSignals.push(streamCaseSignals[i]);
+                indexCounter++;
+            }
+        }
+
+        streamCase.setStreamSignals(newStreamSignals);
+        this.setState({
+            mostType: mostType
+        });
     }
 
     onStreamCaseSignalAddButtonClicked(streamCase) {
@@ -534,6 +575,67 @@ class TypesPage extends React.Component {
         const mostType = this.state.mostType;
 
         mostType.setArraySize(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onRecordFieldAddButtonClicked() {
+        const mostType = this.state.mostType;
+        const recordField = new RecordField();
+
+        mostType.addRecordField(recordField);
+        recordField.setFieldIndex(mostType.getRecordFields().length);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onRecordNameChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setRecordName(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onRecordDescriptionChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setRecordDescription(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onRecordSizeChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setRecordSize(value);
+
+        this.setState({
+            mostType: mostType
+        });
+    }
+
+    onRecordFieldNameChanged(recordField, name) {
+        recordField.setFieldName(name);
+    }
+
+    onRecordFieldDescriptionChanged(recordField, description) {
+        recordField.setFieldDescription(description);
+    }
+
+    onRecordFieldTypeChanged(recordField, typeName) {
+        const mostType = this.state.mostType;
+
+        const newRecordFieldType = this.getMostTypeByName(typeName);
+        recordField.setFieldType(newRecordFieldType);
 
         this.setState({
             mostType: mostType
@@ -684,11 +786,12 @@ class TypesPage extends React.Component {
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
                                 <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamParameter.getParameterDescription()} onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
                                 <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={primaryTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
+                                <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)} />
                             </div>
                         );
                        j++;
                     });
-                    // TODO: populate stream signals (repeats)
+                    // Populate stream signals (repeats)
                     const streamSignals = [];
                     const signalAddKey = "addStreamSignal" + i;
                     j = 1;
@@ -700,6 +803,7 @@ class TypesPage extends React.Component {
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamSignal.getSignalName()} onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)}/>
                                 <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamSignal.getSignalDescription()} onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
                                 <app.InputField name="bit-length" type="text" label="Bit Length" isSmallInputField={true} value={streamSignal.getSignalBitLength()} onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)}/>
+                                <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)} />
                             </div>
                         );
                         j++;
@@ -750,12 +854,40 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
             } break;
             case 'TRecord': {
+                const thisPage = this;
+                const recordName = mostType.getRecordName();
+                const recordDescription = mostType.getRecordDescription();
+                const recordSize = mostType.getRecordSize();
+
+                let i = 1;
                 // TODO: make repeating
-                reactComponents.push(<app.InputField key="record1" type="text" label="Record Name" name="record-name"/>);
-                reactComponents.push(<app.InputField key="record2" type="textarea" label="Record Description" name="record-description" />);
-                reactComponents.push(<app.InputField key="record3" type="text" label="Record Field Name" name="record-field-name" />);
-                reactComponents.push(<app.InputField key="record4" type="text" label="Record Field Description" name="record-field-description" />);
-                reactComponents.push(<app.InputField key="record5" type="select" label="Record Field Type" name="record-field-type" options={this.getRecordTypes()} />);
+                const recordFields = [];
+                mostType.getRecordFields().forEach(function (recordField) {
+                    if (recordField.getFieldType() == null) {
+                        recordField.setFieldType(thisPage.getMostTypeByName(thisPage.getRecordTypes()[0]));
+                    }
+
+                    const key = "recordField" + i;
+                    recordFields.push(
+                        <div className="repeating-field clearfix" key={key}>
+                            <div className="clearfix">Record Field {recordField.getFieldIndex()}</div>
+                            <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
+                            <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
+                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" options={thisPage.getRecordTypes()} onChange={(type) => thisPage.onRecordFieldTypeChanged(recordField, type)} />
+                        </div>
+                    );
+                    i++;
+                });
+
+                reactComponents.push(
+                    <div key="TRecord" className="clearfix">
+                        <app.InputField key="record1" type="text" label="Record Name" name="record-name" value={recordName} onChange={this.onRecordNameChanged} />
+                        <app.InputField key="record2" type="textarea" label="Record Description" name="record-description" value={recordDescription} onChange={this.onRecordDescriptionChanged} />
+                        <app.InputField key="record3" type="text" label="Record Size" name="record-size" value={recordSize} onChange={this.onRecordSizeChanged} />
+                    </div>
+                );
+                reactComponents.push(recordFields);
+                reactComponents.push(<div key="plus-button" className="button" onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i></div>);
             } break;
             default: {
                 if (this.state.baseType != null) {
