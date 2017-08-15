@@ -101,7 +101,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function catalog ID isn't null, insert function block for function catalog
-            if (!requestFunctionCatalogId.equals("null")) {
+            if (!Util.isBlank(requestFunctionCatalogId)) {
                 final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
                 if (functionCatalogId < 1) {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
@@ -127,7 +127,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
         final String requestFunctionCatalogId = request.getString("functionCatalogId");
-
+        final Json response = new Json(false);
         final Json functionBlockJson = request.get("functionBlock");
 
         try {
@@ -136,7 +136,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
-            if (!requestFunctionCatalogId.equals("null")) {
+            if (! Util.isBlank(requestFunctionCatalogId)) {
                 // Validate Inputs
                 final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
                 if (functionCatalogId < 1) {
@@ -148,6 +148,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             else {
                 databaseManager.updateFunctionBlock(0, functionBlock);
             }
+            response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function block: " + exception.getMessage();
@@ -155,7 +156,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return super._generateErrorJson(errorMessage);
         }
 
-        final Json response = new Json(false);
+
         super._setJsonSuccessFields(response);
         return response;
     }
@@ -189,15 +190,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final String functionCatalogIdString = request.getParameter("functionCatalogId");
         final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
-        { // Validate Inputs
-            if (functionCatalogId == null || functionCatalogId < 1) {
-                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
-            }
-        }
-
         try {
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
+
+            // Validate inputs. If null, send catalogId of 0, which will disassociate function block from all catalogs.
+            if (Util.isBlank(functionCatalogIdString)) {
+                databaseManager.deleteFunctionBlock(0, functionBlockId);
+            }
+            else {
+                if (functionCatalogId < 1) {
+                    return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
+                }
+                databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
+            }
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);

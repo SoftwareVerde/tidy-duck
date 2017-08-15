@@ -131,11 +131,22 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    private void _disassociateFunctionBlockFromAllUnreleasedFunctionCatalogs(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_block_id = ? and function_catalog_id IN (" +
+                                        "SELECT DISTINCT function_catalogs.id\n" +
+                                                "FROM function_catalogs\n" +
+                                                "WHERE function_catalogs.is_released=0)")
+                .setParameter(functionBlockId);
+
+        _databaseConnection.executeSql(query);
+
+    }
+
     private void _deleteFunctionBlockIfUnreleased(final long functionBlockId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (! functionBlock.isReleased() && _isOrphaned(functionBlockId)) {
+        if (! functionBlock.isReleased()) {
             _deleteInterfacesFromFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
@@ -212,8 +223,17 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
-        _deleteFunctionBlockIfUnreleased(functionBlockId);
+        if (functionCatalogId > 0) {
+            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+        }
+        else {
+            if (!_isOrphaned(functionBlockId)) {
+                _disassociateFunctionBlockFromAllUnreleasedFunctionCatalogs(functionBlockId);
+            }
+            else {
+                _deleteFunctionBlockIfUnreleased(functionBlockId);
+            }
+        }
     }
 
     public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {
