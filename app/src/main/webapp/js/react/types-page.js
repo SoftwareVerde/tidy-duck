@@ -58,7 +58,7 @@ class TypesPage extends React.Component {
         this.getStreamParamTypes = this.getStreamParamTypes.bind(this);
         this.getArrayTypes = this.getArrayTypes.bind(this);
         this.getRecordTypes = this.getRecordTypes.bind(this);
-        this.getUnits = this.getUnits.bind(this);``
+        this.getUnits = this.getUnits.bind(this);
 
         this.handleOptionClick = this.handleOptionClick.bind(this);
         this.renderFormElements = this.renderFormElements.bind(this);
@@ -407,6 +407,16 @@ class TypesPage extends React.Component {
         this.setState({
             mostType: mostType
         });
+    }
+
+    onStreamCaseParameterRemoveButtonClicked(streamCase, streamCaseParameter) {
+        const mostType = this.state.mostType;
+
+
+    }
+
+    onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal) {
+
     }
 
     onStreamCaseSignalAddButtonClicked(streamCase) {
