@@ -215,7 +215,11 @@ public class MostInterfaceDatabaseManagerTests {
         Assert.assertEquals(1, beforeDeleteMostInterfaceCount.intValue());
 
         // Action
+        // First call of delete method will disassociate Interface from Function block.
         _mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlock.getId(), mostInterface.getId());
+        // Second call of delete method checks if Interface is orphaned, then deletes it from database.
+        // The app provides a Function Block ID of 0 for orphaned Interfaces
+        _mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(0, mostInterface.getId());
 
         // Assert
         final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId());
