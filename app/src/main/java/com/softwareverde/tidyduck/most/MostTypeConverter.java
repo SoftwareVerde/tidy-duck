@@ -14,12 +14,12 @@ public class MostTypeConverter {
     private static final String MOST_NULL = "#NULL#";
 
     public com.softwareverde.mostadapter.FunctionCatalog convertFunctionCatalog(final FunctionCatalog functionCatalog) {
-        com.softwareverde.mostadapter.FunctionCatalog convertedFunctionCatalog = new com.softwareverde.mostadapter.FunctionCatalog();
+        final com.softwareverde.mostadapter.FunctionCatalog convertedFunctionCatalog = new com.softwareverde.mostadapter.FunctionCatalog();
 
-        String name = functionCatalog.getName();
-        String release = functionCatalog.getRelease();
-        String author = functionCatalog.getAuthor().getName();
-        String company = functionCatalog.getCompany().getName();
+        final String name = functionCatalog.getName();
+        final String release = functionCatalog.getRelease();
+        final String author = functionCatalog.getAuthor().getName();
+        final String company = functionCatalog.getCompany().getName();
 
         convertedFunctionCatalog.setName(name);
         convertedFunctionCatalog.setRelease(release);
@@ -31,25 +31,137 @@ public class MostTypeConverter {
         }
 
         for (final FunctionBlock functionBlock : functionCatalog.getFunctionBlocks()) {
-            com.softwareverde.mostadapter.FunctionBlock convertedFunctionBlock = convertFunctionBlock(functionBlock);
+            final com.softwareverde.mostadapter.FunctionBlock convertedFunctionBlock = _convertFunctionBlock(functionBlock);
             convertedFunctionCatalog.addFunctionBlock(convertedFunctionBlock);
+        }
+
+        for (final ClassDefinition classDefinition : functionCatalog.getClassDefinitions()) {
+            final com.softwareverde.mostadapter.ClassDefinition convertedClassDefinition = _convertClassDefinition(classDefinition);
+            convertedFunctionCatalog.addClassDefinition(convertedClassDefinition);
+        }
+
+        for (final PropertyCommandDefinition commandDefinition : functionCatalog.getPropertyCommandDefinitions()) {
+            final com.softwareverde.mostadapter.PropertyCommandDefinition convertedCommandDefinition = _convertPropertyCommandDefinition(commandDefinition);
+            convertedFunctionCatalog.addPropertyCommandDefinition(convertedCommandDefinition);
+        }
+
+        for (final MethodCommandDefinition commandDefinition : functionCatalog.getMethodCommandDefinitions()) {
+            final com.softwareverde.mostadapter.MethodCommandDefinition convertedCommandDefinition = _convertMethodCommandDefinition(commandDefinition);
+            convertedFunctionCatalog.addMethodCommandDefinition(convertedCommandDefinition);
+        }
+
+        for (final PropertyReportDefinition commandDefinition : functionCatalog.getPropertyReportDefinitions()) {
+            final com.softwareverde.mostadapter.PropertyReportDefinition convertedReportDefinition = _convertPropertyReportDefinition(commandDefinition);
+            convertedFunctionCatalog.addPropertyReportDefinition(convertedReportDefinition);
+        }
+
+        for (final MethodReportDefinition commandDefinition : functionCatalog.getMethodReportDefinitions()) {
+            final com.softwareverde.mostadapter.MethodReportDefinition convertedReportDefinition = _convertMethodReportDefinition(commandDefinition);
+            convertedFunctionCatalog.addMethodReportDefinition(convertedReportDefinition);
+        }
+
+        for (final TypeDefinition typeDefinition : functionCatalog.getTypeDefinitions()) {
+            final com.softwareverde.mostadapter.TypeDefinition convertedTypeDefinition = _convertTypeDefinition(typeDefinition);
+            convertedFunctionCatalog.addTypeDefinition(convertedTypeDefinition);
+        }
+
+        for (final UnitDefinition unitDefinition : functionCatalog.getUnitDefinitions()) {
+            final com.softwareverde.mostadapter.UnitDefinition convertedUnitDefinition = _convertUnitDefinition(unitDefinition);
+            convertedFunctionCatalog.addUnitDefinition(convertedUnitDefinition);
+        }
+
+        for (final ErrorDefinition errorDefinition : functionCatalog.getErrorDefinitions()) {
+            final com.softwareverde.mostadapter.ErrorDefinition convertedErrorDefinition = _convertErrorDefinition(errorDefinition);
+            convertedFunctionCatalog.addErrorDefinition(convertedErrorDefinition);
         }
 
         return convertedFunctionCatalog;
     }
 
-    protected com.softwareverde.mostadapter.FunctionBlock convertFunctionBlock(final FunctionBlock functionBlock) {
-        com.softwareverde.mostadapter.FunctionBlock convertedFunctionBlock = new com.softwareverde.mostadapter.FunctionBlock();
+    private com.softwareverde.mostadapter.ClassDefinition _convertClassDefinition(final ClassDefinition classDefinition) {
+        return new com.softwareverde.mostadapter.ClassDefinition(
+                classDefinition.getClassId(),
+                classDefinition.getClassName(),
+                classDefinition.getClassDescription()
+        );
+    }
 
-        String mostId = functionBlock.getMostId();
-        String name = functionBlock.getName();
-        String kind = functionBlock.getKind();
-        String description = functionBlock.getDescription();
-        String release = functionBlock.getRelease();
-        String access = functionBlock.getAccess();
-        String author = functionBlock.getAuthor().getName();
-        String company = functionBlock.getCompany().getName();
-        Date lastModifiedDate = functionBlock.getLastModifiedDate();
+    private com.softwareverde.mostadapter.PropertyCommandDefinition _convertPropertyCommandDefinition(final PropertyCommandDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.PropertyCommandDefinition(
+            commandDefinition.getCommandId(),
+            commandDefinition.getCommandOperationType(),
+            commandDefinition.getCommandName(),
+            commandDefinition.getCommandDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.MethodCommandDefinition _convertMethodCommandDefinition(final MethodCommandDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.MethodCommandDefinition(
+            commandDefinition.getCommandId(),
+            commandDefinition.getCommandOperationType(),
+            commandDefinition.getCommandName(),
+            commandDefinition.getCommandDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.PropertyReportDefinition _convertPropertyReportDefinition(final PropertyReportDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.PropertyReportDefinition(
+            commandDefinition.getReportId(),
+            commandDefinition.getReportOperationType(),
+            commandDefinition.getReportName(),
+            commandDefinition.getReportDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.MethodReportDefinition _convertMethodReportDefinition(final MethodReportDefinition commandDefinition) {
+        return new com.softwareverde.mostadapter.MethodReportDefinition(
+            commandDefinition.getReportId(),
+            commandDefinition.getReportOperationType(),
+            commandDefinition.getReportName(),
+            commandDefinition.getReportDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.TypeDefinition _convertTypeDefinition(final TypeDefinition typeDefinition) {
+        return new com.softwareverde.mostadapter.TypeDefinition(
+            typeDefinition.getTypeId(),
+            typeDefinition.getTypeName(),
+            typeDefinition.getTypeSize(),
+            typeDefinition.getTypeDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.UnitDefinition _convertUnitDefinition(final UnitDefinition unitDefinition) {
+        return new com.softwareverde.mostadapter.UnitDefinition(
+                unitDefinition.getUnitId(),
+                unitDefinition.getUnitName(),
+                unitDefinition.getUnitCode(),
+                unitDefinition.getUnitGroup()
+        );
+    }
+
+    private com.softwareverde.mostadapter.ErrorDefinition _convertErrorDefinition(final ErrorDefinition errorDefinition) {
+        return new com.softwareverde.mostadapter.ErrorDefinition(
+            errorDefinition.getErrorId(),
+            errorDefinition.getErrorCode(),
+            errorDefinition.getErrorDescription(),
+            errorDefinition.getInfo(),
+            errorDefinition.getInfoDescription()
+        );
+    }
+
+    protected com.softwareverde.mostadapter.FunctionBlock _convertFunctionBlock(final FunctionBlock functionBlock) {
+        final com.softwareverde.mostadapter.FunctionBlock convertedFunctionBlock = new com.softwareverde.mostadapter.FunctionBlock();
+
+        final String mostId = functionBlock.getMostId();
+        final String name = functionBlock.getName();
+        final String kind = functionBlock.getKind();
+        final String description = functionBlock.getDescription();
+        final String release = functionBlock.getRelease();
+        final String access = functionBlock.getAccess();
+        final String author = functionBlock.getAuthor().getName();
+        final String company = functionBlock.getCompany().getName();
+        final Date lastModifiedDate = functionBlock.getLastModifiedDate();
 
         convertedFunctionBlock.setMostId(mostId);
         convertedFunctionBlock.setName(name);
@@ -67,7 +179,7 @@ public class MostTypeConverter {
 
         for (final MostInterface mostInterface : functionBlock.getMostInterfaces()) {
             for (final MostFunction mostFunction : mostInterface.getMostFunctions()) {
-                com.softwareverde.mostadapter.MostFunction convertedMostFunction = convertMostFunction(mostFunction);
+                final com.softwareverde.mostadapter.MostFunction convertedMostFunction = _convertMostFunction(mostFunction);
                 convertedFunctionBlock.addMostFunction(convertedMostFunction);
             }
         }
@@ -75,29 +187,29 @@ public class MostTypeConverter {
         return convertedFunctionBlock;
     }
 
-    protected com.softwareverde.mostadapter.MostFunction convertMostFunction(MostFunction mostFunction) {
+    protected com.softwareverde.mostadapter.MostFunction _convertMostFunction(MostFunction mostFunction) {
         com.softwareverde.mostadapter.MostFunction convertedMostFunction = null;
 
         switch (mostFunction.getFunctionType()) {
             case "Property": {
                 Property property = (Property) mostFunction;
-                convertedMostFunction = createPropertyFunction(property);
+                convertedMostFunction = _createPropertyFunction(property);
             } break;
             case "Method": {
                 Method method = (Method) mostFunction;
-                convertedMostFunction = createMethodFunction(method);
+                convertedMostFunction = _createMethodFunction(method);
             } break;
             default: {
                 throw new IllegalArgumentException("Invalid function type: " + mostFunction.getFunctionType());
             }
         }
 
-        String mostId = mostFunction.getMostId();
-        String name = mostFunction.getName();
-        String description = mostFunction.getDescription();
-        String release = mostFunction.getRelease();
-        String author = mostFunction.getAuthor().getName();
-        String company = mostFunction.getCompany().getName();
+        final String mostId = mostFunction.getMostId();
+        final String name = mostFunction.getName();
+        final String description = mostFunction.getDescription();
+        final String release = mostFunction.getRelease();
+        final String author = mostFunction.getAuthor().getName();
+        final String company = mostFunction.getCompany().getName();
 
         convertedMostFunction.setMostId(mostId);
         convertedMostFunction.setName(name);
@@ -109,15 +221,15 @@ public class MostTypeConverter {
         return convertedMostFunction;
     }
 
-    protected com.softwareverde.mostadapter.MostFunction createPropertyFunction(Property property) {
+    protected com.softwareverde.mostadapter.MostFunction _createPropertyFunction(Property property) {
         com.softwareverde.mostadapter.Property convertedProperty = null;
         switch (property.getReturnType().getName()) {
             case "TBool": {
-                SwitchProperty switchProperty = new SwitchProperty();
+                final SwitchProperty switchProperty = new SwitchProperty();
                 convertedProperty = switchProperty;
             } break;
             case "TEnum": {
-                EnumProperty enumProperty = new EnumProperty();
+                final EnumProperty enumProperty = new EnumProperty();
                 convertedProperty = enumProperty;
             } break;
             case "TUByte":
@@ -127,57 +239,57 @@ public class MostTypeConverter {
             case "TULong":
             case "TSLong":
             case "TNumber": {
-                NumberProperty numberProperty = new NumberProperty();
+                final NumberProperty numberProperty = new NumberProperty();
                 convertedProperty = numberProperty;
             } break;
             case "TString": {
-                TextProperty textProperty = new TextProperty();
+                final TextProperty textProperty = new TextProperty();
                 convertedProperty = textProperty;
             } break;
             case "TStream":
             case "TShortStream": {
-                ContainerProperty containerProperty = new ContainerProperty();
+                final ContainerProperty containerProperty = new ContainerProperty();
                 convertedProperty = containerProperty;
             } break;
             default: {
-                UnclassifiedProperty unclassifiedProperty = new UnclassifiedProperty();
+                final UnclassifiedProperty unclassifiedProperty = new UnclassifiedProperty();
                 convertedProperty = unclassifiedProperty;
             }
         }
 
         convertedProperty.setSupportsNotification(property.supportsNotification());
 
-        List<String> operationNames = getOperationNames(property.getOperations());
+        final List<String> operationNames = _getOperationNames(property.getOperations());
 
         // add return type parameter
-        MostParameter returnTypeParameter = createReturnTypeParameter(property, operationNames, "1");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationNames, property.getName(), "1");
         convertedProperty.addMostParameter(returnTypeParameter);
 
         // add get parameter
         if (operationNames.contains("Get")) {
-            MostParameter getParameter = new MostParameter();
+            final MostParameter getParameter = new MostParameter();
 
-            com.softwareverde.mostadapter.type.MostType getType = new VoidType();
+            final com.softwareverde.mostadapter.type.MostType getType = new VoidType();
 
             getParameter.setType(getType);
-            addOperationAtIndex(getParameter, OperationType.GET, "1");
+            _addOperationAtIndex(getParameter, OperationType.GET, "1");
 
             convertedProperty.addMostParameter(getParameter);
         }
 
         // add error parameters
         if (operationNames.contains("Error")) {
-            MostParameter errorCodeParameter = new MostParameter();
+            final MostParameter errorCodeParameter = new MostParameter();
             errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex(MOST_NULL);
-            errorCodeParameter.setType(createErrorCodeType());
-            addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "1");
+            errorCodeParameter.setType(_createErrorCodeType());
+            _addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "1");
 
-            MostParameter errorInfoParameter = new MostParameter();
+            final MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
-            errorInfoParameter.setType(createErrorInfoType());
-            addOperationAtIndex(errorInfoParameter, OperationType.PROPERTY_ERROR, "2");
+            errorInfoParameter.setType(_createErrorInfoType());
+            _addOperationAtIndex(errorInfoParameter, OperationType.PROPERTY_ERROR, "2");
 
             convertedProperty.addMostParameter(errorCodeParameter);
             convertedProperty.addMostParameter(errorInfoParameter);
@@ -186,87 +298,41 @@ public class MostTypeConverter {
         return convertedProperty;
     }
 
-    private MostParameter createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterIndex) {
+    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterName, String parameterIndex) {
 
-        MostType returnType = mostFunction.getReturnType();
+        final MostType returnType = mostFunction.getReturnType();
 
-        MostParameter returnTypeParameter = new MostParameter();
-        returnTypeParameter.setName("ReturnValue"); // TODO: name should be passed in?
+        final MostParameter returnTypeParameter = new MostParameter();
+        returnTypeParameter.setName(parameterName);
         returnTypeParameter.setIndex(MOST_NULL);
-        returnTypeParameter.setType(convertMostType(returnType));
+        returnTypeParameter.setType(_convertMostType(returnType));
 
         // Properties
         if (operationNames.contains("Set")) {
-            addOperationAtIndex(returnTypeParameter, OperationType.SET, parameterIndex);
+            _addOperationAtIndex(returnTypeParameter, OperationType.SET, parameterIndex);
         }
         if (operationNames.contains("Status")) {
-            addOperationAtIndex(returnTypeParameter, OperationType.STATUS, parameterIndex);
+            _addOperationAtIndex(returnTypeParameter, OperationType.STATUS, parameterIndex);
         }
         // Methods
         if (operationNames.contains("ResultAck")) {
-            addOperationAtIndex(returnTypeParameter, OperationType.RESULT_ACK, parameterIndex);
+            _addOperationAtIndex(returnTypeParameter, OperationType.RESULT_ACK, parameterIndex);
         }
 
         return returnTypeParameter;
     }
 
-    private void addOperationAtIndex(MostParameter mostParameter, OperationType operationType, String parameterIndex) {
-        com.softwareverde.mostadapter.Operation operation = new com.softwareverde.mostadapter.Operation();
+    private void _addOperationAtIndex(MostParameter mostParameter, OperationType operationType, String parameterIndex) {
+        final com.softwareverde.mostadapter.Operation operation = new com.softwareverde.mostadapter.Operation();
         operation.setOperationType(operationType);
         operation.setParameterPosition(parameterIndex);
         mostParameter.addOperation(operation);
     }
 
-    protected com.softwareverde.mostadapter.type.MostType convertMostType(MostType mostType) {
+    protected com.softwareverde.mostadapter.type.MostType _convertPrimitiveType(final PrimitiveType primitiveType) {
         com.softwareverde.mostadapter.type.MostType convertedMostType = null;
 
-        switch (mostType.getName()) {
-            case "TBool": {
-                BoolType boolType = new BoolType();
-
-                // TODO: allow other bool fields
-                BoolField boolField = new BoolField();
-                boolField.setBitPosition("0");
-                boolField.setTrueDescription("True.");
-                boolField.setFalseDescription("False.");
-                boolType.addBoolField(boolField);
-
-                convertedMostType = boolType;
-            } break;
-            case "TBitField": {
-                BitFieldType bitFieldType = new BitFieldType();
-
-                // TODO: allow other bool fields
-                BoolField boolField = new BoolField();
-                boolField.setBitPosition("0");
-                boolField.setTrueDescription("On.");
-                boolField.setFalseDescription("Off.");
-                bitFieldType.addBoolField(boolField);
-
-                convertedMostType = bitFieldType;
-            } break;
-            case "TNumber": {
-                NumberType numberType = new NumberType();
-
-                // TODO: populated with supplied number fields
-                numberType.setBasisDataType(new UnsignedWordType());
-                numberType.setExponent("0");
-                numberType.setRangeMin("0");
-                numberType.setRangeMax("65535");
-                numberType.setStep("1");
-                numberType.setUnit("unit_none");
-
-                convertedMostType = numberType;
-            } break;
-            case "TEnum": {
-                EnumType enumType = new EnumType();
-
-                // TODO: populate with supplied enum values
-                EnumValue enumValue = new EnumValue("0x01", "Test Value");
-                enumType.addEnumValue(enumValue);
-
-                convertedMostType = enumType;
-            } break;
+        switch (primitiveType.getName()) {
             case "TVoid": {
                 convertedMostType = new VoidType();
             } break;
@@ -288,65 +354,170 @@ public class MostTypeConverter {
             case "TSLong": {
                 convertedMostType = new SignedLongType();
             } break;
-            case "TString": {
-                StringType stringType = new StringType();
+        }
 
-                // TODO: optionally set max size
+        return convertedMostType;
+    }
+
+    protected com.softwareverde.mostadapter.type.MostType _convertMostType(final MostType mostType) {
+        com.softwareverde.mostadapter.type.MostType convertedMostType = null;
+
+        switch (mostType.getPrimitiveType().getName()) {
+            case "TBool": {
+                final BoolType boolType = new BoolType();
+
+                for (final BooleanField booleanField : mostType.getBooleanFields()) {
+                    final BoolField boolField = new BoolField();
+                    boolField.setBitPosition(booleanField.getBitPosition());
+                    boolField.setTrueDescription(booleanField.getTrueDescription());
+                    boolField.setFalseDescription(booleanField.getFalseDescription());
+
+                    boolType.addBoolField(boolField);
+                }
+
+                convertedMostType = boolType;
+            } break;
+            case "TBitField": {
+                final BitFieldType bitFieldType = new BitFieldType();
+
+                for (final BooleanField booleanField : mostType.getBooleanFields()) {
+                    final BoolField boolField = new BoolField();
+                    boolField.setBitPosition(booleanField.getBitPosition());
+                    boolField.setTrueDescription(booleanField.getTrueDescription());
+                    boolField.setFalseDescription(booleanField.getFalseDescription());
+
+                    bitFieldType.addBoolField(boolField);
+                }
+
+                convertedMostType = bitFieldType;
+            } break;
+            case "TNumber": {
+                final NumberType numberType = new NumberType();
+
+                final com.softwareverde.mostadapter.type.MostType basisDataType = _convertPrimitiveType(mostType.getNumberBaseType());
+
+                numberType.setBasisDataType(basisDataType);
+                numberType.setExponent(mostType.getNumberExponent());
+                numberType.setRangeMin(mostType.getNumberRangeMinimum());
+                numberType.setRangeMax(mostType.getNumberRangeMaximum());
+                numberType.setStep(mostType.getNumberStep());
+                numberType.setUnit(mostType.getNumberUnit().getReferenceName());
+
+                convertedMostType = numberType;
+            } break;
+            case "TEnum": {
+                final EnumType enumType = new EnumType();
+
+                for (final EnumValue enumValue : mostType.getEnumValues()) {
+                    final com.softwareverde.mostadapter.type.EnumValue mostEnumValue = new com.softwareverde.mostadapter.type.EnumValue();
+                    mostEnumValue.setName(enumValue.getName());
+                    mostEnumValue.setCode(enumValue.getCode());
+
+                    enumType.addEnumValue(mostEnumValue);
+                }
+
+                convertedMostType = enumType;
+            } break;
+            case "TVoid": {
+                convertedMostType = new VoidType();
+            } break;
+            case "TString": {
+                final StringType stringType = new StringType();
+
+                if (mostType.getStringMaxSize() != null) {
+                    stringType.setMaxSize(mostType.getStringMaxSize());
+                }
 
                 convertedMostType = stringType;
             } break;
             case "TStream": {
-                StreamType streamType = new StreamType();
+                final StreamType streamType = new StreamType();
 
-                // TODO: add stream cases
+                streamType.setLength(mostType.getStreamLength());
+
+                for (final StreamCase streamCase : mostType.getStreamCases()) {
+                    final com.softwareverde.mostadapter.type.StreamCase mostStreamCase = new com.softwareverde.mostadapter.type.StreamCase();
+
+                    final PositionDescription positionDescription = new PositionDescription();
+                    positionDescription.setPositionX(streamCase.getStreamPositionX());
+                    positionDescription.setPositionY(streamCase.getStreamPositionY());
+
+                    mostStreamCase.setPositionDescription(positionDescription);
+
+                    for (final StreamCaseParameter streamCaseParameter : streamCase.getStreamCaseParameters()) {
+                        final com.softwareverde.mostadapter.type.MostType parameterType = _convertMostType(streamCaseParameter.getParameterType());
+
+                        final StreamParameter streamParameter = new StreamParameter();
+                        streamParameter.setName(streamCaseParameter.getParameterName());
+                        streamParameter.setIndex(streamCaseParameter.getParameterIndex());
+                        streamParameter.setDescription(streamCaseParameter.getParameterDescription());
+                        streamParameter.setType(parameterType);
+
+                        mostStreamCase.addStreamParameter(streamParameter);
+                    }
+                    for (final StreamCaseSignal streamCaseSignal : streamCase.getStreamCaseSignals()) {
+                        final StreamSignal streamSignal = new StreamSignal();
+                        streamSignal.setName(streamCaseSignal.getSignalName());
+                        streamSignal.setIndex(streamCaseSignal.getSignalIndex());
+                        streamSignal.setDescription(streamCaseSignal.getSignalDescription());
+                        streamSignal.setBitLength(streamCaseSignal.getSignalBitLength());
+
+                        mostStreamCase.addStreamSignal(streamSignal);
+                    }
+                    streamType.addStreamCase(mostStreamCase);
+                }
 
                 convertedMostType = streamType;
             } break;
             case "TCStream": {
-                ClassifiedStreamType classifiedStreamType = new ClassifiedStreamType();
+                final ClassifiedStreamType classifiedStreamType = new ClassifiedStreamType();
 
-                // TODO: optionally set max length and media type
+                if (mostType.getStreamMaxLength() != null) {
+                    classifiedStreamType.setMaxLength(mostType.getStreamMaxLength());
+                }
+                if (mostType.getStreamMediaType() != null) {
+                    classifiedStreamType.setMediaType(mostType.getStreamMediaType());
+                }
 
                 convertedMostType = classifiedStreamType;
             } break;
             case "TShortStream": {
-                ShortStreamType shortStreamType = new ShortStreamType();
+                final ShortStreamType shortStreamType = new ShortStreamType();
 
-                // TODO: optionally set max length
+                if (mostType.getStreamMaxLength() != null) {
+                    shortStreamType.setMaxLength(mostType.getStreamMaxLength());
+                }
 
                 convertedMostType = shortStreamType;
             } break;
             case "TArray": {
-                ArrayType arrayType = new ArrayType();
+                final ArrayType arrayType = new ArrayType();
 
-                // TODO: populate with supplied values
-                arrayType.setName("Test Array");
-                arrayType.setDescription("Test array of unsigned long.");
-                arrayType.setElementType(new UnsignedLongType());
+                com.softwareverde.mostadapter.type.MostType arrayElementType = _convertMostType(mostType.getArrayElementType());
+
+                arrayType.setName(mostType.getArrayName());
+                arrayType.setDescription(mostType.getArrayDescription());
+                arrayType.setElementType(arrayElementType);
+                arrayType.setMaxSize(mostType.getArraySize());
 
                 convertedMostType = arrayType;
             } break;
             case "TRecord": {
-                RecordType recordType = new RecordType();
+                final com.softwareverde.mostadapter.type.RecordType recordType = new com.softwareverde.mostadapter.type.RecordType();
 
-                // TODO: populate with supplied values
-                recordType.setName("Test Record");
-                recordType.setDescription("Test Record with two elements.");
+                recordType.setName(mostType.getRecordName());
+                recordType.setDescription(mostType.getRecordDescription());
 
-                RecordField recordField1 = new RecordField();
-                recordField1.setName("Field 1");
-                recordField1.setDescription("First field in test record.");
-                recordField1.setIndex("1");
-                recordField1.setType(new UnsignedLongType());
+                for (final RecordField recordField : mostType.getRecordFields()) {
+                    final com.softwareverde.mostadapter.type.MostType recordFieldType = _convertMostType(recordField.getFieldType());
 
-                RecordField recordField2 = new RecordField();
-                recordField2.setName("Field 2");
-                recordField2.setDescription("Second field in test record.");
-                recordField2.setIndex("2");
-                recordField2.setType(new StringType());
-
-                recordType.addRecordField(recordField1);
-                recordType.addRecordField(recordField2);
+                    final com.softwareverde.mostadapter.type.RecordField mostRecordField = new com.softwareverde.mostadapter.type.RecordField();
+                    mostRecordField.setName(recordField.getFieldName());
+                    mostRecordField.setIndex(recordField.getFieldIndex());
+                    mostRecordField.setDescription(recordField.getFieldDescription());
+                    mostRecordField.setType(recordFieldType);
+                    recordType.addRecordField(mostRecordField);
+                }
 
                 convertedMostType = recordType;
             } break;
@@ -358,15 +529,15 @@ public class MostTypeConverter {
         return convertedMostType;
     }
 
-    protected List<String> getOperationNames(final List<Operation> operations) {
-        ArrayList<String> operationNames = new ArrayList<>();
-        for (Operation operation : operations) {
+    protected List<String> _getOperationNames(final List<Operation> operations) {
+        final ArrayList<String> operationNames = new ArrayList<>();
+        for (final Operation operation : operations) {
             operationNames.add(operation.getName());
         }
         return operationNames;
     }
 
-    protected com.softwareverde.mostadapter.MostFunction createMethodFunction(Method method) {
+    protected com.softwareverde.mostadapter.MostFunction _createMethodFunction(Method method) {
         com.softwareverde.mostadapter.MostFunction convertedMethod = null;
 
         switch (method.getFunctionStereotype().getName()) {
@@ -374,7 +545,8 @@ public class MostTypeConverter {
                 if (method.getInputParameters().size() == 0) {
                     // CommandWithAck with no parameters -> Trigger
                     convertedMethod = new TriggerMethod();
-                } else {
+                }
+                else {
                     // CommandWithAck with parameters -> Sequence
                     convertedMethod = new SequenceMethod();
                 }
@@ -385,51 +557,51 @@ public class MostTypeConverter {
             }
         }
 
-        List<String> operationNames = getOperationNames(method.getOperations());
+        final List<String> operationNames = _getOperationNames(method.getOperations());
 
         // add sender handle parameter
-        MostParameter senderHandleParameter = new MostParameter();
+        final MostParameter senderHandleParameter = new MostParameter();
 
-        com.softwareverde.mostadapter.type.MostType senderHandleType = createSenderHandleType();
+        final com.softwareverde.mostadapter.type.MostType senderHandleType = _createSenderHandleType();
 
         senderHandleParameter.setName("SenderHandle");
         senderHandleParameter.setIndex(MOST_NULL);
         senderHandleParameter.setType(senderHandleType);
 
         if (operationNames.contains("StartResultAck")) {
-            addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
+            _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
         }
         if (operationNames.contains("AbortAck")) {
-            addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
+            _addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
         }
         if (operationNames.contains("ProcessingAck")) {
-            addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
+            _addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
         }
         if (operationNames.contains("ErrorAck")) {
-            addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
+            _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
         }
         convertedMethod.addMostParameter(senderHandleParameter);
 
         // add return type parameter
-        MostParameter returnTypeParameter = createReturnTypeParameter(method, operationNames, "2");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationNames, "ReturnValue", "2");
         convertedMethod.addMostParameter(returnTypeParameter);
 
         // add input parameters
-        addInputParameterOperations(convertedMethod, method.getInputParameters(), operationNames);
+        _addInputParameterOperations(convertedMethod, method.getInputParameters(), operationNames);
 
         // add error parameters
         if (operationNames.contains("ErrorAck")) {
-            MostParameter errorCodeParameter = new MostParameter();
+            final MostParameter errorCodeParameter = new MostParameter();
             errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex(MOST_NULL);
-            errorCodeParameter.setType(createErrorCodeType());
-            addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "2");
+            errorCodeParameter.setType(_createErrorCodeType());
+            _addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "2");
 
-            MostParameter errorInfoParameter = new MostParameter();
+            final MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
-            errorInfoParameter.setType(createErrorInfoType());
-            addOperationAtIndex(errorInfoParameter, OperationType.METHOD_ERROR, "3");
+            errorInfoParameter.setType(_createErrorInfoType());
+            _addOperationAtIndex(errorInfoParameter, OperationType.METHOD_ERROR, "3");
 
             convertedMethod.addMostParameter(errorCodeParameter);
             convertedMethod.addMostParameter(errorInfoParameter);
@@ -438,31 +610,31 @@ public class MostTypeConverter {
         return convertedMethod;
     }
 
-    private void addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, List<String> operationNames) {
+    private void _addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, List<String> operationNames) {
         if (operationNames.contains("StartResultAck")) {
-            for (MostFunctionParameter mostFunctionParameter : inputParameters) {
-                MostParameter mostParameter = new MostParameter();
+            for (final MostFunctionParameter mostFunctionParameter : inputParameters) {
+                final MostParameter mostParameter = new MostParameter();
 
-                com.softwareverde.mostadapter.type.MostType parameterType = convertMostType(mostFunctionParameter.getMostType());
+                final com.softwareverde.mostadapter.type.MostType parameterType = _convertMostType(mostFunctionParameter.getMostType());
                 // add one to parameter index because of sender handle parameter
-                int parameterIndex = mostFunctionParameter.getParameterIndex()+1;
-                String parameterIndexString = Integer.toString(parameterIndex);
+                final int parameterIndex = mostFunctionParameter.getParameterIndex()+1;
+                final String parameterIndexString = Integer.toString(parameterIndex);
 
                 // TODO: add parameter names/description
                 mostParameter.setIndex(MOST_NULL);
                 mostParameter.setType(parameterType);
-                addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
+                _addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
 
                 convertedMethod.addMostParameter(mostParameter);
             }
         }
     }
 
-    protected com.softwareverde.mostadapter.type.MostType createErrorInfoType() {
-        StreamType errorInfo = new StreamType();
+    protected com.softwareverde.mostadapter.type.MostType _createErrorInfoType() {
+        final StreamType errorInfo = new StreamType();
 
-        StreamCase streamCase = new StreamCase();
-        PositionDescription positionDescription = new PositionDescription();
+        final com.softwareverde.mostadapter.type.StreamCase streamCase = new com.softwareverde.mostadapter.type.StreamCase();
+        final PositionDescription positionDescription = new PositionDescription();
         positionDescription.setPositionX(PositionDescription.NULL);
         positionDescription.setPositionY(PositionDescription.NULL);
 
@@ -471,26 +643,26 @@ public class MostTypeConverter {
         return errorInfo;
     }
 
-    protected com.softwareverde.mostadapter.type.MostType createErrorCodeType() {
-        EnumType errorCode = new EnumType();
+    protected com.softwareverde.mostadapter.type.MostType _createErrorCodeType() {
+        final EnumType errorCode = new EnumType();
 
         errorCode.setEnumMax("67");
 
-        EnumValue value1 = new EnumValue("0x1", "FBlockIdNotAvailable");
-        EnumValue value3 = new EnumValue("0x3", "FunctionIdNotAvailable");
-        EnumValue value4 = new EnumValue("0x4", "OpTypeNotAvailable");
-        EnumValue value5 = new EnumValue("0x5", "InvalidLength");
-        EnumValue value6 = new EnumValue("0x6", "WrongParameter");
-        EnumValue value7 = new EnumValue("0x7", "ParameterNotAvailable");
-        EnumValue valueB = new EnumValue("0xB", "DeviceMalfunction");
-        EnumValue valueC = new EnumValue("0xC", "SegmentationError");
-        EnumValue value40 = new EnumValue("0x40", "Busy");
-        EnumValue value41 = new EnumValue("0x41", "FunctionTemporaryNotAvailable");
-        EnumValue value42 = new EnumValue("0x42", "ProcessingError");
-        EnumValue value43 = new EnumValue("0x43", "MethodAborted");
-        EnumValue valueC0 = new EnumValue("0xC0", "FunctionSignatureInvalid");
-        EnumValue valueC1 = new EnumValue("0xC1", "FunctionNotImplemented");
-        EnumValue valueC2 = new EnumValue("0xC2", "InsufficientAccess");
+        com.softwareverde.mostadapter.type.EnumValue value1 = new com.softwareverde.mostadapter.type.EnumValue("0x1", "FBlockIdNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value3 = new com.softwareverde.mostadapter.type.EnumValue("0x3", "FunctionIdNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value4 = new com.softwareverde.mostadapter.type.EnumValue("0x4", "OpTypeNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value5 = new com.softwareverde.mostadapter.type.EnumValue("0x5", "InvalidLength");
+        com.softwareverde.mostadapter.type.EnumValue value6 = new com.softwareverde.mostadapter.type.EnumValue("0x6", "WrongParameter");
+        com.softwareverde.mostadapter.type.EnumValue value7 = new com.softwareverde.mostadapter.type.EnumValue("0x7", "ParameterNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue valueB = new com.softwareverde.mostadapter.type.EnumValue("0xB", "DeviceMalfunction");
+        com.softwareverde.mostadapter.type.EnumValue valueC = new com.softwareverde.mostadapter.type.EnumValue("0xC", "SegmentationError");
+        com.softwareverde.mostadapter.type.EnumValue value40 = new com.softwareverde.mostadapter.type.EnumValue("0x40", "Busy");
+        com.softwareverde.mostadapter.type.EnumValue value41 = new com.softwareverde.mostadapter.type.EnumValue("0x41", "FunctionTemporaryNotAvailable");
+        com.softwareverde.mostadapter.type.EnumValue value42 = new com.softwareverde.mostadapter.type.EnumValue("0x42", "ProcessingError");
+        com.softwareverde.mostadapter.type.EnumValue value43 = new com.softwareverde.mostadapter.type.EnumValue("0x43", "MethodAborted");
+        com.softwareverde.mostadapter.type.EnumValue valueC0 = new com.softwareverde.mostadapter.type.EnumValue("0xC0", "FunctionSignatureInvalid");
+        com.softwareverde.mostadapter.type.EnumValue valueC1 = new com.softwareverde.mostadapter.type.EnumValue("0xC1", "FunctionNotImplemented");
+        com.softwareverde.mostadapter.type.EnumValue valueC2 = new com.softwareverde.mostadapter.type.EnumValue("0xC2", "InsufficientAccess");
 
         errorCode.addEnumValue(value1);
         errorCode.addEnumValue(value3);
@@ -511,15 +683,15 @@ public class MostTypeConverter {
         return errorCode;
     }
 
-    protected com.softwareverde.mostadapter.type.MostType createSenderHandleType() {
-        NumberType senderHandle = new NumberType();
+    protected com.softwareverde.mostadapter.type.MostType _createSenderHandleType() {
+        final NumberType senderHandle = new NumberType();
 
-        UnsignedWordType basisDateType = new UnsignedWordType();
-        String exponent = "0";
-        String rangeMin = "0";
-        String rangeMax = "65535";
-        String step = "1";
-        String unit = "unit_none";
+        final UnsignedWordType basisDateType = new UnsignedWordType();
+        final String exponent = "0";
+        final String rangeMin = "0";
+        final String rangeMax = "65535";
+        final String step = "1";
+        final String unit = "unit_none";
 
         senderHandle.setBasisDataType(basisDateType);
         senderHandle.setExponent(exponent);

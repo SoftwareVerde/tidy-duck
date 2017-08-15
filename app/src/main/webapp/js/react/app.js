@@ -17,11 +17,15 @@ class App extends React.Component {
             success:    "success"
         };
 
-        this.roleItems = {
-          release:          "Release",
-          development:      "Development",
-          mostInterface:    "Interface",
-          functionBlock:    "Function Block"
+        this.roles = {
+            release:          "Release",
+            development:      "Development",
+            types:            "Types"
+        };
+
+        this.developmentRoles = {
+            mostInterface:    "Interface",
+            functionBlock:    "Function Block"
         };
 
         this.FunctionStereotypes = {
@@ -43,10 +47,12 @@ class App extends React.Component {
             mostInterfaces:             [],
             mostFunctions:              [],
             mostTypes:                  [],
+            primitiveTypes:             [],
+            mostUnits:                  [],
             mostFunctionStereotypes:    [],
             navigationHistory:          [],
-            activeRoleItem:             this.roleItems.release,
-            activeSubRoleItem:          this.roleItems.functionBlock,
+            activeRole:                 this.roles.release,
+            activeSubRole:              null,
             selectedItem:               null,
             parentItem:                 null,
             currentNavigationLevel:     this.NavigationLevel.versions,
@@ -101,6 +107,7 @@ class App extends React.Component {
         this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
+        this.onTypeCreated = this.onTypeCreated.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
@@ -1398,15 +1405,55 @@ class App extends React.Component {
             }
             const mostTypes = [];
             for (let i in mostTypesJson) {
-                const mostType = new MostType();
-                mostType.setId(mostTypesJson[i].id);
-                mostType.setName(mostTypesJson[i].name);
+                const jsonType = mostTypesJson[i];
 
+                const mostType = MostType.fromJson(jsonType);
                 mostTypes.push(mostType);
             }
             thisApp.setState({
                 mostTypes: mostTypes
             });
+        });
+        getPrimitiveTypes(function (primitiveTypesJson) {
+            if (!primitiveTypesJson) {
+                return;
+            }
+            const primitiveTypes = [];
+            for (let i in primitiveTypesJson) {
+                const jsonType = primitiveTypesJson[i];
+
+                const primitiveType = PrimitiveType.fromJson(jsonType);
+                primitiveTypes.push(primitiveType);
+            }
+            thisApp.setState({
+                primitiveTypes: primitiveTypes
+            });
+        });
+        getUnits(function (unitsJson) {
+            if (!unitsJson) {
+                return;
+            }
+
+            const units = [];
+            for (let i in unitsJson) {
+                const jsonUnit = unitsJson[i];
+
+                const unit = MostUnit.fromJson(jsonUnit);
+                units.push(unit);
+            }
+            thisApp.setState({
+                mostUnits: units
+            });
+        });
+    }
+
+    onTypeCreated(newType) {
+        const mostTypes = this.state.mostTypes;
+
+        mostTypes.push(newType);
+
+        this.setState({
+            mostTypes: mostTypes
         });
     }
 
@@ -1429,91 +1476,116 @@ class App extends React.Component {
         });
     }
     
-    handleRoleClick(roleName, canUseCachedChildren) {
+    handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
-        // If subRole is clicked, don't change activeRoleItem, change activeSubRoleItem. If not, default to Release Tidy Duck UI, starting at versions.
-        if (roleName !== this.roleItems.release) {
-            // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
-            const newActiveSubRoleItem = roleName !== this.roleItems.development ? roleName : (this.state.activeSubRoleItem || this.roleItems.functionBlock);
-            const newNavigationLevel = newActiveSubRoleItem === this.roleItems.mostInterface ? this.NavigationLevel.functionBlocks: this.NavigationLevel.functionCatalogs;
-
-            this.setState({
-                navigationItems:            [],
-                navigationHistory:          [],
-                searchResults:              [],
-                functionCatalogs:           [],
-                selectedItem:               null,
-                parentItem:                 null,
-                shouldShowCreateChildForm:  false,
-                shouldShowSearchChildForm:  false,
-                shouldShowToolbar:          true,
-                shouldShowFilteredResults:  false,
-                createButtonState:          thisApp.CreateButtonState.normal,
-                isLoadingChildren:          !canUseCachedChildren,
-                currentNavigationLevel:     newNavigationLevel,
-                activeRoleItem:             this.roleItems.development,
-                activeSubRoleItem:          newActiveSubRoleItem,
-                showSettingsPage:           false
-            });
-
-            if (newActiveSubRoleItem === this.roleItems.functionBlock) {
-                getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
-                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
-                        // didn't navigate away while downloading children
-                        const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
-                        thisApp.setState({
-                            functionBlocks:     functionBlocks,
-                            isLoadingChildren:  false
-                        });
-                    }
+        switch (roleName) {
+            case this.roles.release: {
+                // Release Mode
+                // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
+                this.setState({
+                    currentNavigationLevel:         thisApp.NavigationLevel.versions,
+                    activeRole:                     roleName,
+                    activeSubRole:                  null,
+                    selectedItem:                   null,
+                    parentItem:                     null,
+                    shouldShowToolbar:              true,
+                    shouldShowCreateChildForm:      false,
+                    createButtonState:              this.CreateButtonState.normal,
+                    selectedFunctionStereotype:     null,
+                    shouldShowSearchChildForm:      false,
+                    isLoadingChildren:              true,
+                    isLoadingSearchResults:         false,
+                    shouldShowFilteredResults:      false,
+                    searchResults:                  [],
+                    functionBlocks:                 [],
+                    mostInterfaces:                 [],
+                    navigationItems:                [],
+                    navigationHistory:              [],
+                    showSettingsPage:               false
                 });
-            } else {
-                getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
-                    if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
-                        // didn't navigate away while downloading children
-                        const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
 
-                        thisApp.setState({
-                            mostFunctions:      [],
-                            mostInterfaces:     mostInterfaces,
-                            isLoadingChildren:  false
-                        });
-                    }
+                this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                    thisApp.setState({
+                        functionCatalogs:       functionCatalogs,
+                        isLoadingChildren:      false
+                    });
                 });
+            } break;
+            case this.roles.development: {
+                // Development Mode
+                // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
+                const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
+                const newNavigationLevel = newActiveSubRole === this.developmentRoles.mostInterface ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
+
+                this.setState({
+                    navigationItems:            [],
+                    navigationHistory:          [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowToolbar:          true,
+                    shouldShowFilteredResults:  false,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    isLoadingChildren:          !canUseCachedChildren,
+                    currentNavigationLevel:     newNavigationLevel,
+                    activeRole:                 roleName,
+                    activeSubRole:              newActiveSubRole,
+                    showSettingsPage:           false
+                });
+
+                if (newActiveSubRole === this.developmentRoles.functionBlock) {
+                    getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
+                        if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                            // didn't navigate away while downloading children
+                            const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
+                            thisApp.setState({
+                                functionBlocks:     functionBlocks,
+                                isLoadingChildren:  false
+                            });
+                        }
+                    });
+                } else {
+                    getMostInterfacesForFunctionBlockId(null, function(mostInterfacesJson) {
+                        if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                            // didn't navigate away while downloading children
+                            const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
+                            thisApp.setState({
+                                mostFunctions:      [],
+                                mostInterfaces:     mostInterfaces,
+                                isLoadingChildren:  false
+                            });
+                        }
+                    });
+                }
+            } break;
+            case this.roles.types: {
+                this.setState({
+                    navigationItems:            [],
+                    navigationHistory:          [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowToolbar:          false,
+                    shouldShowFilteredResults:  false,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:     null,
+                    activeRole:                 roleName,
+                    activeSubRole:              null,
+                    showSettingsPage:           false
+                });
+                thisApp.updateMostTypes();
+            } break;
+            default: {
+                console.error("Invalid role " + roleName + " selected.");
             }
-        } else {
-            // Return to default Tidy Duck UI.
-            // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
-            this.setState({
-                currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                activeRoleItem:                 roleName,
-                selectedItem:                   null,
-                parentItem:                     null,
-                shouldShowToolbar:              true,
-                shouldShowCreateChildForm:      false,
-                createButtonState:              this.CreateButtonState.normal,
-                selectedFunctionStereotype:     null,
-                shouldShowSearchChildForm:      false,
-                isLoadingChildren:              true,
-                isLoadingSearchResults:         false,
-                shouldShowFilteredResults:      false,
-                searchResults:                  [],
-                functionBlocks:                 [],
-                mostInterfaces:                 [],
-                navigationItems:                [],
-                navigationHistory:              [],
-                showSettingsPage:               false
-            });
-
-            this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-                thisApp.setState({
-                    functionCatalogs:       functionCatalogs,
-                    isLoadingChildren:      false
-                });
-            });
         }
-
     }
 
     handleSettingsClick() {
@@ -1607,7 +1679,7 @@ class App extends React.Component {
                 break;
 
             default:
-                console.log("renderChildItems: Unimplemented Navigation Level: "+ currentNavigationLevel);
+                console.error("renderChildItems: Unimplemented Navigation Level: " + currentNavigationLevel);
             break;
         }
 
@@ -1623,9 +1695,9 @@ class App extends React.Component {
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
-        const shouldShowFilterBar = (this.state.activeRoleItem === this.roleItems.development) && !selectedItem;
+        const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         // Show the metadata form for a selected item when in development mode.
-        const shouldShowSelectedItemForm = (this.state.activeRoleItem === this.roleItems.development) && selectedItem;
+        const shouldShowSelectedItemForm = (this.state.activeRole === this.roles.development) && selectedItem;
 
         const reactComponents = [];
 
@@ -1791,47 +1863,66 @@ class App extends React.Component {
             );
         }
         else {
-            const navigationItems = this.state.activeRoleItem === this.roleItems.release ? <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} /> : "";
-            return (
-                <div id="main-content" className="container">
-                    {navigationItems}
-                    <div className="display-area">
-                        {this.renderForm()}
-                        <div id="child-display-area" className="clearfix">
-                            {this.renderChildItems()}
+            switch (this.state.activeRole) {
+                case this.roles.types: {
+                    // types role
+                    return (
+                        <div id="main-content" className="container">
+                            <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits} />
                         </div>
-                    </div>
-                    {this.renderDevelopmentBackButton()}
-                </div>
-            );
+                    );
+                } break;
+                default: {
+                    // other roles
+                    let navigationItems = "";
+                    if (this.state.activeRole === this.roles.release) {
+                        navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
+                    }
+                    return (
+                        <div id="main-content" className="container">
+                            {navigationItems}
+                            <div className="display-area">
+                                {this.renderForm()}
+                                <div id="child-display-area" className="clearfix">
+                                    {this.renderChildItems()}
+                                </div>
+                            </div>
+                            {this.renderDevelopmentBackButton()}
+                        </div>
+                    );
+                }
+            }
         }
     }
 
     renderRoleToggle() {
         const roleItems = [];
-        roleItems.push(this.roleItems.release);
-        roleItems.push(this.roleItems.development);
+        roleItems.push(this.roles.release);
+        roleItems.push(this.roles.development);
+        roleItems.push(this.roles.types);
 
         return (
-            <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeRoleItem} />
+            <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />
         );
     }
 
     renderSubRoleToggle() {
-        if (this.state.activeRoleItem === this.roleItems.development) {
+        if (this.state.activeRole === this.roles.development) {
             const roleItems = [];
-            roleItems.push(this.roleItems.functionBlock);
-            roleItems.push(this.roleItems.mostInterface);
+            roleItems.push(this.developmentRoles.functionBlock);
+            roleItems.push(this.developmentRoles.mostInterface);
 
             return (
-                <app.RoleToggle roleItems={roleItems} handleClick={this.handleRoleClick} activeRoleItem={this.state.activeSubRoleItem} />
+                <app.RoleToggle roleItems={roleItems} handleClick={(subRole, canUseCachedChildren) => this.handleRoleClick(this.roles.development, subRole, canUseCachedChildren)} activeRole={this.state.activeSubRole} />
             );
         }
     }
 
     renderDevelopmentBackButton() {
-        if (this.state.activeRoleItem === this.roleItems.development) {
-            const activeSubRoleItem = this.state.activeSubRoleItem;
+        const activeRole = this.state.activeRole;
+        const activeSubRole = this.state.activeSubRole;
+
+        if (activeRole === this.roles.development) {
             const currentNavigationLevel = this.state.currentNavigationLevel;
             const navigationHistory = this.state.navigationHistory;
             const selectedItem = this.state.selectedItem;
@@ -1842,15 +1933,15 @@ class App extends React.Component {
                     case this.NavigationLevel.functionBlocks:
                         return (
                             <i className="role-return fa fa-arrow-circle-left fa-4x"
-                               onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/>
+                               onClick={() => this.handleRoleClick(activeRole, activeSubRole, true)}/>
                         );
                         break;
                     case this.NavigationLevel.mostInterfaces:
-                        return ( activeSubRoleItem === this.roleItems.functionBlock ?
+                        return ( activeSubRole === this.developmentRoles.functionBlock ?
                             <i className="role-return fa fa-arrow-circle-left fa-4x"
                                onClick={() => this.onFunctionBlockSelected(navigationHistory.pop(), true, false)}/> :
                             <i className="role-return fa fa-arrow-circle-left fa-4x"
-                               onClick={() => this.handleRoleClick(this.state.activeRoleItem, true)}/>
+                               onClick={() => this.handleRoleClick(activeRole, activeSubRole, true)}/>
                         );
                         break;
                     case this.NavigationLevel.mostFunctions:
@@ -1898,7 +1989,7 @@ class App extends React.Component {
     render() {
         const accountName = this.state.account ? this.state.account.name : "";
         return (
-            <div>
+            <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
                     Tidy Duck
                     {this.renderRoleToggle()}

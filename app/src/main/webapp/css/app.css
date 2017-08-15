@@ -34,16 +34,50 @@
     width: 100%;
 }
 
+#types-container {
+    width: 80%;
+    display: block;
+    margin: 3em auto auto auto;
+
+    border: 0px solid;
+    border-radius: 5px;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+}
+
+#types-main-inputs .input-field {
+    float: none;
+    display: block;
+    padding: 1em 3em;
+}
+
+#types-options-container {
+    padding: 1em;
+}
+
+#extended-type-fields {
+    clear: left;
+    border: #AAA solid thin;
+    border-radius: 5px;
+    background-color: rgba(128, 128, 128, 0.25);
+    margin: 1em 3em;
+    padding: 1em;
+}
+
 .role-toggle {
     display: inline-flex;
-    margin-top: auto;
-    margin-left: 2em;
+    margin: auto 0.5em;
     text-align: center;
     vertical-align: middle;
     line-height: 250%;
-    border: 0px solid;
+    border: solid 0px #EEEEEE;
     border-radius: 5px;
-    background: lightgray;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin-top: -5px;
+    box-shadow: inset 0px 0px 5px #000000;
+    color: #FFFFFF;
 }
 
 .role-toggle .role, .active-role {
@@ -51,10 +85,21 @@
     border: 0px solid;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.5s ease;
+    color: #222222;
+}
+
+#header .role-toggle {
+    margin-left: 2em;
+}
+
+.role-toggle, .role {
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .active-role {
-    background: aliceblue;
+    background: #F0F8FF;
+    border: solid 1px #AAAAAA;
 }
 
 .role-return {
@@ -94,7 +139,6 @@
 }
 
 .display-area {
-    width: 80%;
     padding: 5px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -359,4 +403,9 @@
 .interfaces-placeholder {
     padding: 1em;
     font-size: 2em;
+}
+
+.repeating-field {
+    margin: 10px 0px;
+    background-color: rgba(100, 100, 100, 0.1);
 }

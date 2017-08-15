@@ -19,4 +19,86 @@
             <Company>MOST Cooperation</Company>
         </FBlockVersion>
     </FBlock>
+    <Definition>
+        <ClassDef ClassID="class_trigger">
+            <ClassDefName>Trigger</ClassDefName>
+            <ClassDefDesc/>
+        </ClassDef>
+        <ClassDef ClassID="class_switch">
+            <ClassDefName>Switch</ClassDefName>
+            <ClassDefDesc/>
+        </ClassDef>
+        <PCmdDef PCmdID="PCmdSet">
+            <CmdDefName>Set</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x0</CmdDefOPType>
+        </PCmdDef>
+        <PCmdDef PCmdID="PCmdGet">
+            <CmdDefName>Get</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x1</CmdDefOPType>
+        </PCmdDef>
+        <MCmdDef MCmdID="MCmdStart">
+            <CmdDefName>Start</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x0</CmdDefOPType>
+        </MCmdDef>
+        <MCmdDef MCmdID="MCmdAbort">
+            <CmdDefName>Abort</CmdDefName>
+            <CmdDefDesc/>
+            <CmdDefOPType>0x1</CmdDefOPType>
+        </MCmdDef>
+        <PReportDef PReportID="PReportStatus">
+            <ReportDefName>Status</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0xC</ReportDefOPType>
+        </PReportDef>
+        <PReportDef PReportID="PReportInterface">
+            <ReportDefName>Interface</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0xE</ReportDefOPType>
+        </PReportDef>
+        <MReportDef MReportID="MReportErrorAck">
+            <ReportDefName>ErrorAck</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0x9</ReportDefOPType>
+        </MReportDef>
+        <MReportDef MReportID="MReportProcessingAck">
+            <ReportDefName>ProcessingAck</ReportDefName>
+            <ReportDefDesc/>
+            <ReportDefOPType>0xA</ReportDefOPType>
+        </MReportDef>
+        <TypeDef TypeID="type_record">
+            <TDefName>Record</TDefName>
+            <TDefDesc/>
+            <TDefSize>255</TDefSize>
+        </TypeDef>
+        <TypeDef TypeID="type_array">
+            <TDefName>Array</TDefName>
+            <TDefDesc/>
+            <TDefSize>255</TDefSize>
+        </TypeDef>
+        <UnitDef UnitID="unit_1_min">
+            <UnitDefName>1/min</UnitDefName>
+            <UnitDefCode>0x20</UnitDefCode>
+            <UnitDefGroup>Frequency</UnitDefGroup>
+        </UnitDef>
+        <UnitDef UnitID="unit_360_degree_2pow32">
+            <UnitDefName>360_deg/2pow32</UnitDefName>
+            <UnitDefCode>0xA3</UnitDefCode>
+            <UnitDefGroup>Angle</UnitDefGroup>
+        </UnitDef>
+        <ErrorDef ErrorID="error_general_0x01">
+            <ErrorDefCode>0x01</ErrorDefCode>
+            <ErrorDefCodeDesc> = FBlockID not available</ErrorDefCodeDesc>
+            <ErrorDefInfo>0x00</ErrorDefInfo>
+            <ErrorDefInfoDesc/>
+        </ErrorDef>
+        <ErrorDef ErrorID="error_general_0x02">
+            <ErrorDefCode>0x02</ErrorDefCode>
+            <ErrorDefCodeDesc> = InstID not available</ErrorDefCodeDesc>
+            <ErrorDefInfo>0x00</ErrorDefInfo>
+            <ErrorDefInfoDesc/>
+        </ErrorDef>
+    </Definition>
 </FunctionCatalog>

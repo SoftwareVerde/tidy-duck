@@ -23,3 +23,16 @@ function shortenString(string, maxLength, useWordBoundary){
 function copyMostObject(clazz, object) {
     return clazz.fromJson(clazz.toJson(object));
 }
+
+// Converts the array data using convertFunction and stores the converted
+// data into the json object at jsonKey
+function addConvertedJsonArray(json, jsonKey, data, convertFunction) {
+    const convertedArray = [];
+    for (let i in data) {
+        let convertedItem = convertFunction(data[i]);
+        convertedArray.push(convertedItem);
+    }
+    if (convertedArray.length > 0) {
+        json[jsonKey] = convertedArray;
+    }
+}

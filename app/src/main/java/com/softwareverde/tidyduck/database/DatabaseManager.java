@@ -6,10 +6,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.transaction.DatabaseRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.Settings;
-import com.softwareverde.tidyduck.most.FunctionBlock;
-import com.softwareverde.tidyduck.most.FunctionCatalog;
-import com.softwareverde.tidyduck.most.MostFunction;
-import com.softwareverde.tidyduck.most.MostInterface;
+import com.softwareverde.tidyduck.most.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,6 +215,18 @@ public class DatabaseManager {
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
                 mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunctionId);
+            }
+        });
+    }
+
+    // MOST TYPE METHODS
+
+    public void insertMostType(final MostType mostType) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
+                mostTypeDatabaseManager.insertMostType(mostType);
             }
         });
     }

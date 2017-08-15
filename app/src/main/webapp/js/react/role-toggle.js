@@ -4,7 +4,7 @@ class RoleToggle extends React.Component{
 
         this.state = {
             roleItems:              (this.props.roleItems || []),
-            activeRoleItem:        this.props.activeRoleItem
+            activeRole:             this.props.activeRole
         };
 
         this.onRoleClicked = this.onRoleClicked.bind(this);
@@ -13,13 +13,13 @@ class RoleToggle extends React.Component{
     componentWillReceiveProps(newProperties) {
         this.setState({
             roleItems:          (newProperties.roleItems || []),
-            activeRoleItem:    newProperties.activeRoleItem
+            activeRole:         newProperties.activeRole
         });
     }
 
     onRoleClicked(roleItem) {
         this.setState({
-            activeRoleItem: roleItem
+            activeRole: roleItem
         });
 
         if (typeof this.props.handleClick == "function") {
@@ -30,13 +30,13 @@ class RoleToggle extends React.Component{
 
     render() {
         const reactElements = [];
-        const activeRoleItem = this.state.activeRoleItem;
+        const activeRole = this.state.activeRole;
         const roleItems = this.state.roleItems;
 
         for (let i in roleItems) {
             const roleKey = "roleItem" + i;
-            const isActiveRoleItem = roleItems[i] === activeRoleItem;
-            reactElements.push(<app.RoleItem key={roleKey} roleName={roleItems[i]} isActiveRoleItem={isActiveRoleItem} onClick={this.onRoleClicked}/>);
+            const isActiveRole = roleItems[i] === activeRole;
+            reactElements.push(<app.RoleItem key={roleKey} roleName={roleItems[i]} isActiveRoleItem={isActiveRole} onClick={this.onRoleClicked}/>);
         }
 
         return (
