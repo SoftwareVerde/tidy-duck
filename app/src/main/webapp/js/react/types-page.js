@@ -230,6 +230,7 @@ class TypesPage extends React.Component {
         insertMostType(mostTypeJson, function(data) {
             if (data.wasSuccess) {
                 if (typeof thisApp.props.onTypeCreated == "function") {
+                    thisApp.state.mostType.setId(data.mostTypeId);
                     thisApp.props.onTypeCreated(thisApp.state.mostType);
                 }
             } else {
@@ -967,7 +968,6 @@ class TypesPage extends React.Component {
                 const recordSize = mostType.getRecordSize();
 
                 let i = 1;
-                // TODO: make repeating
                 const recordFields = [];
                 const recordTypes = this.getRecordTypes();
                 mostType.getRecordFields().forEach(function (recordField) {
