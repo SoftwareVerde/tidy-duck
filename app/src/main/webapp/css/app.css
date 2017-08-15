@@ -283,7 +283,7 @@
     float: top;
 }
 
-.parameter i.remove-button {
+.parameter, .repeating-field i.remove-button {
     margin: 0 2px 0 auto;
     cursor: pointer;
 }
@@ -408,4 +408,8 @@
 .repeating-field {
     margin: 10px 0px;
     background-color: rgba(100, 100, 100, 0.1);
+}
+
+.repeating-field-header {
+    display: flex;
 }

@@ -51,6 +51,7 @@ class TypesPage extends React.Component {
         this.onArrayElementTypeChanged = this.onArrayElementTypeChanged.bind(this);
         this.onArraySizeChanged = this.onArraySizeChanged.bind(this);
         this.onRecordFieldAddButtonClicked = this.onRecordFieldAddButtonClicked.bind(this);
+        this.onRecordFieldRemoveButtonClicked = this.onRecordFieldRemoveButtonClicked.bind(this);
         this.onRecordNameChanged = this.onRecordNameChanged.bind(this);
         this.onRecordDescriptionChanged = this.onRecordDescriptionChanged.bind(this);
         this.onRecordSizeChanged = this.onRecordSizeChanged.bind(this);
@@ -593,6 +594,28 @@ class TypesPage extends React.Component {
         });
     }
 
+    onRecordFieldRemoveButtonClicked(recordField) {
+        const mostType = this.state.mostType;
+        const recordFields = mostType.getRecordFields();
+        const newRecordFields = [];
+        const recordFieldIndex = recordField.getFieldIndex();
+
+        let indexCounter = 1;
+        for (let i in recordFields) {
+            const existingRecordField = recordFields[i];
+            if (existingRecordField.getFieldIndex() !== recordFieldIndex) {
+                existingRecordField.setFieldIndex(indexCounter);
+                newRecordFields.push(existingRecordField);
+                indexCounter++;
+            }
+        }
+
+        mostType.setRecordFields(newRecordFields);
+        this.setState({
+            mostType: mostType
+        });
+    }
+
     onRecordNameChanged(value) {
         const mostType = this.state.mostType;
 
@@ -872,7 +895,9 @@ class TypesPage extends React.Component {
                     const recordFieldTypeName = recordField.getFieldType().getName();
                     recordFields.push(
                         <div className="repeating-field clearfix" key={key}>
-                            <div className="clearfix">Record Field {recordField.getFieldIndex()}</div>
+                            <div className="repeating-field-header clearfix">Record Field {recordField.getFieldIndex()}
+                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onRecordFieldRemoveButtonClicked(recordField)} />
+                            </div>
                             <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
                             <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
                             <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
