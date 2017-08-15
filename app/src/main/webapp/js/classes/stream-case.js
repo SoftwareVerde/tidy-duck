@@ -35,12 +35,15 @@ class StreamCase {
 
         addConvertedJsonArray(streamCaseJson, "streamParameters",   streamCase.getStreamParameters(),   StreamCaseParameter.toJson);
         addConvertedJsonArray(streamCaseJson, "streamSignals",      streamCase.getStreamSignals(),      StreamCaseSignal.toJson);
+
+        return streamCaseJson;
     }
 
     constructor() {
         this._id                = null;
         this._streamPositionX   = null;
         this._streamPositionY   = null;
+        this._caseIndex         = null;
         this._streamParameters  = [];
         this._streamSignals     = [];
     }
@@ -93,4 +96,11 @@ class StreamCase {
         return this._streamSignals;
     }
 
+    setCaseIndex(caseIndex) {
+        this._caseIndex = caseIndex;
+    }
+
+    getCaseIndex() {
+        return this._caseIndex;
+    }
 }

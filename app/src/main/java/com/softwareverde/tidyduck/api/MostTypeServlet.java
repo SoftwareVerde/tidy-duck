@@ -223,13 +223,13 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
         final Json streamParametersJson = json.get("streamParameters");
         for (int i=0; i<streamParametersJson.length(); i++) {
-            final StreamCaseParameter streamCaseParameter = _populateStreamCaseParameterFromJson(json.get(i));
+            final StreamCaseParameter streamCaseParameter = _populateStreamCaseParameterFromJson(streamParametersJson.get(i));
             streamCase.addStreamCaseParameter(streamCaseParameter);
         }
 
         final Json streamSignalsJson = json.get("streamSignals");
         for (int i=0; i<streamSignalsJson.length(); i++) {
-            final StreamCaseSignal streamCaseSignal = _populateStreamCaseSignalFromJson(json.get(i));
+            final StreamCaseSignal streamCaseSignal = _populateStreamCaseSignalFromJson(streamSignalsJson.get(i));
             streamCase.addStreamCaseSignal(streamCaseSignal);
         }
         return streamCase;
@@ -276,7 +276,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final String fieldName = json.getString("fieldName");
         final String fieldIndex = json.getString("fieldIndex");
         final String fieldDescription = json.getString("fieldDescription");
-        final Json fieldTypeJson = json.get("fieldTypeId");
+        final Json fieldTypeJson = json.get("fieldType");
         final Long fieldTypeId = fieldTypeJson.getLong("id");
 
         final MostType fieldType = new MostType();
@@ -422,6 +422,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                     final Json streamCaseJson = _toJson(streamCase);
                     streamCasesJson.add(streamCaseJson);
                 }
+                json.put("streamCases", streamCasesJson);
             } break;
 
             case "TCStream": {

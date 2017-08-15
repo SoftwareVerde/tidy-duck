@@ -57,8 +57,3 @@
 .input-field-small input, .input-field-small textarea {
     border: solid 1px #CCCCCC;
 }
-
-.input-field-small .input-field-small select, .input-field-small textarea {
-    width: 100%;
-}
-

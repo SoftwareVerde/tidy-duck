@@ -28,6 +28,7 @@ class BooleanField {
         this._bitPosition       = null;
         this._trueDescription   = null;
         this._falseDescription  = null;
+        this._fieldIndex        = null;
     }
 
     setId(id) {
@@ -60,5 +61,13 @@ class BooleanField {
 
     getFalseDescription() {
         return this._falseDescription;
+    }
+
+    setFieldIndex(fieldIndex) {
+        this._fieldIndex = fieldIndex;
+    }
+
+    getFieldIndex() {
+        return this._fieldIndex;
     }
 }
