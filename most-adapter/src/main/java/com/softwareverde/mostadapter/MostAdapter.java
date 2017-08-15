@@ -30,44 +30,46 @@ public class MostAdapter {
 
     public String getMostXml(final FunctionCatalog functionCatalog) throws MostAdapterException {
         try {
-            Document document = getNewDocument();
-            Element rootElement = functionCatalog.generateXmlElement(document);
+            final Document document = _getNewDocument();
+            final Element rootElement = functionCatalog.generateXmlElement(document);
             document.appendChild(rootElement);
-            return convertToString(document);
-        } catch (Exception e) {
+            return _convertToString(document);
+        }
+        catch (Exception e) {
             throw new MostAdapterException("Unable to serialize FunctionCatalog.", e);
         }
     }
 
-    private Document getNewDocument() throws ParserConfigurationException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document document = documentBuilder.newDocument();
+    private Document _getNewDocument() throws ParserConfigurationException {
+        final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        final Document document = documentBuilder.newDocument();
         return document;
     }
 
-    private String convertToString(final Document document) throws TransformerException {
+    private String _convertToString(final Document document) throws TransformerException {
         // samples are standalone
         document.setXmlStandalone(true);
 
         // create DOCTYPE node
-        DOMImplementation domImplementation = document.getImplementation();
-        DocumentType documentType = domImplementation.createDocumentType("FunctionCatalog", null, "fcat.dtd");
+        final DOMImplementation domImplementation = document.getImplementation();
+        final DocumentType documentType = domImplementation.createDocumentType("FunctionCatalog", null, "fcat.dtd");
 
         // create transformer that allows for outputting the DOCTYPE
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
+        final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        final Transformer transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, documentType.getSystemId());
-        if (this._isIndented) {
+        if (_isIndented) {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
         }
         // write document to string and return
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(document), new StreamResult(writer));
+
         String xml = writer.toString();
         // fix potential bug where doctype is followed by newline
-        if (!this._isIndented) {
+        if (! _isIndented) {
             xml = xml.replaceAll("\r|\n", "");
         }
         return xml;

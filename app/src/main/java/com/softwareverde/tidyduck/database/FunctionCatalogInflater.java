@@ -6,10 +6,7 @@ import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
-import com.softwareverde.tidyduck.most.Author;
-import com.softwareverde.tidyduck.most.Company;
-import com.softwareverde.tidyduck.most.FunctionBlock;
-import com.softwareverde.tidyduck.most.FunctionCatalog;
+import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.util.Util;
 
 import java.sql.Connection;
@@ -22,7 +19,7 @@ public class FunctionCatalogInflater {
     protected final Logger _logger = new Slf4jLogger(this.getClass());
     protected final DatabaseConnection<Connection> _databaseConnection;
 
-    public FunctionCatalogInflater(DatabaseConnection<Connection> connection) {
+    public FunctionCatalogInflater(final DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
     }
 
@@ -43,10 +40,18 @@ public class FunctionCatalogInflater {
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            FunctionCatalog functionCatalog = convertRowToFunctionCatalog(row);
+            FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
 
             if (inflateChildren) {
-                inflateChildren(functionCatalog);
+                _inflateChildren(functionCatalog);
+                _inflateClassDefinitions(functionCatalog);
+                _inflatePropertyCommandDefinitions(functionCatalog);
+                _inflateMethodCommandDefinitions(functionCatalog);
+                _inflatePropertyReportDefinitions(functionCatalog);
+                _inflateMethodReportDefinitions(functionCatalog);
+                _inflateTypeDefinitions(functionCatalog);
+                _inflateUnitDefinitions(functionCatalog);
+                _inflateErrorDefinitions(functionCatalog);
             }
             functionCatalogs.add(functionCatalog);
         }
@@ -56,10 +61,10 @@ public class FunctionCatalogInflater {
 
     public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
         List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
-        return groupByBaseVersionId(functionCatalogs);
+        return _groupByBaseVersionId(functionCatalogs);
     }
 
-    private Map<Long, List<FunctionCatalog>> groupByBaseVersionId(final List<FunctionCatalog> functionCatalogs) {
+    private Map<Long, List<FunctionCatalog>> _groupByBaseVersionId(final List<FunctionCatalog> functionCatalogs) {
         final HashMap<Long, List<FunctionCatalog>> groupedFunctionCatalogs = new HashMap<>();
 
         for (final FunctionCatalog functionCatalog : functionCatalogs) {
@@ -101,16 +106,24 @@ public class FunctionCatalogInflater {
 
         // get first (should be only) row
         final Row row = rows.get(0);
-        FunctionCatalog functionCatalog = convertRowToFunctionCatalog(row);
+        FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
 
         if (inflateChildren) {
-            inflateChildren(functionCatalog);
+            _inflateChildren(functionCatalog);
+            _inflateClassDefinitions(functionCatalog);
+            _inflatePropertyCommandDefinitions(functionCatalog);
+            _inflateMethodCommandDefinitions(functionCatalog);
+            _inflatePropertyReportDefinitions(functionCatalog);
+            _inflateMethodReportDefinitions(functionCatalog);
+            _inflateTypeDefinitions(functionCatalog);
+            _inflateUnitDefinitions(functionCatalog);
+            _inflateErrorDefinitions(functionCatalog);
         }
 
         return functionCatalog;
     }
 
-    private FunctionCatalog convertRowToFunctionCatalog(final Row row) throws DatabaseException {
+    private FunctionCatalog _convertRowToFunctionCatalog(final Row row) throws DatabaseException {
         final Long id = Util.parseLong(row.getString("id"));
         final String name = row.getString("name");
         final String release = row.getString("release_version");
@@ -139,10 +152,57 @@ public class FunctionCatalogInflater {
         return functionCatalog;
     }
 
-    private void inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
-        FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), true);
+    private void _inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), true);
         functionCatalog.setFunctionBlocks(functionBlocks);
     }
 
+    private void _inflateClassDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final ClassDefinitionInflater classDefinitionInflater = new ClassDefinitionInflater(_databaseConnection);
+        final List<ClassDefinition> classDefinitions = classDefinitionInflater.inflateClassDefinitions();
+        functionCatalog.setClassDefinitions(classDefinitions);
+    }
+
+    private void _inflatePropertyCommandDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final PropertyCommandDefinitionInflater commandDefinitionInflater = new PropertyCommandDefinitionInflater(_databaseConnection);
+        final List<PropertyCommandDefinition> commandDefinitions = commandDefinitionInflater.inflateCommandDefinitions();
+        functionCatalog.setPropertyCommandDefinitions(commandDefinitions);
+    }
+
+    private void _inflateMethodCommandDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final MethodCommandDefinitionInflater commandDefinitionInflater = new MethodCommandDefinitionInflater(_databaseConnection);
+        final List<MethodCommandDefinition> commandDefinitions = commandDefinitionInflater.inflateCommandDefinitions();
+        functionCatalog.setMethodCommandDefinitions(commandDefinitions);
+    }
+
+    private void _inflatePropertyReportDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final PropertyReportDefinitionInflater reportDefinitionInflater = new PropertyReportDefinitionInflater(_databaseConnection);
+        final List<PropertyReportDefinition> reportDefinitions = reportDefinitionInflater.inflateReportDefinitions();
+        functionCatalog.setPropertyReportDefinitions(reportDefinitions);
+    }
+
+    private void _inflateMethodReportDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final MethodReportDefinitionInflater reportDefinitionInflater = new MethodReportDefinitionInflater(_databaseConnection);
+        final List<MethodReportDefinition> reportDefinitions = reportDefinitionInflater.inflateReportDefinitions();
+        functionCatalog.setMethodReportDefinitions(reportDefinitions);
+    }
+
+    private void _inflateTypeDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final TypeDefinitionInflater typeDefinitionInflater = new TypeDefinitionInflater(_databaseConnection);
+        final List<TypeDefinition> typeDefinitions = typeDefinitionInflater.inflateTypeDefinitions();
+        functionCatalog.setTypeDefinitions(typeDefinitions);
+    }
+
+    private void _inflateUnitDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final UnitDefinitionInflater unitDefinitionInflater = new UnitDefinitionInflater(_databaseConnection);
+        final List<UnitDefinition> unitDefinitions = unitDefinitionInflater.inflateUnitDefinitions();
+        functionCatalog.setUnitDefinitions(unitDefinitions);
+    }
+
+    private void _inflateErrorDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final ErrorDefinitionInflater errorDefinitionInflater = new ErrorDefinitionInflater(_databaseConnection);
+        final List<ErrorDefinition> errorDefinitions = errorDefinitionInflater.inflateErrorDefinitions();
+        functionCatalog.setErrorDefinitions(errorDefinitions);
+    }
 }

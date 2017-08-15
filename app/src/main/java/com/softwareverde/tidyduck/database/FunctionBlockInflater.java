@@ -23,13 +23,13 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM function_blocks"
+            "SELECT * FROM function_blocks"
         );
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final FunctionBlock functionBlock = convertRowToFunctionBlock(row);
+            final FunctionBlock functionBlock = _convertRowToFunctionBlock(row);
             functionBlocks.add(functionBlock);
         }
         return functionBlocks;
@@ -38,10 +38,10 @@ public class FunctionBlockInflater {
 
     public Map<Long, List<FunctionBlock>> inflateFunctionBlocksGroupedByBaseVersionId() throws DatabaseException {
         List<FunctionBlock> functionBlocks = inflateFunctionBlocks();
-        return groupByBaseVersionId(functionBlocks);
+        return _groupByBaseVersionId(functionBlocks);
     }
 
-    private Map<Long, List<FunctionBlock>> groupByBaseVersionId(final List<FunctionBlock> functionBlocks) {
+    private Map<Long, List<FunctionBlock>> _groupByBaseVersionId(final List<FunctionBlock> functionBlocks) {
         final HashMap<Long, List<FunctionBlock>> groupedFunctionBlocks = new HashMap<>();
 
         for (final FunctionBlock functionBlock : functionBlocks) {
@@ -91,16 +91,16 @@ public class FunctionBlockInflater {
         }
 
         final Row row = rows.get(0);
-        final FunctionBlock functionBlock = convertRowToFunctionBlock(row);
+        final FunctionBlock functionBlock = _convertRowToFunctionBlock(row);
 
         if (inflateChildren) {
-            inflateChildren(functionBlock);
+            _inflateChildren(functionBlock);
         }
 
         return functionBlock;
     }
 
-    private void inflateChildren(FunctionBlock functionBlock) throws DatabaseException {
+    private void _inflateChildren(FunctionBlock functionBlock) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId(), true);
         functionBlock.setMostInterfaces(mostInterfaces);
@@ -118,13 +118,13 @@ public class FunctionBlockInflater {
         List<FunctionBlock> functionBlocks = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            FunctionBlock functionBlock = convertRowToFunctionBlock(row);
+            FunctionBlock functionBlock = _convertRowToFunctionBlock(row);
             functionBlocks.add(functionBlock);
         }
-        return groupByBaseVersionId(functionBlocks);
+        return _groupByBaseVersionId(functionBlocks);
     }
 
-    private FunctionBlock convertRowToFunctionBlock(final Row row) throws DatabaseException {
+    private FunctionBlock _convertRowToFunctionBlock(final Row row) throws DatabaseException {
         final Long id = row.getLong("id");
         final String mostId = row.getString("most_id");
         final String kind = row.getString("kind");
@@ -139,9 +139,9 @@ public class FunctionBlockInflater {
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
 
-        AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
+        final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
-        CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
+        final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(companyId);
 
         FunctionBlock functionBlock = new FunctionBlock();

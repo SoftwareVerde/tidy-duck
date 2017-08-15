@@ -118,39 +118,39 @@ public class FunctionBlock implements XmlNode {
     }
 
     @Override
-    public Element generateXmlElement(Document document) {
-        Element functionBlock = document.createElement("FBlock");
+    public Element generateXmlElement(final Document document) {
+        final Element functionBlock = document.createElement("FBlock");
 
-        Element mostIdElement = XmlUtil.createTextElement(document, "FBlockID", _mostId);
+        final Element mostIdElement = XmlUtil.createTextElement(document, "FBlockID", _mostId);
         functionBlock.appendChild(mostIdElement);
-        Element kindElement = XmlUtil.createTextElement(document, "FBlockKind", _kind);
+        final Element kindElement = XmlUtil.createTextElement(document, "FBlockKind", _kind);
         functionBlock.appendChild(kindElement);
-        Element nameElement = XmlUtil.createTextElement(document, "FBlockName", _name);
+        final Element nameElement = XmlUtil.createTextElement(document, "FBlockName", _name);
         functionBlock.appendChild(nameElement);
-        Element descriptionElement = XmlUtil.createTextElement(document, "FBlockDescription", _description);
+        final Element descriptionElement = XmlUtil.createTextElement(document, "FBlockDescription", _description);
         functionBlock.appendChild(descriptionElement);
 
-        Element versionElement = document.createElement("FBlockVersion");
+        final Element versionElement = document.createElement("FBlockVersion");
         versionElement.setAttribute("Access", _access);
 
-        Element releaseElement = XmlUtil.createTextElement(document, "Release", _release);
+        final Element releaseElement = XmlUtil.createTextElement(document, "Release", _release);
         versionElement.appendChild(releaseElement);
-        Element dateElement = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(_lastModifiedDate));
+        final Element dateElement = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(_lastModifiedDate));
         versionElement.appendChild(dateElement);
-        Element authorElement = XmlUtil.createTextElement(document, "Author", _author);
+        final Element authorElement = XmlUtil.createTextElement(document, "Author", _author);
         versionElement.appendChild(authorElement);
-        Element companyElement = XmlUtil.createTextElement(document, "Company", _company);
+        final Element companyElement = XmlUtil.createTextElement(document, "Company", _company);
         versionElement.appendChild(companyElement);
 
         functionBlock.appendChild(versionElement);
 
         for (final Modification modification : _modifications) {
-            Element modificationElement = modification.generateXmlElement(document);
+            final Element modificationElement = modification.generateXmlElement(document);
             versionElement.appendChild(modificationElement);
         }
 
         for (final MostFunction mostFunction : _mostFunctions) {
-            Element functionElement = mostFunction.generateXmlElement(document);
+            final Element functionElement = mostFunction.generateXmlElement(document);
             functionBlock.appendChild(functionElement);
         }
 
