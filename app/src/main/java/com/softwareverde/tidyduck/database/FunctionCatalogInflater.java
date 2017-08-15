@@ -50,6 +50,8 @@ public class FunctionCatalogInflater {
                 _inflatePropertyReportDefinitions(functionCatalog);
                 _inflateMethodReportDefinitions(functionCatalog);
                 _inflateTypeDefinitions(functionCatalog);
+                _inflateUnitDefinitions(functionCatalog);
+                _inflateErrorDefinitions(functionCatalog);
             }
             functionCatalogs.add(functionCatalog);
         }
@@ -114,6 +116,8 @@ public class FunctionCatalogInflater {
             _inflatePropertyReportDefinitions(functionCatalog);
             _inflateMethodReportDefinitions(functionCatalog);
             _inflateTypeDefinitions(functionCatalog);
+            _inflateUnitDefinitions(functionCatalog);
+            _inflateErrorDefinitions(functionCatalog);
         }
 
         return functionCatalog;
@@ -188,5 +192,17 @@ public class FunctionCatalogInflater {
         final TypeDefinitionInflater typeDefinitionInflater = new TypeDefinitionInflater(_databaseConnection);
         final List<TypeDefinition> typeDefinitions = typeDefinitionInflater.inflateTypeDefinitions();
         functionCatalog.setTypeDefinitions(typeDefinitions);
+    }
+
+    private void _inflateUnitDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final UnitDefinitionInflater unitDefinitionInflater = new UnitDefinitionInflater(_databaseConnection);
+        final List<UnitDefinition> unitDefinitions = unitDefinitionInflater.inflateUnitDefinitions();
+        functionCatalog.setUnitDefinitions(unitDefinitions);
+    }
+
+    private void _inflateErrorDefinitions(final FunctionCatalog functionCatalog) throws DatabaseException {
+        final ErrorDefinitionInflater errorDefinitionInflater = new ErrorDefinitionInflater(_databaseConnection);
+        final List<ErrorDefinition> errorDefinitions = errorDefinitionInflater.inflateErrorDefinitions();
+        functionCatalog.setErrorDefinitions(errorDefinitions);
     }
 }
