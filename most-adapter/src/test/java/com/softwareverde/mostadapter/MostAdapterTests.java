@@ -123,6 +123,12 @@ public class MostAdapterTests {
         functionCatalog.addTypeDefinition(new TypeDefinition("type_record", "Record", 255, null));
         functionCatalog.addTypeDefinition(new TypeDefinition("type_array", "Array", 255, null));
 
+        functionCatalog.addUnitDefinition(new UnitDefinition("unit_1_min", "1/min", "0x20", "Frequency"));
+        functionCatalog.addUnitDefinition(new UnitDefinition("unit_360_degree_2pow32", "360_deg/2pow32", "0xA3", "Angle"));
+
+        functionCatalog.addErrorDefinition(new ErrorDefinition("error_general_0x01", "0x01", " = FBlockID not available", "0x00", null));
+        functionCatalog.addErrorDefinition(new ErrorDefinition("error_general_0x02", "0x02", " = InstID not available", "0x00", null));
+
         return functionCatalog;
     }
 

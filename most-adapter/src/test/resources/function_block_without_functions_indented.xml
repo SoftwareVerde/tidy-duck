@@ -78,5 +78,27 @@
             <TDefDesc/>
             <TDefSize>255</TDefSize>
         </TypeDef>
+        <UnitDef UnitID="unit_1_min">
+            <UnitDefName>1/min</UnitDefName>
+            <UnitDefCode>0x20</UnitDefCode>
+            <UnitDefGroup>Frequency</UnitDefGroup>
+        </UnitDef>
+        <UnitDef UnitID="unit_360_degree_2pow32">
+            <UnitDefName>360_deg/2pow32</UnitDefName>
+            <UnitDefCode>0xA3</UnitDefCode>
+            <UnitDefGroup>Angle</UnitDefGroup>
+        </UnitDef>
+        <ErrorDef ErrorID="error_general_0x01">
+            <ErrorDefCode>0x01</ErrorDefCode>
+            <ErrorDefCodeDesc> = FBlockID not available</ErrorDefCodeDesc>
+            <ErrorDefInfo>0x00</ErrorDefInfo>
+            <ErrorDefInfoDesc/>
+        </ErrorDef>
+        <ErrorDef ErrorID="error_general_0x02">
+            <ErrorDefCode>0x02</ErrorDefCode>
+            <ErrorDefCodeDesc> = InstID not available</ErrorDefCodeDesc>
+            <ErrorDefInfo>0x00</ErrorDefInfo>
+            <ErrorDefInfoDesc/>
+        </ErrorDef>
     </Definition>
 </FunctionCatalog>

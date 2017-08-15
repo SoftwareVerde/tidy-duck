@@ -21,6 +21,8 @@ public class FunctionCatalog implements XmlNode {
     private final List<PropertyReportDefinition> _propertyReportDefinitions = new ArrayList<>();
     private final List<MethodReportDefinition> _methodReportDefinitions = new ArrayList<>();
     private final List<TypeDefinition> _typeDefinitions = new ArrayList<>();
+    private final List<UnitDefinition> _unitDefinitions = new ArrayList<>();
+    private final List<ErrorDefinition> _errorDefinitions = new ArrayList<>();
 
     public String getName() {
         return _name;
@@ -145,6 +147,32 @@ public class FunctionCatalog implements XmlNode {
         return Util.copyList(_typeDefinitions);
     }
 
+    public void addUnitDefinition(final UnitDefinition commandDefinition) {
+        _unitDefinitions.add(commandDefinition);
+    }
+
+    public void setUnitDefinitions(final List<UnitDefinition> commandDefinitions) {
+        _unitDefinitions.clear();
+        _unitDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<UnitDefinition> getUnitDefinitions() {
+        return Util.copyList(_unitDefinitions);
+    }
+
+    public void addErrorDefinition(final ErrorDefinition commandDefinition) {
+        _errorDefinitions.add(commandDefinition);
+    }
+
+    public void setErrorDefinitions(final List<ErrorDefinition> commandDefinitions) {
+        _errorDefinitions.clear();
+        _errorDefinitions.addAll(commandDefinitions);
+    }
+
+    public List<ErrorDefinition> getErrorDefinitions() {
+        return Util.copyList(_errorDefinitions);
+    }
+
     public List<Modification> getModifications() {
         return Util.copyList(_modifications);
     }
@@ -210,6 +238,14 @@ public class FunctionCatalog implements XmlNode {
 
             for (final TypeDefinition typeDefinition : _typeDefinitions) {
                 definitionElement.appendChild(typeDefinition.generateXmlElement(document));
+            }
+
+            for (final UnitDefinition unitDefinition : _unitDefinitions) {
+                definitionElement.appendChild(unitDefinition.generateXmlElement(document));
+            }
+
+            for (final ErrorDefinition errorDefinition : _errorDefinitions) {
+                definitionElement.appendChild(errorDefinition.generateXmlElement(document));
             }
         }
         rootElement.appendChild(definitionElement);

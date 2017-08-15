@@ -23,6 +23,8 @@ public class FunctionCatalog {
     private final List<PropertyReportDefinition> _propertyReportDefinitions = new ArrayList<>();
     private final List<MethodReportDefinition> _methodReportDefinitions = new ArrayList<>();
     private final List<TypeDefinition> _typeDefinitions = new ArrayList<>();
+    private final List<UnitDefinition> _unitDefinitions = new ArrayList<>();
+    private final List<ErrorDefinition> _errorDefinitions = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -116,6 +118,14 @@ public class FunctionCatalog {
         return Util.copyList(_typeDefinitions);
     }
 
+    public List<UnitDefinition> getUnitDefinitions() {
+        return Util.copyList(_unitDefinitions);
+    }
+
+    public List<ErrorDefinition> getErrorDefinitions() {
+        return Util.copyList(_errorDefinitions);
+    }
+
     public void addClassDefinition(final ClassDefinition classDefinition) {
         _classDefinitions.add(classDefinition);
     }
@@ -168,6 +178,24 @@ public class FunctionCatalog {
     public void setTypeDefinitions(final List<TypeDefinition> typeDefinitions) {
         _typeDefinitions.clear();
         _typeDefinitions.addAll(typeDefinitions);
+    }
+
+    public void addUnitDefinition(final UnitDefinition unitDefinition) {
+        _unitDefinitions.add(unitDefinition);
+    }
+
+    public void setUnitDefinitions(final List<UnitDefinition> unitDefinitions) {
+        _unitDefinitions.clear();
+        _unitDefinitions.addAll(unitDefinitions);
+    }
+
+    public void addErrorDefinition(final ErrorDefinition errorDefinition) {
+        _errorDefinitions.add(errorDefinition);
+    }
+
+    public void setErrorDefinitions(final List<ErrorDefinition> errorDefinitions) {
+        _errorDefinitions.clear();
+        _errorDefinitions.addAll(errorDefinitions);
     }
 
     public void addFunctionBlock(final FunctionBlock functionBlock) {

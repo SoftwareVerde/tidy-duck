@@ -65,6 +65,16 @@ public class MostTypeConverter {
             convertedFunctionCatalog.addTypeDefinition(convertedTypeDefinition);
         }
 
+        for (final UnitDefinition unitDefinition : functionCatalog.getUnitDefinitions()) {
+            final com.softwareverde.mostadapter.UnitDefinition convertedUnitDefinition = _convertUnitDefinition(unitDefinition);
+            convertedFunctionCatalog.addUnitDefinition(convertedUnitDefinition);
+        }
+
+        for (final ErrorDefinition errorDefinition : functionCatalog.getErrorDefinitions()) {
+            final com.softwareverde.mostadapter.ErrorDefinition convertedErrorDefinition = _convertErrorDefinition(errorDefinition);
+            convertedFunctionCatalog.addErrorDefinition(convertedErrorDefinition);
+        }
+
         return convertedFunctionCatalog;
     }
 
@@ -118,6 +128,25 @@ public class MostTypeConverter {
             typeDefinition.getTypeName(),
             typeDefinition.getTypeSize(),
             typeDefinition.getTypeDescription()
+        );
+    }
+
+    private com.softwareverde.mostadapter.UnitDefinition _convertUnitDefinition(final UnitDefinition unitDefinition) {
+        return new com.softwareverde.mostadapter.UnitDefinition(
+                unitDefinition.getUnitId(),
+                unitDefinition.getUnitName(),
+                unitDefinition.getUnitCode(),
+                unitDefinition.getUnitGroup()
+        );
+    }
+
+    private com.softwareverde.mostadapter.ErrorDefinition _convertErrorDefinition(final ErrorDefinition errorDefinition) {
+        return new com.softwareverde.mostadapter.ErrorDefinition(
+            errorDefinition.getErrorId(),
+            errorDefinition.getErrorCode(),
+            errorDefinition.getErrorDescription(),
+            errorDefinition.getInfo(),
+            errorDefinition.getInfoDescription()
         );
     }
 
