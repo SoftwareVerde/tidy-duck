@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- WG FCat Exchange Format, 2006-12-06                                       -->
+<!-- DTD Version 6.05                                                                           -->
+<!-- Restructured and extended to comply to MOST specification 2.5 -->
+
+<!-- ============================================================================================================= -->
+<!-- FCat Header =================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT FunctionCatalog (CatalogVersion, (FBlock)+, Definition)>
+
+<!ELEMENT CatalogVersion (Release, Date, Author?, Company?, Modification*)>
+
+<!ELEMENT Release (#PCDATA)>
+<!ELEMENT Date (#PCDATA)>
+<!ELEMENT Author (#PCDATA)>
+<!ELEMENT Company (#PCDATA)>
+<!ELEMENT Modification (Change, Reason)>
+<!ELEMENT Change (#PCDATA)>
+<!ELEMENT Reason (#PCDATA)>
+
+<!ELEMENT FBlock (FBlockID, FBlockKind, FBlockName, FBlockDescription, FBlockVersion, (Function)*)>
+<!ELEMENT FBlockID (#PCDATA)>
+<!ELEMENT FBlockKind (#PCDATA)>
+<!ELEMENT FBlockName (#PCDATA)>
+<!ELEMENT FBlockDescription (#PCDATA)>
+<!ELEMENT FBlockVersion (Release, Date, Author?, Company?, Modification*)>
+<!ATTLIST FBlockVersion
+	Access (public | private | preliminary) "public"
+>
+
+<!-- ============================================================================================================= -->
+<!-- Functions ===================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT Function (FunctionID, FunctionName, FunctionDescription, FunctionVersion, FunctionClass)>
+
+<!ELEMENT FunctionID (#PCDATA)>
+<!ATTLIST FunctionID
+	FunctionSection (Coordination | Mandatory | Extension | Unique | Proprietary) #IMPLIED
+>
+
+<!ELEMENT FunctionName (#PCDATA)>
+<!ELEMENT FunctionDescription (#PCDATA)>
+<!ELEMENT FunctionVersion (Release, Date, Author?, Company?, Modification*)>
+<!ATTLIST FunctionVersion
+	Access (public | private | preliminary) "public"
+>
+
+<!ELEMENT FunctionClass (FunctionClassDesc, FunctionClassError*, (Property | Method))>
+<!ELEMENT FunctionClassDesc (#PCDATA)>
+<!ATTLIST FunctionClass
+	ClassRef IDREF #REQUIRED
+>
+<!ELEMENT FunctionClassError (ErrorCode, ErrorCodeDesc?, ParamName, ParamDescription, ErrorParamType)>
+<!ATTLIST FunctionClassError
+	ErrorRef IDREF #REQUIRED
+>
+<!ELEMENT ErrorCode (#PCDATA)>
+<!ELEMENT ErrorCodeDesc (#PCDATA)>
+<!-- Added TCStream and TShortStream, 2006-12-07 -->
+<!ELEMENT ErrorParamType (TStream | TCStream | TShortStream | TArray | TRecord | TBool | TNumber | TEnum | TString | TBitField | TVoid)>
+
+<!-- ============================================================================================================= -->
+<!-- Properties ==================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT Property (PSwitch | PNumber | PText | PEnum | PContainer | PRecord | PArray | PSequence | PUnclassified)>
+
+<!ELEMENT PSwitch (PSParam)+>
+<!ELEMENT PSParam (ParamName, ParamDescription, PSParamOPType, PSParamType)>
+<!ATTLIST PSParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PSParamOPType ((PSCommand, PSReport?) | (PSReport, PSCommand?))>
+<!-- Removed Increment and Decrement, 2006-07-14 -->
+<!ELEMENT PSCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdGetInterface?)>
+<!ELEMENT PSReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!ELEMENT PSParamType (TBool | TBitField | TVoid)>
+
+<!ELEMENT PNumber (PNParam)+>
+<!ELEMENT PNParam (ParamName, ParamDescription, PNParamOPType, PNParamType?)>
+<!ATTLIST PNParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PNParamOPType ((PNCommand, PNReport?) | (PNReport, PNCommand?))>
+<!ELEMENT PNCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdIncrement?, PCmdDecrement?, PCmdGetInterface?)>
+<!ELEMENT PNReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!ELEMENT PNParamType (TNumber | TVoid)>
+
+<!ELEMENT PText (PTParam)+>
+<!ELEMENT PTParam (ParamName, ParamDescription, PTParamOPType, PTParamType)>
+<!ATTLIST PTParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PTParamOPType ((PTCommand, PTReport?) | (PTReport, PTCommand?))>
+<!-- Removed Increment and Decrement, 2006-07-14 -->
+<!ELEMENT PTCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdGetInterface?)>
+<!ELEMENT PTReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!ELEMENT PTParamType (TString | TVoid)>
+
+<!ELEMENT PEnum (PEParam)+>
+<!ELEMENT PEParam (ParamName, ParamDescription, PEParamOPType, PEParamType)>
+<!ATTLIST PEParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PEParamOPType ((PECommand, PEReport?) | (PEReport, PECommand?))>
+<!ELEMENT PECommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdIncrement?, PCmdDecrement?, PCmdGetInterface?)>
+<!ELEMENT PEReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!ELEMENT PEParamType (TEnum | TNumber | TVoid)>
+
+<!ELEMENT PContainer (PCParam)+>
+<!ELEMENT PCParam (ParamName, ParamDescription, PCParamOPType, PCParamType)>
+<!ATTLIST PCParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PCParamOPType ((PCCommand, PCReport?) | (PCReport, PCCommand?))>
+<!ELEMENT PCCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdGetInterface?)>
+<!ELEMENT PCReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!-- Spec allows no ShortStream for Containers although it's just a short version of CStream. Hence no ShortStream for Container, 2006-12-07 -->
+<!ELEMENT PCParamType (TVoid | TCStream)>
+
+<!ELEMENT PRecord ((PosDescription)*, (PRParam)+)>
+<!ATTLIST PRecord
+	NElements CDATA #IMPLIED
+>
+<!ELEMENT PRParam (ParamName, ParamDescription, PRParamOPType, PRParamType)>
+<!ATTLIST PRParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PRParamOPType ((PRCommand, PRReport?) | (PRReport, PRCommand?))>
+<!ELEMENT PRCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdIncrement?, PCmdDecrement?, PCmdGetInterface?)>
+<!ELEMENT PRReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!ELEMENT PRParamType (TRecord | TNumber | TVoid)>
+
+<!ELEMENT PArray ((PosDescription)*, (PAParam)+)>
+<!ATTLIST PArray
+	NMax CDATA #IMPLIED
+>
+<!ELEMENT PosDescription (#PCDATA)>
+<!ATTLIST PosDescription
+	PosX CDATA #REQUIRED
+	PosY CDATA "0"
+>
+<!ELEMENT PAParam (ParamName, ParamDescription, PAParamOPType, PAParamType)>
+<!ATTLIST PAParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PAParamOPType ((PACommand, PAReport?) | (PAReport, PACommand?))>
+<!ELEMENT PACommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdIncrement?, PCmdDecrement?, PCmdGetInterface?)>
+<!ELEMENT PAReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!ELEMENT PAParamType (TArray | TNumber | TVoid)>
+
+<!ELEMENT PSequence (PQParam)+>
+<!ELEMENT PQParam (ParamName, ParamDescription, PQParamOPType, PQParamType)>
+<!ATTLIST PQParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PQParamOPType ((PQCommand, PQReport?) | (PQReport, PQCommand?))>
+<!ELEMENT PQCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdGetInterface?)>
+<!ELEMENT PQReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!-- Added TShortStream, 2006-12-07 -->
+<!ELEMENT PQParamType (TBool | TBitField | TNumber | TEnum | TString | TCStream | TShortStream | TVoid)>
+
+<!ELEMENT PUnclassified (PUParam)+>
+<!ATTLIST PUnclassified
+	Length CDATA #IMPLIED
+>
+<!ELEMENT PUParam (ParamName, ParamDescription, PUParamOPType, PUParamType)>
+<!ATTLIST PUParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT PUParamOPType ((PUCommand, PUReport?) | (PUReport, PUCommand?))>
+<!ELEMENT PUCommand (PCmdSet?, PCmdGet?, PCmdSetGet?, PCmdIncrement?, PCmdDecrement?, PCmdGetInterface?)>
+<!ELEMENT PUReport (PReportStatus?, PReportInterface?, PReportError?)>
+<!-- Added TShortStream, 2006-07-17 -->
+<!ELEMENT PUParamType (TBool | TNumber | TString | TEnum | TBitField | TStream | TCStream | TShortStream | TRecord | TArray | TVoid)>
+
+<!-- ============================================================================================================= -->
+<!-- Methods ====================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT Method (MTrigger | MSequence | MUnclassified)>
+
+<!ELEMENT MTrigger (MTParam)+>
+<!ELEMENT MTParam (ParamName, ParamDescription, MTParamOPType, MTParamType)>
+<!ATTLIST MTParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT MTParamOPType ((MTCommand, MTReport?) | (MTReport, MTCommand?))>
+<!-- Removed StartAck, Abort, AbortAck, 2006-07-14 -->
+<!ELEMENT MTCommand (MCmdStart?, MCmdStartResult?, MCmdStartResultAck?, MCmdGetInterface?)>
+<!ELEMENT MTReport (MReportErrorAck?, MReportProcessingAck?, MReportProcessing?, MReportResult?, MReportResultAck?, MReportInterface?, MReportError?)>
+<!ELEMENT MTParamType (TNumber | TVoid)>
+
+<!ELEMENT MSequence (MQParam)+>
+<!ELEMENT MQParam (ParamName, ParamDescription, MQParamOPType, MQParamType)>
+<!ATTLIST MQParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT MQParamOPType ((MQCommand, MQReport?) | (MQReport, MQCommand?))>
+<!-- Removed StartAck, Added AbortAck, 2006-07-14 -->
+<!ELEMENT MQCommand (MCmdStart?, MCmdAbort?, MCmdStartResult?, MCmdGetInterface?, MCmdStartResultAck?, MCmdAbortAck?)>
+<!-- Added MReportResultAck, 2006-07-14 -->
+<!ELEMENT MQReport (MReportErrorAck?, MReportProcessingAck?, MReportProcessing?, MReportResult?, MReportResultAck?, MReportInterface?, MReportError?)>
+<!-- Added TShortStream, 2006-12-07 -->
+<!ELEMENT MQParamType (TBool | TBitField | TNumber | TEnum | TString | TCStream | TShortStream | TVoid)>
+
+<!ELEMENT MUnclassified (MUParam)+>
+<!ELEMENT MUParam (ParamName, ParamDescription, MUParamOPType, MUParamType)>
+<!ATTLIST MUParam
+	details (true | false) #IMPLIED
+>
+<!ELEMENT MUParamOPType ((MUCommand, MUReport?) | (MUReport, MUCommand?))>
+<!ELEMENT MUCommand (MCmdStart?, MCmdStartResult?, MCmdStartResultAck?, MCmdGetInterface?, MCmdStartAck?, MCmdAbort?, MCmdAbortAck?)>
+<!ELEMENT MUReport (MReportErrorAck?, MReportProcessingAck?, MReportProcessing?, MReportResult?, MReportResultAck?, MReportInterface?, MReportError?)>
+<!-- Added TShortStream, 2006-07-17 -->
+<!ELEMENT MUParamType (TBool | TNumber | TString | TEnum | TBitField | TStream | TCStream | TShortStream | TRecord | TArray | TVoid)>
+
+<!-- ============================================================================================================= -->
+<!-- OPTypes ===================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT PCmdSet (ParamPos?)>
+<!ATTLIST PCmdSet
+	OPTypeRef IDREF #FIXED "PCmdSet"
+>
+<!ELEMENT ParamPos (#PCDATA)>
+
+<!ELEMENT PCmdGet (ParamPos?)>
+<!ATTLIST PCmdGet
+	OPTypeRef IDREF #FIXED "PCmdGet"
+>
+
+<!ELEMENT PCmdSetGet (ParamPos?)>
+<!ATTLIST PCmdSetGet
+	OPTypeRef IDREF #FIXED "PCmdSetGet"
+>
+
+<!ELEMENT PCmdIncrement (ParamPos?)>
+<!ATTLIST PCmdIncrement
+	OPTypeRef IDREF #FIXED "PCmdIncrement"
+>
+
+<!ELEMENT PCmdDecrement (ParamPos?)>
+<!ATTLIST PCmdDecrement
+	OPTypeRef IDREF #FIXED "PCmdDecrement"
+>
+
+<!ELEMENT PCmdGetInterface (ParamPos?)>
+<!ATTLIST PCmdGetInterface
+	OPTypeRef IDREF #FIXED "PCmdGetInterface"
+>
+
+<!ELEMENT PReportStatus (ParamPos?)>
+<!ATTLIST PReportStatus
+	OPTypeRef IDREF #FIXED "PReportStatus"
+>
+
+<!ELEMENT PReportInterface (ParamPos?)>
+<!ATTLIST PReportInterface
+	OPTypeRef IDREF #FIXED "PReportInterface"
+>
+
+<!ELEMENT PReportError (ParamPos?)>
+<!ATTLIST PReportError
+	OPTypeRef IDREF #FIXED "PReportError"
+>
+
+<!ELEMENT MCmdStart (ParamPos?)>
+<!ATTLIST MCmdStart
+	OPTypeRef IDREF #FIXED "MCmdStart"
+>
+
+<!ELEMENT MCmdStartResult (ParamPos?)>
+<!ATTLIST MCmdStartResult
+	OPTypeRef IDREF #FIXED "MCmdStartResult"
+>
+
+<!ELEMENT MCmdStartResultAck (ParamPos?)>
+<!ATTLIST MCmdStartResultAck
+	OPTypeRef IDREF #FIXED "MCmdStartResultAck"
+>
+
+<!ELEMENT MCmdGetInterface (ParamPos?)>
+<!ATTLIST MCmdGetInterface
+	OPTypeRef IDREF #FIXED "MCmdGetInterface"
+>
+
+<!ELEMENT MCmdStartAck (ParamPos?)>
+<!ATTLIST MCmdStartAck
+	OPTypeRef IDREF #FIXED "MCmdStartAck"
+>
+
+<!ELEMENT MCmdAbort (ParamPos?)>
+<!ATTLIST MCmdAbort
+	OPTypeRef IDREF #FIXED "MCmdAbort"
+>
+
+<!ELEMENT MCmdAbortAck (ParamPos?)>
+<!ATTLIST MCmdAbortAck
+	OPTypeRef IDREF #FIXED "MCmdAbortAck"
+>
+
+<!ELEMENT MReportErrorAck (ParamPos?)>
+<!ATTLIST MReportErrorAck
+	OPTypeRef IDREF #FIXED "MReportErrorAck"
+>
+
+<!ELEMENT MReportProcessingAck (ParamPos?)>
+<!ATTLIST MReportProcessingAck
+	OPTypeRef IDREF #FIXED "MReportProcessingAck"
+>
+
+<!ELEMENT MReportProcessing (ParamPos?)>
+<!ATTLIST MReportProcessing
+	OPTypeRef IDREF #FIXED "MReportProcessing"
+>
+
+<!ELEMENT MReportResult (ParamPos?)>
+<!ATTLIST MReportResult
+	OPTypeRef IDREF #FIXED "MReportResult"
+>
+
+<!ELEMENT MReportResultAck (ParamPos?)>
+<!ATTLIST MReportResultAck
+	OPTypeRef IDREF #FIXED "MReportResultAck"
+>
+
+<!ELEMENT MReportInterface (ParamPos?)>
+<!ATTLIST MReportInterface
+	OPTypeRef IDREF #FIXED "MReportInterface"
+>
+
+<!ELEMENT MReportError (ParamPos?)>
+<!ATTLIST MReportError
+	OPTypeRef IDREF #FIXED "MReportError"
+>
+
+<!-- ============================================================================================================= -->
+<!-- Parameters =================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT TBool (TBoolField)+>
+<!ATTLIST TBool
+	TypeRef IDREF #REQUIRED
+>
+<!ELEMENT TBoolField (BitTrueDesc, BitFalseDesc)>
+<!ATTLIST TBoolField
+	BitPos CDATA #REQUIRED
+>
+<!ELEMENT BitTrueDesc (#PCDATA)>
+<!ELEMENT BitFalseDesc (#PCDATA)>
+
+<!ELEMENT TBitField (TBoolField)+>
+<!ATTLIST TBitField
+	TypeRef IDREF #REQUIRED
+	Length CDATA "1"
+>
+
+<!ELEMENT TEnum (TEnumValue)+>
+<!ATTLIST TEnum
+	TypeRef IDREF #REQUIRED
+	TEnumMax CDATA #IMPLIED
+>
+<!ELEMENT TEnumValue (#PCDATA)>
+<!ATTLIST TEnumValue
+	Code CDATA #REQUIRED
+>
+
+<!ELEMENT TNumber (BasisDataType, Exponent, (RangeMin, RangeMax)?, Step, Unit)>
+<!ELEMENT BasisDataType (TVoid | TUByte | TSByte | TUWord | TSWord | TULong | TSLong)>
+<!ELEMENT Exponent (#PCDATA)>
+<!ELEMENT RangeMin (#PCDATA)>
+<!ELEMENT RangeMax (#PCDATA)>
+<!ELEMENT Step (#PCDATA)>
+<!ELEMENT Unit EMPTY>
+<!ATTLIST Unit
+	UnitRef IDREF #REQUIRED
+>
+
+<!ELEMENT TVoid EMPTY>
+<!ATTLIST TVoid
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TUByte EMPTY>
+<!ATTLIST TUByte
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TSByte EMPTY>
+<!ATTLIST TSByte
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TUWord EMPTY>
+<!ATTLIST TUWord
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TSWord EMPTY>
+<!ATTLIST TSWord
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TULong EMPTY>
+<!ATTLIST TULong
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TSLong EMPTY>
+<!ATTLIST TSLong
+	TypeRef IDREF #REQUIRED
+>
+
+<!ELEMENT TString EMPTY>
+<!ATTLIST TString
+	TypeRef IDREF #REQUIRED
+	MaxSize CDATA #IMPLIED
+>
+
+<!ELEMENT TStream (StreamCase)*>
+<!ATTLIST TStream
+	TypeRef IDREF #REQUIRED
+	Length CDATA #IMPLIED
+>
+<!-- Added StreamSignal, 2006-10-04 -->
+<!ELEMENT StreamCase ((PosDescription)?, ((StreamParam)* | (StreamSignal)*))>
+<!ELEMENT StreamParam (ParamName, ParamDescription, ParamType)>
+<!ELEMENT ParamName (#PCDATA)>
+<!ATTLIST ParamName
+	ParamIdx CDATA #IMPLIED
+>
+<!ELEMENT ParamDescription (#PCDATA)>
+<!-- Added TShortStream, 2006-12-07 -->
+<!ELEMENT ParamType (TBool | TBitField | TNumber | TEnum | TString | TStream | TCStream | TShortStream)>
+<!ELEMENT StreamSignal (SignalName, SignalDescription, SignalBitLength)>
+<!ELEMENT SignalName (#PCDATA)>
+<!ATTLIST SignalName
+	SignalIdx CDATA #IMPLIED
+>
+<!ELEMENT SignalDescription (#PCDATA)>
+<!ELEMENT SignalBitLength (#PCDATA)>
+
+<!ELEMENT TCStream EMPTY>
+<!-- Changed Length to MaxLength, 2006-07-17 -->
+<!ATTLIST TCStream
+	TypeRef IDREF #REQUIRED
+	MaxLength CDATA #IMPLIED
+	MediaType CDATA #IMPLIED
+>
+
+<!-- Added Shortstream, 2006-07-17 -->
+<!ELEMENT TShortStream EMPTY>
+<!ATTLIST TShortStream
+	TypeRef IDREF #REQUIRED
+	MaxLength CDATA #IMPLIED
+>
+
+<!ELEMENT TArray (TArrayName?, TArrayDesc?, TArrayElementType)>
+<!ATTLIST TArray
+	TypeRef IDREF #REQUIRED
+	NMax CDATA #IMPLIED
+>
+<!ELEMENT TArrayName (#PCDATA)>
+<!ELEMENT TArrayDesc (#PCDATA)>
+<!-- Added TShortStream, 2006-09-28 -->
+<!ELEMENT TArrayElementType (TBool | TBitField | TNumber | TEnum | TString | TArray | TRecord | TStream | TCStream | TShortStream)>
+
+<!ELEMENT TRecord (TRecordName?, TRecordDesc?, (TRecordField)+)>
+<!ATTLIST TRecord
+	TypeRef IDREF #REQUIRED
+	NElements CDATA #IMPLIED
+>
+<!ELEMENT TRecordName (#PCDATA)>
+<!ELEMENT TRecordDesc (#PCDATA)>
+<!ELEMENT TRecordField (TRecordFieldName, TRecordFieldDesc, TRecordFieldType)>
+<!ATTLIST TRecordField
+	FieldIdx CDATA #REQUIRED
+>
+<!ELEMENT TRecordFieldName (#PCDATA)>
+<!ELEMENT TRecordFieldDesc (#PCDATA)>
+<!-- Added TShortStream, 2006-09-28 -->
+<!ELEMENT TRecordFieldType (TBool | TBitField | TNumber | TEnum | TString | TArray | TStream | TCStream | TShortStream)>
+
+<!-- ============================================================================================================= -->
+<!-- Definitions ==================================================================================================== -->
+<!-- ============================================================================================================= -->
+
+<!ELEMENT Definition ((ClassDef)*, (PCmdDef)*, (MCmdDef)*, (PReportDef)*, (MReportDef)*, (TypeDef)*, (UnitDef)*, (ErrorDef)*)>
+
+<!ELEMENT ClassDef (ClassDefName, ClassDefDesc)>
+<!ATTLIST ClassDef
+	ClassID ID #REQUIRED
+>
+<!ELEMENT ClassDefName (#PCDATA)>
+<!ELEMENT ClassDefDesc (#PCDATA)>
+
+<!-- Added: CmdDefOPType, 2006-10-04 -->
+<!ELEMENT PCmdDef (CmdDefName, CmdDefDesc, CmdDefOPType?)>
+<!ATTLIST PCmdDef
+	PCmdID ID #REQUIRED
+>
+<!ELEMENT CmdDefName (#PCDATA)>
+<!ELEMENT CmdDefDesc (#PCDATA)>
+<!ELEMENT CmdDefOPType (#PCDATA)>
+
+<!ELEMENT MCmdDef (CmdDefName, CmdDefDesc, CmdDefOPType?)>
+<!ATTLIST MCmdDef
+	MCmdID ID #REQUIRED
+>
+
+<!ELEMENT PReportDef (ReportDefName, ReportDefDesc, ReportDefOPType?)>
+<!ATTLIST PReportDef
+	PReportID ID #REQUIRED
+>
+<!ELEMENT ReportDefName (#PCDATA)>
+<!ELEMENT ReportDefDesc (#PCDATA)>
+<!ELEMENT ReportDefOPType (#PCDATA)>
+
+<!ELEMENT MReportDef (ReportDefName, ReportDefDesc, ReportDefOPType?)>
+<!ATTLIST MReportDef
+	MReportID ID #REQUIRED
+>
+
+<!ELEMENT TypeDef (TDefName, TDefDesc, TDefSize)>
+<!ATTLIST TypeDef
+	TypeID ID #REQUIRED
+>
+<!ELEMENT TDefName (#PCDATA)>
+<!ELEMENT TDefDesc (#PCDATA)>
+<!ELEMENT TDefSize (#PCDATA)>
+
+<!ELEMENT UnitDef (UnitDefName, UnitDefCode, UnitDefGroup?)>
+<!ATTLIST UnitDef
+	UnitID ID #REQUIRED
+>
+<!ELEMENT UnitDefName (#PCDATA)>
+<!ELEMENT UnitDefCode (#PCDATA)>
+<!ELEMENT UnitDefGroup (#PCDATA)>
+
+<!ELEMENT ErrorDef (ErrorDefCode, ErrorDefCodeDesc, ErrorDefInfo, ErrorDefInfoDesc)>
+<!ATTLIST ErrorDef
+	ErrorID ID #REQUIRED
+>
+<!ELEMENT ErrorDefCode (#PCDATA)>
+<!ELEMENT ErrorDefCodeDesc (#PCDATA)>
+<!ELEMENT ErrorDefInfo (#PCDATA)>
+<!ELEMENT ErrorDefInfoDesc (#PCDATA)>
