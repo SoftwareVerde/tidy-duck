@@ -45,6 +45,32 @@ function insertMostType(mostType, callbackFunction) {
     });
 }
 
+//calls callbackFunction with modified function ID
+function updateMostType(mostTypeId, mostType, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-types/" + mostTypeId,
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "mostType": mostType
+            })
+        }
+    );
+
+    jsonFetch(request, function (data) {
+       const wasSuccess = data.wasSuccess;
+       if (! wasSuccess) {
+           console.log("Unable to modify Most Type " + mostTypeId + ": " + data.errorMessage);
+       }
+       
+       if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+       }
+    });
+}
+
+
 // calls callbackFunction with an array of primitive types.
 function getPrimitiveTypes(callbackFunction) {
     const request = new Request(

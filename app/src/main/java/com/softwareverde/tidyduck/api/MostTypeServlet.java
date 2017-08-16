@@ -9,6 +9,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
+import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,16 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if ("most-units".equals(finalUrlSegment)) {
             if (httpMethod == HttpMethod.GET) {
                 return _listUnits(environment);
+            }
+        }
+        else { // not base mostType, must have ID
+            final long mostTypeId = Util.parseLong(finalUrlSegment);
+            if (mostTypeId < 1) {
+                return _generateErrorJson("Invalid Most Type id.");
+            }
+
+            if (httpMethod == HttpMethod.POST) {
+                return _updateMostType(request, mostTypeId, environment);
             }
         }
         return super._generateErrorJson("Unimplemented HTTP method in request.");
@@ -84,6 +95,29 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             return super._generateErrorJson(msg);
         }
 
+        return response;
+    }
+
+    protected Json _updateMostType(final HttpServletRequest request, final long mostTypeId, Environment environment) throws IOException {
+        final Json jsonRequest = _getRequestDataAsJson(request);
+        final Json mostTypeJson = jsonRequest.get("mostType");
+
+        try {
+            MostType mostType = _populateMostTypeFromJson(mostTypeJson);
+            mostType.setId(mostTypeId);
+
+            DatabaseManager databaseManager = new DatabaseManager(environment.getDatabase());
+            databaseManager.updateMostType(mostType);
+
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to update Most Type: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return _generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        _setJsonSuccessFields(response);
         return response;
     }
 

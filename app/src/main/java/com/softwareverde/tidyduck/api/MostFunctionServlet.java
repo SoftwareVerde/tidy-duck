@@ -94,7 +94,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final Json mostFunctionJson = request.get("mostFunction");
 
         { // Validate Inputs
-            if (mostFunctionId < 1) {
+            if (mostInterfaceId < 1) {
                 _logger.error("Unable to parse Interface ID: " + mostInterfaceId);
                 return _generateErrorJson("Invalid Interface ID: " + mostInterfaceId);
             }
