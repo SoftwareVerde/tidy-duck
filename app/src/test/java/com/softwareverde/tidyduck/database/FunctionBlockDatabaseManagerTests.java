@@ -192,7 +192,7 @@ public class FunctionBlockDatabaseManagerTests {
         // Second call of delete method checks if Function Block is orphaned, then deletes it from database.
         // The app provides a Function Catalog ID of 0 for orphaned Function Blocks.
         _functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(0, functionBlock.getId());
-        
+
         // Assert
         final List<FunctionBlock> inflatedFunctionBlocks = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId());
         Assert.assertEquals(0, inflatedFunctionBlocks.size());

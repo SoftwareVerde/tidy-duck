@@ -76,6 +76,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             final MostType mostType = _populateMostTypeFromJson(jsonRequest);
             databaseManager.insertMostType(mostType);
 
+            response.put("mostTypeId", mostType.getId());
             super._setJsonSuccessFields(response);
         } catch (DatabaseException e) {
             String msg = "Unable to create type.";
