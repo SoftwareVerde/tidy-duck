@@ -63,7 +63,7 @@ function updateMostType(mostTypeId, mostType, callbackFunction) {
        if (! wasSuccess) {
            console.log("Unable to modify Most Type " + mostTypeId + ": " + data.errorMessage);
        }
-       
+
        if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess);
        }

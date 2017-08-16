@@ -222,26 +222,46 @@ class TypesPage extends React.Component {
     }
 
     onSave() {
-        const mostTypeJson = MostType.toJson(this.state.mostType);
+        const mostType = this.state.mostType;
+        const mostTypeJson = MostType.toJson(mostType);
         const thisApp = this;
         this.setState({
             saveButtonText: <i className="fa fa-refresh fa-spin"></i>
         });
-        insertMostType(mostTypeJson, function(data) {
-            if (data.wasSuccess) {
-                if (typeof thisApp.props.onTypeCreated == "function") {
-                    thisApp.state.mostType.setId(data.mostTypeId);
-                    thisApp.props.onTypeCreated(thisApp.state.mostType);
+
+        // Check if creating a new type or editing and existing one
+        if (this.state.selectedOption === this.options[0]) {
+            insertMostType(mostTypeJson, function(data) {
+                if (data.wasSuccess) {
+                    if (typeof thisApp.props.onTypeCreated == "function") {
+                        mostType.setId(data.mostTypeId);
+                        thisApp.props.onTypeCreated(mostType);
+                    }
+                } else {
+                    alert("Unable to create type: " + data.errorMessage);
                 }
-            } else {
-                alert("Unable to create type: " + data.errorMessage);
-            }
-            // reset fields
-            thisApp.setState({
-                mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes),
-                saveButtonText: 'Saved'
-            })
-        });
+                // reset fields
+                thisApp.setState({
+                    mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes),
+                    saveButtonText: 'Saved'
+                })
+            });
+        }
+        else if (this.state.selectedOption === this.options[1]) {
+            const mostTypeId = this.state.mostType.getId();
+            updateMostType(mostTypeId, mostTypeJson, function (wasSuccess) {
+               if (wasSuccess) {
+                   console.log("Success!");
+               }
+               else {
+                   alert("Unable to update type: " + data.errorMessage);
+               }
+
+               thisApp.setState({
+                   saveButtonText: 'Saved'
+               });
+            });
+        }
     }
 
     onTypeSelected(value) {
@@ -271,6 +291,7 @@ class TypesPage extends React.Component {
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
 
         mostType.setName(oldMostType.getName());
+        mostType.setId(oldMostType.getId());
 
         const newPrimitiveType = this.getPrimitiveTypeByName(value);
         mostType.setPrimitiveType(newPrimitiveType);
