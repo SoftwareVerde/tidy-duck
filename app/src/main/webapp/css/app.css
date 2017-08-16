@@ -102,19 +102,6 @@
     border: solid 1px #AAAAAA;
 }
 
-.role-return {
-    position: fixed;
-    margin-top: 100px;
-    margin-left: 5px;
-    opacity: 0.25;
-    cursor: pointer;
-}
-
-.role-return:hover {
-    opacity: 1;
-    transition: 0.5s;
-}
-
 .navigation-column {
     width: 300px;
     border-right: solid 1px;
@@ -212,7 +199,7 @@
 }
 
 .search-result-form i.loading-results {
-    margin: 10px;
+    margin: 5px;
 }
 
 .search-bar {
@@ -333,6 +320,11 @@
     float: left;
 
     transition: background-color 0.5s ease;
+}
+
+.child-item select {
+    height: 2em;
+    min-width: 5em;
 }
 
 .child-item-title {

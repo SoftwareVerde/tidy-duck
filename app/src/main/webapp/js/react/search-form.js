@@ -83,7 +83,7 @@ class SearchForm extends React.Component {
 
     renderSearchResults () {
         if (this.state.isLoadingSearchResults) {
-            return (<div className="form-loading"><i className="loading-results fa fa-4x fa-refresh fa-spin"/></div>);
+            return (<div className="form-loading"><i className="loading-results fa fa-3x fa-refresh fa-spin"/></div>);
         }
         const reactComponents = [];
         const navigationLevel = this.state.navigationLevel;

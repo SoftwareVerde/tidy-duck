@@ -98,12 +98,21 @@ public class MostInterfaceDatabaseManager {
 
         _databaseConnection.executeSql(query);
     }
+    private void _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE interface_id = ? and function_block_id IN (" +
+                "SELECT DISTINCT function_blocks.id\n" +
+                    "FROM function_blocks\n" +
+                    "WHERE function_blocks.is_released=0)")
+                .setParameter(mostInterfaceId);
+
+        _databaseConnection.executeSql(query);
+    }
 
     private void _deleteMostInterfaceIfUnreleased(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (!mostInterface.isReleased() && isOrphaned(mostInterfaceId)) {
+        if (!mostInterface.isReleased()) {
             // interface isn't released and isn't associated with any function blocks, we can delete it
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
@@ -182,8 +191,17 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void deleteMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
-        _deleteMostInterfaceIfUnreleased(mostInterfaceId);
+        if (functionBlockId > 0) {
+            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        else {
+            if (!isOrphaned(mostInterfaceId)) {
+                _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(mostInterfaceId);
+            }
+            else {
+                _deleteMostInterfaceIfUnreleased(mostInterfaceId);
+            }
+        }
     }
 
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {

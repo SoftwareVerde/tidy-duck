@@ -20,7 +20,7 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
         if (data.wasSuccess) {
             mostInterfaces = data.mostInterfaces;
         } else {
-            console.log("Unable to get Interfaces for function block " + functionBlockId + ": " + data.errorMessage);
+            console.error("Unable to get Interfaces for function block " + functionBlockId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -45,7 +45,7 @@ function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
         if (data.wasSuccess) {
             mostInterfaces = data.mostInterfaces;
         } else {
-            console.log("Unable to get Interfaces for search string " + searchString + ": " + data.errorMessage);
+            console.error("Unable to get Interfaces for search string " + searchString + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -66,7 +66,7 @@ function listFunctionBlocksContainingMostInterface(mostInterfaceId, callbackFunc
 
     jsonFetch(request, function (data) {
         if (!data.wasSuccess) {
-            console.log("Unable to get function blocks associated with interface " + mostInterfaceId);
+            console.error("Unable to get function blocks associated with interface " + mostInterfaceId);
         }
         if (typeof callbackFunction == "function") {
             callbackFunction(data);
@@ -94,7 +94,7 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
         if (data.wasSuccess) {
             mostInterfaceId = data.mostInterfaceId;
         } else {
-            console.log("Unable to insert interface: " + data.errorMessage);
+            console.error("Unable to insert interface: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
@@ -119,7 +119,7 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (! wasSuccess) {
-            console.log("Unable to associate interface " + mostInterfaceId + " with function block: " + data.errorMessage);
+            console.error("Unable to associate interface " + mostInterfaceId + " with function block: " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 
@@ -145,12 +145,17 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
 
     jsonFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        if (! wasSuccess) {
-            console.log("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
+        let mostInterfaceId = null;
+
+        if (wasSuccess) {
+            mostInterfaceId = data.mostInterfaceId;
+        }
+        else {
+            console.error("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, mostInterfaceId);
         }
     });
 }
@@ -168,7 +173,7 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.log("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+            console.error("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

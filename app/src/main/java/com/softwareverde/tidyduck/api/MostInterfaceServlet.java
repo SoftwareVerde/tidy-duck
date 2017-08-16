@@ -96,7 +96,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function block ID isn't null, insert interface for function block
-            if (!requestFunctionBlockID.equals("null")) {
+            if (! Util.isBlank(requestFunctionBlockID)) {
                 final Long functionBlockId = Util.parseLong(requestFunctionBlockID);
                 if (functionBlockId < 1) {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
@@ -120,6 +120,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _updateMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
+        final Json response = new Json(false);
         final String requestFunctionBlockId = request.getString("functionBlockId");
 
 
@@ -131,7 +132,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
-            if (!requestFunctionBlockId.equals("null")){
+            if (! Util.isBlank(requestFunctionBlockId)) {
                 // Validate Inputs
                 final Long functionBlockId = Util.parseLong(requestFunctionBlockId);
                 if (functionBlockId < 1) {
@@ -143,6 +144,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             else {
                 databaseManager.updateMostInterface(0, mostInterface);
             }
+            response.put("mostInterfaceId", mostInterface.getId());
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update interface: " + exception.getMessage();
@@ -150,7 +152,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             return _generateErrorJson(errorMessage);
         }
 
-        final Json response = new Json(false);
         _setJsonSuccessFields(response);
         return response;
     }
@@ -184,15 +185,19 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final String functionBlockIdString = request.getParameter("functionBlockId");
         final Long functionBlockId = Util.parseLong(functionBlockIdString);
 
-        { // Validate Inputs
-            if (functionBlockId == null || functionBlockId < 1) {
-                return _generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
-            }
-        }
-
         try {
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
+
+            // Validate inputs. If null, send blockId of 0, which will disassociate interface from all fblocks.
+            if (Util.isBlank(functionBlockIdString)) {
+                databaseManager.deleteMostInterface(0, mostInterfaceId);
+            }
+            else {
+                if (functionBlockId < 1) {
+                    return _generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
+                }
+                databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
+            }
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete interface %d from function block %d.", mostInterfaceId, functionBlockId);
