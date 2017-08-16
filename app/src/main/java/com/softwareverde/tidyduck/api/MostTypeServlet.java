@@ -632,7 +632,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         json.put("name", name);
         json.put("isBaseType", isBaseType);
         json.put("isNumberBaseType", isNumberBaseType);
-        json.put("isStreamParameterType", isStreamParameterType);
+        json.put("isStreamParamType", isStreamParameterType);
         json.put("isArrayType", isArrayType);
         json.put("isRecordType", isRecordType);
 

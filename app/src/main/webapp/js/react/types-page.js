@@ -68,6 +68,7 @@ class TypesPage extends React.Component {
         this.getBaseTypes = this.getBaseTypes.bind(this);
         this.getPrimaryTypes = this.getPrimaryTypes.bind(this);
         this.getNumberBaseTypes = this.getNumberBaseTypes.bind(this);
+        this.checkTypeCircularReferences = this.checkTypeCircularReferences.bind(this);
         this.getStreamParamTypes = this.getStreamParamTypes.bind(this);
         this.getArrayTypes = this.getArrayTypes.bind(this);
         this.getRecordTypes = this.getRecordTypes.bind(this);
@@ -171,13 +172,49 @@ class TypesPage extends React.Component {
         return numberBaseTypes;
     }
 
+    checkTypeCircularReferences(mostTypeName, proposedType, proposedTypeName) {
+        // Check if current type name is identical to proposed type.
+        if (proposedTypeName == mostTypeName) {return true;}
+
+        // Check if current type name is identical to proposed type's array element type.
+        const proposedArrayElementTypeName = proposedType.getArrayElementType() ? proposedType.getArrayElementType().getName() : "";
+        if (proposedArrayElementTypeName == mostTypeName) {return true;}
+
+        // Check if current type name is identical to any of the proposed type's record field types.
+        const proposedTypeRecordFields = proposedType.getRecordFields();
+        for (let i in proposedTypeRecordFields) {
+            const recordFieldTypeName = proposedTypeRecordFields[i].getFieldType().getName();
+            if (recordFieldTypeName == mostTypeName) {return true;}
+        }
+
+        // Check if current type name is identical to any of the stream parameter types contained within the proposed type.
+        const proposedTypeStreamCases = proposedType.getStreamCases();
+        for (let i in proposedTypeStreamCases) {
+            const streamCaseParameters = proposedTypeStreamCases[i].getStreamParameters();
+            for (let j in streamCaseParameters) {
+                const streamCaseParameterTypeName = streamCaseParameters[j].getParameterType().getName();
+                if (streamCaseParameterTypeName == mostTypeName) {return true;}
+            }
+        }
+
+        return false;
+    }
+
     getStreamParamTypes() {
         const streamParamTypes = [];
+        const mostTypeName = this.state.mostType.getName();
+        const checkForCircularReferences = this.state.selectedOption == this.options[1];
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
             if (type.getPrimitiveType().isStreamParamType()) {
-                streamParamTypes.push(type.getName());
+                const typeName = type.getName();
+                if (checkForCircularReferences) {
+                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                        streamParamTypes.push(typeName);
+                    }
+                }
+                else {streamParamTypes.push(typeName);}
             }
         }
 
@@ -186,11 +223,19 @@ class TypesPage extends React.Component {
 
     getArrayTypes() {
         const arrayTypes = [];
+        const mostTypeName = this.state.mostType.getName();
+        const checkForCircularReferences = this.state.selectedOption == this.options[1];
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
             if (type.getPrimitiveType().isArrayType()) {
-                arrayTypes.push(type.getName());
+                const typeName = type.getName();
+                if (checkForCircularReferences) {
+                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                        arrayTypes.push(typeName);
+                    }
+                }
+                else {arrayTypes.push(typeName);}
             }
         }
 
@@ -199,11 +244,19 @@ class TypesPage extends React.Component {
 
     getRecordTypes() {
         const recordTypes = [];
+        const mostTypeName = this.state.mostType.getName();
+        const checkForCircularReferences = this.state.selectedOption == this.options[1];
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
             if (type.getPrimitiveType().isRecordType()) {
-                recordTypes.push(type.getName());
+                const typeName = type.getName();
+                if (checkForCircularReferences) {
+                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                        recordTypes.push(typeName);
+                    }
+                }
+                else {recordTypes.push(typeName);}
             }
         }
 
@@ -889,11 +942,7 @@ class TypesPage extends React.Component {
             } break;
             case 'TStream': {
                 const thisPage = this;
-                const mostTypeName = mostType.getName();
-                // Filter options so that recursive selections are impossible.
-                const filteredPrimaryTypes = this.getPrimaryTypes().filter(function (typeName) {
-                    return typeName != mostTypeName;
-                });
+                const streamParamTypes = this.getStreamParamTypes();
 
                 let i = 1;
                 mostType.getStreamCases().forEach(function (streamCase) {
@@ -905,7 +954,7 @@ class TypesPage extends React.Component {
                     streamCase.getStreamParameters().forEach(function (streamParameter) {
                         const parameterKey = ("streamParameter" + i) + j;
                         if (streamParameter.getParameterType() == null) {
-                            streamParameter.setParameterType(thisPage.getMostTypeByName(filteredPrimaryTypes[0]));
+                            streamParameter.setParameterType(thisPage.getMostTypeByName(streamParamTypes[0]));
                         }
                         const parameterTypeName = streamParameter.getParameterType().getName();
 
@@ -914,7 +963,7 @@ class TypesPage extends React.Component {
                                 <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
                                 <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamParameter.getParameterDescription()} onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={filteredPrimaryTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
+                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={streamParamTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
                                 <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)} />
                             </div>
                         );
@@ -972,14 +1021,10 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length" name="short-stream-max-length" value={streamMaxLength} onChange={this.onShortStreamMaxLengthChanged} />);
             } break;
             case 'TArray': {
-                const mostTypeName = mostType.getName();
-                // Filter options so that recursive selections are impossible.
-                const filteredArrayElementTypes = this.getArrayTypes().filter(function (typeName) {
-                    return typeName != mostTypeName;
-                });
+                const arrayElementTypes = this.getArrayTypes();
 
                 if (mostType.getArrayElementType() == null) {
-                    mostType.setArrayElementType(this.getMostTypeByName(filteredArrayElementTypes[0]));
+                    mostType.setArrayElementType(this.getMostTypeByName(arrayElementTypes[0]));
                 }
                 const arrayName = mostType.getArrayName();
                 const arrayDescription = mostType.getArrayDescription();
@@ -987,7 +1032,7 @@ class TypesPage extends React.Component {
                 const arraySize = mostType.getArraySize();
                 reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} />);
                 reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} />);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={filteredArrayElementTypes} onChange={this.onArrayElementTypeChanged} />);
+                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} />);
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
             } break;
             case 'TRecord': {
@@ -995,17 +1040,13 @@ class TypesPage extends React.Component {
                 const recordName = mostType.getRecordName();
                 const recordDescription = mostType.getRecordDescription();
                 const recordSize = mostType.getRecordSize();
-                const mostTypeName = mostType.getName();
                 const recordFields = [];
-                // Filter types to prevent recursive selections.
-                const filteredRecordTypes = this.getRecordTypes().filter(function (typeName) {
-                    return typeName != mostTypeName;
-                });
+                const recordFieldTypes = this.getRecordTypes();
 
                 let i = 1;
                 mostType.getRecordFields().forEach(function (recordField) {
                     if (recordField.getFieldType() == null) {
-                        recordField.setFieldType(thisPage.getMostTypeByName(filteredRecordTypes[0]));
+                        recordField.setFieldType(thisPage.getMostTypeByName(recordFieldTypes[0]));
                     }
 
                     const key = "recordField" + i;
@@ -1017,7 +1058,7 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
                             <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
-                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={filteredRecordTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
+                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordFieldTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
                         </div>
                     );
                     i++;
