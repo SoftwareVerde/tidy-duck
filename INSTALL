@@ -5,31 +5,99 @@
 ============
 Dependencies
 ============
-- Tomcat (7.0 or newer)
-- MySQL  (5.5 or newer)
-- Java   (1.7 or newer)
+
+    - Tomcat (7.0+)
+    - MySQL  (5.5+)
+    - Java   (1.7+)
 
 ===========
 MySQL Setup
 ===========
-----------------------
-Database Configuration
-----------------------
-For each environment, put the connection details in the file:
 
-app/src/{environment}/resources/server.conf
+    ----------------------
+    Database Configuration
+    ----------------------
+        For each environment, put the connection details in the file:
 
-------------------
-Enable strict mode
-------------------
-Edit /etc/mysql/my.cnf, add the following line below the 'query-cache-size' property (under the [mysqld] heading):
+            app/src/{environment}/resources/server.conf
 
-sql_mode = TRADITIONAL
+    ------------------
+    Enable Strict Mode
+    ------------------
+        Edit /etc/mysql/my.cnf, add the following line below the 'query-cache-size' property (under the [mysqld] heading):
 
-This will enable strict mode in order to enforce various database-level constraints.
+            sql_mode = TRADITIONAL
 
-==========
+        (This will enable strict mode in order to enforce data integrity constraints.)
+
+
+    ------------------
+    Load MySQL Schema
+    ------------------
+        1. From the tidy-duck directory, connect to MySQL
+
+            mysql -u root -p
+
+        2. Run the init-schema.sql script.
+
+            source sql/init-schema.sql
+
+        3. Run the init.sql script.
+
+            use tidy_duck;
+            source sql/init.sql
+
+    ------------------
+    Create MySQL User
+    ------------------
+
+        Create the application sql-account (with limited access)
+        Be sure to modify the command below to use the password set within app/src/{environment}/resources/server.conf
+
+            mysql -u root -p tidy_duck -e "DROP USER IF EXISTS tidy_duck; CREATE USER 'tidy_duck'@'%' IDENTIFIED BY '__PASSWORD__'; GRANT SELECT, INSERT, UPDATE, DELETE ON tidy_duck.* TO 'tidy_duck'@'%'; FLUSH PRIVILEGES;"
+
+===========
+Logging
+===========
+
+    Create the logging destination directory.
+    (This file may be configured within app/src/{environment}/resources/log4j2.xml)
+
+        sudo mkdir /var/log/tidy-duck
+        sudo chmod -R 770 /var/log/tidy-duck
+        sudo chown -R tomcat7:tomcat7 /var/log/tidy-duck
+
+===========
+Create User Accounts
+===========
+
+    1. Update the accounts sql-script:
+
+        vim sql/init-accounts.sql
+
+    2. From the tidy-duck directory, connect to MySQL and run the sql script:
+
+        mysql -u root -p
+        use tidy_duck;
+        source sql/init-accounts.sql
+
+===========
+Compilation
+===========
+
+    Tidy Duck uses Java with Gradle to compile the application.
+    A convenience script is located at:
+
+        scripts/make.sh
+
+    This script will echo the location of the war file for deployment.
+
+===========
 Deployment
-==========
-[TBD]
+===========
+
+    Tidy Duck is a Tomcat7 application. To deploy it, take the generated *.war file and move it to the Tomcat Modules directory:
+
+        sudo mv app/build/libs/*.war /var/lib/tomcat7/webapps/ROOT.war
+        sudo chown tomcat7:tomcat7 /var/lib/tomcat7/webapps/ROOT.war
 

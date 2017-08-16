@@ -1,4 +1,5 @@
 #!/bin/bash
 
-./gradlew assemble
+rm -rf .gradle/
+./gradlew clean test war -Pconfiguration=production
 
