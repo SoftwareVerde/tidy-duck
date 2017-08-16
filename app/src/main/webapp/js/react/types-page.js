@@ -250,12 +250,10 @@ class TypesPage extends React.Component {
         else if (this.state.selectedOption === this.options[1]) {
             const mostTypeId = this.state.mostType.getId();
             updateMostType(mostTypeId, mostTypeJson, function (wasSuccess) {
-               if (wasSuccess) {
-                   console.log("Success!");
-               }
-               else {
+               if (! wasSuccess) {
                    alert("Unable to update type: " + data.errorMessage);
                }
+                // Most Type is already updated in App and in Database, only need to reset save button text.
 
                thisApp.setState({
                    saveButtonText: 'Saved'
@@ -891,7 +889,12 @@ class TypesPage extends React.Component {
             } break;
             case 'TStream': {
                 const thisPage = this;
-                const primaryTypes = this.getPrimaryTypes();
+                const mostTypeName = mostType.getName();
+                // Filter options so that recursive selections are impossible.
+                const filteredPrimaryTypes = this.getPrimaryTypes().filter(function (typeName) {
+                    return typeName != mostTypeName;
+                });
+
                 let i = 1;
                 mostType.getStreamCases().forEach(function (streamCase) {
                     const key = "streamCase" + i;
@@ -902,7 +905,7 @@ class TypesPage extends React.Component {
                     streamCase.getStreamParameters().forEach(function (streamParameter) {
                         const parameterKey = ("streamParameter" + i) + j;
                         if (streamParameter.getParameterType() == null) {
-                            streamParameter.setParameterType(thisPage.getMostTypeByName(primaryTypes[0]));
+                            streamParameter.setParameterType(thisPage.getMostTypeByName(filteredPrimaryTypes[0]));
                         }
                         const parameterTypeName = streamParameter.getParameterType().getName();
 
@@ -911,7 +914,7 @@ class TypesPage extends React.Component {
                                 <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
                                 <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamParameter.getParameterDescription()} onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={primaryTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
+                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={filteredPrimaryTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
                                 <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)} />
                             </div>
                         );
@@ -969,9 +972,14 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length" name="short-stream-max-length" value={streamMaxLength} onChange={this.onShortStreamMaxLengthChanged} />);
             } break;
             case 'TArray': {
-                const arrayElementTypes = this.getArrayTypes();
+                const mostTypeName = mostType.getName();
+                // Filter options so that recursive selections are impossible.
+                const filteredArrayElementTypes = this.getArrayTypes().filter(function (typeName) {
+                    return typeName != mostTypeName;
+                });
+
                 if (mostType.getArrayElementType() == null) {
-                    mostType.setArrayElementType(this.getMostTypeByName(arrayElementTypes[0]));
+                    mostType.setArrayElementType(this.getMostTypeByName(filteredArrayElementTypes[0]));
                 }
                 const arrayName = mostType.getArrayName();
                 const arrayDescription = mostType.getArrayDescription();
@@ -979,7 +987,7 @@ class TypesPage extends React.Component {
                 const arraySize = mostType.getArraySize();
                 reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} />);
                 reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} />);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} />);
+                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={filteredArrayElementTypes} onChange={this.onArrayElementTypeChanged} />);
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
             } break;
             case 'TRecord': {
@@ -987,13 +995,17 @@ class TypesPage extends React.Component {
                 const recordName = mostType.getRecordName();
                 const recordDescription = mostType.getRecordDescription();
                 const recordSize = mostType.getRecordSize();
+                const mostTypeName = mostType.getName();
+                const recordFields = [];
+                // Filter types to prevent recursive selections.
+                const filteredRecordTypes = this.getRecordTypes().filter(function (typeName) {
+                    return typeName != mostTypeName;
+                });
 
                 let i = 1;
-                const recordFields = [];
-                const recordTypes = this.getRecordTypes();
                 mostType.getRecordFields().forEach(function (recordField) {
                     if (recordField.getFieldType() == null) {
-                        recordField.setFieldType(thisPage.getMostTypeByName(thisPage.getRecordTypes()[0]));
+                        recordField.setFieldType(thisPage.getMostTypeByName(filteredRecordTypes[0]));
                     }
 
                     const key = "recordField" + i;
@@ -1005,7 +1017,7 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
                             <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
-                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
+                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={filteredRecordTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
                         </div>
                     );
                     i++;
