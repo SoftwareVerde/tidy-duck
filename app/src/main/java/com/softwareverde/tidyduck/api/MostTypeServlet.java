@@ -293,11 +293,24 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return mostType;
     }
 
-    private BooleanField _populateBooleanFieldFromJson(final Json json) {
+    private BooleanField _populateBooleanFieldFromJson(final Json json) throws Exception {
         final Long id = json.getLong("id");
         final String bitPosition = json.getString("bitPosition");
         final String trueDescription = json.getString("trueDescription");
         final String falseDescription = json.getString("falseDescription");
+
+        // Validate inputs
+        if (Util.isBlank(bitPosition)) {
+            throw new Exception("Invalid boolean field bit position");
+        }
+
+        if (Util.isBlank(trueDescription)) {
+            throw new Exception("Invalid boolean field true description.");
+        }
+
+        if (Util.isBlank(falseDescription)) {
+            throw new Exception("Invalid boolean field false description.");
+        }
 
         final BooleanField booleanField = new BooleanField();
         booleanField.setId(id);
@@ -307,10 +320,19 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return booleanField;
     }
 
-    private EnumValue _populateEnumValueFromJson(final Json json) {
+    private EnumValue _populateEnumValueFromJson(final Json json) throws Exception {
         final Long id = json.getLong("id");
         final String name = json.getString("name");
         final String code = json.getString("code");
+
+        // Validate inputs
+        if (Util.isBlank(name)) {
+            throw new Exception("Invalid enum value name.");
+        }
+
+        if (Util.isBlank(code)) {
+            throw new Exception("Invalid enum value code.");
+        }
 
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
@@ -319,10 +341,19 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return enumValue;
     }
 
-    private StreamCase _populateStreamCaseFromJson(final Json json) {
+    private StreamCase _populateStreamCaseFromJson(final Json json) throws Exception {
         final Long id = json.getLong("id");
         final String streamPositionX = json.getString("streamPositionX");
         final String streamPositionY = json.getString("streamPositionY");
+
+        // Validate inputs
+        if (Util.isBlank(streamPositionX)) {
+            throw new Exception("Invalid stream position X.");
+        }
+
+        if (Util.isBlank(streamPositionY)) {
+            throw new Exception("Invalid stream position Y.");
+        }
 
         final StreamCase streamCase = new StreamCase();
         streamCase.setId(id);
@@ -343,13 +374,21 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return streamCase;
     }
 
-    private StreamCaseParameter _populateStreamCaseParameterFromJson(final Json json) {
+    private StreamCaseParameter _populateStreamCaseParameterFromJson(final Json json) throws Exception {
         final Long id = json.getLong("id");
         final String parameterName = json.getString("parameterName");
         final String parameterIndex = json.getString("parameterIndex");
         final String parameterDescription = json.getString("parameterDescription");
         final Json parameterTypeJson = json.get("parameterType");
         final Long parameterTypeId = parameterTypeJson.getLong("id");
+
+        // Validate inputs
+        if (Util.isBlank(parameterName)) {
+            throw new Exception("Invalid stream case parameter name.");
+        }
+        if (Util.isBlank(parameterDescription)) {
+            throw new Exception("Invalid stream case parameter description.");
+        }
 
         final MostType parameterType = new MostType();
         parameterType.setId(parameterTypeId);
@@ -363,12 +402,23 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return streamCaseParameter;
     }
 
-    private StreamCaseSignal _populateStreamCaseSignalFromJson(final Json json) {
+    private StreamCaseSignal _populateStreamCaseSignalFromJson(final Json json) throws Exception {
         final Long id = json.getLong("id");
         final String signalName = json.getString("signalName");
         final String signalIndex = json.getString("signalIndex");
         final String signalDescription = json.getString("signalDescription");
         final String signalBitLength = json.getString("signalBitLength");
+
+        // Validate inputs
+        if (Util.isBlank(signalName)) {
+            throw new Exception("Invalid stream case signal name.");
+        }
+        if (Util.isBlank(signalDescription)) {
+            throw new Exception("Invalid stream case signal description.");
+        }
+        if (Util.isBlank(signalBitLength)) {
+            throw new Exception("Invalid stream case signal bit length.");
+        }
 
         final StreamCaseSignal streamCaseSignal = new StreamCaseSignal();
         streamCaseSignal.setId(id);
@@ -379,13 +429,21 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return streamCaseSignal;
     }
 
-    private RecordField _populateRecordFieldFromJson(final Json json) {
+    private RecordField _populateRecordFieldFromJson(final Json json) throws Exception {
         final Long id = json.getLong("id");
         final String fieldName = json.getString("fieldName");
         final String fieldIndex = json.getString("fieldIndex");
         final String fieldDescription = json.getString("fieldDescription");
         final Json fieldTypeJson = json.get("fieldType");
         final Long fieldTypeId = fieldTypeJson.getLong("id");
+
+        // Validate inputs
+        if (Util.isBlank(fieldName)) {
+            throw new Exception("Invalid record field name.");
+        }
+        if (Util.isBlank(fieldDescription)) {
+            throw new Exception("Invalid record field description.");
+        }
 
         final MostType fieldType = new MostType();
         fieldType.setId(fieldTypeId);
