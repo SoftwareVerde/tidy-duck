@@ -61,7 +61,7 @@ function updateMostType(mostTypeId, mostType, callbackFunction) {
     jsonFetch(request, function (data) {
        const wasSuccess = data.wasSuccess;
        if (! wasSuccess) {
-           console.log("Unable to modify Most Type " + mostTypeId + ": " + data.errorMessage);
+           console.error("Unable to modify Most Type " + mostTypeId + ": " + data.errorMessage);
        }
 
        if (typeof callbackFunction == "function") {
