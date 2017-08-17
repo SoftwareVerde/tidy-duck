@@ -26,7 +26,8 @@ MySQL Setup
     ------------------
         Edit /etc/mysql/my.cnf, add the following line below the 'query-cache-size' property (under the [mysqld] heading):
 
-            sql_mode = TRADITIONAL
+            sudo vim /etc/mysql/my.cnf
+                sql_mode = TRADITIONAL
 
         (This will enable strict mode in order to enforce data integrity constraints.)
 
@@ -72,6 +73,7 @@ Create User Accounts
 ===========
 
     1. Update the accounts sql-script:
+    Passwords are hashed via sha256. The default password provided is "quack quack".
 
         vim sql/init-accounts.sql
 
@@ -86,6 +88,8 @@ Compilation
 ===========
 
     Tidy Duck uses Java with Gradle to compile the application.
+    Be sure a java-jdk is installed for your system.
+    It may be a wise choice to compile the project on your local machine instead of the server.
     A convenience script is located at:
 
         scripts/make.sh
@@ -96,8 +100,45 @@ Compilation
 Deployment
 ===========
 
-    Tidy Duck is a Tomcat7 application. To deploy it, take the generated *.war file and move it to the Tomcat Modules directory:
+    Tidy Duck is a Tomcat7 application. To deploy it, take the generated war file and move it to the Tomcat Modules directory.
+    The application should be the only application on the server; thus "ROOT.war" should be the name of the application file.
+
+    Deploying the war remotely:
+        A deploy script (scripts/deploy.sh) is provided for easy deployment from your local machine.
+        The script accepts two arguments, the first being the path to the war file, the second argument being the ip/url of the server.
+        The script will prompt you for your password multiple times; the first 2 times being your ssh password (unless you have an ssh key established),
+        the 3rd prompt will be requesting sudo for your account on the server machine to deploy the jar.
+
+        Example invocation:
+
+            ./scripts/deploy.sh app/build/libs/tidy-duck-v1.0.war 10.1.2.173
+
+    Server-Side/Manual Installation:
 
         sudo mv app/build/libs/*.war /var/lib/tomcat7/webapps/ROOT.war
         sudo chown tomcat7:tomcat7 /var/lib/tomcat7/webapps/ROOT.war
+
+
+===========
+SSL Setup
+===========
+
+    TODO
+
+===========
+Web Access
+===========
+
+    Tomcat is configured to listen on port 8080 by default.
+    Depending on your network configuration, it may be best to setup a reverse proxy.
+    Alternatively, you can configure Tomcat to listen on port 80, or to forward ports from port 80 to 8080.
+
+    Forwarding ports:
+
+        sudo iptables -t nat -A OUTPUT -o lo -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+
+    Configure Tomcat Port for 80:
+
+        TODO
 
