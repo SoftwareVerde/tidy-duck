@@ -230,4 +230,14 @@ public class DatabaseManager {
             }
         });
     }
+
+    public void updateMostType(final MostType mostType) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
+                mostTypeDatabaseManager.updateMostType(mostType);
+            }
+        });
+    }
 }

@@ -1539,7 +1539,8 @@ class App extends React.Component {
         }
 
         const navigationItemConfig = new NavigationItemConfig();
-        const parentItem = this.state.selectedItem; // Preserve reference to previously selected item.
+        const parentItem = this.state.currentNavigationLevel == this.NavigationLevel.mostInterfaces ?
+            this.state.selectedItem : this.state.parentItem; // Preserve reference to previously selected item.
 
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);

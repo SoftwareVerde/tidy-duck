@@ -32,6 +32,7 @@ class TypesPage extends React.Component {
         this.onNumberRangeMaxChanged = this.onNumberRangeMaxChanged.bind(this);
         this.onNumberStepChanged = this.onNumberStepChanged.bind(this);
         this.onNumberUnitChanged = this.onNumberUnitChanged.bind(this);
+        this.onStreamLengthChanged = this.onStreamLengthChanged.bind(this);
         this.onStreamCaseAddButtonClicked = this.onStreamCaseAddButtonClicked.bind(this);
         this.onStreamCaseRemoveButtonClicked = this.onStreamCaseRemoveButtonClicked.bind(this);
         this.onStreamCaseSignalAddButtonClicked = this.onStreamCaseSignalAddButtonClicked.bind(this);
@@ -68,6 +69,7 @@ class TypesPage extends React.Component {
         this.getBaseTypes = this.getBaseTypes.bind(this);
         this.getPrimaryTypes = this.getPrimaryTypes.bind(this);
         this.getNumberBaseTypes = this.getNumberBaseTypes.bind(this);
+        this.checkTypeCircularReferences = this.checkTypeCircularReferences.bind(this);
         this.getStreamParamTypes = this.getStreamParamTypes.bind(this);
         this.getArrayTypes = this.getArrayTypes.bind(this);
         this.getRecordTypes = this.getRecordTypes.bind(this);
@@ -171,13 +173,49 @@ class TypesPage extends React.Component {
         return numberBaseTypes;
     }
 
+    checkTypeCircularReferences(mostTypeName, proposedType, proposedTypeName) {
+        // Check if current type name is identical to proposed type.
+        if (proposedTypeName == mostTypeName) {return true;}
+
+        // Check if current type name is identical to proposed type's array element type.
+        const proposedArrayElementTypeName = proposedType.getArrayElementType() ? proposedType.getArrayElementType().getName() : "";
+        if (proposedArrayElementTypeName == mostTypeName) {return true;}
+
+        // Check if current type name is identical to any of the proposed type's record field types.
+        const proposedTypeRecordFields = proposedType.getRecordFields();
+        for (let i in proposedTypeRecordFields) {
+            const recordFieldTypeName = proposedTypeRecordFields[i].getFieldType().getName();
+            if (recordFieldTypeName == mostTypeName) {return true;}
+        }
+
+        // Check if current type name is identical to any of the stream parameter types contained within the proposed type.
+        const proposedTypeStreamCases = proposedType.getStreamCases();
+        for (let i in proposedTypeStreamCases) {
+            const streamCaseParameters = proposedTypeStreamCases[i].getStreamParameters();
+            for (let j in streamCaseParameters) {
+                const streamCaseParameterTypeName = streamCaseParameters[j].getParameterType().getName();
+                if (streamCaseParameterTypeName == mostTypeName) {return true;}
+            }
+        }
+
+        return false;
+    }
+
     getStreamParamTypes() {
         const streamParamTypes = [];
+        const mostTypeName = this.state.mostType.getName();
+        const checkForCircularReferences = this.state.selectedOption == this.options[1];
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
             if (type.getPrimitiveType().isStreamParamType()) {
-                streamParamTypes.push(type.getName());
+                const typeName = type.getName();
+                if (checkForCircularReferences) {
+                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                        streamParamTypes.push(typeName);
+                    }
+                }
+                else {streamParamTypes.push(typeName);}
             }
         }
 
@@ -186,11 +224,19 @@ class TypesPage extends React.Component {
 
     getArrayTypes() {
         const arrayTypes = [];
+        const mostTypeName = this.state.mostType.getName();
+        const checkForCircularReferences = this.state.selectedOption == this.options[1];
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
             if (type.getPrimitiveType().isArrayType()) {
-                arrayTypes.push(type.getName());
+                const typeName = type.getName();
+                if (checkForCircularReferences) {
+                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                        arrayTypes.push(typeName);
+                    }
+                }
+                else {arrayTypes.push(typeName);}
             }
         }
 
@@ -199,11 +245,19 @@ class TypesPage extends React.Component {
 
     getRecordTypes() {
         const recordTypes = [];
+        const mostTypeName = this.state.mostType.getName();
+        const checkForCircularReferences = this.state.selectedOption == this.options[1];
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
             if (type.getPrimitiveType().isRecordType()) {
-                recordTypes.push(type.getName());
+                const typeName = type.getName();
+                if (checkForCircularReferences) {
+                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                        recordTypes.push(typeName);
+                    }
+                }
+                else {recordTypes.push(typeName);}
             }
         }
 
@@ -222,26 +276,52 @@ class TypesPage extends React.Component {
     }
 
     onSave() {
-        const mostTypeJson = MostType.toJson(this.state.mostType);
+        const mostType = this.state.mostType;
+        const mostTypeJson = MostType.toJson(mostType);
         const thisApp = this;
         this.setState({
             saveButtonText: <i className="fa fa-refresh fa-spin"></i>
         });
-        insertMostType(mostTypeJson, function(data) {
-            if (data.wasSuccess) {
-                if (typeof thisApp.props.onTypeCreated == "function") {
-                    thisApp.state.mostType.setId(data.mostTypeId);
-                    thisApp.props.onTypeCreated(thisApp.state.mostType);
+
+        // Check if creating a new type or editing and existing one
+        if (this.state.selectedOption === this.options[0]) {
+            insertMostType(mostTypeJson, function(data) {
+                let currentMostType = mostType;
+                let saveButtonText = 'Save';
+                if (data.wasSuccess) {
+                    if (typeof thisApp.props.onTypeCreated == "function") {
+                        mostType.setId(data.mostTypeId);
+                        thisApp.props.onTypeCreated(mostType);
+                        currentMostType = TypesPage.createNewMostType(thisApp.props.primitiveTypes);
+                        saveButtonText = 'Saved'
+                        alert("Most Type " + mostType.getName() + " has been successfully saved.");
+                    }
+                } else {
+                    alert("Unable to create type: " + data.errorMessage);
                 }
-            } else {
-                alert("Unable to create type: " + data.errorMessage);
-            }
-            // reset fields
-            thisApp.setState({
-                mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes),
-                saveButtonText: 'Saved'
-            })
-        });
+                // reset fields
+                thisApp.setState({
+                    mostType: currentMostType,
+                    saveButtonText: saveButtonText
+                })
+            });
+        }
+        else if (this.state.selectedOption === this.options[1]) {
+            const mostTypeId = this.state.mostType.getId();
+            updateMostType(mostTypeId, mostTypeJson, function (wasSuccess) {
+               if (wasSuccess) {
+                   alert("Changes to Most Type " + mostType.getName() + " have been successfully saved.");
+               }
+               else {
+                   alert("Unable to update type: " + data.errorMessage);
+               }
+                // Most Type is already updated in App and in Database, only need to reset save button text.
+
+               thisApp.setState({
+                   saveButtonText: 'Saved'
+               });
+            });
+        }
     }
 
     onTypeSelected(value) {
@@ -271,12 +351,37 @@ class TypesPage extends React.Component {
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
 
         mostType.setName(oldMostType.getName());
+        mostType.setId(oldMostType.getId());
 
         const newPrimitiveType = this.getPrimitiveTypeByName(value);
         mostType.setPrimitiveType(newPrimitiveType);
 
+        // Pre-populate at least one repeating field for the following cases.
+        switch (value) {
+            case 'TBitField': // fall through
+            case 'TBool': {
+                const boolField = new BooleanField();
+                boolField.setFieldIndex(1);
+                const boolFields = [boolField];
+                mostType.setBooleanFields(boolFields);
+            } break;
+            case 'TEnum': {
+                const enumValue = new EnumValue();
+                enumValue.setValueIndex(1);
+                const enumValues = [enumValue];
+                mostType.setEnumValues(enumValues);
+            } break;
+            case 'TRecord': {
+                const recordField = new RecordField();
+                recordField.setFieldIndex(1);
+                const recordFields = [recordField];
+                mostType.setRecordFields(recordFields);
+            } break;
+        }
+
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -286,7 +391,8 @@ class TypesPage extends React.Component {
         mostType.setBitFieldLength(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -298,7 +404,8 @@ class TypesPage extends React.Component {
         booleanField.setFieldIndex(mostType.getBooleanFields().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -320,7 +427,8 @@ class TypesPage extends React.Component {
 
         mostType.setBooleanFields(newBooleanFields);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -344,7 +452,8 @@ class TypesPage extends React.Component {
         enumValue.setValueIndex(mostType.getEnumValues().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -366,7 +475,8 @@ class TypesPage extends React.Component {
 
         mostType.setEnumValues(newEnumValues);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -385,7 +495,8 @@ class TypesPage extends React.Component {
         mostType.setNumberBaseType(newNumberBaseType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -395,7 +506,8 @@ class TypesPage extends React.Component {
         mostType.setNumberExponent(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -405,7 +517,8 @@ class TypesPage extends React.Component {
         mostType.setNumberRangeMin(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -415,7 +528,8 @@ class TypesPage extends React.Component {
         mostType.setNumberRangeMax(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -425,7 +539,8 @@ class TypesPage extends React.Component {
         mostType.setNumberStep(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -436,7 +551,8 @@ class TypesPage extends React.Component {
         mostType.setNumberUnit(newMostUnit);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -446,7 +562,19 @@ class TypesPage extends React.Component {
         mostType.setStringMaxSize(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
+        });
+    }
+
+    onStreamLengthChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setStreamLength(value);
+
+        this.setState({
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -458,7 +586,8 @@ class TypesPage extends React.Component {
         streamCase.setCaseIndex(mostType.getStreamCases().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -480,7 +609,8 @@ class TypesPage extends React.Component {
 
         mostType.setStreamCases(newStreamCases);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -491,7 +621,8 @@ class TypesPage extends React.Component {
         streamCaseParameter.setParameterIndex(streamCase.getStreamParameters().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -512,7 +643,8 @@ class TypesPage extends React.Component {
 
         streamCase.setStreamParameters(newStreamParameters);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -533,7 +665,8 @@ class TypesPage extends React.Component {
 
         streamCase.setStreamSignals(newStreamSignals);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -544,7 +677,8 @@ class TypesPage extends React.Component {
         streamCaseSignal.setSignalIndex(streamCase.getStreamSignals().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -571,7 +705,8 @@ class TypesPage extends React.Component {
         caseParameter.setParameterType(newParameterType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -593,7 +728,8 @@ class TypesPage extends React.Component {
         mostType.setStreamMaxLength(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -603,7 +739,8 @@ class TypesPage extends React.Component {
         mostType.setStreamMediaType(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -613,7 +750,8 @@ class TypesPage extends React.Component {
         mostType.setStreamMaxLength(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -623,7 +761,8 @@ class TypesPage extends React.Component {
         mostType.setArrayName(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -633,7 +772,8 @@ class TypesPage extends React.Component {
         mostType.setArrayDescription(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -644,7 +784,8 @@ class TypesPage extends React.Component {
         mostType.setArrayElementType(newArrayElementType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -654,7 +795,8 @@ class TypesPage extends React.Component {
         mostType.setArraySize(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -666,7 +808,8 @@ class TypesPage extends React.Component {
         recordField.setFieldIndex(mostType.getRecordFields().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -688,7 +831,8 @@ class TypesPage extends React.Component {
 
         mostType.setRecordFields(newRecordFields);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -698,7 +842,8 @@ class TypesPage extends React.Component {
         mostType.setRecordName(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -708,7 +853,8 @@ class TypesPage extends React.Component {
         mostType.setRecordDescription(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -718,7 +864,8 @@ class TypesPage extends React.Component {
         mostType.setRecordSize(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -737,7 +884,8 @@ class TypesPage extends React.Component {
         recordField.setFieldType(newRecordFieldType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -870,7 +1018,14 @@ class TypesPage extends React.Component {
             } break;
             case 'TStream': {
                 const thisPage = this;
-                const primaryTypes = this.getPrimaryTypes();
+                const streamParamTypes = this.getStreamParamTypes();
+
+                reactComponents.push(
+                    <div key="TStream" className="clearfix">
+                        <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length" value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} />
+                    </div>
+                );
+
                 let i = 1;
                 mostType.getStreamCases().forEach(function (streamCase) {
                     const key = "streamCase" + i;
@@ -881,7 +1036,7 @@ class TypesPage extends React.Component {
                     streamCase.getStreamParameters().forEach(function (streamParameter) {
                         const parameterKey = ("streamParameter" + i) + j;
                         if (streamParameter.getParameterType() == null) {
-                            streamParameter.setParameterType(thisPage.getMostTypeByName(primaryTypes[0]));
+                            streamParameter.setParameterType(thisPage.getMostTypeByName(streamParamTypes[0]));
                         }
                         const parameterTypeName = streamParameter.getParameterType().getName();
 
@@ -890,7 +1045,7 @@ class TypesPage extends React.Component {
                                 <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
                                 <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamParameter.getParameterDescription()} onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={primaryTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
+                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={streamParamTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
                                 <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)} />
                             </div>
                         );
@@ -949,6 +1104,7 @@ class TypesPage extends React.Component {
             } break;
             case 'TArray': {
                 const arrayElementTypes = this.getArrayTypes();
+
                 if (mostType.getArrayElementType() == null) {
                     mostType.setArrayElementType(this.getMostTypeByName(arrayElementTypes[0]));
                 }
@@ -966,13 +1122,13 @@ class TypesPage extends React.Component {
                 const recordName = mostType.getRecordName();
                 const recordDescription = mostType.getRecordDescription();
                 const recordSize = mostType.getRecordSize();
+                const recordFields = [];
+                const recordFieldTypes = this.getRecordTypes();
 
                 let i = 1;
-                const recordFields = [];
-                const recordTypes = this.getRecordTypes();
                 mostType.getRecordFields().forEach(function (recordField) {
                     if (recordField.getFieldType() == null) {
-                        recordField.setFieldType(thisPage.getMostTypeByName(thisPage.getRecordTypes()[0]));
+                        recordField.setFieldType(thisPage.getMostTypeByName(recordFieldTypes[0]));
                     }
 
                     const key = "recordField" + i;
@@ -984,7 +1140,7 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
                             <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
-                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
+                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordFieldTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
                         </div>
                     );
                     i++;
