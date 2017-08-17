@@ -193,7 +193,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 throw new Exception("Version field is required.");
             }
 
-            if (returnTypeId == null) {
+            if (returnTypeId < 1) {
                 throw new Exception("Return type is required.");
             }
         }
