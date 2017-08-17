@@ -9,7 +9,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
-import com.softwareverde.util.Util;
+import com.softwareverde.tidyduck.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,10 +89,10 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
             response.put("mostTypeId", mostType.getId());
             super._setJsonSuccessFields(response);
-        } catch (DatabaseException e) {
-            String msg = "Unable to create type.";
+        } catch (Exception e) {
+            String msg = "Unable to create type: ";
             _logger.error(msg, e);
-            return super._generateErrorJson(msg);
+            return super._generateErrorJson(msg + e.getMessage());
         }
 
         return response;
@@ -121,10 +121,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private MostType _populateMostTypeFromJson(final Json jsonRequest) {
+    private MostType _populateMostTypeFromJson(final Json jsonRequest) throws Exception {
         final Long id = jsonRequest.getLong("id");
         final String name = jsonRequest.getString("name");
         final Long primitiveTypeId = jsonRequest.getLong("primitiveTypeId");
+        final String primitiveTypeName = jsonRequest.getString("primitiveTypeName");
         final Boolean isPrimaryType = jsonRequest.getBoolean("isPrimaryType");
         final String bitfieldLength = jsonRequest.getString("bitfieldLength");
         final String enumMax = jsonRequest.getString("enumMax");
@@ -148,6 +149,78 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
         final PrimitiveType primitiveType = new PrimitiveType();
         primitiveType.setId(primitiveTypeId);
+
+        // Validate type name
+        if (Util.isBlank(name)) {
+            throw new Exception("Invalid Type name.");
+        }
+        // Validate inputs based on primitive type name.
+        switch (primitiveTypeName) {
+            case "TArray": {
+                if (Util.isBlank(arrayName)) {
+                    throw new Exception("Invalid Type array name.");
+                }
+                if (Util.isBlank(arrayDescription)) {
+                    throw new Exception("Invalid Type array description.");
+                }
+                if (Util.isBlank(arraySize)) {
+                    throw new Exception("Invalid Type array size.");
+                }
+            } break;
+            case "TBitField": {
+                if (Util.isBlank(bitfieldLength)) {
+                    throw new Exception("Invalid Type BitField length.");
+                }
+            } break;
+            case "TCStream": {
+                if (Util.isBlank(streamMaxLength)) {
+                    throw new Exception("Invalid Type stream max length.");
+                }
+                if (Util.isBlank(streamMediaType)) {
+                    throw new Exception("Invalid Type stream media type.");
+                }
+            } break;
+            case "TNumber": {
+                if (Util.isBlank(numberExponent)) {
+                    throw new Exception("Invalid Type exponent.");
+                }
+                if (Util.isBlank(numberRangeMin)) {
+                    throw new Exception("Invalid Type range min.");
+                }
+                if (Util.isBlank(numberRangeMax)) {
+                    throw new Exception("Invalid Type range max.");
+                }
+                if (Util.isBlank(numberStep)) {
+                    throw new Exception("Invalid Type number step.");
+                }
+            } break;
+            case "TRecord": {
+                if (Util.isBlank(recordName)) {
+                    throw new Exception("Invalid Type record name.");
+                }
+                if (Util.isBlank(recordDescription)) {
+                    throw new Exception("Invalid Type record description.");
+                }
+                if (Util.isBlank(recordSize)) {
+                    throw new Exception("Invalid Type record size.");
+                }
+            } break;
+            case "TShortStream": {
+                if (Util.isBlank(streamMaxLength)) {
+                    throw new Exception("Invalid Type stream max length.");
+                }
+            } break;
+            case "TStream": {
+                if (Util.isBlank(streamLength)) {
+                    throw new Exception("Invalid Type stream length.");
+                }
+            } break;
+            case "TString": {
+                if (Util.isBlank(stringMaxSize)) {
+                    throw new Exception("Invalid Type string max size.");
+                }
+            } break;
+        }
 
         PrimitiveType numberBaseType = null;
         _logger.info("numberBaseTypeID: " + numberBaseTypeId);

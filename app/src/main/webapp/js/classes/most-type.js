@@ -76,6 +76,7 @@ class MostType {
             id:                 mostType.getId(),
             name:               mostType.getName(),
             primitiveTypeId:    mostType.getPrimitiveType().getId(),
+            primitiveTypeName:  mostType.getPrimitiveType().getName(),
             isPrimaryType:      mostType.isPrimaryType(),
             bitfieldLength:     mostType.getBitFieldLength(),
             enumMax:            mostType.getEnumMax(),

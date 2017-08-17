@@ -32,6 +32,7 @@ class TypesPage extends React.Component {
         this.onNumberRangeMaxChanged = this.onNumberRangeMaxChanged.bind(this);
         this.onNumberStepChanged = this.onNumberStepChanged.bind(this);
         this.onNumberUnitChanged = this.onNumberUnitChanged.bind(this);
+        this.onStreamLengthChanged = this.onStreamLengthChanged.bind(this);
         this.onStreamCaseAddButtonClicked = this.onStreamCaseAddButtonClicked.bind(this);
         this.onStreamCaseRemoveButtonClicked = this.onStreamCaseRemoveButtonClicked.bind(this);
         this.onStreamCaseSignalAddButtonClicked = this.onStreamCaseSignalAddButtonClicked.bind(this);
@@ -286,11 +287,13 @@ class TypesPage extends React.Component {
         if (this.state.selectedOption === this.options[0]) {
             insertMostType(mostTypeJson, function(data) {
                 let currentMostType = mostType;
+                let saveButtonText = 'Save';
                 if (data.wasSuccess) {
                     if (typeof thisApp.props.onTypeCreated == "function") {
                         mostType.setId(data.mostTypeId);
                         thisApp.props.onTypeCreated(mostType);
                         currentMostType = TypesPage.createNewMostType(thisApp.props.primitiveTypes);
+                        saveButtonText = 'Saved'
                         alert("Most Type " + mostType.getName() + " has been successfully saved.");
                     }
                 } else {
@@ -299,7 +302,7 @@ class TypesPage extends React.Component {
                 // reset fields
                 thisApp.setState({
                     mostType: currentMostType,
-                    saveButtonText: 'Saved'
+                    saveButtonText: saveButtonText
                 })
             });
         }
@@ -534,6 +537,17 @@ class TypesPage extends React.Component {
         const mostType = this.state.mostType;
 
         mostType.setStringMaxSize(value);
+
+        this.setState({
+            mostType: mostType,
+            saveButtonText: 'Save'
+        });
+    }
+
+    onStreamLengthChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setStreamLength(value);
 
         this.setState({
             mostType: mostType,
@@ -982,6 +996,12 @@ class TypesPage extends React.Component {
             case 'TStream': {
                 const thisPage = this;
                 const streamParamTypes = this.getStreamParamTypes();
+
+                reactComponents.push(
+                    <div key="TStream" className="clearfix">
+                        <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length" value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} />
+                    </div>
+                );
 
                 let i = 1;
                 mostType.getStreamCases().forEach(function (streamCase) {
