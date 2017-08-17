@@ -285,17 +285,20 @@ class TypesPage extends React.Component {
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
             insertMostType(mostTypeJson, function(data) {
+                let currentMostType = mostType;
                 if (data.wasSuccess) {
                     if (typeof thisApp.props.onTypeCreated == "function") {
                         mostType.setId(data.mostTypeId);
                         thisApp.props.onTypeCreated(mostType);
+                        currentMostType = TypesPage.createNewMostType(thisApp.props.primitiveTypes);
+                        alert("Most Type " + mostType.getName() + " has been successfully saved.");
                     }
                 } else {
                     alert("Unable to create type: " + data.errorMessage);
                 }
                 // reset fields
                 thisApp.setState({
-                    mostType: TypesPage.createNewMostType(thisApp.props.primitiveTypes),
+                    mostType: currentMostType,
                     saveButtonText: 'Saved'
                 })
             });
@@ -303,7 +306,10 @@ class TypesPage extends React.Component {
         else if (this.state.selectedOption === this.options[1]) {
             const mostTypeId = this.state.mostType.getId();
             updateMostType(mostTypeId, mostTypeJson, function (wasSuccess) {
-               if (! wasSuccess) {
+               if (wasSuccess) {
+                   alert("Changes to Most Type " + mostType.getName() + " have been successfully saved.");
+               }
+               else {
                    alert("Unable to update type: " + data.errorMessage);
                }
                 // Most Type is already updated in App and in Database, only need to reset save button text.
@@ -348,7 +354,8 @@ class TypesPage extends React.Component {
         mostType.setPrimitiveType(newPrimitiveType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -358,7 +365,8 @@ class TypesPage extends React.Component {
         mostType.setBitFieldLength(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -370,7 +378,8 @@ class TypesPage extends React.Component {
         booleanField.setFieldIndex(mostType.getBooleanFields().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -392,7 +401,8 @@ class TypesPage extends React.Component {
 
         mostType.setBooleanFields(newBooleanFields);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -416,7 +426,8 @@ class TypesPage extends React.Component {
         enumValue.setValueIndex(mostType.getEnumValues().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -438,7 +449,8 @@ class TypesPage extends React.Component {
 
         mostType.setEnumValues(newEnumValues);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -457,7 +469,8 @@ class TypesPage extends React.Component {
         mostType.setNumberBaseType(newNumberBaseType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -467,7 +480,8 @@ class TypesPage extends React.Component {
         mostType.setNumberExponent(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -477,7 +491,8 @@ class TypesPage extends React.Component {
         mostType.setNumberRangeMin(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -487,7 +502,8 @@ class TypesPage extends React.Component {
         mostType.setNumberRangeMax(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -497,7 +513,8 @@ class TypesPage extends React.Component {
         mostType.setNumberStep(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -508,7 +525,8 @@ class TypesPage extends React.Component {
         mostType.setNumberUnit(newMostUnit);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -518,7 +536,8 @@ class TypesPage extends React.Component {
         mostType.setStringMaxSize(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -530,7 +549,8 @@ class TypesPage extends React.Component {
         streamCase.setCaseIndex(mostType.getStreamCases().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -552,7 +572,8 @@ class TypesPage extends React.Component {
 
         mostType.setStreamCases(newStreamCases);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -563,7 +584,8 @@ class TypesPage extends React.Component {
         streamCaseParameter.setParameterIndex(streamCase.getStreamParameters().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -584,7 +606,8 @@ class TypesPage extends React.Component {
 
         streamCase.setStreamParameters(newStreamParameters);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -605,7 +628,8 @@ class TypesPage extends React.Component {
 
         streamCase.setStreamSignals(newStreamSignals);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -616,7 +640,8 @@ class TypesPage extends React.Component {
         streamCaseSignal.setSignalIndex(streamCase.getStreamSignals().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -643,7 +668,8 @@ class TypesPage extends React.Component {
         caseParameter.setParameterType(newParameterType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -665,7 +691,8 @@ class TypesPage extends React.Component {
         mostType.setStreamMaxLength(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -675,7 +702,8 @@ class TypesPage extends React.Component {
         mostType.setStreamMediaType(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -685,7 +713,8 @@ class TypesPage extends React.Component {
         mostType.setStreamMaxLength(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -695,7 +724,8 @@ class TypesPage extends React.Component {
         mostType.setArrayName(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -705,7 +735,8 @@ class TypesPage extends React.Component {
         mostType.setArrayDescription(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -716,7 +747,8 @@ class TypesPage extends React.Component {
         mostType.setArrayElementType(newArrayElementType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -726,7 +758,8 @@ class TypesPage extends React.Component {
         mostType.setArraySize(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -738,7 +771,8 @@ class TypesPage extends React.Component {
         recordField.setFieldIndex(mostType.getRecordFields().length);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -760,7 +794,8 @@ class TypesPage extends React.Component {
 
         mostType.setRecordFields(newRecordFields);
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -770,7 +805,8 @@ class TypesPage extends React.Component {
         mostType.setRecordName(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -780,7 +816,8 @@ class TypesPage extends React.Component {
         mostType.setRecordDescription(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -790,7 +827,8 @@ class TypesPage extends React.Component {
         mostType.setRecordSize(value);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
@@ -809,7 +847,8 @@ class TypesPage extends React.Component {
         recordField.setFieldType(newRecordFieldType);
 
         this.setState({
-            mostType: mostType
+            mostType: mostType,
+            saveButtonText: 'Save'
         });
     }
 
