@@ -306,7 +306,7 @@
     margin: 0 5px;
 }
 
-.child-item {
+.child-item, .unreleased-child-item {
     padding: 1em;
     margin: 1em;
     width: 250px;
@@ -322,7 +322,7 @@
     transition: background-color 0.5s ease;
 }
 
-.child-item select {
+.child-item select, .unreleased-child-item select {
     height: 2em;
     min-width: 5em;
 }

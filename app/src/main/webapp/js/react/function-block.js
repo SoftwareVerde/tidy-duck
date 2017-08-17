@@ -114,6 +114,7 @@ class FunctionBlock extends React.Component {
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
         const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
+        const childItemStyle = this.props.functionBlock.isReleased() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
 
@@ -122,7 +123,7 @@ class FunctionBlock extends React.Component {
             <select name={"Version"} value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
         
         return (
-            <div className="child-item" onClick={this.onClick}>
+            <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
                     {name}
                     {workingIcon}
