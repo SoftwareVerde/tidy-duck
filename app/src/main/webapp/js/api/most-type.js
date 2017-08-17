@@ -65,7 +65,7 @@ function updateMostType(mostTypeId, mostType, callbackFunction) {
        }
 
        if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(wasSuccess, data.errorMessage);
        }
     });
 }

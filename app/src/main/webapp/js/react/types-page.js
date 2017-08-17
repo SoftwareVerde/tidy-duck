@@ -8,7 +8,7 @@ class TypesPage extends React.Component {
 
         this.state = {
             selectedOption: this.options[0],
-            mostType:       mostType,
+            mostType: mostType,
             saveButtonText: 'Save'
         };
 
@@ -86,7 +86,7 @@ class TypesPage extends React.Component {
 
         this.state = {
             selectedOption: this.options[0],
-            mostType:       mostType,
+            mostType: mostType,
             saveButtonText: 'Save'
         };
     }
@@ -102,8 +102,8 @@ class TypesPage extends React.Component {
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
         this.setState({
             selectedOption: option,
-            selectedType:   null,
-            mostType:       mostType
+            selectedType: null,
+            mostType: mostType
         });
     }
 
@@ -175,17 +175,23 @@ class TypesPage extends React.Component {
 
     checkTypeCircularReferences(mostTypeName, proposedType, proposedTypeName) {
         // Check if current type name is identical to proposed type.
-        if (proposedTypeName == mostTypeName) {return true;}
+        if (proposedTypeName == mostTypeName) {
+            return true;
+        }
 
         // Check if current type name is identical to proposed type's array element type.
         const proposedArrayElementTypeName = proposedType.getArrayElementType() ? proposedType.getArrayElementType().getName() : "";
-        if (proposedArrayElementTypeName == mostTypeName) {return true;}
+        if (proposedArrayElementTypeName == mostTypeName) {
+            return true;
+        }
 
         // Check if current type name is identical to any of the proposed type's record field types.
         const proposedTypeRecordFields = proposedType.getRecordFields();
         for (let i in proposedTypeRecordFields) {
             const recordFieldTypeName = proposedTypeRecordFields[i].getFieldType().getName();
-            if (recordFieldTypeName == mostTypeName) {return true;}
+            if (recordFieldTypeName == mostTypeName) {
+                return true;
+            }
         }
 
         // Check if current type name is identical to any of the stream parameter types contained within the proposed type.
@@ -194,7 +200,9 @@ class TypesPage extends React.Component {
             const streamCaseParameters = proposedTypeStreamCases[i].getStreamParameters();
             for (let j in streamCaseParameters) {
                 const streamCaseParameterTypeName = streamCaseParameters[j].getParameterType().getName();
-                if (streamCaseParameterTypeName == mostTypeName) {return true;}
+                if (streamCaseParameterTypeName == mostTypeName) {
+                    return true;
+                }
             }
         }
 
@@ -211,11 +219,13 @@ class TypesPage extends React.Component {
             if (type.getPrimitiveType().isStreamParamType()) {
                 const typeName = type.getName();
                 if (checkForCircularReferences) {
-                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                    if (!this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
                         streamParamTypes.push(typeName);
                     }
                 }
-                else {streamParamTypes.push(typeName);}
+                else {
+                    streamParamTypes.push(typeName);
+                }
             }
         }
 
@@ -232,11 +242,13 @@ class TypesPage extends React.Component {
             if (type.getPrimitiveType().isArrayType()) {
                 const typeName = type.getName();
                 if (checkForCircularReferences) {
-                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                    if (!this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
                         arrayTypes.push(typeName);
                     }
                 }
-                else {arrayTypes.push(typeName);}
+                else {
+                    arrayTypes.push(typeName);
+                }
             }
         }
 
@@ -253,11 +265,13 @@ class TypesPage extends React.Component {
             if (type.getPrimitiveType().isRecordType()) {
                 const typeName = type.getName();
                 if (checkForCircularReferences) {
-                    if (! this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
+                    if (!this.checkTypeCircularReferences(mostTypeName, type, typeName)) {
                         recordTypes.push(typeName);
                     }
                 }
-                else {recordTypes.push(typeName);}
+                else {
+                    recordTypes.push(typeName);
+                }
             }
         }
 
@@ -285,7 +299,7 @@ class TypesPage extends React.Component {
 
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
-            insertMostType(mostTypeJson, function(data) {
+            insertMostType(mostTypeJson, function (data) {
                 let currentMostType = mostType;
                 let saveButtonText = 'Save';
                 if (data.wasSuccess) {
@@ -308,18 +322,20 @@ class TypesPage extends React.Component {
         }
         else if (this.state.selectedOption === this.options[1]) {
             const mostTypeId = this.state.mostType.getId();
-            updateMostType(mostTypeId, mostTypeJson, function (wasSuccess) {
-               if (wasSuccess) {
-                   alert("Changes to Most Type " + mostType.getName() + " have been successfully saved.");
-               }
-               else {
-                   alert("Unable to update type: " + data.errorMessage);
-               }
+            updateMostType(mostTypeId, mostTypeJson, function (wasSuccess, errorMessage) {
+                let saveButtonText = 'Save';
+                if (wasSuccess) {
+                    alert("Changes to Most Type " + mostType.getName() + " have been successfully saved.");
+                    saveButtonText = 'Saved';
+                }
+                else {
+                    alert("Unable to update Most Type: " + errorMessage);
+                }
                 // Most Type is already updated in App and in Database, only need to reset save button text.
 
-               thisApp.setState({
-                   saveButtonText: 'Saved'
-               });
+                thisApp.setState({
+                    saveButtonText: saveButtonText
+                });
             });
         }
     }
@@ -364,19 +380,22 @@ class TypesPage extends React.Component {
                 boolField.setFieldIndex(1);
                 const boolFields = [boolField];
                 mostType.setBooleanFields(boolFields);
-            } break;
+            }
+                break;
             case 'TEnum': {
                 const enumValue = new EnumValue();
                 enumValue.setValueIndex(1);
                 const enumValues = [enumValue];
                 mostType.setEnumValues(enumValues);
-            } break;
+            }
+                break;
             case 'TRecord': {
                 const recordField = new RecordField();
                 recordField.setFieldIndex(1);
                 const recordFields = [recordField];
                 mostType.setRecordFields(recordFields);
-            } break;
+            }
+                break;
         }
 
         this.setState({
@@ -907,7 +926,8 @@ class TypesPage extends React.Component {
             if (!selectedType) {
                 selectedType = primaryTypes[0];
             }
-            typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector" value={selectedType} options={primaryTypes} onChange={this.onTypeSelected} />
+            typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector"
+                                           value={selectedType} options={primaryTypes} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
                 return (
@@ -932,8 +952,10 @@ class TypesPage extends React.Component {
             <div>
                 <div id="types-main-inputs">
                     {typeSelector}
-                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName}
+                                    onChange={this.onTypeNameChanged}/>
+                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type"
+                                    value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
                 <div key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</div>
@@ -951,7 +973,10 @@ class TypesPage extends React.Component {
 
         switch (mostType.getPrimitiveType().getName()) {
             case 'TBitField': {
-                reactComponents.push(<div key="bitfield-length" className="clearfix"><app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length" value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} /></div>);
+                reactComponents.push(<div key="bitfield-length" className="clearfix">
+                    <app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"
+                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged}/>
+                </div>);
             } // fall through
             case 'TBool': {
                 const thisPage = this;
@@ -961,17 +986,27 @@ class TypesPage extends React.Component {
                     reactComponents.push(
                         <div key={key} className="repeating-field clearfix">
                             <div className="repeating-field-header clearfix">Field {booleanField.getFieldIndex()}
-                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onBoolFieldRemoveButtonClicked(booleanField)} />
+                                <i className="remove-button fa fa-remove fa-2x"
+                                   onClick={() => thisPage.onBoolFieldRemoveButtonClicked(booleanField)}/>
                             </div>
-                            <app.InputField key="bool1" type="text" label="Bit Position" name="bit-position" value={booleanField.getBitPosition()} onChange={(bitPosition) => thisPage.onBooleanFieldBitPositionChanged(booleanField, bitPosition)} />
-                            <app.InputField key="bool2" type="text" label="True Description" name="true-description" value={booleanField.getTrueDescription()} onChange={(trueDescription) => thisPage.onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription)} />
-                            <app.InputField key="bool3" type="text" label="False Description" name="false-description" value={booleanField.getFalseDescription()} onChange={(falseDescription) => thisPage.onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription)} />
+                            <app.InputField key="bool1" type="text" label="Bit Position" name="bit-position"
+                                            value={booleanField.getBitPosition()}
+                                            onChange={(bitPosition) => thisPage.onBooleanFieldBitPositionChanged(booleanField, bitPosition)}/>
+                            <app.InputField key="bool2" type="text" label="True Description" name="true-description"
+                                            value={booleanField.getTrueDescription()}
+                                            onChange={(trueDescription) => thisPage.onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription)}/>
+                            <app.InputField key="bool3" type="text" label="False Description" name="false-description"
+                                            value={booleanField.getFalseDescription()}
+                                            onChange={(falseDescription) => thisPage.onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription)}/>
                         </div>
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button" onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i></div>);
-            } break;
+                reactComponents.push(<div key="plus-button" className="button"
+                                          onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i>
+                </div>);
+            }
+                break;
             case 'TEnum': {
                 const thisPage = this;
                 let i = 1;
@@ -980,16 +1015,24 @@ class TypesPage extends React.Component {
                     reactComponents.push(
                         <div className="repeating-field clearfix" key={key}>
                             <div className="repeating-field-header clearfix">Enum Value {enumValue.getValueIndex()}
-                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onEnumValueRemoveButtonClicked(enumValue)} />
+                                <i className="remove-button fa fa-remove fa-2x"
+                                   onClick={() => thisPage.onEnumValueRemoveButtonClicked(enumValue)}/>
                             </div>
-                            <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name" value={enumValue.getName()} onChange={(value) => thisPage.onEnumValueNameChanged(enumValue, value)}/>
-                            <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code" value={enumValue.getCode()} onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)}/>
+                            <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name"
+                                            value={enumValue.getName()}
+                                            onChange={(value) => thisPage.onEnumValueNameChanged(enumValue, value)}/>
+                            <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code"
+                                            value={enumValue.getCode()}
+                                            onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)}/>
                         </div>
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button" onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i></div>);
-            } break;
+                reactComponents.push(<div key="plus-button" className="button"
+                                          onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i>
+                </div>);
+            }
+                break;
             case 'TNumber': {
                 const numberBaseTypes = this.getNumberBaseTypes();
                 if (mostType.getNumberBaseType() == null) {
@@ -1005,24 +1048,37 @@ class TypesPage extends React.Component {
                 const numberRangeMax = mostType.getNumberRangeMax();
                 const numberStep = mostType.getNumberStep();
                 const numberUnitName = mostType.getNumberUnit().getDefinitionName();
-                reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type" name="basis-data-type" value={numberBaseTypeName} options={numberBaseTypes} onChange={this.onNumberBaseTypeChanged} />);
-                reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent" value={numberExponent} onChange={this.onNumberExponentChanged} />);
-                reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min" value={numberRangeMin} onChange={this.onNumberRangeMinChanged} />);
-                reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max" value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} />);
-                reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step" value={numberStep} onChange={this.onNumberStepChanged} />);
-                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit" value={numberUnitName} options={units} onChange={this.onNumberUnitChanged} />);
-            } break;
+                reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type"
+                                                     name="basis-data-type" value={numberBaseTypeName}
+                                                     options={numberBaseTypes}
+                                                     onChange={this.onNumberBaseTypeChanged}/>);
+                reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent"
+                                                     value={numberExponent} onChange={this.onNumberExponentChanged}/>);
+                reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min"
+                                                     value={numberRangeMin} onChange={this.onNumberRangeMinChanged}/>);
+                reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max"
+                                                     value={numberRangeMax} onChange={this.onNumberRangeMaxChanged}/>);
+                reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step"
+                                                     value={numberStep} onChange={this.onNumberStepChanged}/>);
+                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit"
+                                                     value={numberUnitName} options={units}
+                                                     onChange={this.onNumberUnitChanged}/>);
+            }
+                break;
             case 'TString': {
                 const stringMaxSize = mostType.getStringMaxSize();
-                reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size" value={stringMaxSize} onChange={this.onStringMaxSizeChanged} />);
-            } break;
+                reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size"
+                                                     value={stringMaxSize} onChange={this.onStringMaxSizeChanged}/>);
+            }
+                break;
             case 'TStream': {
                 const thisPage = this;
                 const streamParamTypes = this.getStreamParamTypes();
 
                 reactComponents.push(
                     <div key="TStream" className="clearfix">
-                        <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length" value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} />
+                        <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length"
+                                        value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged}/>
                     </div>
                 );
 
@@ -1038,18 +1094,27 @@ class TypesPage extends React.Component {
                         if (streamParameter.getParameterType() == null) {
                             streamParameter.setParameterType(thisPage.getMostTypeByName(streamParamTypes[0]));
                         }
-                        const parameterTypeName = streamParameter.getParameterType().getName();
+                        const parameterType = streamParameter.getParameterType();
+                        const parameterTypeName = parameterType ? parameterType.getName() : null;
 
                         streamParameters.push(
                             <div key={parameterKey} className="parameter">
                                 <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
-                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamParameter.getParameterName()} onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
-                                <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamParameter.getParameterDescription()} onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true} value={parameterTypeName} options={streamParamTypes} onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} />
-                                <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)} />
+                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
+                                                value={streamParameter.getParameterName()}
+                                                onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
+                                <app.InputField name="description" type="textarea" label="Description"
+                                                isSmallInputField={true}
+                                                value={streamParameter.getParameterDescription()}
+                                                onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
+                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true}
+                                                value={parameterTypeName} options={streamParamTypes}
+                                                onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)}/>
+                                <i className="remove-button fa fa-remove fa-3x"
+                                   onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
                             </div>
                         );
-                       j++;
+                        j++;
                     });
                     // Populate stream signals (repeats)
                     const streamSignals = [];
@@ -1060,10 +1125,17 @@ class TypesPage extends React.Component {
                         streamSignals.push(
                             <div key={signalKey} className="parameter">
                                 <div>Stream Signal {streamSignal.getSignalIndex()}</div>
-                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true} value={streamSignal.getSignalName()} onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)}/>
-                                <app.InputField name="description" type="textarea" label="Description" isSmallInputField={true} value={streamSignal.getSignalDescription()} onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
-                                <app.InputField name="bit-length" type="text" label="Bit Length" isSmallInputField={true} value={streamSignal.getSignalBitLength()} onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)}/>
-                                <i className="remove-button fa fa-remove fa-3x" onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)} />
+                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
+                                                value={streamSignal.getSignalName()}
+                                                onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)}/>
+                                <app.InputField name="description" type="textarea" label="Description"
+                                                isSmallInputField={true} value={streamSignal.getSignalDescription()}
+                                                onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
+                                <app.InputField name="bit-length" type="text" label="Bit Length"
+                                                isSmallInputField={true} value={streamSignal.getSignalBitLength()}
+                                                onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)}/>
+                                <i className="remove-button fa fa-remove fa-3x"
+                                   onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)}/>
                             </div>
                         );
                         j++;
@@ -1072,36 +1144,54 @@ class TypesPage extends React.Component {
                     reactComponents.push(
                         <div key={key} className="repeating-field clearfix">
                             <div className="repeating-field-header clearfix">Stream Case {streamCase.getCaseIndex()}
-                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)} />
+                                <i className="remove-button fa fa-remove fa-2x"
+                                   onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
                             </div>
-                            <app.InputField key="streamcase1" type="text" label="Position X" name="position-x" value={streamCase.getStreamPositionX()} onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} />
-                            <app.InputField key="streamcase2" type="text" label="Position Y" name="position-y" value={streamCase.getStreamPositionY()} onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)} />
+                            <app.InputField key="streamcase1" type="text" label="Position X" name="position-x"
+                                            value={streamCase.getStreamPositionX()}
+                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}/>
+                            <app.InputField key="streamcase2" type="text" label="Position Y" name="position-y"
+                                            value={streamCase.getStreamPositionY()}
+                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}/>
                             <div key="parameter-display-area" className="parameter-display-area clearfix">
                                 <div className="metadata-form-title">Stream Parameters</div>
                                 {streamParameters}
-                                <i key={parameterAddButtonKey} className="assign-button fa fa-plus-square fa-3x" onClick={() => thisPage.onStreamCaseParameterAddButtonClicked(streamCase)}/>
+                                <i key={parameterAddButtonKey} className="assign-button fa fa-plus-square fa-3x"
+                                   onClick={() => thisPage.onStreamCaseParameterAddButtonClicked(streamCase)}/>
                             </div>
                             <div key="signal-display-area" className="parameter-display-area clearfix">
                                 <div className="metadata-form-title">Stream Signals</div>
                                 {streamSignals}
-                                <i key={signalAddKey} className="assign-button fa fa-plus-square fa-3x" onClick={() => thisPage.onStreamCaseSignalAddButtonClicked(streamCase)}/>
+                                <i key={signalAddKey} className="assign-button fa fa-plus-square fa-3x"
+                                   onClick={() => thisPage.onStreamCaseSignalAddButtonClicked(streamCase)}/>
                             </div>
                         </div>
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button" onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i></div>);
-            } break;
+                reactComponents.push(<div key="plus-button" className="button"
+                                          onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i>
+                </div>);
+            }
+                break;
             case 'TCStream': {
                 const streamMaxLength = mostType.getStreamMaxLength();
                 const streamMediaType = mostType.getStreamMediaType();
-                reactComponents.push(<app.InputField key="cstream1" type="text" label="Max Length" name="cstream-max-length" value={streamMaxLength} onChange={this.onClassifiedStreamMaxLengthChanged} />);
-                reactComponents.push(<app.InputField key="cstream2" type="text" label="Media Type" name="cstream-media-type" value={streamMediaType} onChange={this.onClassifiedStreamMediaTypeChanged} />);
-            } break;
+                reactComponents.push(<app.InputField key="cstream1" type="text" label="Max Length"
+                                                     name="cstream-max-length" value={streamMaxLength}
+                                                     onChange={this.onClassifiedStreamMaxLengthChanged}/>);
+                reactComponents.push(<app.InputField key="cstream2" type="text" label="Media Type"
+                                                     name="cstream-media-type" value={streamMediaType}
+                                                     onChange={this.onClassifiedStreamMediaTypeChanged}/>);
+            }
+                break;
             case 'TShortStream': {
                 const streamMaxLength = mostType.getStreamMaxLength();
-                reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length" name="short-stream-max-length" value={streamMaxLength} onChange={this.onShortStreamMaxLengthChanged} />);
-            } break;
+                reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length"
+                                                     name="short-stream-max-length" value={streamMaxLength}
+                                                     onChange={this.onShortStreamMaxLengthChanged}/>);
+            }
+                break;
             case 'TArray': {
                 const arrayElementTypes = this.getArrayTypes();
 
@@ -1110,13 +1200,22 @@ class TypesPage extends React.Component {
                 }
                 const arrayName = mostType.getArrayName();
                 const arrayDescription = mostType.getArrayDescription();
-                const arrayElementTypeName = mostType.getArrayElementType().getName();
+                const arrayElementType = mostType.getArrayElementType();
+                const arrayElementTypeName = arrayElementType ? arrayElementType.getName() : null;
                 const arraySize = mostType.getArraySize();
-                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} />);
-                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} />);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} />);
-                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} />);
-            } break;
+                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name"
+                                                     value={arrayName} onChange={this.onArrayNameChanged}/>);
+                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description"
+                                                     name="array-description" value={arrayDescription}
+                                                     onChange={this.onArrayDescriptionChanged}/>);
+                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type"
+                                                     name="array-element-type" value={arrayElementTypeName}
+                                                     options={arrayElementTypes}
+                                                     onChange={this.onArrayElementTypeChanged}/>);
+                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size"
+                                                     value={arraySize} onChange={this.onArraySizeChanged}/>);
+            }
+                break;
             case 'TRecord': {
                 const thisPage = this;
                 const recordName = mostType.getRecordName();
@@ -1132,15 +1231,24 @@ class TypesPage extends React.Component {
                     }
 
                     const key = "recordField" + i;
-                    const recordFieldTypeName = recordField.getFieldType().getName();
+                    const recordFieldType = recordField.getFieldType();
+                    const recordFieldTypeName = recordFieldType ? recordFieldType.getName() : null;
                     recordFields.push(
                         <div className="repeating-field clearfix" key={key}>
                             <div className="repeating-field-header clearfix">Record Field {recordField.getFieldIndex()}
-                                <i className="remove-button fa fa-remove fa-2x" onClick={() => thisPage.onRecordFieldRemoveButtonClicked(recordField)} />
+                                <i className="remove-button fa fa-remove fa-2x"
+                                   onClick={() => thisPage.onRecordFieldRemoveButtonClicked(recordField)}/>
                             </div>
-                            <app.InputField key="recordField1" type="text" label="Record Field Name" name="record-field-name" value={recordField.getFieldName()} onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} />
-                            <app.InputField key="recordField2" type="text" label="Record Field Description" name="record-field-description" value={recordField.getFieldDescription()} onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} />
-                            <app.InputField key="recordField3" type="select" label="Record Field Type" name="record-field-type" value={recordFieldTypeName} options={recordFieldTypes} onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} />
+                            <app.InputField key="recordField1" type="text" label="Record Field Name"
+                                            name="record-field-name" value={recordField.getFieldName()}
+                                            onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)}/>
+                            <app.InputField key="recordField2" type="text" label="Record Field Description"
+                                            name="record-field-description" value={recordField.getFieldDescription()}
+                                            onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)}/>
+                            <app.InputField key="recordField3" type="select" label="Record Field Type"
+                                            name="record-field-type" value={recordFieldTypeName}
+                                            options={recordFieldTypes}
+                                            onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)}/>
                         </div>
                     );
                     i++;
@@ -1148,14 +1256,21 @@ class TypesPage extends React.Component {
 
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">
-                        <app.InputField key="record1" type="text" label="Record Name" name="record-name" value={recordName} onChange={this.onRecordNameChanged} />
-                        <app.InputField key="record2" type="textarea" label="Record Description" name="record-description" value={recordDescription} onChange={this.onRecordDescriptionChanged} />
-                        <app.InputField key="record3" type="text" label="Record Size" name="record-size" value={recordSize} onChange={this.onRecordSizeChanged} />
+                        <app.InputField key="record1" type="text" label="Record Name" name="record-name"
+                                        value={recordName} onChange={this.onRecordNameChanged}/>
+                        <app.InputField key="record2" type="textarea" label="Record Description"
+                                        name="record-description" value={recordDescription}
+                                        onChange={this.onRecordDescriptionChanged}/>
+                        <app.InputField key="record3" type="text" label="Record Size" name="record-size"
+                                        value={recordSize} onChange={this.onRecordSizeChanged}/>
                     </div>
                 );
                 reactComponents.push(recordFields);
-                reactComponents.push(<div key="plus-button" className="button" onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i></div>);
-            } break;
+                reactComponents.push(<div key="plus-button" className="button"
+                                          onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i>
+                </div>);
+            }
+                break;
             default: {
                 if (this.state.baseType != null) {
                     console.error("Base type " + this.state.baseType + " is not implemented.");
@@ -1174,7 +1289,8 @@ class TypesPage extends React.Component {
         return (
             <div id="types-container">
                 <div key="types-options-container" id="types-options-container" className="center">
-                    <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick} activeRole={this.state.selectedOption} />
+                    <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick}
+                                    activeRole={this.state.selectedOption}/>
                 </div>
                 {this.renderFormElements()}
             </div>

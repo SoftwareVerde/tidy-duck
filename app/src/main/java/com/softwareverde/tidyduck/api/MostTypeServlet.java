@@ -163,6 +163,9 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 if (Util.isBlank(arrayDescription)) {
                     throw new Exception("Invalid Type array description.");
                 }
+                if (arrayElementTypeId < 1) {
+                    throw new Exception("Invalid Type array element ID: " + arrayElementTypeId);
+                }
                 if (Util.isBlank(arraySize)) {
                     throw new Exception("Invalid Type array size.");
                 }
@@ -389,6 +392,9 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(parameterDescription)) {
             throw new Exception("Invalid stream case parameter description.");
         }
+        if (parameterTypeId < 1) {
+            throw new Exception("Invalid stream case parameter type ID: " + parameterTypeId);
+        }
 
         final MostType parameterType = new MostType();
         parameterType.setId(parameterTypeId);
@@ -443,6 +449,9 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
         if (Util.isBlank(fieldDescription)) {
             throw new Exception("Invalid record field description.");
+        }
+        if (fieldTypeId < 1) {
+            throw new Exception("Invalid record field type ID: " + fieldTypeId);
         }
 
         final MostType fieldType = new MostType();
