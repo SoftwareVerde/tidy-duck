@@ -890,7 +890,7 @@ class TypesPage extends React.Component {
     }
 
     renderFormElements() {
-        if (this.props.mostTypes.length == 0 || this.props.primitiveTypes.length == 0 || this.props.mostUnits.length == 0) {
+        if (this.props.isLoadingTypesPage) {
             // types props must not have been populated yet, show loading icon
             return (
                 <div className="center">

@@ -70,6 +70,9 @@ class App extends React.Component {
             shouldShowSearchChildForm:  false,
             isLoadingChildren:          true,
             isLoadingSearchResults:     false,
+            isLoadingMostTypes:         true,
+            isLoadingPrimitiveTypes:    true,
+            isLoadingUnits:             true,
             filterString:               null,
             shouldShowFilteredResults:  false,
             shouldShowEditForm:         false
@@ -1703,6 +1706,9 @@ class App extends React.Component {
         // get most types (used cached ones for now but set the new ones in the callback)
         getMostTypes(function (mostTypesJson) {
             if (!mostTypesJson) {
+                thisApp.setState({
+                    isLoadingMostTypes: false
+                });
                 return;
             }
             const mostTypes = [];
@@ -1713,11 +1719,15 @@ class App extends React.Component {
                 mostTypes.push(mostType);
             }
             thisApp.setState({
-                mostTypes: mostTypes
+                mostTypes:          mostTypes,
+                isLoadingMostTypes: false
             });
         });
         getPrimitiveTypes(function (primitiveTypesJson) {
             if (!primitiveTypesJson) {
+                thisApp.setState({
+                    isLoadingPrimitiveTypes: false
+                });
                 return;
             }
             const primitiveTypes = [];
@@ -1728,11 +1738,15 @@ class App extends React.Component {
                 primitiveTypes.push(primitiveType);
             }
             thisApp.setState({
-                primitiveTypes: primitiveTypes
+                primitiveTypes:             primitiveTypes,
+                isLoadingPrimitiveTypes:    false
             });
         });
         getUnits(function (unitsJson) {
             if (!unitsJson) {
+                thisApp.setState({
+                    isLoadingUnits: false
+                });
                 return;
             }
 
@@ -1744,7 +1758,8 @@ class App extends React.Component {
                 units.push(unit);
             }
             thisApp.setState({
-                mostUnits: units
+                mostUnits: units,
+                isLoadingUnits: false
             });
         });
     }
@@ -1879,6 +1894,9 @@ class App extends React.Component {
                     shouldShowEditForm:         false,
                     shouldShowToolbar:          false,
                     shouldShowFilteredResults:  false,
+                    isLoadingMostTypes:         true,
+                    isLoadingPrimitiveTypes:    true,
+                    isLoadingUnits:             true,
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
@@ -2255,7 +2273,8 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits} />
+                            <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
+                                           isLoadingTypesPage={this.state.isLoadingMostTypes || this.state.isLoadingPrimitiveTypes || this.state.isLoadingUnits} />
                         </div>
                     );
                 } break;
