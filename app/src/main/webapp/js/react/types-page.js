@@ -356,6 +356,29 @@ class TypesPage extends React.Component {
         const newPrimitiveType = this.getPrimitiveTypeByName(value);
         mostType.setPrimitiveType(newPrimitiveType);
 
+        // Pre-populate at least one repeating field for the following cases.
+        switch (value) {
+            case 'TBitField': // fall through
+            case 'TBool': {
+                const boolField = new BooleanField();
+                boolField.setFieldIndex(1);
+                const boolFields = [boolField];
+                mostType.setBooleanFields(boolFields);
+            } break;
+            case 'TEnum': {
+                const enumValue = new EnumValue();
+                enumValue.setValueIndex(1);
+                const enumValues = [enumValue];
+                mostType.setEnumValues(enumValues);
+            } break;
+            case 'TRecord': {
+                const recordField = new RecordField();
+                recordField.setFieldIndex(1);
+                const recordFields = [recordField];
+                mostType.setRecordFields(recordFields);
+            } break;
+        }
+
         this.setState({
             mostType: mostType,
             saveButtonText: 'Save'
