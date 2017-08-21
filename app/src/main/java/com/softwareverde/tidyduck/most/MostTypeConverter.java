@@ -568,17 +568,18 @@ public class MostTypeConverter {
         senderHandleParameter.setIndex(MOST_NULL);
         senderHandleParameter.setType(senderHandleType);
 
-        if (operationNames.contains("StartResultAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
-        }
         if (operationNames.contains("AbortAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
         }
-        if (operationNames.contains("ProcessingAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
+        if (operationNames.contains("StartResultAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
         }
+
         if (operationNames.contains("ErrorAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
+        }
+        if (operationNames.contains("ProcessingAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
         }
         convertedMethod.addMostParameter(senderHandleParameter);
 
