@@ -53,14 +53,15 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
 }
 
 //calls callbackFunction with modified function catalog ID
-function updateFunctionCatalog(functionCatalogId, functionCatalog, callbackFunction) {
+function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                "functionCatalog": functionCatalog
+                "functionCatalog": functionCatalog,
+                "shouldRelease":   shouldRelease
             })
         }
     );

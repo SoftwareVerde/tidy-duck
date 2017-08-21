@@ -10,6 +10,7 @@ import com.softwareverde.tidyduck.most.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.List;
 
@@ -68,6 +69,15 @@ public class DatabaseManager {
         });
     }
 
+    public void releaseFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                functionCatalogDatabaseManager.releaseFunctionCatalog(functionCatalogId);
+            }
+        });
+    }
     // FUNCTION BLOCK METHODS
 
     public void insertFunctionBlock(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {

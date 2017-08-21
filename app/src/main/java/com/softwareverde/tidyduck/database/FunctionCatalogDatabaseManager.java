@@ -121,6 +121,8 @@ class FunctionCatalogDatabaseManager {
             // need to insert a new function catalog replace this one
             _insertFunctionCatalog(functionCatalog, originalFunctionCatalog);
             final long newFunctionCatalogId = functionCatalog.getId();
+            // TODO: copy over function_catalogs_function_blocks associations to newly inserted function catalog.
+            _copyFunctionCatalogFunctionBlocksAssociations(inputFunctionCatalogId, newFunctionCatalogId);
         }
         else {
             _updateUnreleasedFunctionCatalog(functionCatalog);
@@ -129,5 +131,55 @@ class FunctionCatalogDatabaseManager {
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         _deleteFunctionCatalogIfUnreleased(functionCatalogId);
+    }
+
+    public void releaseFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_released = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
+
+        _releaseFunctionBlocksForFunctionCatalogId(functionCatalogId);
+        _releaseMostInterfacesForFunctionCatalogId(functionCatalogId);
+    }
+
+    private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, long newFunctionCatalogId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(originalFunctionCatalogId);
+
+        final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
+        for (final FunctionBlock functionBlock : functionBlocks) {
+            functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(newFunctionCatalogId, functionBlock.getId());
+        }
+    }
+
+    private void _releaseFunctionBlocksForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET is_released = ? WHERE id IN (" +
+                                            "SELECT DISTINCT function_catalogs_function_blocks.function_block_id\n" +
+                                                "FROM function_catalogs_function_blocks\n" +
+                                                "WHERE function_catalogs_function_blocks.function_catalog_id = ?)")
+                .setParameter(true)
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+
+    private void _releaseMostInterfacesForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET is_released = ? WHERE id IN (" +
+                                            "SELECT DISTINCT function_blocks_interfaces.interface_id\n" +
+                                                "FROM function_blocks_interfaces\n" +
+                                                "WHERE function_blocks_interfaces.function_block_id IN (" +
+                                                    "SELECT DISTINCT function_catalogs_function_blocks.function_block_id\n" +
+                                                    "FROM function_catalogs_function_blocks\n" +
+                                                    "WHERE function_catalogs_function_blocks.function_catalog_id = ?))")
+                .setParameter(true)
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 }

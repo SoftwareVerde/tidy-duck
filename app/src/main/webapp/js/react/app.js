@@ -93,6 +93,7 @@ class App extends React.Component {
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
         this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
+        this.onReleaseFunctionCatalog = this.onReleaseFunctionCatalog.bind(this);
 
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
@@ -233,7 +234,7 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(functionCatalogId, functionCatalogJson, function(wasSuccess, newFunctionCatalogId) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(wasSuccess, newFunctionCatalogId) {
             if (wasSuccess) {
                 let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
@@ -279,6 +280,35 @@ class App extends React.Component {
                 });
             }
         });
+    }
+
+    onReleaseFunctionCatalog(functionCatalog) {
+        const thisApp = this;
+        const functionBlocks = this.state.functionBlocks;
+        const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
+        const functionCatalogId = functionCatalog.getId();
+
+        if (confirm("Are you sure you want to release this function catalog?")) {
+            updateFunctionCatalog(functionCatalogId, functionCatalogJson, true, function(wasSuccess, newFunctionCatalogId) {
+                if (wasSuccess) {
+                    // Set currently selected function catalog to released.
+                    functionCatalog.setIsReleased(true);
+
+                    // Set currently selected function catalog's function blocks to released.
+                    for (let i in functionBlocks) {
+                        functionBlocks[i].setIsReleased(true);
+                    }
+
+                    alert("Function Catalog " + functionCatalogId + " successfully released!")
+
+                    thisApp.setState({
+                        functionBlocks:       functionBlocks,
+                        selectedItem:           functionCatalog,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    });
+                }
+            });
+        }
     }
 
     onCreateFunctionBlock(functionBlock) {
@@ -2035,11 +2065,13 @@ class App extends React.Component {
             let shouldShowEditButton = false;
             let shouldShowSearchButton = false;
             let shouldShowCreateButton = true;
+            let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
             let forkFunction = null;
 
             // Determine what buttons should be displayed.
             if (selectedItem) {
+                shouldShowReleaseButton = currentNavigationLevel == NavigationLevel.functionCatalogs;
                 shouldShowBackButton = true;
                 shouldShowForkButton = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : false;
 
@@ -2101,6 +2133,7 @@ class App extends React.Component {
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false })}
                     onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
                     onForkClicked={() => forkFunction(selectedItem)}
+                    onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
                     navigationItems={navigationItems}
@@ -2111,6 +2144,7 @@ class App extends React.Component {
                     shouldShowSearchIcon={shouldShowSearchButton}
                     shouldShowBackButton={shouldShowBackButton}
                     shouldShowEditButton={shouldShowEditButton}
+                    shouldShowReleaseButton={shouldShowReleaseButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
                 />
