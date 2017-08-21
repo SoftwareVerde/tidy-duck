@@ -71,32 +71,36 @@ public class NumberType extends MostType {
     }
 
     @Override
-    protected void appendChildElements(Document document, Element typeElement) {
-        Element basisDataTypeElement = document.createElement("BasisDataType");
-        Element baseTypeElement = _basisDataType.generateXmlElement(document);
+    protected void appendChildElements(final Document document, final Element typeElement) {
+        final Element basisDataTypeElement = document.createElement("BasisDataType");
+        final Element baseTypeElement = _basisDataType.generateXmlElement(document);
         basisDataTypeElement.appendChild(baseTypeElement);
 
-        Element exponentElement = XmlUtil.createTextElement(document, "Exponent", _exponent);
-        Element rangeMinElement = null;
-        if (_rangeMin != null) {
-            rangeMinElement = XmlUtil.createTextElement(document, "RangeMin", _rangeMin);
-        }
-        Element rangeMaxElement = null;
-        if (_rangeMax != null) {
-            rangeMaxElement = XmlUtil.createTextElement(document, "RangeMax", _rangeMax);
-        }
-        Element stepElement = XmlUtil.createTextElement(document, "Step", _step);
-        Element unitElement = document.createElement("Unit");
+        final Element exponentElement = XmlUtil.createTextElement(document, "Exponent", _exponent);
+
+        final Element rangeMinElement = (_rangeMin != null ? XmlUtil.createTextElement(document, "RangeMin", _rangeMin) : null);
+
+        final Element rangeMaxElement = (_rangeMax != null ? XmlUtil.createTextElement(document, "RangeMax", _rangeMax) : null);
+
+        final Element stepElement = XmlUtil.createTextElement(document, "Step", _step);
+
+        final Element unitElement = document.createElement("Unit");
         unitElement.setAttribute("UnitRef", _unit);
 
+        typeElement.appendChild(basisDataTypeElement);
         typeElement.appendChild(exponentElement);
+
+
         if (rangeMinElement != null) {
             typeElement.appendChild(rangeMinElement);
         }
+
         if (rangeMaxElement != null) {
             typeElement.appendChild(rangeMaxElement);
         }
-        typeElement.appendChild(basisDataTypeElement);
+
+        typeElement.appendChild(stepElement);
+
         typeElement.appendChild(unitElement);
     }
 }
