@@ -400,6 +400,8 @@
 .repeating-field {
     margin: 10px 0px;
     background-color: rgba(100, 100, 100, 0.1);
+    padding: 5px;
+    border: solid 1px rgba(0, 0, 0, 0.1);
 }
 
 .repeating-field-header {
