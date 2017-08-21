@@ -268,11 +268,13 @@
     text-align: center;
     margin: 1em;
     float: top;
+    padding: 5px;
 }
 
 .parameter i.remove-button, .repeating-field i.remove-button {
     margin: 0 2px 0 auto;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .parameter-display-area {

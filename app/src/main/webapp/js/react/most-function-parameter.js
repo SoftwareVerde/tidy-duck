@@ -43,7 +43,7 @@ class MostFunctionParameter extends React.Component {
 
     renderDeleteIcon() {
         return (
-            <i className="remove-button fa fa-remove fa-3x" onClick={this.onDeleteParameter} />
+            <i className="remove-button fa fa-remove fa-2x" onClick={this.onDeleteParameter} />
         );
     }
 
