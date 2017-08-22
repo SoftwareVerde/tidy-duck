@@ -17,6 +17,7 @@ public class FunctionBlock {
     private Author _author;
     private Company _company;
     private String _access;
+    private boolean _isApproved;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
@@ -103,11 +104,19 @@ public class FunctionBlock {
         return _access;
     }
 
+    public boolean isApproved() {
+        return _isApproved;
+    }
+
+    public void setIsApproved(final boolean approved) {
+        _isApproved = approved;
+    }
+
     public boolean isReleased() {
         return _isReleased;
     }
 
-    public void setReleased(boolean released) {
+    public void setIsReleased(boolean released) {
         _isReleased = released;
     }
 

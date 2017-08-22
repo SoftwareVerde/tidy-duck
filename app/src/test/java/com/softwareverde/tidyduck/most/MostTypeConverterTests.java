@@ -28,7 +28,7 @@ public class MostTypeConverterTests {
         functionCatalog.setId(id);
         functionCatalog.setName(name);
         functionCatalog.setRelease(release);
-        functionCatalog.setReleased(true);
+        functionCatalog.setIsReleased(true);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
         return functionCatalog;

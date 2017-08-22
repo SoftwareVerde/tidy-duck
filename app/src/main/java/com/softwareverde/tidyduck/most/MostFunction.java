@@ -18,6 +18,7 @@ public abstract class MostFunction {
     private String _name;
     private String _description;
     private String _release;
+    private boolean _isApproved;
     private boolean _isReleased;
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
@@ -65,11 +66,19 @@ public abstract class MostFunction {
         _release = release;
     }
 
+    public boolean isApproved() {
+        return _isApproved;
+    }
+
+    public void setIsApproved(final boolean approved) {
+        _isApproved = approved;
+    }
+
     public boolean isReleased() {
         return _isReleased;
     }
 
-    public void setReleased(boolean released) {
+    public void setIsReleased(boolean released) {
         _isReleased = released;
     }
 

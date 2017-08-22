@@ -12,6 +12,7 @@ public class FunctionCatalog {
     private String _release;
     private Author _author;
     private Company _company;
+    private boolean _isApproved;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
@@ -66,11 +67,19 @@ public class FunctionCatalog {
         _company = company;
     }
 
+    public boolean isApproved() {
+        return _isApproved;
+    }
+
+    public void setIsApproved(final boolean approved) {
+        _isApproved = approved;
+    }
+
     public boolean isReleased() {
         return _isReleased;
     }
 
-    public void setReleased(final boolean released) {
+    public void setIsReleased(final boolean released) {
         _isReleased = released;
     }
 

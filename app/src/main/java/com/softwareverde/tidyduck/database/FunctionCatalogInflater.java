@@ -129,6 +129,7 @@ public class FunctionCatalogInflater {
         final String release = row.getString("release_version");
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
+        final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
@@ -145,7 +146,8 @@ public class FunctionCatalogInflater {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
-        functionCatalog.setReleased(isReleased);
+        functionCatalog.setIsApproved(isApproved);
+        functionCatalog.setIsReleased(isReleased);
         functionCatalog.setBaseVersionId(baseVersionId);
         functionCatalog.setPriorVersionId(priorVersionId);
 
