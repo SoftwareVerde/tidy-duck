@@ -2130,6 +2130,7 @@ class App extends React.Component {
                 const isReleased = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : this.state.parentItem.isReleased();
                 shouldShowCreateButton = ! isReleased;
                 shouldShowBackButton = true;
+                shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased;
@@ -2162,7 +2163,6 @@ class App extends React.Component {
                             }
                         }
                     }
-                    else {shouldShowSearchButton = ! shouldShowFilterBar;}
 
                     // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
                     switch (currentNavigationLevel) {
