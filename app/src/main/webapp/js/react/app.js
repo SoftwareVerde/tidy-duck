@@ -473,7 +473,7 @@ class App extends React.Component {
         });
     }
 
-    onUpdateMostInterface(mostInterface) {
+    onUpdateMostInterface(mostInterface, getNewFunctions) {
         const thisApp = this;
 
         const functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
@@ -549,6 +549,10 @@ class App extends React.Component {
                     currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
                     createButtonState:      thisApp.CreateButtonState.success
                 });
+                // Need to get new functions if forking a released interface.
+                if (getNewFunctions) {
+                    thisApp.onMostInterfaceSelected(mostInterface);
+                }
             }
         });
     }
@@ -2163,7 +2167,7 @@ class App extends React.Component {
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false })}
                     onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
-                    onForkClicked={() => forkFunction(selectedItem)}
+                    onForkClicked={() => forkFunction(selectedItem, true)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
