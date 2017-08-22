@@ -57,6 +57,10 @@ class MostFunctionDatabaseManager {
         }
     }
 
+    public void associateMostFunctionWithMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        _associateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
+    }
+
     private void _updateUnreleasedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
         final String name = proposedMostFunction.getName();
         final String mostId = proposedMostFunction.getMostId();

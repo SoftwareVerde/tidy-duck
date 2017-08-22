@@ -121,7 +121,6 @@ class FunctionCatalogDatabaseManager {
             // need to insert a new function catalog replace this one
             _insertFunctionCatalog(functionCatalog, originalFunctionCatalog);
             final long newFunctionCatalogId = functionCatalog.getId();
-            // TODO: copy over function_catalogs_function_blocks associations to newly inserted function catalog.
             _copyFunctionCatalogFunctionBlocksAssociations(inputFunctionCatalogId, newFunctionCatalogId);
         }
         else {
@@ -145,7 +144,7 @@ class FunctionCatalogDatabaseManager {
         _releaseMostInterfacesForFunctionCatalogId(functionCatalogId);
     }
 
-    private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, long newFunctionCatalogId) throws DatabaseException {
+    private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, final long newFunctionCatalogId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(originalFunctionCatalogId);
 
