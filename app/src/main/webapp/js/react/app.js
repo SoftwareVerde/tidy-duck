@@ -753,54 +753,63 @@ class App extends React.Component {
         })
     }
 
-    onDeleteFunctionCatalog(functionCatalog) {
-        const thisApp = this;
-        const functionCatalogId = functionCatalog.getId();
+    onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
+        if (functionCatalog.isReleased()) {
+            alert("Unable to delete Function Catalog. Released Function Catalogs cannot be deleted.");
+            callbackFunction();
+        }
+        else {
+            const thisApp = this;
+            const functionCatalogId = functionCatalog.getId();
 
-        deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
-            if (success) {
-                const newFunctionCatalogs = [];
-                const existingFunctionCatalogs = thisApp.state.functionCatalogs;
-                for (let i in existingFunctionCatalogs) {
-                    const existingFunctionCatalog = existingFunctionCatalogs[i];
-                    const existingFunctionCatalogId = existingFunctionCatalog.getId();
-                    if (existingFunctionCatalogId != functionCatalog.getId()) {
-                        newFunctionCatalogs.push(existingFunctionCatalog);
-                    }
-                    else {
-                        // Remove deleted version from child item. Don't push to new array if no versions remain.
-                        const existingVersionsJson = existingFunctionCatalog.getVersionsJson();
-                        if (existingVersionsJson.length > 1) {
-                            // Find newest released version to be displayed on screen.
-                            let displayedVersionId = existingVersionsJson[0].id;
-                            let displayedVersionJson = existingVersionsJson[0];
+            deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionCatalogs = [];
+                    const existingFunctionCatalogs = thisApp.state.functionCatalogs;
+                    for (let i in existingFunctionCatalogs) {
+                        const existingFunctionCatalog = existingFunctionCatalogs[i];
+                        const existingFunctionCatalogId = existingFunctionCatalog.getId();
+                        if (existingFunctionCatalogId != functionCatalog.getId()) {
+                            newFunctionCatalogs.push(existingFunctionCatalog);
+                        }
+                        else {
+                            // Remove deleted version from child item. Don't push to new array if no versions remain.
+                            const existingVersionsJson = existingFunctionCatalog.getVersionsJson();
+                            if (existingVersionsJson.length > 1) {
+                                // Find newest released version to be displayed on screen.
+                                let displayedVersionId = existingVersionsJson[0].id;
+                                let displayedVersionJson = existingVersionsJson[0];
 
-                            for (let j in existingVersionsJson) {
-                                const existingVersionJson = existingVersionsJson[j];
-                                if (existingFunctionCatalogId == existingVersionJson.id) {
-                                    delete existingVersionsJson[j];
-                                }
-                                else {
-                                    if (existingVersionJson.isReleased) {
-                                        if (existingVersionJson.id > displayedVersionId) {
-                                            displayedVersionId = existingVersionJson.id;
-                                            displayedVersionJson = existingVersionJson;
+                                for (let j in existingVersionsJson) {
+                                    const existingVersionJson = existingVersionsJson[j];
+                                    if (existingFunctionCatalogId == existingVersionJson.id) {
+                                        delete existingVersionsJson[j];
+                                    }
+                                    else {
+                                        if (existingVersionJson.isReleased) {
+                                            if (existingVersionJson.id > displayedVersionId) {
+                                                displayedVersionId = existingVersionJson.id;
+                                                displayedVersionJson = existingVersionJson;
+                                            }
                                         }
                                     }
                                 }
+                                const newFunctionCatalog = FunctionCatalog.fromJson(displayedVersionJson);
+                                newFunctionCatalog.setVersionsJson(existingVersionsJson);
+                                newFunctionCatalogs.push(newFunctionCatalog);
                             }
-                            const newFunctionCatalog = FunctionCatalog.fromJson(displayedVersionJson);
-                            newFunctionCatalog.setVersionsJson(existingVersionsJson);
-                            newFunctionCatalogs.push(newFunctionCatalog);
                         }
                     }
+                    thisApp.setState({
+                        functionCatalogs:       newFunctionCatalogs,
+                        currentNavigationLevel: thisApp.NavigationLevel.versions
+                    });
+                } else {
+                    alert("Request to delete Function Catalog failed: " + errorMessage);
+                    callbackFunction();
                 }
-                thisApp.setState({
-                    functionCatalogs:       newFunctionCatalogs,
-                    currentNavigationLevel: thisApp.NavigationLevel.versions
-                });
-            } else {alert("Request to delete Function Catalog failed: " + errorMessage);}
-        });
+            });
+        }
     }
 
     onDeleteFunctionCatalogWithConfirmPrompt(functionCatalog, callbackFunction) {
@@ -1073,7 +1082,11 @@ class App extends React.Component {
 
         // If this item has a containing parent, simply disassociate it.
         if (selectedItem) {
-            thisApp.disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction);
+            if (selectedItem.isReleased()) {
+                alert("Unable to delete Function Block. Currently selected Function Catalog is released.");
+                callbackFunction();
+            }
+            else {thisApp.disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction);}
         }
         else {
             listFunctionCatalogsContainingFunctionBlock(functionBlock.getId(), function (data) {
@@ -1427,7 +1440,11 @@ class App extends React.Component {
 
         // If this item has a containing parent, simply disassociate it.
         if (selectedItem) {
-            thisApp.disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction);
+            if (selectedItem.isReleased()) {
+                alert("Unable to delete Interface. Currently selected Function Block is released.");
+                callbackFunction();
+            }
+            else {thisApp.disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction);}
         }
         else {
             listFunctionBlocksContainingMostInterface(mostInterface.getId(), function (data) {
@@ -1634,35 +1651,42 @@ class App extends React.Component {
 
     onDeleteMostFunction(mostFunction, callbackFunction) {
         const thisApp = this;
+        const selectedItem = this.state.selectedItem;
 
-        const mostInterfaceId = this.state.selectedItem.getId();
-        const mostFunctionId = mostFunction.getId();
-
-        const shouldDelete = confirm("This action will delete the only reference to this function. Are you sure you want to delete it?");
-        if (shouldDelete) {
-            deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
-                if (success) {
-                    const newMostFunctions = [];
-                    const existingMostFunctions = thisApp.state.mostFunctions;
-                    for (let i in existingMostFunctions) {
-                        const existingMostFunction = existingMostFunctions[i];
-                        if (existingMostFunction.getId() !== mostFunction.getId()) {
-                            newMostFunctions.push(existingMostFunction);
-                        }
-                    }
-                    thisApp.setState({
-                        mostFunctions: newMostFunctions,
-                        currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
-                    });
-                } else {
-                    alert("Request to delete function failed: " + errorMessage);
-                    // let component know delete was unsuccessful
-                    callbackFunction();
-                }
-            });
-        } else {
-            // let component know delete was canceled
+        if (selectedItem.isReleased()) {
+            alert("Unable to delete Function. Currently selected Interface is released.");
             callbackFunction();
+        }
+        else {
+            const mostInterfaceId = selectedItem.getId();
+            const mostFunctionId = mostFunction.getId();
+
+            const shouldDelete = confirm("This action will delete the only reference to this function. Are you sure you want to delete it?");
+            if (shouldDelete) {
+                deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
+                    if (success) {
+                        const newMostFunctions = [];
+                        const existingMostFunctions = thisApp.state.mostFunctions;
+                        for (let i in existingMostFunctions) {
+                            const existingMostFunction = existingMostFunctions[i];
+                            if (existingMostFunction.getId() !== mostFunction.getId()) {
+                                newMostFunctions.push(existingMostFunction);
+                            }
+                        }
+                        thisApp.setState({
+                            mostFunctions: newMostFunctions,
+                            currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                        });
+                    } else {
+                        alert("Request to delete function failed: " + errorMessage);
+                        // let component know delete was unsuccessful
+                        callbackFunction();
+                    }
+                });
+            } else {
+                // let component know delete was canceled
+                callbackFunction();
+            }
         }
     }
 
@@ -2074,6 +2098,7 @@ class App extends React.Component {
     renderForm() {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        const activeRole = this.state.activeRole;
         const navigationItems = this.state.navigationItems;
 
         const shouldShowToolbar = this.state.shouldShowToolbar;
@@ -2083,7 +2108,6 @@ class App extends React.Component {
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
-        // Show the metadata form for a selected item when in development mode.
 
         const reactComponents = [];
         const thisApp = this;
@@ -2103,37 +2127,44 @@ class App extends React.Component {
 
             // Determine what buttons should be displayed.
             if (selectedItem) {
-                if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
-                    shouldShowReleaseButton = ! selectedItem.isReleased();
-                }
-
+                const isReleased = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : this.state.parentItem.isReleased();
+                shouldShowCreateButton = ! isReleased;
                 shouldShowBackButton = true;
-                shouldShowForkButton = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : false;
 
-                // Determine fork button functionality
-                if (shouldShowForkButton) {
-                    switch (currentNavigationLevel) {
-                        case this.NavigationLevel.functionCatalogs:
-                            forkFunction = this.onUpdateFunctionCatalog;
-                            break;
-                        case this.NavigationLevel.functionBlocks:
-                            forkFunction = this.onUpdateFunctionBlock;
-                            break;
-                        case this.NavigationLevel.mostInterfaces:
-                            forkFunction = this.onUpdateMostInterface;
-                            break;
-                    }
+                if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
+                    shouldShowReleaseButton = ! isReleased;
+                    shouldShowForkButton = isReleased;
                 }
-                shouldShowCreateButton = ! shouldShowForkButton;
-                shouldShowSearchButton = ! shouldShowFilterBar && ! shouldShowForkButton;
 
-                if (this.state.activeRole === this.roles.development) {
+                if (activeRole === this.roles.development) {
                     const activeSubRole = this.state.activeSubRole;
                     shouldShowEditButton = true;
                     shouldShowNavigationItems = true;
 
+                    // Determine if fork button should be shown.
+                    if (isReleased) {
+                        shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
+                            (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
+                        // shouldShowForkButton = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : false;
+
+                        // Determine fork button functionality
+                        if (shouldShowForkButton) {
+                            switch (currentNavigationLevel) {
+                                case this.NavigationLevel.functionCatalogs:
+                                    forkFunction = this.onUpdateFunctionCatalog;
+                                    break;
+                                case this.NavigationLevel.functionBlocks:
+                                    forkFunction = this.onUpdateFunctionBlock;
+                                    break;
+                                case this.NavigationLevel.mostInterfaces:
+                                    forkFunction = this.onUpdateMostInterface;
+                                    break;
+                            }
+                        }
+                    }
+                    else {shouldShowSearchButton = ! shouldShowFilterBar;}
+
                     // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
-                    shouldShowBackButton = true;
                     switch (currentNavigationLevel) {
                         case this.NavigationLevel.functionBlocks:
                             backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true)};
