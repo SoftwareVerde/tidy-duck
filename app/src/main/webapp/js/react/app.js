@@ -2076,6 +2076,7 @@ class App extends React.Component {
                 const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
                 const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
+                    readOnly={this.state.parentItem.isReleased()}
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
                     buttonTitle={buttonTitle}
