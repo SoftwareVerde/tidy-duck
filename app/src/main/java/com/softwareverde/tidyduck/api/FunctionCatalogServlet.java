@@ -13,6 +13,8 @@ import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.util.Util;
+import com.softwareverde.tomcat.api.ApiRoute;
+import com.softwareverde.tomcat.api.ApiUrlRouter;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.slf4j.Logger;
@@ -27,32 +29,65 @@ import java.util.Map;
 public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
+    private final ApiUrlRouter _apiUrlRouter = new ApiUrlRouter(BASE_API_URL);
+
+    public FunctionCatalogServlet() {
+        _apiUrlRouter.setErrorRoute(new ApiRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _generateErrorJson("Invalid request.");
+            }
+        });
+
+        _apiUrlRouter.defineEndpoint( "function-catalogs", HttpMethod.GET, new ApiRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _listFunctionCatalogs(environment.getDatabase());
+            }
+        });
+
+        _apiUrlRouter.defineEndpoint( "function-catalogs", HttpMethod.POST, new ApiRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _insertFunctionCatalog(request, accountId, environment.getDatabase());
+            }
+        });
+
+        _apiUrlRouter.defineEndpoint( "function-catalogs/<functionCatalogId>", HttpMethod.POST, new ApiRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                return _updateFunctionCatalog(request, functionCatalogId, accountId, environment.getDatabase());
+            }
+        });
+
+        _apiUrlRouter.defineEndpoint( "function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new ApiRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                return _deleteFunctionCatalog(request, functionCatalogId, environment.getDatabase());
+            }
+        });
+
+        _apiUrlRouter.defineEndpoint( "function-catalogs/<functionCatalogId>/submit-for-review", HttpMethod.POST, new ApiRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                return _updateFunctionCatalog(request, functionCatalogId, accountId, environment.getDatabase());
+            }
+        });
+    }
+
     @Override
     protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
         final Database<Connection> database = environment.getDatabase();
 
-        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("function-catalogs".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.POST) {
-                return _insertFunctionCatalog(request, accountId, database);
-            }
-            if (httpMethod == HttpMethod.GET) {
-                return _listFunctionCatalogs(database);
-            }
-        } else {
-            // not base function catalog, must have ID
-            long functionCatalogId = Util.parseLong(finalUrlSegment);
-            if (functionCatalogId < 1) {
-                return super._generateErrorJson("Invalid function catalog id.");
-            }
-            if (httpMethod == HttpMethod.POST) {
-                return _updateFunctionCatalog(request, functionCatalogId, accountId, database);
-            }
-            if (httpMethod == HttpMethod.DELETE) {
-                return _deleteFunctionCatalog(request, functionCatalogId, database);
-            }
+        final Map<String, Long> apiPath = BaseServlet.getApiPath(request);
+        if (apiPath == null) {
+            return _generateErrorJson("Invalid request.");
         }
-        return super._generateErrorJson("Unimplemented HTTP method in request.");
+
+        return _apiUrlRouter.route(request, httpMethod, accountId, environment);
     }
 
     protected Json _listFunctionCatalogs(final Database<Connection> database) {
@@ -97,7 +132,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _insertFunctionCatalog(final HttpServletRequest httpRequest, long accountId, final Database<Connection> database) throws IOException {
-        final Json request = super._getRequestDataAsJson(httpRequest);
+        final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
 
         final Json functionCatalogJson = request.get("functionCatalog");
@@ -118,7 +153,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _updateFunctionCatalog(final HttpServletRequest httpRequest, final long functionCatalogId, final long accountId, final Database<Connection> database) throws IOException {
-        final Json request = super._getRequestDataAsJson(httpRequest);
+        final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
         final Json functionCatalogJson = request.get("functionCatalog");
 

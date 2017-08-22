@@ -1,0 +1,12 @@
+package com.softwareverde.tomcat.api;
+
+import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tomcat.servlet.BaseServlet;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+
+public interface ApiRoute {
+    Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception;
+}
