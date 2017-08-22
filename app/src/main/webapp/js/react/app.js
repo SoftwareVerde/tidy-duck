@@ -759,8 +759,36 @@ class App extends React.Component {
                 const existingFunctionCatalogs = thisApp.state.functionCatalogs;
                 for (let i in existingFunctionCatalogs) {
                     const existingFunctionCatalog = existingFunctionCatalogs[i];
-                    if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
+                    const existingFunctionCatalogId = existingFunctionCatalog.getId();
+                    if (existingFunctionCatalogId != functionCatalog.getId()) {
                         newFunctionCatalogs.push(existingFunctionCatalog);
+                    }
+                    else {
+                        // Remove deleted version from child item. Don't push to new array if no versions remain.
+                        const existingVersionsJson = existingFunctionCatalog.getVersionsJson();
+                        if (existingVersionsJson.length > 1) {
+                            // Find newest released version to be displayed on screen.
+                            let displayedVersionId = existingVersionsJson[0].id;
+                            let displayedVersionJson = existingVersionsJson[0];
+
+                            for (let j in existingVersionsJson) {
+                                const existingVersionJson = existingVersionsJson[j];
+                                if (existingFunctionCatalogId == existingVersionJson.id) {
+                                    delete existingVersionsJson[j];
+                                }
+                                else {
+                                    if (existingVersionJson.isReleased) {
+                                        if (existingVersionJson.id > displayedVersionId) {
+                                            displayedVersionId = existingVersionJson.id;
+                                            displayedVersionJson = existingVersionJson;
+                                        }
+                                    }
+                                }
+                            }
+                            const newFunctionCatalog = FunctionCatalog.fromJson(displayedVersionJson);
+                            newFunctionCatalog.setVersionsJson(existingVersionsJson);
+                            newFunctionCatalogs.push(newFunctionCatalog);
+                        }
                     }
                 }
                 thisApp.setState({
@@ -2071,7 +2099,10 @@ class App extends React.Component {
 
             // Determine what buttons should be displayed.
             if (selectedItem) {
-                shouldShowReleaseButton = currentNavigationLevel == NavigationLevel.functionCatalogs;
+                if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
+                    shouldShowReleaseButton = ! selectedItem.isReleased();
+                }
+
                 shouldShowBackButton = true;
                 shouldShowForkButton = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : false;
 
