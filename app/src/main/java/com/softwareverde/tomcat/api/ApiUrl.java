@@ -78,7 +78,8 @@ class ApiUrl {
     @Override
     public boolean equals(final Object object) {
         if (! (object instanceof ApiUrl)) { return false; }
-        return _path.equals(((ApiUrl) object)._path);
+        final ApiUrl apiUrl = (ApiUrl) object;
+        return _path.equals(apiUrl._path) && _httpMethod.equals(apiUrl._httpMethod);
     }
 
     @Override
