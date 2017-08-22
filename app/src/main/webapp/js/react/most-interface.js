@@ -90,7 +90,7 @@ class MostInterface extends React.Component {
 
     onClick() {
         if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.mostInterface, false, true);
+            this.props.onClick(this.props.mostInterface, false);
         }
     }
 

@@ -355,7 +355,13 @@ class App extends React.Component {
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
 
-        const functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
+        let functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
+        // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
+        if (functionCatalogId) {
+            if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
+                functionCatalogId = null;
+            }
+        }
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
         const functionBlockId = functionBlock.getId();
 
@@ -476,7 +482,13 @@ class App extends React.Component {
     onUpdateMostInterface(mostInterface, getNewFunctions) {
         const thisApp = this;
 
-        const functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
+        let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
+        // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
+        if (functionBlockId) {
+            if (this.state.activeSubRole == this.developmentRoles.mostInterface) {
+                functionBlockId = null;
+            }
+        }
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
         const mostInterfaceId = mostInterface.getId();
 
@@ -908,7 +920,7 @@ class App extends React.Component {
         navigationItemConfig.setIsReleased(functionBlock.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.functionBlock);
         navigationItemConfig.setOnClickCallback(function() {
-            thisApp.onFunctionBlockSelected(functionBlock, true, false);
+            thisApp.onFunctionBlockSelected(functionBlock, true);
         });
         navigationItemConfig.setForm(
             <app.FunctionBlockForm key="FunctionBlockForm"
