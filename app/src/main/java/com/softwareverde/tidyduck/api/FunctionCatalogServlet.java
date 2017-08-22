@@ -80,13 +80,6 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     @Override
     protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
-        final Database<Connection> database = environment.getDatabase();
-
-        final Map<String, Long> apiPath = BaseServlet.getApiPath(request);
-        if (apiPath == null) {
-            return _generateErrorJson("Invalid request.");
-        }
-
         return _apiUrlRouter.route(request, httpMethod, accountId, environment);
     }
 
