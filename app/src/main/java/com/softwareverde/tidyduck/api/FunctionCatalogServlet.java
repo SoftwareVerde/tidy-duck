@@ -73,7 +73,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
-                return _updateFunctionCatalog(request, functionCatalogId, accountId, environment.getDatabase());
+                // return _submitForReview();
+                return new Json(); // TODO
             }
         });
     }
