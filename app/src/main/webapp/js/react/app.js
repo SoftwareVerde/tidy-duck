@@ -2190,6 +2190,7 @@ class App extends React.Component {
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased;
                     shouldShowForkButton = isReleased;
+                    forkFunction = this.onUpdateFunctionCatalog;
                 }
 
                 if (activeRole === this.roles.development) {
@@ -2206,9 +2207,6 @@ class App extends React.Component {
                         // Determine fork button functionality
                         if (shouldShowForkButton) {
                             switch (currentNavigationLevel) {
-                                case this.NavigationLevel.functionCatalogs:
-                                    forkFunction = this.onUpdateFunctionCatalog;
-                                    break;
                                 case this.NavigationLevel.functionBlocks:
                                     forkFunction = this.onUpdateFunctionBlock;
                                     break;
@@ -2253,7 +2251,7 @@ class App extends React.Component {
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false })}
                     onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
-                    onForkClicked={() => forkFunction(selectedItem, true)}
+                    onForkClicked={() => forkFunction(selectedItem)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
