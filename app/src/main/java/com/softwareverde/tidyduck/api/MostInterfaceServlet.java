@@ -27,11 +27,17 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                final Long functionBlockId = Util.parseLong(request.getParameter("function_block_id"));
-                if (functionBlockId >= 1) {
-                    return _listMostInterfaces(functionBlockId, environment.getDatabase());
+                final String requestFunctionBlockId = request.getParameter("function_block_id");
+
+                if (Util.isBlank(requestFunctionBlockId)) {
+                    return _listAllMostInterfaces(environment.getDatabase());
                 }
-                return _listAllMostInterfaces(environment.getDatabase());
+
+                final long functionBlockId = Util.parseLong(Util.coalesce(requestFunctionBlockId));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block id.");
+                }
+                return _listMostInterfaces(functionBlockId, environment.getDatabase());
             }
         });
 
