@@ -244,7 +244,7 @@ public class MostInterfaceDatabaseManager {
     }
 
     private void _submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
-        final Query query = new Query("INSERT INTO reviews (interface_id, account_id) VALUES (?, ?)");
+        final Query query = new Query("INSERT INTO reviews (interface_id, account_id, created_date) VALUES (?, ?, NOW())");
         query.setParameter(mostInterfaceId);
         query.setParameter(submittingAccountId);
 
