@@ -47,6 +47,7 @@ class App extends React.Component {
         this.state = {
             account:                    null,
             navigationItems:            [],
+            parentHistory:              [],
             searchResults:              [],
             lastSearchResultTimestamp:  0,
             functionCatalogs:           [],
@@ -698,9 +699,10 @@ class App extends React.Component {
         });
     }
 
-    onFunctionCatalogSelected(functionCatalog, canUseCachedChildren, canSaveHistory) {
+    onFunctionCatalogSelected(functionCatalog, canUseCachedChildren) {
         const thisApp = this;
         const navigationItems = [];
+        const parentHistory = [];
 
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(functionCatalog.getName());
@@ -729,13 +731,23 @@ class App extends React.Component {
                 defaultButtonTitle="Save"
             />
         );
-
         navigationItems.push(navigationItemConfig);
+
+        // Preserve history of parent items.
+        const parentHistoryItem = {
+              id: "functionCatalog" + functionCatalog.getId(),
+              item: functionCatalog,
+        };
+        parentHistory.push(parentHistoryItem);
+
+        console.log(parentHistory);
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            parentHistory:              parentHistory,
             searchResults:              [],
             selectedItem:               functionCatalog,
+            parentItem:                 null,
             proposedItem:               null,
             functionBlocks:             canUseCachedChildren ? this.state.functionBlocks : [],
             shouldShowCreateChildForm:  false,
@@ -909,6 +921,8 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
+        const parentHistory = this.state.parentHistory;
+
         if (this.state.activeRole === this.roles.release) {
             const navigationItem = this.state.navigationItems[0];
             navigationItem.setForm(null);
@@ -933,10 +947,28 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        const parentItem = thisApp.state.selectedItem; //Preserve reference to previously selected item.
+        // Preserve reference to parent items.
+        const parentHistoryItem = {
+            id: "functionBlock" + functionBlock.getId(),
+            item: functionBlock,
+        };
+
+        let parentItem = null;
+        let newParentHistory = [];
+        for (let i in parentHistory) {
+            const existingSelectionHistoryItem = parentHistory[i];
+            if (existingSelectionHistoryItem["id"] === parentHistoryItem["id"]) {
+                newParentHistory = parentHistory.slice(0, Number(i));
+                break;
+            }
+            newParentHistory.push(existingSelectionHistoryItem);
+            parentItem = existingSelectionHistoryItem["item"];
+        }
+        newParentHistory.push(parentHistoryItem);
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            parentHistory:              newParentHistory,
             searchResults:              [],
             selectedItem:               functionBlock,
             parentItem:                 parentItem,
@@ -968,7 +1000,6 @@ class App extends React.Component {
                     filterString:               ""
                 });
             }
-
         });
     }
 
@@ -1253,14 +1284,13 @@ class App extends React.Component {
         const thisApp = this;
 
         const navigationItems = [];
+        const parentHistory = this.state.parentHistory;
         if(this.state.activeRole == this.roles.release) {
             for (let i in this.state.navigationItems) {
                 const navigationItem = this.state.navigationItems[i];
                 navigationItem.setForm(null);
                 navigationItems.push(navigationItem);
-                if (i >= 1) {
-                    break;
-                }
+                if (i >= 1) {break;}
             }
         }
         else if (this.state.activeSubRole != this.developmentRoles.mostInterface) {
@@ -1286,10 +1316,29 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        const parentItem = thisApp.state.selectedItem; // Preserve reference to previously selected item.
+        //Preserve reference to previously selected item.
+        const parentHistoryItem = {
+            id: "mostInterface" + mostInterface.getId(),
+            item: mostInterface,
+        };
+
+        // Preserve reference to parent item.
+        let parentItem = null;
+        let newParentHistory = [];
+        for (let i in parentHistory) {
+            const existingSelectionHistoryItem = parentHistory[i];
+            if (existingSelectionHistoryItem["id"] === parentHistoryItem["id"]) {
+                newParentHistory = parentHistory.slice(0, Number(i));
+                break;
+            }
+            newParentHistory.push(existingSelectionHistoryItem);
+            parentItem = existingSelectionHistoryItem["item"];
+        }
+        newParentHistory.push(parentHistoryItem);
 
         thisApp.setState({
             navigationItems:            navigationItems,
+            parentHistory:              newParentHistory,
             searchResults:              [],
             selectedItem:               mostInterface,
             parentItem:                 parentItem,
@@ -1305,7 +1354,6 @@ class App extends React.Component {
 
         this.updateMostTypes();
         this.updateMostFunctionStereotypes();
-
 
         getMostFunctionsForMostInterfaceId(mostInterface.getId(), function(mostFunctionsJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
@@ -1608,34 +1656,28 @@ class App extends React.Component {
 
     onMostFunctionSelected(mostFunction) {
         const thisApp = this;
-
         // Set all navigation forms to null, since editing functions occurs in metadata form.
-
         const navigationItems = [];
-
         for (let i in this.state.navigationItems) {
             const navigationItem = this.state.navigationItems[i];
             navigationItem.setForm(null);
             navigationItems.push(navigationItem);
+
             if (this.state.activeRole == this.roles.development) {
-                if (this.state.activeSubRole == this.developmentRoles.mostInterface) {
-                    break;
-                }
+                if (this.state.activeSubRole == this.developmentRoles.mostInterface) {break;}
                 else if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
-                    if (i >= 1) {
-                        break;
-                    }
+                    if (i >= 1) {break;}
                 }
             }
-            else if (i >= 2) {
-                break;
-            }
+            else if (i >= 2) {break;}
         }
 
-        const navigationItemConfig = new NavigationItemConfig();
-        const parentItem = this.state.currentNavigationLevel == this.NavigationLevel.mostInterfaces ?
-            this.state.selectedItem : this.state.parentItem; // Preserve reference to previously selected item.
+        // Functions must have a parent interface.
+        // Retrieve reference to parent interface, which is always the last entry in parentHistory.
+        const parentHistory = this.state.parentHistory;
+        const parentItem = parentHistory[parentHistory.length-1]["item"];
 
+        const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
         navigationItemConfig.setIsReleased(parentItem.isReleased());
@@ -1900,6 +1942,7 @@ class App extends React.Component {
                 // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
                 this.setState({
                     currentNavigationLevel:         thisApp.NavigationLevel.versions,
+                    parentHistory:               [],
                     activeRole:                     roleName,
                     activeSubRole:                  null,
                     selectedItem:                   null,
@@ -1936,6 +1979,7 @@ class App extends React.Component {
 
                 this.setState({
                     navigationItems:            [],
+                    parentHistory:           [],
                     searchResults:              [],
                     functionCatalogs:           [],
                     selectedItem:               null,
