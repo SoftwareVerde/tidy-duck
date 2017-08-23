@@ -356,7 +356,7 @@ class MostFunctionForm extends React.Component {
             if (this.state.shouldShowSaveAnimation)  {
                 return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
             }
-            return(<div className="center"><div className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+            return(<div className="center"><button className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
         }
     }
 

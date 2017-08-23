@@ -958,7 +958,7 @@ class TypesPage extends React.Component {
                                     value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
-                <div key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</div>
+                <button key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</button>
             </div>
         );
     }
