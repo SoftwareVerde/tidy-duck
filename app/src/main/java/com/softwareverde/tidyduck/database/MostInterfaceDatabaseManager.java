@@ -226,4 +226,16 @@ public class MostInterfaceDatabaseManager {
         }
         return null;
     }
+
+    public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        _submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
+    }
+
+    private void _submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        final Query query = new Query("INSERT INTO reviews (interface_id, account_id, date) VALUES (?, ?, NOW())");
+        query.setParameter(mostInterfaceId);
+        query.setParameter(submittingAccountId);
+
+        _databaseConnection.executeSql(query);
+    }
 }

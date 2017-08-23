@@ -1,27 +1,26 @@
 package com.softwareverde.tomcat.api;
 
-import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ApiUrlRouter {
+public class ApiUrlRouter<T> {
     protected static String _cleanUrl(final String url) {
-        return url.replaceAll("/[/]*", "/");
+        return url.replaceAll("/[/]+", "/");
     }
 
     private final String _baseUrl;
-    private final Map<ApiUrl, ApiRoute> _apiUrls = new HashMap<ApiUrl, ApiRoute>();
-    private ApiRoute _errorApiRoute = null;
+    private final Map<ApiUrl, T> _apiUrls = new HashMap<>();
+    private final T _errorApiRoute;
 
-    public ApiUrlRouter(final String baseUrl) {
+    public ApiUrlRouter(final String baseUrl, final T errorApiRoute) {
         _baseUrl = baseUrl;
+        _errorApiRoute = errorApiRoute;
     }
 
-    public void defineEndpoint(final String endpointPattern, final BaseServlet.HttpMethod httpMethod, final ApiRoute apiRoute) {
+    public void defineEndpoint(final String endpointPattern, final BaseServlet.HttpMethod httpMethod, final T apiRoute) {
         final String path = _cleanUrl(_baseUrl + endpointPattern);
         final String[] segments = path.split("/");
 
@@ -50,26 +49,19 @@ public class ApiUrlRouter {
         _apiUrls.put(apiUrl, apiRoute);
     }
 
-    public void setErrorRoute(final ApiRoute apiRoute) {
-        _errorApiRoute = apiRoute;
-    }
-
-    public Json route(final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
+    public ApiRoute<T> route(final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod) throws RouteNotFoundException {
         final String path = _cleanUrl(request.getRequestURI());
 
         for (final ApiUrl apiUrl : _apiUrls.keySet()) {
             if (apiUrl.matches(path, httpMethod)) {
                 final Map<String, String> urlParameters = apiUrl.getParameters(path);
 
-                final ApiRoute apiRoute = _apiUrls.get(apiUrl);
-                return apiRoute.handleAuthenticatedRequest(urlParameters, request, httpMethod, accountId, environment);
+                final T apiRoute = _apiUrls.get(apiUrl);
+
+                return new ApiRoute<T>(apiRoute, urlParameters);
             }
         }
 
-        if (_errorApiRoute != null) {
-            return _errorApiRoute.handleAuthenticatedRequest(new HashMap<String, String>(), request, httpMethod, accountId, environment);
-        }
-
-        return new Json();
+        return new ApiRoute<T>(_errorApiRoute, null);
     }
 }

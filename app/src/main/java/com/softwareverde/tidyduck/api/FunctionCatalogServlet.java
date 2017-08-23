@@ -13,10 +13,7 @@ import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.util.Util;
-import com.softwareverde.tomcat.api.ApiRoute;
-import com.softwareverde.tomcat.api.ApiUrlRouter;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,31 +26,22 @@ import java.util.Map;
 public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ApiUrlRouter _apiUrlRouter = new ApiUrlRouter(BASE_API_URL);
-
     public FunctionCatalogServlet() {
-        _apiUrlRouter.setErrorRoute(new ApiRoute() {
-            @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _generateErrorJson("Invalid request.");
-            }
-        });
-
-        _apiUrlRouter.defineEndpoint( "function-catalogs", HttpMethod.GET, new ApiRoute() {
+        super.defineEndpoint("function-catalogs", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _listFunctionCatalogs(environment.getDatabase());
             }
         });
 
-        _apiUrlRouter.defineEndpoint( "function-catalogs", HttpMethod.POST, new ApiRoute() {
+        super.defineEndpoint("function-catalogs", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _insertFunctionCatalog(request, accountId, environment.getDatabase());
             }
         });
 
-        _apiUrlRouter.defineEndpoint( "function-catalogs/<functionCatalogId>", HttpMethod.POST, new ApiRoute() {
+        super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
@@ -61,7 +49,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        _apiUrlRouter.defineEndpoint( "function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new ApiRoute() {
+        super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
@@ -69,7 +57,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        _apiUrlRouter.defineEndpoint( "function-catalogs/<functionCatalogId>/submit-for-review", HttpMethod.POST, new ApiRoute() {
+        super.defineEndpoint("function-catalogs/<functionCatalogId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
@@ -77,11 +65,6 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return new Json(); // TODO
             }
         });
-    }
-
-    @Override
-    protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
-        return _apiUrlRouter.route(request, httpMethod, accountId, environment);
     }
 
     protected Json _listFunctionCatalogs(final Database<Connection> database) {

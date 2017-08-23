@@ -187,6 +187,13 @@ public class DatabaseManager {
         }
     }
 
+    public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            mostInterfaceDatabaseManager.submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
+        }
+    }
+
     // MOST FUNCTION METHODS
 
     public void insertMostFunction(final Long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
