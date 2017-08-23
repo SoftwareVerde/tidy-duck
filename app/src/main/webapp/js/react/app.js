@@ -45,38 +45,39 @@ class App extends React.Component {
         };
 
         this.state = {
-            account:                    null,
-            navigationItems:            [],
-            parentHistory:              [],
-            searchResults:              [],
-            lastSearchResultTimestamp:  0,
-            functionCatalogs:           [],
-            functionBlocks:             [],
-            mostInterfaces:             [],
-            mostFunctions:              [],
-            mostTypes:                  [],
-            primitiveTypes:             [],
-            mostUnits:                  [],
-            mostFunctionStereotypes:    [],
-            activeRole:                 this.roles.release,
-            activeSubRole:              null,
-            selectedItem:               null,
-            parentItem:                 null,
-            proposedItem:               null,
-            currentNavigationLevel:     this.NavigationLevel.versions,
-            shouldShowToolbar:          true,
-            shouldShowCreateChildForm:  false,
-            createButtonState:          this.CreateButtonState.normal,
-            selectedFunctionStereotype: null,
-            shouldShowSearchChildForm:  false,
-            isLoadingChildren:          true,
-            isLoadingSearchResults:     false,
-            isLoadingMostTypes:         true,
-            isLoadingPrimitiveTypes:    true,
-            isLoadingUnits:             true,
-            filterString:               null,
-            shouldShowFilteredResults:  false,
-            shouldShowEditForm:         false
+            account:                        null,
+            navigationItems:                [],
+            parentHistory:                  [],
+            searchResults:                  [],
+            lastSearchResultTimestamp:      0,
+            functionCatalogs:               [],
+            functionBlocks:                 [],
+            mostInterfaces:                 [],
+            mostFunctions:                  [],
+            mostTypes:                      [],
+            primitiveTypes:                 [],
+            mostUnits:                      [],
+            mostFunctionStereotypes:        [],
+            activeRole:                     this.roles.release,
+            activeSubRole:                  null,
+            selectedItem:                   null,
+            parentItem:                     null,
+            proposedItem:                   null,
+            currentNavigationLevel:         this.NavigationLevel.versions,
+            shouldShowToolbar:              true,
+            shouldShowCreateChildForm:      false,
+            createButtonState:              this.CreateButtonState.normal,
+            selectedFunctionStereotype:     null,
+            shouldShowSearchChildForm:      false,
+            isLoadingChildren:              true,
+            isLoadingSearchResults:         false,
+            isLoadingMostTypes:             true,
+            isLoadingPrimitiveTypes:        true,
+            isLoadingUnits:                 true,
+            filterString:                   null,
+            shouldShowFilteredResults:      false,
+            shouldShowEditForm:             false,
+            shouldShowSubmitForReviewForm:  false
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -975,6 +976,7 @@ class App extends React.Component {
             shouldShowCreateChildForm:  false,
             shouldShowSearchChildForm:  false,
             shouldShowEditForm:         false,
+            shouldShowSubmitForReviewForm: false,
             createButtonState:          thisApp.CreateButtonState.normal,
             currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
             isLoadingChildren:          !canUseCachedChildren,
@@ -1940,15 +1942,16 @@ class App extends React.Component {
                 // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
                 this.setState({
                     currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                    parentHistory:               [],
+                    parentHistory:                  [],
                     activeRole:                     roleName,
                     activeSubRole:                  null,
                     selectedItem:                   null,
                     parentItem:                     null,
-                    proposedItem:               null,
+                    proposedItem:                   null,
                     shouldShowToolbar:              true,
                     shouldShowCreateChildForm:      false,
                     shouldShowSearchChildForm:      false,
+                    shouldShowSubmitForReviewForm:  false,
                     shouldShowEditForm:             false,
                     createButtonState:              this.CreateButtonState.normal,
                     selectedFunctionStereotype:     null,
@@ -1977,7 +1980,7 @@ class App extends React.Component {
 
                 this.setState({
                     navigationItems:            [],
-                    parentHistory:           [],
+                    parentHistory:              [],
                     searchResults:              [],
                     functionCatalogs:           [],
                     selectedItem:               null,
@@ -1985,6 +1988,7 @@ class App extends React.Component {
                     proposedItem:               null,
                     shouldShowCreateChildForm:  false,
                     shouldShowSearchChildForm:  false,
+                    shouldShowSubmitForReviewForm: false,
                     shouldShowEditForm:         false,
                     shouldShowToolbar:          true,
                     shouldShowFilteredResults:  false,
@@ -2031,6 +2035,7 @@ class App extends React.Component {
                     proposedItem:               null,
                     shouldShowCreateChildForm:  false,
                     shouldShowSearchChildForm:  false,
+                    shouldShowSubmitForReviewForm: false,
                     shouldShowEditForm:         false,
                     shouldShowToolbar:          false,
                     shouldShowFilteredResults:  false,
@@ -2160,6 +2165,7 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
+        const shouldShowSubmitForReviewForm = this.state.shouldShowSubmitForReviewForm;
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
@@ -2176,6 +2182,7 @@ class App extends React.Component {
             let shouldShowEditButton = false;
             let shouldShowSearchButton = false;
             let shouldShowCreateButton = true;
+            let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
             let forkFunction = null;
@@ -2189,6 +2196,7 @@ class App extends React.Component {
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased;
+                    shouldShowSubmitForReviewButton = ! isReleased;
                     shouldShowForkButton = isReleased;
                     forkFunction = this.onUpdateFunctionCatalog;
                 }
@@ -2247,10 +2255,11 @@ class App extends React.Component {
 
             reactComponents.push(
                 <app.Toolbar key="Toolbar"
-                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
-                    onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
-                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false })}
-                    onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false })}
+                    onCreateClicked={() => this.setState({ shouldShowCreateChildForm: !shouldShowCreateChildForm, shouldShowSearchChildForm: false, shouldShowEditForm: false, shouldShowSubmitForReviewForm: false })}
+                    onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false, shouldShowSubmitForReviewForm: false })}
+                    onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false, shouldShowSubmitForReviewForm: false })}
+                    onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowSubmitForReviewForm: false })}
+                    onSubmitForReviewClicked={() => this.setState({shouldShowSubmitForReviewForm: !shouldShowSubmitForReviewForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
                     onForkClicked={() => forkFunction(selectedItem)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
                     navigationLevel={this.NavigationLevel}
@@ -2263,6 +2272,7 @@ class App extends React.Component {
                     shouldShowSearchIcon={shouldShowSearchButton}
                     shouldShowBackButton={shouldShowBackButton}
                     shouldShowEditButton={shouldShowEditButton}
+                    shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
@@ -2317,6 +2327,22 @@ class App extends React.Component {
                             searchResults={this.state.searchResults}
                             isLoadingSearchResults={this.state.isLoadingSearchResults}
                         />
+                    );
+                }
+                else if (shouldShowSubmitForReviewForm) {
+                    let submitButton = "";
+                    if(shouldAnimateCreateButton)  {
+                        submitButton = <div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>;
+                    } else {
+                        // TODO: add submit for review method
+                        submitButton = <div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={() => console.log("Submitting for review!")}>{buttonTitle}</button></div>;
+                    }
+                    reactComponents.push(
+                        <div key="submitReviewForm" className="metadata-form">
+                            <div className="metadata-form-title">Submit for Review</div>
+                            <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments"/>
+                            {submitButton}
+                        </div>
                     );
                 }
                 break;

@@ -16,6 +16,7 @@ class Toolbar extends React.Component {
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
         this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
         this.renderForkButton = this.renderForkButton.bind(this);
+        this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
@@ -98,6 +99,17 @@ class Toolbar extends React.Component {
             return (
                 <div className="toolbar-item fork" onClick={this.props.onForkClicked} title={buttonTitle}>
                     <i className="fa fa-4 fa-code-fork" />
+                </div>
+            );
+        }
+    }
+
+    renderSubmitForReviewButton() {
+        if (this.props.shouldShowSubmitForReviewButton) {
+            const buttonTitle = "Submit for Review"
+            return (
+                <div className="toolbar-item submitReview" onClick={this.props.onSubmitForReviewClicked} title={buttonTitle}>
+                    <i className="fa fa-4 fa-upload" />
                 </div>
             );
         }
@@ -270,6 +282,7 @@ class Toolbar extends React.Component {
                     {this.renderNavigationItems()}
                 </div>
                 <div>
+                    {this.renderSubmitForReviewButton()}
                     {this.renderForkButton()}
                     {this.renderReleaseButton()}
                     {this.renderEditButton()}
