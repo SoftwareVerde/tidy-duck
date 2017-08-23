@@ -691,7 +691,7 @@ CREATE TABLE reviews (
     interface_id INT UNSIGNED NULL,
     function_id INT UNSIGNED NULL,
     account_id INT UNSIGNED NOT NULL,
-    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_date DATETIME NOT NULL,
     FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id),
     FOREIGN KEY (function_block_id) REFERENCES function_blocks (id),
     FOREIGN KEY (interface_id) REFERENCES interfaces (id),
@@ -703,7 +703,7 @@ CREATE TABLE review_comments (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     review_id INT UNSIGNED NOT NULL,
     account_id INT UNSIGNED NOT NULL,
-    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_date DATETIME NOT NULL,
     comment TEXT NOT NULL,
     FOREIGN KEY (review_id) REFERENCES reviews (id),
     FOREIGN KEY (account_id) REFERENCES accounts (id)
@@ -713,7 +713,7 @@ CREATE TABLE review_votes (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     review_id INT UNSIGNED NOT NULL,
     account_id INT UNSIGNED NOT NULL,
-    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_date DATETIME NOT NULL,
     is_upvote BOOLEAN NOT NULL DEFAULT TRUE,
     FOREIGN KEY (review_id) REFERENCES reviews (id),
     FOREIGN KEY (account_id) REFERENCES accounts (id)

@@ -262,4 +262,28 @@ public class FunctionBlockDatabaseManager {
         }
         return functionCatalogIds;
     }
+
+    public void submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+        if (_functionBlockHasReview(functionBlockId)) {
+            // already present, return
+            return;
+        }
+        _submitFunctionBlockForReview(functionBlockId, accountId);
+    }
+
+    private boolean _functionBlockHasReview(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE function_block_id = ?");
+        query.setParameter(functionBlockId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
+    }
+
+    private void _submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+        final Query query = new Query("INSERT INTO reviews (function_block_id, account_id, created_date) VALUES (?, ?, NOW())");
+        query.setParameter(functionBlockId);
+        query.setParameter(accountId);
+
+        _databaseConnection.executeSql(query);
+    }
 }

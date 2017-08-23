@@ -45,6 +45,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
                 return _updateFunctionCatalog(request, functionCatalogId, accountId, environment.getDatabase());
             }
         });
@@ -53,7 +56,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
-                return _deleteFunctionCatalog(request, functionCatalogId, environment.getDatabase());
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _deleteFunctionCatalog(functionCatalogId, environment.getDatabase());
             }
         });
 
@@ -61,8 +67,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
-                // return _submitForReview();
-                return new Json(); // TODO
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _submitFunctionCatalogForReview(functionCatalogId, accountId, environment.getDatabase());
             }
         });
     }
@@ -158,19 +166,34 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _deleteFunctionCatalog(final HttpServletRequest request, final long functionCatalogId, final Database<Connection> database) {
+    protected Json _deleteFunctionCatalog(final long functionCatalogId, final Database<Connection> database) {
         try {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.deleteFunctionCatalog(functionCatalogId);
+
+            final Json response = new Json(false);
+            super._setJsonSuccessFields(response);
+            return response;
         } catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function catalog %d.", functionCatalogId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
+    }
 
-        final Json response = new Json(false);
-        super._setJsonSuccessFields(response);
-        return response;
+    protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId, final Database<Connection> database) {
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.submitFunctionCatalogForReview(functionCatalogId, accountId);
+
+            final Json response = new Json(false);
+            _setJsonSuccessFields(response);
+            return response;
+        } catch (DatabaseException e) {
+            String errorMessage = "Unable to submit function catalog for review.";
+            _logger.error(errorMessage, e);
+            return super._generateErrorJson(errorMessage);
+        }
     }
 
     protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Database<Connection> database) throws Exception {
