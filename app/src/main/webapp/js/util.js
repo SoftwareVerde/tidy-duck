@@ -1,7 +1,11 @@
 // Shortens a string to or below the specified maxLength.
 // If the input string is longer than this, three periods will be appended.
 // Defaults on using word boundaries for shortening.
+// Returns null if an non-string is provided
 function shortenString(string, maxLength, useWordBoundary){
+    if (string == null || typeof string != "string") {
+        return null;
+    }
     if (string.length <= maxLength) {
         return string;
     }

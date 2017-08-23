@@ -24,17 +24,21 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public MostInterfaceServlet() {
+        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionBlockId = Util.parseLong(request.getParameter("function_block_id"));
+                if (functionBlockId >= 1) {
+                    return _listMostInterfaces(functionBlockId, environment.getDatabase());
+                }
+                return _listAllMostInterfaces(environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _insertMostInterface(request, environment.getDatabase());
-            }
-        });
-
-        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
-            @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _listAllMostInterfaces(environment.getDatabase());
             }
         });
 
