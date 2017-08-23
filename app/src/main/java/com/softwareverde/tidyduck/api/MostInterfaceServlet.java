@@ -394,6 +394,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterfaceJson.put("description", mostInterface.getDescription());
         mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
         mostInterfaceJson.put("releaseVersion", mostInterface.getVersion());
+        mostInterfaceJson.put("isReleased", mostInterface.isReleased());
         mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());
         mostInterfaceJson.put("priorVersionId", mostInterface.getPriorVersionId());
         return mostInterfaceJson;

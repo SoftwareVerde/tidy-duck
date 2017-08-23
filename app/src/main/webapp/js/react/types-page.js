@@ -958,7 +958,7 @@ class TypesPage extends React.Component {
                                     value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
-                <div key="save-button" className="button" onClick={this.onSave}>{this.state.saveButtonText}</div>
+                <div key="save-button" className="center"><button className="button" onClick={this.onSave}>{this.state.saveButtonText}</button></div>
             </div>
         );
     }
@@ -1002,9 +1002,13 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button"
-                                          onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                reactComponents.push(
+                    <div key="plus-button" className="center">
+                        <button className="button"
+                          onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i>
+                        </button>
+                    </div>
+                );
             }
                 break;
             case 'TEnum': {
@@ -1028,9 +1032,13 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button"
-                                          onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                reactComponents.push(
+                    <div key="plus-button" className="center">
+                        <button className="button"
+                              onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i>
+                        </button>
+                    </div>
+                );
             }
                 break;
             case 'TNumber': {
@@ -1147,12 +1155,14 @@ class TypesPage extends React.Component {
                                 <i className="remove-button fa fa-remove fa-2x"
                                    onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
                             </div>
-                            <app.InputField key="streamcase1" type="text" label="Position X" name="position-x"
-                                            value={streamCase.getStreamPositionX()}
-                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}/>
-                            <app.InputField key="streamcase2" type="text" label="Position Y" name="position-y"
-                                            value={streamCase.getStreamPositionY()}
-                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}/>
+                            <div key="streamCasePositionDescription" className="clearfix">
+                                <app.InputField  type="text" label="Position X" name="position-x"
+                                                value={streamCase.getStreamPositionX()}
+                                                onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}/>
+                                <app.InputField  type="text" label="Position Y" name="position-y"
+                                                value={streamCase.getStreamPositionY()}
+                                                onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}/>
+                            </div>
                             <div key="parameter-display-area" className="parameter-display-area clearfix">
                                 <div className="metadata-form-title">Stream Parameters</div>
                                 {streamParameters}
@@ -1169,9 +1179,13 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button"
-                                          onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                reactComponents.push(
+                    <div key="plus-button" className="center">
+                        <button key="plus-button" className="button"
+                              onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i>
+                        </button>
+                    </div>
+                );
             }
                 break;
             case 'TCStream': {
@@ -1266,9 +1280,13 @@ class TypesPage extends React.Component {
                     </div>
                 );
                 reactComponents.push(recordFields);
-                reactComponents.push(<div key="plus-button" className="button"
-                                          onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                reactComponents.push(
+                    <div key="plus-button" className="center">
+                        <button className="button"
+                              onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i>
+                        </button>
+                    </div>
+                );
             }
                 break;
             default: {

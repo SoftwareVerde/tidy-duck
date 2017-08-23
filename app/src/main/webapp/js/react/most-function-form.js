@@ -334,10 +334,13 @@ class MostFunctionForm extends React.Component {
                     onUpdate={this.onParameterChanged}
                     onDeleteParameterClicked={this.onDeleteParameterClicked}
                     mostTypes={this.props.mostTypes}
+                    readOnly={this.props.readOnly}
                 />);
             }
             // Push button for adding parameters.
-            parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
+            if (! this.props.readOnly) {
+                parameterComponents.push(<i key="add-parameter-button" className="assign-button fa fa-plus-square fa-4x" onClick={this.onAddParameterClicked}/>);
+            }
 
             return(
                 <div className="parameter-display-area">
@@ -349,10 +352,12 @@ class MostFunctionForm extends React.Component {
     }
 
     renderSubmitButton() {
-        if (this.state.shouldShowSaveAnimation)  {
-            return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+        if (! this.props.readOnly) {
+            if (this.state.shouldShowSaveAnimation)  {
+                return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+            }
+            return(<div className="center"><button className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
         }
-        return(<div className="center"><div className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
     }
 
     render() {

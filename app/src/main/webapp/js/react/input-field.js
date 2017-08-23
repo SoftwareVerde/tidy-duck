@@ -38,7 +38,7 @@ class InputField extends React.Component {
         switch (this.props.type) {
             case 'select':
                 return (
-                    <select id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} >
+                    <select id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} disabled={this.props.readOnly} >
                         {this.renderOptions()}
                     </select>
                 );

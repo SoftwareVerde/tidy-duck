@@ -89,7 +89,7 @@ class FunctionBlock extends React.Component {
 
     onClick() {
         if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionBlock, false, true);
+            this.props.onClick(this.props.functionBlock, false);
         }
     }
 

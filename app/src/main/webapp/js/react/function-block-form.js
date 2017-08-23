@@ -170,7 +170,7 @@ class FunctionBlockForm extends React.Component {
         if(this.state.shouldShowSaveAnimation)  {
             reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
         } else {
-            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+            reactComponents.push(<div key="button submit-button" className="center"><button className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
         }
 
         return (

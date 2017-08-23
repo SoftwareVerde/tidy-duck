@@ -181,12 +181,24 @@ public class MostInterfaceDatabaseManager {
             // current block is released, need to insert a new interface replace this one
             _insertMostInterface(proposedMostInterface, originalMostInterface);
             final long newMostInterfaceId = proposedMostInterface.getId();
+            _copyMostInterfaceMostFunctions(inputMostInterfaceId, newMostInterfaceId);
             // change association with function block if id isn't 0
             if (functionBlockId != 0) {
                 // TODO: check if function block is released?
                 _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
                 _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
             }
+        }
+    }
+
+    private void _copyMostInterfaceMostFunctions(final long originalMostInterfaceId, final long newMostInterfaceId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(originalMostInterfaceId);
+
+        final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
+        for (final MostFunction mostFunction : mostFunctions) {
+            // Need to insert copy of most function rather than associate existing most function.
+            mostFunctionDatabaseManager.insertMostFunctionForMostInterface(newMostInterfaceId, mostFunction);
         }
     }
 

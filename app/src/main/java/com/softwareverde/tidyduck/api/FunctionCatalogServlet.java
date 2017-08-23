@@ -133,13 +133,20 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
         final Json functionCatalogJson = request.get("functionCatalog");
+        final boolean shouldRelease = request.getBoolean("shouldRelease");
 
         try {
             FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, database);
             functionCatalog.setId(functionCatalogId);
-
             DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.updateFunctionCatalog(functionCatalog);
+
+            if (shouldRelease) {
+                databaseManager.releaseFunctionCatalog(functionCatalogId);
+            }
+            else {
+                databaseManager.updateFunctionCatalog(functionCatalog);
+            }
+
             response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
             String errorMessage = "Unable to update function catalog: " + exception.getMessage();

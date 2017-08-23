@@ -208,6 +208,7 @@ public class FunctionBlockDatabaseManager {
             // current block is released, need to insert a new function block replace this one
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
+            _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);
 
             // change association with function catalog if provided id isn't 0
             if (functionCatalogId != 0) {
@@ -219,6 +220,16 @@ public class FunctionBlockDatabaseManager {
         else {
             // not released, can update existing function block
             _updateUnreleasedFunctionBlock(updatedFunctionBlock);
+        }
+    }
+
+    private void _copyFunctionBlockInterfacesAssociations(final long originalFunctionBlockId, final long newFunctionBlockId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(originalFunctionBlockId);
+
+        final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (final MostInterface mostInterface : mostInterfaces) {
+            mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(newFunctionBlockId, mostInterface.getId());
         }
     }
 

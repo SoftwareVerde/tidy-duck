@@ -16,6 +16,7 @@ class Toolbar extends React.Component {
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
         this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
         this.renderForkButton = this.renderForkButton.bind(this);
+        this.renderReleaseButton = this.renderReleaseButton.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
@@ -97,6 +98,17 @@ class Toolbar extends React.Component {
             return (
                 <div className="toolbar-item fork" onClick={this.props.onForkClicked} title={buttonTitle}>
                     <i className="fa fa-4 fa-code-fork" />
+                </div>
+            );
+        }
+    }
+
+    renderReleaseButton() {
+        if (this.props.shouldShowReleaseButton) {
+            const buttonTitle = "Release Function Catalog";
+            return (
+                <div className="toolbar-item release" onClick={this.props.onReleaseClicked} title={buttonTitle}>
+                    <i className="fa fa-4 fa-book" />
                 </div>
             );
         }
@@ -202,21 +214,21 @@ class Toolbar extends React.Component {
 
 
     renderAddFunctionButtons() {
-        const navigationLevel = this.state.navigationLevel;
-        const currentNavigationLevel = this.state.currentNavigationLevel;
+        if (this.props.shouldShowCreateButton) {
+            const navigationLevel = this.state.navigationLevel;
+            const currentNavigationLevel = this.state.currentNavigationLevel;
 
-        if (currentNavigationLevel === navigationLevel.mostInterfaces) {
-            const reactComponents = [];
-            reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked} title="Event">E</div>);
-            reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked} title="ReadOnlyProperty">ROP</div>);
-            reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked} title="ReadOnlyPropertyWithEvent">ROPwE</div>);
-            reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked} title="PropertyWithEvent">PwE</div>);
-            reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked} title="CommandWithAck">CwA</div>);
-            reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked} title="Request/Response">R/R</div>);
+            if (currentNavigationLevel === navigationLevel.mostInterfaces) {
+                const reactComponents = [];
+                reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked} title="Event">E</div>);
+                reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked} title="ReadOnlyProperty">ROP</div>);
+                reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked} title="ReadOnlyPropertyWithEvent">ROPwE</div>);
+                reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked} title="PropertyWithEvent">PwE</div>);
+                reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked} title="CommandWithAck">CwA</div>);
+                reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked} title="Request/Response">R/R</div>);
 
-
-
-            return reactComponents;
+                return reactComponents;
+            }
         }
     }
 
@@ -259,6 +271,7 @@ class Toolbar extends React.Component {
                 </div>
                 <div>
                     {this.renderForkButton()}
+                    {this.renderReleaseButton()}
                     {this.renderEditButton()}
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}
