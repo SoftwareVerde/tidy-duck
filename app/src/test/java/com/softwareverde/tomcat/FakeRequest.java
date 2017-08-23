@@ -160,6 +160,7 @@ public class FakeRequest implements HttpServletRequest {
         return _mock.getReturnValue();
     }
 
+    @Deprecated
     @Override
     public boolean isRequestedSessionIdFromUrl() {
         _mock.recordInvocation();
@@ -335,6 +336,7 @@ public class FakeRequest implements HttpServletRequest {
         return _mock.getReturnValue();
     }
 
+    @Deprecated
     @Override
     public String getRealPath(final String path) {
         _mock.recordInvocation(path);
