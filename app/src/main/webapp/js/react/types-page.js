@@ -1002,9 +1002,9 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button"
+                reactComponents.push(<button key="plus-button" className="button"
                                           onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                </button>);
             }
                 break;
             case 'TEnum': {
@@ -1028,9 +1028,9 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button"
+                reactComponents.push(<button key="plus-button" className="button"
                                           onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                </button>);
             }
                 break;
             case 'TNumber': {
@@ -1169,9 +1169,9 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-                reactComponents.push(<div key="plus-button" className="button"
+                reactComponents.push(<button key="plus-button" className="button"
                                           onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                </button>);
             }
                 break;
             case 'TCStream': {
@@ -1266,9 +1266,9 @@ class TypesPage extends React.Component {
                     </div>
                 );
                 reactComponents.push(recordFields);
-                reactComponents.push(<div key="plus-button" className="button"
+                reactComponents.push(<button key="plus-button" className="button"
                                           onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i>
-                </div>);
+                </button>);
             }
                 break;
             default: {
