@@ -733,14 +733,12 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        // Preserve history of parent items.
+        // Preserve this selected function catalog as a parent.
         const parentHistoryItem = {
               id: "functionCatalog" + functionCatalog.getId(),
               item: functionCatalog,
         };
         parentHistory.push(parentHistoryItem);
-
-        console.log(parentHistory);
 
         thisApp.setState({
             navigationItems:            navigationItems,
@@ -947,7 +945,7 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        // Preserve reference to parent items.
+        // Preserve reference to Function Block as a parent.
         const parentHistoryItem = {
             id: "functionBlock" + functionBlock.getId(),
             item: functionBlock,
@@ -1316,7 +1314,7 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItemConfig);
 
-        //Preserve reference to previously selected item.
+        //Preserve reference to interface as a parent.
         const parentHistoryItem = {
             id: "mostInterface" + mostInterface.getId(),
             item: mostInterface,
