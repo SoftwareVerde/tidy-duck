@@ -75,6 +75,7 @@ class App extends React.Component {
             isLoadingPrimitiveTypes:        true,
             isLoadingUnits:                 true,
             filterString:                   null,
+            reviewCommentsString:           null,
             shouldShowFilteredResults:      false,
             shouldShowEditForm:             false,
             shouldShowSubmitForReviewForm:  false
@@ -745,6 +746,7 @@ class App extends React.Component {
             navigationItems:            navigationItems,
             parentHistory:              parentHistory,
             searchResults:              [],
+            reviewCommentsString:       null,
             selectedItem:               functionCatalog,
             parentItem:                 null,
             proposedItem:               null,
@@ -2334,13 +2336,13 @@ class App extends React.Component {
                     if(shouldAnimateCreateButton)  {
                         submitButton = <div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>;
                     } else {
-                        // TODO: add submit for review method
+                        // TODO: add submitForReview method
                         submitButton = <div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={() => console.log("Submitting for review!")}>{buttonTitle}</button></div>;
                     }
                     reactComponents.push(
                         <div key="submitReviewForm" className="metadata-form">
                             <div className="metadata-form-title">Submit for Review</div>
-                            <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments"/>
+                            <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments" value={this.state.reviewCommentsString} onChange={(value) => this.setState({reviewCommentsString: value})}/>
                             {submitButton}
                         </div>
                     );
