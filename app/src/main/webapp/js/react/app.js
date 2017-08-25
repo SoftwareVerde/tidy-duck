@@ -20,7 +20,8 @@ class App extends React.Component {
         this.roles = {
             release:          "Release",
             development:      "Development",
-            types:            "Types"
+            types:            "Types",
+            reviews:          "Reviews"
         };
 
         this.developmentRoles = {
@@ -2045,6 +2046,30 @@ class App extends React.Component {
                 });
                 thisApp.updateMostTypes();
             } break;
+            case this.roles.reviews: {
+                this.setState({
+                    navigationItems:            [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    proposedItem:               null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowEditForm:         false,
+                    shouldShowToolbar:          false,
+                    shouldShowFilteredResults:  false,
+                    isLoadingMostTypes:         true,
+                    isLoadingPrimitiveTypes:    true,
+                    isLoadingUnits:             true,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:     null,
+                    activeRole:                 roleName,
+                    activeSubRole:              null,
+                    showSettingsPage:           false
+                });
+                thisApp.updateMostTypes();
+            } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
             }
@@ -2431,6 +2456,14 @@ class App extends React.Component {
                         </div>
                     );
                 } break;
+                case this.roles.reviews: {
+                    // reviews role
+                    return (
+                        <div id="main-content" className="container">
+                            <app.ReviewsPage />
+                        </div>
+                    );
+                } break;
                 default: {
                     // other roles
                     let navigationItems = "";
@@ -2458,6 +2491,7 @@ class App extends React.Component {
         roleItems.push(this.roles.release);
         roleItems.push(this.roles.development);
         roleItems.push(this.roles.types);
+        roleItems.push(this.roles.reviews);
 
         return (
             <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />

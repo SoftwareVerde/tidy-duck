@@ -1,0 +1,13 @@
+#reviews-container {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+
+    width: 80%;
+    display: block;
+    margin: 3em auto auto auto;
+    border: 0px solid;
+    border-radius: 5px;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+}
