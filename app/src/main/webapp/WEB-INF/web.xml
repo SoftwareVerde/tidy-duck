@@ -40,6 +40,10 @@
         <servlet-name>MostFunctionStereotype</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.MostFunctionStereotypeServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Review</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.ReviewServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
@@ -116,6 +120,15 @@
     <servlet-mapping>
         <servlet-name>MostType</servlet-name>
         <url-pattern>/api/v1/most-function-stereotypes/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Review</servlet-name>
+        <url-pattern>/api/v1/reviews</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Review</servlet-name>
+        <url-pattern>/api/v1/reviews/*</url-pattern>
     </servlet-mapping>
 
 
