@@ -23,8 +23,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("reviews", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                // TODO: list all reviews
-                return null;
+                final String includeOpenReviewsString = request.getParameter("includeOpenReviews");
+                final String includeClosedReviewsString = request.getParameter("includeClosedReviews");
+
+                final boolean includeOpenReviews = Boolean.parseBoolean(includeOpenReviewsString);
+                final boolean includeClosedReviews = Boolean.parseBoolean(includeClosedReviewsString);
+
+                return listAllReviews(includeOpenReviews, includeClosedReviews, environment.getDatabase());
             }
         });
     }
@@ -54,7 +59,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     private Json _toJson(final Review review) {
         final Json json = new Json(false);
 
-        String
+
 
         return json;
     }
