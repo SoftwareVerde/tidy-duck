@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.most.FunctionBlock;
@@ -178,6 +179,30 @@ class FunctionCatalogDatabaseManager {
                 .setParameter(true)
                 .setParameter(functionCatalogId)
                 ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
+        if (_functionCatalogHasReview(functionCatalogId)) {
+            // already present, return
+            return;
+        }
+        _submitFunctionCatalogForReview(functionCatalogId, accountId);
+    }
+
+    private boolean _functionCatalogHasReview(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE function_catalog_id = ?");
+        query.setParameter(functionCatalogId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
+    }
+
+    private void _submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
+        final Query query = new Query("INSERT INTO reviews (function_catalog_id, account_id, created_date) VALUES (?, ?, NOW())");
+        query.setParameter(functionCatalogId);
+        query.setParameter(accountId);
 
         _databaseConnection.executeSql(query);
     }

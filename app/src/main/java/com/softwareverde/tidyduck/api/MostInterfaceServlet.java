@@ -24,17 +24,21 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public MostInterfaceServlet() {
+        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionBlockId = Util.parseLong(request.getParameter("function_block_id"));
+                if (functionBlockId >= 1) {
+                    return _listMostInterfaces(functionBlockId, environment.getDatabase());
+                }
+                return _listAllMostInterfaces(environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _insertMostInterface(request, environment.getDatabase());
-            }
-        });
-
-        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
-            @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _listAllMostInterfaces(environment.getDatabase());
             }
         });
 
@@ -54,7 +58,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid interface id.");
                 }
                 return _updateMostInterface(request, mostInterfaceId, environment.getDatabase());
             }
@@ -65,7 +69,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid interface id.");
                 }
                 return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, environment.getDatabase());
             }
@@ -76,7 +80,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid interface id.");
                 }
                 return _listFunctionBlocksContainingMostInterface(mostInterfaceId, environment.getDatabase());
             }
@@ -87,7 +91,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid interface id.");
                 }
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment.getDatabase());
             }
@@ -98,7 +102,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid interface id.");
                 }
                 return _submitMostInterfaceForReview(mostInterfaceId, accountId, environment.getDatabase());
             }

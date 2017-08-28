@@ -240,11 +240,23 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        if (_mostInterfaceHasReview(mostInterfaceId)) {
+            // already present, return
+            return;
+        }
         _submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
     }
 
+    private boolean _mostInterfaceHasReview(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE interface_id = ?");
+        query.setParameter(mostInterfaceId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
+    }
+
     private void _submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
-        final Query query = new Query("INSERT INTO reviews (interface_id, account_id) VALUES (?, ?)");
+        final Query query = new Query("INSERT INTO reviews (interface_id, account_id, created_date) VALUES (?, ?, NOW())");
         query.setParameter(mostInterfaceId);
         query.setParameter(submittingAccountId);
 
