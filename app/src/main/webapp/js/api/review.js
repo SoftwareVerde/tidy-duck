@@ -9,7 +9,7 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
         endpoint += separator + "excludeClosedReviews=true";
     }
     const request = new Request(
-        ENDPOINT_PREFIX + ,
+        ENDPOINT_PREFIX + endpoint,
         {
             method: "GET",
             credentials: "include"

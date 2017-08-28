@@ -34,9 +34,17 @@ class ReviewsPage extends React.Component {
     }
 
     renderReviews() {
+        const reactComponents = [];
         for (let i in this.props.reviews) {
+            const review = this.props.reviews[i];
 
+            reactComponents.push(
+                <div class="review-entry" key={i}>
+                    <span>{review.getReviewName()}</span>
+                </div>
+            );
         }
+        return reactComponents;
     }
 
     render() {

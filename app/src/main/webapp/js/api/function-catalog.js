@@ -1,3 +1,27 @@
+// calls callbackFunction with the function catalog
+function getFunctionCatalog(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionCatalog = null;
+
+        if (data.wasSuccess) {
+            functionCatalog = data.functionCatalog;
+        } else {
+            console.error("Unable to get function catalog: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalog);
+        }
+    });
+}
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogs(callbackFunction) {

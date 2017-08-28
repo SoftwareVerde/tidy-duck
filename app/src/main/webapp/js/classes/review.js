@@ -1,27 +1,59 @@
 class Review {
     static fromJson(json) {
-        this._id = json.id;
-        this._functionCatalog = json.functionCatalogId;
-        this._functionBlock = json.functionBlockId;
-        this._mostInterface = json.mostInterfaceId;
-        this._mostFunction = json.mostFunctionId;
-        this._account = json.accountId;
-        this._createdDate = json.createdDate;
+        let functionCatalog = null;
+        let functionBlock = null;
+        let mostInterface = null;
+        let mostFunction = null;
+        let account = null;
+
+        if (json.functionCatalogId) {
+            getFunctionCatalog(json.functionCatalogId, function (newFunctionCatalog) {
+                functionCatalog = FunctionCatalog.fromJson(newFunctionCatalog);
+            });
+        }
+        if (json.functionBlockId) {
+            getFunctionBlock(json.functionBlockId, function (newFunctionBlock) {
+                functionBlock = FunctionBlock.fromJson(newFunctionBlock);
+            });
+        }
+        if (json.mostInterfaceId) {
+            getMostInterface(json.mostInterfaceId, function (newMostInterface) {
+                mostInterface = MostInterface.fromJson(newMostInterface);
+            });
+        }
+        if (json.mostFunctionId) {
+            getMostFunction(json.mostFunctionId, function (newMostFunction) {
+                mostFunction = MostFunction.fromJson(newMostFunction);
+            });
+        }
+        getAccount(json.accountId, function (newAccount) {
+            account = Account.fromJson(newAccount);
+        });
+
+        const review = new Review();
+        review.setId(json.id);
+        review.setFunctionCatalog(functionCatalog);
+        review.setFunctionBlock(functionBlock);
+        review.setMostInterface(mostInterface);
+        review.setMostFunction(mostFunction);
+        review.setAccount(account);
+        review.setCreatedDate(json.createdDate);
+        return review;
     }
 
     static toJson(review) {
-        const functionCatalogId = this._functionCatalog == null ? null : this._functionCatalog.getId();
-        const functionBlockId = this._functionBlock == null ? null : this._functionBlock.getId();
-        const mostInterfaceId = this._mostInterface == null ? null : this._mostInterface.getId();
-        const mostFunctionId = this._mostFunction == null ? null : this._mostFunction.getId();
+        const functionCatalogId = this._functionCatalog ? this._functionCatalog.getId() : null;
+        const functionBlockId = this._functionBlock ? this._functionBlock.getId() : null;
+        const mostInterfaceId = this._mostInterface ? this._mostInterface.getId() : null;
+        const mostFunctionId = this._mostFunction ? this._mostFunction.getId() : null;
         const accountId = this._account.getId();
 
         return {
             id:                 this._id,
             functionCatalogId:  functionCatalogId,
             functionBlockId:    functionBlockId,
-            mostInterfaceId:    mostInterface,
-            mostFunctionId:     mostFunction,
+            mostInterfaceId:    mostInterfaceId,
+            mostFunctionId:     mostFunctionId,
             accountId:          accountId,
             createdDate:        this._createdDate
         };
@@ -35,5 +67,66 @@ class Review {
         this._mostFunction = null;
         this._account = null;
         this._createdDate = null;
+    }
+
+    getReviewName() {
+        const reviewObject = this._functionCatalog || this._functionBlock || this._mostInterface || this._mostFunction;
+        return reviewObject.getName();
+    }
+
+    setId(id) {
+        this._id = id;
+    }
+
+    getId() {
+        return this._id;
+    }
+
+    setFunctionCatalog(functionCatalog) {
+        this._functionCatalog = functionCatalog;
+    }
+
+    getFunctionCatalog() {
+        return this._functionCatalog;
+    }
+
+    setFunctionBlock(functionBlock) {
+        this._functionBlock = functionBlock;
+    }
+
+    getFunctionBlock() {
+        return this._functionBlock;
+    }
+
+    setMostInterface(mostInterface) {
+        this._mostInterface = mostInterface;
+    }
+
+    getMostInterface() {
+        return this._mostInterface;
+    }
+
+    setMostFunction(mostFunction) {
+        this._mostFunction = mostFunction;
+    }
+
+    getMostFunction() {
+        return this._mostFunction;
+    }
+
+    setAccount(account) {
+        this._account = account;
+    }
+
+    getAccount() {
+        return this._account;
+    }
+
+    setCreatedDate(createdDate) {
+        this._createdDate = createdDate;
+    }
+
+    getCreatedDate() {
+        return this._createdDate;
     }
 }

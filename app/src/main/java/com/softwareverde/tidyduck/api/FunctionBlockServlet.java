@@ -64,6 +64,17 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block id.");
+                }
+                return _getFunctionBlock(functionBlockId, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
@@ -118,6 +129,23 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return _submitFunctionBlockForReview(functionBlockId, accountId, environment.getDatabase());
             }
         });
+    }
+
+    private Json _getFunctionBlock(final long functionBlockId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+
+            final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+            final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+            final Json response = _toJson(functionBlock);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to get function block.", exception);
+            return super._generateErrorJson("Unable to get function block.");
+        }
     }
 
     protected Json _insertFunctionBlock(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {

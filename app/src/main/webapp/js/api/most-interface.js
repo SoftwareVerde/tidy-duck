@@ -1,3 +1,27 @@
+// calls callbackFunction with the most interface
+function getMostInterface(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interfaces/" + mostInterfaceId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterface = null;
+
+        if (data.wasSuccess) {
+            mostInterface = data.mostInterface;
+        } else {
+            console.error("Unable to get most interface: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterface);
+        }
+    });
+}
 
 // calls callbackFunction with an array of MOST interfaces.
 function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {

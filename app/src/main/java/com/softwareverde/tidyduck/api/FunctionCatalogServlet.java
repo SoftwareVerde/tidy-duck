@@ -41,6 +41,17 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _getFunctionCatalog(functionCatalogId, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
@@ -73,6 +84,22 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return _submitFunctionCatalogForReview(functionCatalogId, accountId, environment.getDatabase());
             }
         });
+    }
+
+    private Json _getFunctionCatalog(final Long functionCatalogId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+            final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+            final Json response = _toJson(functionCatalog);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to get function catalog.", exception);
+            return super._generateErrorJson("Unable to get function catalog.");
+        }
     }
 
     protected Json _listFunctionCatalogs(final Database<Connection> database) {

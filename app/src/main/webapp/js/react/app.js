@@ -131,6 +131,7 @@ class App extends React.Component {
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.onTypeCreated = this.onTypeCreated.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
+        this.updateReviews = this.updateReviews.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -142,7 +143,7 @@ class App extends React.Component {
 
         const thisApp = this;
 
-        const account = downloadAccount(function (data) {
+        downloadAccount(function (data) {
             if (data.wasSuccess) {
                 thisApp.setTheme(data.account.theme);
                 thisApp.setState({
@@ -1916,8 +1917,17 @@ class App extends React.Component {
     }
 
     updateReviews() {
-        getReviews(false, true, function(reviews) {
-            this.setState({
+        const thisApp = this;
+        getReviews(false, true, function(reviewsJson) {
+            const reviews = [];
+
+            for (let i in reviewsJson) {
+                const reviewJson = reviewsJson[i];
+                const review = Review.fromJson(reviewJson);
+                reviews.push(review);
+            }
+
+            thisApp.setState({
                 reviews: reviews,
                 isLoadingReviews: false
             })

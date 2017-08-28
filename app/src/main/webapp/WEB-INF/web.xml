@@ -9,6 +9,10 @@
         <servlet-class>com.softwareverde.tidyduck.api.AccountServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>AccountManagement</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.AccountManagementServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Settings</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.SettingsServlet</servlet-class>
     </servlet>
@@ -56,6 +60,11 @@
     <servlet-mapping>
         <servlet-name>Account</servlet-name>
         <url-pattern>/api/v1/account/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>AccountManagement</servlet-name>
+        <url-pattern>/api/v1/account/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
