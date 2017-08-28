@@ -40,6 +40,11 @@ public class ReviewInflater {
     }
 
     public List<Review> inflateReviews(final boolean includeOpenReviews, final boolean includeClosedReviews) throws DatabaseException {
+        // not including either, return nothing
+        if (!includeOpenReviews && !includeClosedReviews) {
+            return new ArrayList<Review>();
+        }
+        // get reviews from database
         String reviewsQuery = LIST_REVIEWS_QUERY;
         if (includeOpenReviews && !includeClosedReviews) {
             reviewsQuery += OPEN_REVIEWS_WHERE_CLAUSE;

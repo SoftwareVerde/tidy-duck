@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.database.ReviewInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -23,13 +24,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("reviews", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                final String includeOpenReviewsString = request.getParameter("includeOpenReviews");
-                final String includeClosedReviewsString = request.getParameter("includeClosedReviews");
+                final String excludeOpenReviewsString = request.getParameter("excludeOpenReviews");
+                final String excludeClosedReviewsString = request.getParameter("excludeClosedReviews");
 
-                final boolean includeOpenReviews = Boolean.parseBoolean(includeOpenReviewsString);
-                final boolean includeClosedReviews = Boolean.parseBoolean(includeClosedReviewsString);
+                final boolean excludeOpenReviews = Boolean.parseBoolean(excludeOpenReviewsString);
+                final boolean excludeClosedReviews = Boolean.parseBoolean(excludeClosedReviewsString);
 
-                return listAllReviews(includeOpenReviews, includeClosedReviews, environment.getDatabase());
+                return listAllReviews(!excludeOpenReviews, !excludeClosedReviews, environment.getDatabase());
             }
         });
     }
@@ -42,7 +43,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             Json reviewsJson = new Json(true);
             for (final Review review : reviews) {
                 final Json reviewJson = _toJson(review);
-                reviewJson.add(reviewJson);
+                reviewsJson.add(reviewJson);
             }
             final Json response = new Json(false);
             response.put("reviews", reviewsJson);
@@ -59,7 +60,21 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     private Json _toJson(final Review review) {
         final Json json = new Json(false);
 
+        Long id = review.getId();
+        Long functionCatalogId = review.getFunctionCatalog() == null ? null : review.getFunctionCatalog().getId();
+        Long functionBlockId = review.getFunctionBlock() == null ? null : review.getFunctionBlock().getId();
+        Long mostInterfaceId = review.getMostInterface() == null ? null : review.getMostInterface().getId();
+        Long mostFunctionId = review.getMostFunction() == null ? null : review.getMostFunction().getId();
+        Long accountId = review.getAccount().getId();
+        String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
 
+        json.put("id", id);
+        json.put("functionCatalogId", functionCatalogId);
+        json.put("functionBlockId", functionBlockId);
+        json.put("mostInterfaceId", mostInterfaceId);
+        json.put("mostFunctionId", mostFunctionId);
+        json.put("accountId", accountId);
+        json.put("createdDate", createdDate);
 
         return json;
     }
