@@ -81,17 +81,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
-                    final Json catalogJson = new Json();
-                    catalogJson.put("id", functionCatalog.getId());
-                    catalogJson.put("name", functionCatalog.getName());
-                    catalogJson.put("releaseVersion", functionCatalog.getRelease());
-                    catalogJson.put("authorId", functionCatalog.getAuthor().getId());
-                    catalogJson.put("authorName", functionCatalog.getAuthor().getName());
-                    catalogJson.put("companyId", functionCatalog.getCompany().getId());
-                    catalogJson.put("companyName", functionCatalog.getCompany().getName());
-                    catalogJson.put("isReleased", functionCatalog.isReleased());
-                    catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
-                    catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
+                    final Json catalogJson = _toJson(functionCatalog);
                     versionsJson.add(catalogJson);
                 }
                 versionSeriesJson.put("versions", versionsJson);
@@ -171,6 +161,21 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final Json response = new Json(false);
         super._setJsonSuccessFields(response);
         return response;
+    }
+
+    protected Json _toJson(final FunctionCatalog functionCatalog) {
+        final Json catalogJson = new Json();
+        catalogJson.put("id", functionCatalog.getId());
+        catalogJson.put("name", functionCatalog.getName());
+        catalogJson.put("releaseVersion", functionCatalog.getRelease());
+        catalogJson.put("authorId", functionCatalog.getAuthor().getId());
+        catalogJson.put("authorName", functionCatalog.getAuthor().getName());
+        catalogJson.put("companyId", functionCatalog.getCompany().getId());
+        catalogJson.put("companyName", functionCatalog.getCompany().getName());
+        catalogJson.put("isReleased", functionCatalog.isReleased());
+        catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
+        catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
+        return catalogJson;
     }
 
     protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Database<Connection> database) throws Exception {

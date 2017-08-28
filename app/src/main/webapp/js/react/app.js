@@ -59,6 +59,7 @@ class App extends React.Component {
             primitiveTypes:             [],
             mostUnits:                  [],
             mostFunctionStereotypes:    [],
+            reviews:                    [],
             activeRole:                 this.roles.release,
             activeSubRole:              null,
             selectedItem:               null,
@@ -75,6 +76,7 @@ class App extends React.Component {
             isLoadingMostTypes:         true,
             isLoadingPrimitiveTypes:    true,
             isLoadingUnits:             true,
+            isLoadingReviews:           true,
             filterString:               null,
             shouldShowFilteredResults:  false,
             shouldShowEditForm:         false
@@ -1913,6 +1915,15 @@ class App extends React.Component {
         });
     }
 
+    updateReviews() {
+        getReviews(false, true, function(reviews) {
+            this.setState({
+                reviews: reviews,
+                isLoadingReviews: false
+            })
+        });
+    }
+
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -1941,12 +1952,12 @@ class App extends React.Component {
                 // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
                 this.setState({
                     currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                    parentHistory:               [],
+                    parentHistory:                  [],
                     activeRole:                     roleName,
                     activeSubRole:                  null,
                     selectedItem:                   null,
                     parentItem:                     null,
-                    proposedItem:               null,
+                    proposedItem:                   null,
                     shouldShowToolbar:              true,
                     shouldShowCreateChildForm:      false,
                     shouldShowSearchChildForm:      false,
@@ -2059,16 +2070,17 @@ class App extends React.Component {
                     shouldShowEditForm:         false,
                     shouldShowToolbar:          false,
                     shouldShowFilteredResults:  false,
-                    isLoadingMostTypes:         true,
-                    isLoadingPrimitiveTypes:    true,
-                    isLoadingUnits:             true,
+                    isLoadingMostTypes:         false,
+                    isLoadingPrimitiveTypes:    false,
+                    isLoadingUnits:             false,
+                    isLoadingReviews:           true,
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
                     activeSubRole:              null,
                     showSettingsPage:           false
                 });
-                thisApp.updateMostTypes();
+                thisApp.updateReviews();
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
@@ -2460,7 +2472,7 @@ class App extends React.Component {
                     // reviews role
                     return (
                         <div id="main-content" className="container">
-                            <app.ReviewsPage />
+                            <app.ReviewsPage reviews={this.state.reviews}/>
                         </div>
                     );
                 } break;

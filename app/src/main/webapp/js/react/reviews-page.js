@@ -2,13 +2,14 @@ class ReviewsPage extends React.Component {
     constructor(props) {
         super(props);
 
-        this.options = ["Create Review", "View Review"];
+        this.options = ["View Review", "Create Review"];
 
         this.state = {
             selectedOption: this.options[0],
             saveButtonText: 'Save'
         };
 
+        this.renderReviews = this.renderReviews.bind(this);
         this.onSave = this.onSave.bind(this);
     }
 
@@ -32,10 +33,16 @@ class ReviewsPage extends React.Component {
         }, 1000);
     }
 
+    renderReviews() {
+        for (let i in this.props.reviews) {
+
+        }
+    }
+
     render() {
         return (
             <div id="reviews-container">
-                
+                {this.renderReviews()}
             </div>
         );
     }
