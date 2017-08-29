@@ -3,9 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.Review;
 
@@ -24,6 +22,7 @@ public class ReviewDatabaseManager {
         final MostInterface mostInterface = review.getMostInterface();
         final MostFunction mostFunction = review.getMostFunction();
         final Account account = review.getAccount();
+        // TODO: double check if createdDate is set during _populateServlet. If not, insert query needs to be updated.
         final Date createdDate = review.getCreatedDate();
 
         Long functionCatalogId = null;

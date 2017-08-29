@@ -35,6 +35,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 return listAllReviews(!excludeOpenReviews, !excludeClosedReviews, environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("reviews", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _insertReview(request, environment.getDatabase());
+            }
+        });
     }
 
     public Json listAllReviews(final boolean includeOpenReviews, final boolean includeClosedReviews, final Database database) {

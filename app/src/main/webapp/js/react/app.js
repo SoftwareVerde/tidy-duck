@@ -1924,6 +1924,7 @@ class App extends React.Component {
     }
 
     onReviewSubmitted(selectedItem) {
+        // TODO: what should happen if an item is already up for approval?
         if (confirm("Submit " + selectedItem.getName() + " for review and approval?")) {
             const review = new Review();
             const currentNavigationLevel = this.state.currentNavigationLevel;
@@ -1944,8 +1945,14 @@ class App extends React.Component {
                     break;
             }
 
-            // TODO: Call submitReview API method.
-            // TODO: what should happen if an item is already up for approval?
+            insertReview(review, function(wasSuccess, reviewId) {
+                if (wasSuccess) {
+                    alert("Request to review " + selectedItem.getName() + " successfully submitted as review ID: " + reviewId);
+                }
+                else {
+                    alert("Unable to submit for review.");
+                }
+            });
         }
     }
 
