@@ -12,7 +12,7 @@ class Account {
         account.setName(name);
         account.setUsername(username);
         account.setCompany(company);
-        account.setSettings = settings;
+        account.setSettings(settings);
 
         return account;
     }
