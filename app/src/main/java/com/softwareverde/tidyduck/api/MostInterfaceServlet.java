@@ -131,7 +131,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
             final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-            final Json response = _toJson(mostInterface);
+            final Json response = new Json(false);
+
+            response.put("mostInterface", _toJson(mostInterface));
 
             _setJsonSuccessFields(response);
             return response;

@@ -4,40 +4,37 @@ class Review {
         let functionBlock = null;
         let mostInterface = null;
         let mostFunction = null;
-        let account = null;
 
         if (json.functionCatalogId) {
-            getFunctionCatalog(json.functionCatalogId, function (newFunctionCatalog) {
-                functionCatalog = FunctionCatalog.fromJson(newFunctionCatalog);
-            });
+            functionCatalog = new FunctionCatalog();
+            functionCatalog.setId(json.functionCatalogId);
         }
         if (json.functionBlockId) {
-            getFunctionBlock(json.functionBlockId, function (newFunctionBlock) {
-                functionBlock = FunctionBlock.fromJson(newFunctionBlock);
-            });
+            functionBlock = new FunctionBlock();
+            functionBlock.setId(json.functionBlockId);
         }
         if (json.mostInterfaceId) {
-            getMostInterface(json.mostInterfaceId, function (newMostInterface) {
-                mostInterface = MostInterface.fromJson(newMostInterface);
-            });
+            mostInterface = new MostInterface();
+            mostInterface.setId(json.mostInterfaceId);
         }
         if (json.mostFunctionId) {
-            getMostFunction(json.mostFunctionId, function (newMostFunction) {
-                mostFunction = MostFunction.fromJson(newMostFunction);
-            });
+            mostFunction = new MostFunction();
+            mostFunction.setId(json.mostFunctionId);
         }
-        getAccount(json.accountId, function (newAccount) {
-            account = Account.fromJson(newAccount);
-        });
+
+        const account = new Account();
+        account.setId(json.accountId);
 
         const review = new Review();
+
         review.setId(json.id);
         review.setFunctionCatalog(functionCatalog);
         review.setFunctionBlock(functionBlock);
         review.setMostInterface(mostInterface);
         review.setMostFunction(mostFunction);
-        review.setAccount(account);
         review.setCreatedDate(json.createdDate);
+        review.setAccount(account);
+
         return review;
     }
 
@@ -69,8 +66,12 @@ class Review {
         this._createdDate = null;
     }
 
+    getReviewObject() {
+        return this._functionCatalog || this._functionBlock || this._mostInterface || this._mostFunction
+    }
+
     getReviewName() {
-        const reviewObject = this._functionCatalog || this._functionBlock || this._mostInterface || this._mostFunction;
+        const reviewObject = this.getReviewObject();
         return reviewObject.getName();
     }
 

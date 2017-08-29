@@ -1,4 +1,20 @@
 class Company {
+    static fromJson(json) {
+        const company = new Company();
+
+        company.setId(json.id);
+        company.setName(json.name);
+
+        return company;
+    }
+
+    static toJson(company) {
+        return {
+            id: this._id,
+            name: this._name
+        };
+    }
+
     constructor() {
         this._id = null;
         this._name  = null;

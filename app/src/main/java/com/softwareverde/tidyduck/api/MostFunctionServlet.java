@@ -81,7 +81,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
             final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 
-            final Json response = _toJson(mostFunction);
+            final Json response = new Json(false);
+
+            response.put("mostFunction", _toJson(mostFunction));
 
             super._setJsonSuccessFields(response);
             return response;
