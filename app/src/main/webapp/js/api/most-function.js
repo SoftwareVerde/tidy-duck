@@ -145,3 +145,25 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
         }
     });
 }
+
+function submitMostFunctionForReview(mostFunctionId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-functions/" + mostFunctionId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit most function for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}

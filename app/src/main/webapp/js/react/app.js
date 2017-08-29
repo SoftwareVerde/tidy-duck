@@ -1924,30 +1924,25 @@ class App extends React.Component {
     }
 
     onReviewSubmitted(selectedItem) {
-        // TODO: what should happen if an item is already up for approval?
         if (confirm("Submit " + selectedItem.getName() + " for review and approval?")) {
-            const review = new Review();
             const currentNavigationLevel = this.state.currentNavigationLevel;
+            let submitFunction = submitFunctionCatalogForReview;
 
-            review.setAccount(this.state.account);
             switch (currentNavigationLevel) {
-                case this.NavigationLevel.functionCatalogs:
-                    review.setFunctionCatalog(selectedItem);
-                    break;
                 case this.NavigationLevel.functionBlocks:
-                    review.setFunctionBlock(selectedItem);
+                    submitFunction = submitFunctionBlockForReview;
                     break;
                 case this.NavigationLevel.mostInterfaces:
-                    review.setMostInterface(selectedItem);
+                    submitFunction = submitMostInterfaceforReview;
                     break;
                 case this.NavigationLevel.mostFunctions:
-                    review.setMostFunction(selectedItem);
+                    submitFunction = submitMostFunctionForReview;
                     break;
             }
 
-            insertReview(review, function(wasSuccess, reviewId) {
+            submitFunction(selectedItem.getId(), function(wasSuccess) {
                 if (wasSuccess) {
-                    alert("Request to review " + selectedItem.getName() + " successfully submitted as review ID: " + reviewId);
+                    alert("Request to review " + selectedItem.getName() + " was successfully submitted.");
                 }
                 else {
                     alert("Unable to submit for review.");
@@ -2322,7 +2317,7 @@ class App extends React.Component {
             // Determine what buttons should be displayed.
             if (selectedItem) {
                 const isReleased = selectedItem.isReleased();
-                shouldShowSubmitForReviewButton = ! isReleased;
+                shouldShowSubmitForReviewButton = ! isReleased && currentNavigationLevel != NavigationLevel.mostFunctions;
                 shouldShowCreateButton = ! isReleased;
                 shouldShowBackButton = true;
                 shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;

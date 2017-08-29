@@ -206,3 +206,25 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         }
     });
 }
+
+function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit interface for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}

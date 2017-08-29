@@ -206,3 +206,25 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
         }
     });
 }
+
+function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-blocks/" + functionBlockId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit function block for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
