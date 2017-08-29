@@ -60,6 +60,7 @@ class App extends React.Component {
             mostUnits:                  [],
             mostFunctionStereotypes:    [],
             reviews:                    [],
+            currentReview:              null,
             activeRole:                 this.roles.release,
             activeSubRole:              null,
             selectedItem:               null,
@@ -132,6 +133,8 @@ class App extends React.Component {
         this.onTypeCreated = this.onTypeCreated.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
         this.updateReviews = this.updateReviews.bind(this);
+
+        this.onReviewSelected = this.onReviewSelected.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -1666,12 +1669,18 @@ class App extends React.Component {
             navigationItems.push(navigationItem);
 
             if (this.state.activeRole == this.roles.development) {
-                if (this.state.activeSubRole == this.developmentRoles.mostInterface) {break;}
+                if (this.state.activeSubRole == this.developmentRoles.mostInterface) {
+                    break;
+                }
                 else if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
-                    if (i >= 1) {break;}
+                    if (i >= 1) {
+                        break;
+                    }
                 }
             }
-            else if (i >= 2) {break;}
+            else if (i >= 2) {
+                break;
+            }
         }
 
         // Functions must have a parent interface.
@@ -1979,6 +1988,29 @@ class App extends React.Component {
         });
     }
 
+    onReviewSelected(review) {
+        this.setState({
+            currentReview:          review,
+            shouldShowToolbar:      true
+        });
+        const reviewObject = review.getReviewObject();
+        const reviewObjectClassName = reviewObject.constructor.name;
+        switch (reviewObjectClassName) {
+            case 'FunctionCatalog': {
+                this.onFunctionCatalogSelected(reviewObject);
+            } break;
+            case 'FunctionBlock': {
+                this.onFunctionBlockSelected(reviewObject);
+            } break;
+            case 'MostInterface': {
+                this.onMostInterfaceSelected(reviewObject);
+            } break;
+            case 'MostFunction': {
+                this.onMostFunctionSelected(reviewObject);
+            }
+        }
+    }
+
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -2027,7 +2059,8 @@ class App extends React.Component {
                     functionBlocks:                 [],
                     mostInterfaces:                 [],
                     navigationItems:                [],
-                    showSettingsPage:               false
+                    showSettingsPage:               false,
+                    currentReview:                  null
                 });
 
                 this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
@@ -2045,7 +2078,7 @@ class App extends React.Component {
 
                 this.setState({
                     navigationItems:            [],
-                    parentHistory:           [],
+                    parentHistory:              [],
                     searchResults:              [],
                     functionCatalogs:           [],
                     selectedItem:               null,
@@ -2061,7 +2094,8 @@ class App extends React.Component {
                     currentNavigationLevel:     newNavigationLevel,
                     activeRole:                 roleName,
                     activeSubRole:              newActiveSubRole,
-                    showSettingsPage:           false
+                    showSettingsPage:           false,
+                    currentReview:              null
                 });
 
                 if (newActiveSubRole === this.developmentRoles.functionBlock) {
@@ -2109,7 +2143,8 @@ class App extends React.Component {
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
                     activeSubRole:              null,
-                    showSettingsPage:           false
+                    showSettingsPage:           false,
+                    currentReview:              null
                 });
                 thisApp.updateMostTypes();
             } break;
@@ -2134,7 +2169,8 @@ class App extends React.Component {
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
                     activeSubRole:              null,
-                    showSettingsPage:           false
+                    showSettingsPage:           false,
+                    currentReview:              null
                 });
                 thisApp.updateReviews();
             } break;
@@ -2314,14 +2350,18 @@ class App extends React.Component {
                     // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
                     switch (currentNavigationLevel) {
                         case this.NavigationLevel.functionBlocks:
-                            backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true)};
+                            backFunction = function() {
+                                thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);
+                            };
                             break;
                         case this.NavigationLevel.mostInterfaces:
                             if (activeSubRole === thisApp.developmentRoles.functionBlock) {
                                 backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
-                                backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);};
+                                backFunction = function() {
+                                    thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);
+                                };
                             }
                             break;
                         case this.NavigationLevel.mostFunctions:
@@ -2527,12 +2567,15 @@ class App extends React.Component {
                 } break;
                 case this.roles.reviews: {
                     // reviews role
-                    return (
-                        <div id="main-content" className="container">
-                            <app.ReviewsPage reviews={this.state.reviews} isLoadingReviews={this.state.isLoadingReviews}/>
-                        </div>
-                    );
-                } break;
+                    const currentReview = this.state.currentReview;
+                    if (!currentReview) {
+                        return (
+                            <div id="main-content" className="container">
+                                <app.ReviewsPage reviews={this.state.reviews} isLoadingReviews={this.state.isLoadingReviews} onReviewSelected={this.onReviewSelected}/>
+                            </div>
+                        );
+                    }
+                } // fall-though if a review is selected
                 default: {
                     // other roles
                     let navigationItems = "";

@@ -31,3 +31,8 @@
 .review-content {
     padding: 5px;
 }
+
+.review-content table th {
+    min-width: 125px;
+    text-align: left;
+}
