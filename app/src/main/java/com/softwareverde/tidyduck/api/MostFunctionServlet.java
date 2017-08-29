@@ -12,49 +12,84 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
-        final Database<Connection> database = environment.getDatabase();
-
-        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-functions".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.POST) {
-                return _insertMostFunction(request, accountId, database);
-            }
-            if (httpMethod == HttpMethod.GET) {
+    public MostFunctionServlet() {
+        super.defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long mostInterfaceId = Util.parseLong(Util.coalesce(request.getParameter("most_interface_id")));
                 if (mostInterfaceId < 1) {
-                    return super._generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface id.");
                 }
-                return _listMostFunctions(mostInterfaceId, database);
+                return _listMostFunctions(mostInterfaceId, environment.getDatabase());
             }
-        }  else {
-            // not base function, must have ID
-            final long mostFunctionId = Util.parseLong(finalUrlSegment);
-            if (mostFunctionId < 1) {
-                return _generateErrorJson("Invalid function id.");
-            }
+        });
 
-            if (httpMethod == HttpMethod.POST) {
-                return _updateMostFunction(request, mostFunctionId, accountId, database);
+        super.defineEndpoint("most-functions", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _insertMostFunction(request, accountId, environment.getDatabase());
             }
-            else if (httpMethod == HttpMethod.DELETE) {
-                return _deleteMostFunctionFromMostInterface(request, mostFunctionId, database);
-            }
+        });
 
+        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
+                if (mostFunctionId < 1) {
+                    return _generateErrorJson("Invalid function id.");
+                }
+                return _getMostFunction(mostFunctionId, environment.getDatabase());
+            }
+        });
+        
+        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
+                if (mostFunctionId < 1) {
+                    return _generateErrorJson("Invalid function id.");
+                }
+                return _updateMostFunction(request, mostFunctionId, accountId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
+                if (mostFunctionId < 1) {
+                    return _generateErrorJson("Invalid function id.");
+                }
+                return _deleteMostFunctionFromMostInterface(request, mostFunctionId, environment.getDatabase());
+            }
+        });
+    }
+
+    protected Json _getMostFunction(final Long mostFunctionId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
+            final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
+
+            final Json response = _toJson(mostFunction);
+
+            super._setJsonSuccessFields(response);
+            return response;
+
+        } catch (final DatabaseException exception) {
+            _logger.error("Unable to get function.", exception);
+            return super._generateErrorJson("Unable to get function.");
         }
-        return super._generateErrorJson("Unimplemented HTTP method in request.");
     }
 
     protected Json _insertMostFunction(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
@@ -143,7 +178,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _listMostFunctions(final long mostInterfaceId, final Database<Connection> database) {
-        try(final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
@@ -288,6 +323,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("mostId", mostFunction.getMostId());
         mostFunctionJson.put("name", mostFunction.getName());
         mostFunctionJson.put("releaseVersion", mostFunction.getRelease());
+        mostFunctionJson.put("isReleased", mostFunction.isReleased());
         mostFunctionJson.put("description", mostFunction.getDescription());
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
         mostFunctionJson.put("returnTypeId", mostFunction.getReturnType().getId());

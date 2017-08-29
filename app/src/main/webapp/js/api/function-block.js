@@ -1,3 +1,27 @@
+// calls callbackFunction with the function block
+function getFunctionBlock(functionBlockId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-blocks/" + functionBlockId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlock = null;
+
+        if (data.wasSuccess) {
+            functionBlock = data.functionBlock;
+        } else {
+            console.error("Unable to get function block: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlock);
+        }
+    });
+}
 
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {

@@ -38,6 +38,7 @@ class MostFunction {
         mostFunction.setDescription(json.description);
         mostFunction.setFunctionType(functionType);
         mostFunction.setReleaseVersion(json.releaseVersion);
+        mostFunction.setIsReleased(json.isReleased);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
         mostFunction.setStereotype(mostFunctionStereotype);
@@ -76,6 +77,7 @@ class MostFunction {
             name:                   mostFunction.getName(),
             description:            mostFunction.getDescription(),
             releaseVersion:         mostFunction.getReleaseVersion(),
+            isReleased:             mostFunction.isReleased(),
             functionType:           mostFunction.getFunctionType(),
             supportsNotification:   mostFunction.getSupportsNotification(),
         };
@@ -131,6 +133,7 @@ class MostFunction {
       this._releaseVersion        = "";
       this._author                = null;
       this._company               = null;
+      this._isReleased            = null;
 
       this._stereotype            = null;
       this._returnType            = null;
@@ -244,4 +247,11 @@ class MostFunction {
         return this._operations;
     }
 
+    setIsReleased(isReleased) {
+        this._isReleased = isReleased;
+    }
+
+    isReleased() {
+        return this._isReleased;
+    }
 }

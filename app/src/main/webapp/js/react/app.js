@@ -20,7 +20,8 @@ class App extends React.Component {
         this.roles = {
             release:          "Release",
             development:      "Development",
-            types:            "Types"
+            types:            "Types",
+            reviews:          "Reviews"
         };
 
         this.developmentRoles = {
@@ -45,40 +46,41 @@ class App extends React.Component {
         };
 
         this.state = {
-            account:                        null,
-            navigationItems:                [],
-            parentHistory:                  [],
-            searchResults:                  [],
-            lastSearchResultTimestamp:      0,
-            functionCatalogs:               [],
-            functionBlocks:                 [],
-            mostInterfaces:                 [],
-            mostFunctions:                  [],
-            mostTypes:                      [],
-            primitiveTypes:                 [],
-            mostUnits:                      [],
-            mostFunctionStereotypes:        [],
-            activeRole:                     this.roles.release,
-            activeSubRole:                  null,
-            selectedItem:                   null,
-            parentItem:                     null,
-            proposedItem:                   null,
-            currentNavigationLevel:         this.NavigationLevel.versions,
-            shouldShowToolbar:              true,
-            shouldShowCreateChildForm:      false,
-            createButtonState:              this.CreateButtonState.normal,
-            selectedFunctionStereotype:     null,
-            shouldShowSearchChildForm:      false,
-            isLoadingChildren:              true,
-            isLoadingSearchResults:         false,
-            isLoadingMostTypes:             true,
-            isLoadingPrimitiveTypes:        true,
-            isLoadingUnits:                 true,
-            filterString:                   null,
-            reviewCommentsString:           null,
-            shouldShowFilteredResults:      false,
-            shouldShowEditForm:             false,
-            shouldShowSubmitForReviewForm:  false
+            account:                    null,
+            navigationItems:            [],
+            parentHistory:              [],
+            searchResults:              [],
+            lastSearchResultTimestamp:  0,
+            functionCatalogs:           [],
+            functionBlocks:             [],
+            mostInterfaces:             [],
+            mostFunctions:              [],
+            mostTypes:                  [],
+            primitiveTypes:             [],
+            mostUnits:                  [],
+            mostFunctionStereotypes:    [],
+            reviews:                    [],
+            activeRole:                 this.roles.release,
+            activeSubRole:              null,
+            selectedItem:               null,
+            parentItem:                 null,
+            proposedItem:               null,
+            currentNavigationLevel:     this.NavigationLevel.versions,
+            shouldShowToolbar:          true,
+            shouldShowCreateChildForm:  false,
+            createButtonState:          this.CreateButtonState.normal,
+            selectedFunctionStereotype: null,
+            shouldShowSearchChildForm:  false,
+            isLoadingChildren:          true,
+            isLoadingSearchResults:     false,
+            isLoadingMostTypes:         true,
+            isLoadingPrimitiveTypes:    true,
+            isLoadingUnits:             true,
+            isLoadingReviews:           true,
+            filterString:               null,
+            reviewCommentString:        null,
+            shouldShowFilteredResults:  false,
+            shouldShowEditForm:         false
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -130,6 +132,7 @@ class App extends React.Component {
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.onTypeCreated = this.onTypeCreated.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
+        this.updateReviews = this.updateReviews.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -141,7 +144,7 @@ class App extends React.Component {
 
         const thisApp = this;
 
-        const account = downloadAccount(function (data) {
+        downloadAccount(function (data) {
             if (data.wasSuccess) {
                 thisApp.setTheme(data.account.theme);
                 thisApp.setState({
@@ -635,7 +638,7 @@ class App extends React.Component {
                 const navigationItems = thisApp.state.navigationItems;
                 const navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostFunction.getName());
-                navigationItem.setIsReleased(thisApp.state.parentItem.isReleased());
+                navigationItem.setIsReleased(mostFunction.isReleased());
                 navigationItem.setHeader(thisApp.headers.mostFunction);
 
                 //Update form to show changes were saved.
@@ -1684,7 +1687,7 @@ class App extends React.Component {
         const navigationItemConfig = new NavigationItemConfig();
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
-        navigationItemConfig.setIsReleased(parentItem.isReleased());
+        navigationItemConfig.setIsReleased(mostFunction.isReleased());
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
@@ -1920,6 +1923,50 @@ class App extends React.Component {
         });
     }
 
+    onReviewSubmitted(selectedItem) {
+        if (confirm("Submit " + selectedItem.getName() + " for review and approval?")) {
+            const review = new Review();
+            const currentNavigationLevel = this.state.currentNavigationLevel;
+
+            review.setAccount(this.state.account);
+            switch (currentNavigationLevel) {
+                case this.NavigationLevel.functionCatalogs:
+                    review.setFunctionCatalog(selectedItem);
+                    break;
+                case this.NavigationLevel.functionBlocks:
+                    review.setFunctionBlock(selectedItem);
+                    break;
+                case this.NavigationLevel.mostInterfaces:
+                    review.setMostInterface(selectedItem);
+                    break;
+                case this.NavigationLevel.mostFunctions:
+                    review.setMostFunction(selectedItem);
+                    break;
+            }
+
+            // TODO: Call submitReview API method.
+            // TODO: what should happen if an item is already up for approval?
+        }
+    }
+
+    updateReviews() {
+        const thisApp = this;
+        getReviews(false, true, function(reviewsJson) {
+            const reviews = [];
+
+            for (let i in reviewsJson) {
+                const reviewJson = reviewsJson[i];
+                const review = Review.fromJson(reviewJson);
+                reviews.push(review);
+            }
+
+            thisApp.setState({
+                reviews: reviews,
+                isLoadingReviews: false
+            })
+        });
+    }
+
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -2056,6 +2103,31 @@ class App extends React.Component {
                 });
                 thisApp.updateMostTypes();
             } break;
+            case this.roles.reviews: {
+                this.setState({
+                    navigationItems:            [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    proposedItem:               null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowEditForm:         false,
+                    shouldShowToolbar:          false,
+                    shouldShowFilteredResults:  false,
+                    isLoadingMostTypes:         false,
+                    isLoadingPrimitiveTypes:    false,
+                    isLoadingUnits:             false,
+                    isLoadingReviews:           true,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:     null,
+                    activeRole:                 roleName,
+                    activeSubRole:              null,
+                    showSettingsPage:           false
+                });
+                thisApp.updateReviews();
+            } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
             }
@@ -2141,7 +2213,7 @@ class App extends React.Component {
                 const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
                 const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
-                    readOnly={this.state.parentItem.isReleased()}
+                    readOnly={this.state.selectedItem.isReleased()}
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
                     buttonTitle={buttonTitle}
@@ -2171,7 +2243,7 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
-        const shouldShowSubmitForReviewForm = this.state.shouldShowSubmitForReviewForm;
+        // const shouldShowSubmitForReviewForm = this.state.shouldShowSubmitForReviewForm;
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
@@ -2195,8 +2267,8 @@ class App extends React.Component {
 
             // Determine what buttons should be displayed.
             if (selectedItem) {
-                const isReleased = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : this.state.parentItem.isReleased();
-                shouldShowSubmitForReviewButton = (currentNavigationLevel != NavigationLevel.mostFunctions) && (! isReleased);
+                const isReleased = selectedItem.isReleased();
+                shouldShowSubmitForReviewButton = ! isReleased;
                 shouldShowCreateButton = ! isReleased;
                 shouldShowBackButton = true;
                 shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;
@@ -2216,7 +2288,6 @@ class App extends React.Component {
                     if (isReleased) {
                         shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
                             (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
-                        // shouldShowForkButton = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : false;
 
                         // Determine fork button functionality
                         if (shouldShowForkButton) {
@@ -2265,7 +2336,7 @@ class App extends React.Component {
                     onCancel={() => this.setState({ shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false, shouldShowSubmitForReviewForm: false })}
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false, shouldShowSubmitForReviewForm: false })}
                     onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowSubmitForReviewForm: false })}
-                    onSubmitForReviewClicked={() => this.setState({shouldShowSubmitForReviewForm: !shouldShowSubmitForReviewForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowEditForm: false })}
+                    onSubmitForReviewClicked={() => this.onReviewSubmitted(selectedItem)}
                     onForkClicked={() => forkFunction(selectedItem)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
                     navigationLevel={this.NavigationLevel}
@@ -2424,6 +2495,8 @@ class App extends React.Component {
         }
 
         if (shouldShowFilterBar) {reactComponents.push(this.renderFilterBar());}
+        // TODO: determine if comments are necessary on initial submit for review
+        /*
         else if (shouldShowSubmitForReviewForm) {
             let submitButton = "";
             if(shouldAnimateCreateButton)  {
@@ -2440,6 +2513,7 @@ class App extends React.Component {
                 </div>
             );
         }
+        */
         return reactComponents;
     }
 
@@ -2460,6 +2534,14 @@ class App extends React.Component {
                         <div id="main-content" className="container">
                             <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
                                            isLoadingTypesPage={this.state.isLoadingMostTypes || this.state.isLoadingPrimitiveTypes || this.state.isLoadingUnits} />
+                        </div>
+                    );
+                } break;
+                case this.roles.reviews: {
+                    // reviews role
+                    return (
+                        <div id="main-content" className="container">
+                            <app.ReviewsPage reviews={this.state.reviews}/>
                         </div>
                     );
                 } break;
@@ -2490,6 +2572,7 @@ class App extends React.Component {
         roleItems.push(this.roles.release);
         roleItems.push(this.roles.development);
         roleItems.push(this.roles.types);
+        roleItems.push(this.roles.reviews);
 
         return (
             <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />

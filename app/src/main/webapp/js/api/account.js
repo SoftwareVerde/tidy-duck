@@ -1,4 +1,25 @@
 
+function getAccount(accountId, callbackFunction) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "account/" + accountId
+        ),
+        function (data) {
+            let account = null;
+
+            if (data.wasSuccess) {
+                account = data.account;
+            } else {
+                console.log("Unable to get account: " + data.errorMessage);
+            }
+
+            if (typeof callbackFunction == "function") {
+                callbackFunction(account);
+            }
+        }
+    );
+}
+
 function downloadAccount(callback) {
     jsonFetch(
         new Request(

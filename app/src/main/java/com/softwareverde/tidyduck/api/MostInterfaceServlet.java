@@ -59,6 +59,17 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _getMostInterface(mostInterfaceId, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
@@ -113,6 +124,22 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _submitMostInterfaceForReview(mostInterfaceId, accountId, environment.getDatabase());
             }
         });
+    }
+
+    private Json _getMostInterface(final Long mostInterfaceId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+            final Json response = _toJson(mostInterface);
+
+            _setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list interfaces", exception);
+            return _generateErrorJson("Unable to list interfaces.");
+        }
     }
 
     protected Json _insertMostInterface(final HttpServletRequest request, final Database database) throws Exception {
