@@ -1,0 +1,14 @@
+
+#reviews-container {
+    background-color: #9DA1AE;
+    color: #FFF !important;
+}
+
+.review-entry:hover {
+    background-color: #C4C7CF !important;
+}
+
+.review-content {
+    background-color: #EEE;
+    color: #333;
+}

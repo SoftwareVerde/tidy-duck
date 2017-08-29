@@ -2207,6 +2207,7 @@ class App extends React.Component {
         document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
         document.getElementById('app-css').href =               '/css/themes/' + themeCssDirectory + '/app.css';
         document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
+        document.getElementById('reviews-css').href =           '/css/themes/' + themeCssDirectory + '/reviews.css';
         document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
         document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
     }

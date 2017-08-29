@@ -47,11 +47,47 @@ class ReviewsPage extends React.Component {
 
             reactComponents.push(
                 <div className="review-entry" key={i}>
-                    <span>{review.getReviewName()}</span>
+                    <div className="review-name">{review.getReviewName()}</div>
+                    <div className="review-content">{this.renderReviewContent(review)}</div>
                 </div>
             );
         }
         return reactComponents;
+    }
+
+    renderReviewContent(review) {
+        const reviewObject = review.getReviewObject();
+        switch (reviewObject.constructor.name) {
+            case 'FunctionCatalog': {
+                // TODO
+                return (
+                    <div>Function catalog review.</div>
+                );
+            } break;
+            case 'FunctionBlock': {
+                // TODO
+                return (
+                    <div>Function block review.</div>
+                );
+            } break;
+            case 'MostInterface': {
+                // TODO
+                return (
+                    <div>Most interface review.</div>
+                );
+            } break;
+            case 'MostFunction': {
+                // TODO
+                return (
+                    <div>Most function review.</div>
+                );
+            } break;
+            default: {
+                return (
+                    <div>Invalid review for {reviewObject.constructor.name}</div>
+                );
+            }
+        }
     }
 
     render() {
