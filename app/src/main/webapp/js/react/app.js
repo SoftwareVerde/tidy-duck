@@ -743,20 +743,21 @@ class App extends React.Component {
         parentHistory.push(parentHistoryItem);
 
         thisApp.setState({
-            navigationItems:            navigationItems,
-            parentHistory:              parentHistory,
-            searchResults:              [],
-            reviewCommentsString:       null,
-            selectedItem:               functionCatalog,
-            parentItem:                 null,
-            proposedItem:               null,
-            functionBlocks:             canUseCachedChildren ? this.state.functionBlocks : [],
-            shouldShowCreateChildForm:  false,
-            shouldShowSearchChildForm:  false,
-            shouldShowEditForm:         false,
-            createButtonState:          thisApp.CreateButtonState.normal,
-            currentNavigationLevel:     thisApp.NavigationLevel.functionCatalogs,
-            isLoadingChildren:          !canUseCachedChildren
+            navigationItems:                navigationItems,
+            parentHistory:                  parentHistory,
+            searchResults:                  [],
+            reviewCommentsString:           null,
+            selectedItem:                   functionCatalog,
+            parentItem:                     null,
+            proposedItem:                   null,
+            functionBlocks:                 canUseCachedChildren ? this.state.functionBlocks : [],
+            shouldShowCreateChildForm:      false,
+            shouldShowSearchChildForm:      false,
+            shouldShowEditForm:             false,
+            shouldShowSubmitForReviewForm:  false,
+            createButtonState:              thisApp.CreateButtonState.normal,
+            currentNavigationLevel:         thisApp.NavigationLevel.functionCatalogs,
+            isLoadingChildren:              !canUseCachedChildren
         });
 
         getFunctionBlocksForFunctionCatalogId(functionCatalog.getId(), function(functionBlocksJson) {
@@ -968,20 +969,20 @@ class App extends React.Component {
         newParentHistory.push(parentHistoryItem);
 
         thisApp.setState({
-            navigationItems:            navigationItems,
-            parentHistory:              newParentHistory,
-            searchResults:              [],
-            selectedItem:               functionBlock,
-            parentItem:                 parentItem,
-            proposedItem:               null,
-            mostInterfaces:             canUseCachedChildren ? this.state.mostInterfaces : [],
-            shouldShowCreateChildForm:  false,
-            shouldShowSearchChildForm:  false,
-            shouldShowEditForm:         false,
-            shouldShowSubmitForReviewForm: false,
-            createButtonState:          thisApp.CreateButtonState.normal,
-            currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
-            isLoadingChildren:          !canUseCachedChildren,
+            navigationItems:                navigationItems,
+            parentHistory:                  newParentHistory,
+            searchResults:                  [],
+            selectedItem:                   functionBlock,
+            parentItem:                     parentItem,
+            proposedItem:                   null,
+            mostInterfaces:                 canUseCachedChildren ? this.state.mostInterfaces : [],
+            shouldShowCreateChildForm:      false,
+            shouldShowSearchChildForm:      false,
+            shouldShowEditForm:             false,
+            shouldShowSubmitForReviewForm:  false,
+            createButtonState:              thisApp.CreateButtonState.normal,
+            currentNavigationLevel:         thisApp.NavigationLevel.functionBlocks,
+            isLoadingChildren:              !canUseCachedChildren,
         });
 
         getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
@@ -1339,19 +1340,20 @@ class App extends React.Component {
         newParentHistory.push(parentHistoryItem);
 
         thisApp.setState({
-            navigationItems:            navigationItems,
-            parentHistory:              newParentHistory,
-            searchResults:              [],
-            selectedItem:               mostInterface,
-            parentItem:                 parentItem,
-            proposedItem:               null,
-            shouldShowCreateChildForm:  false,
-            shouldShowSearchChildForm:  false,
-            shouldShowEditForm:         false,
-            mostFunctions:              canUseCachedChildren ? this.state.mostFunctions : [],
-            createButtonState:          thisApp.CreateButtonState.normal,
-            currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
-            isLoadingChildren:          !canUseCachedChildren
+            navigationItems:                navigationItems,
+            parentHistory:                  newParentHistory,
+            searchResults:                  [],
+            selectedItem:                   mostInterface,
+            parentItem:                     parentItem,
+            proposedItem:                   null,
+            shouldShowCreateChildForm:      false,
+            shouldShowSearchChildForm:      false,
+            shouldShowEditForm:             false,
+            shouldShowSubmitForReviewForm:  false,
+            mostFunctions:                  canUseCachedChildren ? this.state.mostFunctions : [],
+            createButtonState:              thisApp.CreateButtonState.normal,
+            currentNavigationLevel:         thisApp.NavigationLevel.mostInterfaces,
+            isLoadingChildren:              !canUseCachedChildren
         });
 
         this.updateMostTypes();
@@ -1690,16 +1692,17 @@ class App extends React.Component {
         navigationItems.push(navigationItemConfig);
 
         thisApp.setState({
-            navigationItems:            navigationItems,
-            searchResults:              [],
-            selectedItem:               mostFunction,
-            parentItem:                 parentItem,
-            proposedItem:               null,
-            createButtonState:          thisApp.CreateButtonState.normal,
-            currentNavigationLevel:     thisApp.NavigationLevel.mostFunctions,
-            shouldShowCreateChildForm:  false,
-            shouldShowFilteredResults:  false,
-            shouldShowEditForm:         false,
+            navigationItems:                navigationItems,
+            searchResults:                  [],
+            selectedItem:                   mostFunction,
+            parentItem:                     parentItem,
+            proposedItem:                   null,
+            createButtonState:              thisApp.CreateButtonState.normal,
+            currentNavigationLevel:         thisApp.NavigationLevel.mostFunctions,
+            shouldShowCreateChildForm:      false,
+            shouldShowFilteredResults:      false,
+            shouldShowEditForm:             false,
+            shouldShowSubmitForReviewForm:  false
         });
 
         // this.updateMostTypes();
@@ -1837,9 +1840,10 @@ class App extends React.Component {
     handleFunctionStereotypeClick(selectedFunctionStereotype) {
         const shouldShowCreateChildForm = this.state.selectedFunctionStereotype == selectedFunctionStereotype ? !this.state.shouldShowCreateChildForm : true;
         this.setState({
-            shouldShowCreateChildForm:  shouldShowCreateChildForm,
-            selectedFunctionStereotype: selectedFunctionStereotype,
-            shouldShowEditForm:         false
+            shouldShowCreateChildForm:      shouldShowCreateChildForm,
+            selectedFunctionStereotype:     selectedFunctionStereotype,
+            shouldShowEditForm:             false,
+            shouldShowSubmitForReviewForm:  false
         });
     }
 
@@ -2192,13 +2196,13 @@ class App extends React.Component {
             // Determine what buttons should be displayed.
             if (selectedItem) {
                 const isReleased = currentNavigationLevel != NavigationLevel.mostFunctions ? selectedItem.isReleased() : this.state.parentItem.isReleased();
+                shouldShowSubmitForReviewButton = (currentNavigationLevel != NavigationLevel.mostFunctions) && (! isReleased);
                 shouldShowCreateButton = ! isReleased;
                 shouldShowBackButton = true;
                 shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased;
-                    shouldShowSubmitForReviewButton = ! isReleased;
                     shouldShowForkButton = isReleased;
                     forkFunction = this.onUpdateFunctionCatalog;
                 }
@@ -2331,22 +2335,6 @@ class App extends React.Component {
                         />
                     );
                 }
-                else if (shouldShowSubmitForReviewForm) {
-                    let submitButton = "";
-                    if(shouldAnimateCreateButton)  {
-                        submitButton = <div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>;
-                    } else {
-                        // TODO: add submitForReview method
-                        submitButton = <div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={() => console.log("Submitting for review!")}>{buttonTitle}</button></div>;
-                    }
-                    reactComponents.push(
-                        <div key="submitReviewForm" className="metadata-form">
-                            <div className="metadata-form-title">Submit for Review</div>
-                            <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments" value={this.state.reviewCommentsString} onChange={(value) => this.setState({reviewCommentsString: value})}/>
-                            {submitButton}
-                        </div>
-                    );
-                }
                 break;
 
             case NavigationLevel.functionBlocks:
@@ -2436,6 +2424,22 @@ class App extends React.Component {
         }
 
         if (shouldShowFilterBar) {reactComponents.push(this.renderFilterBar());}
+        else if (shouldShowSubmitForReviewForm) {
+            let submitButton = "";
+            if(shouldAnimateCreateButton)  {
+                submitButton = <div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>;
+            } else {
+                // TODO: add submitForReview method
+                submitButton = <div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={() => console.log("Submitting for review!")}>{buttonTitle}</button></div>;
+            }
+            reactComponents.push(
+                <div key="submitReviewForm" className="metadata-form">
+                    <div className="metadata-form-title">Submit for Review</div>
+                    <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments" value={this.state.reviewCommentsString} onChange={(value) => this.setState({reviewCommentsString: value})}/>
+                    {submitButton}
+                </div>
+            );
+        }
         return reactComponents;
     }
 
