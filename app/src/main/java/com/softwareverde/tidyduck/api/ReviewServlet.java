@@ -67,8 +67,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         try {
             final Review review = _populateReviewFromJson(reviewJson, database);
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            // TODO: Use databaseManager to insert new review.
-
+            databaseManager.insertReview(review);
             response.put("reviewId", review.getId());
         }
         catch (final Exception exception) {
