@@ -1927,10 +1927,55 @@ class App extends React.Component {
                 reviews.push(review);
             }
 
+            for (let i in reviews) {
+                const review = reviews[i];
+
+                const updateReviewsState = function() {
+                    thisApp.setState({
+                        reviews: reviews
+                    });
+                }
+
+                if (review.getFunctionCatalog()) {
+                    getFunctionCatalog(review.getFunctionCatalog().getId(), function (functionCatalogJson) {
+                        const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
+                        review.setFunctionCatalog(functionCatalog);
+                        updateReviewsState();
+                    });
+                }
+                if (review.getFunctionBlock()) {
+                    getFunctionBlock(review.getFunctionBlock().getId(), function (functionBlockJson) {
+                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                        review.setFunctionBlock(functionBlock);
+                        updateReviewsState();
+                    });
+                }
+                if (review.getMostInterface()) {
+                    getMostInterface(review.getMostInterface().getId(), function (mostInterfaceJson) {
+                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                        review.setMostInterface(mostInterface);
+                        updateReviewsState();
+                    });
+                }
+                if (review.getMostFunction()) {
+                    getMostFunction(review.getMostFunction().getId(), function (mostFunctionJson) {
+                        const mostFunction = MostFunction.fromJson(mostFunctionJson);
+                        review.setMostFunction(mostFunction);
+                        updateReviewsState();
+                    });
+                }
+                getAccount(review.getAccount().getId(), function (accountJson) {
+                    const account = Account.fromJson(accountJson);
+                    review.setAccount(account);
+                    updateReviewsState();
+                });
+            }
+
+            // all reviews are loaded
             thisApp.setState({
                 reviews: reviews,
                 isLoadingReviews: false
-            })
+            });
         });
     }
 
@@ -1947,6 +1992,7 @@ class App extends React.Component {
                 const mostFunctionStereotype = MostFunctionStereotype.fromJson(mostFunctionStereotypesJson[i]);
                 mostFunctionStereotypes.push(mostFunctionStereotype);
             }
+
             thisApp.setState({
                 mostFunctionStereotypes: mostFunctionStereotypes
             });
@@ -2482,7 +2528,7 @@ class App extends React.Component {
                     // reviews role
                     return (
                         <div id="main-content" className="container">
-                            <app.ReviewsPage reviews={this.state.reviews}/>
+                            <app.ReviewsPage reviews={this.state.reviews} isLoadingReviews={this.state.isLoadingReviews}/>
                         </div>
                     );
                 } break;

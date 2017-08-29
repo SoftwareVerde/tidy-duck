@@ -91,7 +91,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
             final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-            final Json response = _toJson(functionCatalog);
+            final Json response = new Json(false);
+
+            response.put("functionCatalog", _toJson(functionCatalog));
 
             super._setJsonSuccessFields(response);
             return response;

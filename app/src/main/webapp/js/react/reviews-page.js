@@ -34,12 +34,19 @@ class ReviewsPage extends React.Component {
     }
 
     renderReviews() {
+        if (this.props.isLoadingReviews) {
+            return (
+                <div className="center">
+                    <i className="fa fa-3x fa-refresh fa-spin"/>
+                </div>
+            );
+        }
         const reactComponents = [];
         for (let i in this.props.reviews) {
             const review = this.props.reviews[i];
 
             reactComponents.push(
-                <div class="review-entry" key={i}>
+                <div className="review-entry" key={i}>
                     <span>{review.getReviewName()}</span>
                 </div>
             );

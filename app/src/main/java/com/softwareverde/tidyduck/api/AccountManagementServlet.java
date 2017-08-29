@@ -5,8 +5,10 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
@@ -37,7 +39,9 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             final AccountInflater accountInflater = new AccountInflater(databaseConnection);
             final Account account = accountInflater.inflateAccount(accountId);
 
-            final Json response = _toJson(account);
+            final Json response = new Json(false);
+
+            response.put("account", _toJson(account));
 
             _setJsonSuccessFields(response);
             return response;
@@ -54,8 +58,25 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         json.put("id", account.getId());
         json.put("name", account.getName());
         json.put("username", account.getUsername());
-        json.put("companyId", account.getCompany().getId());
-        json.put("companyName", account.getCompany().getName());
+        json.put("company", _toJson(account.getCompany()));
+        json.put("settings", _toJson(account.getSettings()));
+
+        return json;
+    }
+
+    protected Json _toJson(final Company company) {
+        final Json json = new Json(false);
+
+        json.put("id", company.getId());
+        json.put("name", company.getName());
+
+        return json;
+    }
+
+    protected Json _toJson(final Settings settings) {
+        final Json json = new Json(false);
+
+        json.put("theme", settings.getTheme());
 
         return json;
     }

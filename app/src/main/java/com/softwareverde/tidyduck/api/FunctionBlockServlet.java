@@ -137,7 +137,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
             final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-            final Json response = _toJson(functionBlock);
+            final Json response = new Json(false);
+
+            response.put("functionBlock", _toJson(functionBlock));
 
             super._setJsonSuccessFields(response);
             return response;
