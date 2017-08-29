@@ -7,6 +7,7 @@ import com.softwareverde.database.transaction.DatabaseRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.*;
+import com.softwareverde.tidyduck.Review;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,6 +277,17 @@ public class DatabaseManager {
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
                 mostTypeDatabaseManager.updateMostType(mostType);
+            }
+        });
+    }
+
+    // REVIEW METHODS
+    public void insertReview(final Review review) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.insertReview(review);
             }
         });
     }

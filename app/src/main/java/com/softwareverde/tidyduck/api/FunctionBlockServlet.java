@@ -38,7 +38,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return _listAllFunctionBlocks(environment.getDatabase());
                 }
 
-                long functionCatalogId = Util.parseLong(Util.coalesce(requestFunctionCatalogId));
+                final long functionCatalogId = Util.parseLong(Util.coalesce(requestFunctionCatalogId));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog id.");
                 }

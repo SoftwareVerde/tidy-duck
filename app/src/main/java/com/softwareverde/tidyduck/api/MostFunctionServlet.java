@@ -325,6 +325,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("mostId", mostFunction.getMostId());
         mostFunctionJson.put("name", mostFunction.getName());
         mostFunctionJson.put("releaseVersion", mostFunction.getRelease());
+        mostFunctionJson.put("isReleased", mostFunction.isReleased());
         mostFunctionJson.put("description", mostFunction.getDescription());
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
         mostFunctionJson.put("returnTypeId", mostFunction.getReturnType().getId());

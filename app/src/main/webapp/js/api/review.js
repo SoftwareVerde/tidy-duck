@@ -30,3 +30,32 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
         }
     });
 }
+
+// calls callbackFunction with new review ID
+function insertReview(review, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "review" : review
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let reviewId = null;
+        const wasSuccess = data.wasSuccess;
+
+        if (wasSuccess) {
+            reviewId = data.reviewId;
+        } else {
+            console.error("Unable to submit for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, reviewId);
+        }
+    });
+}

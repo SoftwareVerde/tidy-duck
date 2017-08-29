@@ -129,3 +129,25 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
         }
     });
 }
+
+function submitFunctionCatalogForReview(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit function catalog for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
