@@ -7,6 +7,7 @@ import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.Review;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ReviewDatabaseManager {
@@ -22,8 +23,9 @@ public class ReviewDatabaseManager {
         final MostInterface mostInterface = review.getMostInterface();
         final MostFunction mostFunction = review.getMostFunction();
         final Account account = review.getAccount();
-        // TODO: double check if createdDate is set during _populateServlet. If not, insert query needs to be updated.
         final Date createdDate = review.getCreatedDate();
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        final String createdDateString = simpleDateFormat.format(createdDate);
 
         Long functionCatalogId = null;
         Long functionBlockId = null;
@@ -50,7 +52,7 @@ public class ReviewDatabaseManager {
                 .setParameter(mostInterfaceId)
                 .setParameter(mostFunctionId)
                 .setParameter(accountId)
-                .setParameter(createdDate)
+                .setParameter(createdDateString)
         ;
 
         final long reviewId = _databaseConnection.executeSql(query);

@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 public class ReviewServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -94,8 +96,8 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         final Review review = new Review();
 
-        // TODO: populate date from JSON or create new Date().
-
+        // TODO: determine if createdDate should be populated from JSON or create new Date().
+        final Date date = new Date();
         final Account account;
 
         // Inflate review's object.
@@ -129,6 +131,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             throw new Exception("Unable to get the object for review.");
         }
         review.setAccount(account);
+        review.setCreatedDate(date);
 
         return review;
     }
