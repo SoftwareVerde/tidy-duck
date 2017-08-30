@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.ReviewVote;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.Review;
 
@@ -57,5 +58,20 @@ public class ReviewDatabaseManager {
 
         final long reviewId = _databaseConnection.executeSql(query);
         review.setId(reviewId);
+    }
+
+    public void insertReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+        final long reviewId = reviewVote.getReviewId();
+        final long accountId = reviewVote.getAccount().getId();
+        final boolean isUpvote = reviewVote.isUpvote();
+
+        final Query query = new Query("INSERT INTO review_votes (review_id, account_id, created_date, is_upvote) VALUES (?, ?, NOW(), ?)")
+                .setParameter(reviewId)
+                .setParameter(accountId)
+                .setParameter(isUpvote)
+        ;
+        final long reviewVoteId = _databaseConnection.executeSql(query);
+
+        reviewVote.setId(reviewVoteId);
     }
 }
