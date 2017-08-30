@@ -2410,8 +2410,17 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    if (currentNavigationLevel == this.NavigationLevel.functionCatalogs) {
-                        backFunction = this.onRootNavigationItemClicked;
+                    if (activeRole == thisApp.roles.reviews) {
+                        shouldShowNavigationItems = true;
+                        if (navigationItems.length > 1) {
+                            backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                        }
+                        else {
+                            backFunction = function() { thisApp.handleRoleClick(activeRole, null, false); };
+                        }
+                    }
+                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                        backFunction = thisApp.onRootNavigationItemClicked;
                     }
                     else {
                         backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
