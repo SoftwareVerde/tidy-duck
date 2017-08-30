@@ -5,7 +5,9 @@ import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Review {
     private Long _id;
@@ -15,6 +17,7 @@ public class Review {
     private MostFunction _mostFunction = null;
     private Account _account;
     private Date _createdDate;
+    private List<ReviewVote> _reviewVotes = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -71,4 +74,8 @@ public class Review {
     public void setCreatedDate(final Date createdDate) {
         _createdDate = createdDate;
     }
+
+    public List<ReviewVote> getReviewVotes() { return _reviewVotes; }
+
+    public void setReviewVotes(final List<ReviewVote> reviewVotes) { _reviewVotes = reviewVotes;}
 }

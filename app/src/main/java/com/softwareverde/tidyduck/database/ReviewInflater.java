@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
+import com.softwareverde.tidyduck.ReviewVote;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.most.MostFunction;
@@ -104,6 +105,9 @@ public class ReviewInflater {
             final AccountInflater accountInflater = new AccountInflater(_databaseConnection);
             account = accountInflater.inflateAccount(accountId);
         }
+        // inflate review votes
+        final ReviewVoteInflater reviewVoteInflater = new ReviewVoteInflater(_databaseConnection);
+        final List<ReviewVote> reviewVotes = reviewVoteInflater.inflateReviewVotesFromReviewId(id);
 
         // create and return review
         final Review review = new Review();
@@ -114,6 +118,7 @@ public class ReviewInflater {
         review.setMostFunction(mostFunction);
         review.setAccount(account);
         review.setCreatedDate(createdDate);
+        review.setReviewVotes(reviewVotes);
         return review;
     }
 }

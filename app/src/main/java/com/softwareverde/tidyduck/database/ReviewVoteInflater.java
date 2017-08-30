@@ -16,6 +16,21 @@ public class ReviewVoteInflater {
 
     public ReviewVoteInflater(DatabaseConnection<Connection> connection) { _databaseConnection = connection; }
 
+    public List<ReviewVote> inflateReviewVotesFromReviewId(final long reviewId) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM review_votes WHERE review_id = ?");
+        query.setParameter(reviewId);
+
+        final List<ReviewVote> reviewVotes = new ArrayList<ReviewVote>();
+
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final Long reviewVoteId = row.getLong("id");
+            final ReviewVote reviewVote = inflateReviewVote(reviewVoteId);
+            reviewVotes.add(reviewVote);
+        }
+        return reviewVotes;
+    }
+
     public ReviewVote inflateReviewVote(final long reviewVoteId) throws DatabaseException {
         final Query query = new Query("SELECT review_id, account_id, created_date, is_upvote FROM review_votes WHERE id = ?");
         query.setParameter(reviewVoteId);

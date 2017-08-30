@@ -190,13 +190,20 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     private Json _toJson(final Review review) {
         final Json json = new Json(false);
 
-        Long id = review.getId();
-        Long functionCatalogId = review.getFunctionCatalog() == null ? null : review.getFunctionCatalog().getId();
-        Long functionBlockId = review.getFunctionBlock() == null ? null : review.getFunctionBlock().getId();
-        Long mostInterfaceId = review.getMostInterface() == null ? null : review.getMostInterface().getId();
-        Long mostFunctionId = review.getMostFunction() == null ? null : review.getMostFunction().getId();
-        Long accountId = review.getAccount().getId();
-        String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
+        final Long id = review.getId();
+        final Long functionCatalogId = review.getFunctionCatalog() == null ? null : review.getFunctionCatalog().getId();
+        final Long functionBlockId = review.getFunctionBlock() == null ? null : review.getFunctionBlock().getId();
+        final Long mostInterfaceId = review.getMostInterface() == null ? null : review.getMostInterface().getId();
+        final Long mostFunctionId = review.getMostFunction() == null ? null : review.getMostFunction().getId();
+        final Long accountId = review.getAccount().getId();
+        final String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
+        final List<ReviewVote> reviewVotes = review.getReviewVotes();
+
+        final Json reviewVotesJson = new Json(true);
+        for (final ReviewVote reviewVote : reviewVotes) {
+            final Json reviewVoteJson = _toJson(reviewVote);
+            reviewVotesJson.add(reviewVoteJson);
+        }
 
         json.put("id", id);
         json.put("functionCatalogId", functionCatalogId);
@@ -205,8 +212,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         json.put("mostFunctionId", mostFunctionId);
         json.put("accountId", accountId);
         json.put("createdDate", createdDate);
-
-        // TODO: should we add review votes to a review?
+        json.put("reviewVotes", reviewVotesJson);
 
         return json;
     }
