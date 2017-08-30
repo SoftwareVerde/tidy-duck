@@ -206,6 +206,8 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         json.put("accountId", accountId);
         json.put("createdDate", createdDate);
 
+        // TODO: should we add review votes to a review?
+
         return json;
     }
 
