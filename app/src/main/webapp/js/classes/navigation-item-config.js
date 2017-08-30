@@ -1,5 +1,6 @@
 class NavigationItemConfig {
     constructor() {
+        this._id = null;
         this._title = null;
         this._header = null;
         this._isReleased = null;
@@ -8,6 +9,14 @@ class NavigationItemConfig {
         this._iconName = "";
 
         this._form = null;
+    }
+
+    setId(id) {
+        this._id = id;
+    }
+
+    getId() {
+        return this._id;
     }
 
     setTitle(title) {

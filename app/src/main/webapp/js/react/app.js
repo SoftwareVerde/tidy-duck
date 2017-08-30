@@ -128,6 +128,7 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
+        this.updateNavigationItems = this.updateNavigationItems.bind(this);
         this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
@@ -1291,23 +1292,13 @@ class App extends React.Component {
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
         const thisApp = this;
-
-        const navigationItems = [];
-        const parentHistory = this.state.parentHistory;
-        if(this.state.activeRole == this.roles.release) {
-            for (let i in this.state.navigationItems) {
-                const navigationItem = this.state.navigationItems[i];
-                navigationItem.setForm(null);
-                navigationItems.push(navigationItem);
-                if (i >= 1) {break;}
-            }
-        }
-        else if (this.state.activeSubRole != this.developmentRoles.mostInterface) {
-            const navigationItem = this.state.navigationItems[0];
-            navigationItems.push(navigationItem);
-        }
+        const itemId = "mostInterface" + mostInterface.getId();
+        let newNavigationItems = [];
+        let newParentHistory = [];
+        let parentItem = null;
 
         const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setIsReleased(mostInterface.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
@@ -1323,30 +1314,13 @@ class App extends React.Component {
                defaultButtonTitle="Save"
             />
         );
-        navigationItems.push(navigationItemConfig);
 
-        //Preserve reference to interface as a parent.
-        const parentHistoryItem = {
-            id: "mostInterface" + mostInterface.getId(),
-            item: mostInterface,
-        };
-
-        // Preserve reference to parent item.
-        let parentItem = null;
-        let newParentHistory = [];
-        for (let i in parentHistory) {
-            const existingSelectionHistoryItem = parentHistory[i];
-            if (existingSelectionHistoryItem["id"] === parentHistoryItem["id"]) {
-                newParentHistory = parentHistory.slice(0, Number(i));
-                break;
-            }
-            newParentHistory.push(existingSelectionHistoryItem);
-            parentItem = existingSelectionHistoryItem["item"];
-        }
-        newParentHistory.push(parentHistoryItem);
+        this.updateNavigationItems(thisApp, itemId, navigationItemConfig, mostInterface, newNavigationItems, newParentHistory, parentItem);
+        // TODO: why must this be here? Should the same apply for parentHistory?
+        newNavigationItems.push(navigationItemConfig);
 
         thisApp.setState({
-            navigationItems:                navigationItems,
+            navigationItems:                newNavigationItems,
             parentHistory:                  newParentHistory,
             searchResults:                  [],
             selectedItem:                   mostInterface,
@@ -1759,6 +1733,39 @@ class App extends React.Component {
                 callbackFunction();
             }
         }
+    }
+
+    updateNavigationItems(thisApp, itemId, navigationItemConfig, newItem, newNavigationItems, newParentHistory, parentItem) {
+        const navigationItems = thisApp.state.navigationItems;
+        const parentHistory = thisApp.state.parentHistory;
+
+        for (let i in navigationItems) {
+            const existingNavigationItem = navigationItems[i];
+            if (existingNavigationItem.getId() === itemId) {
+                newNavigationItems = navigationItems.slice(0, Number(i));
+                break;
+            }
+            existingNavigationItem.setForm(null);
+            newNavigationItems.push(existingNavigationItem);
+        }
+
+        //Preserve reference to selected item as a parent.
+        const parentHistoryItem = {
+            id: itemId,
+            item: newItem
+        };
+
+        for (let i in parentHistory) {
+            const existingSelectionHistoryItem = parentHistory[i];
+            if (existingSelectionHistoryItem["id"] === itemId) {
+                newParentHistory = parentHistory.slice(0, Number(i));
+                break;
+            }
+            newParentHistory.push(existingSelectionHistoryItem);
+            // Preserve reference to parent item.
+            parentItem = existingSelectionHistoryItem["item"];
+        }
+        newParentHistory.push(parentHistoryItem);
     }
 
     getChildItemsFromVersions(childItemsJson, fromJsonFunction) {
