@@ -66,6 +66,22 @@ public class ReviewInflater {
         return reviews;
     }
 
+    public Review inflateReview(final long reviewId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM reviews WHERE id = ?"
+        );
+        query.setParameter(reviewId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        if (rows.size() == 0) {
+            throw new DatabaseException("Review ID " + reviewId + " not found.");
+        }
+
+        final Row row = rows.get(0);
+
+        return _convertRowToReview(row);
+    }
+
     protected Review _convertRowToReview(final Row row) throws DatabaseException {
         final Long id = row.getLong("id");
         final Long functionCatalogId = row.getLong("function_catalog_id");
@@ -108,6 +124,8 @@ public class ReviewInflater {
         // inflate review votes
         final ReviewVoteInflater reviewVoteInflater = new ReviewVoteInflater(_databaseConnection);
         final List<ReviewVote> reviewVotes = reviewVoteInflater.inflateReviewVotesFromReviewId(id);
+
+        // TODO: inflate comments!
 
         // create and return review
         final Review review = new Review();

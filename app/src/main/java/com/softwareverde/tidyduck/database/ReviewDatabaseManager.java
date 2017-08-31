@@ -10,6 +10,7 @@ import com.softwareverde.tidyduck.Review;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class ReviewDatabaseManager {
     private final DatabaseConnection _databaseConnection;
@@ -83,6 +84,23 @@ public class ReviewDatabaseManager {
                 .setParameter(isUpvote)
                 .setParameter(reviewVoteId)
         ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void deleteReview(final Review review) throws DatabaseException {
+        final long reviewId = review.getId();
+        final List<ReviewVote> reviewVotes = review.getReviewVotes();
+
+        for (ReviewVote reviewVote : reviewVotes) {
+            final long reviewVoteId = reviewVote.getId();
+            deleteReviewVote(reviewVoteId);
+        }
+
+        // TODO: delete comments!
+        final Query query = new Query("DELETE FROM reviews WHERE id = ?")
+                .setParameter(reviewId)
+                ;
 
         _databaseConnection.executeSql(query);
     }
