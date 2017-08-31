@@ -11,6 +11,7 @@ import com.softwareverde.tidyduck.ReviewVote;
 import com.softwareverde.tidyduck.database.*;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
+import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,8 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         try {
             final Json response = new Json(false);
             final Json jsonRequest = _getRequestDataAsJson(request);
-            final ReviewVote reviewVote = _populateReviewVoteFromJson(jsonRequest, accountId, database);
+            final Json reviewVoteJson = jsonRequest.get("reviewVote");
+            final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, accountId, database);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertReviewVote(reviewVote);
@@ -166,6 +168,11 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     private ReviewVote _populateReviewVoteFromJson(final Json reviewVoteJson, final Long accountId, final Database<Connection> database) throws Exception {
         final Long reviewId = reviewVoteJson.getLong("reviewId");
         final boolean isUpvote = reviewVoteJson.getBoolean("isUpvote");
+
+        // Validate inputs
+        if (reviewId < 1) {
+            throw new Exception("Invalid review ID.");
+        }
 
         final ReviewVote reviewVote = new ReviewVote();
         final Account account;

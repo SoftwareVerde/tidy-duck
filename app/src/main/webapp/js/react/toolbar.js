@@ -15,6 +15,10 @@ class Toolbar extends React.Component {
         this.onStereotypeCommandWithAckClicked = this.onStereotypeCommandWithAckClicked.bind(this);
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
         this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
+        this.onUpvoteClicked = this.onUpvoteClicked.bind(this);
+        this.onDownvoteClicked = this.onDownvoteClicked.bind(this);
+        this.renderUpvoteButton = this.renderUpvoteButton.bind(this);
+        this.renderDownvoteButton = this.renderDownvoteButton.bind(this);
         this.renderForkButton = this.renderForkButton.bind(this);
         this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
@@ -89,6 +93,50 @@ class Toolbar extends React.Component {
     onBackButtonClicked() {
         if (typeof this.props.onBackButtonClicked == "function") {
             this.props.onBackButtonClicked();
+        }
+    }
+
+    onUpvoteClicked() {
+        if (typeof this.props.onVoteClicked == "function") {
+            this.props.onVoteClicked(true);
+        }
+    }
+
+    onDownvoteClicked() {
+        if (typeof this.props.onVoteClicked == "function") {
+            this.props.onVoteClicked(false);
+        }
+    }
+
+    renderUpvoteButton() {
+        if (this.props.shouldShowVoteButtons) {
+            const buttonTitle = "Upvote";
+            let icon = "fa fa-4 fa-thumbs-o-up"
+            if (this.props.selectedVote === "isUpvote") {
+                icon = "fa fa-4 fa-thumbs-up";
+            }
+
+            return (
+                <div className="toolbar-item upvote" onClick={this.onUpvoteClicked} title={buttonTitle}>
+                    <i className={icon} />
+                </div>
+            );
+        }
+    }
+
+    renderDownvoteButton() {
+        if (this.props.shouldShowVoteButtons) {
+            const buttonTitle = "Downvote";
+            let icon = "fa fa-4 fa-thumbs-o-down"
+            if (this.props.selectedVote === "isDownvote") {
+                icon = "fa fa-4 fa-thumbs-down";
+            }
+
+            return (
+                <div className="toolbar-item downvote" onClick={this.onDownvoteClicked} title={buttonTitle}>
+                    <i className={icon} />
+                </div>
+            );
         }
     }
 
@@ -282,6 +330,8 @@ class Toolbar extends React.Component {
                     {this.renderNavigationItems()}
                 </div>
                 <div>
+                    {this.renderUpvoteButton()}
+                    {this.renderDownvoteButton()}
                     {this.renderSubmitForReviewButton()}
                     {this.renderForkButton()}
                     {this.renderReleaseButton()}

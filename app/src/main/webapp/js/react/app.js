@@ -138,6 +138,7 @@ class App extends React.Component {
         this.updateReviews = this.updateReviews.bind(this);
 
         this.onReviewSelected = this.onReviewSelected.bind(this);
+        this.onReviewVoteClicked = this.onReviewVoteClicked.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -2011,6 +2012,86 @@ class App extends React.Component {
         }
     }
 
+    onReviewVoteClicked(isUpvote) {
+        const thisApp = this;
+        const currentReview = this.state.currentReview;
+        const currentReviewVotes = currentReview.getReviewVotes();
+        const newReviewNotes = [];
+        const account = currentReview.getAccount();
+        const reviewId = currentReview.getId();
+        let submitNewVote = true;
+
+        const reviewVote = new ReviewVote();
+        reviewVote.setReviewId(reviewId);
+        reviewVote.setAccount(account);
+        reviewVote.setIsUpvote(isUpvote);
+
+        const reviewVoteJson = {
+            reviewId: reviewId,
+            isUpvote: isUpvote
+        };
+
+        // Check existing votes to see if this account has any
+        for (let i in currentReviewVotes) {
+            const currentReviewVote = currentReviewVotes[i]
+            if (currentReviewVote.getAccount().getId() == account.getId()) {
+                submitNewVote = false;
+                if (currentReviewVote.isUpvote() == isUpvote) {
+                    // TODO: Delete existing review vote.
+                }
+                else {
+                    // TODO: Update existing review vote with new isUpvote.
+                }
+                break;
+            }
+            newReviewNotes.push(currentReviewVote);
+        }
+
+        if (submitNewVote) {
+            insertReviewVote(reviewVoteJson, function(wasSuccess, reviewVoteId) {
+                if (wasSuccess) {
+                    reviewVote.setId(reviewVoteId);
+                    currentReviewVotes.push(reviewVote);
+                    currentReview.setReviewVotes(newReviewNotes);
+
+                    thisApp.setState({
+                        currentReview: currentReview
+                    });
+                }
+                else {
+                    alert("Unable to submit vote for approval.");
+                }
+            });
+        }
+        else {
+            currentReview.setReviewVotes(newReviewNotes);
+            thisApp.setState({
+                currentReview: currentReview
+            });
+        }
+    }
+
+    isReviewVoteSelected() {
+        const currentReview = this.state.currentReview;
+        const currentReviewVotes = currentReview.getReviewVotes();
+        const accountId = currentReview.getAccount().getId();
+
+        // Check existing votes to see if this account has any
+        for (let i in currentReviewVotes) {
+            const currentReviewVote = currentReviewVotes[i]
+            if (currentReviewVote.getAccount().getId() == accountId) {
+                if (currentReviewVote.isUpvote()) {
+                    return "isUpvote";
+                }
+                else {
+                    return "isDownvote";
+                }
+            }
+        }
+
+        return false;
+    }
+
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -2312,9 +2393,11 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowCreateButton = true;
             let shouldShowSubmitForReviewButton = false;
+            let shouldShowVoteButtons = false;
             let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
             let forkFunction = null;
+            let selectedVote = null;
 
             // Determine what buttons should be displayed.
             if (selectedItem) {
@@ -2378,6 +2461,8 @@ class App extends React.Component {
                 else {
                     if (activeRole == thisApp.roles.reviews) {
                         shouldShowNavigationItems = true;
+                        shouldShowVoteButtons = true;
+                        selectedVote = this.isReviewVoteSelected();
                         if (navigationItems.length > 1) {
                             backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                         }
@@ -2408,6 +2493,8 @@ class App extends React.Component {
                     navigationItems={navigationItems}
                     functionStereotypes={this.FunctionStereotypes}
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
+                    onVoteClicked={this.onReviewVoteClicked}
+                    selectedVote={selectedVote}
                     shouldShowForkButton={shouldShowForkButton}
                     shouldShowCreateButton={shouldShowCreateButton}
                     shouldShowSearchIcon={shouldShowSearchButton}
@@ -2415,6 +2502,7 @@ class App extends React.Component {
                     shouldShowEditButton={shouldShowEditButton}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
+                    shouldShowVoteButtons={shouldShowVoteButtons}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
                 />

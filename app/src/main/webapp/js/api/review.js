@@ -67,7 +67,7 @@ function insertReviewVote(reviewVote, callbackFunction) {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                "review" : reviewVote
+                "reviewVote" : reviewVote
             })
         }
     );
