@@ -1,4 +1,6 @@
 #!/bin/bash
 
-./gradlew test
+DIR=$(dirname $0)
+cd $DIR/..
+./gradlew clean test
 
