@@ -2,6 +2,7 @@ package com.softwareverde.tomcat.api;
 
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.FakeEnvironment;
+import com.softwareverde.tidyduck.api.AuthenticatedJsonRoute;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.FakeRequest;
 import com.softwareverde.tomcat.servlet.BaseServlet;
@@ -17,13 +18,20 @@ public class ApiUrlRouterTests {
     public void should_return_empty_json_if_no_match_and_no_error_handler_set() throws Exception {
         // Setup
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return new Json();
+            }
+        });
 
         final FakeRequest fakeRequest = new FakeRequest();
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+
 
         // Assert
         Assert.assertEquals((new Json()).toString(), json.toString());
@@ -37,8 +45,7 @@ public class ApiUrlRouterTests {
         errorJson.put("errorMessage", "Invalid endpoint.");
 
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
-        apiUrlRouter.setErrorRoute(new ApiRoute() {
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return errorJson;
@@ -49,7 +56,8 @@ public class ApiUrlRouterTests {
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(errorJson.toString(), json.toString());
@@ -59,14 +67,20 @@ public class ApiUrlRouterTests {
     public void should_return_delegate_response_to_matched_path() throws Exception {
         // Setup
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
+
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return null;
+            }
+        });
 
         final Json objectJson = new Json();
         objectJson.put("wasSuccess", 1);
         objectJson.put("errorMessage", null);
         objectJson.put("object", "Object Value");
 
-        apiUrlRouter.defineEndpoint("objects", BaseServlet.HttpMethod.GET, new ApiRoute() {
+        apiUrlRouter.defineEndpoint("objects", BaseServlet.HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return objectJson;
@@ -77,7 +91,8 @@ public class ApiUrlRouterTests {
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
@@ -87,7 +102,12 @@ public class ApiUrlRouterTests {
     public void should_return_delegate_response_to_matched_path_with_parameter() throws Exception {
         // Setup
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return null;
+            }
+        });
 
         final String objectId = "1";
 
@@ -96,7 +116,7 @@ public class ApiUrlRouterTests {
         objectJson.put("errorMessage", null);
         objectJson.put("object", objectId);
 
-        apiUrlRouter.defineEndpoint("objects/<objectId>", BaseServlet.HttpMethod.GET, new ApiRoute() {
+        apiUrlRouter.defineEndpoint("objects/<objectId>", BaseServlet.HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Json json = new Json();
@@ -111,7 +131,8 @@ public class ApiUrlRouterTests {
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects/"+ objectId);
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
@@ -121,7 +142,13 @@ public class ApiUrlRouterTests {
     public void should_return_delegate_response_to_matched_path_with_multiple_parameters() throws Exception {
         // Setup
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
+
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return null;
+            }
+        });
 
         final String objectId = "1";
         final String childId = "1";
@@ -132,7 +159,7 @@ public class ApiUrlRouterTests {
         objectJson.put("object", objectId);
         objectJson.put("child", childId);
 
-        apiUrlRouter.defineEndpoint("objects/<objectId>/children/<childId>", BaseServlet.HttpMethod.GET, new ApiRoute() {
+        apiUrlRouter.defineEndpoint("objects/<objectId>/children/<childId>", BaseServlet.HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Json json = new Json();
@@ -148,7 +175,8 @@ public class ApiUrlRouterTests {
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects/"+ objectId +"/children/"+ childId);
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
@@ -162,15 +190,14 @@ public class ApiUrlRouterTests {
         errorJson.put("errorMessage", "Invalid endpoint.");
 
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
-        apiUrlRouter.setErrorRoute(new ApiRoute() {
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return errorJson;
             }
         });
 
-        apiUrlRouter.defineEndpoint("objects", BaseServlet.HttpMethod.POST, new ApiRoute() {
+        apiUrlRouter.defineEndpoint("objects", BaseServlet.HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Json json = new Json();
@@ -184,7 +211,8 @@ public class ApiUrlRouterTests {
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(errorJson.toString(), json.toString());
@@ -194,14 +222,19 @@ public class ApiUrlRouterTests {
     public void should_return_delegate_response_to_matched_path_with_trailing_slash() throws Exception {
         // Setup
         final String baseUrl = "/api/v1/";
-        final ApiUrlRouter apiUrlRouter = new ApiUrlRouter(baseUrl);
+        final ApiUrlRouter<AuthenticatedJsonRoute> apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(baseUrl, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return null;
+            }
+        });
 
         final Json objectJson = new Json();
         objectJson.put("wasSuccess", 1);
         objectJson.put("errorMessage", null);
         objectJson.put("object", "Object Value");
 
-        apiUrlRouter.defineEndpoint("objects", BaseServlet.HttpMethod.GET, new ApiRoute() {
+        apiUrlRouter.defineEndpoint("objects", BaseServlet.HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return objectJson;
@@ -212,7 +245,8 @@ public class ApiUrlRouterTests {
         fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects/");
 
         // Action
-        final Json json = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
+        final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, 0L, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
