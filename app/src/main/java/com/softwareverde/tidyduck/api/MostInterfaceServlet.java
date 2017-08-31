@@ -48,10 +48,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/search", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                final String searchString = Util.coalesce(request.getParameter("name"));
+                final String searchString = Util.coalesce(parameters.get("name"));
                 if (searchString.length() < 1) {
                     return _generateErrorJson("Invalid search string for interface.");
                 }

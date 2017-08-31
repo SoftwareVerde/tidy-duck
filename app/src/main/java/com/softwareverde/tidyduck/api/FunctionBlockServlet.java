@@ -40,7 +40,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
                 final long functionCatalogId = Util.parseLong(Util.coalesce(requestFunctionCatalogId));
                 if (functionCatalogId < 1) {
-                    return _generateErrorJson("Invalid function catalog id.");
+                    return _generateErrorJson("Invalid function catalog id: " + functionCatalogId);
                 }
                 return _listFunctionBlocks(functionCatalogId, environment.getDatabase());
             }
@@ -53,10 +53,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/search", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("function-blocks/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                final String searchString = Util.coalesce(request.getParameter("name"));
+                final String searchString = Util.coalesce(parameters.get("name"));
                 if (searchString.length() < 1) {
                     return _generateErrorJson("Invalid search string for function block.");
                 }
@@ -69,7 +69,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _getFunctionBlock(functionBlockId, environment.getDatabase());
             }
@@ -80,7 +80,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _updateFunctionBlock(request, functionBlockId, accountId, environment.getDatabase());
             }
@@ -91,7 +91,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment.getDatabase());
             }
@@ -102,7 +102,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
                 if (functionBlockId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _listFunctionCatalogsForFunctionBlock(functionBlockId, environment.getDatabase());
             }
@@ -113,7 +113,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
                 if (functionBlockId < 1) {
-                    return _generateErrorJson("Invalid function block id.");
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment.getDatabase());
             }
@@ -124,7 +124,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
                 if (functionBlockId < 1) {
-                    return _generateErrorJson("Invalid function block ID.");
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _submitFunctionBlockForReview(functionBlockId, accountId, environment.getDatabase());
             }

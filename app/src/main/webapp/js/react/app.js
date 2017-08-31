@@ -2016,10 +2016,43 @@ class App extends React.Component {
         const thisApp = this;
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const newReviewNotes = [];
         const account = currentReview.getAccount();
         const reviewId = currentReview.getId();
-        let submitNewVote = true;
+
+        // Check existing votes to see if this account has any
+        for (let i in currentReviewVotes) {
+            const currentReviewVote = currentReviewVotes[i]
+            if (currentReviewVote.getAccount().getId() == account.getId()) {
+                const currentReviewVoteId = currentReviewVote.getId();
+                const currentReviewVoteIsUpvote = currentReviewVote.isUpvote();
+
+                if (currentReviewVoteIsUpvote == isUpvote) {
+                    deleteReviewVote(currentReviewVoteId, function(wasSuccess) {
+                        if (! wasSuccess) {
+                            alert("Unable to remove vote for approval.");
+                        }
+
+                        currentReviewVotes.splice(i, 1);
+                        currentReview.setReviewVotes(currentReviewVotes);
+                        thisApp.setState({ currentReview: currentReview });
+                    });
+                }
+                else {
+                    const currentReviewVoteJson = {
+                        reviewId: currentReviewVoteId,
+                        isUpvote: isUpvote
+                    };
+                    updateReviewVote(currentReviewVoteId, currentReviewVoteJson, function(wasSuccess) {
+                        if (! wasSuccess) {
+                            alert("Unable to update vote for approval.");
+                        }
+                        currentReviewVote.setIsUpvote(isUpvote);
+                        thisApp.setState({ currentReview: currentReview });
+                    });
+                }
+                return;
+            }
+        }
 
         const reviewVote = new ReviewVote();
         reviewVote.setReviewId(reviewId);
@@ -2031,44 +2064,18 @@ class App extends React.Component {
             isUpvote: isUpvote
         };
 
-        // Check existing votes to see if this account has any
-        for (let i in currentReviewVotes) {
-            const currentReviewVote = currentReviewVotes[i]
-            if (currentReviewVote.getAccount().getId() == account.getId()) {
-                submitNewVote = false;
-                if (currentReviewVote.isUpvote() == isUpvote) {
-                    // TODO: Delete existing review vote.
-                }
-                else {
-                    // TODO: Update existing review vote with new isUpvote.
-                }
-                break;
+        insertReviewVote(reviewVoteJson, function(wasSuccess, reviewVoteId) {
+            if (wasSuccess) {
+                reviewVote.setId(reviewVoteId);
+                currentReviewVotes.push(reviewVote);
+                currentReview.setReviewVotes(currentReviewVotes);
+
+                thisApp.setState({currentReview: currentReview});
             }
-            newReviewNotes.push(currentReviewVote);
-        }
-
-        if (submitNewVote) {
-            insertReviewVote(reviewVoteJson, function(wasSuccess, reviewVoteId) {
-                if (wasSuccess) {
-                    reviewVote.setId(reviewVoteId);
-                    currentReviewVotes.push(reviewVote);
-                    currentReview.setReviewVotes(newReviewNotes);
-
-                    thisApp.setState({
-                        currentReview: currentReview
-                    });
-                }
-                else {
-                    alert("Unable to submit vote for approval.");
-                }
-            });
-        }
-        else {
-            currentReview.setReviewVotes(newReviewNotes);
-            thisApp.setState({
-                currentReview: currentReview
-            });
-        }
+            else {
+                alert("Unable to submit vote for approval.");
+            }
+        });
     }
 
     isReviewVoteSelected() {
@@ -2402,7 +2409,7 @@ class App extends React.Component {
             // Determine what buttons should be displayed.
             if (selectedItem) {
                 const isReleased = selectedItem.isReleased();
-                shouldShowSubmitForReviewButton = ! isReleased && currentNavigationLevel != NavigationLevel.mostFunctions;
+                shouldShowSubmitForReviewButton = ! isReleased && currentNavigationLevel != NavigationLevel.mostFunctions && activeRole != this.roles.reviews;
                 shouldShowCreateButton = ! isReleased;
                 shouldShowBackButton = true;
                 shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;

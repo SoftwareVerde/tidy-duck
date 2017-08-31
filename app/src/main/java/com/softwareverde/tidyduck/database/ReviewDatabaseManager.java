@@ -74,4 +74,24 @@ public class ReviewDatabaseManager {
 
         reviewVote.setId(reviewVoteId);
     }
+
+    public void updateReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+        final long reviewVoteId = reviewVote.getId();
+        final boolean isUpvote = reviewVote.isUpvote();
+
+        final Query query = new Query("UPDATE review_votes SET is_upvote = ?, created_date = NOW() WHERE id = ?")
+                .setParameter(isUpvote)
+                .setParameter(reviewVoteId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void deleteReviewVote(final long reviewVoteId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM review_votes WHERE id = ?")
+                .setParameter(reviewVoteId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
 }

@@ -302,4 +302,24 @@ public class DatabaseManager {
             }
         });
     }
+
+    public void updateReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.updateReviewVote(reviewVote);
+            }
+        });
+    }
+
+    public void deleteReviewVote(final long reviewVoteId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.deleteReviewVote(reviewVoteId);
+            }
+        });
+    }
 }

@@ -79,11 +79,56 @@ function insertReviewVote(reviewVote, callbackFunction) {
         if (wasSuccess) {
             reviewVoteId = data.reviewVoteId;
         } else {
-            console.error("Unable to submit for review: " + data.errorMessage);
+            console.error("Unable to vote for approval: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, reviewVoteId);
+        }
+    });
+}
+
+function updateReviewVote(reviewVoteId, reviewVote, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews/votes/" + reviewVoteId,
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "reviewVote" : reviewVote
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.error("Unable to update vote for approval: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
+function deleteReviewVote(reviewVoteId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews/votes/" + reviewVoteId,
+        {
+            method: "DELETE",
+            credentials: "include",
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.error("Unable to remove vote for approval: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

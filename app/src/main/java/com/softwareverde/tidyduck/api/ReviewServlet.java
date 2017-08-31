@@ -53,6 +53,28 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 return _insertReviewVote(request, accountId, environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("reviews/votes/<reviewVoteId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final long reviewVoteId = Util.parseLong(parameters.get("reviewVoteId"));
+                if (reviewVoteId < 1) {
+                    return _generateErrorJson("Invalid review vote id: " + reviewVoteId);
+                }
+                return _updateReviewVote(request, reviewVoteId, accountId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("reviews/votes/<reviewVoteId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final long reviewVoteId = Util.parseLong(parameters.get("reviewVoteId"));
+                if (reviewVoteId < 1) {
+                    return _generateErrorJson("Invalid review vote id: " + reviewVoteId);
+                }
+                return _deleteReviewVote(reviewVoteId, environment.getDatabase());
+            }
+        });
     }
 
     public Json listAllReviews(final boolean includeOpenReviews, final boolean includeClosedReviews, final Database database) {
@@ -106,6 +128,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertReviewVote(reviewVote);
 
+            response.put("reviewVoteId", reviewVote.getId());
             super._setJsonSuccessFields(response);
             return response;
         }
@@ -114,6 +137,55 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             _logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
+    }
+
+    private Json _updateReviewVote(final HttpServletRequest httpRequest, final long reviewVoteId, final long accountId, final Database<Connection> database) throws Exception {
+        final Json request = _getRequestDataAsJson(httpRequest);
+        final Json reviewVoteJson = request.get("reviewVote");
+        final Json response = new Json(false);
+
+        try {
+            final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, accountId, database);
+            reviewVote.setId(reviewVoteId);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+
+            if (reviewVoteId < 1) {
+                _logger.error("Invalid review vote ID:  " + reviewVoteId);
+                return super._generateErrorJson("Invalid review vote ID: " + reviewVoteId);
+            }
+
+            databaseManager.updateReviewVote(reviewVote);
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to update review vote: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    private Json _deleteReviewVote(final long reviewVoteId, final Database<Connection> database) throws Exception {
+        try {
+            // Validate input
+            if (reviewVoteId < 1) {
+                _logger.error("Unable to parse review vote ID: " + reviewVoteId);
+                return super._generateErrorJson("Invalid review vote ID: " + reviewVoteId);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.deleteReviewVote(reviewVoteId);
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to insert Interface.", exception);
+            return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+        }
+
+        final Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
     }
 
     private Review _populateReviewFromJson(final Json reviewJson, final Database<Connection> database) throws Exception {
