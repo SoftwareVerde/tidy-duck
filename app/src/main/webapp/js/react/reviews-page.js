@@ -2,35 +2,19 @@ class ReviewsPage extends React.Component {
     constructor(props) {
         super(props);
 
-        this.options = ["View Review", "Create Review"];
-
-        this.state = {
-            selectedOption: this.options[0],
-            saveButtonText: 'Save'
-        };
-
+        this.onReviewSelected = this.onReviewSelected.bind(this);
         this.renderReviews = this.renderReviews.bind(this);
-        this.onSave = this.onSave.bind(this);
+        this.renderReviewContent = this.renderReviewContent.bind(this);
     }
 
     componentWillReceiveProps(newProps) {
-        this.state = {
-            selectedOption: this.options[0],
-            saveButtonText: 'Save'
-        };
+
     }
 
-    onSave() {
-        const thisApp = this;
-        this.setState({
-            saveButtonText: <i className="fa fa-refresh fa-spin"></i>
-        });
-
-        setTimeout(function() {
-            thisApp.setState({
-                saveButtonText: "Saved"
-            });
-        }, 1000);
+    onReviewSelected(review) {
+        if (typeof this.props.onReviewSelected == "function") {
+            this.props.onReviewSelected(review);
+        }
     }
 
     renderReviews() {
@@ -46,7 +30,7 @@ class ReviewsPage extends React.Component {
             const review = this.props.reviews[i];
 
             reactComponents.push(
-                <div className="review-entry" key={i}>
+                <div className="review-entry" key={i} onClick={() => this.onReviewSelected(review)}>
                     <div className="review-name">{review.getReviewName()}</div>
                     <div className="review-content">{this.renderReviewContent(review)}</div>
                 </div>

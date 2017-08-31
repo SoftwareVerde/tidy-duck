@@ -60,6 +60,7 @@ class App extends React.Component {
             mostUnits:                  [],
             mostFunctionStereotypes:    [],
             reviews:                    [],
+            currentReview:              null,
             activeRole:                 this.roles.release,
             activeSubRole:              null,
             selectedItem:               null,
@@ -127,12 +128,16 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
 
+        this.updateNavigationItems = this.updateNavigationItems.bind(this);
+        this.updateParentHistory = this.updateParentHistory.bind(this);
         this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.onTypeCreated = this.onTypeCreated.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
         this.updateReviews = this.updateReviews.bind(this);
+
+        this.onReviewSelected = this.onReviewSelected.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -710,6 +715,7 @@ class App extends React.Component {
         const parentHistory = [];
 
         const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setId("functionCatalog" + functionCatalog.getId());
         navigationItemConfig.setTitle(functionCatalog.getName());
         navigationItemConfig.setIsReleased(functionCatalog.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
@@ -924,17 +930,13 @@ class App extends React.Component {
 
     onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
         const thisApp = this;
-
-        const navigationItems = [];
-        const parentHistory = this.state.parentHistory;
-
-        if (this.state.activeRole === this.roles.release) {
-            const navigationItem = this.state.navigationItems[0];
-            navigationItem.setForm(null);
-            navigationItems.push(navigationItem);
-        }
+        const itemId = "functionBlock" + functionBlock.getId();
+        let newParentHistory = [];
+        const parentItem = this.updateParentHistory(itemId, functionBlock, newParentHistory);
+        let newNavigationItems = [];
 
         const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(functionBlock.getName());
         navigationItemConfig.setIsReleased(functionBlock.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.functionBlock);
@@ -950,29 +952,11 @@ class App extends React.Component {
                 defaultButtonTitle="Save"
             />
         );
-        navigationItems.push(navigationItemConfig);
 
-        // Preserve reference to Function Block as a parent.
-        const parentHistoryItem = {
-            id: "functionBlock" + functionBlock.getId(),
-            item: functionBlock,
-        };
-
-        let parentItem = null;
-        let newParentHistory = [];
-        for (let i in parentHistory) {
-            const existingSelectionHistoryItem = parentHistory[i];
-            if (existingSelectionHistoryItem["id"] === parentHistoryItem["id"]) {
-                newParentHistory = parentHistory.slice(0, Number(i));
-                break;
-            }
-            newParentHistory.push(existingSelectionHistoryItem);
-            parentItem = existingSelectionHistoryItem["item"];
-        }
-        newParentHistory.push(parentHistoryItem);
+        this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
         thisApp.setState({
-            navigationItems:                navigationItems,
+            navigationItems:                newNavigationItems,
             parentHistory:                  newParentHistory,
             searchResults:                  [],
             selectedItem:                   functionBlock,
@@ -1288,23 +1272,13 @@ class App extends React.Component {
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
         const thisApp = this;
-
-        const navigationItems = [];
-        const parentHistory = this.state.parentHistory;
-        if(this.state.activeRole == this.roles.release) {
-            for (let i in this.state.navigationItems) {
-                const navigationItem = this.state.navigationItems[i];
-                navigationItem.setForm(null);
-                navigationItems.push(navigationItem);
-                if (i >= 1) {break;}
-            }
-        }
-        else if (this.state.activeSubRole != this.developmentRoles.mostInterface) {
-            const navigationItem = this.state.navigationItems[0];
-            navigationItems.push(navigationItem);
-        }
+        const itemId = "mostInterface" + mostInterface.getId();
+        let newParentHistory = [];
+        const parentItem = this.updateParentHistory(itemId, mostInterface, newParentHistory);
+        let newNavigationItems = [];
 
         const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setIsReleased(mostInterface.isReleased());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
@@ -1320,30 +1294,11 @@ class App extends React.Component {
                defaultButtonTitle="Save"
             />
         );
-        navigationItems.push(navigationItemConfig);
 
-        //Preserve reference to interface as a parent.
-        const parentHistoryItem = {
-            id: "mostInterface" + mostInterface.getId(),
-            item: mostInterface,
-        };
-
-        // Preserve reference to parent item.
-        let parentItem = null;
-        let newParentHistory = [];
-        for (let i in parentHistory) {
-            const existingSelectionHistoryItem = parentHistory[i];
-            if (existingSelectionHistoryItem["id"] === parentHistoryItem["id"]) {
-                newParentHistory = parentHistory.slice(0, Number(i));
-                break;
-            }
-            newParentHistory.push(existingSelectionHistoryItem);
-            parentItem = existingSelectionHistoryItem["item"];
-        }
-        newParentHistory.push(parentHistoryItem);
+        this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
         thisApp.setState({
-            navigationItems:                navigationItems,
+            navigationItems:                newNavigationItems,
             parentHistory:                  newParentHistory,
             searchResults:                  [],
             selectedItem:                   mostInterface,
@@ -1663,28 +1618,13 @@ class App extends React.Component {
 
     onMostFunctionSelected(mostFunction) {
         const thisApp = this;
-        // Set all navigation forms to null, since editing functions occurs in metadata form.
-        const navigationItems = [];
-        for (let i in this.state.navigationItems) {
-            const navigationItem = this.state.navigationItems[i];
-            navigationItem.setForm(null);
-            navigationItems.push(navigationItem);
-
-            if (this.state.activeRole == this.roles.development) {
-                if (this.state.activeSubRole == this.developmentRoles.mostInterface) {break;}
-                else if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
-                    if (i >= 1) {break;}
-                }
-            }
-            else if (i >= 2) {break;}
-        }
-
-        // Functions must have a parent interface.
-        // Retrieve reference to parent interface, which is always the last entry in parentHistory.
-        const parentHistory = this.state.parentHistory;
-        const parentItem = parentHistory[parentHistory.length-1]["item"];
+        const itemId = "mostFunction" + mostFunction.getId();
+        let newParentHistory = [];
+        const parentItem = this.updateParentHistory(itemId, mostFunction, newParentHistory);
+        let newNavigationItems = [];
 
         const navigationItemConfig = new NavigationItemConfig();
+        navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
         navigationItemConfig.setIsReleased(mostFunction.isReleased());
@@ -1692,10 +1632,11 @@ class App extends React.Component {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
         navigationItemConfig.setForm(null);
-        navigationItems.push(navigationItemConfig);
+
+        this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
         thisApp.setState({
-            navigationItems:                navigationItems,
+            navigationItems:                newNavigationItems,
             searchResults:                  [],
             selectedItem:                   mostFunction,
             parentItem:                     parentItem,
@@ -1750,6 +1691,39 @@ class App extends React.Component {
                 callbackFunction();
             }
         }
+    }
+
+    updateNavigationItems(itemId, navigationItemConfig, newNavigationItems) {
+        const navigationItems = this.state.navigationItems;
+        for (let i in navigationItems) {
+            const existingNavigationItem = navigationItems[i];
+            if (existingNavigationItem.getId() === itemId) {
+                break;
+            }
+            existingNavigationItem.setForm(null);
+            newNavigationItems.push(existingNavigationItem);
+        }
+        newNavigationItems.push(navigationItemConfig);
+    }
+
+    updateParentHistory(itemId, newItem, newParentHistory) {
+        const parentHistory = this.state.parentHistory;
+        let parentItem = null;
+        const parentHistoryItem = {
+            id: itemId,
+            item: newItem
+        };
+
+        for (let i in parentHistory) {
+            const existingSelectionHistoryItem = parentHistory[i];
+            if (existingSelectionHistoryItem["id"] === itemId) { break; }
+            newParentHistory.push(existingSelectionHistoryItem);
+            // Preserve reference to parent item.
+            parentItem = existingSelectionHistoryItem["item"];
+        }
+        newParentHistory.push(parentHistoryItem);
+
+        return parentItem;
     }
 
     getChildItemsFromVersions(childItemsJson, fromJsonFunction) {
@@ -2014,6 +1988,29 @@ class App extends React.Component {
         });
     }
 
+    onReviewSelected(review) {
+        this.setState({
+            currentReview:          review,
+            shouldShowToolbar:      true
+        });
+        const reviewObject = review.getReviewObject();
+        const reviewObjectClassName = reviewObject.constructor.name;
+        switch (reviewObjectClassName) {
+            case 'FunctionCatalog': {
+                this.onFunctionCatalogSelected(reviewObject);
+            } break;
+            case 'FunctionBlock': {
+                this.onFunctionBlockSelected(reviewObject);
+            } break;
+            case 'MostInterface': {
+                this.onMostInterfaceSelected(reviewObject);
+            } break;
+            case 'MostFunction': {
+                this.onMostFunctionSelected(reviewObject);
+            }
+        }
+    }
+
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -2063,7 +2060,8 @@ class App extends React.Component {
                     functionBlocks:                 [],
                     mostInterfaces:                 [],
                     navigationItems:                [],
-                    showSettingsPage:               false
+                    showSettingsPage:               false,
+                    currentReview:                  null
                 });
 
                 this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
@@ -2098,7 +2096,8 @@ class App extends React.Component {
                     currentNavigationLevel:     newNavigationLevel,
                     activeRole:                 roleName,
                     activeSubRole:              newActiveSubRole,
-                    showSettingsPage:           false
+                    showSettingsPage:           false,
+                    currentReview:              null
                 });
 
                 if (newActiveSubRole === this.developmentRoles.functionBlock) {
@@ -2147,13 +2146,15 @@ class App extends React.Component {
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
                     activeSubRole:              null,
-                    showSettingsPage:           false
+                    showSettingsPage:           false,
+                    currentReview:              null
                 });
                 thisApp.updateMostTypes();
             } break;
             case this.roles.reviews: {
                 this.setState({
                     navigationItems:            [],
+                    parentHistory:              [],
                     searchResults:              [],
                     functionCatalogs:           [],
                     selectedItem:               null,
@@ -2172,7 +2173,8 @@ class App extends React.Component {
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
                     activeSubRole:              null,
-                    showSettingsPage:           false
+                    showSettingsPage:           false,
+                    currentReview:              null
                 });
                 thisApp.updateReviews();
             } break;
@@ -2354,14 +2356,18 @@ class App extends React.Component {
                     // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
                     switch (currentNavigationLevel) {
                         case this.NavigationLevel.functionBlocks:
-                            backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true)};
+                            backFunction = function() {
+                                thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);
+                            };
                             break;
                         case this.NavigationLevel.mostInterfaces:
                             if (activeSubRole === thisApp.developmentRoles.functionBlock) {
                                 backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
-                                backFunction = function() {thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);};
+                                backFunction = function() {
+                                    thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);
+                                };
                             }
                             break;
                         case this.NavigationLevel.mostFunctions:
@@ -2370,8 +2376,17 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    if (currentNavigationLevel == this.NavigationLevel.functionCatalogs) {
-                        backFunction = this.onRootNavigationItemClicked;
+                    if (activeRole == thisApp.roles.reviews) {
+                        shouldShowNavigationItems = true;
+                        if (navigationItems.length > 1) {
+                            backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                        }
+                        else {
+                            backFunction = function() { thisApp.handleRoleClick(activeRole, null, false); };
+                        }
+                    }
+                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                        backFunction = thisApp.onRootNavigationItemClicked;
                     }
                     else {
                         backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
@@ -2588,12 +2603,15 @@ class App extends React.Component {
                 } break;
                 case this.roles.reviews: {
                     // reviews role
-                    return (
-                        <div id="main-content" className="container">
-                            <app.ReviewsPage reviews={this.state.reviews} isLoadingReviews={this.state.isLoadingReviews}/>
-                        </div>
-                    );
-                } break;
+                    const currentReview = this.state.currentReview;
+                    if (!currentReview) {
+                        return (
+                            <div id="main-content" className="container">
+                                <app.ReviewsPage reviews={this.state.reviews} isLoadingReviews={this.state.isLoadingReviews} onReviewSelected={this.onReviewSelected}/>
+                            </div>
+                        );
+                    }
+                } // fall-though if a review is selected
                 default: {
                     // other roles
                     let navigationItems = "";
