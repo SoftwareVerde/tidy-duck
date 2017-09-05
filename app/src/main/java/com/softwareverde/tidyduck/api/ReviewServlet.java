@@ -362,11 +362,18 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         final Long accountId = review.getAccount().getId();
         final String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
         final List<ReviewVote> reviewVotes = review.getReviewVotes();
+        final List<ReviewComment> reviewComments = review.getReviewComments();
 
         final Json reviewVotesJson = new Json(true);
         for (final ReviewVote reviewVote : reviewVotes) {
             final Json reviewVoteJson = _toJson(reviewVote);
             reviewVotesJson.add(reviewVoteJson);
+        }
+
+        final Json reviewCommentsJson = new Json(true);
+        for (final ReviewComment reviewComment : reviewComments) {
+            final Json reviewCommentJson = _toJson(reviewComment);
+            reviewCommentsJson.add(reviewCommentJson);
         }
 
         json.put("id", id);
@@ -377,6 +384,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         json.put("accountId", accountId);
         json.put("createdDate", createdDate);
         json.put("reviewVotes", reviewVotesJson);
+        json.put("reviewComments", reviewCommentsJson);
 
         return json;
     }

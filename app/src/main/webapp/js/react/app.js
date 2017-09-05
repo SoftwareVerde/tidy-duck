@@ -45,12 +45,6 @@ class App extends React.Component {
             requestResponse:            "Request/Response"
         };
 
-        this.TestComments = ["This is amazing! Great work!", "I haven't seen my family for days....DAYS!",
-                                "The dawn is coming.", "I left a comment here and all I got was this stupid t-shirt...",
-                                "Can...you...feel...myyy...infinite!.....POWAAAHHHHHHHHHHH!?!?!?!?!?!?!?!?!??!?!?!?!?!?!?!?!?",
-                                "'Ello mate!"
-                            ];
-
         this.state = {
             account:                    null,
             navigationItems:            [],
@@ -1985,6 +1979,24 @@ class App extends React.Component {
                     review.setAccount(account);
                     updateReviewsState();
                 });
+                const reviewVotes = review.getReviewVotes();
+                for (let i in reviewVotes) {
+                    const reviewVote = reviewVotes[i];
+                    getAccount(reviewVote.getAccount().getId(), function (accountJson) {
+                        const account = Account.fromJson(accountJson);
+                        reviewVote.setAccount(account);
+                        updateReviewsState();
+                    });
+                }
+                const reviewComments = review.getReviewComments();
+                for (let i in reviewComments) {
+                    const reviewComment = reviewComments[i];
+                    getAccount(reviewComment.getAccount().getId(), function (accountJson) {
+                        const account = Account.fromJson(accountJson);
+                        reviewComment.setAccount(account);
+                        updateReviewsState();
+                    });
+                }
             }
 
             // all reviews are loaded
@@ -2661,7 +2673,7 @@ class App extends React.Component {
         if (shouldShowApprovalForm) {
             reactComponents.push(
                 <app.ApprovalForm key="approvalForm"
-                                  reviewComments={this.TestComments}
+                                  review={this.state.currentReview}
                                   shouldShowVoteButtons={true}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}

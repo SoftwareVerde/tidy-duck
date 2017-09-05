@@ -64,17 +64,16 @@ class ApprovalForm extends React.Component{
     }
 
     renderComments() {
-       const reactComponents = [];
-       const comments = this.props.reviewComments;
+        const reactComponents = [];
+        const review = this.props.review;
+        const comments = review.getReviewComments();
 
-       for (let i in comments) {
-           const key = "comment" + i;
-           // TODO: insert name of commenter into label variable.
-           const label = " said";
-           reactComponents.push(<app.InputField key={key} id={key} name="comment" type="textarea" label={label} value={comments[i]} readOnly={true} />);
-       }
+        for (let i in comments) {
+            const comment = comments[i];
+            reactComponents.push(<app.ReviewComment key={i} reviewComment={comment} />);
+        }
 
-       return (<div className="comments-area">{reactComponents}</div>);
+        return (<div className="comments-area">{reactComponents}</div>);
     }
 
     render() {

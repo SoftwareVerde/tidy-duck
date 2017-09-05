@@ -36,3 +36,19 @@
     min-width: 125px;
     text-align: left;
 }
+
+.review-comment {
+    margin: 10px;
+    border: black solid thin;
+}
+
+.review-comment-header {
+    color: #333;
+    padding: 5px;
+    background-color: rgba(100, 100, 100, 0.3);
+}
+
+.review-comment-content {
+    font-size: 110%;
+    padding: 5px;
+}
