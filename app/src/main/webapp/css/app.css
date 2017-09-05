@@ -198,6 +198,47 @@
     font-size: x-large;
 }
 
+.approval-form {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.approval-form .comments-area {
+    width: 50%;
+    height: 250px;
+    display: inline-block;
+    overflow: scroll;
+}
+
+.approval-form .vote-area {
+    width: 50%;
+    height: 250px;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.approval-form .toolbar {
+    text-align: center;
+    padding-top: 2em;
+    display: block;
+}
+
+.comments-area .input-field, .vote-area .input-field {
+    width: 100%;
+}
+
+.vote-area .submit-comment-form {
+    float: left;
+    text-align: center;
+    max-width: 75%;
+}
+
+.vote-area .button {
+    width: 50%;
+    margin: 0;
+}
+
 .search-result-form i.loading-results {
     margin: 5px;
 }
