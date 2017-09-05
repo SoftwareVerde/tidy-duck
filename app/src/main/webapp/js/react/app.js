@@ -2394,6 +2394,7 @@ class App extends React.Component {
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
         let selectedVote = null;
+        let shouldShowVoteButtons = false;
 
         const reactComponents = [];
         const thisApp = this;
@@ -2408,7 +2409,6 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowCreateButton = true;
             let shouldShowSubmitForReviewButton = false;
-            let shouldShowVoteButtons = false;
             let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
             let forkFunction = null;
@@ -2476,6 +2476,14 @@ class App extends React.Component {
                     if (activeRole == thisApp.roles.reviews) {
                         shouldShowNavigationItems = true;
                         shouldShowVoteButtons = true;
+                        shouldShowBackButton = true;
+                        shouldShowForkButton = false;
+                        shouldShowEditButton = false;
+                        shouldShowSearchButton = false;
+                        shouldShowCreateButton = false;
+                        shouldShowSubmitForReviewButton = false;
+                        shouldShowReleaseButton = false;
+
                         selectedVote = this.isReviewVoteSelected();
                         if (navigationItems.length > 1) {
                             backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
@@ -2663,7 +2671,7 @@ class App extends React.Component {
             reactComponents.push(
                 <app.ApprovalForm key="approvalForm"
                                   reviewComments={this.TestComments}
-                                  shouldShowVoteButtons={true}
+                                  shouldShowVoteButtons={shouldShowVoteButtons}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
                 />
