@@ -43,9 +43,7 @@
 }
 
 .review-comment-header {
-    color: #333;
     padding: 5px;
-    background-color: rgba(100, 100, 100, 0.3);
 }
 
 .review-comment-content {
