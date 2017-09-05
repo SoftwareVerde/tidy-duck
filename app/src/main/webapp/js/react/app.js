@@ -45,6 +45,12 @@ class App extends React.Component {
             requestResponse:            "Request/Response"
         };
 
+        this.TestComments = ["This is amazing! Great work!", "I haven't seen my family for days....DAYS!",
+                                "The dawn is coming.", "I left a comment here and all I got was this stupid t-shirt...",
+                                "Can...you...feel...myyy...infinite!.....POWAAAHHHHHHHHHHH!?!?!?!?!?!?!?!?!??!?!?!?!?!?!?!?!?",
+                                "'Ello mate!"
+                            ];
+
         this.state = {
             account:                    null,
             navigationItems:            [],
@@ -2385,6 +2391,8 @@ class App extends React.Component {
         // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
+        const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
+        let selectedVote = null;
 
         const reactComponents = [];
         const thisApp = this;
@@ -2403,7 +2411,6 @@ class App extends React.Component {
             let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
             let forkFunction = null;
-            let selectedVote = null;
 
             // Determine what buttons should be displayed.
             if (selectedItem) {
@@ -2499,8 +2506,6 @@ class App extends React.Component {
                     navigationItems={navigationItems}
                     functionStereotypes={this.FunctionStereotypes}
                     handleFunctionStereotypeClick={this.handleFunctionStereotypeClick}
-                    onVoteClicked={this.onReviewVoteClicked}
-                    selectedVote={selectedVote}
                     shouldShowForkButton={shouldShowForkButton}
                     shouldShowCreateButton={shouldShowCreateButton}
                     shouldShowSearchIcon={shouldShowSearchButton}
@@ -2508,7 +2513,6 @@ class App extends React.Component {
                     shouldShowEditButton={shouldShowEditButton}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
-                    shouldShowVoteButtons={shouldShowVoteButtons}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
                 />
@@ -2653,6 +2657,17 @@ class App extends React.Component {
         }
 
         if (shouldShowFilterBar) {reactComponents.push(this.renderFilterBar());}
+
+        if (shouldShowApprovalForm) {
+            reactComponents.push(
+                <app.ApprovalForm key="approvalForm"
+                                  reviewComments={this.TestComments}
+                                  shouldShowVoteButtons={true}
+                                  onVoteClicked={this.onReviewVoteClicked}
+                                  selectedVote={selectedVote}
+                />
+            );
+        }
         // TODO: determine if comments are necessary on initial submit for review
         /*
         else if (shouldShowSubmitForReviewForm) {
