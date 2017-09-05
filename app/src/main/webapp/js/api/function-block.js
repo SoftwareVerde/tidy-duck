@@ -56,7 +56,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
 function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/search?name=" + searchString,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/search/" + searchString,
         {
             method: "GET",
             credentials: "include"

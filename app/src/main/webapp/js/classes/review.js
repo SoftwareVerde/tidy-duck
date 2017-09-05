@@ -25,6 +25,24 @@ class Review {
         const account = new Account();
         account.setId(json.accountId);
 
+        const reviewVotes = [];
+        const reviewVotesJson = json.reviewVotes;
+        for (let i in reviewVotesJson) {
+            const reviewVoteJson = reviewVotesJson[i];
+            const reviewVote = new ReviewVote();
+            reviewVote.setId(reviewVoteJson.id);
+            reviewVote.setReviewId(reviewVoteJson.reviewId);
+
+            const reviewVoteAccount = new Account();
+            reviewVoteAccount.setId(reviewVoteJson.accountId);
+
+            reviewVote.setAccount(reviewVoteAccount);
+            reviewVote.setCreatedDate(reviewVoteJson.createdDate);
+            reviewVote.setIsUpvote(reviewVoteJson.isUpvote);
+
+            reviewVotes.push(reviewVote);
+        }
+
         const review = new Review();
 
         review.setId(json.id);
@@ -34,6 +52,7 @@ class Review {
         review.setMostFunction(mostFunction);
         review.setCreatedDate(json.createdDate);
         review.setAccount(account);
+        review.setReviewVotes(reviewVotes);
 
         return review;
     }
@@ -64,6 +83,7 @@ class Review {
         this._mostFunction = null;
         this._account = null;
         this._createdDate = null;
+        this._reviewVotes = [];
     }
 
     getReviewObject() {
@@ -129,5 +149,13 @@ class Review {
 
     getCreatedDate() {
         return this._createdDate;
+    }
+
+    setReviewVotes(reviewVotes) {
+        this._reviewVotes = reviewVotes;
+    }
+
+    getReviewVotes() {
+        return this._reviewVotes;
     }
 }

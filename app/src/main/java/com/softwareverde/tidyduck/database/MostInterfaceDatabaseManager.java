@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.most.MostFunction;
 
@@ -115,6 +116,7 @@ public class MostInterfaceDatabaseManager {
         if (!mostInterface.isReleased()) {
             // interface isn't released and isn't associated with any function blocks, we can delete it
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
+            _deleteReviewForMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
         }
     }
@@ -261,5 +263,25 @@ public class MostInterfaceDatabaseManager {
         query.setParameter(submittingAccountId);
 
         _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteReviewForMostInterface(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE interface_id = ?")
+                .setParameter(mostInterfaceId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final List<Review> reviews = new ArrayList<>();
+
+        // Inflate reviews
+        final ReviewInflater reviewInflater = new ReviewInflater(_databaseConnection);
+        for (Row row : rows) {
+            final Review review = reviewInflater._convertRowToReview(row);
+            reviews.add(review);
+        }
+
+        final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(_databaseConnection);
+        for (Review review: reviews) {
+            reviewDatabaseManager.deleteReview(review);
+        }
     }
 }

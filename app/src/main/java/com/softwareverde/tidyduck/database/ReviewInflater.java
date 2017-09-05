@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
+import com.softwareverde.tidyduck.ReviewVote;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.most.MostFunction;
@@ -65,6 +66,22 @@ public class ReviewInflater {
         return reviews;
     }
 
+    public Review inflateReview(final long reviewId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM reviews WHERE id = ?"
+        );
+        query.setParameter(reviewId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        if (rows.size() == 0) {
+            throw new DatabaseException("Review ID " + reviewId + " not found.");
+        }
+
+        final Row row = rows.get(0);
+
+        return _convertRowToReview(row);
+    }
+
     protected Review _convertRowToReview(final Row row) throws DatabaseException {
         final Long id = row.getLong("id");
         final Long functionCatalogId = row.getLong("function_catalog_id");
@@ -104,6 +121,11 @@ public class ReviewInflater {
             final AccountInflater accountInflater = new AccountInflater(_databaseConnection);
             account = accountInflater.inflateAccount(accountId);
         }
+        // inflate review votes
+        final ReviewVoteInflater reviewVoteInflater = new ReviewVoteInflater(_databaseConnection);
+        final List<ReviewVote> reviewVotes = reviewVoteInflater.inflateReviewVotesFromReviewId(id);
+
+        // TODO: inflate comments!
 
         // create and return review
         final Review review = new Review();
@@ -114,6 +136,7 @@ public class ReviewInflater {
         review.setMostFunction(mostFunction);
         review.setAccount(account);
         review.setCreatedDate(createdDate);
+        review.setReviewVotes(reviewVotes);
         return review;
     }
 }

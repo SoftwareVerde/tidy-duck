@@ -8,6 +8,7 @@ import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.Review;
+import com.softwareverde.tidyduck.ReviewVote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,6 +289,36 @@ public class DatabaseManager {
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
                 reviewDatabaseManager.insertReview(review);
+            }
+        });
+    }
+
+    public void insertReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.insertReviewVote(reviewVote);
+            }
+        });
+    }
+
+    public void updateReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.updateReviewVote(reviewVote);
+            }
+        });
+    }
+
+    public void deleteReviewVote(final long reviewVoteId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.deleteReviewVote(reviewVoteId);
             }
         });
     }

@@ -6,6 +6,7 @@ import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostInterface;
+import com.softwareverde.tidyduck.Review;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -148,6 +149,7 @@ public class FunctionBlockDatabaseManager {
 
         if (! functionBlock.isReleased()) {
             _deleteInterfacesFromFunctionBlock(functionBlockId);
+            _deleteReviewForFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
     }
@@ -285,5 +287,25 @@ public class FunctionBlockDatabaseManager {
         query.setParameter(accountId);
 
         _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteReviewForFunctionBlock(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE function_block_id = ?")
+            .setParameter(functionBlockId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final List<Review> reviews = new ArrayList<>();
+
+        // Inflate reviews
+        final ReviewInflater reviewInflater = new ReviewInflater(_databaseConnection);
+        for (Row row : rows) {
+            final Review review = reviewInflater._convertRowToReview(row);
+            reviews.add(review);
+        }
+
+        final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(_databaseConnection);
+        for (Review review: reviews) {
+            reviewDatabaseManager.deleteReview(review);
+        }
     }
 }

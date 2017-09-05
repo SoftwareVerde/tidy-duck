@@ -6,10 +6,12 @@ import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
+import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
@@ -83,6 +85,7 @@ class FunctionCatalogDatabaseManager {
         if (! functionCatalog.isReleased()) {
             // function catalog isn't released, we can delete it
             _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
+            _deleteReviewForFunctionCatalog(functionCatalogId);
             _deleteFunctionCatalogFromDatabase(functionCatalogId);
         }
     }
@@ -205,5 +208,25 @@ class FunctionCatalogDatabaseManager {
         query.setParameter(accountId);
 
         _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteReviewForFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE function_catalog_id = ?")
+                .setParameter(functionCatalogId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final List<Review> reviews = new ArrayList<>();
+
+        // Inflate reviews
+        final ReviewInflater reviewInflater = new ReviewInflater(_databaseConnection);
+        for (Row row : rows) {
+            final Review review = reviewInflater._convertRowToReview(row);
+            reviews.add(review);
+        }
+
+        final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(_databaseConnection);
+        for (Review review: reviews) {
+            reviewDatabaseManager.deleteReview(review);
+        }
     }
 }
