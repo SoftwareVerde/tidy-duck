@@ -78,9 +78,14 @@ class ApprovalForm extends React.Component{
     }
 
     render() {
-        let submitButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>Submit Comment</button>;
+        let submitCommentButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>Submit Comment</button>;
         if (this.props.shouldShowSaveAnimation) {
-            submitButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+            submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+        }
+
+        let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>Approve</button>;
+        if (this.props.shouldShowSaveAnimation) {
+            submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
         }
 
         return(
@@ -91,12 +96,13 @@ class ApprovalForm extends React.Component{
                     <div className="vote-area">
                         <div className="submit-comment-form">
                             <app.InputField name="comment" type="textarea" label={"Comment"} value={this.props.reviewComment} readOnly={this.props.readOnly} onChange={this.onReviewCommentChanged} />
-                            {submitButton}
+                            {submitCommentButton}
                         </div>
                         <div className="toolbar">
                             {this.renderUpvoteButton()}
                             {this.renderDownvoteButton()}
                         </div>
+                        {submitApprovalButton}
                     </div>
                 </div>
             </div>
