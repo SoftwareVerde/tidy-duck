@@ -1,9 +1,9 @@
-class ReviewVote {
+class ReviewComment {
     constructor() {
         this._id    = null;
         this._account = null;
         this._createdDate = null;
-        this._isUpvote = null;
+        this._commentText = null;
     }
 
     setId(id) {
@@ -30,11 +30,11 @@ class ReviewVote {
         return this._createdDate;
     }
 
-    setIsUpvote(isUpvote) {
-        this._isUpvote = isUpvote;
+    setCommentText(commentText) {
+        this._commentText = commentText;
     }
 
-    isUpvote() {
-        return this._isUpvote;
+    getCommentText() {
+        return this._commentText;
     }
 }

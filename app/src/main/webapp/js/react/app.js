@@ -45,12 +45,6 @@ class App extends React.Component {
             requestResponse:            "Request/Response"
         };
 
-        this.TestComments = ["This is amazing! Great work!", "I haven't seen my family for days....DAYS!",
-                                "The dawn is coming.", "I left a comment here and all I got was this stupid t-shirt...",
-                                "Can...you...feel...myyy...infinite!.....POWAAAHHHHHHHHHHH!?!?!?!?!?!?!?!?!??!?!?!?!?!?!?!?!?",
-                                "'Ello mate!"
-                            ];
-
         this.state = {
             account:                    null,
             navigationItems:            [],
@@ -145,6 +139,7 @@ class App extends React.Component {
 
         this.onReviewSelected = this.onReviewSelected.bind(this);
         this.onReviewVoteClicked = this.onReviewVoteClicked.bind(this);
+        this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -1985,6 +1980,24 @@ class App extends React.Component {
                     review.setAccount(account);
                     updateReviewsState();
                 });
+                const reviewVotes = review.getReviewVotes();
+                for (let i in reviewVotes) {
+                    const reviewVote = reviewVotes[i];
+                    getAccount(reviewVote.getAccount().getId(), function (accountJson) {
+                        const account = Account.fromJson(accountJson);
+                        reviewVote.setAccount(account);
+                        updateReviewsState();
+                    });
+                }
+                const reviewComments = review.getReviewComments();
+                for (let i in reviewComments) {
+                    const reviewComment = reviewComments[i];
+                    getAccount(reviewComment.getAccount().getId(), function (accountJson) {
+                        const account = Account.fromJson(accountJson);
+                        reviewComment.setAccount(account);
+                        updateReviewsState();
+                    });
+                }
             }
 
             // all reviews are loaded
@@ -2061,7 +2074,6 @@ class App extends React.Component {
         }
 
         const reviewVote = new ReviewVote();
-        reviewVote.setReviewId(reviewId);
         reviewVote.setAccount(account);
         reviewVote.setIsUpvote(isUpvote);
 
@@ -2070,7 +2082,7 @@ class App extends React.Component {
             isUpvote: isUpvote
         };
 
-        insertReviewVote(reviewVoteJson, function(wasSuccess, reviewVoteId) {
+        insertReviewVote(reviewId, reviewVoteJson, function(wasSuccess, reviewVoteId) {
             if (wasSuccess) {
                 reviewVote.setId(reviewVoteId);
                 currentReviewVotes.push(reviewVote);
@@ -2105,13 +2117,15 @@ class App extends React.Component {
         return false;
     }
 
-    onReviewApproveClicked(review) {
+    onApproveButtonClicked() {
         if (confirm("Are you sure you would like to approve this review?")) {
+            const review = this.state.currentReview;
             const thisApp = this;
             this.setState({
                createButtonState: this.CreateButtonState.animate
             });
 
+            // TODO: check toJSON method of Review.js, getId() is failing...
             const reviewJson = Review.toJson(review);
             approveReview(reviewJson, function (data) {
                 if (data.wasSuccess) {
@@ -2121,7 +2135,7 @@ class App extends React.Component {
                 else {
                     alert("Unable to approve review: " + data.errorMessage);
                 }
-                this.setState({
+                thisApp.setState({
                     createButtonState: this.CreateButtonState.normal
                 });
             });
@@ -2692,10 +2706,11 @@ class App extends React.Component {
         if (shouldShowApprovalForm) {
             reactComponents.push(
                 <app.ApprovalForm key="approvalForm"
-                                  reviewComments={this.TestComments}
-                                  shouldShowVoteButtons={shouldShowVoteButtons}
+                                  review={this.state.currentReview}
+                                  shouldShowVoteButtons={true}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
+                                  onApproveButtonClicked={this.onApproveButtonClicked}
                 />
             );
         }

@@ -2,11 +2,11 @@ package com.softwareverde.tidyduck;
 
 import java.util.Date;
 
-public class ReviewVote {
+public class ReviewComment {
     private Long _id;
     private Account _account;
     private Date _createdDate;
-    private boolean _isUpvote;
+    private String _commentText;
 
     public Long getId() {
         return _id;
@@ -32,7 +32,11 @@ public class ReviewVote {
         _createdDate = createdDate;
     }
 
-    public boolean isUpvote() { return _isUpvote; }
+    public String getCommentText() {
+        return _commentText;
+    }
 
-    public void setIsUpvote(final boolean isUpvote) { _isUpvote = isUpvote; }
+    public void setCommentText(final String commentText) {
+        _commentText = commentText;
+    }
 }

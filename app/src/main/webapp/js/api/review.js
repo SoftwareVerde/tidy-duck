@@ -60,9 +60,9 @@ function insertReview(review, callbackFunction) {
     });
 }
 
-function approveReview(review, callbackFunction) {
+function approveReview(reviewId, review, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/approve",
+        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/approve",
         {
             method: "POST",
             credentials: "include",
@@ -85,9 +85,10 @@ function approveReview(review, callbackFunction) {
     });
 }
 
-function insertReviewVote(reviewVote, callbackFunction) {
+
+function insertReviewVote(reviewId, reviewVote, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/votes",
+        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/votes",
         {
             method: "POST",
             credentials: "include",
@@ -115,7 +116,7 @@ function insertReviewVote(reviewVote, callbackFunction) {
 
 function updateReviewVote(reviewVoteId, reviewVote, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/votes/" + reviewVoteId,
+        ENDPOINT_PREFIX + "api/v1/review-votes/" + reviewVoteId,
         {
             method: "POST",
             credentials: "include",
@@ -139,7 +140,7 @@ function updateReviewVote(reviewVoteId, reviewVote, callbackFunction) {
 
 function deleteReviewVote(reviewVoteId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/votes/" + reviewVoteId,
+        ENDPOINT_PREFIX + "api/v1/review-votes/" + reviewVoteId,
         {
             method: "DELETE",
             credentials: "include",
