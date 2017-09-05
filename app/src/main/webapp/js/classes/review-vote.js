@@ -1,7 +1,6 @@
 class ReviewVote {
     constructor() {
         this._id    = null;
-        this._reviewId  = null;
         this._account = null;
         this._createdDate = null;
         this._isUpvote = null;
@@ -13,14 +12,6 @@ class ReviewVote {
 
     getId() {
         return this._id;
-    }
-
-    setReviewId(reviewId) {
-        this._reviewId = reviewId;
-    }
-
-    getReviewId() {
-        return this._reviewId;
     }
 
     setAccount(account) {

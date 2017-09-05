@@ -5,10 +5,11 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.transaction.DatabaseRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
+import com.softwareverde.tidyduck.Review;
+import com.softwareverde.tidyduck.ReviewComment;
+import com.softwareverde.tidyduck.ReviewVote;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.*;
-import com.softwareverde.tidyduck.Review;
-import com.softwareverde.tidyduck.ReviewVote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,12 +294,12 @@ public class DatabaseManager {
         });
     }
 
-    public void insertReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+    public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
-                reviewDatabaseManager.insertReviewVote(reviewVote);
+                reviewDatabaseManager.insertReviewVote(reviewVote, reviewId);
             }
         });
     }
@@ -319,6 +320,16 @@ public class DatabaseManager {
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
                 reviewDatabaseManager.deleteReviewVote(reviewVoteId);
+            }
+        });
+    }
+
+    public void insertReviewComment(final ReviewComment reviewComment, final long reviewId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.insertReviewComment(reviewComment, reviewId);
             }
         });
     }

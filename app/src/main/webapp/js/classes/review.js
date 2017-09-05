@@ -31,7 +31,6 @@ class Review {
             const reviewVoteJson = reviewVotesJson[i];
             const reviewVote = new ReviewVote();
             reviewVote.setId(reviewVoteJson.id);
-            reviewVote.setReviewId(reviewVoteJson.reviewId);
 
             const reviewVoteAccount = new Account();
             reviewVoteAccount.setId(reviewVoteJson.accountId);

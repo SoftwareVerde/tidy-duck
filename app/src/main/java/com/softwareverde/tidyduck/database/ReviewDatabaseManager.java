@@ -4,9 +4,13 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.ReviewVote;
-import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.Review;
+import com.softwareverde.tidyduck.ReviewComment;
+import com.softwareverde.tidyduck.ReviewVote;
+import com.softwareverde.tidyduck.most.FunctionBlock;
+import com.softwareverde.tidyduck.most.FunctionCatalog;
+import com.softwareverde.tidyduck.most.MostFunction;
+import com.softwareverde.tidyduck.most.MostInterface;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,8 +65,7 @@ public class ReviewDatabaseManager {
         review.setId(reviewId);
     }
 
-    public void insertReviewVote(final ReviewVote reviewVote) throws DatabaseException {
-        final long reviewId = reviewVote.getReviewId();
+    public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {
         final long accountId = reviewVote.getAccount().getId();
         final boolean isUpvote = reviewVote.isUpvote();
 
@@ -86,6 +89,20 @@ public class ReviewDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public void insertReviewComment(final ReviewComment reviewComment, final long reviewId) throws DatabaseException {
+        final long accountId = reviewComment.getAccount().getId();
+        final String commentText = reviewComment.getCommentText();
+
+        final Query query = new Query("INSERT INTO review_comments (review_id, account_id, created_date, comment) VALUES (?, ?, NOW(), ?");
+        query.setParameter(reviewId);
+        query.setParameter(accountId);
+        query.setParameter(commentText);
+
+        final long reviewCommentId = _databaseConnection.executeSql(query);
+
+        reviewComment.setId(reviewCommentId);
     }
 
     public void deleteReview(final Review review) throws DatabaseException {

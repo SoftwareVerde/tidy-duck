@@ -2055,7 +2055,6 @@ class App extends React.Component {
         }
 
         const reviewVote = new ReviewVote();
-        reviewVote.setReviewId(reviewId);
         reviewVote.setAccount(account);
         reviewVote.setIsUpvote(isUpvote);
 
@@ -2064,7 +2063,7 @@ class App extends React.Component {
             isUpvote: isUpvote
         };
 
-        insertReviewVote(reviewVoteJson, function(wasSuccess, reviewVoteId) {
+        insertReviewVote(reviewId, reviewVoteJson, function(wasSuccess, reviewVoteId) {
             if (wasSuccess) {
                 reviewVote.setId(reviewVoteId);
                 currentReviewVotes.push(reviewVote);

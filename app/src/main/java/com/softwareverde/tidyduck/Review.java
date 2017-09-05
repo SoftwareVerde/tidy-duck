@@ -18,6 +18,7 @@ public class Review {
     private Account _account;
     private Date _createdDate;
     private List<ReviewVote> _reviewVotes = new ArrayList<>();
+    private List<ReviewComment> _reviewComments = new ArrayList<>();
 
     public Long getId() {
         return _id;
@@ -75,7 +76,27 @@ public class Review {
         _createdDate = createdDate;
     }
 
-    public List<ReviewVote> getReviewVotes() { return _reviewVotes; }
+    public List<ReviewVote> getReviewVotes() {
+        return new ArrayList<>(_reviewVotes);
+    }
 
-    public void setReviewVotes(final List<ReviewVote> reviewVotes) { _reviewVotes = reviewVotes;}
+    public void addReviewVote(final ReviewVote reviewVote) {
+        _reviewVotes.add(reviewVote);
+    }
+
+    public void setReviewVotes(final List<ReviewVote> reviewVotes) {
+        _reviewVotes = new ArrayList<>(reviewVotes);
+    }
+
+    public List<ReviewComment> getReviewComments() {
+        return new ArrayList<>(_reviewComments);
+    }
+
+    public void addReviewComment(final ReviewComment reviewComment) {
+        _reviewComments.add(reviewComment);
+    }
+
+    public void setReviewComments(final List<ReviewComment> reviewComments) {
+        _reviewComments = new ArrayList<>(reviewComments);
+    }
 }

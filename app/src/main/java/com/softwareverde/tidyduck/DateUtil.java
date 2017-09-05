@@ -8,6 +8,7 @@ import java.util.Locale;
 public class DateUtil extends com.softwareverde.util.DateUtil {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * Returns a java.util.Date object by parsing dateString.
@@ -16,13 +17,7 @@ public class DateUtil extends com.softwareverde.util.DateUtil {
      * Returns null if the parse failed.
      */
     public static Date dateFromDateString(final String dateString) {
-        final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        try {
-            return dateFormat.parse(dateString);
-        }
-        catch (final ParseException e) {
-            return null;
-        }
+        return convertDateToString(dateString, DATE_FORMAT);
     }
 
     /**
@@ -32,12 +27,25 @@ public class DateUtil extends com.softwareverde.util.DateUtil {
      * Returns null if the parse failed.
      */
     public static Date dateFromDateTimeString(final String dateTimeString) {
-        final Long time = com.softwareverde.util.DateUtil.datetimeToTimestamp(dateTimeString);
-        return new Date(time);
+        return convertDateToString(dateTimeString, DATE_TIME_FORMAT);
+    }
+
+    private static Date convertDateToString(final String value, final String format) {
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        try {
+            return dateFormat.parse(value);
+        } catch (final ParseException e) {
+            return null;
+        }
     }
 
     public static String dateToDateString(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        return dateFormat.format(date);
+    }
+
+    public static String dateToDateTimeString(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.US);
         return dateFormat.format(date);
     }
 
