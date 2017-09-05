@@ -2105,6 +2105,28 @@ class App extends React.Component {
         return false;
     }
 
+    onReviewApproveClicked(review) {
+        if (confirm("Are you sure you would like to approve this review?")) {
+            const thisApp = this;
+            this.setState({
+               createButtonState: this.CreateButtonState.animate
+            });
+
+            const reviewJson = Review.toJson(review);
+            approveReview(reviewJson, function (data) {
+                if (data.wasSuccess) {
+                    alert("Review has been approved. Returning to reviews page.");
+                    thisApp.handleRoleClick(thisApp.roles.reviews, null, false);
+                }
+                else {
+                    alert("Unable to approve review: " + data.errorMessage);
+                }
+                this.setState({
+                    createButtonState: this.CreateButtonState.normal
+                });
+            });
+        }
+    }
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
