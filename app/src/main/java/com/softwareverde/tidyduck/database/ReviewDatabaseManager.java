@@ -113,8 +113,8 @@ public class ReviewDatabaseManager {
             final long reviewVoteId = reviewVote.getId();
             deleteReviewVote(reviewVoteId);
         }
-
         // TODO: delete comments!
+
         final Query query = new Query("DELETE FROM reviews WHERE id = ?")
                 .setParameter(reviewId)
                 ;
@@ -125,6 +125,14 @@ public class ReviewDatabaseManager {
     public void deleteReviewVote(final long reviewVoteId) throws DatabaseException {
         final Query query = new Query("DELETE FROM review_votes WHERE id = ?")
                 .setParameter(reviewVoteId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void deleteReviewComment(final long reviewCommentId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM review_comments WHERE id = ?")
+                .setParameter(reviewCommentId)
                 ;
 
         _databaseConnection.executeSql(query);
