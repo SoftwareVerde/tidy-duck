@@ -141,12 +141,17 @@ public class ReviewDatabaseManager {
     public void deleteReview(final Review review) throws DatabaseException {
         final long reviewId = review.getId();
         final List<ReviewVote> reviewVotes = review.getReviewVotes();
+        final List<ReviewComment> reviewComments = review.getReviewComments();
 
         for (ReviewVote reviewVote : reviewVotes) {
             final long reviewVoteId = reviewVote.getId();
             deleteReviewVote(reviewVoteId);
         }
-        // TODO: delete comments!
+
+        for (ReviewComment reviewComment : reviewComments) {
+            final long reviewCommentId = reviewComment.getId();
+            deleteReviewComment(reviewCommentId);
+        }
 
         final Query query = new Query("DELETE FROM reviews WHERE id = ?")
                 .setParameter(reviewId)
