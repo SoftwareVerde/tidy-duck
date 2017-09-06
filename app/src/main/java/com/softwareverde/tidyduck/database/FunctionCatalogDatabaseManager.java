@@ -67,11 +67,12 @@ class FunctionCatalogDatabaseManager {
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
         final long functionCatalogId = proposedFunctionCatalog.getId();
 
-        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, account_id = ?, company_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, account_id = ?, company_id = ?, is_approved = ? WHERE id = ?")
             .setParameter(newName)
             .setParameter(newReleaseVersion)
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
+            .setParameter(false)
             .setParameter(functionCatalogId)
         ;
 

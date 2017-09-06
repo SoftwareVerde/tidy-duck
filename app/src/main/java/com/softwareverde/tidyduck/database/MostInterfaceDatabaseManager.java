@@ -80,11 +80,12 @@ public class MostInterfaceDatabaseManager {
         final String newDescription = proposedMostInterface.getDescription();
         final long mostInterfaceId = proposedMostInterface.getId();
 
-        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ? WHERE id = ?")
+        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ?, is_approved = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newName)
             .setParameter(newDescription)
             .setParameter(newVersion)
+            .setParameter(false)
             .setParameter(mostInterfaceId)
         ;
 

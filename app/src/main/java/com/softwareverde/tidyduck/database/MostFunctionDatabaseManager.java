@@ -74,7 +74,7 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_type_id = ?, supports_notification = ? WHERE id = ? ")
+        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_type_id = ?, supports_notification = ?, is_approved = ? WHERE id = ? ")
                 .setParameter(name)
                 .setParameter(mostId)
                 .setParameter(proposedMostFunction.getFunctionType())
@@ -85,6 +85,7 @@ class MostFunctionDatabaseManager {
                 .setParameter(companyId)
                 .setParameter(returnTypeId)
                 .setParameter(supportsNotification ? 1 : 0)
+                .setParameter(false)
                 .setParameter(mostFunctionId)
         ;
 

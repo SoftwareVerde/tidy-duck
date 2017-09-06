@@ -257,6 +257,10 @@ class App extends React.Component {
                 if (newFunctionCatalogId != functionCatalogId) {
                     functionCatalog.setIsReleased(false);
                 }
+                else {
+                    // Reset isApproved to false because it was updated.
+                    functionCatalog.setIsApproved(false);
+                }
 
                 functionCatalog.setId(newFunctionCatalogId);
                 functionCatalogs.push(functionCatalog);
@@ -267,6 +271,7 @@ class App extends React.Component {
                 let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setIsReleased(functionCatalog.isReleased());
+                navigationItem.setIsApproved(functionCatalog.isApproved());
                 navigationItem.setHeader(thisApp.headers.functionCatalog);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
@@ -414,6 +419,10 @@ class App extends React.Component {
                 if (newFunctionBlockId != functionBlockId) {
                     functionBlock.setIsReleased(false);
                 }
+                else {
+                    // Reset isApproved to false because it was updated.
+                    functionBlock.setIsApproved(false);
+                }
 
                 functionBlock.setId(newFunctionBlockId);
                 functionBlocks.push(functionBlock);
@@ -424,6 +433,7 @@ class App extends React.Component {
                 let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
                 navigationItem.setIsReleased(functionBlock.isReleased());
+                navigationItem.setIsApproved(functionBlock.isApproved());
                 navigationItem.setHeader(thisApp.headers.functionBlock);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionBlockSelected(functionBlock, true, false);
@@ -539,6 +549,10 @@ class App extends React.Component {
                 if (newMostInterfaceId != mostInterfaceId) {
                     mostInterface.setIsReleased(false);
                 }
+                else {
+                    // Reset isApproved to false because it was updated.
+                    mostInterface.setIsApproved(false);
+                }
 
                 mostInterface.setId(newMostInterfaceId);
                 mostInterfaces.push(mostInterface);
@@ -549,6 +563,7 @@ class App extends React.Component {
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
                 navigationItem.setIsReleased(mostInterface.isReleased());
+                navigationItem.setIsApproved(mostInterface.isApproved());
                 navigationItem.setHeader(thisApp.headers.mostInterface);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostInterfaceSelected(mostInterface, true, false);
@@ -641,11 +656,15 @@ class App extends React.Component {
                 });
                 mostFunctions.push(mostFunction);
 
+                // Reset isApproved to false because it was updated.
+                mostFunction.setIsApproved(false);
+
                 //Update final navigation item to reflect any name changes.
                 const navigationItems = thisApp.state.navigationItems;
                 const navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostFunction.getName());
                 navigationItem.setIsReleased(mostFunction.isReleased());
+                navigationItem.setIsApproved(mostFunction.isApproved());
                 navigationItem.setHeader(thisApp.headers.mostFunction);
 
                 //Update form to show changes were saved.
@@ -2136,6 +2155,9 @@ class App extends React.Component {
                 }
                 else {
                     alert("Unable to approve review: " + data.errorMessage);
+                    this.setState({
+                        createButtonState: this.CreateButtonState.normal
+                    });
                 }
             });
         }
