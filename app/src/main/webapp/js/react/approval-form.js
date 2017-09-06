@@ -16,6 +16,7 @@ class ApprovalForm extends React.Component{
         this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
         this.renderUpvoteButton = this.renderUpvoteButton.bind(this);
         this.renderDownvoteButton = this.renderDownvoteButton.bind(this);
+        this.renderVoteList = this.renderVoteList.bind(this);
         this.renderComments = this.renderComments.bind(this);
     }
 
@@ -119,6 +120,24 @@ class ApprovalForm extends React.Component{
         }
     }
 
+    renderVoteList() {
+        const reactComponents = [];
+        const review = this.props.review;
+        const votes = review.getReviewVotes();
+
+        for (let i in votes) {
+            const vote = votes[i];
+            const voteIcon = vote.isUpvote() ? "fa fa-thumbs-up" : "fa fa-thumbs-down";
+            const voteName = vote.getAccount().getName();
+            reactComponents.push(
+                <div key={"vote" + i} className="vote-item primary-bg primary-contrast" >
+                    {voteName}<i className={voteIcon} />
+                </div>);
+        }
+
+        return (<div className="vote-list">{reactComponents}</div>);
+    }
+
     renderComments() {
         const reactComponents = [];
         const review = this.props.review;
@@ -157,6 +176,7 @@ class ApprovalForm extends React.Component{
                             {this.renderUpvoteButton()}
                             {this.renderDownvoteButton()}
                         </div>
+                        {this.renderVoteList()}
                         {submitApprovalButton}
                     </div>
                 </div>
