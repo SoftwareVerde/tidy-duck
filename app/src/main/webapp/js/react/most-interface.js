@@ -112,7 +112,7 @@ class MostInterface extends React.Component {
     render() {
         const name = this.props.mostInterface.getName();
         const shortDescription = shortenString(this.props.mostInterface.getDescription(), 25);
-        const childItemStyle = this.props.mostInterface.isReleased() ? "child-item" : "unreleased-child-item";
+        const childItemStyle = this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
         // TODO: remove displayVersion if Release mode allows changing versions and saving those changes to a parent function block.

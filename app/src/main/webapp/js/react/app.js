@@ -720,6 +720,7 @@ class App extends React.Component {
         navigationItemConfig.setId("functionCatalog" + functionCatalog.getId());
         navigationItemConfig.setTitle(functionCatalog.getName());
         navigationItemConfig.setIsReleased(functionCatalog.isReleased());
+        navigationItemConfig.setIsApproved(functionCatalog.isApproved());
         navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
         navigationItemConfig.setIconName("fa-bars");
 
@@ -941,6 +942,7 @@ class App extends React.Component {
         navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(functionBlock.getName());
         navigationItemConfig.setIsReleased(functionBlock.isReleased());
+        navigationItemConfig.setIsApproved(functionBlock.isApproved());
         navigationItemConfig.setHeader(thisApp.headers.functionBlock);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock, true);
@@ -1283,6 +1285,7 @@ class App extends React.Component {
         navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setIsReleased(mostInterface.isReleased());
+        navigationItemConfig.setIsApproved(mostInterface.isApproved());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostInterfaceSelected(mostInterface, true);
@@ -1630,6 +1633,7 @@ class App extends React.Component {
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
         navigationItemConfig.setIsReleased(mostFunction.isReleased());
+        navigationItemConfig.setIsApproved(mostFunction.isApproved());
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
@@ -2457,7 +2461,7 @@ class App extends React.Component {
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased && isApproved;
-                    shouldShowForkButton = isReleased || isApproved;
+                    shouldShowForkButton = isReleased;
                     forkFunction = this.onUpdateFunctionCatalog;
                 }
 
@@ -2467,7 +2471,7 @@ class App extends React.Component {
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
-                    if (isReleased || isApproved) {
+                    if (isReleased) {
                         shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
                             (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
 
