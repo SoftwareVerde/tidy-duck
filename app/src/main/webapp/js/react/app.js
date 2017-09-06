@@ -139,6 +139,7 @@ class App extends React.Component {
 
         this.onReviewSelected = this.onReviewSelected.bind(this);
         this.onReviewVoteClicked = this.onReviewVoteClicked.bind(this);
+        this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
@@ -256,6 +257,10 @@ class App extends React.Component {
                 if (newFunctionCatalogId != functionCatalogId) {
                     functionCatalog.setIsReleased(false);
                 }
+                else {
+                    // Reset isApproved to false because it was updated.
+                    functionCatalog.setIsApproved(false);
+                }
 
                 functionCatalog.setId(newFunctionCatalogId);
                 functionCatalogs.push(functionCatalog);
@@ -266,6 +271,7 @@ class App extends React.Component {
                 let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setIsReleased(functionCatalog.isReleased());
+                navigationItem.setIsApproved(functionCatalog.isApproved());
                 navigationItem.setHeader(thisApp.headers.functionCatalog);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
@@ -413,6 +419,10 @@ class App extends React.Component {
                 if (newFunctionBlockId != functionBlockId) {
                     functionBlock.setIsReleased(false);
                 }
+                else {
+                    // Reset isApproved to false because it was updated.
+                    functionBlock.setIsApproved(false);
+                }
 
                 functionBlock.setId(newFunctionBlockId);
                 functionBlocks.push(functionBlock);
@@ -423,6 +433,7 @@ class App extends React.Component {
                 let navigationItem = navigationItems.pop();
                 navigationItem.setTitle(functionBlock.getName());
                 navigationItem.setIsReleased(functionBlock.isReleased());
+                navigationItem.setIsApproved(functionBlock.isApproved());
                 navigationItem.setHeader(thisApp.headers.functionBlock);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionBlockSelected(functionBlock, true, false);
@@ -538,6 +549,10 @@ class App extends React.Component {
                 if (newMostInterfaceId != mostInterfaceId) {
                     mostInterface.setIsReleased(false);
                 }
+                else {
+                    // Reset isApproved to false because it was updated.
+                    mostInterface.setIsApproved(false);
+                }
 
                 mostInterface.setId(newMostInterfaceId);
                 mostInterfaces.push(mostInterface);
@@ -548,6 +563,7 @@ class App extends React.Component {
                 var navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostInterface.getName());
                 navigationItem.setIsReleased(mostInterface.isReleased());
+                navigationItem.setIsApproved(mostInterface.isApproved());
                 navigationItem.setHeader(thisApp.headers.mostInterface);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostInterfaceSelected(mostInterface, true, false);
@@ -640,11 +656,15 @@ class App extends React.Component {
                 });
                 mostFunctions.push(mostFunction);
 
+                // Reset isApproved to false because it was updated.
+                mostFunction.setIsApproved(false);
+
                 //Update final navigation item to reflect any name changes.
                 const navigationItems = thisApp.state.navigationItems;
                 const navigationItem = navigationItems.pop();
                 navigationItem.setTitle(mostFunction.getName());
                 navigationItem.setIsReleased(mostFunction.isReleased());
+                navigationItem.setIsApproved(mostFunction.isApproved());
                 navigationItem.setHeader(thisApp.headers.mostFunction);
 
                 //Update form to show changes were saved.
@@ -719,6 +739,7 @@ class App extends React.Component {
         navigationItemConfig.setId("functionCatalog" + functionCatalog.getId());
         navigationItemConfig.setTitle(functionCatalog.getName());
         navigationItemConfig.setIsReleased(functionCatalog.isReleased());
+        navigationItemConfig.setIsApproved(functionCatalog.isApproved());
         navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
         navigationItemConfig.setIconName("fa-bars");
 
@@ -940,6 +961,7 @@ class App extends React.Component {
         navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(functionBlock.getName());
         navigationItemConfig.setIsReleased(functionBlock.isReleased());
+        navigationItemConfig.setIsApproved(functionBlock.isApproved());
         navigationItemConfig.setHeader(thisApp.headers.functionBlock);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock, true);
@@ -1282,6 +1304,7 @@ class App extends React.Component {
         navigationItemConfig.setId(itemId);
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setIsReleased(mostInterface.isReleased());
+        navigationItemConfig.setIsApproved(mostInterface.isApproved());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostInterfaceSelected(mostInterface, true);
@@ -1629,6 +1652,7 @@ class App extends React.Component {
         navigationItemConfig.setTitle(mostFunction.getName());
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
         navigationItemConfig.setIsReleased(mostFunction.isReleased());
+        navigationItemConfig.setIsApproved(mostFunction.isApproved());
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
@@ -2113,6 +2137,28 @@ class App extends React.Component {
         return false;
     }
 
+    onApproveButtonClicked() {
+        if (confirm("Are you sure you would like to approve this review?")) {
+            const reviewId = this.state.currentReview.getId();
+            const thisApp = this;
+            this.setState({
+               createButtonState: this.CreateButtonState.animate
+            });
+
+            approveReview(reviewId, function (data) {
+                if (data.wasSuccess) {
+                    alert("Review has been successfully approved.");
+                    thisApp.handleRoleClick(thisApp.roles.reviews, null, false);
+                }
+                else {
+                    alert("Unable to approve review: " + data.errorMessage);
+                    this.setState({
+                        createButtonState: this.CreateButtonState.normal
+                    });
+                }
+            });
+        }
+    }
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -2402,35 +2448,38 @@ class App extends React.Component {
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
         let selectedVote = null;
+        let shouldShowVoteButtons = false;
 
         const reactComponents = [];
         const thisApp = this;
 
         if (shouldShowToolbar) {
-            // Determine correct behavior for back button in development mode
-            let backFunction = null;
+            let shouldShowCreateButton = true;
 
             let shouldShowForkButton = false;
             let shouldShowBackButton = false;
             let shouldShowEditButton = false;
             let shouldShowSearchButton = false;
-            let shouldShowCreateButton = true;
             let shouldShowSubmitForReviewButton = false;
-            let shouldShowVoteButtons = false;
             let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
+            let backFunction = null;
             let forkFunction = null;
 
-            // Determine what buttons should be displayed.
+            // Determine what buttons should be displayed in toolbar.
             if (selectedItem) {
                 const isReleased = selectedItem.isReleased();
-                shouldShowSubmitForReviewButton = ! isReleased && currentNavigationLevel != NavigationLevel.mostFunctions && activeRole != this.roles.reviews;
-                shouldShowCreateButton = ! isReleased;
+                const isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
-                shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;
+
+                if (! isReleased && !isApproved) {
+                    shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
+                    shouldShowSearchButton = ! shouldShowFilterBar;
+                }
+                else { shouldShowCreateButton = false; }
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
-                    shouldShowReleaseButton = ! isReleased;
+                    shouldShowReleaseButton = ! isReleased && isApproved;
                     shouldShowForkButton = isReleased;
                     forkFunction = this.onUpdateFunctionCatalog;
                 }
@@ -2484,6 +2533,14 @@ class App extends React.Component {
                     if (activeRole == thisApp.roles.reviews) {
                         shouldShowNavigationItems = true;
                         shouldShowVoteButtons = true;
+                        shouldShowBackButton = true;
+                        shouldShowForkButton = false;
+                        shouldShowEditButton = false;
+                        shouldShowSearchButton = false;
+                        shouldShowCreateButton = false;
+                        shouldShowSubmitForReviewButton = false;
+                        shouldShowReleaseButton = false;
+
                         selectedVote = this.isReviewVoteSelected();
                         if (navigationItems.length > 1) {
                             backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
@@ -2673,30 +2730,14 @@ class App extends React.Component {
                                   account={Account.fromJson(this.state.account)}
                                   review={this.state.currentReview}
                                   shouldShowVoteButtons={true}
+                                  shouldShowSaveAnimation={shouldAnimateCreateButton}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
+                                  onApproveButtonClicked={this.onApproveButtonClicked}
                 />
             );
         }
-        // TODO: determine if comments are necessary on initial submit for review
-        /*
-        else if (shouldShowSubmitForReviewForm) {
-            let submitButton = "";
-            if(shouldAnimateCreateButton)  {
-                submitButton = <div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>;
-            } else {
-                // TODO: add submitForReview method
-                submitButton = <div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={() => console.log("Submitting for review!")}>{buttonTitle}</button></div>;
-            }
-            reactComponents.push(
-                <div key="submitReviewForm" className="metadata-form">
-                    <div className="metadata-form-title">Submit for Review</div>
-                    <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments" value={this.state.reviewCommentsString} onChange={(value) => this.setState({reviewCommentsString: value})}/>
-                    {submitButton}
-                </div>
-            );
-        }
-        */
+
         return reactComponents;
     }
 

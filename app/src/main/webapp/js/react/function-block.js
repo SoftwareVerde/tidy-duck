@@ -114,7 +114,7 @@ class FunctionBlock extends React.Component {
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
         const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
-        const childItemStyle = this.props.functionBlock.isReleased() ? "child-item" : "unreleased-child-item";
+        const childItemStyle = this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
 

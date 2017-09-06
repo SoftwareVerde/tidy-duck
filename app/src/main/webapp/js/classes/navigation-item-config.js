@@ -4,6 +4,7 @@ class NavigationItemConfig {
         this._title = null;
         this._header = null;
         this._isReleased = null;
+        this._isApproved = null;
         this._onClickCallback = null;
         this._menuItemConfigs = [];
         this._iconName = "";
@@ -41,6 +42,14 @@ class NavigationItemConfig {
 
     isReleased() {
         return this._isReleased;
+    }
+
+    setIsApproved(isApproved) {
+        this._isApproved = isApproved;
+    }
+
+    isApproved() {
+        return this._isApproved;
     }
 
     setOnClickCallback(callback) {

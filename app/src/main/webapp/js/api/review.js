@@ -60,6 +60,29 @@ function insertReview(review, callbackFunction) {
     });
 }
 
+function approveReview(reviewId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/approve",
+        {
+            method: "POST",
+            credentials: "include",
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to approve review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+
 function insertReviewVote(reviewId, reviewVote, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/votes",

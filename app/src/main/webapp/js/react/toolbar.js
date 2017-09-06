@@ -304,9 +304,12 @@ class Toolbar extends React.Component {
                     const title = navigationItem.getTitle();
                     let header =  navigationItem.getHeader();
                     let navigationItemStyle = "navigation-indicator";
-                    if (! navigationItem.isReleased()) {
-                        header = "UNRELEASED ".concat(header);
+                    if (! navigationItem.isApproved()) {
+                        header = "UNAPPROVED ".concat(header);
                         navigationItemStyle = "unreleased-navigation-indicator";
+                    }
+                    else if(! navigationItem.isReleased()) {
+                        header = "UNRELEASED ".concat(header);
                     }
 
                     const onClickCallback = navigationItem.getOnClickCallback();

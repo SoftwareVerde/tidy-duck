@@ -13,6 +13,7 @@ class ApprovalForm extends React.Component{
         this.onSubmitComment = this.onSubmitComment.bind(this);
         this.onUpvoteClicked = this.onUpvoteClicked.bind(this);
         this.onDownvoteClicked = this.onDownvoteClicked.bind(this);
+        this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
         this.renderUpvoteButton = this.renderUpvoteButton.bind(this);
         this.renderDownvoteButton = this.renderDownvoteButton.bind(this);
         this.renderComments = this.renderComments.bind(this);
@@ -96,6 +97,12 @@ class ApprovalForm extends React.Component{
         }
     }
 
+    onApproveButtonClicked() {
+        if (typeof this.props.onApproveButtonClicked == "function") {
+            this.props.onApproveButtonClicked();
+        }
+    }
+
     renderDownvoteButton() {
         if (this.props.shouldShowVoteButtons) {
             const buttonTitle = "Downvote";
@@ -131,7 +138,7 @@ class ApprovalForm extends React.Component{
             submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
         }
 
-        let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>Approve</button>;
+        let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
         if (this.props.shouldShowSaveAnimation) {
             submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
         }

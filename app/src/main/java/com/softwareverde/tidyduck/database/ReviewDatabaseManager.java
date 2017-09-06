@@ -65,6 +65,39 @@ public class ReviewDatabaseManager {
         review.setId(reviewId);
     }
 
+    public void approveReview(final Review review) throws DatabaseException {
+        final FunctionCatalog functionCatalog = review.getFunctionCatalog();
+        final FunctionBlock functionBlock = review.getFunctionBlock();
+        final MostInterface mostInterface = review.getMostInterface();
+        final MostFunction mostFunction = review.getMostFunction();
+
+        Long functionCatalogId = null;
+        Long functionBlockId = null;
+        Long mostInterfaceId = null;
+        Long mostFunctionId = null;
+
+        if (functionCatalog != null) {
+            functionCatalogId = functionCatalog.getId();
+            FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(_databaseConnection);
+            functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalogId);
+        }
+        else if (functionBlock != null) {
+            functionBlockId = functionBlock.getId();
+            FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
+            functionBlockDatabaseManager.approveFunctionBlock(functionBlockId);
+        }
+        else if (mostInterface != null) {
+            mostInterfaceId = mostInterface.getId();
+            MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+            mostInterfaceDatabaseManager.approveMostInterface(mostInterfaceId);
+        }
+        else if (mostFunction != null) {
+            mostFunctionId = mostFunction.getId();
+            MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
+            mostFunctionDatabaseManager.approveMostFunction(mostFunctionId);
+        }
+    }
+
     public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {
         final long accountId = reviewVote.getAccount().getId();
         final boolean isUpvote = reviewVote.isUpvote();

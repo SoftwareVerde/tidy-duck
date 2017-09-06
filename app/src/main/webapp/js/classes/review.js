@@ -56,7 +56,7 @@ class Review {
         return review;
     }
 
-    static toJson(review) {
+    toJson() {
         const functionCatalogId = this._functionCatalog ? this._functionCatalog.getId() : null;
         const functionBlockId = this._functionBlock ? this._functionBlock.getId() : null;
         const mostInterfaceId = this._mostInterface ? this._mostInterface.getId() : null;
