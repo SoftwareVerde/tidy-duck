@@ -83,13 +83,24 @@
 }
 
 .approval-form .toolbar {
+    min-height: 50px;
     display: block;
+}
+
+.approval-form .toolbar .toolbar-item {
+    width: 50px;
+    height: 50px;
+}
+
+.approval-form .toolbar .toolbar-item i {
+    font-size: 2em;
+    padding: 0;
 }
 
 .approval-form .vote-list {
     width: 20%;
-    max-height: 37%;
-    margin-bottom: 1em;
+    max-height: 45%;
+    margin: 0.5em 0 1em 0;
     display: inline-block;
     overflow: scroll;
     box-sizing: border-box;
