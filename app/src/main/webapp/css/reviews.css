@@ -90,6 +90,7 @@
 .approval-form .toolbar .toolbar-item {
     width: 50px;
     height: 50px;
+    justify-content: space-evenly;
 }
 
 .approval-form .toolbar .toolbar-item i {

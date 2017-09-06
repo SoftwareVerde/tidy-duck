@@ -90,9 +90,16 @@ class ApprovalForm extends React.Component{
                 icon = "fa fa-thumbs-up fa-3x";
             }
 
+            // Find number of upvotes
+            let upvoteCounter = 0;
+            const reviewVotes = this.props.review.getReviewVotes();
+            for (let i in reviewVotes) {
+                upvoteCounter += reviewVotes[i].isUpvote();
+            }
+
             return (
                 <div className="toolbar-item upvote" onClick={this.onUpvoteClicked} title={buttonTitle}>
-                    <i className={icon} />
+                    <i className={icon} />{upvoteCounter}
                 </div>
             );
         }
@@ -112,9 +119,16 @@ class ApprovalForm extends React.Component{
                 icon = "fa fa-4 fa-thumbs-down";
             }
 
+            // Find number of downvotes
+            let downvoteCounter = 0;
+            const reviewVotes = this.props.review.getReviewVotes();
+            for (let i in reviewVotes) {
+                downvoteCounter += ! reviewVotes[i].isUpvote();
+            }
+
             return (
                 <div className="toolbar-item downvote" onClick={this.onDownvoteClicked} title={buttonTitle}>
-                    <i className={icon} />
+                    <i className={icon} />{downvoteCounter}
                 </div>
             );
         }
@@ -157,7 +171,7 @@ class ApprovalForm extends React.Component{
             <div key={"vote" + 6} className="vote-item primary-bg primary-contrast"  >
                 Boomhauer<i className="fa fa-thumbs-up" />
             </div>);
-         */
+        */
 
         return (<div className="vote-list">{reactComponents}</div>);
     }
