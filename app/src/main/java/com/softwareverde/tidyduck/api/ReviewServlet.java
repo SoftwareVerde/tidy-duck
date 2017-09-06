@@ -79,6 +79,17 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super.defineEndpoint("reviews/<reviewId>/approve", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final long reviewId = Util.parseLong(parameters.get("reviewId"));
+                if (reviewId < 1) {
+                    return _generateErrorJson("Invalid review id: " + reviewId);
+                }
+                return _approveReview(reviewId, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
@@ -140,6 +151,25 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             return super._generateErrorJson("Unable to submit review: " + exception.getMessage());
         }
 
+        return response;
+    }
+
+    private Json _approveReview(final long reviewId, final Database<Connection> database) throws Exception {
+        final Json response = new Json(false);
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final ReviewInflater reviewInflater = new ReviewInflater(databaseConnection);
+            final Review review = reviewInflater.inflateReview(reviewId);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.approveReview(review);
+        }
+        catch (DatabaseException e) {
+            String errorMessage = "Unable approve review.";
+            _logger.error(errorMessage, e);
+            return _generateErrorJson(errorMessage);
+        }
+
+        super._setJsonSuccessFields(response);
         return response;
     }
 

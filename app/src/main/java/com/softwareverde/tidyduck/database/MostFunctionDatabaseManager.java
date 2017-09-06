@@ -228,4 +228,12 @@ class MostFunctionDatabaseManager {
 
         _databaseConnection.executeSql(query);
     }
+
+    public void approveMostFunction(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(mostFunctionId);
+
+        _databaseConnection.executeSql(query);
+    }
 }

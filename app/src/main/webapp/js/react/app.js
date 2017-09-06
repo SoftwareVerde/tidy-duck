@@ -2119,25 +2119,20 @@ class App extends React.Component {
 
     onApproveButtonClicked() {
         if (confirm("Are you sure you would like to approve this review?")) {
-            const review = this.state.currentReview;
+            const reviewId = this.state.currentReview.getId();
             const thisApp = this;
             this.setState({
                createButtonState: this.CreateButtonState.animate
             });
 
-            const reviewJson = review.toJson();
-            console.log(reviewJson);
-            approveReview(reviewJson, function (data) {
+            approveReview(reviewId, function (data) {
                 if (data.wasSuccess) {
-                    alert("Review has been approved. Returning to reviews page.");
+                    alert("Review has been successfully approved.");
                     thisApp.handleRoleClick(thisApp.roles.reviews, null, false);
                 }
                 else {
                     alert("Unable to approve review: " + data.errorMessage);
                 }
-                thisApp.setState({
-                    createButtonState: this.CreateButtonState.normal
-                });
             });
         }
     }
@@ -2436,30 +2431,33 @@ class App extends React.Component {
         const thisApp = this;
 
         if (shouldShowToolbar) {
-            // Determine correct behavior for back button in development mode
-            let backFunction = null;
+            let shouldShowCreateButton = true;
 
             let shouldShowForkButton = false;
             let shouldShowBackButton = false;
             let shouldShowEditButton = false;
             let shouldShowSearchButton = false;
-            let shouldShowCreateButton = true;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
             let shouldShowNavigationItems = false;
+            let backFunction = null;
             let forkFunction = null;
 
-            // Determine what buttons should be displayed.
+            // Determine what buttons should be displayed in toolbar.
             if (selectedItem) {
                 const isReleased = selectedItem.isReleased();
-                shouldShowSubmitForReviewButton = ! isReleased && currentNavigationLevel != NavigationLevel.mostFunctions && activeRole != this.roles.reviews;
-                shouldShowCreateButton = ! isReleased;
+                const isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
-                shouldShowSearchButton = ! isReleased && ! shouldShowFilterBar;
+
+                if (! isReleased && !isApproved) {
+                    shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
+                    shouldShowSearchButton = ! shouldShowFilterBar;
+                }
+                else { shouldShowCreateButton = false; }
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
-                    shouldShowReleaseButton = ! isReleased;
-                    shouldShowForkButton = isReleased;
+                    shouldShowReleaseButton = ! isReleased && isApproved;
+                    shouldShowForkButton = isReleased || isApproved;
                     forkFunction = this.onUpdateFunctionCatalog;
                 }
 
@@ -2469,7 +2467,7 @@ class App extends React.Component {
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
-                    if (isReleased) {
+                    if (isReleased || isApproved) {
                         shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
                             (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
 

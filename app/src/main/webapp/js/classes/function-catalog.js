@@ -16,6 +16,7 @@ class FunctionCatalog {
         functionCatalog.setBaseVersionId(json.baseVersionId);
         functionCatalog.setPriorVersionId(json.priorVersionId);
         functionCatalog.setIsReleased(json.isReleased);
+        functionCatalog.setIsApproved(json.isApproved);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
 
@@ -31,6 +32,7 @@ class FunctionCatalog {
             baseVersionId:      functionCatalog.getBaseVersionId(),
             priorVersionId:     functionCatalog.getPriorVersionId(),
             isReleased:         functionCatalog.isReleased(),
+            isApproved:         functionCatalog.isApproved()
         };
         const author = (functionCatalog.getAuthor() || new Author());
         const company = (functionCatalog.getCompany() || new Company());
@@ -49,6 +51,7 @@ class FunctionCatalog {
         this._releaseVersion    = "";
         this._versionsJson      = null;
         this._isReleased        = null;
+        this._isApproved        = null;
         this._priorVersionId    = null;
         this._baseVersionId     = null;
         this._author            = null;
@@ -131,6 +134,14 @@ class FunctionCatalog {
 
     isReleased() {
         return this._isReleased;
+    }
+
+    setIsApproved(isApproved) {
+        this._isApproved = isApproved;
+    }
+
+    isApproved() {
+        return this._isApproved;
     }
 
     getDisplayVersion() {

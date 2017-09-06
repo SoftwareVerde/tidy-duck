@@ -210,6 +210,26 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    public void approveFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(functionCatalogId);
+
+        _databaseConnection.executeSql(query);
+
+        _approveFunctionBlocksForFunctionCatalogId(functionCatalogId);
+    }
+
+    private void _approveFunctionBlocksForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
+
+        final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
+        for (final FunctionBlock functionBlock : functionBlocks) {
+            functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId());
+        }
+    }
+
     private void _deleteReviewForFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         final Query query = new Query("SELECT * FROM reviews WHERE function_catalog_id = ?")
                 .setParameter(functionCatalogId);

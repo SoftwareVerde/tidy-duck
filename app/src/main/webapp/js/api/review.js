@@ -60,15 +60,12 @@ function insertReview(review, callbackFunction) {
     });
 }
 
-function approveReview(reviewId, review, callbackFunction) {
+function approveReview(reviewId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/approve",
         {
             method: "POST",
             credentials: "include",
-            body: JSON.stringify({
-                "review" : review
-            })
         }
     );
 

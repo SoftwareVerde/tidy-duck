@@ -289,6 +289,26 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    public void approveFunctionBlock(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(functionBlockId);
+
+        _databaseConnection.executeSql(query);
+
+        _approveMostInterfacesForFunctionBlockId(functionBlockId);
+    }
+
+    private void _approveMostInterfacesForFunctionBlockId(final long functionBlockId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
+
+        final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (final MostInterface mostInterface : mostInterfaces) {
+            mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId());
+        }
+    }
+
     private void _deleteReviewForFunctionBlock(final long functionBlockId) throws DatabaseException {
         final Query query = new Query("SELECT * FROM reviews WHERE function_block_id = ?")
             .setParameter(functionBlockId);

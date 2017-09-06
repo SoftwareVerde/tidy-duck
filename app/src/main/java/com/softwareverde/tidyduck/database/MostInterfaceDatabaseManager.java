@@ -130,7 +130,6 @@ public class MostInterfaceDatabaseManager {
             // function is not released, we can delete it.
             mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
         }
-
     }
 
     private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
@@ -263,6 +262,26 @@ public class MostInterfaceDatabaseManager {
         query.setParameter(submittingAccountId);
 
         _databaseConnection.executeSql(query);
+    }
+
+    public void approveMostInterface(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(mostInterfaceId);
+
+        _databaseConnection.executeSql(query);
+
+        _approveMostFunctionsForMostInterfaceId(mostInterfaceId);
+    }
+
+    private void _approveMostFunctionsForMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+
+        final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
+        for (final MostFunction mostFunction : mostFunctions) {
+            mostFunctionDatabaseManager.approveMostFunction(mostFunction.getId());
+        }
     }
 
     private void _deleteReviewForMostInterface(final long mostInterfaceId) throws DatabaseException {
