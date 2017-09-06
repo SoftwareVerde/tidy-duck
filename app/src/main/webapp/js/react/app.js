@@ -2125,8 +2125,8 @@ class App extends React.Component {
                createButtonState: this.CreateButtonState.animate
             });
 
-            // TODO: check toJSON method of Review.js, getId() is failing...
-            const reviewJson = Review.toJson(review);
+            const reviewJson = review.toJson();
+            console.log(reviewJson);
             approveReview(reviewJson, function (data) {
                 if (data.wasSuccess) {
                     alert("Review has been approved. Returning to reviews page.");
@@ -2708,31 +2708,14 @@ class App extends React.Component {
                 <app.ApprovalForm key="approvalForm"
                                   review={this.state.currentReview}
                                   shouldShowVoteButtons={true}
+                                  shouldShowSaveAnimation={shouldAnimateCreateButton}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
                                   onApproveButtonClicked={this.onApproveButtonClicked}
                 />
             );
         }
-        // TODO: determine if comments are necessary on initial submit for review
-        /*
-        else if (shouldShowSubmitForReviewForm) {
-            let submitButton = "";
-            if(shouldAnimateCreateButton)  {
-                submitButton = <div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>;
-            } else {
-                // TODO: add submitForReview method
-                submitButton = <div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={() => console.log("Submitting for review!")}>{buttonTitle}</button></div>;
-            }
-            reactComponents.push(
-                <div key="submitReviewForm" className="metadata-form">
-                    <div className="metadata-form-title">Submit for Review</div>
-                    <app.InputField key="reviewComment" id="reviewComment" name="reviewComment" type="textarea" label="Comments" value={this.state.reviewCommentsString} onChange={(value) => this.setState({reviewCommentsString: value})}/>
-                    {submitButton}
-                </div>
-            );
-        }
-        */
+
         return reactComponents;
     }
 
