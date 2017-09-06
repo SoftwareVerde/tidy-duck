@@ -12,3 +12,8 @@
     background-color: #EEE;
     color: #333;
 }
+
+.approval-form {
+    background-color: #9DA1AE;
+    box-shadow: none !important;
+}

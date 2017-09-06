@@ -7,3 +7,7 @@
 .review-entry:hover .review-name {
     border-color: #DDCC44;
 }
+
+.approval-form {
+    background-color: #EDEDED;
+}

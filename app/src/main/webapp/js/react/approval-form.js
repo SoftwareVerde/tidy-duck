@@ -145,8 +145,8 @@ class ApprovalForm extends React.Component{
 
         return(
             <div key="approvalForm" className="approval-form">
-                <div className="metadata-form">
-                    <div className="metadata-form-title">Approval</div>
+                <div>
+                    <div>Comments</div>
                     {this.renderComments()}
                     <div className="vote-area">
                         <div className="submit-comment-form">

@@ -198,57 +198,6 @@
     font-size: x-large;
 }
 
-.approval-form {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-.approval-form .comments-area {
-    width: 40%;
-    height: 250px;
-    display: inline-block;
-    overflow: scroll;
-    margin: 5px 0px;
-    background-color: rgba(100, 100, 100, 0.2);
-    border: #777 solid thin;
-    box-sizing: border-box;
-}
-
-.approval-form .vote-area {
-    width: 60%;
-    height: 250px;
-    text-align: center;
-    display: inline-block;
-    overflow: hidden;
-}
-
-.approval-form .toolbar {
-    padding-top: 2em;
-    display: block;
-}
-
-.comments-area .input-field, .vote-area .input-field {
-    width: 100%;
-}
-
-.vote-area .submit-comment-form {
-    float: left;
-    text-align: center;
-    width: 75%;
-    height: 100%;
-}
-
-.vote-area .submit-comment-form .button {
-    width: 50%;
-    margin: 0;
-}
-
-.vote-area .button {
-    width: 20%;
-    margin: 0;
-}
-
 .search-result-form i.loading-results {
     margin: 5px;
 }
