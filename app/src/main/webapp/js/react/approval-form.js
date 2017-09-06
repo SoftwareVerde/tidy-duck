@@ -16,6 +16,7 @@ class ApprovalForm extends React.Component{
         this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
         this.renderUpvoteButton = this.renderUpvoteButton.bind(this);
         this.renderDownvoteButton = this.renderDownvoteButton.bind(this);
+        this.renderVoteList = this.renderVoteList.bind(this);
         this.renderComments = this.renderComments.bind(this);
     }
 
@@ -84,9 +85,9 @@ class ApprovalForm extends React.Component{
     renderUpvoteButton() {
         if (this.props.shouldShowVoteButtons) {
             const buttonTitle = "Upvote";
-            let icon = "fa fa-4 fa-thumbs-o-up"
+            let icon = "fa fa-thumbs-o-up fa-3x"
             if (this.props.selectedVote === "isUpvote") {
-                icon = "fa fa-4 fa-thumbs-up";
+                icon = "fa fa-thumbs-up fa-3x";
             }
 
             return (
@@ -117,6 +118,48 @@ class ApprovalForm extends React.Component{
                 </div>
             );
         }
+    }
+
+    renderVoteList() {
+        const reactComponents = [];
+        const review = this.props.review;
+        const votes = review.getReviewVotes();
+
+        for (let i in votes) {
+            const vote = votes[i];
+            const voteIcon = vote.isUpvote() ? "fa fa-thumbs-up" : "fa fa-thumbs-down";
+            const voteName = vote.getAccount().getName();
+            reactComponents.push(
+                <div key={"vote" + i} className="vote-item primary-bg primary-contrast" >
+                    {voteName}<i className={voteIcon} />
+                </div>);
+        }
+
+        // TODO: delete below if no longer needed for testing.
+        /*
+        reactComponents.push(
+            <div key={"vote" + 2} className="vote-item primary-bg primary-contrast" >
+                Bob<i className="fa fa-thumbs-up" />
+            </div>);
+        reactComponents.push(
+            <div key={"vote" + 3} className="vote-item primary-bg primary-contrast" >
+                Hank<i className="fa fa-thumbs-up" />
+            </div>);
+        reactComponents.push(
+            <div key={"vote" + 4} className="vote-item primary-bg primary-contrast" >
+                Bill<i className="fa fa-thumbs-up" />
+            </div>);
+        reactComponents.push(
+            <div key={"vote" + 5} className="vote-item primary-bg primary-contrast"  >
+                Dale<i className="fa fa-thumbs-up" />
+            </div>);
+        reactComponents.push(
+            <div key={"vote" + 6} className="vote-item primary-bg primary-contrast"  >
+                Boomhauer<i className="fa fa-thumbs-up" />
+            </div>);
+         */
+
+        return (<div className="vote-list">{reactComponents}</div>);
     }
 
     renderComments() {
@@ -157,6 +200,7 @@ class ApprovalForm extends React.Component{
                             {this.renderUpvoteButton()}
                             {this.renderDownvoteButton()}
                         </div>
+                        {this.renderVoteList()}
                         {submitApprovalButton}
                     </div>
                 </div>

@@ -76,14 +76,47 @@
 .approval-form .vote-area {
     width: 60%;
     height: 250px;
+    margin: 5px 0;
     text-align: center;
     display: inline-block;
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .approval-form .toolbar {
-    padding-top: 2em;
+    min-height: 50px;
     display: block;
+}
+
+.approval-form .toolbar .toolbar-item {
+    width: 50px;
+    height: 50px;
+}
+
+.approval-form .toolbar .toolbar-item i {
+    font-size: 2em;
+    padding: 0;
+}
+
+.approval-form .vote-list {
+    width: 20%;
+    max-height: 45%;
+    margin: 0.5em 0 1em 0;
+    display: inline-block;
+    overflow: scroll;
+    box-sizing: border-box;
+    background-color: rgba(100, 100, 100, 0.2);
+    border: #777 solid thin;
+}
+
+.vote-item {
+    margin: 3px;
+    padding: 2px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.vote-list i {
+    padding-right: 1em;
 }
 
 .comments-area .input-field, .vote-area .input-field {
