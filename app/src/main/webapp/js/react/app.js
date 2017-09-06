@@ -2854,6 +2854,7 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
+                    <img className="tidy-logo" src={'./tidy-logo.svg'} />
                     Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}

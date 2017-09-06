@@ -66,6 +66,16 @@
     padding: 1em;
 }
 
+.tidy-logo {
+    height: 90%;
+    box-sizing: border-box;
+    margin: 0 1em 0 1em;
+    transform: scaleX(-1);
+    top: 3px;
+    position: relative;
+    vertical-align: top;
+}
+
 .role-toggle {
     display: inline-flex;
     margin: auto 0.5em;
