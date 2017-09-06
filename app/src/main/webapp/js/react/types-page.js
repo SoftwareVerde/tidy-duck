@@ -644,6 +644,9 @@ class TypesPage extends React.Component {
         streamCase.addStreamParameter(streamCaseParameter);
         streamCaseParameter.setParameterIndex(streamCase.getStreamParameters().length);
 
+        // cannot have stream case signals with stream case parameters, remove them
+        streamCase.setStreamSignals([]);
+
         this.setState({
             mostType: mostType,
             saveButtonText: 'Save'
@@ -699,6 +702,9 @@ class TypesPage extends React.Component {
         const streamCaseSignal = new StreamCaseSignal();
         streamCase.addStreamSignal(streamCaseSignal);
         streamCaseSignal.setSignalIndex(streamCase.getStreamSignals().length);
+
+        // cannot have stream case parameters with stream case signals, remove them
+        streamCase.setStreamParameters([]);
 
         this.setState({
             mostType: mostType,
@@ -1101,6 +1107,7 @@ class TypesPage extends React.Component {
                 let i = 1;
                 mostType.getStreamCases().forEach(function (streamCase) {
                     const key = "streamCase" + i;
+
                     // Populate stream parameters (repeats)
                     const streamParameters = [];
                     const parameterAddButtonKey = "addStreamParameter" + i;
@@ -1132,12 +1139,13 @@ class TypesPage extends React.Component {
                         );
                         j++;
                     });
+
                     // Populate stream signals (repeats)
                     const streamSignals = [];
                     const signalAddKey = "addStreamSignal" + i;
                     j = 1;
                     streamCase.getStreamSignals().forEach(function (streamSignal) {
-                        const signalKey = ("streamSignal" + i) + j;
+                        const signalKey = ("streamSignal" + i) + '-' + j;
                         streamSignals.push(
                             <div key={signalKey} className="parameter">
                                 <div>Stream Signal {streamSignal.getSignalIndex()}</div>
@@ -1157,36 +1165,55 @@ class TypesPage extends React.Component {
                         j++;
                     });
 
-                    reactComponents.push(
-                        <div key={key} className="repeating-field clearfix">
-                            <div className="repeating-field-header clearfix">Stream Case {streamCase.getCaseIndex()}
-                                <i className="remove-button fa fa-remove fa-2x"
-                                   onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
-                            </div>
-                            <div key="streamCasePositionDescription" className="clearfix">
-                                <app.InputField  type="text" label="Position X" name="position-x"
-                                                value={streamCase.getStreamPositionX()}
-                                                onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}/>
-                                <app.InputField  type="text" label="Position Y" name="position-y"
-                                                value={streamCase.getStreamPositionY()}
-                                                onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}/>
-                            </div>
+                    const childComponents = [];
+                    childComponents.push(
+                        <div key="streamCaseRemoveButton" className="repeating-field-header clearfix">Stream Case {streamCase.getCaseIndex()}
+                            <i className="remove-button fa fa-remove fa-2x"
+                               onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
+                        </div>
+                    );
+                    childComponents.push(
+                        <div key="streamCasePositionDescription" className="clearfix">
+                            <app.InputField  type="text" label="Position X" name="position-x"
+                                            value={streamCase.getStreamPositionX()}
+                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}/>
+                            <app.InputField  type="text" label="Position Y" name="position-y"
+                                            value={streamCase.getStreamPositionY()}
+                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}/>
+                        </div>
+                    );
+                    const hasStreamSignals = streamSignals.length;
+                    const hasStreamParameters = streamParameters.length;
+                    // only display parameters if there are no signals
+                    if (!hasStreamSignals) {
+                        childComponents.push(
                             <div key="parameter-display-area" className="parameter-display-area clearfix">
                                 <div className="metadata-form-title">Stream Parameters</div>
                                 {streamParameters}
                                 <i key={parameterAddButtonKey} className="assign-button fa fa-plus-square fa-3x"
                                    onClick={() => thisPage.onStreamCaseParameterAddButtonClicked(streamCase)}/>
                             </div>
+                        );
+                    }
+                    // only display signals if there are no parameters
+                    if (!hasStreamParameters) {
+                        childComponents.push(
                             <div key="signal-display-area" className="parameter-display-area clearfix">
                                 <div className="metadata-form-title">Stream Signals</div>
                                 {streamSignals}
                                 <i key={signalAddKey} className="assign-button fa fa-plus-square fa-3x"
                                    onClick={() => thisPage.onStreamCaseSignalAddButtonClicked(streamCase)}/>
                             </div>
+                        );
+                    }
+                    reactComponents.push(
+                        <div key={key} className="repeating-field clearfix">
+                            {childComponents}
                         </div>
                     );
                     i++;
                 });
+
                 reactComponents.push(
                     <div key="plus-button" className="center">
                         <button key="plus-button" className="button"
