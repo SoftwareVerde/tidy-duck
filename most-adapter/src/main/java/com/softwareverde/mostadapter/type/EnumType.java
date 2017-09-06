@@ -48,9 +48,14 @@ public class EnumType extends MostType {
         }
 
         for (final EnumValue enumValue : _enumValues) {
-            Element enumValueElement = XmlUtil.createTextElement(document, "TEnumValue", enumValue.getName());
+            String description = enumValue.getDescription();
+            if (description == null) {
+                description = "";
+            }
+            Element enumValueElement = XmlUtil.createTextElement(document, "TEnumValue", description);
 
             enumValueElement.setAttribute("Code", enumValue.getCode());
+            enumValueElement.setAttribute("SymbolicName", enumValue.getName());
 
             typeElement.appendChild(enumValueElement);
         }

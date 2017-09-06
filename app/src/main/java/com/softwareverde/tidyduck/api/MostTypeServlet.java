@@ -327,6 +327,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long id = json.getLong("id");
         final String name = json.getString("name");
         final String code = json.getString("code");
+        final String description = json.getString("description");
 
         // Validate inputs
         if (Util.isBlank(name)) {
@@ -341,6 +342,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         enumValue.setId(id);
         enumValue.setName(name);
         enumValue.setCode(code);
+        enumValue.setDescription(description);
         return enumValue;
     }
 
@@ -657,10 +659,12 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long enumValueId = enumValue.getId();
         final String enumValueName = enumValue.getName();
         final String enumValueCode = enumValue.getCode();
+        final String enumValueDescription = enumValue.getDescription();
 
         enumValueJson.put("id", enumValueId);
         enumValueJson.put("name", enumValueName);
         enumValueJson.put("code", enumValueCode);
+        enumValueJson.put("description", enumValueDescription);
 
         return enumValueJson;
     }

@@ -25,6 +25,7 @@ class TypesPage extends React.Component {
         this.onEnumValueRemoveButtonClicked = this.onEnumValueRemoveButtonClicked.bind(this);
         this.onEnumValueNameChanged = this.onEnumValueNameChanged.bind(this);
         this.onEnumValueCodeChanged = this.onEnumValueCodeChanged.bind(this);
+        this.onEnumValueDescriptionChanged = this.onEnumValueDescriptionChanged.bind(this);
         this.onStringMaxSizeChanged = this.onStringMaxSizeChanged.bind(this);
         this.onNumberBaseTypeChanged = this.onNumberBaseTypeChanged.bind(this);
         this.onNumberExponentChanged = this.onNumberExponentChanged.bind(this);
@@ -505,6 +506,10 @@ class TypesPage extends React.Component {
 
     onEnumValueCodeChanged(enumValue, code) {
         enumValue.setCode(code);
+    }
+
+    onEnumValueDescriptionChanged(enumValue, description) {
+        enumValue.setDescription(description);
     }
 
     onNumberBaseTypeChanged(value) {
@@ -1024,10 +1029,13 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name"
                                             value={enumValue.getName()}
-                                            onChange={(value) => thisPage.onEnumValueNameChanged(enumValue, value)}/>
+                                            onChange={(name) => thisPage.onEnumValueNameChanged(enumValue, name)}/>
                             <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code"
                                             value={enumValue.getCode()}
                                             onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)}/>
+                            <app.InputField key="enum3" type="text" label="Enum Value Description" name="enum-value-description"
+                                            value={enumValue.getDescription()}
+                                            onChange={(description) => thisPage.onEnumValueDescriptionChanged(enumValue, description)}/>
                         </div>
                     );
                     i++;

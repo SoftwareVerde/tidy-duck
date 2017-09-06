@@ -392,11 +392,13 @@ public class MostTypeInflater {
         final Long id = row.getLong("id");
         final String name = row.getString("name");
         final String code = row.getString("code");
+        final String description = row.getString("description");
 
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
         enumValue.setName(name);
         enumValue.setCode(code);
+        enumValue.setDescription(description);
 
         return enumValue;
     }

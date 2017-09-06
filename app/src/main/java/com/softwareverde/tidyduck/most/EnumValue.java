@@ -4,6 +4,7 @@ public class EnumValue {
     private Long _id;
     private String _name;
     private String _code;
+    private String _description;
 
     public Long getId() {
         return _id;
@@ -27,5 +28,13 @@ public class EnumValue {
 
     public void setCode(String code) {
         _code = code;
+    }
+
+    public String getDescription() {
+        return _description;
+    }
+
+    public void setDescription(final String description) {
+        _description = description;
     }
 }

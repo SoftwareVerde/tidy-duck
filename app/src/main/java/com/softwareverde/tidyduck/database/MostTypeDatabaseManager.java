@@ -196,11 +196,13 @@ class MostTypeDatabaseManager {
     protected void _addEnumValue(final long mostTypeId, final EnumValue enumValue) throws DatabaseException {
         final String name = enumValue.getName();
         final String code = enumValue.getCode();
+        final String description = enumValue.getDescription();
 
-        final Query query = new Query("INSERT INTO enum_values (type_id, name, code) VALUES (?, ?, ?)")
+        final Query query = new Query("INSERT INTO enum_values (type_id, name, code, description) VALUES (?, ?, ?, ?)")
             .setParameter(mostTypeId)
             .setParameter(name)
             .setParameter(code)
+            .setParameter(description)
         ;
 
         final long enumValueId = _databaseConnection.executeSql(query);
