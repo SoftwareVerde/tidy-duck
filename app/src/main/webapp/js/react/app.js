@@ -2076,10 +2076,7 @@ class App extends React.Component {
         reviewVote.setAccount(account);
         reviewVote.setIsUpvote(isUpvote);
 
-        const reviewVoteJson = {
-            reviewId: reviewId,
-            isUpvote: isUpvote
-        };
+        const reviewVoteJson = ReviewVote.toJson(reviewVote);
 
         insertReviewVote(reviewId, reviewVoteJson, function(wasSuccess, reviewVoteId) {
             if (wasSuccess) {
@@ -2673,6 +2670,7 @@ class App extends React.Component {
         if (shouldShowApprovalForm) {
             reactComponents.push(
                 <app.ApprovalForm key="approvalForm"
+                                  account={Account.fromJson(this.state.account)}
                                   review={this.state.currentReview}
                                   shouldShowVoteButtons={true}
                                   onVoteClicked={this.onReviewVoteClicked}

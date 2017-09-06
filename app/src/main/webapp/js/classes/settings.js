@@ -1,5 +1,8 @@
 class Settings {
     static fromJson(json) {
+        if (json == null) {
+            return null;
+        }
         const settings = new Settings();
 
         settings.setTheme(json.theme);

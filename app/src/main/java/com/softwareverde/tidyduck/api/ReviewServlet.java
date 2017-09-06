@@ -241,7 +241,8 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
     private Json _addReviewComment(final HttpServletRequest request, final long reviewId, final Long accountId, final Database<Connection> database) {
         try {
-            final Json reviewCommentJson = _getRequestDataAsJson(request);
+            final Json requestJson = _getRequestDataAsJson(request);
+            final Json reviewCommentJson = requestJson.get("reviewComment");
             final ReviewComment reviewComment = _populateReviewCommentFromJson(reviewCommentJson, accountId, database);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
@@ -394,7 +395,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         final Long id = reviewVote.getId();
         final Long accountId = reviewVote.getAccount().getId();
-        final Date createdDate = reviewVote.getCreatedDate();
+        final String createdDate = DateUtil.dateToDateTimeString(reviewVote.getCreatedDate());
         final boolean isUpvote = reviewVote.isUpvote();
 
         json.put("id", id);

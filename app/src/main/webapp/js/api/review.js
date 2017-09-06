@@ -132,3 +132,31 @@ function deleteReviewVote(reviewVoteId, callbackFunction) {
         }
     });
 }
+
+function insertReviewComment(reviewId, reviewComment, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/comments",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "reviewComment" : reviewComment
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        let reviewCommentId = null;
+        if (wasSuccess) {
+            reviewCommentId = data.reviewCommentId;
+        } else {
+            console.error("Unable to comment on review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, reviewCommentId);
+        }
+    });
+}

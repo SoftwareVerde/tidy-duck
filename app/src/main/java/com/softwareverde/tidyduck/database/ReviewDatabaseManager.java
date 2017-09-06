@@ -95,7 +95,7 @@ public class ReviewDatabaseManager {
         final long accountId = reviewComment.getAccount().getId();
         final String commentText = reviewComment.getCommentText();
 
-        final Query query = new Query("INSERT INTO review_comments (review_id, account_id, created_date, comment) VALUES (?, ?, NOW(), ?");
+        final Query query = new Query("INSERT INTO review_comments (review_id, account_id, created_date, comment) VALUES (?, ?, NOW(), ?)");
         query.setParameter(reviewId);
         query.setParameter(accountId);
         query.setParameter(commentText);

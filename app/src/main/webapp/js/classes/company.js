@@ -1,5 +1,8 @@
 class Company {
     static fromJson(json) {
+        if (json == null) {
+            return null;
+        }
         const company = new Company();
 
         company.setId(json.id);

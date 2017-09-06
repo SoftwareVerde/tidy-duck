@@ -1,4 +1,31 @@
 class ReviewVote {
+    static fromJson(json) {
+        const reviewVoteAccount = new Account();
+        reviewVoteAccount.setId(json.accountId);
+
+        const reviewVote = new ReviewVote();
+        reviewVote.setId(json.id);
+        reviewVote.setAccount(reviewVoteAccount);
+        reviewVote.setCreatedDate(json.createdDate);
+        reviewVote.setIsUpvote(json.isUpvote);
+
+        return reviewVote;
+    }
+
+    static toJson(reviewVote) {
+        const id = reviewVote.getId();
+        const accountId = reviewVote.getAccount().getId();
+        const createdDate = reviewVote.getCreatedDate();
+        const isUpvote = reviewVote.isUpvote();
+
+        return {
+            reviewId:       id,
+            accountId:      accountId,
+            createdDate:    createdDate,
+            isUpvote:       isUpvote
+        };
+    }
+
     constructor() {
         this._id    = null;
         this._account = null;

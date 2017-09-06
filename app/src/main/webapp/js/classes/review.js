@@ -29,16 +29,7 @@ class Review {
         const reviewVotesJson = json.reviewVotes;
         for (let i in reviewVotesJson) {
             const reviewVoteJson = reviewVotesJson[i];
-            const reviewVote = new ReviewVote();
-            reviewVote.setId(reviewVoteJson.id);
-
-            const reviewVoteAccount = new Account();
-            reviewVoteAccount.setId(reviewVoteJson.accountId);
-
-            reviewVote.setAccount(reviewVoteAccount);
-            reviewVote.setCreatedDate(reviewVoteJson.createdDate);
-            reviewVote.setIsUpvote(reviewVoteJson.isUpvote);
-
+            const reviewVote = ReviewVote.fromJson(reviewVoteJson);
             reviewVotes.push(reviewVote);
         }
 
@@ -46,17 +37,7 @@ class Review {
         const reviewCommentsJson = json.reviewComments;
         for (let i in reviewCommentsJson) {
             const reviewCommentJson = reviewCommentsJson[i];
-
-            const reviewComment = new ReviewComment();
-            reviewComment.setId(reviewCommentJson.id);
-
-            const reviewCommentAccount = new Account();
-            reviewCommentAccount.setId(reviewCommentJson.accountId);
-
-            reviewComment.setAccount(reviewCommentAccount);
-            reviewComment.setCreatedDate(reviewCommentJson.createdDate);
-            reviewComment.setCommentText(reviewCommentJson.commentText);
-
+            const reviewComment = ReviewComment.fromJson(reviewCommentJson);
             reviewComments.push(reviewComment);
         }
 
@@ -174,12 +155,20 @@ class Review {
         this._reviewVotes = reviewVotes;
     }
 
+    addReviewVote(reviewVote) {
+        this._reviewVotes.push(reviewVote);
+    }
+
     getReviewVotes() {
         return this._reviewVotes;
     }
 
     setReviewComments(reviewComments) {
         this._reviewComments = reviewComments;
+    }
+
+    addReviewComment(reviewComment) {
+        this._reviewComments.push(reviewComment);
     }
 
     getReviewComments() {
