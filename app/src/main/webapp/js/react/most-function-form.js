@@ -362,7 +362,7 @@ class MostFunctionForm extends React.Component {
 
     render() {
         const mostFunction = this.state.mostFunction;
-        const version = mostFunction.isApproved() ? mostFunction.getDisplayVersion() : mostFunction.getReleaseVersion()
+        const version = mostFunction.getReleaseVersion()
 
         const stereotypeOptions = [];
         stereotypeOptions.push('Event');
