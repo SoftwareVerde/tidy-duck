@@ -149,6 +149,9 @@ class App extends React.Component {
 
         this.logout = this.logout.bind(this);
 
+        this.onDuckClick = this.onDuckClick.bind(this);
+        this.showAlert = this.showAlert.bind(this);
+
         const thisApp = this;
 
         downloadAccount(function (data) {
@@ -167,6 +170,14 @@ class App extends React.Component {
                 isLoadingChildren:      false
             });
         });
+    }
+
+    onDuckClick() {
+        this.showAlert();
+    }
+
+    showAlert() {
+        
     }
 
     onCreateFunctionCatalog(functionCatalog) {
@@ -2850,7 +2861,7 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
-                    <img className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
+                    <img onClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">
@@ -2860,6 +2871,8 @@ class App extends React.Component {
                     </div>
                 </div>
                 {this.renderMainContent()}
+
+                <app.Alert shouldShow="1" title="Title" content="Content" />
             </div>
         );
     }
