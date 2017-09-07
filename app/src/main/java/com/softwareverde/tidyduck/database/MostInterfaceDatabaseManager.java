@@ -104,7 +104,7 @@ public class MostInterfaceDatabaseManager {
         final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE interface_id = ? and function_block_id IN (" +
                 "SELECT DISTINCT function_blocks.id\n" +
                     "FROM function_blocks\n" +
-                    "WHERE function_blocks.is_released=0)")
+                    "WHERE function_blocks.is_approved=0)")
                 .setParameter(mostInterfaceId);
 
         _databaseConnection.executeSql(query);

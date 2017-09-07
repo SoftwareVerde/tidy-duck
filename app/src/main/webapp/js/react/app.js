@@ -1146,6 +1146,10 @@ class App extends React.Component {
                    if (data.functionCatalogIds.length > 0) {
                        thisApp.disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction);
                    }
+                   else if (functionBlock.isApproved()) {
+                       alert("This Function Block is approved for release and cannot be deleted.");
+                       callbackFunction();
+                   }
                    else {
                        thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction);
                    }
@@ -1190,7 +1194,7 @@ class App extends React.Component {
         const functionBlockId = functionBlock.getId();
         let executeCallback = true;
 
-        const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unreleased function catalogs?");
+        const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unapproved function catalogs?");
 
         if (shouldDisassociate) {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
@@ -1494,6 +1498,10 @@ class App extends React.Component {
                     if (data.functionBlockIds.length > 0) {
                         thisApp.disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction);
                     }
+                    else if (mostInterface.isApproved()) {
+                        alert("This Interface is approved for release and cannot be deleted.");
+                        callbackFunction();
+                    }
                     else {
                         thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
                     }
@@ -1538,7 +1546,7 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
         let executeCallback = true;
 
-        const shouldDisassociate = confirm("Are you sure you want to disassociate this interface version from all unreleased function blocks?");
+        const shouldDisassociate = confirm("Are you sure you want to disassociate this interface version from all unapproved function blocks?");
 
         if (shouldDisassociate) {
             deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
