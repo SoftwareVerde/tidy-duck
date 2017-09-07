@@ -73,7 +73,7 @@ public class MostInterfaceDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _updateUnreleasedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
+    private void _updateUnapprovedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
         final String newMostId = proposedMostInterface.getMostId();
         final String newName = proposedMostInterface.getName();
         final String newVersion = proposedMostInterface.getVersion();
@@ -110,12 +110,12 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteMostInterfaceIfUnreleased(final long mostInterfaceId) throws DatabaseException {
+    private void _deleteMostInterfaceIfUnapproved(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (!mostInterface.isReleased()) {
-            // interface isn't released and isn't associated with any function blocks, we can delete it
+        if (! mostInterface.isApproved()) {
+            // interface isn't approved and isn't associated with any function blocks, we can delete it
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
             _deleteReviewForMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
@@ -128,7 +128,7 @@ public class MostInterfaceDatabaseManager {
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
-            // function is not released, we can delete it.
+            // function is not approved, we can delete it.
             mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
         }
     }
@@ -162,7 +162,7 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
-        // TODO: check to see whether function block is released.
+        // TODO: check to see whether function block is approved.
         _insertMostInterface(mostInterface);
         _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
     }
@@ -177,16 +177,16 @@ public class MostInterfaceDatabaseManager {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
         if (!originalMostInterface.isApproved()) {
-            // not released, can update existing interface
-            _updateUnreleasedMostInterface(proposedMostInterface);
+            // not approved, can update existing interface
+            _updateUnapprovedMostInterface(proposedMostInterface);
         } else {
-            // current block is released, need to insert a new interface replace this one
+            // current block is approved, need to insert a new interface replace this one
             _insertMostInterface(proposedMostInterface, originalMostInterface);
             final long newMostInterfaceId = proposedMostInterface.getId();
             _copyMostInterfaceMostFunctions(inputMostInterfaceId, newMostInterfaceId);
             // change association with function block if id isn't 0
             if (functionBlockId != 0) {
-                // TODO: check if function block is released?
+                // TODO: check if function block is approved?
                 _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
                 _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
             }
@@ -213,7 +213,7 @@ public class MostInterfaceDatabaseManager {
                 _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(mostInterfaceId);
             }
             else {
-                _deleteMostInterfaceIfUnreleased(mostInterfaceId);
+                _deleteMostInterfaceIfUnapproved(mostInterfaceId);
             }
         }
     }

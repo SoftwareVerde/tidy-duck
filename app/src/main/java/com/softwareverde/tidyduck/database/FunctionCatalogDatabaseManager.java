@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
-    private final Logger _logger = new Slf4jLogger(this.getClass());
     private final DatabaseConnection<Connection> _databaseConnection;
 
     /**
@@ -60,7 +59,7 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _updateUnreleasedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
+    private void _updateUnapprovedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
@@ -79,12 +78,12 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteFunctionCatalogIfUnreleased(final long functionCatalogId) throws DatabaseException {
+    private void _deleteFunctionCatalogIfUnapproved(final long functionCatalogId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
         if (! functionCatalog.isReleased()) {
-            // function catalog isn't released, we can delete it
+            // function catalog isn't approved, we can delete it
             _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
             _deleteReviewForFunctionCatalog(functionCatalogId);
             _deleteFunctionCatalogFromDatabase(functionCatalogId);
@@ -129,12 +128,12 @@ class FunctionCatalogDatabaseManager {
             _copyFunctionCatalogFunctionBlocksAssociations(inputFunctionCatalogId, newFunctionCatalogId);
         }
         else {
-            _updateUnreleasedFunctionCatalog(functionCatalog);
+            _updateUnapprovedFunctionCatalog(functionCatalog);
         }
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        _deleteFunctionCatalogIfUnreleased(functionCatalogId);
+        _deleteFunctionCatalogIfUnapproved(functionCatalogId);
     }
 
     public void releaseFunctionCatalog(final long functionCatalogId) throws DatabaseException {

@@ -22,15 +22,15 @@ class MostFunctionDatabaseManager {
     }
 
     /**
-     * <p>This method updates a function, provided its interface is not released.  If the interface is released, a new function is added
+     * <p>This method updates a function, provided its interface is not approved.  If the interface is approved, a new function is added
      * and associated with the interface.</p>
      *
      * <p>This relies on the following assumptions:</p>
      * <ol>
-     *     <li>When interfaces are released, their functions are also marked released</li>
-     *     <li>When a released interface is changed, a new version of that interface is created with references to the same functions</li>
-     *     <li>When a released function on an unreleased interface is changed, a new function should be added to contain the changes</li>
-     *     <li>No attempts will be made to update a function on a released interface</li>
+     *     <li>When interfaces are approved, their functions are also marked approved</li>
+     *     <li>When a approved interface is changed, a new version of that interface is created with references to the same functions</li>
+     *     <li>When a approved function on an approved interface is changed, a new function should be added to contain the changes</li>
+     *     <li>No attempts will be made to update a function on a approved interface</li>
      * </ol>
      * @param mostInterfaceId
      * @param proposedMostFunction
@@ -43,11 +43,11 @@ class MostFunctionDatabaseManager {
         MostFunction databaseMostFunction = mostFunctionInflater.inflateMostFunction(inputMostFunctionId);
 
         if (!databaseMostFunction.isApproved()) {
-            // not released, can update existing function
-            _updateUnreleasedMostFunction(proposedMostFunction);
+            // not approved, can update existing function
+            _updateUnapprovedMostFunction(proposedMostFunction);
         }
         else {
-            // current function is released to an interface
+            // current function is approved to an interface
             // need to insert a new function to replace this one
             _insertMostFunction(proposedMostFunction);
             final long newMostFunctionId = proposedMostFunction.getId();
@@ -57,7 +57,7 @@ class MostFunctionDatabaseManager {
         }
     }
 
-    private void _updateUnreleasedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
+    private void _updateUnapprovedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
         final String name = proposedMostFunction.getName();
         final String mostId = proposedMostFunction.getMostId();
         final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
@@ -205,10 +205,10 @@ class MostFunctionDatabaseManager {
 
     public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
-        _deleteMostFunctionIfUnreleased(mostFunctionId);
+        _deleteMostFunctionIfUnapproved(mostFunctionId);
     }
 
-    private void _deleteMostFunctionIfUnreleased(final long mostFunctionId) throws DatabaseException {
+    private void _deleteMostFunctionIfUnapproved(final long mostFunctionId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 

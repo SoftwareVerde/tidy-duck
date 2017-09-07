@@ -21,7 +21,7 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
-        // TODO: check to see whether function catalog is released.
+        // TODO: check to see whether function catalog is approved.
         _insertFunctionBlock(functionBlock);
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
@@ -97,7 +97,7 @@ public class FunctionBlockDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _updateUnreleasedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
+    private void _updateUnapprovedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
         final String newMostId = proposedFunctionBlock.getMostId();
         final String newKind = proposedFunctionBlock.getKind();
         final String newName = proposedFunctionBlock.getName();
@@ -144,7 +144,7 @@ public class FunctionBlockDatabaseManager {
 
     }
 
-    private void _deleteFunctionBlockIfUnreleased(final long functionBlockId) throws DatabaseException {
+    private void _deleteFunctionBlockIfUnapproved(final long functionBlockId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
@@ -161,7 +161,7 @@ public class FunctionBlockDatabaseManager {
 
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
-            // function block isn't released, we can delete it
+            // function block isn't approved, we can delete it
             mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
     }
@@ -197,9 +197,9 @@ public class FunctionBlockDatabaseManager {
     }
 
     /**
-     * If the functionBlock already exists and is released, a new one is inserted and associated with the functionCatalogId.
+     * If the functionBlock already exists and is approved, a new one is inserted and associated with the functionCatalogId.
      *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
-     *  If the functionBlock is not released, then the values are updated within the database.
+     *  If the functionBlock is not approved, then the values are updated within the database.
      */
     public void updateFunctionBlockForFunctionCatalog(final long functionCatalogId, final FunctionBlock updatedFunctionBlock) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
@@ -208,21 +208,21 @@ public class FunctionBlockDatabaseManager {
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
 
         if (originalFunctionBlock.isApproved()) {
-            // current block is released, need to insert a new function block replace this one
+            // current block is approved, need to insert a new function block replace this one
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
             _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);
 
             // change association with function catalog if provided id isn't 0
             if (functionCatalogId != 0) {
-                // TODO: Check if functionCatalog is also released...?
+                // TODO: Check if functionCatalog is also approved...?
                 _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
                 _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
             }
         }
         else {
-            // not released, can update existing function block
-            _updateUnreleasedFunctionBlock(updatedFunctionBlock);
+            // not approve, can update existing function block
+            _updateUnapprovedFunctionBlock(updatedFunctionBlock);
         }
     }
 
@@ -245,7 +245,7 @@ public class FunctionBlockDatabaseManager {
                 _disassociateFunctionBlockFromAllUnapprovedFunctionCatalogs(functionBlockId);
             }
             else {
-                _deleteFunctionBlockIfUnreleased(functionBlockId);
+                _deleteFunctionBlockIfUnapproved(functionBlockId);
             }
         }
     }

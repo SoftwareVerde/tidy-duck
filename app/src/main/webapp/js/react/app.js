@@ -1200,7 +1200,7 @@ class App extends React.Component {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
                     // TODO: some indication that disassociation completed. Maybe an icon on the child element?
-                    if (!functionBlock.isReleased()) {
+                    if (! functionBlock.isApproved()) {
                         const shouldDelete = confirm("Would you like to delete this function block version from the database?");
                         if (shouldDelete) {
                             executeCallback = false;
@@ -1220,8 +1220,8 @@ class App extends React.Component {
     }
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
-        if (functionBlock.isReleased()) {
-            alert("The currently selected Function Block version is released. Released function blocks cannot be deleted.")
+        if (functionBlock.isApproved()) {
+            alert("The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.")
         }
         else {
             const thisApp = this;
@@ -1552,7 +1552,7 @@ class App extends React.Component {
             deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
                 if (success) {
                     // TODO: some indication that disassociation completed. Maybe an icon on the child element?
-                    if (!mostInterface.isReleased()) {
+                    if (!mostInterface.isApproved()) {
                         const shouldDelete = confirm("Would you like to delete this function block version from the database?");
                         if (shouldDelete) {
                             executeCallback = false;
@@ -1572,8 +1572,8 @@ class App extends React.Component {
     }
 
     deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, shouldSkipConfirmation) {
-        if (mostInterface.isReleased()) {
-            alert("The currently selected interface version is released. Released interfaces cannot be deleted.")
+        if (mostInterface.isApproved()) {
+            alert("The currently selected interface version is approved for release. Approved interfaces cannot be deleted.")
         }
         else {
             const thisApp = this;

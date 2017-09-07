@@ -114,13 +114,16 @@ class MostInterfaceForm extends React.Component {
 
     render() {
         const reactComponents = [];
+        const mostInterface = this.state.mostInterface;
+        const version = mostInterface.isApproved() ? mostInterface.getDisplayVersion() : mostInterface.getReleaseVersion();
+        const readOnly = this.state.readOnly;
 
-        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" label="ID" value={this.state.mostInterface.getMostId()} readOnly={this.state.readOnly} onChange={this.onMostIdChanged} />);
-        reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" label="Name" value={this.state.mostInterface.getName()} readOnly={this.state.readOnly} onChange={this.onNameChanged} />);
-        reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={this.state.mostInterface.getDescription()} readOnly={this.state.readOnly} onChange={this.onDescriptionChange} />);
-        reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" label="Version" value={this.state.mostInterface.getReleaseVersion()} readOnly={this.state.readOnly} onChange={this.onVersionChanged} />);
+        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" label="ID" value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} />);
+        reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" label="Name" value={mostInterface.getName()} readOnly={readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={mostInterface.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
+        reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" label="Version" value={version} readOnly={readOnly} onChange={this.onVersionChanged} />);
 
-        if (! this.state.readOnly) {
+        if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {
                 reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="interface-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
             } else {
