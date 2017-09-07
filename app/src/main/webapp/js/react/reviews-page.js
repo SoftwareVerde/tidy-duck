@@ -69,7 +69,7 @@ class ReviewsPage extends React.Component {
                             </tr>
                             <tr>
                                 <th>Release Version:</th>
-                                <td>{reviewObject.getReleaseVersion()}</td>
+                                <td>{reviewObject.getDisplayVersion()}</td>
                             </tr>
                             <tr>
                                 <th>Author:</th>
@@ -115,7 +115,7 @@ class ReviewsPage extends React.Component {
                             </tr>
                             <tr>
                                 <th>Release Version:</th>
-                                <td>{reviewObject.getReleaseVersion()}</td>
+                                <td>{reviewObject.getDisplayVersion()}</td>
                             </tr>
                             <tr>
                                 <th>Last Modified:</th>
@@ -155,7 +155,7 @@ class ReviewsPage extends React.Component {
                             </tr>
                             <tr>
                                 <th>Version:</th>
-                                <td>{reviewObject.getReleaseVersion()}</td>
+                                <td>{reviewObject.getDisplayVersion()}</td>
                             </tr>
                             <tr>
                                 <th>Last Modified:</th>
@@ -197,7 +197,7 @@ class ReviewsPage extends React.Component {
                             </tr>
                             <tr>
                                 <th>Release Version:</th>
-                                <td>{reviewObject.getReleaseVersion()}</td>
+                                <td>{reviewObject.getDisplayVersion()}</td>
                             </tr>
                             <tr>
                                 <th>Last Modified:</th>
