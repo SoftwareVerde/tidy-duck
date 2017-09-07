@@ -9,25 +9,74 @@ class Alert extends React.Component {
             onConfirm:  (this.props.onConfirm || null),
             width:      (this.props.width || 400),
             x:          (this.props.x || ( (window.innerWidth / 2) - 400)),
-            y:          (this.props.y || 100)
+            y:          (this.props.y || 100),
+            isMoving:   false,
+            lastMoveTime: 0
         };
 
-        this.onClick = this.onClick.bind(this);
+        this.onMouseDown = this.onMouseDown.bind(this);
+        this.onMouseMove = this.onMouseMove.bind(this);
+        this.onMouseUp = this.onMouseUp.bind(this);
+        this.onMouseOut = this.onMouseOut.bind(this);
         this.onButtonClick = this.onButtonClick.bind(this);
     }
 
-    onClick(event) {
-        event = (event || window.event);
+    onMouseDown(event) {
         event.preventDefault();
 
-        console.log(event);
-
         this.setState({
-            x:  event.pageX,
-            y:  event.pageY
+            isMoving:   true
         });
 
-        return false;
+        return true;
+    }
+
+    onMouseMove(event) {
+        if (! this.state.isMoving) { return; }
+        this.state.lastMoveTime = (new Date()).getTime();
+
+        const width = this.refs.alertContainer.offsetWidth;
+        const height = this.refs.alertContainer.offsetWidth;
+
+        this.setState({
+            x:  event.pageX - (width / 2),
+            y:  event.pageY - (25)
+        });
+    }
+
+    onMouseUp(event) {
+        event.preventDefault();
+
+        this.setState({
+            isMoving:   false
+        });
+
+        return true;
+    }
+
+    onMouseOut(event) {
+        event.preventDefault();
+
+        if (this.state.isMoving) {
+            const eventTime = (new Date()).getTime();
+            event.persist();
+            const _this = this;
+            setTimeout(function() {
+                if (_this.state.lastMoveTime >= eventTime) { return; }
+
+                if (_this.state.isMoving) {
+                    _this.onMouseMove(event);
+                }
+            }, 10);
+        }
+
+        /*
+            this.setState({
+                isMoving:   false
+            });
+        */
+
+        return true;
     }
 
     onButtonClick(event) {
@@ -60,7 +109,7 @@ class Alert extends React.Component {
         };
 
         return (
-            <div className="alert" onClick={this.onClick} style={divStyle} >
+            <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} onMouseUp={this.onMouseUp} onMouseMove={(this.state.isMoving ? this.onMouseMove : null)} onMouseDown={this.onMouseDown} style={divStyle} >
                 <div className="alert-title">{this.state.title}</div>
                 <div className="alert-content">{this.state.content}</div>
                 <div className="alert-button" onClick={this.onButtonClick}>Got it!</div>
