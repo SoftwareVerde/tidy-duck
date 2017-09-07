@@ -6,6 +6,7 @@ class ApprovalForm extends React.Component{
         reviewComment.setAccount(this.props.account);
         this.state = {
             shouldShowSaveCommentAnimation: false,
+            ticketUrlSaveButtonText:        'Save',
             reviewComment:                  reviewComment
         };
 
@@ -121,8 +122,26 @@ class ApprovalForm extends React.Component{
     }
 
     onSaveTicketUrlClicked() {
+        this.setState({
+            ticketUrlSaveButtonText: <i className="fa fa-refresh fa-spin"/>
+        });
+
+        const thisForm = this;
         if (typeof this.props.onSaveTicketUrlClicked == "function") {
-            this.props.onSaveTicketUrlClicked(this.state.ticketUrl);
+            this.props.onSaveTicketUrlClicked(this.state.ticketUrl, function(wasSuccess) {
+                const newSaveButtonText = wasSuccess ? 'Saved' : 'Error';
+                thisForm.setState({
+                    ticketUrlSaveButtonText: newSaveButtonText
+                });
+                if (!wasSuccess) {
+                    // switch back to 'Save' from 'Error' after 3 seconds
+                    setTimeout(3000, function () {
+                        thisForm.setState({
+                            ticketUrlSaveButtonText: 'Save'
+                        });
+                    })
+                }
+            });
         }
     }
 
@@ -184,7 +203,7 @@ class ApprovalForm extends React.Component{
         return (
             <div className="ticket-url-area">
                 <app.InputField name="ticket-url" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />
-                <button className="button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>Save</button>
+                <button className="button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>
             </div>
         );
     }

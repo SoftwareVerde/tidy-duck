@@ -294,6 +294,16 @@ public class DatabaseManager {
         });
     }
 
+    public void updateReview(final Review review) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.updateReview(review);
+            }
+        });
+    }
+
     public void approveReview(final Review review) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override

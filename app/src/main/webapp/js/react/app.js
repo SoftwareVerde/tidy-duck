@@ -139,6 +139,7 @@ class App extends React.Component {
 
         this.onReviewSelected = this.onReviewSelected.bind(this);
         this.onReviewVoteClicked = this.onReviewVoteClicked.bind(this);
+        this.onSaveTicketUrlClicked = this.onSaveTicketUrlClicked.bind(this);
         this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
@@ -2133,6 +2134,22 @@ class App extends React.Component {
         return false;
     }
 
+    onSaveTicketUrlClicked(value, callbackFunction) {
+        const review = this.state.currentReview;
+
+        review.setTicketUrl(value);
+
+        updateReview(review, function(wasSuccess) {
+            if (typeof callbackFunction == "function") {
+                callbackFunction(wasSuccess);
+            }
+        });
+
+        this.setState({
+            currentReview: review
+        })
+    }
+
     onApproveButtonClicked() {
         if (confirm("Are you sure you would like to approve this review?")) {
             const reviewId = this.state.currentReview.getId();
@@ -2729,6 +2746,7 @@ class App extends React.Component {
                                   shouldShowSaveAnimation={shouldAnimateCreateButton}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
+                                  onSaveTicketUrlClicked={this.onSaveTicketUrlClicked}
                                   onApproveButtonClicked={this.onApproveButtonClicked}
                 />
             );

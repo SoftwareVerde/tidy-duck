@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _insertReview(request, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("reviews/<reviewId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _updateReview(request, environment.getDatabase());
             }
         });
 
@@ -130,12 +138,31 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String errorMessage = "Unable to inflate reviews.";
-            _logger.error(errorMessage);
+            _logger.error(errorMessage, e);
             return super._generateErrorJson(errorMessage);
         }
     }
 
-    private Json _insertReview(final HttpServletRequest request, final Database<Connection> database) throws Exception {
+    private Json _insertReview(final HttpServletRequest request, final Database<Connection> database) {
+        try {
+            final Json jsonRequest = _getRequestDataAsJson(request);
+            final Json response = _generateSuccessJson();
+            final Json reviewJson = jsonRequest.get("review");
+
+            final Review review = _populateReviewFromJson(reviewJson, database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.insertReview(review);
+            response.put("reviewId", review.getId());
+
+            return response;
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to submit review.", exception);
+            return super._generateErrorJson("Unable to submit review: " + exception.getMessage());
+        }
+    }
+
+    private Json _updateReview(final HttpServletRequest request, final Database<Connection> database) throws IOException {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
         final Json reviewJson = jsonRequest.get("review");
@@ -143,7 +170,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         try {
             final Review review = _populateReviewFromJson(reviewJson, database);
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.insertReview(review);
+            databaseManager.updateReview(review);
             response.put("reviewId", review.getId());
         }
         catch (final Exception exception) {
@@ -194,12 +221,12 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _updateReviewVote(final HttpServletRequest httpRequest, final long reviewVoteId, final long accountId, final Database<Connection> database) throws Exception {
-        final Json request = _getRequestDataAsJson(httpRequest);
-        final Json reviewVoteJson = request.get("reviewVote");
-        final Json response = new Json(false);
-
+    private Json _updateReviewVote(final HttpServletRequest httpRequest, final long reviewVoteId, final long accountId, final Database<Connection> database) {
         try {
+            final Json request = _getRequestDataAsJson(httpRequest);
+            final Json reviewVoteJson = request.get("reviewVote");
+            final Json response = new Json(false);
+
             final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, accountId, database);
             reviewVote.setId(reviewVoteId);
 
@@ -211,15 +238,15 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
 
             databaseManager.updateReviewVote(reviewVote);
+
+            super._setJsonSuccessFields(response);
+            return response;
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update review vote: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
-
-        super._setJsonSuccessFields(response);
-        return response;
     }
 
     private Json _deleteReviewVote(final long reviewVoteId, final Database<Connection> database) throws Exception {

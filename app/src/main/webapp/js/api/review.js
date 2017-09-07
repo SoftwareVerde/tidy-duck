@@ -22,7 +22,7 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
        if (data.wasSuccess) {
            reviews = data.reviews;
        } else {
-           console.error("Unable to get types: " + data.errorMessage);
+           console.error("Unable to list reviews: " + data.errorMessage);
        }
 
         if (typeof callbackFunction == "function") {
@@ -56,6 +56,32 @@ function insertReview(review, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, reviewId);
+        }
+    });
+}
+
+// calls callbackFunction with success flag
+function updateReview(review, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews/" + review.getId(),
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "review" : review
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (!wasSuccess) {
+            console.error("Unable to update review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }
