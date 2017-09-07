@@ -342,7 +342,6 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
     private ReviewVote _populateReviewVoteFromJson(final Json reviewVoteJson, final long accountId, final Database<Connection> database) throws DatabaseException {
         final long id = reviewVoteJson.getLong("id");
-        final Date createdDate = DateUtil.dateFromDateTimeString(reviewVoteJson.getString("createdDate"));
         final boolean isUpvote = reviewVoteJson.getBoolean("isUpvote");
 
         final Account account;
@@ -355,7 +354,6 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         reviewVote.setId(id);
         reviewVote.setAccount(account);
-        reviewVote.setCreatedDate(createdDate);
         reviewVote.setIsUpvote(isUpvote);
 
         return reviewVote;
@@ -363,7 +361,6 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
     private ReviewComment _populateReviewCommentFromJson(final Json reviewCommentJson, final long accountId, final Database<Connection> database) throws DatabaseException {
         final long id = reviewCommentJson.getLong("id");
-        final Date createdDate = DateUtil.dateFromDateTimeString(reviewCommentJson.getString("createdDate"));
         final String commentText = reviewCommentJson.getString("commentText");
 
         final ReviewComment reviewComment = new ReviewComment();
@@ -376,7 +373,6 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         reviewComment.setId(id);
         reviewComment.setAccount(account);
-        reviewComment.setCreatedDate(createdDate);
         reviewComment.setCommentText(commentText);
 
         return reviewComment;
