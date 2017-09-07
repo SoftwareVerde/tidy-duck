@@ -122,7 +122,7 @@ class FunctionCatalogDatabaseManager {
 
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
-        if (originalFunctionCatalog.isReleased()) {
+        if (originalFunctionCatalog.isApproved()) {
             // need to insert a new function catalog replace this one
             _insertFunctionCatalog(functionCatalog, originalFunctionCatalog);
             final long newFunctionCatalogId = functionCatalog.getId();

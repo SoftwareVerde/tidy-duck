@@ -42,7 +42,7 @@ class MostFunctionDatabaseManager {
         MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         MostFunction databaseMostFunction = mostFunctionInflater.inflateMostFunction(inputMostFunctionId);
 
-        if (!databaseMostFunction.isReleased()) {
+        if (!databaseMostFunction.isApproved()) {
             // not released, can update existing function
             _updateUnreleasedMostFunction(proposedMostFunction);
         }

@@ -176,7 +176,7 @@ public class MostInterfaceDatabaseManager {
 
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
-        if (!originalMostInterface.isReleased()) {
+        if (!originalMostInterface.isApproved()) {
             // not released, can update existing interface
             _updateUnreleasedMostInterface(proposedMostInterface);
         } else {

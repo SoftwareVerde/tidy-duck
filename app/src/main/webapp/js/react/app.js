@@ -2476,7 +2476,7 @@ class App extends React.Component {
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased && isApproved;
-                    shouldShowForkButton = isReleased;
+                    shouldShowForkButton = isApproved;
                     forkFunction = this.onUpdateFunctionCatalog;
                 }
 
@@ -2486,7 +2486,7 @@ class App extends React.Component {
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
-                    if (isReleased) {
+                    if (isApproved) {
                         shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
                             (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
 
@@ -2561,7 +2561,7 @@ class App extends React.Component {
                     onSearchClicked={() => this.setState({shouldShowSearchChildForm: !shouldShowSearchChildForm, shouldShowCreateChildForm: false, shouldShowEditForm: false, shouldShowSubmitForReviewForm: false })}
                     onEditClicked={() => this.setState({shouldShowEditForm: !shouldShowEditForm, shouldShowCreateChildForm: false, shouldShowSearchChildForm: false, shouldShowSubmitForReviewForm: false })}
                     onSubmitForReviewClicked={() => this.onReviewSubmitted(selectedItem)}
-                    onForkClicked={() => forkFunction(selectedItem)}
+                    onForkClicked={() => forkFunction(selectedItem, true)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}

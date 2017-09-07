@@ -207,7 +207,7 @@ public class FunctionBlockDatabaseManager {
         final long inputFunctionBlockId = updatedFunctionBlock.getId();
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
 
-        if (originalFunctionBlock.isReleased()) {
+        if (originalFunctionBlock.isApproved()) {
             // current block is released, need to insert a new function block replace this one
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
