@@ -8,7 +8,8 @@ class FunctionCatalogForm extends React.Component {
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:         this.props.defaultButtonTitle
+            defaultButtonTitle:         this.props.defaultButtonTitle,
+            readOnly:                   (this.props.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
@@ -28,7 +29,8 @@ class FunctionCatalogForm extends React.Component {
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
             buttonTitle:                (newProperties.buttonTitle || "Submit"),
-            defaultButtonTitle:         newProperties.defaultButtonTitle
+            defaultButtonTitle:         newProperties.defaultButtonTitle,
+            readOnly:                   (newProperties.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
         });
     }
 
@@ -86,8 +88,8 @@ class FunctionCatalogForm extends React.Component {
 
     render() {
         const reactComponents = [];
-        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
-        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />);
+        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.state.readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.state.readOnly} onChange={this.onReleaseVersionChanged} />);
 
         if(this.state.shouldShowSaveAnimation)  {
             reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);

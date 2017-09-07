@@ -257,10 +257,7 @@ class App extends React.Component {
                 if (newFunctionCatalogId != functionCatalogId) {
                     functionCatalog.setIsReleased(false);
                 }
-                else {
-                    // Reset isApproved to false because it was updated.
-                    functionCatalog.setIsApproved(false);
-                }
+                functionCatalog.setIsApproved(false);
 
                 functionCatalog.setId(newFunctionCatalogId);
                 functionCatalogs.push(functionCatalog);
@@ -269,6 +266,7 @@ class App extends React.Component {
                 let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 let navigationItem = navigationItems.pop();
+                navigationItem.setId("functionCatalog" + newFunctionCatalogId);
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setIsReleased(functionCatalog.isReleased());
                 navigationItem.setIsApproved(functionCatalog.isApproved());
@@ -419,10 +417,7 @@ class App extends React.Component {
                 if (newFunctionBlockId != functionBlockId) {
                     functionBlock.setIsReleased(false);
                 }
-                else {
-                    // Reset isApproved to false because it was updated.
-                    functionBlock.setIsApproved(false);
-                }
+                functionBlock.setIsApproved(false);
 
                 functionBlock.setId(newFunctionBlockId);
                 functionBlocks.push(functionBlock);
@@ -431,6 +426,7 @@ class App extends React.Component {
                 let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 let navigationItem = navigationItems.pop();
+                navigationItem.setId("functionBlock" + newFunctionBlockId);
                 navigationItem.setTitle(functionBlock.getName());
                 navigationItem.setIsReleased(functionBlock.isReleased());
                 navigationItem.setIsApproved(functionBlock.isApproved());
@@ -549,10 +545,7 @@ class App extends React.Component {
                 if (newMostInterfaceId != mostInterfaceId) {
                     mostInterface.setIsReleased(false);
                 }
-                else {
-                    // Reset isApproved to false because it was updated.
-                    mostInterface.setIsApproved(false);
-                }
+                mostInterface.setIsApproved(false);
 
                 mostInterface.setId(newMostInterfaceId);
                 mostInterfaces.push(mostInterface);
@@ -561,6 +554,7 @@ class App extends React.Component {
                 var navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 var navigationItem = navigationItems.pop();
+                navigationItem.setId("mostInterface" + newMostInterfaceId);
                 navigationItem.setTitle(mostInterface.getName());
                 navigationItem.setIsReleased(mostInterface.isReleased());
                 navigationItem.setIsApproved(mostInterface.isApproved());
@@ -580,6 +574,7 @@ class App extends React.Component {
                         defaultButtonTitle="Save"
                     />
                 );
+
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
@@ -662,6 +657,7 @@ class App extends React.Component {
                 //Update final navigation item to reflect any name changes.
                 const navigationItems = thisApp.state.navigationItems;
                 const navigationItem = navigationItems.pop();
+                navigationItem.setId("mostFunction" + mostFunction.getId());
                 navigationItem.setTitle(mostFunction.getName());
                 navigationItem.setIsReleased(mostFunction.isReleased());
                 navigationItem.setIsApproved(mostFunction.isApproved());
@@ -2403,7 +2399,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const mostFunctionKey = "mostFunction" + i;
-                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} isInterfaceReleased={this.state.selectedItem.isReleased()} />);
+                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} isInterfaceApproved={this.state.selectedItem.isApproved()} isInterfaceReleased={this.state.selectedItem.isReleased()} />);
                 }
             break;
 
@@ -2412,7 +2408,7 @@ class App extends React.Component {
                 const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
                 const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
-                    readOnly={this.state.selectedItem.isReleased()}
+                    readOnly={this.state.selectedItem.isApproved()}
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
                     buttonTitle={buttonTitle}
@@ -2472,7 +2468,7 @@ class App extends React.Component {
                 const isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
 
-                if (! isReleased && !isApproved) {
+                if (! isReleased && ! isApproved) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
                     shouldShowSearchButton = ! shouldShowFilterBar;
                 }
@@ -2486,7 +2482,7 @@ class App extends React.Component {
 
                 if (activeRole === this.roles.development) {
                     const activeSubRole = this.state.activeSubRole;
-                    shouldShowEditButton = true;
+                    shouldShowEditButton = ! isApproved;
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
