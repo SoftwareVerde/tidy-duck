@@ -108,7 +108,7 @@
     transition: background-color 0.5s ease;
 }
 
-.parameter i:hover {
+.parameter-display-area i:hover {
     color: #FFDD66;
 }
 
