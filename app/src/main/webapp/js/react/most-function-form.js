@@ -390,7 +390,7 @@ class MostFunctionForm extends React.Component {
         reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={returnTypeName} options={mostTypeNames} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
 
         return (
-            <div className="metadata-form" onClick={this.onClick}>
+            <div className="metadata-form clearfix" onClick={this.onClick}>
                 {this.renderFormTitle()}
                 <div className="metadata-form-inputs">{reactComponents}</div>
                 <div className="metadata-form-title">Operations</div>

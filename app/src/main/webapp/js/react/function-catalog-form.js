@@ -91,13 +91,15 @@ class FunctionCatalogForm extends React.Component {
         reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.state.readOnly} onChange={this.onNameChanged} />);
         reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.state.readOnly} onChange={this.onReleaseVersionChanged} />);
 
-        if(this.state.shouldShowSaveAnimation)  {
-            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
-        } else {
-            reactComponents.push(<div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
+        if (! this.state.readOnly) {
+            if(this.state.shouldShowSaveAnimation)  {
+                reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+            } else {
+                reactComponents.push(<div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
+            }
         }
         return (
-            <div className="metadata-form" onClick={this.onClick}>
+            <div className="metadata-form clearfix" onClick={this.onClick}>
                 {this.renderFormTitle()}
                 {reactComponents}
             </div>

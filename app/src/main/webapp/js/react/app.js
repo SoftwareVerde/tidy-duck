@@ -2482,7 +2482,7 @@ class App extends React.Component {
 
                 if (activeRole === this.roles.development) {
                     const activeSubRole = this.state.activeSubRole;
-                    shouldShowEditButton = ! isApproved;
+                    shouldShowEditButton = true;
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
