@@ -807,8 +807,8 @@ class App extends React.Component {
     }
 
     onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
-        if (functionCatalog.isReleased()) {
-            alert("Unable to delete Function Catalog. Released Function Catalogs cannot be deleted.");
+        if (functionCatalog.isApproved()) {
+            alert("This Function Catalog is approved for release and cannot be deleted.");
             callbackFunction();
         }
         else {
@@ -1134,8 +1134,8 @@ class App extends React.Component {
 
         // If this item has a containing parent, simply disassociate it.
         if (selectedItem) {
-            if (selectedItem.isReleased()) {
-                alert("Unable to delete Function Block. Currently selected Function Catalog is released.");
+            if (selectedItem.isApproved()) {
+                alert("Unable to delete Function Block. Currently selected Function Catalog is approved for release.");
                 callbackFunction();
             }
             else {thisApp.disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction);}
@@ -1482,8 +1482,8 @@ class App extends React.Component {
 
         // If this item has a containing parent, simply disassociate it.
         if (selectedItem) {
-            if (selectedItem.isReleased()) {
-                alert("Unable to delete Interface. Currently selected Function Block is released.");
+            if (selectedItem.isApproved()) {
+                alert("Unable to delete Interface. Currently selected Function Block is approved for release.");
                 callbackFunction();
             }
             else {thisApp.disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction);}
@@ -1677,8 +1677,8 @@ class App extends React.Component {
         const thisApp = this;
         const selectedItem = this.state.selectedItem;
 
-        if (selectedItem.isReleased()) {
-            alert("Unable to delete Function. Currently selected Interface is released.");
+        if (selectedItem.isApproved()) {
+            alert("Unable to delete Function. Currently selected Interface is approved for release.");
             callbackFunction();
         }
         else {
