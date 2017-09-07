@@ -387,6 +387,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         final Long mostInterfaceId = review.getMostInterface() == null ? null : review.getMostInterface().getId();
         final Long mostFunctionId = review.getMostFunction() == null ? null : review.getMostFunction().getId();
         final Long accountId = review.getAccount().getId();
+        final String ticketUrl = review.getTicketUrl();
         final String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
         final List<ReviewVote> reviewVotes = review.getReviewVotes();
         final List<ReviewComment> reviewComments = review.getReviewComments();
@@ -409,6 +410,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         json.put("mostInterfaceId", mostInterfaceId);
         json.put("mostFunctionId", mostFunctionId);
         json.put("accountId", accountId);
+        json.put("ticketUrl", ticketUrl);
         json.put("createdDate", createdDate);
         json.put("reviewVotes", reviewVotesJson);
         json.put("reviewComments", reviewCommentsJson);

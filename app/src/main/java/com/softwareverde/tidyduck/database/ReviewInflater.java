@@ -20,7 +20,7 @@ public class ReviewInflater {
     private final DatabaseConnection<Connection> _databaseConnection;
 
     private static final String LIST_REVIEWS_QUERY = "SELECT * FROM (" +
-                                                        "SELECT reviews.id, function_catalog_id, function_block_id, interface_id, function_id, reviews.account_id, created_date, COALESCE(function_catalogs.is_approved, function_blocks.is_approved, interfaces.is_approved, functions.is_approved) = 1 is_approved\n" +
+                                                        "SELECT reviews.id, function_catalog_id, function_block_id, interface_id, function_id, reviews.account_id, ticket_url, created_date, COALESCE(function_catalogs.is_approved, function_blocks.is_approved, interfaces.is_approved, functions.is_approved) = 1 is_approved\n" +
                                                         "FROM reviews\n" +
                                                         "LEFT OUTER JOIN function_catalogs ON function_catalogs.id = reviews.function_catalog_id\n" +
                                                         "LEFT OUTER JOIN function_blocks ON function_blocks.id = reviews.function_block_id\n" +
@@ -145,6 +145,7 @@ public class ReviewInflater {
         final Long mostInterfaceId = row.getLong("interface_id");
         final Long mostFunctionId = row.getLong("function_id");
         final Long accountId = row.getLong("account_id");
+        final String ticketUrl = row.getString("ticket_url");
         final Date createdDate = DateUtil.dateFromDateString(row.getString("created_date"));
 
         // inflate function catalog
@@ -190,6 +191,7 @@ public class ReviewInflater {
         review.setMostInterface(mostInterface);
         review.setMostFunction(mostFunction);
         review.setAccount(account);
+        review.setTicketUrl(ticketUrl);
         review.setCreatedDate(createdDate);
         review.setReviewVotes(reviewVotes);
         review.setReviewComments(reviewComments);

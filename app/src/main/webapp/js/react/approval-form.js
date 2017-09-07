@@ -14,10 +14,13 @@ class ApprovalForm extends React.Component{
         this.onUpvoteClicked = this.onUpvoteClicked.bind(this);
         this.onDownvoteClicked = this.onDownvoteClicked.bind(this);
         this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
+        this.onTicketUrlChanged = this.onTicketUrlChanged.bind(this);
+        this.onSaveTicketUrlClicked = this.onSaveTicketUrlClicked.bind(this);
         this.renderUpvoteButton = this.renderUpvoteButton.bind(this);
         this.renderDownvoteButton = this.renderDownvoteButton.bind(this);
         this.renderVoteList = this.renderVoteList.bind(this);
         this.renderComments = this.renderComments.bind(this);
+        this.renderTicketUrlArea = this.renderTicketUrlArea.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -111,6 +114,18 @@ class ApprovalForm extends React.Component{
         }
     }
 
+    onTicketUrlChanged(value) {
+        this.setState({
+            ticketUrl: value
+        });
+    }
+
+    onSaveTicketUrlClicked() {
+        if (typeof this.props.onSaveTicketUrlClicked == "function") {
+            this.props.onSaveTicketUrlClicked(this.state.ticketUrl);
+        }
+    }
+
     renderDownvoteButton() {
         if (this.props.shouldShowVoteButtons) {
             const buttonTitle = "Downvote";
@@ -149,30 +164,6 @@ class ApprovalForm extends React.Component{
                 </div>);
         }
 
-        // TODO: delete below if no longer needed for testing.
-        /*
-        reactComponents.push(
-            <div key={"vote" + 2} className="vote-item primary-bg primary-contrast" >
-                Bob<i className="fa fa-thumbs-up" />
-            </div>);
-        reactComponents.push(
-            <div key={"vote" + 3} className="vote-item primary-bg primary-contrast" >
-                Hank<i className="fa fa-thumbs-up" />
-            </div>);
-        reactComponents.push(
-            <div key={"vote" + 4} className="vote-item primary-bg primary-contrast" >
-                Bill<i className="fa fa-thumbs-up" />
-            </div>);
-        reactComponents.push(
-            <div key={"vote" + 5} className="vote-item primary-bg primary-contrast"  >
-                Dale<i className="fa fa-thumbs-up" />
-            </div>);
-        reactComponents.push(
-            <div key={"vote" + 6} className="vote-item primary-bg primary-contrast"  >
-                Boomhauer<i className="fa fa-thumbs-up" />
-            </div>);
-        */
-
         return (<div className="vote-list">{reactComponents}</div>);
     }
 
@@ -187,6 +178,15 @@ class ApprovalForm extends React.Component{
         }
 
         return (<div className="comments-area">{reactComponents}</div>);
+    }
+
+    renderTicketUrlArea() {
+        return (
+            <div className="ticket-url-area">
+                <app.InputField name="ticket-url" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />
+                <button className="button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>Save</button>
+            </div>
+        );
     }
 
     render() {
@@ -206,6 +206,7 @@ class ApprovalForm extends React.Component{
                     <div>Comments</div>
                     {this.renderComments()}
                     <div className="vote-area">
+                        {this.renderTicketUrlArea()}
                         <div className="submit-comment-form">
                             <app.InputField name="comment" type="textarea" label={"Comment"} value={this.state.reviewComment.getCommentText()} readOnly={this.props.readOnly} onChange={this.onReviewCommentChanged} />
                             {submitCommentButton}

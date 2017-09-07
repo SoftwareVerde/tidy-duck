@@ -25,6 +25,8 @@ class Review {
         const account = new Account();
         account.setId(json.accountId);
 
+        const ticketUrl = json.ticketUrl;
+
         const reviewVotes = [];
         const reviewVotesJson = json.reviewVotes;
         for (let i in reviewVotesJson) {
@@ -50,6 +52,7 @@ class Review {
         review.setMostFunction(mostFunction);
         review.setCreatedDate(json.createdDate);
         review.setAccount(account);
+        review.setTicketUrl(ticketUrl);
         review.setReviewVotes(reviewVotes);
         review.setReviewComments(reviewComments);
 
@@ -57,20 +60,24 @@ class Review {
     }
 
     toJson() {
+        const id = this._id;
         const functionCatalogId = this._functionCatalog ? this._functionCatalog.getId() : null;
         const functionBlockId = this._functionBlock ? this._functionBlock.getId() : null;
         const mostInterfaceId = this._mostInterface ? this._mostInterface.getId() : null;
         const mostFunctionId = this._mostFunction ? this._mostFunction.getId() : null;
         const accountId = this._account.getId();
+        const ticketUrl = this._ticketUrl;
+        const createdDate = this._createdDate;
 
         return {
-            id:                 this._id,
+            id:                 id,
             functionCatalogId:  functionCatalogId,
             functionBlockId:    functionBlockId,
             mostInterfaceId:    mostInterfaceId,
             mostFunctionId:     mostFunctionId,
             accountId:          accountId,
-            createdDate:        this._createdDate
+            ticketUrl:          ticketUrl,
+            createdDate:        createdDate
         };
     }
 
@@ -81,6 +88,7 @@ class Review {
         this._mostInterface = null;
         this._mostFunction = null;
         this._account = null;
+        this._ticketUrl = null;
         this._createdDate = null;
         this._reviewVotes = [];
         this._reviewComments = [];
@@ -141,6 +149,14 @@ class Review {
 
     getAccount() {
         return this._account;
+    }
+
+    setTicketUrl(ticketUrl) {
+        this._ticketUrl = ticketUrl;
+    }
+
+    getTicketUrl() {
+        return ticketUrl;
     }
 
     setCreatedDate(createdDate) {

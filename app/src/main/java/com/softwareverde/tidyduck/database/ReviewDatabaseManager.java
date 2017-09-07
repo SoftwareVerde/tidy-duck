@@ -29,6 +29,7 @@ public class ReviewDatabaseManager {
         final MostInterface mostInterface = review.getMostInterface();
         final MostFunction mostFunction = review.getMostFunction();
         final Account account = review.getAccount();
+        final String ticketUrl = review.getTicketUrl();
         final Date createdDate = review.getCreatedDate();
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String createdDateString = simpleDateFormat.format(createdDate);
@@ -52,12 +53,13 @@ public class ReviewDatabaseManager {
             mostFunctionId = mostFunction.getId();
         }
 
-        final Query query = new Query("INSERT INTO reviews (function_catalog_id, function_block_id, interface_id, function_id, account_id, created_date) VALUES (?, ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO reviews (function_catalog_id, function_block_id, interface_id, function_id, account_id, ticket_url, created_date) VALUES (?, ?, ?, ?, ?, ?, ?)")
                 .setParameter(functionCatalogId)
                 .setParameter(functionBlockId)
                 .setParameter(mostInterfaceId)
                 .setParameter(mostFunctionId)
                 .setParameter(accountId)
+                .setParameter(ticketUrl)
                 .setParameter(createdDateString)
         ;
 

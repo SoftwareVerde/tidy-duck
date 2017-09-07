@@ -140,3 +140,18 @@
     width: 20%;
     margin: 0;
 }
+
+.ticket-url-area {
+    float: left;
+    width: 75%;
+    display: inline-block;
+    text-align: left;
+}
+
+.ticket-url-area .input-field {
+    display: inline-block;
+    width: 70%;
+    float: none;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
