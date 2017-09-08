@@ -152,7 +152,7 @@ class MostFunctionDatabaseManager {
     }
 
     private void _addInputParameterToFunction(final long newFunctionId, final MostFunctionParameter parameter) throws DatabaseException {
-        final Query query = new Query("INSERT INTO function_parameters (function_id, name, description, parameter_index, most_type_id) VALUES (?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_parameters (function_id, parameter_name, parameter_description, parameter_index, most_type_id) VALUES (?, ?, ?, ?, ?)")
             .setParameter(newFunctionId)
             .setParameter(parameter.getName())
             .setParameter(parameter.getDescription())

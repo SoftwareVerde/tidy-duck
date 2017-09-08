@@ -619,10 +619,13 @@ public class MostTypeConverter {
 
                 final com.softwareverde.mostadapter.type.MostType parameterType = _convertMostType(mostFunctionParameter.getMostType());
                 // add one to parameter index because of sender handle parameter
+                final String parameterName = mostFunctionParameter.getName();
+                final String parameterDescription = mostFunctionParameter.getDescription();
                 final int parameterIndex = mostFunctionParameter.getParameterIndex()+1;
                 final String parameterIndexString = Integer.toString(parameterIndex);
 
-                // TODO: add parameter names/description
+                mostParameter.setName(parameterName);
+                mostParameter.setDescription(parameterDescription);
                 mostParameter.setIndex(MOST_NULL);
                 mostParameter.setType(parameterType);
                 _addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
