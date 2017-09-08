@@ -2055,7 +2055,7 @@ class App extends React.Component {
         const thisApp = this;
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const account = currentReview.getAccount();
+        const account = Account.fromJson(this.state.account);
         const reviewId = currentReview.getId();
 
         // Check existing votes to see if this account has any
@@ -2116,7 +2116,7 @@ class App extends React.Component {
     isReviewVoteSelected() {
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const accountId = currentReview.getAccount().getId();
+        const accountId = this.state.account.id;
 
         // Check existing votes to see if this account has any
         for (let i in currentReviewVotes) {
