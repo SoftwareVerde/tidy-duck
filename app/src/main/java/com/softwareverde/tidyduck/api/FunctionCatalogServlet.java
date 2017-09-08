@@ -5,6 +5,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.ReleaseItem;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
@@ -82,6 +83,17 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
                 return _submitFunctionCatalogForReview(functionCatalogId, accountId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("function-catalogs/<functionCatalogId>/release-item-list", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _getReleaseItemList(functionCatalogId, environment.getDatabase());
             }
         });
     }
@@ -215,6 +227,28 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
+    private Json _getReleaseItemList(final long functionCatalogId, Database<Connection> database) {
+        try {
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            List<ReleaseItem> releaseItems = databaseManager.getReleaseItemList(functionCatalogId);
+
+            final Json response = new Json(false);
+            final Json releaseItemsJson = new Json(true);
+            for (final ReleaseItem releaseItem : releaseItems) {
+                final Json releaseItemJson = _toJson(releaseItem);
+                releaseItemsJson.add(releaseItemJson);
+            }
+            response.put("releaseItems", releaseItemsJson);
+
+            _setJsonSuccessFields(response);
+            return response;
+        } catch (DatabaseException e) {
+            String errorMessage = "Unable to get release items.";
+            _logger.error(errorMessage, e);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
     protected Json _toJson(final FunctionCatalog functionCatalog) {
         final Json catalogJson = new Json();
         catalogJson.put("id", functionCatalog.getId());
@@ -229,6 +263,17 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
         catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
         return catalogJson;
+    }
+
+    private Json _toJson(ReleaseItem releaseItem) {
+        final Json json = new Json(false);
+
+        json.put("itemType", releaseItem.getItemType());
+        json.put("itemId", releaseItem.getItemId());
+        json.put("itemName", releaseItem.getItemName());
+        json.put("itemVersion", releaseItem.getItemVersion());
+
+        return json;
     }
 
     protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Database<Connection> database) throws Exception {

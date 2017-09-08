@@ -81,7 +81,8 @@ class App extends React.Component {
             filterString:               null,
             reviewCommentString:        null,
             shouldShowFilteredResults:  false,
-            shouldShowEditForm:         false
+            shouldShowEditForm:         false,
+            releasingFunctionCatalog:   null
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -100,6 +101,7 @@ class App extends React.Component {
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
         this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
         this.onReleaseFunctionCatalog = this.onReleaseFunctionCatalog.bind(this);
+        this.onFunctionCatalogReleased = this.onFunctionCatalogReleased.bind(this);
 
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
@@ -300,32 +302,42 @@ class App extends React.Component {
     }
 
     onReleaseFunctionCatalog(functionCatalog) {
-        const thisApp = this;
-        const functionBlocks = this.state.functionBlocks;
-        const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
-        const functionCatalogId = functionCatalog.getId();
+        this.setState({
+            releasingFunctionCatalog: functionCatalog
+        });
 
-        if (confirm("Are you sure you want to release this function catalog?")) {
-            updateFunctionCatalog(functionCatalogId, functionCatalogJson, true, function(wasSuccess, newFunctionCatalogId) {
-                if (wasSuccess) {
-                    // Set currently selected function catalog to released.
-                    functionCatalog.setIsReleased(true);
+    }
 
-                    // Set currently selected function catalog's function blocks to released.
-                    for (let i in functionBlocks) {
-                        functionBlocks[i].setIsReleased(true);
-                    }
+    onFunctionCatalogReleased() {
+        // TODO: implement (need parameters)
 
-                    alert("Function Catalog " + functionCatalogId + " successfully released!")
-
-                    thisApp.setState({
-                        functionBlocks:       functionBlocks,
-                        selectedItem:           functionCatalog,
-                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                    });
-                }
-            });
-        }
+        // TODO: remove the below comment once it has been harvested for the release version setting page/callbacks
+//        const thisApp = this;
+//        const functionBlocks = this.state.functionBlocks;
+//        const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
+//        const functionCatalogId = functionCatalog.getId();
+//
+//        if (confirm("Are you sure you want to release this function catalog?")) {
+//            updateFunctionCatalog(functionCatalogId, functionCatalogJson, true, function(wasSuccess, newFunctionCatalogId) {
+//                if (wasSuccess) {
+//                    // Set currently selected function catalog to released.
+//                    functionCatalog.setIsReleased(true);
+//
+//                    // Set currently selected function catalog's function blocks to released.
+//                    for (let i in functionBlocks) {
+//                        functionBlocks[i].setIsReleased(true);
+//                    }
+//
+//                    alert("Function Catalog " + functionCatalogId + " successfully released!")
+//
+//                    thisApp.setState({
+//                        functionBlocks:       functionBlocks,
+//                        selectedItem:           functionCatalog,
+//                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+//                    });
+//                }
+//            });
+//        }
     }
 
     onCreateFunctionBlock(functionBlock) {
@@ -2231,7 +2243,8 @@ class App extends React.Component {
                     mostInterfaces:                 [],
                     navigationItems:                [],
                     showSettingsPage:               false,
-                    currentReview:                  null
+                    currentReview:                  null,
+                    releasingFunctionCatalog:       null
                 });
 
                 this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
@@ -2374,6 +2387,7 @@ class App extends React.Component {
         document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
         document.getElementById('app-css').href =               '/css/themes/' + themeCssDirectory + '/app.css';
         document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
+        document.getElementById('release-css').href =           '/css/themes/' + themeCssDirectory + '/release.css';
         document.getElementById('reviews-css').href =           '/css/themes/' + themeCssDirectory + '/reviews.css';
         document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
         document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
@@ -2568,7 +2582,9 @@ class App extends React.Component {
                             backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                         }
                         else {
-                            backFunction = function() { thisApp.handleRoleClick(activeRole, null, false); };
+                            backFunction = function() {
+                                thisApp.handleRoleClick(activeRole, null, false);
+                            };
                         }
                     }
                     else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
@@ -2799,6 +2815,15 @@ class App extends React.Component {
                     // other roles
                     let navigationItems = "";
                     if (this.state.activeRole === this.roles.release) {
+                        const releasingFunctionCatalog = this.state.releasingFunctionCatalog;
+                        if (releasingFunctionCatalog != null) {
+                            // don't display anything else, go to release page
+                            return (
+                                <div id="main-content" className="container">
+                                    <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} />
+                                </div>
+                            );
+                        }
                         navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
                     }
                     return (

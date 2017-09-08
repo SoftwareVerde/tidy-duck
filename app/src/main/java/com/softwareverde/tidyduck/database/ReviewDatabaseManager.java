@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class ReviewDatabaseManager {
+class ReviewDatabaseManager {
     private final DatabaseConnection _databaseConnection;
 
     public ReviewDatabaseManager(final DatabaseConnection databaseConnection) {
