@@ -66,7 +66,7 @@
     width: 40%;
     height: 250px;
     display: inline-block;
-    overflow: scroll;
+    overflow-y: scroll;
     margin: 5px 0px;
     background-color: rgba(100, 100, 100, 0.2);
     border: #777 solid thin;
@@ -79,7 +79,7 @@
     margin: 5px 0;
     text-align: center;
     display: inline-block;
-    overflow: scroll;
+    overflow-y: auto;
 }
 
 .approval-form .toolbar {
@@ -103,7 +103,7 @@
     max-height: 45%;
     margin: 0.5em 0 1em 0;
     display: inline-block;
-    overflow: scroll;
+    overflow-y: auto;
     box-sizing: border-box;
     background-color: rgba(100, 100, 100, 0.2);
     border: #777 solid thin;
@@ -128,7 +128,6 @@
     float: left;
     text-align: center;
     width: 75%;
-    height: 100%;
 }
 
 .vote-area .submit-comment-form .button {
