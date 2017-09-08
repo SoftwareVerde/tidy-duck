@@ -613,6 +613,8 @@ CREATE TABLE interfaces_functions (
 CREATE TABLE function_parameters (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     function_id INT UNSIGNED NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     parameter_index INT UNSIGNED NOT NULL,
     most_type_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_id) REFERENCES functions (id),
