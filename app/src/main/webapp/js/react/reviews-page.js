@@ -21,7 +21,7 @@ class ReviewsPage extends React.Component {
         if (this.props.isLoadingReviews) {
             return (
                 <div className="center">
-                    <i className="fa fa-3x fa-refresh fa-spin"/>
+                    <i id="loading-reviews-icon" className="fa fa-4x fa-refresh fa-spin"/>
                 </div>
             );
         }

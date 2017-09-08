@@ -16,6 +16,7 @@ public class Review {
     private MostInterface _mostInterface = null;
     private MostFunction _mostFunction = null;
     private Account _account;
+    private String ticketUrl;
     private Date _createdDate;
     private List<ReviewVote> _reviewVotes = new ArrayList<>();
     private List<ReviewComment> _reviewComments = new ArrayList<>();
@@ -66,6 +67,14 @@ public class Review {
 
     public void setAccount(final Account account) {
         _account = account;
+    }
+
+    public String getTicketUrl() {
+        return ticketUrl;
+    }
+
+    public void setTicketUrl(final String ticketUrl) {
+        this.ticketUrl = ticketUrl;
     }
 
     public Date getCreatedDate() {

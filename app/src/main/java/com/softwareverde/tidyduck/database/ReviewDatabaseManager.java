@@ -29,6 +29,7 @@ public class ReviewDatabaseManager {
         final MostInterface mostInterface = review.getMostInterface();
         final MostFunction mostFunction = review.getMostFunction();
         final Account account = review.getAccount();
+        final String ticketUrl = review.getTicketUrl();
         final Date createdDate = review.getCreatedDate();
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String createdDateString = simpleDateFormat.format(createdDate);
@@ -37,7 +38,50 @@ public class ReviewDatabaseManager {
         Long functionBlockId = null;
         Long mostInterfaceId = null;
         Long mostFunctionId = null;
+
         final long accountId = account.getId();
+        if (functionCatalog != null) {
+            functionCatalogId = functionCatalog.getId();
+        }
+        else if (functionBlock != null) {
+            functionBlockId = functionBlock.getId();
+        }
+        else if (mostInterface != null) {
+            mostInterfaceId = mostInterface.getId();
+        }
+        else if (mostFunction != null) {
+            mostFunctionId = mostFunction.getId();
+        }
+
+        final Query query = new Query("INSERT INTO reviews (function_catalog_id, function_block_id, interface_id, function_id, account_id, ticket_url, created_date) VALUES (?, ?, ?, ?, ?, ?, ?)")
+            .setParameter(functionCatalogId)
+            .setParameter(functionBlockId)
+            .setParameter(mostInterfaceId)
+            .setParameter(mostFunctionId)
+            .setParameter(accountId)
+            .setParameter(ticketUrl)
+            .setParameter(createdDateString)
+        ;
+
+        final long reviewId = _databaseConnection.executeSql(query);
+        review.setId(reviewId);
+    }
+
+    public void updateReview(final Review review) throws DatabaseException {
+        final long reviewId = review.getId();
+        final FunctionCatalog functionCatalog = review.getFunctionCatalog();
+        final FunctionBlock functionBlock = review.getFunctionBlock();
+        final MostInterface mostInterface = review.getMostInterface();
+        final MostFunction mostFunction = review.getMostFunction();
+        final Account account = review.getAccount();
+        final String ticketUrl = review.getTicketUrl();
+
+        final long accountId = account.getId();
+
+        Long functionCatalogId = null;
+        Long functionBlockId = null;
+        Long mostInterfaceId = null;
+        Long mostFunctionId = null;
 
         if (functionCatalog != null) {
             functionCatalogId = functionCatalog.getId();
@@ -52,17 +96,16 @@ public class ReviewDatabaseManager {
             mostFunctionId = mostFunction.getId();
         }
 
-        final Query query = new Query("INSERT INTO reviews (function_catalog_id, function_block_id, interface_id, function_id, account_id, created_date) VALUES (?, ?, ?, ?, ?, ?)")
-                .setParameter(functionCatalogId)
-                .setParameter(functionBlockId)
-                .setParameter(mostInterfaceId)
-                .setParameter(mostFunctionId)
-                .setParameter(accountId)
-                .setParameter(createdDateString)
+        final Query query = new Query("UPDATE reviews SET function_catalog_id = ?, function_block_id = ?, interface_id = ?, function_id = ?, ticket_url = ? WHERE id = ?")
+            .setParameter(functionCatalogId)
+            .setParameter(functionBlockId)
+            .setParameter(mostInterfaceId)
+            .setParameter(mostFunctionId)
+            .setParameter(ticketUrl)
+            .setParameter(reviewId)
         ;
 
-        final long reviewId = _databaseConnection.executeSql(query);
-        review.setId(reviewId);
+        _databaseConnection.executeSql(query);
     }
 
     public void approveReview(final Review review) throws DatabaseException {

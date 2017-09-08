@@ -139,6 +139,7 @@ class App extends React.Component {
 
         this.onReviewSelected = this.onReviewSelected.bind(this);
         this.onReviewVoteClicked = this.onReviewVoteClicked.bind(this);
+        this.onSaveTicketUrlClicked = this.onSaveTicketUrlClicked.bind(this);
         this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
 
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
@@ -2062,7 +2063,7 @@ class App extends React.Component {
         const thisApp = this;
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const account = currentReview.getAccount();
+        const account = Account.fromJson(this.state.account);
         const reviewId = currentReview.getId();
 
         // Check existing votes to see if this account has any
@@ -2123,7 +2124,7 @@ class App extends React.Component {
     isReviewVoteSelected() {
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const accountId = currentReview.getAccount().getId();
+        const accountId = this.state.account.id;
 
         // Check existing votes to see if this account has any
         for (let i in currentReviewVotes) {
@@ -2139,6 +2140,23 @@ class App extends React.Component {
         }
 
         return false;
+    }
+
+    onSaveTicketUrlClicked(value, callbackFunction) {
+        const review = this.state.currentReview;
+
+        review.setTicketUrl(value);
+
+        const reviewJson = Review.toJson(review);
+        updateReview(reviewJson, function(wasSuccess) {
+            if (typeof callbackFunction == "function") {
+                callbackFunction(wasSuccess);
+            }
+        });
+
+        this.setState({
+            currentReview: review
+        })
     }
 
     onApproveButtonClicked() {
@@ -2737,6 +2755,7 @@ class App extends React.Component {
                                   shouldShowSaveAnimation={shouldAnimateCreateButton}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
+                                  onSaveTicketUrlClicked={this.onSaveTicketUrlClicked}
                                   onApproveButtonClicked={this.onApproveButtonClicked}
                 />
             );

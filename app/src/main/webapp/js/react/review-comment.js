@@ -18,7 +18,7 @@ class ReviewComment extends React.Component {
             <div className="review-comment">
                 <div key="header" className="review-comment-header secondary-bg accent">{title}</div>
                 <div key="content" className="review-comment-content primary-bg primary-contrast">
-                    <pre>{content}</pre>
+                    <pre className="wordwrap">{content}</pre>
                 </div>
             </div>
         );
