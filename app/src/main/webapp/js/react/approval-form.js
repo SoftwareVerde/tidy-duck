@@ -198,7 +198,7 @@ class ApprovalForm extends React.Component{
 
         for (let i in comments) {
             const comment = comments[i];
-            reactComponents.push(<app.ReviewComment key={i} reviewComment={comment} />);
+            reactComponents.push(<app.ReviewComment key={"comment" + i} reviewComment={comment} />);
         }
 
         return (<div className="comments-area">{reactComponents}</div>);
@@ -210,8 +210,8 @@ class ApprovalForm extends React.Component{
         let contents = [];
         if (review.getAccount().getId() == account.getId()) {
             // allow editing
-            contents.push(<app.InputField name="ticket-url" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />);
-            contents.push(<button className="button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>);
+            contents.push(<app.InputField name="ticket-url" key="ticket-url-input" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />);
+            contents.push(<button className="button" key="ticket-url-button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>);
         } else {
             // display link, if populate
             const ticketUrl = this.state.ticketUrl;
@@ -240,15 +240,15 @@ class ApprovalForm extends React.Component{
         return(
             <div key="approvalForm" className="approval-form">
                 <div>
-                    <div>Comments</div>
+                    <div key="comments">Comments</div>
                     {this.renderComments()}
-                    <div className="vote-area">
+                    <div key="vote-area" className="vote-area">
                         {this.renderTicketUrlArea()}
-                        <div className="submit-comment-form">
-                            <app.InputField name="comment" type="textarea" label={"Comment"} value={this.state.reviewComment.getCommentText()} readOnly={this.props.readOnly} onChange={this.onReviewCommentChanged} />
+                        <div className="submit-comment-form" key="submit-comment-form">
+                            <app.InputField name="comment" key="comment-input" type="textarea" label="Comment" value={this.state.reviewComment.getCommentText()} readOnly={this.props.readOnly} onChange={this.onReviewCommentChanged} />
                             {submitCommentButton}
                         </div>
-                        <div className="toolbar">
+                        <div className="toolbar" key="toolbar">
                             {this.renderUpvoteButton()}
                             {this.renderDownvoteButton()}
                         </div>
