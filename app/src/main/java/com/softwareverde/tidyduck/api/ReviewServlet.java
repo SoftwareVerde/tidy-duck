@@ -319,17 +319,22 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
 
     private Review _populateReviewFromJson(final Json reviewJson, final Database<Connection> database) throws Exception {
+        Long id = reviewJson.getLong("id");
+
         final Long functionCatalogId = reviewJson.getLong("functionCatalogId");
         final Long functionBlockId = reviewJson.getLong("functionBlockId");
         final Long mostInterfaceId = reviewJson.getLong("mostInterfaceId");
         final Long mostFunctionId = reviewJson.getLong("mostFunctionId");
+
         final Long accountId = reviewJson.getLong("accountId");
+
+        final String ticketUrl = reviewJson.getString("ticketUrl");
 
         final Review review = new Review();
 
         // TODO: determine if createdDate should be populated from JSON or create new Date().
         final Date date = new Date();
-        final Account account;
+        Account account = null;
 
         // Inflate review's object.
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
@@ -361,8 +366,11 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             _logger.error("Unable to get the object for review.", exception);
             throw new Exception("Unable to get the object for review.");
         }
+
+        review.setId(id);
         review.setAccount(account);
         review.setCreatedDate(date);
+        review.setTicketUrl(ticketUrl);
 
         return review;
     }

@@ -10,6 +10,10 @@
     padding: 0 1em;
 }
 
+#loading-reviews-icon {
+    margin-top: 3em;
+}
+
 .review-entry {
     cursor: pointer;
     margin: 1em 0;
@@ -142,9 +146,10 @@
 
 .ticket-url-area {
     float: left;
-    width: 75%;
+    width: calc(75% - 3em);
     display: inline-block;
     text-align: left;
+    padding-left: 3em;
 }
 
 .ticket-url-area .input-field {
@@ -152,5 +157,6 @@
     width: 70%;
     float: none;
     padding-top: 0px;
+    padding-left: 0px;
     padding-bottom: 0px;
 }

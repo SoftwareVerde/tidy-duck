@@ -63,7 +63,7 @@ function insertReview(review, callbackFunction) {
 // calls callbackFunction with success flag
 function updateReview(review, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/" + review.getId(),
+        ENDPOINT_PREFIX + "api/v1/reviews/" + review.id,
         {
             method: "POST",
             credentials: "include",

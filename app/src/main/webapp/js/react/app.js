@@ -2139,7 +2139,8 @@ class App extends React.Component {
 
         review.setTicketUrl(value);
 
-        updateReview(review, function(wasSuccess) {
+        const reviewJson = Review.toJson(review);
+        updateReview(reviewJson, function(wasSuccess) {
             if (typeof callbackFunction == "function") {
                 callbackFunction(wasSuccess);
             }

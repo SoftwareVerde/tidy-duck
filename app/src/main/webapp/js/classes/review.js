@@ -59,15 +59,15 @@ class Review {
         return review;
     }
 
-    toJson() {
-        const id = this._id;
-        const functionCatalogId = this._functionCatalog ? this._functionCatalog.getId() : null;
-        const functionBlockId = this._functionBlock ? this._functionBlock.getId() : null;
-        const mostInterfaceId = this._mostInterface ? this._mostInterface.getId() : null;
-        const mostFunctionId = this._mostFunction ? this._mostFunction.getId() : null;
-        const accountId = this._account.getId();
-        const ticketUrl = this._ticketUrl;
-        const createdDate = this._createdDate;
+    static toJson(review) {
+        const id = review.getId();
+        const functionCatalogId = review.getFunctionCatalog() ? review.getFunctionCatalog().getId() : null;
+        const functionBlockId = review.getFunctionBlock() ? review.getFunctionBlock().getId() : null;
+        const mostInterfaceId = review.getMostInterface() ? review.getMostInterface().getId() : null;
+        const mostFunctionId = review.getMostFunction() ? review.getMostFunction().getId() : null;
+        const accountId = review.getAccount().getId();
+        const ticketUrl = review.getTicketUrl();
+        const createdDate = review.getCreatedDate();
 
         return {
             id:                 id,
@@ -95,7 +95,7 @@ class Review {
     }
 
     getReviewObject() {
-        return this._functionCatalog || this._functionBlock || this._mostInterface || this._mostFunction
+        return this._functionCatalog || this._functionBlock || this._mostInterface || this._mostFunction;
     }
 
     getReviewName() {
@@ -156,7 +156,7 @@ class Review {
     }
 
     getTicketUrl() {
-        return ticketUrl;
+        return this._ticketUrl;
     }
 
     setCreatedDate(createdDate) {

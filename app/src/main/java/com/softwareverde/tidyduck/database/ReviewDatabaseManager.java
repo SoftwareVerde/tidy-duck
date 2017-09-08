@@ -76,12 +76,13 @@ public class ReviewDatabaseManager {
         final Account account = review.getAccount();
         final String ticketUrl = review.getTicketUrl();
 
+        final long accountId = account.getId();
+
         Long functionCatalogId = null;
         Long functionBlockId = null;
         Long mostInterfaceId = null;
         Long mostFunctionId = null;
 
-        final long accountId = account.getId();
         if (functionCatalog != null) {
             functionCatalogId = functionCatalog.getId();
         }
@@ -95,12 +96,11 @@ public class ReviewDatabaseManager {
             mostFunctionId = mostFunction.getId();
         }
 
-        final Query query = new Query("UPDATE INTO reviews SET function_catalog_id = ?, function_block_id = ?, interface_id = ?, function_id = ?, account_id = ?, ticket_url = ? WHERE id = ?")
+        final Query query = new Query("UPDATE reviews SET function_catalog_id = ?, function_block_id = ?, interface_id = ?, function_id = ?, ticket_url = ? WHERE id = ?")
             .setParameter(functionCatalogId)
             .setParameter(functionBlockId)
             .setParameter(mostInterfaceId)
             .setParameter(mostFunctionId)
-            .setParameter(accountId)
             .setParameter(ticketUrl)
             .setParameter(reviewId)
         ;

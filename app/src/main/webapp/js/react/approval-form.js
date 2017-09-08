@@ -2,9 +2,11 @@ class ApprovalForm extends React.Component{
     constructor(props) {
         super(props);
 
+        const review = this.props.review;
         const reviewComment = new ReviewComment();
         reviewComment.setAccount(this.props.account);
         this.state = {
+            ticketUrl:                      review.getTicketUrl(),
             shouldShowSaveCommentAnimation: false,
             ticketUrlSaveButtonText:        'Save',
             reviewComment:                  reviewComment
@@ -25,7 +27,9 @@ class ApprovalForm extends React.Component{
     }
 
     componentWillReceiveProps(newProperties) {
+        const newReview = newProperties.review;
         this.setState({
+            ticketUrl:                      newReview.getTicketUrl(),
             shouldShowSaveCommentAnimation: false
         });
     }
@@ -63,6 +67,7 @@ class ApprovalForm extends React.Component{
 
                 const newReviewComment = new ReviewComment();
                 newReviewComment.setAccount(thisForm.props.account);
+
                 thisForm.setState({
                     shouldShowSaveCommentAnimation: false,
                     reviewComment:                  newReviewComment
@@ -200,10 +205,23 @@ class ApprovalForm extends React.Component{
     }
 
     renderTicketUrlArea() {
+        const review = this.props.review;
+        const account = this.props.account;
+        let contents = [];
+        if (review.getAccount().getId() == account.getId()) {
+            // allow editing
+            contents.push(<app.InputField name="ticket-url" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />);
+            contents.push(<button className="button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>);
+        } else {
+            // display link, if populate
+            const ticketUrl = this.state.ticketUrl;
+            if (ticketUrl) {
+                contents.push(<a href={ticketUrl} target="_blank"><i className="fa fa-3x fa-ticket"></i></a>);
+            }
+        }
         return (
             <div className="ticket-url-area">
-                <app.InputField name="ticket-url" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />
-                <button className="button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>
+                {contents}
             </div>
         );
     }
