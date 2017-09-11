@@ -118,7 +118,7 @@ class MostInterface extends React.Component {
         const releasedIcon = this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book" title="This Interface is Released" /> : "";
 
         const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getReleaseVersion()}</div> :
-            <select name={"Version"} value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+            <select name="Version" title="Version" value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>

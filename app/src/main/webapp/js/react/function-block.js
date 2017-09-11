@@ -120,7 +120,7 @@ class FunctionBlock extends React.Component {
         const releasedIcon = this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book" title="This Function Block is Released" /> : "";
 
         const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div> :
-            <select name={"Version"} value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+            <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>
