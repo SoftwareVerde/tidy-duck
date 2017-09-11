@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -330,11 +332,18 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     }
 
     private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Database<Connection> database) {
+        final String decodedSearchString;
+        try { decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
+        catch (UnsupportedEncodingException e) {
+            _logger.error("Unable to list function blocks from search", e);
+            return super._generateErrorJson("Unable to list function blocks from search.");
+        }
+
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(searchString);
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(decodedSearchString);
 
             final Json functionBlocksJson = new Json(true);
             for (final Long baseVersionId : functionBlocks.keySet()) {

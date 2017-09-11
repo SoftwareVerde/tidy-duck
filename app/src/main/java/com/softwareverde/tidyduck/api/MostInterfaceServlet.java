@@ -16,9 +16,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.net.URLDecoder;
 
 public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -324,11 +326,18 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Database<Connection> database) {
+        final String decodedSearchString;
+        try{ decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
+        catch (UnsupportedEncodingException e) {
+            _logger.error("Unable to list interfaces from search", e);
+            return _generateErrorJson("Unable to list interfaces from search.");
+        }
+
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
+            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(decodedSearchString);
 
             final Json mostInterfacesJson = new Json(true);
             for (final Long baseVersionId : mostInterfaces.keySet()) {
