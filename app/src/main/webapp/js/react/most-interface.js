@@ -115,7 +115,8 @@ class MostInterface extends React.Component {
         const childItemStyle = this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        // TODO: remove displayVersion if Release mode allows changing versions and saving those changes to a parent function block.
+        const releasedIcon = this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book" title="This Interface is Released" /> : "";
+
         const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getReleaseVersion()}</div> :
             <select name={"Version"} value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
 
@@ -125,6 +126,7 @@ class MostInterface extends React.Component {
                     {name}
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {releasedIcon}
                     {this.renderMenu()}
                 </div>
                 <div className="child-function-catalog-property">{this.props.mostInterface.getMostId()}</div>

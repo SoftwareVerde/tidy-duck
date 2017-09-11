@@ -343,6 +343,12 @@
     cursor: pointer;
 }
 
+.child-item-title .release-icon {
+    float: right;
+    padding: 5px;
+    margin: -5px 0;
+}
+
 .child-item-menu-item {
     margin: 2px;
     padding: 2px;

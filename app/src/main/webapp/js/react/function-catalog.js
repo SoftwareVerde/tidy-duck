@@ -116,6 +116,7 @@ class FunctionCatalog extends React.Component {
         const childItemStyle = this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+        const releasedIcon = this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book" title="This Function Catalog is Released" /> : "";
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -123,6 +124,7 @@ class FunctionCatalog extends React.Component {
                     {name}
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {releasedIcon}
                     {this.renderMenu()}
                 </div>
                 <select name={"Version"} value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
