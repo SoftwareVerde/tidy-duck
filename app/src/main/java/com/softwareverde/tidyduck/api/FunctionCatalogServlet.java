@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -96,6 +97,17 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
                 return _getReleaseItemList(functionCatalogId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("function-catalogs/<functionCatalogId>/release", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _releaseFunctionCatalog(request, functionCatalogId, environment.getDatabase());
             }
         });
     }
@@ -257,6 +269,46 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
+    private Json _releaseFunctionCatalog(final HttpServletRequest request, final Long functionCatalogId, final Database<Connection> database) {
+        try {
+            final Json response = new Json(false);
+
+            final Json jsonRequest = _getRequestDataAsJson(request);
+            final Json releaseItemsJson = jsonRequest.get("releaseItems");
+            List<ReleaseItem> releaseItems = new ArrayList<>();
+            for (int i=0; i<releaseItemsJson.length(); i++) {
+                final Json releaseItemJson = releaseItemsJson.get(i);
+                final ReleaseItem releaseItem = _populateReleaseItemFromJson(releaseItemJson);
+                validateReleaseItem(releaseItem);
+                releaseItems.add(releaseItem);
+            }
+
+            // TODO: release function catalog and unreleased children
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (Exception e) {
+            String errorMessage = "Unable to release function catalog.";
+            _logger.error(errorMessage, e);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
+    private void validateReleaseItem(final ReleaseItem releaseItem) {
+        if (releaseItem.getItemId() == null || releaseItem.getItemId() < 1) {
+            throw new IllegalArgumentException("Invalid ID");
+        }
+        if (Util.isBlank(releaseItem.getItemType())) {
+            throw new IllegalArgumentException("Invalid type for item " + releaseItem.getItemId());
+        }
+        if (Util.isBlank(releaseItem.getNewVersion())) {
+            throw new IllegalArgumentException("New version is invalid for item " + releaseItem.getItemId());
+        }
+        if (releaseItem.getNewVersion().equals(releaseItem.getItemVersion())) {
+            throw new IllegalArgumentException("New version must be different from old version, item " + releaseItem.getItemId());
+        }
+    }
+
     protected Json _toJson(final FunctionCatalog functionCatalog) {
         final Json catalogJson = new Json();
         catalogJson.put("id", functionCatalog.getId());
@@ -330,5 +382,23 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         functionCatalog.setCompany(company);
 
         return functionCatalog;
+    }
+
+    private ReleaseItem _populateReleaseItemFromJson(final Json releaseItemJson) {
+        final String itemType = releaseItemJson.getString("itemType");
+        final Long itemId = releaseItemJson.getLong("itemId");
+        final String itemName = releaseItemJson.getString("itemName");
+        final String itemVersion = releaseItemJson.getString("itemVersion");
+        final String newVersion = releaseItemJson.getString("newVersion");
+
+        final ReleaseItem releaseItem = new ReleaseItem();
+
+        releaseItem.setItemType(itemType);
+        releaseItem.setItemId(itemId);
+        releaseItem.setItemName(itemName);
+        releaseItem.setItemVersion(itemVersion);
+        releaseItem.setNewVersion(newVersion);
+
+        return releaseItem;
     }
 }
