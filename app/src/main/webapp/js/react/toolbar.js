@@ -117,8 +117,9 @@ class Toolbar extends React.Component {
             }
 
             return (
-                <div className="toolbar-item upvote" onClick={this.onUpvoteClicked} title={buttonTitle}>
+                <div className="toolbar-item upvote" onClick={this.onUpvoteClicked} >
                     <i className={icon} />
+                    <div className="tooltip">{buttonTitle}</div>
                 </div>
             );
         }
@@ -133,8 +134,9 @@ class Toolbar extends React.Component {
             }
 
             return (
-                <div className="toolbar-item downvote" onClick={this.onDownvoteClicked} title={buttonTitle}>
+                <div className="toolbar-item downvote" onClick={this.onDownvoteClicked} >
                     <i className={icon} />
+                    <div className="tooltip">{buttonTitle}</div>
                 </div>
             );
         }
@@ -145,8 +147,9 @@ class Toolbar extends React.Component {
             const buttonTitle = "Fork Version";
 
             return (
-                <div className="toolbar-item fork" onClick={this.props.onForkClicked} title={buttonTitle}>
+                <div className="toolbar-item fork" onClick={this.props.onForkClicked} >
                     <i className="fa fa-4 fa-code-fork" />
+                    <div className="tooltip">{buttonTitle}</div>
                 </div>
             );
         }
@@ -156,8 +159,9 @@ class Toolbar extends React.Component {
         if (this.props.shouldShowSubmitForReviewButton) {
             const buttonTitle = "Submit for Review"
             return (
-                <div className="toolbar-item submitReview" onClick={this.props.onSubmitForReviewClicked} title={buttonTitle}>
+                <div className="toolbar-item submitReview" onClick={this.props.onSubmitForReviewClicked} >
                     <i className="fa fa-4 fa-upload" />
+                    <div className="tooltip">{buttonTitle}</div>
                 </div>
             );
         }
@@ -167,8 +171,9 @@ class Toolbar extends React.Component {
         if (this.props.shouldShowReleaseButton) {
             const buttonTitle = "Release Function Catalog";
             return (
-                <div className="toolbar-item release" onClick={this.props.onReleaseClicked} title={buttonTitle}>
+                <div className="toolbar-item release" onClick={this.props.onReleaseClicked} >
                     <i className="fa fa-4 fa-book" />
+                    <div className="tooltip">{buttonTitle}</div>
                 </div>
             );
         }
@@ -200,8 +205,9 @@ class Toolbar extends React.Component {
 
             if (shouldShowButton) {
                 return (
-                    <div className="toolbar-item edit" onClick={this.props.onEditClicked} title={buttonTitle}>
+                    <div className="toolbar-item edit" onClick={this.props.onEditClicked} >
                         <i className="fa fa-4 fa-edit" />
+                        <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );
             }
@@ -234,8 +240,9 @@ class Toolbar extends React.Component {
 
             if (shouldShowButton) {
                 return (
-                    <div className="toolbar-item create" onClick={this.props.onCreateClicked} title={buttonTitle}>
+                    <div className="toolbar-item create" onClick={this.props.onCreateClicked} >
                         <i className="fa fa-4 fa-plus" />
+                        <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );
             }
@@ -264,8 +271,9 @@ class Toolbar extends React.Component {
 
             if (shouldShowButton) {
                 return (
-                    <div className="toolbar-item search" onClick={this.props.onSearchClicked} title={buttonTitle}>
+                    <div className="toolbar-item search" onClick={this.props.onSearchClicked} >
                         <i className="fa fa-4 fa-search" />
+                        <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );
             }
@@ -280,12 +288,12 @@ class Toolbar extends React.Component {
 
             if (currentNavigationLevel === navigationLevel.mostInterfaces) {
                 const reactComponents = [];
-                reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked} title="Event">E</div>);
-                reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked} title="ReadOnlyProperty">ROP</div>);
-                reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked} title="ReadOnlyPropertyWithEvent">ROPwE</div>);
-                reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked} title="PropertyWithEvent">PwE</div>);
-                reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked} title="CommandWithAck">CwA</div>);
-                reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked} title="Request/Response">R/R</div>);
+                reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked}><div>E</div><div key="eventTooltip" className="tooltip">Event</div></div>);
+                reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked}><div>ROP</div><div className="tooltip">ReadOnlyProperty</div></div>);
+                reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked}><div>ROPwE</div><div className="tooltip">ReadOnlyPropertyWithEvent</div></div>);
+                reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked}><div>PwE</div><div className="tooltip">PropertyWithEvent</div></div>);
+                reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked}><div>CwA</div><div className="tooltip">CommandWithAck</div></div>);
+                reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked}><div>R/R</div><div className="tooltip">Request/Response</div></div>);
 
                 return reactComponents;
             }
