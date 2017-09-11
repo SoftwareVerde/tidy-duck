@@ -58,22 +58,17 @@ public class ReleaseItem {
 
     /**
      * <p>Returns true iff <code>obj</code> references the same item as <code>this</code>.</p>
-     * @param obj
+     * @param releaseItem
      * @return
      */
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == null) {
+    public boolean referencesSameObject(final ReleaseItem releaseItem) {
+        if (releaseItem == null) {
             return false;
         }
-        if (obj == this) {
+        if (releaseItem == this) {
             return true;
         }
-        if (obj instanceof ReleaseItem) {
-            final ReleaseItem releaseItem = (ReleaseItem) obj;
-            // if type and ID are the same then these reference the same item and should be considered equal
-            return (this._itemType.equals(releaseItem._itemType) && this._itemId == releaseItem._itemId);
-        }
-        return false;
+        // if type and ID are the same then these reference the same item and should be considered equal
+        return (this._itemType.equals(releaseItem._itemType) && this._itemId == releaseItem._itemId);
     }
 }

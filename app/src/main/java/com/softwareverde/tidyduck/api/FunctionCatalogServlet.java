@@ -273,6 +273,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try {
             final Json response = new Json(false);
 
+            // get release items
             final Json jsonRequest = _getRequestDataAsJson(request);
             final Json releaseItemsJson = jsonRequest.get("releaseItems");
             List<ReleaseItem> releaseItems = new ArrayList<>();
@@ -283,6 +284,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 releaseItems.add(releaseItem);
             }
 
+            // verify that all release items are present
+            verifyReleaseItems(releaseItems, functionCatalogId, database);
+
             // TODO: release function catalog and unreleased children
 
             super._setJsonSuccessFields(response);
@@ -292,6 +296,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             _logger.error(errorMessage, e);
             return super._generateErrorJson(errorMessage);
         }
+    }
+
+    private void verifyReleaseItems(final List<ReleaseItem> providedReleaseItems, final Long functionCatalogId, final Database<Connection> database) throws DatabaseException {
+        final DatabaseManager databaseManager = new DatabaseManager(database);
+        List<ReleaseItem> expectedReleaseItems = databaseManager.getReleaseItemList(functionCatalogId);
+
+        // TODO: validate providedReleaseItems reference same objects and expectedReleaseItems
     }
 
     private void validateReleaseItem(final ReleaseItem releaseItem) {
