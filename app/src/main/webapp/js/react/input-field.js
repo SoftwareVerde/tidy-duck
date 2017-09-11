@@ -70,17 +70,21 @@ class InputField extends React.Component {
     }
 
     render() {
+        let label = '';
+        if (this.props.label) {
+            label = <label htmlFor={this.props.id}>{this.props.label}:</label>;
+        }
         if (this.props.isSmallInputField) {
             return (
                 <div className="input-field-small">
-                    <label htmlFor={this.props.id}>{this.props.label}:</label>
+                    {label}
                     {this.renderInput()}
                 </div>
             );
         }
         return (
             <div className="input-field">
-                <label htmlFor={this.props.id}>{this.props.label}:</label>
+                {label}
                 {this.renderInput()}
             </div>
         );

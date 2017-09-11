@@ -1,5 +1,6 @@
 .release-area {
     width: 90%;
+    min-height: 80%;
     max-height: 90%;
 
     display: block;
@@ -21,4 +22,17 @@
 
 #release-area-content {
     padding: 1em;
+}
+
+#release-items-table {
+    width: 100%;
+}
+
+#release-items-table td {
+    padding: 5px;
+    text-align: center;
+}
+
+#release-items-table td .input-field {
+    float: none;
 }

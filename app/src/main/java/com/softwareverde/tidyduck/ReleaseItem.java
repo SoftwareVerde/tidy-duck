@@ -5,6 +5,7 @@ public class ReleaseItem {
     private Long itemId;
     private String itemName;
     private String itemVersion;
+    private String predictedNextVersion;
 
     public String getItemType() {
         return itemType;
@@ -36,5 +37,13 @@ public class ReleaseItem {
 
     public void setItemVersion(String itemVersion) {
         this.itemVersion = itemVersion;
+    }
+
+    public String getPredictedNextVersion() {
+        return predictedNextVersion;
+    }
+
+    public void setPredictedNextVersion(final String predictedNextVersion) {
+        this.predictedNextVersion = predictedNextVersion;
     }
 }

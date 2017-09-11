@@ -5,7 +5,9 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.IncrementLastIntegerVersionPredictor;
 import com.softwareverde.tidyduck.ReleaseItem;
+import com.softwareverde.tidyduck.VersionPredictor;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
@@ -235,6 +237,12 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
             final Json releaseItemsJson = new Json(true);
             for (final ReleaseItem releaseItem : releaseItems) {
+                // predict next version and set on release item
+                // TODO: create smarter version predictor
+                VersionPredictor versionPredictor = new IncrementLastIntegerVersionPredictor();
+                final String predictedNextVersion = versionPredictor.predictedNextVersion(releaseItem);
+                releaseItem.setPredictedNextVersion(predictedNextVersion);
+
                 final Json releaseItemJson = _toJson(releaseItem);
                 releaseItemsJson.add(releaseItemJson);
             }
@@ -272,6 +280,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         json.put("itemId", releaseItem.getItemId());
         json.put("itemName", releaseItem.getItemName());
         json.put("itemVersion", releaseItem.getItemVersion());
+        json.put("predictedNextVersion", releaseItem.getPredictedNextVersion());
 
         return json;
     }
