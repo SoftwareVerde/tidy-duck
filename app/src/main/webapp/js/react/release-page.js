@@ -32,7 +32,7 @@ class ReleasePage extends React.Component {
             }
         });
 
-        this.onRelease = this.onRelease.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
         this.renderReleaseItems = this.renderReleaseItems.bind(this);
         this.renderSaveButton = this.renderSaveButton.bind(this);
 
@@ -43,7 +43,7 @@ class ReleasePage extends React.Component {
 
     }
 
-    onRelease() {
+    onSubmit() {
         this.setState({
             shouldShowSaveAnimation: true
         });
