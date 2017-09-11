@@ -44,6 +44,10 @@ class ReleasePage extends React.Component {
     }
 
     onRelease() {
+        this.setState({
+            shouldShowSaveAnimation: true
+        });
+
         if (typeof this.props.onRelease == "function") {
             // TODO: provide arguments
             this.props.onRelease();
@@ -120,9 +124,9 @@ class ReleasePage extends React.Component {
                 <div key="release-area-title" id="release-area-title" className="secondary-bg">Releasing: {functionCatalog.getName()}</div>
                 <div key="release-area-content" id="release-area-content">
                     {this.renderReleaseItems()}
-                    <div key="release-button-area" id="release-button-area">
-                        {this.renderSaveButton()}
-                    </div>
+                </div>
+                <div key="release-button-area" id="release-button-area">
+                    {this.renderSaveButton()}
                 </div>
             </div>
         );

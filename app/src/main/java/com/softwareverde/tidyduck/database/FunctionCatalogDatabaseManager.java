@@ -252,6 +252,9 @@ class FunctionCatalogDatabaseManager {
     public List<ReleaseItem> getReleaseItemList(long functionCatalogId) throws DatabaseException {
         final List<ReleaseItem> releaseItems = new ArrayList<>();
 
+        // add this function catalog
+        releaseItems.addAll(_getFunctionCatalogReleaseItem(functionCatalogId));
+
         // add unreleased function blocks
         releaseItems.addAll(_getUnreleasedChildFunctionBlocks(functionCatalogId));
 
@@ -262,6 +265,15 @@ class FunctionCatalogDatabaseManager {
         releaseItems.addAll(_getUnreleasedChildFunctions(functionCatalogId));
 
         return releaseItems;
+    }
+
+    private List<ReleaseItem> _getFunctionCatalogReleaseItem(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("SELECT 'FUNCTION CATALOG' AS type, id, name, release_version AS version " +
+                                        "FROM function_catalogs " +
+                                        "WHERE id = ?");
+        query.setParameter(functionCatalogId);
+
+        return _executeReleaseItemQuery(query);
     }
 
     private List<ReleaseItem> _getUnreleasedChildFunctionBlocks(long functionCatalogId) throws DatabaseException {
