@@ -415,11 +415,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
-
+            /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
             }
-
+            */
             if (Util.isBlank(releaseVersion)) {
                 throw new Exception("Version field is required.");
             }

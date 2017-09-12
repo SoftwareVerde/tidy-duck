@@ -160,9 +160,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 if (Util.isBlank(arrayName)) {
                     throw new Exception("Invalid Type array name.");
                 }
+                /*
                 if (Util.isBlank(arrayDescription)) {
                     throw new Exception("Invalid Type array description.");
                 }
+                */
                 if (arrayElementTypeId < 1) {
                     throw new Exception("Invalid Type array element ID: " + arrayElementTypeId);
                 }
@@ -201,9 +203,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 if (Util.isBlank(recordName)) {
                     throw new Exception("Invalid Type record name.");
                 }
+                /*
                 if (Util.isBlank(recordDescription)) {
                     throw new Exception("Invalid Type record description.");
                 }
+                */
                 if (Util.isBlank(recordSize)) {
                     throw new Exception("Invalid Type record size.");
                 }
@@ -306,7 +310,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(bitPosition)) {
             throw new Exception("Invalid boolean field bit position");
         }
-
+        /*
         if (Util.isBlank(trueDescription)) {
             throw new Exception("Invalid boolean field true description.");
         }
@@ -314,7 +318,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(falseDescription)) {
             throw new Exception("Invalid boolean field false description.");
         }
-
+        */
         final BooleanField booleanField = new BooleanField();
         booleanField.setId(id);
         booleanField.setBitPosition(bitPosition);
@@ -337,11 +341,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(code)) {
             throw new Exception("Invalid enum value code.");
         }
-
+        /*
         if (Util.isBlank(description)) {
             throw new Exception("Invalid enum value description.");
         }
-
+        */
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
         enumValue.setName(name);
@@ -395,9 +399,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(parameterName)) {
             throw new Exception("Invalid stream case parameter name.");
         }
+        /*
         if (Util.isBlank(parameterDescription)) {
             throw new Exception("Invalid stream case parameter description.");
         }
+        */
         if (parameterTypeId < 1) {
             throw new Exception("Invalid stream case parameter type ID: " + parameterTypeId);
         }
@@ -425,9 +431,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(signalName)) {
             throw new Exception("Invalid stream case signal name.");
         }
+        /*
         if (Util.isBlank(signalDescription)) {
             throw new Exception("Invalid stream case signal description.");
         }
+        */
         if (Util.isBlank(signalBitLength)) {
             throw new Exception("Invalid stream case signal bit length.");
         }
@@ -453,9 +461,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(fieldName)) {
             throw new Exception("Invalid record field name.");
         }
+        /*
         if (Util.isBlank(fieldDescription)) {
             throw new Exception("Invalid record field description.");
         }
+        */
         if (fieldTypeId < 1) {
             throw new Exception("Invalid record field type ID: " + fieldTypeId);
         }

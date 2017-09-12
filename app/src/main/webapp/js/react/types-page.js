@@ -290,13 +290,15 @@ class TypesPage extends React.Component {
         return units;
     }
 
-    onSave() {
+    onSave(event) {
         const mostType = this.state.mostType;
         const mostTypeJson = MostType.toJson(mostType);
         const thisApp = this;
         this.setState({
-            saveButtonText: <i className="fa fa-refresh fa-spin"></i>
+            saveButtonText: "Loading"
         });
+
+        event.preventDefault();
 
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
@@ -959,18 +961,24 @@ class TypesPage extends React.Component {
         const typeName = mostType.getName();
         const baseTypeName = mostType.getPrimitiveType().getName();
 
+        // React doesn't like content between input tags, need to make Save and Refresh buttons different elements.
+        let saveButton = <input type="submit" className="button" value={this.state.saveButtonText}/>;
+        if (this.state.saveButtonText == "Loading") {
+            saveButton = <div className="button"><i className="fa fa-refresh fa-spin"/></div>;
+        }
+
         return (
-            <div>
+            <form onSubmit={this.onSave}>
                 <div id="types-main-inputs">
                     {typeSelector}
                     <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName}
-                                    onChange={this.onTypeNameChanged}/>
+                                    onChange={this.onTypeNameChanged} isRequired={true}/>
                     <app.InputField key="base-type" type="select" label="Base Type" name="base-type"
                                     value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
-                <div key="save-button" className="center"><button className="button" onClick={this.onSave}>{this.state.saveButtonText}</button></div>
-            </div>
+                <div key="save-button" className="center">{saveButton}</div>
+            </form>
         );
     }
 
@@ -986,7 +994,7 @@ class TypesPage extends React.Component {
             case 'TBitField': {
                 reactComponents.push(<div key="bitfield-length" className="clearfix">
                     <app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"
-                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged}/>
+                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={true}/>
                 </div>);
             } // fall through
             case 'TBool': {
@@ -1002,7 +1010,7 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="bool1" type="text" label="Bit Position" name="bit-position"
                                             value={booleanField.getBitPosition()}
-                                            onChange={(bitPosition) => thisPage.onBooleanFieldBitPositionChanged(booleanField, bitPosition)}/>
+                                            onChange={(bitPosition) => thisPage.onBooleanFieldBitPositionChanged(booleanField, bitPosition)} isRequired={true}/>
                             <app.InputField key="bool2" type="text" label="True Description" name="true-description"
                                             value={booleanField.getTrueDescription()}
                                             onChange={(trueDescription) => thisPage.onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription)}/>
@@ -1035,10 +1043,10 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name"
                                             value={enumValue.getName()}
-                                            onChange={(name) => thisPage.onEnumValueNameChanged(enumValue, name)}/>
+                                            onChange={(name) => thisPage.onEnumValueNameChanged(enumValue, name)} isRequired={true}/>
                             <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code"
                                             value={enumValue.getCode()}
-                                            onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)}/>
+                                            onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)} isRequired={true}/>
                             <app.InputField key="enum3" type="text" label="Enum Value Description" name="enum-value-description"
                                             value={enumValue.getDescription()}
                                             onChange={(description) => thisPage.onEnumValueDescriptionChanged(enumValue, description)}/>
@@ -1073,24 +1081,24 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type"
                                                      name="basis-data-type" value={numberBaseTypeName}
                                                      options={numberBaseTypes}
-                                                     onChange={this.onNumberBaseTypeChanged}/>);
+                                                     onChange={this.onNumberBaseTypeChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent"
-                                                     value={numberExponent} onChange={this.onNumberExponentChanged}/>);
+                                                     value={numberExponent} onChange={this.onNumberExponentChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min"
-                                                     value={numberRangeMin} onChange={this.onNumberRangeMinChanged}/>);
+                                                     value={numberRangeMin} onChange={this.onNumberRangeMinChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max"
-                                                     value={numberRangeMax} onChange={this.onNumberRangeMaxChanged}/>);
+                                                     value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step"
-                                                     value={numberStep} onChange={this.onNumberStepChanged}/>);
+                                                     value={numberStep} onChange={this.onNumberStepChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit"
                                                      value={numberUnitName} options={units}
-                                                     onChange={this.onNumberUnitChanged}/>);
+                                                     onChange={this.onNumberUnitChanged} isRequired={true}/>);
             }
                 break;
             case 'TString': {
                 const stringMaxSize = mostType.getStringMaxSize();
                 reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size"
-                                                     value={stringMaxSize} onChange={this.onStringMaxSizeChanged}/>);
+                                                     value={stringMaxSize} onChange={this.onStringMaxSizeChanged} isRequired={true}/>);
             }
                 break;
             case 'TStream': {
@@ -1100,7 +1108,7 @@ class TypesPage extends React.Component {
                 reactComponents.push(
                     <div key="TStream" className="clearfix">
                         <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length"
-                                        value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged}/>
+                                        value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} isRequired={true}/>
                     </div>
                 );
 
@@ -1125,7 +1133,7 @@ class TypesPage extends React.Component {
                                 <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
                                                 value={streamParameter.getParameterName()}
-                                                onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)}/>
+                                                onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)} isRequired={true}/>
                                 <app.InputField name="description" type="textarea" label="Description"
                                                 isSmallInputField={true}
                                                 value={streamParameter.getParameterDescription()}
@@ -1151,13 +1159,13 @@ class TypesPage extends React.Component {
                                 <div>Stream Signal {streamSignal.getSignalIndex()}</div>
                                 <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
                                                 value={streamSignal.getSignalName()}
-                                                onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)}/>
+                                                onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)} isRequired={true}/>
                                 <app.InputField name="description" type="textarea" label="Description"
                                                 isSmallInputField={true} value={streamSignal.getSignalDescription()}
                                                 onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
                                 <app.InputField name="bit-length" type="text" label="Bit Length"
                                                 isSmallInputField={true} value={streamSignal.getSignalBitLength()}
-                                                onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)}/>
+                                                onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)} isRequired={true}/>
                                 <i className="remove-button fa fa-remove fa-3x"
                                    onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)}/>
                             </div>
@@ -1176,10 +1184,10 @@ class TypesPage extends React.Component {
                         <div key="streamCasePositionDescription" className="clearfix">
                             <app.InputField  type="text" label="Position X" name="position-x"
                                             value={streamCase.getStreamPositionX()}
-                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}/>
+                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} isRequired={true}/>
                             <app.InputField  type="text" label="Position Y" name="position-y"
                                             value={streamCase.getStreamPositionY()}
-                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}/>
+                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)} isRequired={true}/>
                         </div>
                     );
                     const hasStreamSignals = streamSignals.length;
@@ -1228,17 +1236,17 @@ class TypesPage extends React.Component {
                 const streamMediaType = mostType.getStreamMediaType();
                 reactComponents.push(<app.InputField key="cstream1" type="text" label="Max Length"
                                                      name="cstream-max-length" value={streamMaxLength}
-                                                     onChange={this.onClassifiedStreamMaxLengthChanged}/>);
+                                                     onChange={this.onClassifiedStreamMaxLengthChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="cstream2" type="text" label="Media Type"
                                                      name="cstream-media-type" value={streamMediaType}
-                                                     onChange={this.onClassifiedStreamMediaTypeChanged}/>);
+                                                     onChange={this.onClassifiedStreamMediaTypeChanged} isRequired={true}/>);
             }
                 break;
             case 'TShortStream': {
                 const streamMaxLength = mostType.getStreamMaxLength();
                 reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length"
                                                      name="short-stream-max-length" value={streamMaxLength}
-                                                     onChange={this.onShortStreamMaxLengthChanged}/>);
+                                                     onChange={this.onShortStreamMaxLengthChanged} isRequired={true}/>);
             }
                 break;
             case 'TArray': {
@@ -1253,16 +1261,16 @@ class TypesPage extends React.Component {
                 const arrayElementTypeName = arrayElementType ? arrayElementType.getName() : null;
                 const arraySize = mostType.getArraySize();
                 reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name"
-                                                     value={arrayName} onChange={this.onArrayNameChanged}/>);
+                                                     value={arrayName} onChange={this.onArrayNameChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description"
                                                      name="array-description" value={arrayDescription}
                                                      onChange={this.onArrayDescriptionChanged}/>);
                 reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type"
                                                      name="array-element-type" value={arrayElementTypeName}
                                                      options={arrayElementTypes}
-                                                     onChange={this.onArrayElementTypeChanged}/>);
+                                                     onChange={this.onArrayElementTypeChanged} />);
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size"
-                                                     value={arraySize} onChange={this.onArraySizeChanged}/>);
+                                                     value={arraySize} onChange={this.onArraySizeChanged} isRequired={true}/>);
             }
                 break;
             case 'TRecord': {
@@ -1290,7 +1298,7 @@ class TypesPage extends React.Component {
                             </div>
                             <app.InputField key="recordField1" type="text" label="Record Field Name"
                                             name="record-field-name" value={recordField.getFieldName()}
-                                            onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)}/>
+                                            onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} isRequired={true}/>
                             <app.InputField key="recordField2" type="text" label="Record Field Description"
                                             name="record-field-description" value={recordField.getFieldDescription()}
                                             onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)}/>
@@ -1306,12 +1314,12 @@ class TypesPage extends React.Component {
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">
                         <app.InputField key="record1" type="text" label="Record Name" name="record-name"
-                                        value={recordName} onChange={this.onRecordNameChanged}/>
+                                        value={recordName} onChange={this.onRecordNameChanged} isRequired={true}/>
                         <app.InputField key="record2" type="textarea" label="Record Description"
                                         name="record-description" value={recordDescription}
                                         onChange={this.onRecordDescriptionChanged}/>
                         <app.InputField key="record3" type="text" label="Record Size" name="record-size"
-                                        value={recordSize} onChange={this.onRecordSizeChanged}/>
+                                        value={recordSize} onChange={this.onRecordSizeChanged} isRequired={true}/>
                     </div>
                 );
                 reactComponents.push(recordFields);
