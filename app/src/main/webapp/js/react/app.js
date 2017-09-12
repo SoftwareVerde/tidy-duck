@@ -2358,6 +2358,7 @@ class App extends React.Component {
         if (shouldShowToolbar) {
             let shouldShowCreateButton = true;
 
+            let isApproved = false;
             let shouldShowForkButton = false;
             let shouldShowBackButton = false;
             let shouldShowEditButton = false;
@@ -2371,7 +2372,7 @@ class App extends React.Component {
             // Determine what buttons should be displayed in toolbar.
             if (selectedItem) {
                 const isReleased = selectedItem.isReleased();
-                const isApproved = selectedItem.isApproved();
+                isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
 
                 if (! isReleased && ! isApproved) {
@@ -2468,6 +2469,7 @@ class App extends React.Component {
                     shouldShowSearchIcon={shouldShowSearchButton}
                     shouldShowBackButton={shouldShowBackButton}
                     shouldShowEditButton={shouldShowEditButton}
+                    shouldShowViewInfoButton={isApproved}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
