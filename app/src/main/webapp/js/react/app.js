@@ -824,7 +824,7 @@ class App extends React.Component {
             alert("This Function Catalog is approved for release and cannot be deleted.");
             callbackFunction();
         }
-        else {
+        else if (confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
             const thisApp = this;
             const functionCatalogId = functionCatalog.getId();
 
@@ -876,87 +876,6 @@ class App extends React.Component {
                 }
             });
         }
-    }
-
-    onDeleteFunctionCatalogWithConfirmPrompt(functionCatalog, callbackFunction) {
-        //Check if this function catalog contains any function blocks that are not referenced elsewhere.
-        const thisApp = this;
-        const functionCatalogId = functionCatalog.getId();
-        const orphanedFunctionBlocks = [];
-
-        getFunctionBlocksForFunctionCatalogId(functionCatalogId, function(functionBlocksJson) {
-            if (functionBlocksJson.length > 0) {
-                let functionBlockCounter = 0;
-                for (let i in functionBlocksJson) {
-                    const functionBlock = functionBlocksJson[i];
-                    listFunctionCatalogsContainingFunctionBlock(functionBlock.id, function(data) {
-                        // TODO: add else statement if data request failed. User should attempt the delete again to be safe.
-                        if (data.wasSuccess) {
-                            const functionCatalogIds = data.functionCatalogIds;
-
-                            if (functionCatalogIds.length < 2) {
-                                orphanedFunctionBlocks.push(functionBlock);
-                            }
-                            functionBlockCounter++;
-
-                            if (functionBlockCounter == functionBlocksJson.length) {
-                                let confirmPromptText = "This action will disassociate the included function blocks from this function catalog. The included function blocks are referenced elsewhere and will not be deleted. Are you sure you want to delete this function catalog?"
-
-                                if (orphanedFunctionBlocks.length > 0) {
-                                    confirmPromptText = "This action will delete the following function blocks, because they are not referenced in any other function catalog:\n"
-
-                                    for (let i in orphanedFunctionBlocks) {
-                                        confirmPromptText = confirmPromptText.concat("\n* " + orphanedFunctionBlocks[i].name);
-                                    }
-
-                                    confirmPromptText = confirmPromptText.concat("\n\nAre you sure you want to delete this function catalog?");
-                                }
-
-                                if (confirm(confirmPromptText)) {
-                                    deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
-                                        if (success) {
-                                            const newFunctionCatalogs = [];
-                                            const existingFunctionCatalogs = thisApp.state.functionCatalogs;
-                                            for (let i in existingFunctionCatalogs) {
-                                                const existingFunctionCatalog = existingFunctionCatalogs[i];
-                                                if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
-                                                    newFunctionCatalogs.push(existingFunctionCatalog);
-                                                }
-                                            }
-                                            thisApp.setState({
-                                                functionCatalogs:       newFunctionCatalogs,
-                                                currentNavigationLevel: thisApp.NavigationLevel.versions
-                                            });
-                                        } else {alert("Request to delete Function Catalog failed: " + errorMessage);}
-                                    });
-                                }
-                            }
-                        }
-                        //Let function catalog menu component know that action is completed.
-                        callbackFunction();
-                    });
-                }
-            } else {
-                deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
-                    if (success) {
-                        const newFunctionCatalogs = [];
-                        const existingFunctionCatalogs = thisApp.state.functionCatalogs;
-                        for (let i in existingFunctionCatalogs) {
-                            const existingFunctionCatalog = existingFunctionCatalogs[i];
-                            if (existingFunctionCatalog.getId() != functionCatalog.getId()) {
-                                newFunctionCatalogs.push(existingFunctionCatalog);
-                            }
-                        }
-                        thisApp.setState({
-                            functionCatalogs:       newFunctionCatalogs,
-                            currentNavigationLevel: thisApp.NavigationLevel.versions
-                        });
-                    } else {alert("Request to delete Function Catalog failed: " + errorMessage);}
-                });
-                //Let function catalog menu component know that action is completed.
-                callbackFunction();
-            }
-        });
     }
 
     onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
