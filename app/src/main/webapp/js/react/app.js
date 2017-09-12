@@ -174,7 +174,6 @@ class App extends React.Component {
 
     onCreateFunctionCatalog(functionCatalog) {
         const thisApp = this;
-
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
 
         this.setState({
@@ -342,9 +341,7 @@ class App extends React.Component {
 
     onCreateFunctionBlock(functionBlock) {
         const thisApp = this;
-
         const functionCatalog = this.state.selectedItem;
-
         const functionCatalogId = functionCatalog ? functionCatalog.getId() : null;
         const functionBlockJson = FunctionBlock.toJson(functionBlock);
 
@@ -383,9 +380,8 @@ class App extends React.Component {
 
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
-
-        let functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
+        let functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
         if (functionCatalogId) {
             if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
                 functionCatalogId = null;
@@ -475,9 +471,7 @@ class App extends React.Component {
 
     onCreateMostInterface(mostInterface) {
         const thisApp = this;
-
         const functionBlock = this.state.selectedItem;
-
         const functionBlockId = functionBlock ? functionBlock.getId() : null;
         const mostInterfaceJson = MostInterface.toJson(mostInterface);
 
@@ -513,9 +507,8 @@ class App extends React.Component {
 
     onUpdateMostInterface(mostInterface, getNewFunctions) {
         const thisApp = this;
-
-        let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
+        let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
         if (functionBlockId) {
             if (this.state.activeSubRole == this.developmentRoles.mostInterface) {
                 functionBlockId = null;
@@ -607,9 +600,7 @@ class App extends React.Component {
 
     onCreateMostFunction(mostFunction) {
         const thisApp = this;
-
         const mostInterface = this.state.selectedItem;
-
         const mostInterfaceId = mostInterface.getId();
         const mostFunctionJson = MostFunction.toJson(mostFunction);
 
@@ -645,12 +636,9 @@ class App extends React.Component {
 
     onUpdateMostFunction(mostFunction) {
         const thisApp = this;
-
         const mostInterfaceId = this.state.parentItem.getId();
         const mostFunctionJson = MostFunction.toJson(mostFunction);
         const mostFunctionId = mostFunction.getId();
-
-        // TODO: Update function metadata form to display saving animation.
 
         thisApp.setState({
             createButtonState:  this.CreateButtonState.animate,
@@ -695,7 +683,6 @@ class App extends React.Component {
                 thisApp.setState({
                     createButtonState:  thisApp.CreateButtonState.normal,
                 });
-                return;
             }
         });
     }
@@ -1092,7 +1079,6 @@ class App extends React.Component {
 
     disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction) {
         const thisApp = this;
-
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
@@ -1121,13 +1107,11 @@ class App extends React.Component {
 
     disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
         const thisApp = this;
-
         const functionCatalogId = "";
         const functionBlockId = functionBlock.getId();
         let executeCallback = true;
 
         const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unapproved function catalogs?");
-
         if (shouldDisassociate) {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
@@ -1157,14 +1141,11 @@ class App extends React.Component {
         }
         else {
             const thisApp = this;
-
             const functionCatalogId = "";
             const functionBlockId = functionBlock.getId();
 
             let shouldDelete = false;
-            if (shouldSkipConfirmation) {
-                shouldDelete = true;
-            }
+            if (shouldSkipConfirmation) { shouldDelete = true; }
             else {
                 shouldDelete = confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?");
             }
@@ -1220,7 +1201,6 @@ class App extends React.Component {
                 });
             }
         }
-
         // let component know action is complete
         callbackFunction();
     }
@@ -1444,7 +1424,6 @@ class App extends React.Component {
 
     disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction) {
         const thisApp = this;
-
         const functionBlockId = this.state.selectedItem.getId();
         const mostInterfaceId = mostInterface.getId();
 
@@ -1473,13 +1452,11 @@ class App extends React.Component {
 
     disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction) {
         const thisApp = this;
-
         const functionBlockId = "";
         const mostInterfaceId = mostInterface.getId();
         let executeCallback = true;
 
         const shouldDisassociate = confirm("Are you sure you want to disassociate this interface version from all unapproved function blocks?");
-
         if (shouldDisassociate) {
             deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
                 if (success) {
@@ -2392,25 +2369,22 @@ class App extends React.Component {
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const activeRole = this.state.activeRole;
         const navigationItems = this.state.navigationItems;
-
         const shouldShowToolbar = this.state.shouldShowToolbar;
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
-        // const shouldShowSubmitForReviewForm = this.state.shouldShowSubmitForReviewForm;
-        // Show the filter bar for development mode only when viewing orphaned items
         const selectedItem = this.state.selectedItem;
+
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
         let selectedVote = null;
-        let shouldShowVoteButtons = false;
 
         const reactComponents = [];
         const thisApp = this;
 
         if (shouldShowToolbar) {
             let shouldShowCreateButton = true;
-
+            
             let shouldShowForkButton = false;
             let shouldShowBackButton = false;
             let shouldShowEditButton = false;
@@ -2462,21 +2436,17 @@ class App extends React.Component {
                         }
                     }
 
-                    // TODO: Adjust switch statements if a function catalog layer is needed in development mode.
+                    // Determine back button functionality.
                     switch (currentNavigationLevel) {
                         case this.NavigationLevel.functionBlocks:
-                            backFunction = function() {
-                                thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);
-                            };
+                            backFunction = function() { thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true); };
                             break;
                         case this.NavigationLevel.mostInterfaces:
                             if (activeSubRole === thisApp.developmentRoles.functionBlock) {
                                 backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
-                                backFunction = function() {
-                                    thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true);
-                                };
+                                backFunction = function() { thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true); };
                             }
                             break;
                         case this.NavigationLevel.mostFunctions:
@@ -2487,7 +2457,6 @@ class App extends React.Component {
                 else {
                     if (activeRole == thisApp.roles.reviews) {
                         shouldShowNavigationItems = true;
-                        shouldShowVoteButtons = true;
                         shouldShowBackButton = true;
                         shouldShowForkButton = false;
                         shouldShowEditButton = false;
@@ -2497,21 +2466,13 @@ class App extends React.Component {
                         shouldShowReleaseButton = false;
 
                         selectedVote = this.isReviewVoteSelected();
-                        if (navigationItems.length > 1) {
-                            backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
-                        }
+                        if (navigationItems.length > 1) { backFunction = navigationItems[navigationItems.length-2].getOnClickCallback(); }
                         else {
-                            backFunction = function() {
-                                thisApp.handleRoleClick(activeRole, null, false);
-                            };
+                            backFunction = function() { thisApp.handleRoleClick(activeRole, null, false); };
                         }
                     }
-                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
-                        backFunction = thisApp.onRootNavigationItemClicked;
-                    }
-                    else {
-                        backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
-                    }
+                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) { backFunction = thisApp.onRootNavigationItemClicked; }
+                    else { backFunction = navigationItems[navigationItems.length-2].getOnClickCallback(); }
                 }
             }
 
