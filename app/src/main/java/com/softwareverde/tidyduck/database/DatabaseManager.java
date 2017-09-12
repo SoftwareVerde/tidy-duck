@@ -68,16 +68,6 @@ public class DatabaseManager {
         });
     }
 
-    public void releaseFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
-            @Override
-            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.releaseFunctionCatalog(functionCatalogId);
-            }
-        });
-    }
-
     public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
@@ -88,11 +78,24 @@ public class DatabaseManager {
         });
     }
 
+    // RELEASE
+
+
     public List<ReleaseItem> getReleaseItemList(final long functionCatalogId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
-            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-            return functionCatalogDatabaseManager.getReleaseItemList(functionCatalogId);
+            final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
+            return releaseDatabaseManager.getReleaseItemList(functionCatalogId);
         }
+    }
+
+    public void releaseFunctionCatalog(final long functionCatalogId, final List<ReleaseItem> releaseItems) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
+                releaseDatabaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
+            }
+        });
     }
 
     // FUNCTION BLOCK METHODS
