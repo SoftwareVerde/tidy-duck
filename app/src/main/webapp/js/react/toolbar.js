@@ -205,7 +205,7 @@ class Toolbar extends React.Component {
             let button = <i className="fa fa-4 fa-edit" />;
             if (this.props.shouldShowViewInfoButton) {
                 buttonTitle = "View " + buttonTitleType + " Data";
-                button = <i className="fa fa-4 fa-file-text" />;
+                button = <i className="fa fa-4 fa-file-text-o" />;
             }
 
             if (shouldShowButton) {
