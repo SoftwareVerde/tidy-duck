@@ -4,7 +4,6 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
-import com.softwareverde.tidyduck.ReleaseItem;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
@@ -15,6 +14,10 @@ import java.util.List;
 
 class FunctionCatalogDatabaseManager {
     private final DatabaseConnection<Connection> _databaseConnection;
+
+    public FunctionCatalogDatabaseManager(final DatabaseConnection<Connection> databaseConnection) {
+        _databaseConnection = databaseConnection;
+    }
 
     /**
      * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
@@ -107,10 +110,6 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public FunctionCatalogDatabaseManager(final DatabaseConnection<Connection> databaseConnection) {
-        _databaseConnection = databaseConnection;
-    }
-
     public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         _insertFunctionCatalog(functionCatalog);
     }
@@ -135,18 +134,6 @@ class FunctionCatalogDatabaseManager {
         _deleteFunctionCatalogIfUnapproved(functionCatalogId);
     }
 
-    public void releaseFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_released = ? WHERE id = ?")
-                .setParameter(true)
-                .setParameter(functionCatalogId)
-                ;
-
-        _databaseConnection.executeSql(query);
-
-        _releaseFunctionBlocksForFunctionCatalogId(functionCatalogId);
-        _releaseMostInterfacesForFunctionCatalogId(functionCatalogId);
-    }
-
     private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, final long newFunctionCatalogId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(originalFunctionCatalogId);
@@ -155,34 +142,6 @@ class FunctionCatalogDatabaseManager {
         for (final FunctionBlock functionBlock : functionBlocks) {
             functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(newFunctionCatalogId, functionBlock.getId());
         }
-    }
-
-    private void _releaseFunctionBlocksForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks SET is_released = ? WHERE id IN (" +
-                                            "SELECT DISTINCT function_catalogs_function_blocks.function_block_id\n" +
-                                                "FROM function_catalogs_function_blocks\n" +
-                                                "WHERE function_catalogs_function_blocks.function_catalog_id = ?)")
-                .setParameter(true)
-                .setParameter(functionCatalogId)
-                ;
-
-        _databaseConnection.executeSql(query);
-    }
-
-
-    private void _releaseMostInterfacesForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("UPDATE interfaces SET is_released = ? WHERE id IN (" +
-                                            "SELECT DISTINCT function_blocks_interfaces.interface_id\n" +
-                                                "FROM function_blocks_interfaces\n" +
-                                                "WHERE function_blocks_interfaces.function_block_id IN (" +
-                                                    "SELECT DISTINCT function_catalogs_function_blocks.function_block_id\n" +
-                                                    "FROM function_catalogs_function_blocks\n" +
-                                                    "WHERE function_catalogs_function_blocks.function_catalog_id = ?))")
-                .setParameter(true)
-                .setParameter(functionCatalogId)
-                ;
-
-        _databaseConnection.executeSql(query);
     }
 
     public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
@@ -249,90 +208,4 @@ class FunctionCatalogDatabaseManager {
         }
     }
 
-    public List<ReleaseItem> getReleaseItemList(long functionCatalogId) throws DatabaseException {
-        final List<ReleaseItem> releaseItems = new ArrayList<>();
-
-        // add this function catalog
-        releaseItems.addAll(_getFunctionCatalogReleaseItem(functionCatalogId));
-
-        // add unreleased function blocks
-        releaseItems.addAll(_getUnreleasedChildFunctionBlocks(functionCatalogId));
-
-        // add unreleased interfaces
-        releaseItems.addAll(_getUnreleasedChildInterfaces(functionCatalogId));
-
-        // add unreleased functions
-        releaseItems.addAll(_getUnreleasedChildFunctions(functionCatalogId));
-
-        return releaseItems;
-    }
-
-    private List<ReleaseItem> _getFunctionCatalogReleaseItem(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("SELECT 'FUNCTION CATALOG' AS type, id, name, release_version AS version " +
-                                        "FROM function_catalogs " +
-                                        "WHERE id = ?");
-        query.setParameter(functionCatalogId);
-
-        return _executeReleaseItemQuery(query);
-    }
-
-    private List<ReleaseItem> _getUnreleasedChildFunctionBlocks(long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("SELECT 'FUNCTION BLOCK' AS type, function_blocks.id, name, release_version AS version " +
-                                        "FROM function_catalogs_function_blocks " +
-                                        "INNER JOIN function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks.id " +
-                                        "WHERE function_catalog_id = ? and is_released = 0");
-        query.setParameter(functionCatalogId);
-
-        return _executeReleaseItemQuery(query);
-    }
-
-    private List<ReleaseItem> _getUnreleasedChildInterfaces(long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("SELECT 'INTERFACE' AS type, interfaces.id, name, version AS version " +
-                                        "FROM function_catalogs_function_blocks " +
-                                        "INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.function_block_id = function_catalogs_function_blocks.function_block_id " +
-                                        "INNER JOIN interfaces ON function_blocks_interfaces.interface_id = interfaces.id " +
-                                        "WHERE function_catalog_id = ? and interfaces.is_released = 0");
-        query.setParameter(functionCatalogId);
-
-        return _executeReleaseItemQuery(query);
-    }
-
-    private List<ReleaseItem> _getUnreleasedChildFunctions(long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("SELECT 'FUNCTION' AS type, functions.id, name, release_version AS version " +
-                                        "FROM function_catalogs_function_blocks " +
-                                        "INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.function_block_id = function_catalogs_function_blocks.function_block_id " +
-                                        "INNER JOIN interfaces_functions ON interfaces_functions.interface_id = function_blocks_interfaces.interface_id " +
-                                        "INNER JOIN functions ON interfaces_functions.function_id = functions.id " +
-                                        "WHERE function_catalog_id = ? and functions.is_released = 0");
-        query.setParameter(functionCatalogId);
-
-        return _executeReleaseItemQuery(query);
-    }
-
-    private List<ReleaseItem> _executeReleaseItemQuery(Query query) throws DatabaseException {
-        List<Row> rows = _databaseConnection.query(query);
-
-        ArrayList<ReleaseItem> releaseItems = new ArrayList<>();
-        for (final Row row : rows) {
-            final ReleaseItem releaseItem = _convertRowToReleaseItem(row);
-            releaseItems.add(releaseItem);
-        }
-        return releaseItems;
-    }
-
-    private ReleaseItem _convertRowToReleaseItem(final Row row) {
-        final String itemType = row.getString("type");
-        final Long itemId = row.getLong("id");
-        final String itemName = row.getString("name");
-        final String itemVersion = row.getString("version");
-
-        final ReleaseItem releaseItem = new ReleaseItem();
-
-        releaseItem.setItemType(itemType);
-        releaseItem.setItemId(itemId);
-        releaseItem.setItemName(itemName);
-        releaseItem.setItemVersion(itemVersion);
-
-        return releaseItem;
-    }
 }

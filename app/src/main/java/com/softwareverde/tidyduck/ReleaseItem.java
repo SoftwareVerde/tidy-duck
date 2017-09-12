@@ -61,7 +61,7 @@ public class ReleaseItem {
      * @param releaseItem
      * @return
      */
-    public boolean referencesSameObject(final ReleaseItem releaseItem) {
+    public boolean referencesSameObjectAs(final ReleaseItem releaseItem) {
         if (releaseItem == null) {
             return false;
         }

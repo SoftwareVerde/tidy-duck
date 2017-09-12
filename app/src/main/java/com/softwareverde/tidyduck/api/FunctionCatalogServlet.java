@@ -186,19 +186,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
         final Json functionCatalogJson = request.get("functionCatalog");
-        final boolean shouldRelease = request.getBoolean("shouldRelease");
 
         try {
             FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, database);
             functionCatalog.setId(functionCatalogId);
             DatabaseManager databaseManager = new DatabaseManager(database);
 
-            if (shouldRelease) {
-                databaseManager.releaseFunctionCatalog(functionCatalogId);
-            }
-            else {
-                databaseManager.updateFunctionCatalog(functionCatalog);
-            }
+            databaseManager.updateFunctionCatalog(functionCatalog);
 
             response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
@@ -284,10 +278,12 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 releaseItems.add(releaseItem);
             }
 
-            // verify that all release items are present
-            verifyReleaseItems(releaseItems, functionCatalogId, database);
+            // verify that all expected release items are present
+            verifyReleaseItemList(releaseItems, functionCatalogId, database);
 
-            // TODO: release function catalog and unreleased children
+            // all conditions met, update all components
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
 
             super._setJsonSuccessFields(response);
             return response;
@@ -298,11 +294,36 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private void verifyReleaseItems(final List<ReleaseItem> providedReleaseItems, final Long functionCatalogId, final Database<Connection> database) throws DatabaseException {
+    private void verifyReleaseItemList(final List<ReleaseItem> providedReleaseItems, final Long functionCatalogId, final Database<Connection> database) throws DatabaseException {
         final DatabaseManager databaseManager = new DatabaseManager(database);
         List<ReleaseItem> expectedReleaseItems = databaseManager.getReleaseItemList(functionCatalogId);
 
-        // TODO: validate providedReleaseItems reference same objects and expectedReleaseItems
+        if (providedReleaseItems.size() != expectedReleaseItems.size()) {
+            throw new IllegalArgumentException("Invalid number of release items provided. " + expectedReleaseItems.size() + " expected.");
+        }
+
+        // check if all expected release items are present
+        for (final ReleaseItem expectedReleaseItem : expectedReleaseItems) {
+            // look for expectedReleaseItem in providedReleaseItems
+            boolean matchFound = false;
+            for (final ReleaseItem providedReleaseItem : providedReleaseItems) {
+                if (providedReleaseItem.referencesSameObjectAs(expectedReleaseItem)) {
+                    matchFound = true;
+                    break;
+                }
+            }
+            if (!matchFound) {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(expectedReleaseItem.getItemType());
+                stringBuilder.append(" ");
+                stringBuilder.append(expectedReleaseItem.getItemId());
+                stringBuilder.append(" (");
+                stringBuilder.append(expectedReleaseItem.getItemName());
+                stringBuilder.append(")  not provided.");
+                throw new IllegalArgumentException(stringBuilder.toString());
+            }
+        }
+        // same number of items and all have matches, provided list is valid
     }
 
     private void validateReleaseItem(final ReleaseItem releaseItem) {
