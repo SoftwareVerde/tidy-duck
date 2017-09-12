@@ -12,12 +12,18 @@ class ReleaseItem {
     }
 
     static toJson(releaseItem) {
+        const itemType = releaseItem.getItemType();
+        const itemId = releaseItem.getItemId();
+        const itemName = releaseItem.getItemName();
+        const itemVersion = releaseItem.getItemVersion();
+        const newVersion = releaseItem.getNewVersion();
+
         return {
-            itemType:       this._itemType,
-            itemId:         this._itemId,
-            itemName:       this._itemName,
-            itemVersion:    this._itemVersion,
-            newVersion:     this._newVersion
+            itemType:       itemType,
+            itemId:         itemId,
+            itemName:       itemName,
+            itemVersion:    itemVersion,
+            newVersion:     newVersion
         };
     }
 
