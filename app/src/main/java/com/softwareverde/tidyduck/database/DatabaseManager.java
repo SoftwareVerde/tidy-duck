@@ -92,8 +92,8 @@ public class DatabaseManager {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-                final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
-                releaseDatabaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
+            final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
+            releaseDatabaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
             }
         });
     }
