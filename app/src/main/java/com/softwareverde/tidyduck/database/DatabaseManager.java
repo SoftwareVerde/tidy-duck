@@ -78,6 +78,13 @@ public class DatabaseManager {
         });
     }
 
+    public boolean isFunctionCatalogApproved(final Long functionCatalogId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.isApproved(functionCatalogId);
+        }
+    }
+
     // RELEASE
 
 

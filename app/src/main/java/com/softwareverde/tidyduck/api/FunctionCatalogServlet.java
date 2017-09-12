@@ -265,7 +265,11 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     private Json _releaseFunctionCatalog(final HttpServletRequest request, final Long functionCatalogId, final Database<Connection> database) {
         try {
-            final Json response = new Json(false);
+            DatabaseManager databaseManager = new DatabaseManager(database);
+
+            if (!databaseManager.isFunctionCatalogApproved(functionCatalogId)) {
+                throw new IllegalArgumentException("Function catalog " + functionCatalogId + " is not approved.");
+            }
 
             // get release items
             final Json jsonRequest = _getRequestDataAsJson(request);
@@ -282,9 +286,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             _verifyReleaseItemList(releaseItems, functionCatalogId, database);
 
             // all conditions met, update all components
-            DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
 
+            final Json response = new Json(false);
             super._setJsonSuccessFields(response);
             return response;
         } catch (Exception e) {
