@@ -63,11 +63,13 @@ class FunctionCatalogForm extends React.Component {
     }
 
 
-    onSubmit() {
+    onSubmit(event) {
         const createdFunctionCatalog = this.state.functionCatalog;
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionCatalog);
         }
+
+        event.preventDefault();
 
         /*
             // Clear the form...
@@ -99,14 +101,14 @@ class FunctionCatalogForm extends React.Component {
             if(this.state.shouldShowSaveAnimation)  {
                 reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
             } else {
-                reactComponents.push(<div key="button submit-button" className="center"><button className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
+                reactComponents.push(<div key="button submit-button" className="center"><input type="submit" className="button submit-button" id="function-catalog-submit"  value={this.state.buttonTitle}/></div>);
             }
         }
         return (
-            <div className="metadata-form clearfix" onClick={this.onClick}>
+            <form className="metadata-form clearfix" onClick={this.onClick} onSubmit={this.onSubmit}>
                 {this.renderFormTitle()}
                 {reactComponents}
-            </div>
+            </form>
         );
     }
 }

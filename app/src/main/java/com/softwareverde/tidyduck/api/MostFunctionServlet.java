@@ -282,10 +282,27 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                     MostType mostType = new MostType();
                     mostType.setId(inputParameterJson.getLong("typeId"));
 
+                    final String parameterString = inputParameterJson.getString("name");
+                    final String parameterDescription = inputParameterJson.getString("description");
+                    final Integer parameterIndex = inputParameterJson.getInteger("parameterIndex");
+
+                    // Validate Inputs
+                    if (Util.isBlank(parameterString)) {
+                        throw new Exception("Parameter name field is required.");
+                    }
+
+                    if (Util.isBlank(parameterDescription)) {
+                        throw new Exception("Parameter description field is required.");
+                    }
+
+                    if (parameterIndex < 1) {
+                        throw new Exception("Invalid parameter index.");
+                    }
+
                     MostFunctionParameter mostFunctionParameter = new MostFunctionParameter();
-                    mostFunctionParameter.setName(inputParameterJson.getString("name"));
-                    mostFunctionParameter.setDescription(inputParameterJson.getString("description"));
-                    mostFunctionParameter.setParameterIndex(inputParameterJson.getInteger("parameterIndex"));
+                    mostFunctionParameter.setName(parameterString);
+                    mostFunctionParameter.setDescription(parameterDescription);
+                    mostFunctionParameter.setParameterIndex(parameterIndex);
                     mostFunctionParameter.setMostType(mostType);
 
                     method.addInputParameter(mostFunctionParameter);

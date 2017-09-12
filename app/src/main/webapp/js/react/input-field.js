@@ -55,7 +55,7 @@ class InputField extends React.Component {
                 break;
             default:
                 return (
-                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />
+                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} required={true}/>
                 );
         }
     }

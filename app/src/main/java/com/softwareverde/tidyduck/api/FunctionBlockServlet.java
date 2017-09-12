@@ -59,7 +59,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final String searchString = Util.coalesce(parameters.get("name"));
-                if (searchString.length() < 1) {
+                if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for function block.");
                 }
                 return _listFunctionBlocksMatchingSearchString(searchString, environment.getDatabase());

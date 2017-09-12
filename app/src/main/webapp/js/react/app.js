@@ -934,7 +934,7 @@ class App extends React.Component {
     onSearchFunctionBlocks(searchString) {
         const requestTime = (new Date()).getTime();
 
-        if (searchString.length > 0) {
+        if (searchString.length > 1) {
             const thisApp = this;
             this.setState({isLoadingSearchResults: true});
 
@@ -983,7 +983,7 @@ class App extends React.Component {
     onFilterFunctionBlocks(filterString) {
         const requestTime = (new Date()).getTime();
 
-        if (filterString.length > 0) {
+        if (filterString.length > 1) {
             const thisApp = this;
             this.setState({
                 isLoadingChildren: true,
@@ -1016,7 +1016,7 @@ class App extends React.Component {
                 isLoadingChildren:              false,
                 isLoadingSearchResults:         false,
                 shouldShowFilteredResults:      false,
-                filterString:                   ""
+                filterString:                   filterString
             });
         }
 
@@ -1277,7 +1277,7 @@ class App extends React.Component {
     onSearchMostInterfaces(searchString) {
         const requestTime = (new Date()).getTime();
 
-        if (searchString.length > 0) {
+        if (searchString.length > 1) {
             const thisApp = this;
             this.setState({isLoadingSearchResults: true});
 
@@ -1328,7 +1328,7 @@ class App extends React.Component {
     onFilterMostInterfaces(filterString) {
         const requestTime = (new Date()).getTime();
 
-        if (filterString.length > 0) {
+        if (filterString.length > 1) {
             const thisApp = this;
             this.setState({
                 isLoadingChildren: true,
@@ -1361,7 +1361,7 @@ class App extends React.Component {
                 isLoadingChildren:              false,
                 isLoadingSearchResults:         false,
                 shouldShowFilteredResults:      false,
-                filterString:                   ""
+                filterString:                   filterString
             });
         }
 
@@ -2384,7 +2384,7 @@ class App extends React.Component {
 
         if (shouldShowToolbar) {
             let shouldShowCreateButton = true;
-            
+
             let shouldShowForkButton = false;
             let shouldShowBackButton = false;
             let shouldShowEditButton = false;

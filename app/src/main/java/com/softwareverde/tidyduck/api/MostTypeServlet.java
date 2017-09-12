@@ -338,6 +338,10 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             throw new Exception("Invalid enum value code.");
         }
 
+        if (Util.isBlank(description)) {
+            throw new Exception("Invalid enum value description.");
+        }
+
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
         enumValue.setName(name);
