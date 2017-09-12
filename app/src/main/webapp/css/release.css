@@ -1,0 +1,46 @@
+.release-area {
+    width: 90%;
+
+    display: block;
+    margin: 2em auto auto auto;
+
+    box-shadow: 0px 0px 15px #CCCCCC;
+    border: 0px solid;
+    border-radius: 5px;
+}
+
+#release-area-title {
+    font-size: 150%;
+    font-weight: bold;
+    text-align: center;
+
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    padding: 5px;
+}
+
+#release-area-content {
+    padding: 1em;
+}
+
+#release-items-table {
+    width: 100%;
+}
+
+#release-items-table thead {
+    text-decoration: underline;
+}
+
+#release-items-table td {
+    padding: 5px;
+    text-align: center;
+}
+
+#release-items-table td .input-field {
+    float: none;
+    padding: 0px;
+}
+
+#release-button-area {
+    padding: 0 1em 1em 1em;
+}

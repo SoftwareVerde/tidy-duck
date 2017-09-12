@@ -151,3 +151,25 @@ function submitFunctionCatalogForReview(functionCatalogId, callbackFunction) {
         }
     });
 }
+
+function getReleaseItemList(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/release-item-list",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to get release items: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}

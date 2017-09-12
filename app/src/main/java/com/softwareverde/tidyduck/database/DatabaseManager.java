@@ -5,10 +5,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.transaction.DatabaseRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
-import com.softwareverde.tidyduck.Review;
-import com.softwareverde.tidyduck.ReviewComment;
-import com.softwareverde.tidyduck.ReviewVote;
-import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.most.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +86,13 @@ public class DatabaseManager {
                 functionCatalogDatabaseManager.submitFunctionCatalogForReview(functionCatalogId, accountId);
             }
         });
+    }
+
+    public List<ReleaseItem> getReleaseItemList(final long functionCatalogId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.getReleaseItemList(functionCatalogId);
+        }
     }
 
     // FUNCTION BLOCK METHODS
