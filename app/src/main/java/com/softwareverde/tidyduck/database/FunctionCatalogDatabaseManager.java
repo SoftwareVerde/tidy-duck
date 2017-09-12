@@ -208,4 +208,18 @@ class FunctionCatalogDatabaseManager {
         }
     }
 
+    public boolean isApproved(final Long functionCatalogId) throws DatabaseException {
+        return _isApproved(functionCatalogId);
+    }
+
+    private boolean _isApproved(final Long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("SELECT is_approved FROM function_catalogs WHERE id = ?");
+        query.setParameter(functionCatalogId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        if (rows.size() > 0) {
+            return rows.get(0).getBoolean("is_approved");
+        }
+        return false;
+    }
 }
