@@ -121,7 +121,7 @@ public class ReleaseDatabaseManager {
     }
 
     private String getReleaseQuery(final ReleaseItem releaseItem) {
-        String query = null;
+        String query;
         switch (releaseItem.getItemType()) {
             case "FUNCTION CATALOG": {
                 query = "UPDATE function_catalogs SET release_version = ?, is_released = 1 WHERE id = ?";
@@ -133,7 +133,7 @@ public class ReleaseDatabaseManager {
                 query = "UPDATE interfaces SET version = ?, is_released = 1 WHERE id = ?";
             } break;
             case "FUNCTION": {
-                query = "UPDATE functions SET release_version = ?, is_released = 1, WHERE id = ?";
+                query = "UPDATE functions SET release_version = ?, is_released = 1 WHERE id = ?";
             } break;
             default: {
                 throw new IllegalArgumentException("Invalid release item type '" + releaseItem.getItemType() + "' found.");

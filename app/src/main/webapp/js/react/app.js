@@ -309,35 +309,8 @@ class App extends React.Component {
     }
 
     onFunctionCatalogReleased() {
-        // TODO: implement (need parameters)
-
-        // TODO: remove the below comment once it has been harvested for the release version setting page/callbacks
-//        const thisApp = this;
-//        const functionBlocks = this.state.functionBlocks;
-//        const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
-//        const functionCatalogId = functionCatalog.getId();
-//
-//        if (confirm("Are you sure you want to release this function catalog?")) {
-//            updateFunctionCatalog(functionCatalogId, functionCatalogJson, true, function(wasSuccess, newFunctionCatalogId) {
-//                if (wasSuccess) {
-//                    // Set currently selected function catalog to released.
-//                    functionCatalog.setIsReleased(true);
-//
-//                    // Set currently selected function catalog's function blocks to released.
-//                    for (let i in functionBlocks) {
-//                        functionBlocks[i].setIsReleased(true);
-//                    }
-//
-//                    alert("Function Catalog " + functionCatalogId + " successfully released!")
-//
-//                    thisApp.setState({
-//                        functionBlocks:       functionBlocks,
-//                        selectedItem:           functionCatalog,
-//                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-//                    });
-//                }
-//            });
-//        }
+        // return to main release page
+        this.handleRoleClick(this.roles.release, null, false);
     }
 
     onCreateFunctionBlock(functionBlock) {

@@ -274,12 +274,12 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             for (int i=0; i<releaseItemsJson.length(); i++) {
                 final Json releaseItemJson = releaseItemsJson.get(i);
                 final ReleaseItem releaseItem = _populateReleaseItemFromJson(releaseItemJson);
-                validateReleaseItem(releaseItem);
+                _validateReleaseItem(releaseItem);
                 releaseItems.add(releaseItem);
             }
 
             // verify that all expected release items are present
-            verifyReleaseItemList(releaseItems, functionCatalogId, database);
+            _verifyReleaseItemList(releaseItems, functionCatalogId, database);
 
             // all conditions met, update all components
             DatabaseManager databaseManager = new DatabaseManager(database);
@@ -294,7 +294,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private void verifyReleaseItemList(final List<ReleaseItem> providedReleaseItems, final Long functionCatalogId, final Database<Connection> database) throws DatabaseException {
+    private void _verifyReleaseItemList(final List<ReleaseItem> providedReleaseItems, final Long functionCatalogId, final Database<Connection> database) throws DatabaseException {
         final DatabaseManager databaseManager = new DatabaseManager(database);
         List<ReleaseItem> expectedReleaseItems = databaseManager.getReleaseItemList(functionCatalogId);
 
@@ -326,18 +326,23 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         // same number of items and all have matches, provided list is valid
     }
 
-    private void validateReleaseItem(final ReleaseItem releaseItem) {
-        if (releaseItem.getItemId() == null || releaseItem.getItemId() < 1) {
-            throw new IllegalArgumentException("Invalid ID");
+    private void _validateReleaseItem(final ReleaseItem releaseItem) {
+        final Long itemId = releaseItem.getItemId();
+        final String itemType = releaseItem.getItemType();
+        final String itemVersion = releaseItem.getItemVersion();
+        final String newVersion = releaseItem.getNewVersion();
+
+        if (itemId == null || itemId < 1) {
+            throw new IllegalArgumentException("Invalid release item ID: " + itemId);
         }
-        if (Util.isBlank(releaseItem.getItemType())) {
-            throw new IllegalArgumentException("Invalid type for item " + releaseItem.getItemId());
+        if (Util.isBlank(itemType)) {
+            throw new IllegalArgumentException("Invalid type (" + itemType + ") for item " + itemId);
         }
-        if (Util.isBlank(releaseItem.getNewVersion())) {
-            throw new IllegalArgumentException("New version is invalid for item " + releaseItem.getItemId());
+        if (Util.isBlank(newVersion)) {
+            throw new IllegalArgumentException("New version (" + newVersion + ") is invalid for item " + itemId);
         }
-        if (releaseItem.getNewVersion().equals(releaseItem.getItemVersion())) {
-            throw new IllegalArgumentException("New version must be different from old version, item " + releaseItem.getItemId());
+        if (newVersion.equals(releaseItem.getItemVersion())) {
+            throw new IllegalArgumentException("New version (" + newVersion + ") must be different from old version (" + itemVersion + "), item " + itemId);
         }
     }
 

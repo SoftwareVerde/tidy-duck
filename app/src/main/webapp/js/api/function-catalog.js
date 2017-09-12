@@ -173,3 +173,28 @@ function getReleaseItemList(functionCatalogId, callbackFunction) {
         }
     });
 }
+
+function releaseFunctionCatalog(functionCatalogId, releaseItems, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/release",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                releaseItems: releaseItems
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to release function catalog " + functionCatalogId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}

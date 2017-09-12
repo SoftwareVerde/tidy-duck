@@ -9,6 +9,28 @@ class ReleasePage extends React.Component {
             saveButtonTitle:                'Save & Release'
         };
 
+        this.populateReleaseItems = this.populateReleaseItems.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.renderReleaseItems = this.renderReleaseItems.bind(this);
+        this.renderSaveButton = this.renderSaveButton.bind(this);
+
+        this.onNewVersionChanged = this.onNewVersionChanged.bind(this);
+
+        this.populateReleaseItems();
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.setState({
+            showLoadingReleaseItemsIcon:    true,
+            showSaveAnimation:              false,
+            releaseItems:                   [],
+            saveButtonTitle:                'Save & Release'
+        });
+
+        this.populateReleaseItems();
+    }
+
+    populateReleaseItems() {
         const thisPage = this;
         const functionCatalog = this.props.functionCatalog;
         getReleaseItemList(functionCatalog.getId(), function(data) {
@@ -31,16 +53,6 @@ class ReleasePage extends React.Component {
                 });
             }
         });
-
-        this.onSubmit = this.onSubmit.bind(this);
-        this.renderReleaseItems = this.renderReleaseItems.bind(this);
-        this.renderSaveButton = this.renderSaveButton.bind(this);
-
-        this.onNewVersionChanged = this.onNewVersionChanged.bind(this);
-    }
-
-    componentWillReceiveProps(newProps) {
-
     }
 
     onSubmit() {
@@ -48,10 +60,28 @@ class ReleasePage extends React.Component {
             shouldShowSaveAnimation: true
         });
 
-        if (typeof this.props.onRelease == "function") {
-            // TODO: provide arguments
-            this.props.onRelease();
+        const functionCatalog = this.props.functionCatalog;
+        const releaseItems = this.state.releaseItems;
+        const releaseItemsJson = [];
+        for (let i in releaseItems) {
+            const releaseItem = releaseItems[i];
+            const releaseItemJson = ReleaseItem.toJson(releaseItem);
+            releaseItemsJson.push(releaseItemJson);
         }
+
+        const thisPage = this;
+        releaseFunctionCatalog(functionCatalog.getId(), releaseItemsJson, function(data) {
+            if (data.wasSuccess) {
+                if (typeof thisPage.props.onRelease == "function") {
+                    thisPage.props.onRelease();
+                }
+            } else {
+                alert("Unable to release function catalog: " + data.errorMessage);
+                thisPage.setState({
+                    shouldShowSaveAnimation: false
+                });
+            }
+        });
     }
 
     onNewVersionChanged(releaseItem, value) {
