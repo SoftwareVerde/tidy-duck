@@ -134,11 +134,13 @@ class FunctionBlockForm extends React.Component {
         event.stopPropagation();
     }
 
-    onSubmit() {
+    onSubmit(event) {
         const createdFunctionBlock = this.state.functionBlock;
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionBlock);
         }
+
+        event.preventDefault();
     }
 
     renderFormTitle() {
@@ -164,26 +166,26 @@ class FunctionBlockForm extends React.Component {
         accessOptions.push('preliminary');
 
         const reactComponents = [];
-        reactComponents.push(<app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} />);
-        reactComponents.push(<app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} />);
-        reactComponents.push(<app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="function-block-description" id="function-block-description" name="description" type="textarea" label="Description" value={functionBlock.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
-        reactComponents.push(<app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} />);
-        reactComponents.push(<app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={functionBlock.getAccess()} options={accessOptions} readOnly={readOnly} onChange={this.onAccessChanged} />);
+        reactComponents.push(<app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={functionBlock.getAccess()} options={accessOptions} readOnly={readOnly} onChange={this.onAccessChanged} isRequired={true} />);
 
         if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {
                 reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
             } else {
-                reactComponents.push(<div key="button submit-button" className="center"><button className="button submit-button" id="function-block-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
+                reactComponents.push(<div key="button submit-button" className="center"><input type="submit" className="button submit-button" id="function-block-submit" value={this.state.buttonTitle} /></div>);
             }
         }
 
         return (
-            <div className="metadata-form clearfix" onClick={this.onClick}>
+            <form className="metadata-form clearfix" onClick={this.onClick} onSubmit={this.onSubmit}>
                 {this.renderFormTitle()}
                 {reactComponents}
-            </div>
+            </form>
         );
     }
 }

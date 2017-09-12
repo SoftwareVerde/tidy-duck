@@ -429,11 +429,11 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
-
+            /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
             }
-
+            */
             if (Util.isBlank(release)) {
                 throw new Exception("Release field is required.");
             }

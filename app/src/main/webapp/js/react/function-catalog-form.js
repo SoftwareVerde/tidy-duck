@@ -89,19 +89,19 @@ class FunctionCatalogForm extends React.Component {
     }
 
     render() {
-        const reactComponents = []
+        const reactComponents = [];
         const functionCatalog = this.state.functionCatalog;
         const version = functionCatalog.isApproved() ? functionCatalog.getDisplayVersion() : functionCatalog.getReleaseVersion();
         const readOnly = this.state.readOnly;
 
-        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} />);
-        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} />);
+        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true}/>);
+        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />);
 
         if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {
                 reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
             } else {
-                reactComponents.push(<div key="button submit-button" className="center"><input type="submit" className="button submit-button" id="function-catalog-submit"  value={this.state.buttonTitle}/></div>);
+                reactComponents.push(<div key="button submit-button" className="center"><input type="submit" className="button submit-button" id="function-catalog-submit" value={this.state.buttonTitle}/></div>);
             }
         }
         return (

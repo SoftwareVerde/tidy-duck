@@ -221,11 +221,11 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
-
+            /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
             }
-
+            */
             if (Util.isBlank(release)) {
                 throw new Exception("Version field is required.");
             }
@@ -290,11 +290,11 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                     if (Util.isBlank(parameterString)) {
                         throw new Exception("Parameter name field is required.");
                     }
-
+                    /*
                     if (Util.isBlank(parameterDescription)) {
                         throw new Exception("Parameter description field is required.");
                     }
-
+                    */
                     if (parameterIndex < 1) {
                         throw new Exception("Invalid parameter index.");
                     }

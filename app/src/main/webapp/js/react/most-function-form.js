@@ -266,11 +266,13 @@ class MostFunctionForm extends React.Component {
         event.stopPropagation();
     }
 
-    onSubmit() {
+    onSubmit(event) {
         const createdMostFunction = this.state.mostFunction;
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdMostFunction);
         }
+
+        event.preventDefault();
     }
 
     renderFormTitle() {
@@ -356,7 +358,7 @@ class MostFunctionForm extends React.Component {
             if (this.state.shouldShowSaveAnimation)  {
                 return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
             }
-            return(<div className="center"><button className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</button></div>);
+            return(<div className="center"><input type="submit" className="button submit-button" id="most-function-submit" value={this.state.buttonTitle} /></div>);
         }
     }
 
@@ -383,22 +385,22 @@ class MostFunctionForm extends React.Component {
         }
 
         const reactComponents = [];
-        reactComponents.push(<app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID" value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} />);
-        reactComponents.push(<app.InputField key="most-function-name" id="most-function-name" name="name" type="text" label="Name" value={mostFunction.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
+        reactComponents.push(<app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID" value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="most-function-name" id="most-function-name" name="name" type="text" label="Name" value={mostFunction.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-function-description" id="most-function-description" name="description" type="textarea" label="Description" value={mostFunction.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />);
-        reactComponents.push(<app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />);
+        reactComponents.push(<app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={stereotypeName} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />);
         reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={returnTypeName} options={mostTypeNames} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
 
         return (
-            <div className="metadata-form clearfix" onClick={this.onClick}>
+            <form className="metadata-form clearfix" onClick={this.onClick} onSubmit={this.onSubmit}>
                 {this.renderFormTitle()}
                 <div className="metadata-form-inputs">{reactComponents}</div>
                 <div className="metadata-form-title">Operations</div>
                 {this.renderOperationCheckboxes()}
                 {this.renderParameters()}
                 {this.renderSubmitButton()}
-            </div>
+            </form>
         );
     }
 }
