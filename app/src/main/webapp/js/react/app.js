@@ -1,6 +1,19 @@
 class App extends React.Component {
+    static alert(title, content, onConfirm) {
+        App._instance.setState({
+            alert: {
+                shouldShow: true,
+                title:      title,
+                content:    content,
+                onConfirm:  onConfirm
+            }
+        });
+    }
+
     constructor(props) {
         super(props);
+
+        App._instance = this;
 
         this.NavigationLevel = {
             versions:           "versions",
@@ -81,7 +94,13 @@ class App extends React.Component {
             filterString:               null,
             reviewCommentString:        null,
             shouldShowFilteredResults:  false,
-            shouldShowEditForm:         false
+            shouldShowEditForm:         false,
+            alert: {
+                shouldShow: false,
+                title:      "",
+                content:    "",
+                onConfirm:  null
+            }
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -2872,7 +2891,7 @@ class App extends React.Component {
                 </div>
                 {this.renderMainContent()}
 
-                <app.Alert shouldShow="1" title="Title" content="Content" />
+                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} />
             </div>
         );
     }

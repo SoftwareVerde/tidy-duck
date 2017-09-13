@@ -83,6 +83,10 @@ class Alert extends React.Component {
         if (this.props.onConfirm) {
             this.props.onConfirm();
         }
+
+        this.setState({
+            shouldShow: false
+        });
     }
 
     componentWillReceiveProps(newProperties) {
@@ -108,9 +112,17 @@ class Alert extends React.Component {
             "width":  this.state.width
         };
 
+        const hasMoved = (this.state.lastMoveTime > 0);
+        if (this.state.isMoving) {
+            OnMouseMove.addCallback(this.onMouseMove);
+        }
+        else if (hasMoved) {
+            OnMouseMove.removeCallback(this.onMouseMove);
+        }
+
         return (
-            <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} onMouseUp={this.onMouseUp} onMouseMove={(this.state.isMoving ? this.onMouseMove : null)} onMouseDown={this.onMouseDown} style={divStyle} >
-                <div className="alert-title">{this.state.title}</div>
+            <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} style={divStyle} >
+                <div className="alert-title" onMouseUp={this.onMouseUp} onMouseDown={this.onMouseDown}>{this.state.title}</div>
                 <div className="alert-content">{this.state.content}</div>
                 <div className="alert-button" onClick={this.onButtonClick}>Got it!</div>
             </div>
