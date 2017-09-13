@@ -40,13 +40,39 @@ public class SecureHashUtilTests {
         Assert.assertEquals(true, validationWasSuccessful);
 
     }
+
+    @Test
+    public void should_return_false_for_an_invalid_hash() throws Exception {
+        // Setup
+        final String invalidHash = "bobasdfs";
+
+        // Action
+        final boolean validationWasSuccessful = SecureHashUtil.validateHashWithPbkdf2(_originalPassword, invalidHash);
+
+        // Assert
+        Assert.assertEquals(false, validationWasSuccessful);
+
+    }
+
+    @Test
+    public void should_return_false_for_an_invalid_hash_with_colons() throws Exception {
+        // Setup
+        final String invalidHash = "1:2:3:4:5:6:7:8:9";
+
+        // Action
+        final boolean validationWasSuccessful = SecureHashUtil.validateHashWithPbkdf2(_originalPassword, invalidHash);
+
+        // Assert
+        Assert.assertEquals(false, validationWasSuccessful);
+
+    }
+
     @Test
     public void should_hash_and_fail_validation() throws Exception {
         // Setup
         final String originalPasswordHash = SecureHashUtil.hashWithPbkdf2(_originalPassword);
 
         // Action
-        _printGeneratedHash(originalPasswordHash, true);
         final boolean validationWasSuccessful1 = SecureHashUtil.validateHashWithPbkdf2(_badPassword1, originalPasswordHash);
         final boolean validationWasSuccessful2 = SecureHashUtil.validateHashWithPbkdf2(_badPassword2, originalPasswordHash);
         final boolean validationWasSuccessful3 = SecureHashUtil.validateHashWithPbkdf2(_badPassword3, originalPasswordHash);
@@ -64,7 +90,6 @@ public class SecureHashUtilTests {
 
         // Action
         final boolean validationWasSuccessful = SecureHashUtil.validateHashWithPbkdf2(_verbosePassword, originalPasswordHash);
-        _printGeneratedHash(originalPasswordHash, true);
 
         // Assert
         Assert.assertEquals(true, validationWasSuccessful);
@@ -77,7 +102,6 @@ public class SecureHashUtilTests {
 
         // Action
         final boolean validationWasSuccessful = SecureHashUtil.validateHashWithPbkdf2(_tinyPassword, originalPasswordHash);
-        _printGeneratedHash(originalPasswordHash, true);
 
         // Assert
         Assert.assertEquals(true, validationWasSuccessful);
