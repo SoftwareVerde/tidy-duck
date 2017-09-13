@@ -15,20 +15,20 @@ public class SecureHashUtil {
         final int keyLength = 512;
 
         final char[] passwordChars = s.toCharArray();
-        final byte[] salt = getSalt();
+        final byte[] salt = _getSalt();
 
         final PBEKeySpec pbeKeySpec = new PBEKeySpec(passwordChars, salt, randomizedIterations, keyLength);
         final SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         final byte [] hash = secretKeyFactory.generateSecret(pbeKeySpec).getEncoded();
 
-        return randomizedIterations + ":" + toHex(salt) + ":" + toHex(hash);
+        return randomizedIterations + ":" + _toHex(salt) + ":" + _toHex(hash);
     }
 
     public static boolean validateHashWithPbkdf2 (final String s, final String h) throws NoSuchAlgorithmException, InvalidKeySpecException {
         final String[] parts = h.split(":");
         final int iterations = Integer.parseInt(parts[0]);
-        final byte[] salt = fromHex(parts[1]);
-        final byte[] hash = fromHex(parts[2]);
+        final byte[] salt = _fromHex(parts[1]);
+        final byte[] hash = _fromHex(parts[2]);
 
         final PBEKeySpec pbeKeySpec = new PBEKeySpec(s.toCharArray(), salt, iterations, hash.length * 8);
         final SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -42,14 +42,14 @@ public class SecureHashUtil {
         return diff == 0;
      }
 
-    private static byte[] getSalt() throws NoSuchAlgorithmException {
-        final SecureRandom secureRandom = SecureRandom.getInstance("SHA1RNG");
+    private static byte[] _getSalt() throws NoSuchAlgorithmException {
+        final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
         final byte[] salt = new byte[16];
         secureRandom.nextBytes(salt);
         return salt;
     }
 
-    private static String toHex(final byte[] array) throws NoSuchAlgorithmException {
+    private static String _toHex(final byte[] array) throws NoSuchAlgorithmException {
         final BigInteger bigInteger = new BigInteger(1, array);
         final String hex = bigInteger.toString(16);
 
@@ -62,7 +62,7 @@ public class SecureHashUtil {
         }
     }
 
-    private static byte[] fromHex(final String hex) throws NoSuchAlgorithmException {
+    private static byte[] _fromHex(final String hex) throws NoSuchAlgorithmException {
         final byte[] hexBytes = new byte[hex.length() / 2];
         for (int i = 0; i < hexBytes.length; i++) {
             hexBytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
