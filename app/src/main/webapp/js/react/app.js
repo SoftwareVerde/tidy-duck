@@ -1,6 +1,19 @@
 class App extends React.Component {
+    static alert(title, content, onConfirm) {
+        App._instance.setState({
+            alert: {
+                shouldShow: true,
+                title:      title,
+                content:    content,
+                onConfirm:  onConfirm
+            }
+        });
+    }
+
     constructor(props) {
         super(props);
+
+        App._instance = this;
 
         this.NavigationLevel = {
             versions:           "versions",
@@ -82,7 +95,13 @@ class App extends React.Component {
             reviewCommentString:        null,
             shouldShowFilteredResults:  false,
             shouldShowEditForm:         false,
-            releasingFunctionCatalog:   null
+            releasingFunctionCatalog:   null,
+            alert: {
+                shouldShow: false,
+                title:      "",
+                content:    "",
+                onConfirm:  null
+            }
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -152,6 +171,9 @@ class App extends React.Component {
 
         this.logout = this.logout.bind(this);
 
+        this.onDuckClick = this.onDuckClick.bind(this);
+        this.showAlert = this.showAlert.bind(this);
+
         const thisApp = this;
 
         downloadAccount(function (data) {
@@ -170,6 +192,14 @@ class App extends React.Component {
                 isLoadingChildren:      false
             });
         });
+    }
+
+    onDuckClick() {
+        this.showAlert();
+    }
+
+    showAlert() {
+        
     }
 
     onCreateFunctionCatalog(functionCatalog) {
@@ -2757,7 +2787,7 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
-                    <img className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
+                    <img onClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">
@@ -2767,6 +2797,8 @@ class App extends React.Component {
                     </div>
                 </div>
                 {this.renderMainContent()}
+
+                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} />
             </div>
         );
     }
