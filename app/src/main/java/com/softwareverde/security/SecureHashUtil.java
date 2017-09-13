@@ -6,16 +6,24 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SecureHashUtil {
+    private static final Logger _logger = LoggerFactory.getLogger(SecureHashUtil.class);
+    private static final int _iterations = 10000;
+    private static final int _iterationRandomizerFactor = 10;
+    private static final int _keyLength = 512;
 
-    public static String hashWithPbkdf2(final String s) throws InvalidKeySpecException {
+    public static String hashWithPbkdf2(final String key) throws InvalidKeySpecException {
+        return hashWithPbkdf2(key, _iterations, _keyLength);
+    }
+    
+    public static String hashWithPbkdf2(final String key, final int iterations, final int keyLength) throws InvalidKeySpecException {
         try {
-            final int iterations = 4096;
-            final int randomizedIterations = (int)(iterations + Math.round(iterations * Math.random()));
-            final int keyLength = 512;
+            final int randomizedIterations = (int)(iterations + Math.round((iterations / _iterationRandomizerFactor) * Math.random()));
 
-            final char[] passwordChars = s.toCharArray();
+            final char[] passwordChars = key.toCharArray();
             final byte[] salt = _getSalt();
 
             final PBEKeySpec pbeKeySpec = new PBEKeySpec(passwordChars, salt, randomizedIterations, keyLength);
@@ -25,18 +33,18 @@ public class SecureHashUtil {
             return randomizedIterations + ":" + _toHex(salt) + ":" + _toHex(hash);
         }
         catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("A NoSuchAlgorithmException has occurred: ", e);
+            throw new RuntimeException("Unable to generate secure hash.", e);
         }
     }
 
-    public static boolean validateHashWithPbkdf2(final String s, final String h) throws InvalidKeySpecException {
+    public static boolean validateHashWithPbkdf2(final String key, final String storedKeyHash) throws InvalidKeySpecException {
         try {
-            final String[] parts = h.split(":");
+            final String[] parts = storedKeyHash.split(":");
             final int iterations = Integer.parseInt(parts[0]);
             final byte[] salt = _fromHex(parts[1]);
             final byte[] hash = _fromHex(parts[2]);
 
-            final PBEKeySpec pbeKeySpec = new PBEKeySpec(s.toCharArray(), salt, iterations, hash.length * 8);
+            final PBEKeySpec pbeKeySpec = new PBEKeySpec(key.toCharArray(), salt, iterations, hash.length * 8);
             final SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
             final byte[] testHash = secretKeyFactory.generateSecret(pbeKeySpec).getEncoded();
 
@@ -48,6 +56,8 @@ public class SecureHashUtil {
             return diff == 0;
         }
         catch (Exception e) {
+            String msg = "Unable to validate key.";
+            _logger.error(msg, e);
             return false;
         }
 
@@ -60,7 +70,7 @@ public class SecureHashUtil {
         return salt;
     }
 
-    private static String _toHex(final byte[] array) throws NoSuchAlgorithmException {
+    private static String _toHex(final byte[] array) {
         final BigInteger bigInteger = new BigInteger(1, array);
         final String hex = bigInteger.toString(16);
 
@@ -73,7 +83,7 @@ public class SecureHashUtil {
         }
     }
 
-    private static byte[] _fromHex(final String hex) throws NoSuchAlgorithmException {
+    private static byte[] _fromHex(final String hex) {
         final byte[] hexBytes = new byte[hex.length() / 2];
         for (int i = 0; i < hexBytes.length; i++) {
             hexBytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);

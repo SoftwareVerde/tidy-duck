@@ -42,9 +42,23 @@ public class SecureHashUtilTests {
     }
 
     @Test
+    public void should_hash_with_many_iterations_and_successfully_validate_original_password() throws Exception {
+        // Setup
+        final String originalPasswordHash = SecureHashUtil.hashWithPbkdf2(_originalPassword, 65536, 512);
+
+        // Action
+        final boolean validationWasSuccessful = SecureHashUtil.validateHashWithPbkdf2(_originalPassword, originalPasswordHash);
+        _printGeneratedHash(originalPasswordHash, true);
+
+        // Assert
+        Assert.assertEquals(true, validationWasSuccessful);
+
+    }
+
+    @Test
     public void should_return_false_for_an_invalid_hash() throws Exception {
         // Setup
-        final String invalidHash = "bobasdfs";
+        final String invalidHash = "1234";
 
         // Action
         final boolean validationWasSuccessful = SecureHashUtil.validateHashWithPbkdf2(_originalPassword, invalidHash);
