@@ -2645,7 +2645,9 @@ class App extends React.Component {
             break;
         }
 
-        if (shouldShowFilterBar) {reactComponents.push(this.renderFilterBar());}
+        if (shouldShowFilterBar) {
+            reactComponents.push(this.renderFilterBar());
+        }
 
         if (shouldShowApprovalForm) {
             reactComponents.push(
