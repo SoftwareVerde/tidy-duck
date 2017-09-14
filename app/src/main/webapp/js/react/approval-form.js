@@ -207,16 +207,21 @@ class ApprovalForm extends React.Component{
     renderTicketUrlArea() {
         const review = this.props.review;
         const account = this.props.account;
+
         let contents = [];
+
+        const ticketUrl = this.state.ticketUrl;
         if (review.getAccount().getId() == account.getId()) {
             // allow editing
-            contents.push(<app.InputField name="ticket-url" key="ticket-url-input" type="text" label="Ticket URL" value={this.state.ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />);
+            contents.push(<app.InputField name="ticket-url" key="ticket-url-input" type="text" label="Ticket URL" value={ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />);
             contents.push(<button className="button" key="ticket-url-button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>);
         } else {
             // display link, if populate
-            const ticketUrl = this.state.ticketUrl;
             if (ticketUrl) {
-                contents.push(<a href={ticketUrl} target="_blank"><i className="fa fa-3x fa-ticket"></i></a>);
+                contents.push(<a key="ticket-url" className="ticket-url" href={ticketUrl} target="_blank">
+                                    <i key="ticket-icon" className="fa fa-3x fa-ticket"></i>
+                                    <span key="ticket-text" className="ticket-url-text">{ticketUrl}</span>
+                                </a>);
             }
         }
         return (
