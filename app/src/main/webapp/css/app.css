@@ -148,7 +148,9 @@
     padding: 0px;
 }
 
-.metadata-form, .parameter-display-area .metadata-form-title {
+.metadata-form .metadata-form-title, .parameter-display-area .metadata-form-title {
+    width: 100%;
+    display: inline-block;
     font-size: 1.2em;
     font-weight: bold;
     padding-left: 0.5em;
