@@ -19,7 +19,7 @@ public class SecureHashUtil {
         return hashWithPbkdf2(key, _iterations, _keyLength);
     }
     
-    public static String hashWithPbkdf2(final String key, final int iterations, final int keyLength) throws InvalidKeySpecException {
+    public static String hashWithPbkdf2(final String key, final int iterations, final int keyLength) {
         try {
             final int randomizedIterations = (int)(iterations + Math.round((iterations / _iterationRandomizerFactor) * Math.random()));
 
@@ -32,12 +32,14 @@ public class SecureHashUtil {
 
             return randomizedIterations + ":" + _toHex(salt) + ":" + _toHex(hash);
         }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Unable to generate secure hash.", e);
+        catch (Exception e) {
+            final String msg = "Unable to generate secure hash.";
+            _logger.error(msg, e);
+            throw new RuntimeException(msg, e);
         }
     }
 
-    public static boolean validateHashWithPbkdf2(final String key, final String storedKeyHash) throws InvalidKeySpecException {
+    public static boolean validateHashWithPbkdf2(final String key, final String storedKeyHash) {
         try {
             final String[] parts = storedKeyHash.split(":");
             final int iterations = Integer.parseInt(parts[0]);
@@ -56,7 +58,7 @@ public class SecureHashUtil {
             return diff == 0;
         }
         catch (Exception e) {
-            String msg = "Unable to validate key.";
+            final String msg = "Unable to validate key.";
             _logger.error(msg, e);
             return false;
         }

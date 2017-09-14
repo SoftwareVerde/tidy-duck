@@ -11,6 +11,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import com.softwareverde.util.Util;
+import com.softwareverde.security.SecureHashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,17 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 return _getAccount(providedAccountId, environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("account/<accountId>/change-password", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
+                if (providedAccountId < 1) {
+                    return _generateErrorJson("Invalid account ID provided.");
+                }
+                return _changePassword(providedAccountId, environment.getDatabase());
+            }
+        });
     }
 
     protected Json _getAccount(final Long accountId, final Database<Connection> database) {
@@ -50,6 +62,10 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             _logger.error("Unable to get account.", e);
             return _generateErrorJson("Unable to get account.");
         }
+    }
+
+    protected Json _changePassword(final Long accountId, final Database<Connection> database) {
+
     }
 
     protected Json _toJson(final Account account) {
