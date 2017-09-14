@@ -2,14 +2,16 @@ class Alert extends React.Component {
     constructor(props) {
         super(props);
 
+        const width = (this.props.width || 400);
+
         this.state = {
             shouldShow: (this.props.shouldShow || false),
             title:      (this.props.title || ""),
             content:    (this.props.content || ""),
             onConfirm:  (this.props.onConfirm || null),
-            width:      (this.props.width || 400),
-            x:          (this.props.x || ( (window.innerWidth / 2) - 400)),
-            y:          (this.props.y || 100),
+            width:      width,
+            x:          (this.props.x || ((window.innerWidth - width) / 2) ),
+            y:          (this.props.y || ((window.innerHeight - width) / 2) ),
             isMoving:   false,
             lastMoveTime: 0
         };
@@ -90,14 +92,16 @@ class Alert extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
+        const width = (newProperties.width || this.props.width || 400);
+
         this.setState({
             shouldShow: (newProperties.shouldShow || this.props.shouldShow || false),
             title:      (newProperties.title || this.props.title || ""),
             content:    (newProperties.content || this.props.content || ""),
             onConfirm:  (newProperties.onConfirm || this.props.onConfirm || null),
-            width:      (newProperties.width || this.props.width || 400),
-            x:          (newProperties.x || this.props.x || ( (window.innerWidth / 2) - 400)),
-            y:          (newProperties.y || this.props.y || 100)
+            width:      width,
+            x:          (newProperties.x || this.props.x || ((window.innerWidth - width) / 2) ),
+            y:          (newProperties.y || this.props.y || ((window.innerHeight - width) / 2) )
         });
     }
 
