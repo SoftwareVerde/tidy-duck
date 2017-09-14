@@ -36,10 +36,10 @@ public class DatabaseManager {
         }
     }
 
-    public void changePassword(final long accountId, final String newPasswordHash) throws DatabaseException {
+    public void changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
-            accountDatabaseManager.changePassword(accountId, newPasswordHash);
+            accountDatabaseManager.changePassword(accountId, oldPassword, newPasswordHash);
         }
     }
 

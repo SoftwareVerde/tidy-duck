@@ -6,7 +6,6 @@ import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.Settings;
 
 
-import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 
 class AccountDatabaseManager {
@@ -26,8 +25,12 @@ class AccountDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    // TODO: wrap method in another that validates original password.
-    public void changePassword(final long accountId, final String newPasswordHash) throws DatabaseException {
+    public void changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
+        // TODO: Validate original password before setting the new one.
+        _changePassword(accountId, newPasswordHash);
+    }
+
+    private void _changePassword(final long accountId, final String newPasswordHash) throws DatabaseException {
         final Query query = new Query("UPDATE accounts SET password = ? WHERE id = ?")
                 .setParameter(newPasswordHash)
                 .setParameter(accountId)
