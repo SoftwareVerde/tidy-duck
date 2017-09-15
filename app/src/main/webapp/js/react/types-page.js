@@ -12,6 +12,9 @@ class TypesPage extends React.Component {
             saveButtonText: 'Save'
         };
 
+        // for methods that don't actually have an object to set on the state
+        this.updateState = this.updateState.bind(this);
+
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
         this.onBaseTypeChanged = this.onBaseTypeChanged.bind(this);
         this.onTypeSelected = this.onTypeSelected.bind(this);
@@ -97,6 +100,12 @@ class TypesPage extends React.Component {
         // for now, always create a primary type
         mostType.setIsPrimaryType(true);
         return mostType;
+    }
+
+    updateState() {
+        this.setState({
+            mostType: this.state.mostType
+        });
     }
 
     handleOptionClick(option) {
@@ -456,14 +465,20 @@ class TypesPage extends React.Component {
 
     onBooleanFieldBitPositionChanged(booleanField, bitPosition) {
         booleanField.setBitPosition(bitPosition);
+
+        this.updateState();
     }
 
     onBooleanFieldTrueDescriptionChanged(booleanField, trueDescription) {
         booleanField.setTrueDescription(trueDescription);
+
+        this.updateState();
     }
 
     onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription) {
         booleanField.setFalseDescription(falseDescription);
+
+        this.updateState();
     }
 
     onEnumValueAddButtonClicked() {
@@ -504,14 +519,20 @@ class TypesPage extends React.Component {
 
     onEnumValueNameChanged(enumValue, name) {
         enumValue.setName(name);
+
+        this.updateState();
     }
 
     onEnumValueCodeChanged(enumValue, code) {
         enumValue.setCode(code);
+
+        this.updateState();
     }
 
     onEnumValueDescriptionChanged(enumValue, description) {
         enumValue.setDescription(description);
+
+        this.updateState();
     }
 
     onNumberBaseTypeChanged(value) {
@@ -716,18 +737,26 @@ class TypesPage extends React.Component {
 
     onStreamCasePositionXChanged(streamCase, positionX) {
         streamCase.setStreamPositionX(positionX);
+
+        this.updateState();
     }
 
     onStreamCasePositionYChanged(streamCase, positionY) {
         streamCase.setStreamPositionY(positionY);
+
+        this.updateState();
     }
 
     onStreamCaseParameterNameChanged(streamCaseParameter, name) {
         streamCaseParameter.setParameterName(name);
+
+        this.updateState();
     }
 
     onStreamCaseParameterDescriptionChanged(streamCaseParameter, description) {
         streamCaseParameter.setParameterDescription(description);
+
+        this.updateState();
     }
 
     onStreamCaseParameterTypeChanged(caseParameter, typeName) {
@@ -744,14 +773,20 @@ class TypesPage extends React.Component {
 
     onStreamSignalNameChanged(streamSignal, name) {
         streamSignal.setSignalName(name);
+
+        this.updateState();
     }
 
     onStreamSignalDescriptionChanged(streamSignal, description) {
         streamSignal.setSignalDescription(description);
+
+        this.updateState();
     }
 
     onStreamSignalBitLengthChanged(streamSignal, bitLength) {
         streamSignal.setSignalBitLength(bitLength);
+
+        this.updateState();
     }
 
     onClassifiedStreamMaxLengthChanged(value) {
@@ -903,10 +938,14 @@ class TypesPage extends React.Component {
 
     onRecordFieldNameChanged(recordField, name) {
         recordField.setFieldName(name);
+
+        this.updateState();
     }
 
     onRecordFieldDescriptionChanged(recordField, description) {
         recordField.setFieldDescription(description);
+
+        this.updateState();
     }
 
     onRecordFieldTypeChanged(recordField, typeName) {
@@ -994,7 +1033,7 @@ class TypesPage extends React.Component {
             case 'TBitField': {
                 reactComponents.push(<div key="bitfield-length" className="clearfix">
                     <app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"
-                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={true}/>
+                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={false}/>
                 </div>);
             } // fall through
             case 'TBool': {
@@ -1023,9 +1062,9 @@ class TypesPage extends React.Component {
                 });
                 reactComponents.push(
                     <div key="plus-button" className="center">
-                        <button className="button"
-                          onClick={this.onBoolFieldAddButtonClicked}><i className="fa fa-plus"></i>
-                        </button>
+                        <div className="button" onClick={this.onBoolFieldAddButtonClicked}>
+                            <i className="fa fa-plus"></i>
+                        </div>
                     </div>
                 );
             }
@@ -1056,9 +1095,9 @@ class TypesPage extends React.Component {
                 });
                 reactComponents.push(
                     <div key="plus-button" className="center">
-                        <button className="button"
-                              onClick={this.onEnumValueAddButtonClicked}><i className="fa fa-plus"></i>
-                        </button>
+                        <div className="button" onClick={this.onEnumValueAddButtonClicked}>
+                            <i className="fa fa-plus"></i>
+                        </div>
                     </div>
                 );
             }
@@ -1074,8 +1113,8 @@ class TypesPage extends React.Component {
                 }
                 const numberBaseTypeName = mostType.getNumberBaseType().getName();
                 const numberExponent = mostType.getNumberExponent();
-                const numberRangeMin = mostType.getNumberRangeMin();
-                const numberRangeMax = mostType.getNumberRangeMax();
+                const numberRangeMin = mostType.getNumberRangeMin() || '';
+                const numberRangeMax = mostType.getNumberRangeMax() || '';
                 const numberStep = mostType.getNumberStep();
                 const numberUnitName = mostType.getNumberUnit().getDefinitionName();
                 reactComponents.push(<app.InputField key="number1" type="select" label="Basis Data Type"
@@ -1085,9 +1124,9 @@ class TypesPage extends React.Component {
                 reactComponents.push(<app.InputField key="number2" type="text" label="Exponent" name="exponent"
                                                      value={numberExponent} onChange={this.onNumberExponentChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number3" type="text" label="Range Min" name="range-min"
-                                                     value={numberRangeMin} onChange={this.onNumberRangeMinChanged} isRequired={true}/>);
+                                                     value={numberRangeMin} onChange={this.onNumberRangeMinChanged} isRequired={numberRangeMax.length != 0}/>);
                 reactComponents.push(<app.InputField key="number4" type="text" label="Range Max" name="range-max"
-                                                     value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} isRequired={true}/>);
+                                                     value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} isRequired={numberRangeMin.length != 0}/>);
                 reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step"
                                                      value={numberStep} onChange={this.onNumberStepChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit"
@@ -1098,7 +1137,7 @@ class TypesPage extends React.Component {
             case 'TString': {
                 const stringMaxSize = mostType.getStringMaxSize();
                 reactComponents.push(<app.InputField key="string1" type="text" label="Max Size" name="string-max-size"
-                                                     value={stringMaxSize} onChange={this.onStringMaxSizeChanged} isRequired={true}/>);
+                                                     value={stringMaxSize} onChange={this.onStringMaxSizeChanged} isRequired={false}/>);
             }
                 break;
             case 'TStream': {
@@ -1108,7 +1147,7 @@ class TypesPage extends React.Component {
                 reactComponents.push(
                     <div key="TStream" className="clearfix">
                         <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length"
-                                        value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} isRequired={true}/>
+                                        value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} isRequired={false}/>
                     </div>
                 );
 
@@ -1180,14 +1219,17 @@ class TypesPage extends React.Component {
                                onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
                         </div>
                     );
+                    const streamPositionY = streamCase.getStreamPositionY() || '';
                     childComponents.push(
                         <div key="streamCasePositionDescription" className="clearfix">
-                            <app.InputField  type="text" label="Position X" name="position-x"
+                            <app.InputField type="text" label="Position X" name="position-x" key="position-x"
                                             value={streamCase.getStreamPositionX()}
-                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)} isRequired={true}/>
-                            <app.InputField  type="text" label="Position Y" name="position-y"
+                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}
+                                            isRequired={streamPositionY.length != 0}/>
+                            <app.InputField type="text" label="Position Y" name="position-y" key="position-y"
                                             value={streamCase.getStreamPositionY()}
-                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)} isRequired={true}/>
+                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}
+                                            isRequired={false}/>
                         </div>
                     );
                     const hasStreamSignals = streamSignals.length;
@@ -1224,9 +1266,9 @@ class TypesPage extends React.Component {
 
                 reactComponents.push(
                     <div key="plus-button" className="center">
-                        <button key="plus-button" className="button"
-                              onClick={this.onStreamCaseAddButtonClicked}><i className="fa fa-plus"></i>
-                        </button>
+                        <div key="plus-button" className="button" onClick={this.onStreamCaseAddButtonClicked}>
+                            <i className="fa fa-plus"></i>
+                        </div>
                     </div>
                 );
             }
@@ -1236,17 +1278,17 @@ class TypesPage extends React.Component {
                 const streamMediaType = mostType.getStreamMediaType();
                 reactComponents.push(<app.InputField key="cstream1" type="text" label="Max Length"
                                                      name="cstream-max-length" value={streamMaxLength}
-                                                     onChange={this.onClassifiedStreamMaxLengthChanged} isRequired={true}/>);
+                                                     onChange={this.onClassifiedStreamMaxLengthChanged} isRequired={false}/>);
                 reactComponents.push(<app.InputField key="cstream2" type="text" label="Media Type"
                                                      name="cstream-media-type" value={streamMediaType}
-                                                     onChange={this.onClassifiedStreamMediaTypeChanged} isRequired={true}/>);
+                                                     onChange={this.onClassifiedStreamMediaTypeChanged} isRequired={false}/>);
             }
                 break;
             case 'TShortStream': {
                 const streamMaxLength = mostType.getStreamMaxLength();
                 reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length"
                                                      name="short-stream-max-length" value={streamMaxLength}
-                                                     onChange={this.onShortStreamMaxLengthChanged} isRequired={true}/>);
+                                                     onChange={this.onShortStreamMaxLengthChanged} isRequired={false}/>);
             }
                 break;
             case 'TArray': {
@@ -1261,16 +1303,16 @@ class TypesPage extends React.Component {
                 const arrayElementTypeName = arrayElementType ? arrayElementType.getName() : null;
                 const arraySize = mostType.getArraySize();
                 reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name"
-                                                     value={arrayName} onChange={this.onArrayNameChanged} isRequired={true}/>);
+                                                     value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>);
                 reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description"
                                                      name="array-description" value={arrayDescription}
-                                                     onChange={this.onArrayDescriptionChanged}/>);
+                                                     onChange={this.onArrayDescriptionChanged} isRequired={false}/>);
                 reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type"
                                                      name="array-element-type" value={arrayElementTypeName}
                                                      options={arrayElementTypes}
-                                                     onChange={this.onArrayElementTypeChanged} />);
+                                                     onChange={this.onArrayElementTypeChanged} isRequired={true}/>);
                 reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size"
-                                                     value={arraySize} onChange={this.onArraySizeChanged} isRequired={true}/>);
+                                                     value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>);
             }
                 break;
             case 'TRecord': {
@@ -1301,11 +1343,11 @@ class TypesPage extends React.Component {
                                             onChange={(name) => thisPage.onRecordFieldNameChanged(recordField, name)} isRequired={true}/>
                             <app.InputField key="recordField2" type="text" label="Record Field Description"
                                             name="record-field-description" value={recordField.getFieldDescription()}
-                                            onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)}/>
+                                            onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} isRequired={true}/>
                             <app.InputField key="recordField3" type="select" label="Record Field Type"
                                             name="record-field-type" value={recordFieldTypeName}
                                             options={recordFieldTypes}
-                                            onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)}/>
+                                            onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
                         </div>
                     );
                     i++;
@@ -1314,20 +1356,20 @@ class TypesPage extends React.Component {
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">
                         <app.InputField key="record1" type="text" label="Record Name" name="record-name"
-                                        value={recordName} onChange={this.onRecordNameChanged} isRequired={true}/>
+                                        value={recordName} onChange={this.onRecordNameChanged} isRequired={false}/>
                         <app.InputField key="record2" type="textarea" label="Record Description"
                                         name="record-description" value={recordDescription}
                                         onChange={this.onRecordDescriptionChanged}/>
                         <app.InputField key="record3" type="text" label="Record Size" name="record-size"
-                                        value={recordSize} onChange={this.onRecordSizeChanged} isRequired={true}/>
+                                        value={recordSize} onChange={this.onRecordSizeChanged} isRequired={false}/>
                     </div>
                 );
                 reactComponents.push(recordFields);
                 reactComponents.push(
                     <div key="plus-button" className="center">
-                        <button className="button"
-                              onClick={this.onRecordFieldAddButtonClicked}><i className="fa fa-plus"></i>
-                        </button>
+                        <div className="button" onClick={this.onRecordFieldAddButtonClicked}>
+                            <i className="fa fa-plus"></i>
+                        </div>
                     </div>
                 );
             }
