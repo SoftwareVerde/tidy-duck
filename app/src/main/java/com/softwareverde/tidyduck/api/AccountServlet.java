@@ -103,11 +103,11 @@ public class AccountServlet extends JsonServlet {
         final Long accountId = row.getLong("id");
         final String storedPassword = row.getString("password");
 
-        final boolean isAuthenticated = SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
-        if (isAuthenticated) {
+        if (SecureHashUtil.validateHashWithPbkdf2(password, storedPassword)) {
             Session.setAccountId(accountId, request);
+            return true;
         }
 
-        return isAuthenticated;
+        return false;
     }
 }

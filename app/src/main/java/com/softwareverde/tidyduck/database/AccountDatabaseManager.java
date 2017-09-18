@@ -48,15 +48,13 @@ class AccountDatabaseManager {
     private boolean _validateCurrentPassword(final Long id, final String password) throws DatabaseException {
         final Query query = new Query("SELECT password FROM accounts WHERE id = ?")
                 .setParameter(id)
-                ;
+        ;
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.isEmpty()) {
             return false;
         }
-
-        final Row row = rows.get(0);
-        final String storedPassword = row.getString("password");
+        final String storedPassword = rows.get(0).getString("password");
 
         return SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
     }
