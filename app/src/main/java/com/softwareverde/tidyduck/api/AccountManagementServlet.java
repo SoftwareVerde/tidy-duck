@@ -36,7 +36,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("account/<accountId>/change-password", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("account/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -74,11 +74,11 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
         try {
             // TODO: validate new password strength, ie password length, includes one uppercase char, etc.
-            if (! Util.isBlank(oldPassword)) {
+            if (Util.isBlank(oldPassword)) {
                 _logger.error("Unable to change password. Old password is invalid.");
                 return _generateErrorJson("Unable to change password. Old password is invalid.");
             }
-            if (! Util.isBlank(newPassword)) {
+            if (Util.isBlank(newPassword)) {
                 _logger.error("Unable to change password. New password is invalid.");
                 return _generateErrorJson("Unable to change password. New password is invalid.");
             }

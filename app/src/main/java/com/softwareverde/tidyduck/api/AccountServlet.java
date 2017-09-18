@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
@@ -12,6 +13,7 @@ import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
 import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.HashUtil;
+import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,21 +70,9 @@ public class AccountServlet extends JsonServlet {
             final String password = Util.coalesce(request.getParameter("password"));
 
             try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-                final List<Row> rows = databaseConnection.query(
-                    "SELECT id FROM accounts WHERE username = ? AND password = ?",
-                    new String[] {
-                        username, HashUtil.sha256(password)
-                    }
-                );
-
-                if (rows.isEmpty()) {
+                if (! authenticateAccount(username, password, request, databaseConnection)) {
                     return super._generateErrorJson("Invalid credentials.");
                 }
-
-                final Row row = rows.get(0);
-                final Long accountId = row.getLong("id");
-
-                Session.setAccountId(accountId, request);
 
                 return super._generateSuccessJson();
             }
@@ -97,5 +87,27 @@ public class AccountServlet extends JsonServlet {
         }
 
         return super._generateErrorJson("Invalid endpoint.");
+    }
+
+    private boolean authenticateAccount(final String username, final String password, final HttpServletRequest request, final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+        final Query query = new Query("SELECT id, password FROM accounts WHERE username = ?")
+                .setParameter(username)
+                ;
+
+        final List<Row> rows = databaseConnection.query(query);
+        if (rows.isEmpty()) {
+            return false;
+        }
+
+        final Row row = rows.get(0);
+        final Long accountId = row.getLong("id");
+        final String storedPassword = row.getString("password");
+
+        final boolean isAuthenticated = SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
+        if (isAuthenticated) {
+            Session.setAccountId(accountId, request);
+        }
+
+        return isAuthenticated;
     }
 }

@@ -2670,8 +2670,9 @@ class App extends React.Component {
     renderMainContent() {
         if (this.state.showSettingsPage) {
             const theme = this.state.account ? this.state.account.theme : "Tidy";
+            const accountId = this.state.account.id;
             return (
-                    <app.SettingsPage theme={theme} account={this.state.account} onThemeChange={this.onThemeChange}/>
+                    <app.SettingsPage theme={theme} accountId={accountId} onThemeChange={this.onThemeChange}/>
             );
         }
         else {
