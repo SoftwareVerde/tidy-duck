@@ -78,7 +78,12 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final String username = request.getString("username");
             final String name = request.getString("name");
-            final Long companyId = request.getLong("companyId");
+            final Long companyId = Util.parseLong(request.getString("companyId"));
+
+            if (companyId < 1) {
+                _logger.error("Unable to insert account: invalid company ID.");
+                return _generateErrorJson("Unable to insert account: invalid company ID.");
+            }
 
             final Account account = new Account();
             account.setUsername(username);

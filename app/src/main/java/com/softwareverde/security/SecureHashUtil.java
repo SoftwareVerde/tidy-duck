@@ -66,10 +66,11 @@ public class SecureHashUtil {
      }
 
     public static String generateRandomPassword() {
+        // Catching NoSuchAlgorithmException here rather than throwing it at each layer of the API.
         try {
             return _toHex(_getSalt());
         }
-        catch (Exception e) {
+        catch (NoSuchAlgorithmException e) {
             final String msg = "Unable to generate random password.";
             _logger.error(msg, e);
             return "";
