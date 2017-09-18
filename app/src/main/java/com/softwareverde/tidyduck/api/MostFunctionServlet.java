@@ -240,6 +240,10 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 throw new Exception("Version field is required.");
             }
 
+            if (Util.isBlank(returnParameterName)) {
+                throw new Exception("Return parameter name is required.");
+            }
+
             if (returnTypeId < 1) {
                 throw new Exception("Return type is required.");
             }
