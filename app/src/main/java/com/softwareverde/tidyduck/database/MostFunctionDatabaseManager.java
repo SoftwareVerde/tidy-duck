@@ -65,6 +65,8 @@ class MostFunctionDatabaseManager {
         final String release = proposedMostFunction.getRelease();
         final long authorId = proposedMostFunction.getAuthor().getId();
         final long companyId = proposedMostFunction.getCompany().getId();
+        final String returnParameterName = proposedMostFunction.getReturnParameterName();
+        final String returnParameterDescription = proposedMostFunction.getReturnParameterDescription();
         final long returnTypeId = proposedMostFunction.getReturnType().getId();
         final long mostFunctionId = proposedMostFunction.getId();
 
@@ -74,7 +76,7 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_type_id = ?, supports_notification = ?, is_approved = ? WHERE id = ? ")
+        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_parameter_name = ?, return_parameter_description = ?, return_type_id = ?, supports_notification = ?, is_approved = ? WHERE id = ? ")
                 .setParameter(name)
                 .setParameter(mostId)
                 .setParameter(proposedMostFunction.getFunctionType())
@@ -83,6 +85,8 @@ class MostFunctionDatabaseManager {
                 .setParameter(release)
                 .setParameter(authorId)
                 .setParameter(companyId)
+                .setParameter(returnParameterName)
+                .setParameter(returnParameterDescription)
                 .setParameter(returnTypeId)
                 .setParameter(supportsNotification ? 1 : 0)
                 .setParameter(false)
@@ -115,6 +119,8 @@ class MostFunctionDatabaseManager {
         final String release = mostFunction.getRelease();
         final Long authorId = mostFunction.getAuthor().getId();
         final Long companyId = mostFunction.getCompany().getId();
+        final String returnParameterName = mostFunction.getReturnParameterName();
+        final String returnParameterDescription = mostFunction.getReturnParameterDescription();
         final Long returnTypeId = mostFunction.getReturnType().getId();
 
         boolean supportsNotification = false;
@@ -123,7 +129,7 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("INSERT INTO functions (name, most_id, category, function_stereotype_id, description, release_version, account_id, company_id, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO functions (name, most_id, category, function_stereotype_id, description, release_version, account_id, company_id, return_parameter_name, return_parameter_description, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(mostId)
             .setParameter(mostFunction.getFunctionType())
@@ -132,6 +138,8 @@ class MostFunctionDatabaseManager {
             .setParameter(release)
             .setParameter(authorId)
             .setParameter(companyId)
+            .setParameter(returnParameterName)
+            .setParameter(returnParameterDescription)
             .setParameter(returnTypeId)
             .setParameter(supportsNotification ? 1 : 0)
         ;

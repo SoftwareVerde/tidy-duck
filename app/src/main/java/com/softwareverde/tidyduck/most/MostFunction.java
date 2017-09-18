@@ -23,6 +23,8 @@ public abstract class MostFunction {
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
     private Company _company;
+    private String _returnParameterName;
+    private String _returnParameterDescription;
     private MostType _returnType;
     private List<Operation> _operations = new ArrayList<>();
 
@@ -104,6 +106,22 @@ public abstract class MostFunction {
 
     public void setCompany(Company company) {
         _company = company;
+    }
+
+    public String getReturnParameterName() {
+        return _returnParameterName;
+    }
+
+    public void setReturnParameterName(final String returnParameterName) {
+        _returnParameterName = returnParameterName;
+    }
+
+    public String getReturnParameterDescription() {
+        return _returnParameterDescription;
+    }
+
+    public void setReturnParameterDescription(final String returnParameterDescription) {
+        _returnParameterDescription = returnParameterDescription;
     }
 
     public MostType getReturnType() {
