@@ -426,6 +426,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(releaseVersion)) {
                 throw new Exception("Version field is required.");
             }
+            if (!Util.isLong(releaseVersion)) {
+                throw new Exception("Interface version must be an integer.");
+            }
         }
 
         final MostInterface mostInterface = new MostInterface();

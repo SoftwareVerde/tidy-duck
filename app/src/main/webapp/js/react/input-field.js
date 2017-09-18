@@ -55,7 +55,7 @@ class InputField extends React.Component {
                 break;
             default:
                 return (
-                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
+                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                 );
         }
     }
