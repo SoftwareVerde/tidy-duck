@@ -157,9 +157,9 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         // Validate inputs based on primitive type name.
         switch (primitiveTypeName) {
             case "TArray": {
-                if (Util.isBlank(arrayName)) {
+                /*if (Util.isBlank(arrayName)) {
                     throw new Exception("Invalid Type array name.");
-                }
+                }*/
                 /*
                 if (Util.isBlank(arrayDescription)) {
                     throw new Exception("Invalid Type array description.");
@@ -168,64 +168,65 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 if (arrayElementTypeId < 1) {
                     throw new Exception("Invalid Type array element ID: " + arrayElementTypeId);
                 }
-                if (Util.isBlank(arraySize)) {
+                /*if (Util.isBlank(arraySize)) {
                     throw new Exception("Invalid Type array size.");
-                }
+                }*/
             } break;
             case "TBitField": {
-                if (Util.isBlank(bitfieldLength)) {
+                /*if (Util.isBlank(bitfieldLength)) {
                     throw new Exception("Invalid Type BitField length.");
-                }
+                }*/
             } break;
             case "TCStream": {
-                if (Util.isBlank(streamMaxLength)) {
+                /*if (Util.isBlank(streamMaxLength)) {
                     throw new Exception("Invalid Type stream max length.");
-                }
-                if (Util.isBlank(streamMediaType)) {
+                }*/
+                /*if (Util.isBlank(streamMediaType)) {
                     throw new Exception("Invalid Type stream media type.");
-                }
+                }*/
             } break;
             case "TNumber": {
                 if (Util.isBlank(numberExponent)) {
                     throw new Exception("Invalid Type exponent.");
                 }
-                if (Util.isBlank(numberRangeMin)) {
-                    throw new Exception("Invalid Type range min.");
+                // range min and range max are required is one is populated
+                if (Util.isBlank(numberRangeMin) && !Util.isBlank(numberRangeMax)) {
+                    throw new Exception("Range min must be used with range max.");
                 }
-                if (Util.isBlank(numberRangeMax)) {
-                    throw new Exception("Invalid Type range max.");
+                if (Util.isBlank(numberRangeMax) && !Util.isBlank(numberRangeMin)) {
+                    throw new Exception("Range max must be used with range min.");
                 }
                 if (Util.isBlank(numberStep)) {
                     throw new Exception("Invalid Type number step.");
                 }
             } break;
             case "TRecord": {
-                if (Util.isBlank(recordName)) {
+                /*if (Util.isBlank(recordName)) {
                     throw new Exception("Invalid Type record name.");
-                }
+                }*/
                 /*
                 if (Util.isBlank(recordDescription)) {
                     throw new Exception("Invalid Type record description.");
                 }
                 */
-                if (Util.isBlank(recordSize)) {
+                /*if (Util.isBlank(recordSize)) {
                     throw new Exception("Invalid Type record size.");
-                }
+                }*/
             } break;
             case "TShortStream": {
-                if (Util.isBlank(streamMaxLength)) {
+                /*if (Util.isBlank(streamMaxLength)) {
                     throw new Exception("Invalid Type stream max length.");
-                }
+                }*/
             } break;
             case "TStream": {
-                if (Util.isBlank(streamLength)) {
+                /*if (Util.isBlank(streamLength)) {
                     throw new Exception("Invalid Type stream length.");
-                }
+                }*/
             } break;
             case "TString": {
-                if (Util.isBlank(stringMaxSize)) {
+                /*if (Util.isBlank(stringMaxSize)) {
                     throw new Exception("Invalid Type string max size.");
-                }
+                }*/
             } break;
         }
 
@@ -360,12 +361,10 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final String streamPositionY = json.getString("streamPositionY");
 
         // Validate inputs
-        if (Util.isBlank(streamPositionX)) {
-            throw new Exception("Invalid stream position X.");
-        }
-
-        if (Util.isBlank(streamPositionY)) {
-            throw new Exception("Invalid stream position Y.");
+        if (!Util.isBlank(streamPositionY)) {
+            if (Util.isBlank(streamPositionX)) {
+                throw new Exception("Stream position X must be populated if stream position Y is populated.");
+            }
         }
 
         final StreamCase streamCase = new StreamCase();
