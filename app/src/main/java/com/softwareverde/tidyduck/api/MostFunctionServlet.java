@@ -206,7 +206,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(mostId)) {
             throw new Exception("Invalid Most ID");
         }
-        if (!mostId.matches("0x[0-9A-Fa-f]{3}") || "0xFFF".equals(mostId)) {
+        if (!mostId.matches("0x[0-9A-F]{3}") || "0xFFF".equals(mostId)) {
             throw new Exception("Function MOST ID must be between 0x000 and 0xFFE");
         }
         // matches regex and is not 0xFFF - passes validation

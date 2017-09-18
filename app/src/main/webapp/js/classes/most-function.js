@@ -75,15 +75,15 @@ class MostFunction {
 
     static toJson(mostFunction) {
         const jsonMostFunction = {
-            id:                     mostFunction.getId(),
-            mostId:                 mostFunction.getMostId().toUpperCase(),
-            name:                   mostFunction.getName(),
-            description:            mostFunction.getDescription(),
-            releaseVersion:         mostFunction.getReleaseVersion(),
-            isReleased:             mostFunction.isReleased(),
-            isApproved:             mostFunction.isApproved(),
-            functionType:           mostFunction.getFunctionType(),
-            supportsNotification:   mostFunction.getSupportsNotification(),
+            id:                         mostFunction.getId(),
+            mostId:                     formatHex(mostFunction.getMostId()),
+            name:                       mostFunction.getName(),
+            description:                mostFunction.getDescription(),
+            releaseVersion:             mostFunction.getReleaseVersion(),
+            isReleased:                 mostFunction.isReleased(),
+            isApproved:                 mostFunction.isApproved(),
+            functionType:               mostFunction.getFunctionType(),
+            supportsNotification:       mostFunction.getSupportsNotification(),
         };
 
         const returnType = (mostFunction.getReturnType() || new MostType());

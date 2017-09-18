@@ -385,8 +385,8 @@ class MostFunctionForm extends React.Component {
         }
 
         // 0x000 through 0xFFE, case insensitive
-        // Regex break-down:     0x(        FF[0-E]     or    0x[0-E][0-F][0-F]    or       0x[0-F][0-E][0-F]        )
-        const functionIdRegex = "0x(?:[Ff][Ff][0-9A-Ea-e]|[0-9A-Ea-e][0-9A-Fa-f]{2}|[0-9A-Fa-f][0-9A-Ea-e][0-9A-Fa-f])";
+        // Regex break-down:     0[xX](        FF[0-E]     or    0x[0-E][0-F][0-F]    or       0x[0-F][0-E][0-F]        )
+        const functionIdRegex = "0[xX](?:[Ff][Ff][0-9A-Ea-e]|[0-9A-Ea-e][0-9A-Fa-f]{2}|[0-9A-Fa-f][0-9A-Ea-e][0-9A-Fa-f])";
 
         const reactComponents = [];
         reactComponents.push(<app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID (0x000 - 0xFFE)" pattern={functionIdRegex} value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
