@@ -76,7 +76,7 @@ class MostFunction {
     static toJson(mostFunction) {
         const jsonMostFunction = {
             id:                     mostFunction.getId(),
-            mostId:                 mostFunction.getMostId(),
+            mostId:                 mostFunction.getMostId().toUpperCase(),
             name:                   mostFunction.getName(),
             description:            mostFunction.getDescription(),
             releaseVersion:         mostFunction.getReleaseVersion(),

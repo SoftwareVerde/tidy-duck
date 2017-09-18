@@ -31,7 +31,7 @@ class FunctionBlock {
     static toJson(functionBlock) {
         const jsonFunctionBlock = {
             id:                 functionBlock.getId(),
-            mostId:             functionBlock.getMostId(),
+            mostId:             functionBlock.getMostId().toUpperCase(),
             kind:               functionBlock.getKind(),
             name:               functionBlock.getName(),
             description:        functionBlock.getDescription(),
