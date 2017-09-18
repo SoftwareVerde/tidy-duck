@@ -166,7 +166,7 @@ class FunctionBlockForm extends React.Component {
         accessOptions.push('preliminary');
 
         const reactComponents = [];
-        reactComponents.push(<app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID (0x00 - 0xFF)" pattern="0x[0-9A-Fa-f]{2}" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="function-block-description" id="function-block-description" name="description" type="textarea" label="Description" value={functionBlock.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
