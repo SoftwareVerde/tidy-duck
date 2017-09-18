@@ -45,7 +45,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("account/insert", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("account/create", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _insertAccount(request, environment.getDatabase());
