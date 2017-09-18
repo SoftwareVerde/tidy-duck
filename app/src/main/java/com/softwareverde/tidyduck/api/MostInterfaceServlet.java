@@ -411,6 +411,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
+            if (!Util.isLong(mostId)) {
+                throw new Exception("Interface MOST ID must be an integer.");
+            }
 
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");

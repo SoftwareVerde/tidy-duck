@@ -202,6 +202,16 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
     }
 
+    private void validateMostFunctionId(final String mostId) throws Exception {
+        if (Util.isBlank(mostId)) {
+            throw new Exception("Invalid Most ID");
+        }
+        if (!mostId.matches("0x[0-9A-Fa-f]{3}") || "0xFFF".equals(mostId)) {
+            throw new Exception("Function MOST ID must be between 0x000 and 0xFFE");
+        }
+        // matches regex and is not 0xFFF - passes validation
+    }
+
     protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final long accountId, final Database<Connection> database) throws Exception {
         final String mostId = mostFunctionJson.getString("mostId");
         final String name = mostFunctionJson.getString("name");
@@ -214,9 +224,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final Long companyId = mostFunctionJson.getLong("companyId");
 
         { // Validate Inputs
-            if (Util.isBlank(mostId)) {
-                throw new Exception("Invalid Most ID");
-            }
+            validateMostFunctionId(mostId);
 
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
