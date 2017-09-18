@@ -5,6 +5,7 @@ import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.database.CompanyInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
@@ -43,6 +44,13 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 return _changePassword(providedAccountId, request, environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("account/insert", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _insertAccount(request, environment.getDatabase());
+            }
+        });
     }
 
     protected Json _getAccount(final Long accountId, final Database<Connection> database) {
@@ -61,6 +69,40 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             _logger.error("Unable to get account.", e);
             return _generateErrorJson("Unable to get account.");
         }
+    }
+
+    protected Json _insertAccount(final HttpServletRequest httpServletRequest, final Database<Connection> database) throws IOException {
+        final Json request = _getRequestDataAsJson(httpServletRequest);
+        final Json response = _generateSuccessJson();
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final String username = request.getString("username");
+            final String name = request.getString("name");
+            final Long companyId = request.getLong("companyId");
+
+            final Account account = new Account();
+            account.setUsername(username);
+            account.setName(name);
+
+            final CompanyInflater companyInflater = new CompanyInflater(databaseConnection);
+            final Company company = companyInflater.inflateCompany(companyId);
+            account.setCompany(company);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (! databaseManager.insertAccount(account)) {
+                _logger.error("Unable to insert account: unable to generate random password.");
+                return _generateErrorJson("Unable to insert account: unable to generate random password.");
+            }
+
+            response.put("accountId", account.getId());
+            response.put("password", account.getPassword());
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to create account.", e);
+            return _generateErrorJson("Unable to create account.");
+        }
+
+        return response;
     }
 
     protected Json _changePassword(final Long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
