@@ -36,6 +36,13 @@ public class DatabaseManager {
         }
     }
 
+    public boolean changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.changePassword(accountId, oldPassword, newPasswordHash);
+        }
+    }
+
     // FUNCTION CATALOG METHODS
 
     public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
