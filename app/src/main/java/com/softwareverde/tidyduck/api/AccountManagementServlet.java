@@ -1,8 +1,6 @@
 package com.softwareverde.tidyduck.api;
 
-import com.softwareverde.database.Database;
-import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.*;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Settings;
@@ -19,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
@@ -73,14 +72,18 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         final String newPassword = jsonRequest.getString("newPassword");
 
         try {
-            // TODO: validate new password strength, ie password length, includes one uppercase char, etc.
             if (Util.isBlank(oldPassword)) {
                 _logger.error("Unable to change password. Old password is invalid.");
                 return _generateErrorJson("Unable to change password. Old password is invalid.");
             }
-            if (Util.isBlank(newPassword)) {
+            if (newPassword.length() < 8) {
                 _logger.error("Unable to change password. New password is invalid.");
                 return _generateErrorJson("Unable to change password. New password is invalid.");
+            }
+
+            if (! _validateCurrentPassword(accountId, oldPassword, database)) {
+                _logger.error("Unable to change password. Invalid credentials.");
+                return _generateErrorJson("Unable to change password. Invalid credentials.");
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -93,6 +96,28 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
+    }
+
+    private boolean _validateCurrentPassword(final Long id, final String password, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Query query = new Query("SELECT password FROM accounts WHERE id = ?")
+                    .setParameter(id)
+            ;
+
+            final List<Row> rows = databaseConnection.query(query);
+            if (rows.isEmpty()) {
+                return false;
+            }
+
+            final Row row = rows.get(0);
+            final String storedPassword = row.getString("password");
+
+            return SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
+        }
+        catch (DatabaseException e) {
+            _logger.error("Error communicating with database.", e);
+            return false;
+        }
     }
 
     protected Json _toJson(final Account account) {

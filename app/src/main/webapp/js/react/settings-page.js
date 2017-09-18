@@ -13,7 +13,8 @@ class SettingsPage extends React.Component {
             newPassword:        "",
             newPasswordRetype:  "",
             oldPassword:        "",
-            saveButtonState:    this.SaveButtonState.save
+            saveButtonState:    this.SaveButtonState.save,
+            passwordsMatch:     false,
         };
 
         this.onThemeChange = this.onThemeChange.bind(this);
@@ -22,6 +23,7 @@ class SettingsPage extends React.Component {
         this.onOldPasswordChanged = this.onOldPasswordChanged.bind(this);
         this.onSaveNewPassword = this.onSaveNewPassword.bind(this);
         this.onSave = this.onSave.bind(this);
+        this.renderPasswordsMatchText = this.renderPasswordsMatchText.bind(this);
         this.renderSaveButtonText = this.renderSaveButtonText.bind(this);
     }
 
@@ -46,18 +48,38 @@ class SettingsPage extends React.Component {
     }
 
     onNewPasswordChanged(value) {
+        let passwordsMatch = this.state.passwordsMatch;
+
+        if (value === this.state.newPasswordRetype) {
+            passwordsMatch = true;
+        }
+        else {
+            passwordsMatch = false;
+        }
         this.setState({
-            newPassword: value
+            newPassword: value,
+            passwordsMatch: passwordsMatch
         });
     }
 
     onNewPasswordRetypeChanged(value) {
+        let passwordsMatch = this.state.passwordsMatch;
+
+        if (value === this.state.newPassword) {
+            passwordsMatch = true;
+        }
+        else {
+            passwordsMatch = false;
+        }
+
         this.setState({
-            newPasswordRetype: value
+            newPasswordRetype: value,
+            passwordsMatch: passwordsMatch
         });
     }
 
-    onSaveNewPassword() {
+    onSaveNewPassword(event) {
+        event.preventDefault();
         const newPassword = this.state.newPassword;
         const accountId = this.props.accountId;
 
@@ -68,8 +90,8 @@ class SettingsPage extends React.Component {
         }
 
         // TODO: add validation for new password, and checking if old password is entered twice (and matches).
-        if (newPassword.length < 3) {
-            alert("New password is invalid. Please enter at least 4 characters.");
+        if (newPassword.length < 8) {
+            alert("New password is invalid. Please enter at least 8 characters.");
             return;
         }
 
@@ -109,8 +131,25 @@ class SettingsPage extends React.Component {
                     saveButtonState: thisButton.SaveButtonState.save
                 });
             }
-
         });
+    }
+
+    renderPasswordsMatchText() {
+        let visibility = 'hidden';
+        let errorText = 'New passwords do not match.';
+        if (this.state.newPassword.length > 0 && this.state.newPasswordRetype.length > 0) {
+            if (! this.state.passwordsMatch) {
+                visibility = 'visible';
+            }
+            else if (this.state.newPassword.length < 8) {
+                visibility = 'visible';
+                errorText = 'Password must be at least 8 characters long.'
+            }
+        }
+
+        return(
+            <div style={{color: 'red', textAlign: 'center', visibility: visibility}}>{errorText}</div>
+        );
     }
 
     renderSaveButtonText() {
@@ -140,12 +179,13 @@ class SettingsPage extends React.Component {
         );
 
         reactComponents.push(
-            <div key="Password Container" id="settings-container">
-                <app.InputField type="password" label="Current Password" name="old-password1" value={this.state.oldPassword} options={themeOptions} onChange={this.onOldPasswordChanged}/>
-                <app.InputField type="password" label="New Password" name="new-password" value={this.state.newPassword} options={themeOptions} onChange={this.onNewPasswordChanged}/>
-                <app.InputField type="password" label="Retype New Password" name="new-password-retype" value={this.state.newPasswordRetype} options={themeOptions} onChange={this.onNewPasswordRetypeChanged}/>
-                <div id="save-settings-button" className="button" onClick={this.onSaveNewPassword}>{this.renderSaveButtonText()}</div>
-            </div>
+            <form key="Password Container" id="settings-container" onSubmit={this.onSaveNewPassword}>
+                <app.InputField type="password" label="Current Password" name="old-password1" value={this.state.oldPassword} options={themeOptions} onChange={this.onOldPasswordChanged} isRequired={true}/>
+                <app.InputField type="password" label="New Password" name="new-password" value={this.state.newPassword} options={themeOptions} onChange={this.onNewPasswordChanged} isRequired={true}/>
+                <app.InputField type="password" label="Retype New Password" name="new-password-retype" value={this.state.newPasswordRetype} options={themeOptions} onChange={this.onNewPasswordRetypeChanged} isRequired={true}/>
+                {this.renderPasswordsMatchText()}
+                <input type="submit" id="save-settings-button" className="button" value={this.renderSaveButtonText()} />
+            </form>
         );
 
         return(
