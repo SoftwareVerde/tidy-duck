@@ -46,6 +46,8 @@ class MostFunctionForm extends React.Component {
         this.onDescriptionChange = this.onDescriptionChange.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
         this.onStereotypeChanged = this.onStereotypeChanged.bind(this);
+        this.onReturnParameterNameChanged = this.onReturnParameterNameChanged.bind(this);
+        this.onReturnParameterDescriptionChanged = this.onReturnParameterDescriptionChanged.bind(this);
         this.onReturnTypeChanged = this.onReturnTypeChanged.bind(this);
         this.onParameterChanged = this.onParameterChanged.bind(this);
 
@@ -173,6 +175,32 @@ class MostFunctionForm extends React.Component {
             buttonTitle: defaultButtonTitle,
             mostFunction: mostFunction
         });
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
+    }
+
+    onReturnParameterNameChanged(newValue) {
+        const mostFunction = this.state.mostFunction;
+
+        mostFunction.setReturnParameterName(newValue);
+
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
+    }
+
+    onReturnParameterDescriptionChanged(newValue) {
+        const mostFunction = this.state.mostFunction;
+
+        mostFunction.setReturnParameterDescription(newValue);
+
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
 
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
@@ -376,6 +404,8 @@ class MostFunctionForm extends React.Component {
 
         const stereotypeName = mostFunction.getStereotype().getName();
 
+        const returnParameterName = mostFunction.getReturnParameterName();
+        const returnParameterDescription = mostFunction.getReturnParameterDescription();
         const returnTypeName = mostFunction.getReturnType() ? mostFunction.getReturnType().getName() : "";
 
         const mostTypeNames = [];
@@ -385,8 +415,8 @@ class MostFunctionForm extends React.Component {
         }
 
         // 0x000 through 0xFFE, case insensitive
-        // Regex break-down:     0x(        FF[0-E]     or    0x[0-E][0-F][0-F]    or       0x[0-F][0-E][0-F]        )
-        const functionIdRegex = "0x(?:[Ff][Ff][0-9A-Ea-e]|[0-9A-Ea-e][0-9A-Fa-f]{2}|[0-9A-Fa-f][0-9A-Ea-e][0-9A-Fa-f])";
+        // Regex break-down:     0[xX](        FF[0-E]     or    0x[0-E][0-F][0-F]    or       0x[0-F][0-E][0-F]        )
+        const functionIdRegex = "0[xX](?:[Ff][Ff][0-9A-Ea-e]|[0-9A-Ea-e][0-9A-Fa-f]{2}|[0-9A-Fa-f][0-9A-Ea-e][0-9A-Fa-f])";
 
         const reactComponents = [];
         reactComponents.push(<app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID (0x000 - 0xFFE)" pattern={functionIdRegex} value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
@@ -394,6 +424,8 @@ class MostFunctionForm extends React.Component {
         reactComponents.push(<app.InputField key="most-function-description" id="most-function-description" name="description" type="textarea" label="Description" value={mostFunction.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />);
         reactComponents.push(<app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={stereotypeName} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />);
+        reactComponents.push(<app.InputField key="most-function-return-parameter-name" id="most-function-return-parameter-name" name="returnName" type="text" label="Return Parameter Name" value={returnParameterName} readOnly={this.props.readOnly} onChange={this.onReturnParameterNameChanged} isRequired={true}/>);
+        reactComponents.push(<app.InputField key="most-function-return-parameter-description" id="most-function-return-parameter-description" name="returnDescription" type="textarea" label="Return Parameter Description" value={returnParameterDescription} readOnly={this.props.readOnly} onChange={this.onReturnParameterDescriptionChanged} />);
         reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={returnTypeName} options={mostTypeNames} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
 
         return (

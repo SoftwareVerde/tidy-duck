@@ -206,7 +206,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(mostId)) {
             throw new Exception("Invalid Most ID");
         }
-        if (!mostId.matches("0x[0-9A-Fa-f]{3}") || "0xFFF".equals(mostId)) {
+        if (!mostId.matches("0x[0-9A-F]{3}") || "0xFFF".equals(mostId)) {
             throw new Exception("Function MOST ID must be between 0x000 and 0xFFE");
         }
         // matches regex and is not 0xFFF - passes validation
@@ -218,6 +218,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final String release = mostFunctionJson.getString("releaseVersion");
         final String description = mostFunctionJson.getString("description");
         final String functionType = mostFunctionJson.getString("functionType");
+        final String returnParameterName = mostFunctionJson.getString("returnParameterName");
+        final String returnParameterDescription = mostFunctionJson.getString("returnParameterDescription");
         final Long returnTypeId = mostFunctionJson.getLong("returnTypeId");
         final Long stereotypeId = mostFunctionJson.getLong("stereotypeId");
         final Long authorId = mostFunctionJson.getLong("authorId");
@@ -236,6 +238,10 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             */
             if (Util.isBlank(release)) {
                 throw new Exception("Version field is required.");
+            }
+
+            if (Util.isBlank(returnParameterName)) {
+                throw new Exception("Return parameter name is required.");
             }
 
             if (returnTypeId < 1) {
@@ -327,6 +333,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunction.setName(name);
         mostFunction.setRelease(release);
         mostFunction.setDescription(description);
+        mostFunction.setReturnParameterName(returnParameterName);
+        mostFunction.setReturnParameterDescription(returnParameterDescription);
         mostFunction.setReturnType(mostReturnType);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
         mostFunction.setAuthor(author);
@@ -356,6 +364,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("isApproved", mostFunction.isApproved());
         mostFunctionJson.put("description", mostFunction.getDescription());
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
+        mostFunctionJson.put("returnParameterName", mostFunction.getReturnParameterName());
+        mostFunctionJson.put("returnParameterDescription", mostFunction.getReturnParameterDescription());
         mostFunctionJson.put("returnTypeId", mostFunction.getReturnType().getId());
         mostFunctionJson.put("returnTypeName", mostFunction.getReturnType().getName());
         mostFunctionJson.put("stereotypeId", mostFunction.getFunctionStereotype().getId());

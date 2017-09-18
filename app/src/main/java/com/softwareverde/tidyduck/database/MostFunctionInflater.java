@@ -55,6 +55,8 @@ public class MostFunctionInflater {
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
+        final String returnParameterName = row.getString("return_parameter_name");
+        final String returnParameterDescription = row.getString("return_parameter_description");
         final long returnTypeId = row.getLong("return_type_id");
         final Long accountId = row.getLong("account_id");
         final long companyId = row.getLong("company_id");
@@ -92,6 +94,8 @@ public class MostFunctionInflater {
         mostFunction.setIsApproved(isApproved);
         mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
+        mostFunction.setReturnParameterName(returnParameterName);
+        mostFunction.setReturnParameterDescription(returnParameterDescription);
         mostFunction.setReturnType(returnType);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);

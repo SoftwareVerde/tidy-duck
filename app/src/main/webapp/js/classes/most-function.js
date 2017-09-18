@@ -43,6 +43,8 @@ class MostFunction {
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
         mostFunction.setStereotype(mostFunctionStereotype);
+        mostFunction.setReturnParameterName(json.returnParameterName);
+        mostFunction.setReturnParameterDescription(json.returnParameterDescription);
         mostFunction.setReturnType(returnType);
         mostFunction.setOperations(operations);
 
@@ -75,15 +77,17 @@ class MostFunction {
 
     static toJson(mostFunction) {
         const jsonMostFunction = {
-            id:                     mostFunction.getId(),
-            mostId:                 mostFunction.getMostId(),
-            name:                   mostFunction.getName(),
-            description:            mostFunction.getDescription(),
-            releaseVersion:         mostFunction.getReleaseVersion(),
-            isReleased:             mostFunction.isReleased(),
-            isApproved:             mostFunction.isApproved(),
-            functionType:           mostFunction.getFunctionType(),
-            supportsNotification:   mostFunction.getSupportsNotification(),
+            id:                         mostFunction.getId(),
+            mostId:                     formatHex(mostFunction.getMostId()),
+            name:                       mostFunction.getName(),
+            description:                mostFunction.getDescription(),
+            releaseVersion:             mostFunction.getReleaseVersion(),
+            isReleased:                 mostFunction.isReleased(),
+            isApproved:                 mostFunction.isApproved(),
+            functionType:               mostFunction.getFunctionType(),
+            supportsNotification:       mostFunction.getSupportsNotification(),
+            returnParameterName:        mostFunction.getReturnParameterName(),
+            returnParameterDescription: mostFunction.getReturnParameterDescription()
         };
 
         const returnType = (mostFunction.getReturnType() || new MostType());
@@ -142,9 +146,11 @@ class MostFunction {
       this._isReleased            = null;
       this._isApproved            = null;
 
-      this._stereotype            = null;
-      this._returnType            = null;
-      this._supportsNotification  = false;
+      this._stereotype                  = null;
+      this._returnParameterName         = null;
+      this._returnParameterDescription  = null;
+      this._returnType                  = null;
+      this._supportsNotification        = false;
 
       this._parameters            = [];
       this._operations            = [];
@@ -220,6 +226,22 @@ class MostFunction {
 
     getStereotype() {
         return this._stereotype;
+    }
+
+    setReturnParameterName(returnParameterName) {
+        this._returnParameterName = returnParameterName;
+    }
+
+    getReturnParameterName() {
+        return this._returnParameterName;
+    }
+
+    setReturnParameterDescription(returnParameterDescription) {
+        this._returnParameterDescription = returnParameterDescription;
+    }
+
+    getReturnParameterDescription() {
+        return this._returnParameterDescription;
     }
 
     setReturnType(returnType) {
