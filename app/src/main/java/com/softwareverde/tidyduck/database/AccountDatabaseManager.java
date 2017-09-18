@@ -26,12 +26,13 @@ class AccountDatabaseManager {
         }
 
         final String username = account.getUsername();
+        final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
         final String name = account.getName();
         final Long companyId = account.getCompany().getId();
 
-        final Query query = new Query("INSERT INTO accounts (username, password, name, company_id) VALUES (?, ?, ?, ?")
+        final Query query = new Query("INSERT INTO accounts (username, password, name, company_id) VALUES (?, ?, ?, ?)")
                 .setParameter(username)
-                .setParameter(password)
+                .setParameter(passwordHash)
                 .setParameter(name)
                 .setParameter(companyId)
         ;
