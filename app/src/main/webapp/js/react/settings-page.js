@@ -13,7 +13,8 @@ class SettingsPage extends React.Component {
             newPassword:        "",
             newPasswordRetype:  "",
             oldPassword:        "",
-            saveButtonState:    this.SaveButtonState.save,
+            settingsSaveButtonState:    this.SaveButtonState.save,
+            passwordSaveButtonState:    this.SaveButtonState.save,
             passwordsMatch:     false,
         };
 
@@ -22,9 +23,10 @@ class SettingsPage extends React.Component {
         this.onNewPasswordRetypeChanged = this.onNewPasswordRetypeChanged.bind(this);
         this.onOldPasswordChanged = this.onOldPasswordChanged.bind(this);
         this.onSaveNewPassword = this.onSaveNewPassword.bind(this);
-        this.onSave = this.onSave.bind(this);
-        this.renderPasswordsMatchText = this.renderPasswordsMatchText.bind(this);
-        this.renderSaveButtonText = this.renderSaveButtonText.bind(this);
+        this.onSettingsSave = this.onSettingsSave.bind(this);
+        this.renderPasswordsMatchWarning = this.renderPasswordsMatchWarning.bind(this);
+        this.renderSettingsSaveButtonText = this.renderSettingsSaveButtonText.bind(this);
+        this.renderPasswordSaveButtonText = this.renderPasswordSaveButtonText.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -37,13 +39,14 @@ class SettingsPage extends React.Component {
         this.props.onThemeChange(value);
         this.setState({
             currentTheme:       value,
-            saveButtonState:    this.SaveButtonState.save
+            settingsSaveButtonState:    this.SaveButtonState.save
         });
     }
 
     onOldPasswordChanged(value) {
         this.setState({
-            oldPassword: value
+            oldPassword: value,
+            passwordSaveButtonState:    this.SaveButtonState.save,
         });
     }
 
@@ -58,7 +61,8 @@ class SettingsPage extends React.Component {
         }
         this.setState({
             newPassword: value,
-            passwordsMatch: passwordsMatch
+            passwordsMatch: passwordsMatch,
+            passwordSaveButtonState:    this.SaveButtonState.save
         });
     }
 
@@ -74,7 +78,8 @@ class SettingsPage extends React.Component {
 
         this.setState({
             newPasswordRetype: value,
-            passwordsMatch: passwordsMatch
+            passwordsMatch: passwordsMatch,
+            passwordSaveButtonState:    this.SaveButtonState.save
         });
     }
 
@@ -82,59 +87,65 @@ class SettingsPage extends React.Component {
         event.preventDefault();
         const newPassword = this.state.newPassword;
         const accountId = this.props.accountId;
+        const saveButtonState = this.SaveButtonState;
 
         // Validate new password fields
-        if (newPassword !== this.state.newPasswordRetype) {
-            alert("New passwords do not match. ");
-            return;
-        }
-
-        // TODO: add validation for new password, and checking if old password is entered twice (and matches).
         if (newPassword.length < 8) {
             alert("New password is invalid. Please enter at least 8 characters.");
+            return;
+        }
+        if (newPassword !== this.state.newPasswordRetype) {
+            alert("New passwords do not match. ");
             return;
         }
 
         const oldPassword = this.state.oldPassword;
         const thisApp = this;
 
+        this.setState({
+            passwordSaveButtonState:    saveButtonState.saving,
+        });
+
         changePassword(accountId, oldPassword, newPassword, function(data) {
-            if (! data.wasSuccess) {
-                alert("Unable to change password: " + data.errorMessage);
-            }
-            else {
-                alert("Password successfully changed.");
+            if (data.wasSuccess) {
                 thisApp.setState({
                     newPassword: "",
                     newPasswordRetype: "",
-                    oldPassword: ""
+                    oldPassword: "",
+                    passwordSaveButtonState: saveButtonState.saved,
+                });
+            } else {
+                alert("Unable to change password: " + data.errorMessage);
+
+                thisApp.setState({
+                    passwordSaveButtonState: saveButtonState.save,
                 });
             }
         });
     }
 
-    onSave() {
+    onSettingsSave() {
         const settings = {
             theme: this.state.currentTheme
         };
         this.setState({
-            saveButtonState: this.SaveButtonState.saving
+            settingsSaveButtonState: this.SaveButtonState.saving
         });
         const thisButton = this;
         updateSettings(settings, function(data) {
             if (data.wasSuccess) {
                 thisButton.setState({
-                    saveButtonState: thisButton.SaveButtonState.saved
+                    settingsSaveButtonState: thisButton.SaveButtonState.saved
                 });
             } else {
                 thisButton.setState({
-                    saveButtonState: thisButton.SaveButtonState.save
+                    settingsSaveButtonState: thisButton.SaveButtonState.save
                 });
             }
         });
     }
 
-    renderPasswordsMatchText() {
+    renderPasswordsMatchWarning() {
         let visibility = 'hidden';
         let errorText = 'Password must be at least 8 characters long.';
         const checkRetypedPassword = this.state.newPasswordRetype.length > 0;
@@ -154,8 +165,8 @@ class SettingsPage extends React.Component {
         );
     }
 
-    renderSaveButtonText() {
-        switch (this.state.saveButtonState) {
+    renderSettingsSaveButtonText() {
+        switch (this.state.settingsSaveButtonState) {
             case this.SaveButtonState.save:
                 return "Save";
 
@@ -169,29 +180,51 @@ class SettingsPage extends React.Component {
         }
     }
 
+    renderPasswordSaveButtonText() {
+        switch (this.state.passwordSaveButtonState) {
+            case this.SaveButtonState.save:
+                return "Save";
+
+            case this.SaveButtonState.saving:
+                return (
+                    <i className="fa fa-refresh fa-spin"/>
+                );
+
+            case this.SaveButtonState.saved:
+                return "New Password Saved";
+        }
+    }
+
     render() {
         const themeOptions = ['Tidy', 'Darkwing'];
         const reactComponents = [];
 
+        let passwordSaveButton = <input type="submit" id="save-settings-button" className="button" value={this.renderPasswordSaveButtonText()} />;
+        if (this.state.passwordSaveButtonState === this.SaveButtonState.saving) {
+            passwordSaveButton = <div type="submit" id="save-settings-button" className="button">{this.renderPasswordSaveButtonText()}</div>;
+        }
+
         reactComponents.push(
             <div key="Theme Container" id="settings-container">
+                <h1>User Settings</h1>
                 <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
-                <div id="save-settings-button" className="button" onClick={this.onSave}>{this.renderSaveButtonText()}</div>
+                <div id="save-settings-button" className="button" onClick={this.onSettingsSave}>{this.renderSettingsSaveButtonText()}</div>
             </div>
         );
 
         reactComponents.push(
             <form key="Password Container" id="settings-container" onSubmit={this.onSaveNewPassword}>
+                <h1>Change Password</h1>
                 <app.InputField type="password" label="Current Password" name="old-password1" value={this.state.oldPassword} options={themeOptions} onChange={this.onOldPasswordChanged} isRequired={true}/>
                 <app.InputField type="password" label="New Password" name="new-password" value={this.state.newPassword} options={themeOptions} onChange={this.onNewPasswordChanged} isRequired={true}/>
                 <app.InputField type="password" label="Retype New Password" name="new-password-retype" value={this.state.newPasswordRetype} options={themeOptions} onChange={this.onNewPasswordRetypeChanged} isRequired={true}/>
-                {this.renderPasswordsMatchText()}
-                <input type="submit" id="save-settings-button" className="button" value={this.renderSaveButtonText()} />
+                {this.renderPasswordsMatchWarning()}
+                {passwordSaveButton}
             </form>
         );
 
         return(
-            <div id="main-content" className="container">{reactComponents}</div>
+            <div style={{width: '100%', textAlign: 'center'}}>{reactComponents}</div>
         );
     }
 }
