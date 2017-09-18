@@ -10,14 +10,12 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.security.SecureHashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
-import java.util.List;
 import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
@@ -74,21 +72,18 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         try {
             if (Util.isBlank(oldPassword)) {
                 _logger.error("Unable to change password. Old password is invalid.");
-                return _generateErrorJson("Unable to change password. Old password is invalid.");
+                return _generateErrorJson("Old password is invalid.");
             }
             if (newPassword.length() < 8) {
                 _logger.error("Unable to change password. New password is invalid.");
-                return _generateErrorJson("Unable to change password. New password is invalid.");
-            }
-
-            if (! _validateCurrentPassword(accountId, oldPassword, database)) {
-                _logger.error("Unable to change password. Invalid credentials.");
-                return _generateErrorJson("Unable to change password. Invalid credentials.");
+                return _generateErrorJson("New password is invalid.");
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            final String newPasswordHash = SecureHashUtil.hashWithPbkdf2(newPassword);
-            databaseManager.changePassword(accountId, oldPassword, newPasswordHash);
+            if (! databaseManager.changePassword(accountId, oldPassword, newPassword)) {
+                _logger.error("Unable to change password. Invalid credentials.");
+                return _generateErrorJson("Invalid credentials.");
+            }
         }
         catch (final Exception e) {
             _logger.error("Unable to attempt password change.", e);
@@ -96,28 +91,6 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
-    }
-
-    private boolean _validateCurrentPassword(final Long id, final String password, final Database<Connection> database) {
-        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final Query query = new Query("SELECT password FROM accounts WHERE id = ?")
-                    .setParameter(id)
-            ;
-
-            final List<Row> rows = databaseConnection.query(query);
-            if (rows.isEmpty()) {
-                return false;
-            }
-
-            final Row row = rows.get(0);
-            final String storedPassword = row.getString("password");
-
-            return SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
-        }
-        catch (DatabaseException e) {
-            _logger.error("Error communicating with database.", e);
-            return false;
-        }
     }
 
     protected Json _toJson(final Account account) {

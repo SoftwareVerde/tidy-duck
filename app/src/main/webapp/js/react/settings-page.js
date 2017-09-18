@@ -136,14 +136,16 @@ class SettingsPage extends React.Component {
 
     renderPasswordsMatchText() {
         let visibility = 'hidden';
-        let errorText = 'New passwords do not match.';
-        if (this.state.newPassword.length > 0 && this.state.newPasswordRetype.length > 0) {
-            if (! this.state.passwordsMatch) {
+        let errorText = 'Password must be at least 8 characters long.';
+        const checkRetypedPassword = this.state.newPasswordRetype.length > 0;
+
+        if (this.state.newPassword.length > 0 || checkRetypedPassword) {
+            if (this.state.newPassword.length < 8) {
                 visibility = 'visible';
             }
-            else if (this.state.newPassword.length < 8) {
+            else if (checkRetypedPassword && ! this.state.passwordsMatch) {
                 visibility = 'visible';
-                errorText = 'Password must be at least 8 characters long.'
+                errorText = 'New passwords do not match.';
             }
         }
 

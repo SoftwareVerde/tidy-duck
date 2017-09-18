@@ -15,7 +15,7 @@ public class SecureHashUtil {
     private static final int _iterationRandomizerFactor = 10;
     private static final int _keyLength = 512;
 
-    public static String hashWithPbkdf2(final String key) throws InvalidKeySpecException {
+    public static String hashWithPbkdf2(final String key) {
         return hashWithPbkdf2(key, _iterations, _keyLength);
     }
     
