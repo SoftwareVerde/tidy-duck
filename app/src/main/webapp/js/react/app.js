@@ -2137,8 +2137,8 @@ class App extends React.Component {
                 }
                 else {
                     app.App.alert("Review Approval", "Unable to approve review: " + data.errorMessage);
-                    this.setState({
-                        createButtonState: this.CreateButtonState.normal
+                    thisApp.setState({
+                        createButtonState: thisApp.CreateButtonState.normal
                     });
                 }
             });

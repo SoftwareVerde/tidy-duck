@@ -24,6 +24,7 @@ class ApprovalForm extends React.Component{
         this.renderVoteList = this.renderVoteList.bind(this);
         this.renderComments = this.renderComments.bind(this);
         this.renderTicketUrlArea = this.renderTicketUrlArea.bind(this);
+        this.renderSubmitButton = this.renderSubmitButton.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -231,15 +232,24 @@ class ApprovalForm extends React.Component{
         );
     }
 
+    renderSubmitButton() {
+        const accountId = this.props.account.getId();
+        const reviewAccountId = this.props.review.getAccount().getId();
+
+        if (accountId != reviewAccountId) {
+            let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
+            if (this.props.shouldShowSaveAnimation) {
+                submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+            }
+
+            return submitApprovalButton;
+        }
+    }
+
     render() {
         let submitCommentButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmitComment}>Submit Comment</button>;
         if (this.state.shouldShowSaveCommentAnimation) {
             submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
-        }
-
-        let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
-        if (this.props.shouldShowSaveAnimation) {
-            submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
         }
 
         return(
@@ -258,7 +268,7 @@ class ApprovalForm extends React.Component{
                             {this.renderDownvoteButton()}
                         </div>
                         {this.renderVoteList()}
-                        {submitApprovalButton}
+                        {this.renderSubmitButton()}
                     </div>
                 </div>
             </div>
