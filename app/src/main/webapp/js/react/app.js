@@ -2395,7 +2395,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
-                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged}/>);
+                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged} onExportFunctionCatalog={exportFunctionCatalogToMost}/>);
                 }
             break;
 
