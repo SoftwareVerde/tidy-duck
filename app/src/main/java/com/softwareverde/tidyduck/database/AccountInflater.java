@@ -5,6 +5,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
 
@@ -43,6 +44,39 @@ public class AccountInflater {
         account.setPassword(row.getString("password"));
         account.setCompany(company);
         account.setSettings(settings);
+
+        loadPermissions(account);
+
         return account;
+    }
+
+    private void loadPermissions(final Account account) throws DatabaseException {
+        final Query query = new Query("SELECT permissions.* FROM roles_permissions INNER JOIN accounts_roles ON accounts_roles.role_id = role_permissions.role_id WHERE account_id = ?");
+        query.setParameter(account.getId());
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        for (final Row row : rows) {
+            addPermission(account, Permission.ADMIN_CREATE_USERS,       row.getBoolean("admin_create_users"));
+            addPermission(account, Permission.ADMIN_MODIFY_USERS,       row.getBoolean("admin_modify_users"));
+            addPermission(account, Permission.ADMIN_DELETE_USERS,       row.getBoolean("admin_delete_users"));
+            addPermission(account, Permission.ADMIN_RESET_PASSWORD,     row.getBoolean("admin_reset_password"));
+            addPermission(account, Permission.MOST_COMPONENTS_RELEASE,  row.getBoolean("most_components_release"));
+            addPermission(account, Permission.MOST_COMPONENTS_CREATE,   row.getBoolean("most_components_create"));
+            addPermission(account, Permission.MOST_COMPONENTS_MODIFY,   row.getBoolean("most_components_modify"));
+            addPermission(account, Permission.MOST_COMPONENTS_VIEW,     row.getBoolean("most_components_view"));
+            addPermission(account, Permission.TYPES_CREATE,             row.getBoolean("types_create"));
+            addPermission(account, Permission.TYPES_MODIFY,             row.getBoolean("types_modify"));
+            addPermission(account, Permission.REVIEWS_APPROVAL,         row.getBoolean("reviews_approval"));
+            addPermission(account, Permission.REVIEWS_COMMENTS,         row.getBoolean("reviews_comments"));
+            addPermission(account, Permission.REVIEWS_VOTING,           row.getBoolean("reviews_voting"));
+            addPermission(account, Permission.REVIEWS_VIEW,             row.getBoolean("reviews_view"));
+        }
+    }
+
+    private void addPermission(final Account account, final Permission permission, final boolean shouldHavePermission) {
+        if (shouldHavePermission) {
+            account.addPermission(permission);
+        }
     }
 }

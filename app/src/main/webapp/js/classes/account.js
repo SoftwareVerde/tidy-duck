@@ -5,6 +5,7 @@ class Account {
         const username = json.username;
         const company = Company.fromJson(json.company);
         const settings = Settings.fromJson(json.settings);
+        const permissions = json.permissions;
 
         const account = new Account();
 
@@ -13,20 +14,22 @@ class Account {
         account.setUsername(username);
         account.setCompany(company);
         account.setSettings(settings);
+        account.setPermissions(permissions);
 
         return account;
     }
 
     static toJson(account) {
-        const company = Company.toJson(this._company);
-        const settings = Settings.toJson(this._settings);
+        const company = Company.toJson(account.getCompany());
+        const settings = Settings.toJson(account.getSettings());
 
         return {
-            id: this._id,
-            name: this._name,
-            username: this._username,
+            id: account.getId(),
+            name: account.getName(),
+            username: account.getUsername(),
             company: company,
-            settings: settings
+            settings: settings,
+            permissions: accounts.getPermissions()
         }
     }
 
@@ -36,6 +39,7 @@ class Account {
         this._username = null;
         this._company = null;
         this._settings = null;
+        this._permissions = [];
     }
 
     setId(id) {
@@ -77,4 +81,17 @@ class Account {
     getSettings() {
         return this._settings;
     }
+
+    setPermissions(permissions) {
+        this._permissions = permissions;
+    }
+
+    hasPermission(permission) {
+        return this._permissions.includes(permission);
+    }
+
+    getPermissions() {
+        return this._permissions;
+    }
+
 }

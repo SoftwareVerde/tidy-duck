@@ -4,11 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.IncrementLastIntegerVersionPredictor;
-import com.softwareverde.tidyduck.ReleaseItem;
-import com.softwareverde.tidyduck.VersionPredictor;
-import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -33,21 +29,27 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     public FunctionCatalogServlet() {
         super.defineEndpoint("function-catalogs", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 return _listFunctionCatalogs(environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-catalogs", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _insertFunctionCatalog(request, accountId, environment.getDatabase());
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                return _insertFunctionCatalog(request, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
@@ -58,18 +60,22 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
-                return _updateFunctionCatalog(request, functionCatalogId, accountId, environment.getDatabase());
+                return _updateFunctionCatalog(request, functionCatalogId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
@@ -80,18 +86,22 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-catalogs/<functionCatalogId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
-                return _submitFunctionCatalogForReview(functionCatalogId, accountId, environment.getDatabase());
+                return _submitFunctionCatalogForReview(functionCatalogId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-catalogs/<functionCatalogId>/release-item-list", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_RELEASE);
+
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
@@ -102,7 +112,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-catalogs/<functionCatalogId>/release", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_RELEASE);
+
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
@@ -161,13 +173,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertFunctionCatalog(final HttpServletRequest httpRequest, long accountId, final Database<Connection> database) throws IOException {
+    protected Json _insertFunctionCatalog(final HttpServletRequest httpRequest, Account currentAccount, final Database<Connection> database) throws IOException {
         final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
 
         final Json functionCatalogJson = request.get("functionCatalog");
         try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, database);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, currentAccount, database);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertFunctionCatalog(functionCatalog);
@@ -182,13 +194,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateFunctionCatalog(final HttpServletRequest httpRequest, final long functionCatalogId, final long accountId, final Database<Connection> database) throws IOException {
+    protected Json _updateFunctionCatalog(final HttpServletRequest httpRequest, final long functionCatalogId, final Account currentAccount, final Database<Connection> database) throws IOException {
         final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
         final Json functionCatalogJson = request.get("functionCatalog");
 
         try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, accountId, database);
+            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, currentAccount, database);
             functionCatalog.setId(functionCatalogId);
             DatabaseManager databaseManager = new DatabaseManager(database);
 
@@ -220,10 +232,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId, final Database<Connection> database) {
+    protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try {
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.submitFunctionCatalogForReview(functionCatalogId, accountId);
+            databaseManager.submitFunctionCatalogForReview(functionCatalogId, currentAccount.getId());
 
             final Json response = new Json(false);
             _setJsonSuccessFields(response);
@@ -378,7 +390,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return json;
     }
 
-    protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final long accountId, final Database<Connection> database) throws Exception {
+    protected FunctionCatalog _populateFunctionCatalogFromJson(final Json functionCatalogJson, final Account currentAccount, final Database<Connection> database) throws Exception {
         final String name = functionCatalogJson.getString("name");
         final String release = functionCatalogJson.getString("releaseVersion");
         final Long authorId = functionCatalogJson.getLong("authorId");
@@ -406,14 +418,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
         else {
             // use users's account ID
-            try (DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-                AccountInflater accountInflater = new AccountInflater(databaseConnection);
-
-                Account account = accountInflater.inflateAccount(accountId);
-
-                company = account.getCompany();
-                author = account.toAuthor();
-            }
+            company = currentAccount.getCompany();
+            author = currentAccount.toAuthor();
         }
 
         final FunctionCatalog functionCatalog = new FunctionCatalog();

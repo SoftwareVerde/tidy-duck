@@ -14,12 +14,20 @@ VALUES
 
 CREATE TABLE roles_permissions (
     role_id INT UNSIGNED NOT NULL,
-    read_most BOOLEAN NOT NULL DEFAULT FALSE,
-    modify_most BOOLEAN NOT NULL DEFAULT FALSE,
-    release_most BOOLEAN NOT NULL DEFAULT FALSE,
-    create_users BOOLEAN NOT NULL DEFAULT FALSE,
-    modify_users BOOLEAN NOT NULL DEFAULT FALSE,
-    delete_users BOOLEAN NOT NULL DEFAULT FALSE,
+    admin_create_users BOOLEAN NOT NULL DEFAULT FALSE,
+    admin_modify_users BOOLEAN NOT NULL DEFAULT FALSE,
+    admin_delete_users BOOLEAN NOT NULL DEFAULT FALSE,
+    admin_reset_password BOOLEAN NOT NULL DEFAULT FALSE,
+    most_components_release BOOLEAN NOT NULL DEFAULT FALSE,
+    most_components_create BOOLEAN NOT NULL DEFAULT FALSE,
+    most_components_modify BOOLEAN NOT NULL DEFAULT FALSE,
+    most_components_view BOOLEAN NOT NULL DEFAULT FALSE,
+    types_create BOOLEAN NOT NULL DEFAULT FALSE,
+    types_modify BOOLEAN NOT NULL DEFAULT FALSE,
+    reviews_approval BOOLEAN NOT NULL DEFAULT FALSE,
+    reviews_comments BOOLEAN NOT NULL DEFAULT FALSE,
+    reviews_voting BOOLEAN NOT NULL DEFAULT FALSE,
+    reviews_view BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY fk_roles_permissions_role_id (role_id) REFERENCES roles (id)
 );
 
