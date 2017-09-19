@@ -320,10 +320,11 @@ class TypesPage extends React.Component {
                         thisApp.props.onTypeCreated(mostType);
                         currentMostType = TypesPage.createNewMostType(thisApp.props.primitiveTypes);
                         saveButtonText = 'Saved'
-                        alert("Most Type " + mostType.getName() + " has been successfully saved.");
+                        app.App.alert("Most Type", "Most Type " + mostType.getName() + " has been successfully saved.");
                     }
-                } else {
-                    alert("Unable to create type: " + data.errorMessage);
+                }
+                else {
+                    app.App.alert("Most Type", "Unable to create type: " + data.errorMessage);
                 }
                 // reset fields
                 thisApp.setState({
@@ -337,11 +338,11 @@ class TypesPage extends React.Component {
             updateMostType(mostTypeId, mostTypeJson, function (wasSuccess, errorMessage) {
                 let saveButtonText = 'Save';
                 if (wasSuccess) {
-                    alert("Changes to Most Type " + mostType.getName() + " have been successfully saved.");
+                    app.App.alert("Most Type", "Changes to Most Type " + mostType.getName() + " have been successfully saved.");
                     saveButtonText = 'Saved';
                 }
                 else {
-                    alert("Unable to update Most Type: " + errorMessage);
+                    app.App.alert("Most Type", "Unable to update Most Type: " + errorMessage);
                 }
                 // Most Type is already updated in App and in Database, only need to reset save button text.
 

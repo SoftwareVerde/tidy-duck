@@ -46,8 +46,8 @@ class ApprovalForm extends React.Component{
 
     onSubmitComment() {
         const reviewComment = this.state.reviewComment;
-        if (!reviewComment.getCommentText()) {
-            alert("Empty comments are not allowed.");
+        if (! reviewComment.getCommentText()) {
+            app.App.alert("Submit Comment", "Empty comments are not allowed.");
             return;
         }
 

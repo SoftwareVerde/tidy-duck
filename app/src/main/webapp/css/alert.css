@@ -6,6 +6,8 @@
     color: #FFFFFF;
     text-align: center;
     box-shadow: 2px 5px 15px #000000;
+    z-index: 999; /* Nein! Nein! Nein! */
+    min-height: 200px;
 }
 
 .alert .alert-title {
@@ -14,14 +16,16 @@
     font-size: 130%;
     border-bottom: solid 1px #AAAAAA; 
     text-align: left;
+    padding-top: 10px;
 }
 
 .alert .alert-content {
     color: #CCCCCC;
     padding-left: 20px;
-    padding-top: 10px;
+    padding-top: 20px;
     padding-bottom: 10px;
     text-align: left;
+    min-height: 115px;
 }
 
 .alert .alert-button {
