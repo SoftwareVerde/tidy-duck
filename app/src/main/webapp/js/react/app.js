@@ -31,10 +31,11 @@ class App extends React.Component {
         };
 
         this.roles = {
-            release:          "Release",
-            development:      "Development",
-            types:            "Types",
-            reviews:          "Reviews"
+            release:        "Release",
+            development:    "Development",
+            types:          "Types",
+            reviews:        "Reviews",
+            accounts:       "Accounts"
         };
 
         this.developmentRoles = {
@@ -2136,6 +2137,8 @@ class App extends React.Component {
                     selectedFunctionStereotype:     null,
                     isLoadingChildren:              true,
                     isLoadingSearchResults:         false,
+                    isLoadingReviews:               false,
+                    isLoadingAccounts:              false,
                     shouldShowFilteredResults:      false,
                     searchResults:                  [],
                     functionBlocks:                 [],
@@ -2175,6 +2178,8 @@ class App extends React.Component {
                     shouldShowFilteredResults:  false,
                     createButtonState:          thisApp.CreateButtonState.normal,
                     isLoadingChildren:          !canUseCachedChildren,
+                    isLoadingReviews:           false,
+                    isLoadingAccounts:          false,
                     currentNavigationLevel:     newNavigationLevel,
                     activeRole:                 roleName,
                     activeSubRole:              newActiveSubRole,
@@ -2224,6 +2229,8 @@ class App extends React.Component {
                     isLoadingMostTypes:         true,
                     isLoadingPrimitiveTypes:    true,
                     isLoadingUnits:             true,
+                    isLoadingReviews:           false,
+                    isLoadingAccounts:          false,
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
@@ -2251,6 +2258,7 @@ class App extends React.Component {
                     isLoadingPrimitiveTypes:    false,
                     isLoadingUnits:             false,
                     isLoadingReviews:           true,
+                    isLoadingAccounts:          false,
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
@@ -2259,6 +2267,33 @@ class App extends React.Component {
                     currentReview:              null
                 });
                 thisApp.updateReviews();
+            } break;
+            case this.roles.accounts: {
+                this.setState({
+                    navigationItems:            [],
+                    parentHistory:              [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    proposedItem:               null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowEditForm:         false,
+                    shouldShowToolbar:          false,
+                    shouldShowFilteredResults:  false,
+                    isLoadingMostTypes:         false,
+                    isLoadingPrimitiveTypes:    false,
+                    isLoadingUnits:             false,
+                    isLoadingReviews:           false,
+                    isLoadingAccounts:          true,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:     null,
+                    activeRole:                 roleName,
+                    activeSubRole:              null,
+                    showSettingsPage:           false,
+                    currentReview:              null
+                })
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
@@ -2688,6 +2723,14 @@ class App extends React.Component {
                         </div>
                     );
                 } break;
+                case this.roles.accounts: {
+                    // accounts role
+                    return (
+                        <div id="main-content" className="container">
+                            <app.AccountsPage />
+                        </div>
+                    );
+                } break;
                 case this.roles.reviews: {
                     // reviews role
                     const currentReview = this.state.currentReview;
@@ -2736,6 +2779,7 @@ class App extends React.Component {
         roleItems.push(this.roles.development);
         roleItems.push(this.roles.types);
         roleItems.push(this.roles.reviews);
+        roleItems.push(this.roles.accounts);
 
         return (
             <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />
