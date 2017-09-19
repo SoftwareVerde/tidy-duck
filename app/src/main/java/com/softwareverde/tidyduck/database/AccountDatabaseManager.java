@@ -19,13 +19,12 @@ class AccountDatabaseManager {
     }
 
     public boolean insertAccount(final Account account) throws DatabaseException {
-        // Return false if unable to generate random password for whatever reason.
-        final String password = SecureHashUtil.generateRandomPassword();
-        if(Util.isBlank(password)) {
+        final String username = account.getUsername();
+        if (! _isUsernameUnique(username)) {
             return false;
         }
 
-        final String username = account.getUsername();
+        final String password = SecureHashUtil.generateRandomPassword();
         final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
         final String name = account.getName();
         final Long companyId = account.getCompany().getId();
@@ -84,5 +83,17 @@ class AccountDatabaseManager {
         final String storedPassword = rows.get(0).getString("password");
 
         return SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
+    }
+
+    private boolean _isUsernameUnique(final String username) throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS duplicate_count FROM accounts WHERE username = ?")
+                .setParameter(username)
+        ;
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final Row row = rows.get(0);
+        final long duplicateCount = row.getLong("duplicate_count");
+        return (duplicateCount == 0);
     }
 }

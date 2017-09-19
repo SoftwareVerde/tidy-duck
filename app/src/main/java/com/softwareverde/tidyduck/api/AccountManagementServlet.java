@@ -97,8 +97,8 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (! databaseManager.insertAccount(account)) {
-                _logger.error("Unable to insert account: unable to generate random password.");
-                return _generateErrorJson("Unable to insert account: unable to generate random password.");
+                _logger.error("Unable to insert account: username already exists.");
+                return _generateErrorJson("Unable to insert account: username already exists.");
             }
 
             response.put("accountId", account.getId());
