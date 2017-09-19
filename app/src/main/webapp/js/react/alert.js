@@ -86,6 +86,10 @@ class Alert extends React.Component {
             this.props.onConfirm();
         }
 
+        if (this.props.onClear) {
+            this.props.onClear();
+        }
+
         this.setState({
             shouldShow: false
         });
