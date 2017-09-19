@@ -5,18 +5,20 @@ class App extends React.Component {
                 shouldShow: true,
                 title:      title,
                 content:    content,
-                onConfirm:  onConfirm
-            }
-        });
-    }
+                onConfirm:  function () {
+                    if (typeof onConfirm == "function") {
+                        onConfirm();
+                    }
 
-    static clearAlert() {
-        App._instance.setState({
-            alert: {
-                shouldShow: false,
-                title:      "",
-                content:    "",
-                onConfirm:  null
+                    App._instance.setState({
+                        alert: {
+                            shouldShow: false,
+                            title:      "",
+                            content:    "",
+                            onConfirm:  null
+                        }
+                    });
+                }
             }
         });
     }
@@ -2892,7 +2894,7 @@ class App extends React.Component {
                 </div>
                 {this.renderMainContent()}
 
-                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} onClear={app.App.clearAlert} />
+                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} />
             </div>
         );
     }

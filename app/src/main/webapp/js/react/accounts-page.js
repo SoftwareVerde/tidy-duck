@@ -1,30 +1,6 @@
 class AccountsPage extends React.Component {
-    static alert(title, content, onConfirm) {
-        AccountsPage._instance.setState({
-            alert: {
-                shouldShow: true,
-                title:      title,
-                content:    content,
-                onConfirm:  onConfirm
-            }
-        });
-    }
-
-    static clearAlert() {
-        AccountsPage._instance.setState({
-            alert: {
-                shouldShow: false,
-                title:      "",
-                content:    "",
-                onConfirm:  null
-            }
-        });
-    }
-
     constructor(props) {
         super(props);
-
-        AccountsPage._instance = this;
 
         const account = new Account();
         const company = new Company();
@@ -39,13 +15,7 @@ class AccountsPage extends React.Component {
 
         this.state = {
             newAccount: account,
-            createAccountButtonState: this.SaveButtonState.submit,
-            alert: {
-                shouldShow: false,
-                title:      "",
-                content:    "",
-                onConfirm:  null
-            }
+            createAccountButtonState: this.SaveButtonState.submit
         };
 
         this.onNewAccountUsernameChanged = this.onNewAccountUsernameChanged.bind(this);
@@ -114,8 +84,7 @@ class AccountsPage extends React.Component {
                                         <br/>
                                         <br/> {passwordString}
                                     </div>;
-                app.AccountsPage.alert("Account Successfully Created", alertString);
-                // app.AccountsPage.alert("Account Successfully Created", "Account ID " + data.accountId +  " created with the following login information:" + usernameString + passwordString);
+                app.App.alert("Account Successfully Created", alertString);
 
                 const newAccount = new Account();
                 const newCompany = new Company();
@@ -127,7 +96,7 @@ class AccountsPage extends React.Component {
                 });
             }
             else {
-                app.AccountsPage.alert("Unable to create account.", data.errorMessage);
+                app.App.alert("Unable to create account.", data.errorMessage);
 
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.submit,
@@ -174,7 +143,6 @@ class AccountsPage extends React.Component {
         return (
             <div className="account-administration-area">
                 {this.renderCreateAccountForm()}
-                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} onClear={app.AccountsPage.clearAlert} />
             </div>
         );
     }
