@@ -1,20 +1,20 @@
 package com.softwareverde.tidyduck.api;
 
-import com.softwareverde.database.Database;
-import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.*;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
+import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Map;
 
@@ -30,6 +30,17 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid account ID provided.");
                 }
                 return _getAccount(providedAccountId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("account/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
+                if (providedAccountId < 1) {
+                    return _generateErrorJson("Invalid account ID provided.");
+                }
+                return _changePassword(providedAccountId, request, environment.getDatabase());
             }
         });
     }
@@ -50,6 +61,36 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             _logger.error("Unable to get account.", e);
             return _generateErrorJson("Unable to get account.");
         }
+    }
+
+    protected Json _changePassword(final Long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
+        final Json jsonRequest = _getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+        final String oldPassword = jsonRequest.getString("oldPassword");
+        final String newPassword = jsonRequest.getString("newPassword");
+
+        try {
+            if (Util.isBlank(oldPassword)) {
+                _logger.error("Unable to change password. Old password is invalid.");
+                return _generateErrorJson("Old password is invalid.");
+            }
+            if (newPassword.length() < 8) {
+                _logger.error("Unable to change password. New password is invalid.");
+                return _generateErrorJson("New password is invalid.");
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (! databaseManager.changePassword(accountId, oldPassword, newPassword)) {
+                _logger.error("Unable to change password. Invalid credentials.");
+                return _generateErrorJson("Invalid credentials.");
+            }
+        }
+        catch (final Exception e) {
+            _logger.error("Unable to attempt password change.", e);
+            return _generateErrorJson("Unable to attempt password change: " + e.getMessage());
+        }
+
+        return response;
     }
 
     protected Json _toJson(final Account account) {

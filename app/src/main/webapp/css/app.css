@@ -20,7 +20,7 @@
 #settings-container {
     width: 300px;
     display: block;
-    margin: 5em auto auto auto;
+    margin: 2em auto auto auto;
 
     border: 0px solid;
     border-radius: 5px;
@@ -28,6 +28,11 @@
     padding-left: 1em;
     padding-right: 1em;
     padding-bottom: 1em;
+}
+
+#settings-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
 }
 
 #settings-container .input-field {
@@ -148,7 +153,9 @@
     padding: 0px;
 }
 
-.metadata-form, .parameter-display-area .metadata-form-title {
+.metadata-form .metadata-form-title, .parameter-display-area .metadata-form-title {
+    width: 100%;
+    display: inline-block;
     font-size: 1.2em;
     font-weight: bold;
     padding-left: 0.5em;

@@ -75,8 +75,9 @@ class ReleasePage extends React.Component {
                 if (typeof thisPage.props.onRelease == "function") {
                     thisPage.props.onRelease();
                 }
-            } else {
-                alert("Unable to release function catalog: " + data.errorMessage);
+            }
+            else {
+                app.App.alert("Release Function Catalog", "Unable to release function catalog: " + data.errorMessage);
                 thisPage.setState({
                     shouldShowSaveAnimation: false
                 });

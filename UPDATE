@@ -1,0 +1,35 @@
+////////////////////////
+// Updating Tidy Duck //
+////////////////////////
+
+=======================
+Rebuilding the WAR file
+=======================
+
+After obtaining the new code-based, ensure the production database configuration
+is (still) set in:
+
+    app/src/production/resources/server.conf
+
+Then run:
+
+	scripts/make.sh
+
+This will generate an updated WAR file and echo its location.
+
+=====================
+Installing the update
+=====================
+
+Transfer the WAR file to the server to be updated and move it to your tomcat
+webapps directory as ROOT.war.  For example:
+
+	/var/lib/tomcat/webapps/ROOT.war
+
+The permissions should be maintained but is necessary see the INSTALL file for how
+to appropriately set the permissions.
+
+Tomcat should automatically detect that the WAR file has changed and
+unpackage/deploy it.  You should then be able to access the application
+through your browser.
+

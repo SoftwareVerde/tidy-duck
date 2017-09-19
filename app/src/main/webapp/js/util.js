@@ -48,3 +48,8 @@ function toStandardDateTimeString(date) {
 
     return dateString + separator + timeString;
 }
+
+// Ensures a hex string has a lower-case 'x' and capital letters elsewhere (e.g. 0Xabc -> 0xABC).
+function formatHex(hex) {
+    return hex.toUpperCase().replace('X', 'x');
+}

@@ -201,12 +201,17 @@ class Toolbar extends React.Component {
                     break;
             }
 
-            const buttonTitle = "Edit Current " + buttonTitleType;
+            let buttonTitle = "Edit Current " + buttonTitleType;
+            let button = <i className="fa fa-4 fa-edit" />;
+            if (this.props.shouldShowViewInfoButton) {
+                buttonTitle = "View " + buttonTitleType + " Data";
+                button = <i className="fa fa-4 fa-file-text-o" />;
+            }
 
             if (shouldShowButton) {
                 return (
                     <div className="toolbar-item edit" onClick={this.props.onEditClicked} >
-                        <i className="fa fa-4 fa-edit" />
+                        {button}
                         <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );

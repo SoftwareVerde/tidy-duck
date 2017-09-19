@@ -155,9 +155,9 @@ public abstract class MostFunction implements XmlNode {
         functionClassElement.appendChild(functionClassDescriptionElement);
 
         Element functionTypeElement = document.createElement(getFunctionType());
-        Element trueClassElement = document.createElement(getFunctionClassTagName());
+        populateFunctionTypeElement(document, functionTypeElement);
 
-        // TODO: determine how to add attributes for classElement
+        Element trueClassElement = document.createElement(getFunctionClassTagName());
         populateTrueClassElement(document, trueClassElement);
 
         functionTypeElement.appendChild(trueClassElement);
@@ -167,8 +167,16 @@ public abstract class MostFunction implements XmlNode {
     }
 
     /**
-     * <p></p>
+     * <p>Should be overridden by function implementations as necessary.</p>
      *
+     * @param document
+     * @param functionTypeElement
+     */
+    protected void populateFunctionTypeElement(Document document, Element functionTypeElement) {
+        // do nothing, not required for all functions
+    }
+
+    /**
      * <p>Should be overridden by function class implementations as necessary.  Most will not need to since
      * these elements only apply to certain function classes.</p>
      * @param document

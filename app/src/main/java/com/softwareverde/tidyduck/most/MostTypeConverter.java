@@ -262,7 +262,7 @@ public class MostTypeConverter {
         final List<String> operationNames = _getOperationNames(property.getOperations());
 
         // add return type parameter
-        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationNames, property.getName(), "1");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationNames, "1");
         convertedProperty.addMostParameter(returnTypeParameter);
 
         // add get parameter
@@ -298,12 +298,13 @@ public class MostTypeConverter {
         return convertedProperty;
     }
 
-    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterName, String parameterIndex) {
+    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterIndex) {
 
         final MostType returnType = mostFunction.getReturnType();
 
         final MostParameter returnTypeParameter = new MostParameter();
-        returnTypeParameter.setName(parameterName);
+        returnTypeParameter.setName(mostFunction.getReturnParameterName());
+        returnTypeParameter.setDescription(mostFunction.getReturnParameterDescription());
         returnTypeParameter.setIndex(MOST_NULL);
         returnTypeParameter.setType(_convertMostType(returnType));
 
@@ -585,7 +586,7 @@ public class MostTypeConverter {
         convertedMethod.addMostParameter(senderHandleParameter);
 
         // add return type parameter
-        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationNames, "ReturnValue", "2");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationNames, "2");
         convertedMethod.addMostParameter(returnTypeParameter);
 
         // add input parameters

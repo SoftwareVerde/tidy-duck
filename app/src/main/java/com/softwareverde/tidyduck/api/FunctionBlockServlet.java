@@ -421,6 +421,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
+            if (!mostId.matches("0x[0-9A-F]{2}")) {
+                throw new Exception("Function block MOST ID must be between '0x00' and '0xFF'.");
+            }
 
             if (Util.isBlank(kind)) {
                 throw new Exception("Invalid Kind value: "+ kind);
