@@ -54,6 +54,26 @@ function updateSettings(settings, callback) {
     );
 }
 
+function changePassword(accountId, oldPassword, newPassword, callback) {
+    const request = new Request(
+        API_PREFIX + "account/" + accountId + "/change-password",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "oldPassword":    oldPassword,
+                "newPassword":    newPassword
+            })
+        }
+    )
+    jsonFetch(request, function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
 function logout(callback) {
     jsonFetch(
         new Request(

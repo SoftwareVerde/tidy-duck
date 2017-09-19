@@ -1,5 +1,8 @@
 package com.softwareverde.mostadapter;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 /**
  * <p>Represents a MOST Property (type of Function).</p>
  *
@@ -21,4 +24,10 @@ public abstract class Property extends MostFunction {
         return "Property";
     }
 
+    @Override
+    protected void populateFunctionTypeElement(Document document, Element functionTypeElement) {
+        super.populateFunctionTypeElement(document, functionTypeElement);
+
+        functionTypeElement.setAttribute("Notification", Boolean.toString(_supportsNotification));
+    }
 }
