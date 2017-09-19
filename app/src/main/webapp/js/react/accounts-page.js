@@ -105,11 +105,21 @@ class AccountsPage extends React.Component {
 
         createNewAccount(accountJson, function(data) {
             if (data.wasSuccess) {
+                const usernameString = "Username: " + account.getUsername();
+                const passwordString = "Password: " + data.password;
+                const alertString = <div className="alert-content">
+                                        Account ID {data.accountId} created with the following login information:
+                                        <br/>
+                                        <br/> {usernameString}
+                                        <br/>
+                                        <br/> {passwordString}
+                                    </div>;
+                app.AccountsPage.alert("Account Successfully Created", alertString);
+                // app.AccountsPage.alert("Account Successfully Created", "Account ID " + data.accountId +  " created with the following login information:" + usernameString + passwordString);
+
                 const newAccount = new Account();
                 const newCompany = new Company();
                 newAccount.setCompany(newCompany);
-
-                app.AccountsPage.alert("Account Successfully Created", "Account ID " + data.accountId +  " created with the following default password: " + data.password);
 
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.saved,

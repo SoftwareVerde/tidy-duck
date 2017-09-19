@@ -82,11 +82,11 @@ class Alert extends React.Component {
     }
 
     onButtonClick(event) {
-        if (this.props.onConfirm) {
+        if (typeof this.props.onConfirm == "function") {
             this.props.onConfirm();
         }
 
-        if (this.props.onClear) {
+        if (typeof this.props.onClear == "function") {
             this.props.onClear();
         }
 

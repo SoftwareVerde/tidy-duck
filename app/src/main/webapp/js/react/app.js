@@ -10,6 +10,17 @@ class App extends React.Component {
         });
     }
 
+    static clearAlert() {
+        App._instance.setState({
+            alert: {
+                shouldShow: false,
+                title:      "",
+                content:    "",
+                onConfirm:  null
+            }
+        });
+    }
+
     constructor(props) {
         super(props);
 
@@ -2881,7 +2892,7 @@ class App extends React.Component {
                 </div>
                 {this.renderMainContent()}
 
-                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} />
+                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} onClear={app.App.clearAlert} />
             </div>
         );
     }
