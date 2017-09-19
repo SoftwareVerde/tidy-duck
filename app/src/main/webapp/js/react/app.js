@@ -827,12 +827,18 @@ class App extends React.Component {
         if (functionCatalog.isApproved()) {
             app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
         }
-        else if (confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
+        else if (! confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
+            callbackFunction();
+        }
+        else {
             const thisApp = this;
             const functionCatalogId = functionCatalog.getId();
 
             deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
-                if (success) {
+                if (! success) {
+                    app.App.alert("Delete Function Catalog", "Request to delete Function Catalog failed: " + errorMessage, callbackFunction);
+                }
+                else {
                     const newFunctionCatalogs = [];
                     const existingFunctionCatalogs = thisApp.state.functionCatalogs;
                     for (let i in existingFunctionCatalogs) {
@@ -870,12 +876,9 @@ class App extends React.Component {
                         }
                     }
                     thisApp.setState({
-                        functionCatalogs:       newFunctionCatalogs,
+                        functionCatalogs: newFunctionCatalogs,
                         currentNavigationLevel: thisApp.NavigationLevel.versions
                     });
-                }
-                else {
-                    app.App.alert("Delete Function Catalog", "Request to delete Function Catalog failed: " + errorMessage, callbackFunction);
                 }
             });
         }
