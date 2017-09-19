@@ -13,8 +13,8 @@ class Company {
 
     static toJson(company) {
         return {
-            id: this._id,
-            name: this._name
+            id: company.getId(),
+            name: company.getName()
         };
     }
 

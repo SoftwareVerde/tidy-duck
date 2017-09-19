@@ -72,14 +72,16 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _insertAccount(final HttpServletRequest httpServletRequest, final Database<Connection> database) throws IOException {
-        final Json request = _getRequestDataAsJson(httpServletRequest);
         final Json response = _generateSuccessJson();
+        final Json request = _getRequestDataAsJson(httpServletRequest);
+        final Json accountJson = request.get("account");
+        final Json companyJson = accountJson.get("company");
+
+        final String username = accountJson.getString("username");
+        final String name = accountJson.getString("name");
+        final Long companyId = Util.parseLong(companyJson.getString("id"));
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String username = request.getString("username");
-            final String name = request.getString("name");
-            final Long companyId = Util.parseLong(request.getString("companyId"));
-
             if (companyId < 1) {
                 _logger.error("Unable to insert account: invalid company ID.");
                 return _generateErrorJson("Unable to insert account: invalid company ID.");

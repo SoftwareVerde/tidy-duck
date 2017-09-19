@@ -18,13 +18,13 @@ class Account {
     }
 
     static toJson(account) {
-        const company = Company.toJson(this._company);
-        const settings = Settings.toJson(this._settings);
+        const company = Company.toJson(account.getCompany());
+        const settings = Settings.toJson(account.getSettings());
 
         return {
-            id: this._id,
-            name: this._name,
-            username: this._username,
+            id: account.getId(),
+            name: account.getName(),
+            username: account.getUsername(),
             company: company,
             settings: settings
         }

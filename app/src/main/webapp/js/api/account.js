@@ -54,6 +54,25 @@ function updateSettings(settings, callback) {
     );
 }
 
+function createNewAccount(account, callback) {
+    const request = new Request(
+        API_PREFIX + "account/create",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "account":    account
+            })
+        }
+    )
+    jsonFetch(request, function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
 function changePassword(accountId, oldPassword, newPassword, callback) {
     const request = new Request(
         API_PREFIX + "account/" + accountId + "/change-password",

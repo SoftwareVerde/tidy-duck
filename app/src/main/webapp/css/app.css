@@ -107,6 +107,11 @@
     border: solid 1px #AAAAAA;
 }
 
+.account-administration-area {
+    width: 100%;
+    text-align: center;
+}
+
 .navigation-column {
     width: 300px;
     border-right: solid 1px;
