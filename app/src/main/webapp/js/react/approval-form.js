@@ -235,15 +235,36 @@ class ApprovalForm extends React.Component{
     renderSubmitButton() {
         const accountId = this.props.account.getId();
         const reviewAccountId = this.props.review.getAccount().getId();
+        const reviewVotes = this.props.review.getReviewVotes();
 
-        if (accountId != reviewAccountId) {
-            let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
-            if (this.props.shouldShowSaveAnimation) {
-                submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
-            }
-
-            return submitApprovalButton;
+        // Render button if at least one upvote from a different account exists, and the current account is different.
+        if (accountId == reviewAccountId) {
+            return;
         }
+
+        let upvoteCounter = 0;
+        for (let i in reviewVotes) {
+            const reviewVote = reviewVotes[i];
+            if (reviewVote.isUpvote()) {
+                const reviewVoteAccountId = reviewVote.getAccount().getId();
+                if (reviewVoteAccountId != reviewAccountId) {
+                    upvoteCounter++;
+                    // TODO: verify if we only need one upvote that isn't from the review's creator.
+                    break;
+                }
+            }
+        }
+
+        if (upvoteCounter == 0) {
+            return;
+        }
+
+        let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
+        if (this.props.shouldShowSaveAnimation) {
+            submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+        }
+
+        return submitApprovalButton;
     }
 
     render() {
