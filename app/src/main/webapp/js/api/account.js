@@ -22,7 +22,7 @@ function getAccount(accountId, callbackFunction) {
 
 function getCompanies(callbackFunction) {
     const request = new Request(
-        API_PREFIX + "accounts/companies/get-all",
+        API_PREFIX + "companies",
         {
             method: "GET",
             credentials: "include"

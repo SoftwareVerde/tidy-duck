@@ -68,6 +68,11 @@
     </servlet-mapping>
 
     <servlet-mapping>
+        <servlet-name>AccountManagement</servlet-name>
+        <url-pattern>/api/v1/companies/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>Settings</servlet-name>
         <url-pattern>/api/v1/settings</url-pattern>
     </servlet-mapping>

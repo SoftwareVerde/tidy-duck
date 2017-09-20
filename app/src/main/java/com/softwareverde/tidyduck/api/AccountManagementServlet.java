@@ -53,7 +53,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts/companies/get-all", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _getCompanies(environment.getDatabase());
