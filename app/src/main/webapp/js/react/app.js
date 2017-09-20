@@ -129,6 +129,7 @@ class App extends React.Component {
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
         this.getAllCompanies = this.getAllCompanies.bind(this);
+        this.onCreateCompany = this.onCreateCompany.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
 
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
@@ -291,6 +292,27 @@ class App extends React.Component {
             else {
                 console.error("Unable to get companies:" + data.errorMessage);
             }
+        });
+    }
+
+    onCreateCompany(newCompany, callbackFunction) {
+        const newCompanyJson = Company.toJson(newCompany);
+        const thisApp = this;
+        const companies = this.state.companies;
+
+        createNewCompany(newCompanyJson, function(data) {
+           if (! data.wasSuccess) {
+               app.App.alert("Unable to create company", data.errorMessage);
+           }
+           else {
+               newCompany.setId(data.companyId);
+               companies.push(newCompany);
+
+               thisApp.setState({
+                   companies: companies
+               });
+           }
+           callbackFunction(data.wasSuccess);
         });
     }
 
@@ -2808,7 +2830,7 @@ class App extends React.Component {
                     // accounts role
                     return (
                         <div id="main-content" className="container">
-                            <app.AccountsPage companies={this.state.companies}/>
+                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany}/>
                         </div>
                     );
                 } break;

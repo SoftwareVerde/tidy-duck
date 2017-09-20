@@ -2,10 +2,6 @@ class AccountsPage extends React.Component {
     constructor(props) {
         super(props);
 
-        const account = new Account();
-        const company = this.props.companies[0];
-        account.setCompany(company);
-
         this.SaveButtonState = {
             submit: 'submit',
             save:   'save',
@@ -13,17 +9,28 @@ class AccountsPage extends React.Component {
             saved:  'saved'
         };
 
+        const account = new Account();
+        const accountCompany = this.props.companies[0];
+        account.setCompany(accountCompany);
+
+        const newCompany = new Company();
+
         this.state = {
             newAccount: account,
-            createAccountButtonState: this.SaveButtonState.submit
+            newCompany: newCompany,
+            createAccountButtonState: this.SaveButtonState.submit,
+            createCompanyButtonState: this.SaveButtonState.submit
         };
 
         this.onNewAccountUsernameChanged = this.onNewAccountUsernameChanged.bind(this);
         this.onNewAccountNameChanged = this.onNewAccountNameChanged.bind(this);
         this.onNewAccountCompanyChanged = this.onNewAccountCompanyChanged.bind(this);
+        this.onNewCompanyNameChanged = this.onNewCompanyNameChanged.bind(this);
         this.onSubmitNewAccount = this.onSubmitNewAccount.bind(this);
+        this.onSubmitNewCompany = this.onSubmitNewCompany.bind(this);
         this.renderCreateAccountForm = this.renderCreateAccountForm.bind(this);
-        this.renderCreateAccountButtonText = this.renderCreateAccountButtonText.bind(this);
+        this.renderCreateCompanyForm = this.renderCreateCompanyForm.bind(this);
+        this.renderCreateButtonText = this.renderCreateButtonText.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -65,6 +72,16 @@ class AccountsPage extends React.Component {
         this.setState({
             newAccount: account,
             createAccountButtonState: this.SaveButtonState.submit
+        });
+    }
+
+    onNewCompanyNameChanged(value) {
+        const newCompany = this.state.newCompany;
+        newCompany.setName(value);
+
+        this.setState({
+            newCompany: newCompany,
+            createCompanyButtonState: this.SaveButtonState.submit
         });
     }
 
@@ -110,8 +127,33 @@ class AccountsPage extends React.Component {
         });
     }
 
-    renderCreateAccountButtonText() {
-        switch (this.state.createAccountButtonState) {
+    onSubmitNewCompany(event) {
+        event.preventDefault();
+        const newCompany = this.state.newCompany;
+        const thisApp = this;
+
+        if (typeof this.props.onCreateCompany == "function") {
+            this.setState({
+                createCompanyButtonState: this.SaveButtonState.saving
+            });
+
+            this.props.onCreateCompany(newCompany, function(wasSuccess) {
+                thisApp.setState({
+                    newCompany: wasSuccess ? new Company() : newCompany,
+                    createCompanyButtonState: wasSuccess ? thisApp.SaveButtonState.saved : thisApp.SaveButtonState.submit
+                });
+            });
+        }
+
+    }
+
+    renderCreateButtonText(typeOfObjectCreated) {
+        let buttonState = this.state.createAccountButtonState;
+        if (typeOfObjectCreated == "Company") {
+            buttonState = this.state.createCompanyButtonState;
+        }
+
+        switch (buttonState) {
             case this.SaveButtonState.submit:
                 return "Submit";
 
@@ -121,7 +163,7 @@ class AccountsPage extends React.Component {
                 );
 
             case this.SaveButtonState.saved:
-                return "Account Created";
+                return typeOfObjectCreated + " Created";
         }
     }
 
@@ -134,9 +176,9 @@ class AccountsPage extends React.Component {
             companyOptions.push(companies[i].getName());
         }
 
-        let createAccountSaveButton = <input type="submit" id="create-account-button" className="button" value={this.renderCreateAccountButtonText()} />;
+        let createAccountSaveButton = <input type="submit" id="create-account-button" className="button" value={this.renderCreateButtonText("Account")} />;
         if (this.state.createAccountButtonState === this.SaveButtonState.saving) {
-            createAccountSaveButton = <div type="submit" id="create-account-button" className="button">{this.renderCreateAccountButtonText()}</div>;
+            createAccountSaveButton = <div id="create-account-button" className="button">{this.renderCreateButtonText("Account")}</div>;
         }
 
         return (
@@ -150,10 +192,28 @@ class AccountsPage extends React.Component {
         );
     }
 
+    renderCreateCompanyForm() {
+        const newCompany = this.state.newCompany;
+
+        let createCompanySaveButton = <input type="submit" id="create-company-button" className="button" value={this.renderCreateButtonText("Company")} />;
+        if (this.state.createCompanyButtonState === this.SaveButtonState.saving) {
+            createCompanySaveButton = <div id="create-company-button" className="button">{this.renderCreateButtonText("Company")}</div>;
+        }
+
+        return (
+            <form id="settings-container" onSubmit={this.onSubmitNewCompany}>
+                <h1>Create Company</h1>
+                <app.InputField type="text" label="Name" name="name" value={newCompany.getName()} onChange={this.onNewCompanyNameChanged} isRequired={true}/>
+                {createCompanySaveButton}
+            </form>
+        );
+    }
+
     render() {
         return (
             <div className="account-administration-area">
                 {this.renderCreateAccountForm()}
+                {this.renderCreateCompanyForm()}
             </div>
         );
     }
