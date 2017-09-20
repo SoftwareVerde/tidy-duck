@@ -108,7 +108,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 if (reviewId < 1) {
                     return _generateErrorJson("Invalid review id: " + reviewId);
                 }
-                return _approveReview(reviewId, accountId, environment.getDatabase());
+                return _approveReview(reviewId, currentAccount.getId(), environment.getDatabase());
             }
         });
 

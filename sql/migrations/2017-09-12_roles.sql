@@ -28,8 +28,8 @@ CREATE TABLE role_permissions (
     reviews_comments BOOLEAN NOT NULL DEFAULT FALSE,
     reviews_voting BOOLEAN NOT NULL DEFAULT FALSE,
     reviews_view BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY fk_role_permissions_role_id (role_id) REFERENCES roles (id)
-);
+    FOREIGN KEY (role_id) REFERENCES roles (id)
+) ENGINE=INNODB;
 
 INSERT INTO role_permissions
 VALUES
@@ -42,10 +42,12 @@ VALUES
 CREATE TABLE accounts_roles (
     account_id INT UNSIGNED NOT NULL,
     role_id INT UNSIGNED NOT NULL,
-    FOREIGN KEY fk_accounts_roles_account_id (account_id) REFERENCES accounts (id),
-    FOREIGN KEY fk_accounts_roles_role_id (role_id) REFERENCES roles(id)
+    FOREIGN KEY (account_id) REFERENCES accounts (id),
+    FOREIGN KEY (role_id) REFERENCES roles(id)
 ) ENGINE=INNODB;
 
 -- provide all existing accounts all roles
-INSERT INTO accounts_roles SELECT accounts.id, roles.id FROM accounts, roles;
+INSERT INTO accounts_roles (account_id, role_id)
+SELECT accounts.id, roles.id
+FROM accounts, roles;
 
