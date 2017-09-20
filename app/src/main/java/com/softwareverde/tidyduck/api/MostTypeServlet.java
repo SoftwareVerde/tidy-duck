@@ -3,13 +3,14 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostTypeInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
-import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tidyduck.util.Util;
+import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,42 +18,60 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class MostTypeServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
-    @Override
-    protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, long accountId, Environment environment) throws Exception {
-        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-types".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
+    public MostTypeServlet() {
+        super.defineEndpoint("most-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 return _listMostTypes(environment);
             }
-            if (httpMethod == HttpMethod.POST) {
+        });
+
+        super.defineEndpoint("most-types", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.TYPES_CREATE);
+
                 return _insertType(request, environment);
             }
-        }
-        if ("primitive-types".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
-                return _listPrimitiveTypes(environment);
-            }
-        }
-        if ("most-units".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
-                return _listUnits(environment);
-            }
-        }
-        else { // not base mostType, must have ID
-            final long mostTypeId = Util.parseLong(finalUrlSegment);
-            if (mostTypeId < 1) {
-                return _generateErrorJson("Invalid Most Type id.");
-            }
+        });
 
-            if (httpMethod == HttpMethod.POST) {
+        super.defineEndpoint("most-types/<mostTypeId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.TYPES_MODIFY);
+
+                final long mostTypeId = Util.parseLong(parameters.get("mostTypeId"));
+                if (mostTypeId < 1) {
+                    return _generateErrorJson("Invalid Most Type ID.");
+                }
                 return _updateMostType(request, mostTypeId, environment);
             }
-        }
-        return super._generateErrorJson("Unimplemented HTTP method in request.");
+        });
+
+        super.defineEndpoint("most-types/primitive-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                return _listPrimitiveTypes(environment);
+            }
+        });
+
+        super.defineEndpoint("most-types/most-units", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                return _listUnits(environment);
+            }
+        });
     }
 
     private Json _listMostTypes(final Environment environment) {

@@ -29,7 +29,9 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     public ReviewServlet() {
         super.defineEndpoint("reviews", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_VIEW);
+
                 final String excludeOpenReviewsString = request.getParameter("excludeOpenReviews");
                 final String excludeClosedReviewsString = request.getParameter("excludeClosedReviews");
 
@@ -42,32 +44,40 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("reviews", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _insertReview(request, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("reviews/<reviewId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _updateReview(request, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("reviews/<reviewId>/votes", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_VIEW);
+
                 final long reviewId = Util.parseLong(parameters.get("reviewId"));
                 if (reviewId < 1) {
                     return _generateErrorJson("Invalid review ID: " + reviewId);
                 }
-                return _insertReviewVote(request, reviewId, accountId, environment.getDatabase());
+                return _insertReviewVote(request, reviewId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("reviews/<reviewId>/comments", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_COMMENTS);
+
                 final long reviewId = Util.parseLong(parameters.get("reviewId"));
                 if (reviewId < 1) {
                     return _generateErrorJson("Invalid review id: " + reviewId);
@@ -78,40 +88,48 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("reviews/<reviewId>/comments", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_COMMENTS);
+
                 final long reviewId = Util.parseLong(parameters.get("reviewId"));
                 if (reviewId < 1) {
                     return _generateErrorJson("Invalid review id: " + reviewId);
                 }
-                return _addReviewComment(request, reviewId, accountId, environment.getDatabase());
+                return _addReviewComment(request, reviewId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("reviews/<reviewId>/approve", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_APPROVAL);
+
                 final long reviewId = Util.parseLong(parameters.get("reviewId"));
                 if (reviewId < 1) {
                     return _generateErrorJson("Invalid review id: " + reviewId);
                 }
-                return _approveReview(reviewId, accountId, environment.getDatabase());
+                return _approveReview(reviewId, currentAccount.getId(), environment.getDatabase());
             }
         });
 
         super.defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_VOTING);
+
                 final long reviewVoteId = Util.parseLong(parameters.get("reviewVoteId"));
                 if (reviewVoteId < 1) {
                     return _generateErrorJson("Invalid review vote ID: " + reviewVoteId);
                 }
-                return _updateReviewVote(request, reviewVoteId, accountId, environment.getDatabase());
+                return _updateReviewVote(request, reviewVoteId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.REVIEWS_VOTING);
+
                 final long reviewVoteId = Util.parseLong(parameters.get("reviewVoteId"));
                 if (reviewVoteId < 1) {
                     return _generateErrorJson("Invalid review vote id: " + reviewVoteId);
@@ -226,12 +244,12 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _insertReviewVote(final HttpServletRequest request, final long reviewId, final Long accountId, final Database<Connection> database) throws Exception {
+    private Json _insertReviewVote(final HttpServletRequest request, final long reviewId, final Account currentAccount, final Database<Connection> database) throws Exception {
         try {
             final Json response = new Json(false);
             final Json jsonRequest = _getRequestDataAsJson(request);
             final Json reviewVoteJson = jsonRequest.get("reviewVote");
-            final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, accountId, database);
+            final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, currentAccount, database);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertReviewVote(reviewVote, reviewId);
@@ -247,13 +265,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _updateReviewVote(final HttpServletRequest httpRequest, final long reviewVoteId, final long accountId, final Database<Connection> database) {
+    private Json _updateReviewVote(final HttpServletRequest httpRequest, final long reviewVoteId, final Account currentAccount, final Database<Connection> database) {
         try {
             final Json request = _getRequestDataAsJson(httpRequest);
             final Json reviewVoteJson = request.get("reviewVote");
             final Json response = new Json(false);
 
-            final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, accountId, database);
+            final ReviewVote reviewVote = _populateReviewVoteFromJson(reviewVoteJson, currentAccount, database);
             reviewVote.setId(reviewVoteId);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -322,11 +340,11 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _addReviewComment(final HttpServletRequest request, final long reviewId, final Long accountId, final Database<Connection> database) {
+    private Json _addReviewComment(final HttpServletRequest request, final long reviewId, final Account currentAccount, final Database<Connection> database) {
         try {
             final Json requestJson = _getRequestDataAsJson(request);
             final Json reviewCommentJson = requestJson.get("reviewComment");
-            final ReviewComment reviewComment = _populateReviewCommentFromJson(reviewCommentJson, accountId, database);
+            final ReviewComment reviewComment = _populateReviewCommentFromJson(reviewCommentJson, currentAccount, database);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertReviewComment(reviewComment, reviewId);
@@ -401,39 +419,27 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         return review;
     }
 
-    private ReviewVote _populateReviewVoteFromJson(final Json reviewVoteJson, final long accountId, final Database<Connection> database) throws DatabaseException {
+    private ReviewVote _populateReviewVoteFromJson(final Json reviewVoteJson, final Account currentAccount, final Database<Connection> database) throws DatabaseException {
         final long id = reviewVoteJson.getLong("id");
         final boolean isUpvote = reviewVoteJson.getBoolean("isUpvote");
-
-        final Account account;
-        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            AccountInflater accountInflater = new AccountInflater(databaseConnection);
-            account = accountInflater.inflateAccount(accountId);
-        }
 
         final ReviewVote reviewVote = new ReviewVote();
 
         reviewVote.setId(id);
-        reviewVote.setAccount(account);
+        reviewVote.setAccount(currentAccount);
         reviewVote.setIsUpvote(isUpvote);
 
         return reviewVote;
     }
 
-    private ReviewComment _populateReviewCommentFromJson(final Json reviewCommentJson, final long accountId, final Database<Connection> database) throws DatabaseException {
+    private ReviewComment _populateReviewCommentFromJson(final Json reviewCommentJson, final Account currentAccount, final Database<Connection> database) throws DatabaseException {
         final long id = reviewCommentJson.getLong("id");
         final String commentText = reviewCommentJson.getString("commentText");
 
         final ReviewComment reviewComment = new ReviewComment();
 
-        final Account account;
-        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            AccountInflater accountInflater = new AccountInflater(databaseConnection);
-            account = accountInflater.inflateAccount(accountId);
-        }
-
         reviewComment.setId(id);
-        reviewComment.setAccount(account);
+        reviewComment.setAccount(currentAccount);
         reviewComment.setCommentText(commentText);
 
         return reviewComment;

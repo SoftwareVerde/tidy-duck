@@ -2,7 +2,12 @@ package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
 import com.softwareverde.mostadapter.MostAdapter;
+import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.AuthorizationException;
+import com.softwareverde.tidyduck.Permission;
+import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
@@ -28,7 +33,16 @@ public class MostGeneratorServlet extends BaseServlet {
         final Database<Connection> database = environment.getDatabase();
 
         if (! Session.isAuthenticated(request)) {
-            _authenticationError(response);
+            _logger.error("Rejected unauthenticated user.");
+            _authorizationError(response);
+            return;
+        }
+
+        try {
+            checkPermissions(request, environment.getDatabase());
+        } catch (Exception e) {
+            _logger.error("Unable to authorize user.", e);
+            _authorizationError(response);
             return;
         }
 
@@ -39,6 +53,16 @@ public class MostGeneratorServlet extends BaseServlet {
             return;
         }
         _returnMostXmlAsAttachment(functionCatalogId, response, database);
+    }
+
+    private void checkPermissions(final HttpServletRequest request, final Database<Connection> database) throws DatabaseException, AuthorizationException {
+        final long accountId = Session.getAccountId(request);
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final AccountInflater accountInflater = new AccountInflater(databaseConnection);
+            final Account currentAccount = accountInflater.inflateAccount(accountId);
+
+            currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+        }
     }
 
     private void _returnMostXmlAsAttachment(final long functionCatalogId, final HttpServletResponse response, final Database<Connection> database) throws IOException {
@@ -74,7 +98,7 @@ public class MostGeneratorServlet extends BaseServlet {
         writer.write("Unable to generate MOST.");
     }
 
-    private void _authenticationError(final HttpServletResponse response) throws IOException {
+    private void _authorizationError(final HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         final PrintWriter writer = response.getWriter();
         writer.write("Not authorized.");
