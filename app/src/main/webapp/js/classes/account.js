@@ -29,7 +29,7 @@ class Account {
             username: account.getUsername(),
             company: company,
             settings: settings,
-            permissions: accounts.getPermissions()
+            permissions: account.getPermissions()
         }
     }
 
