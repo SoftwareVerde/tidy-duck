@@ -5,7 +5,7 @@ class Account {
         const username = json.username;
         const company = Company.fromJson(json.company);
         const settings = Settings.fromJson(json.settings);
-        const permissions = json.permissions;
+        const roles = json.roles.map(Role.fromJson);
 
         const account = new Account();
 
@@ -14,22 +14,23 @@ class Account {
         account.setUsername(username);
         account.setCompany(company);
         account.setSettings(settings);
-        account.setPermissions(permissions);
+        account.setRoles(roles);
 
         return account;
     }
 
     static toJson(account) {
-        const company = Company.toJson(account.getCompany());
-        const settings = Settings.toJson(account.getSettings());
+        const companyJson = Company.toJson(account.getCompany());
+        const settingsJson = Settings.toJson(account.getSettings());
+        const rolesJson = account.getRoles().map(Role.toJson);
 
         return {
             id: account.getId(),
             name: account.getName(),
             username: account.getUsername(),
-            company: company,
-            settings: settings,
-            permissions: account.getPermissions()
+            company: companyJson,
+            settings: settingsJson,
+            roles: rolesJson
         }
     }
 
@@ -39,7 +40,7 @@ class Account {
         this._username = null;
         this._company = null;
         this._settings = null;
-        this._permissions = [];
+        this._roles = [];
     }
 
     setId(id) {
@@ -82,16 +83,32 @@ class Account {
         return this._settings;
     }
 
-    setPermissions(permissions) {
-        this._permissions = permissions;
+    setRoles(roles) {
+        this._roles = roles;
+    }
+
+    getRoles() {
+        return this._roles;
+    }
+
+    hasRole(roleName) {
+        for (let i in this._roles) {
+            const role = this._roles[i];
+            if (role.getName() == roleName) {
+                return true;
+            }
+        }
+        return false;
     }
 
     hasPermission(permission) {
-        return this._permissions.includes(permission);
-    }
-
-    getPermissions() {
-        return this._permissions;
+        for (let i in this._roles) {
+            const role = this._roles[i];
+            if (role.getPermissions().includes(permission)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -1,5 +1,5 @@
 
-function downloadAccount(callback) {
+function checkAccount(callback) {
     jsonFetch(
         new Request(
             API_PREFIX + "account",
