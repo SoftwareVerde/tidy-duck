@@ -1,16 +1,16 @@
 
 CREATE TABLE roles (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id)
+    name VARCHAR(255) NOT NULL
 ) ENGINE=INNODB;
 
-INSERT INTO roles (name)
+INSERT INTO roles
 VALUES
-        (1, 'Read-Only'),
-        (2, 'Developer'),
-        (3, 'Release Manager'),
-        (4, 'Admin');
+        (1, 'Admin'),
+        (2, 'Release'),
+        (3, 'Modify'),
+        (4, 'Review'),
+        (5, 'View');
 
 CREATE TABLE roles_permissions (
     role_id INT UNSIGNED NOT NULL,
@@ -31,12 +31,13 @@ CREATE TABLE roles_permissions (
     FOREIGN KEY fk_roles_permissions_role_id (role_id) REFERENCES roles (id)
 );
 
-INSERT INTO roles_permissions (role_id, read_most, modify_most, release_most, create_users, modify_users, delete_users)
+INSERT INTO roles_permissions
 VALUES
-        (1, 1, 0, 0, 0, 0, 0),
-        (2, 1, 1, 0, 0, 0, 0),
-        (3, 1, 1, 1, 0, 0, 0),
-        (4, 0, 0, 0, 1, 1, 1);
+        (1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        (2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1),
+        (3, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1),
+        (4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1),
+        (5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1);
 
 CREATE TABLE accounts_roles (
     account_id INT UNSIGNED NOT NULL,
@@ -44,4 +45,7 @@ CREATE TABLE accounts_roles (
     FOREIGN KEY fk_accounts_roles_account_id (account_id) REFERENCES accounts (id),
     FOREIGN KEY fk_accounts_roles_role_id (role_id) REFERENCES roles(id)
 ) ENGINE=INNODB;
+
+-- provide all existing accounts all roles
+INSERT INTO accounts_roles SELECT accounts.id, roles.id FROM accounts, roles;
 
