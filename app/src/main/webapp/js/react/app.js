@@ -2372,7 +2372,8 @@ class App extends React.Component {
                     activeSubRole:              null,
                     showSettingsPage:           false,
                     currentReview:              null
-                })
+                });
+                this.getAllCompanies();
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
