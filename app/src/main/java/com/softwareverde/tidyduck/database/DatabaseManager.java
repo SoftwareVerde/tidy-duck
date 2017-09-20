@@ -387,4 +387,14 @@ public class DatabaseManager {
             }
         });
     }
+
+    public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+                accountDatabaseManager.updateAccountRoles(accountId, roles);
+            }
+        });
+    }
 }
