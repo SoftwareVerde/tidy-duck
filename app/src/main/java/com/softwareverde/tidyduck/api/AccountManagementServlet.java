@@ -4,10 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.AuthorizationException;
-import com.softwareverde.tidyduck.Permission;
-import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.CompanyInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
@@ -22,13 +19,32 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
     public AccountManagementServlet() {
-        super.defineEndpoint("account/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("accounts", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                return _getAccounts(environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("accounts", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_CREATE_USERS);
+
+                return _insertAccount(request, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("accounts/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -44,7 +60,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("account/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("accounts/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -59,15 +75,29 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 return _changePassword(providedAccountId, request, environment.getDatabase());
             }
         });
+    }
 
-        super.defineEndpoint("account/create", HttpMethod.POST, new AuthenticatedJsonRoute() {
-            @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                currentAccount.requirePermission(Permission.ADMIN_CREATE_USERS);
+    private Json _getAccounts(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final AccountInflater accountInflater = new AccountInflater(databaseConnection);
+            final List<Account> accounts = accountInflater.inflateAccounts();
 
-                return _insertAccount(request, environment.getDatabase());
+            final Json response = new Json(false);
+
+            final Json accountsJson = new Json(true);
+            for (final Account account : accounts) {
+                final Json accountJson = _toJson(account);
+                accountsJson.add(accountJson);
             }
-        });
+            response.put("accounts", accountsJson);
+
+            _setJsonSuccessFields(response);
+            return response;
+
+        } catch (DatabaseException e) {
+            _logger.error("Unable to get accounts.", e);
+            return _generateErrorJson("Unable to get accounts.");
+        }
     }
 
     protected Json _getAccount(final Account currentAccount, final Long accountId, final Database<Connection> database) throws AuthorizationException {
@@ -167,7 +197,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         json.put("username", account.getUsername());
         json.put("company", _toJson(account.getCompany()));
         json.put("settings", _toJson(account.getSettings()));
-        json.put("permissions", _toJson(account.getPermissions()));
+        json.put("roles", _toJson(account.getRoles()));
 
         return json;
     }
@@ -189,11 +219,21 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         return json;
     }
 
-    private Json _toJson(final Collection<Permission> permissions) {
+    private Json _toJson(final Collection<Role> roles) {
         final Json json = new Json(true);
 
-        for (final Permission permission : permissions) {
-            json.add(permission.name());
+        for (final Role role : roles) {
+            final Json roleJson = new Json(false);
+
+            final Json permissionsJson = new Json(true);
+            for (final Permission permission : role.getPermissions()) {
+                permissionsJson.add(permission.name());
+            }
+
+            roleJson.put("name", role.getName());
+            roleJson.put("permissions", permissionsJson);
+
+            json.add(roleJson);
         }
 
         return json;

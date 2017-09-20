@@ -15,7 +15,7 @@ public class Account {
     private Company _company;
 
     private Settings _settings;
-    private Set<Permission> _permissions = new HashSet<>();
+    private Set<Role> _roles = new HashSet<>();
 
     public Long getId() {
         return _id;
@@ -65,20 +65,33 @@ public class Account {
         this._settings = settings;
     }
 
-    public Collection<Permission> getPermissions() {
-        return new HashSet<>(_permissions);
+    public Collection<Role> getRoles() {
+        return new HashSet<>(_roles);
+    }
+
+    public void addRole(final Role role) {
+        _roles.add(role);
+    }
+
+    public void setRoles(final Collection<Role> roles) {
+        _roles = new HashSet<>(roles);
     }
 
     /**
-     * <p>Adds the permission.  Will not result in duplicates if a permission is already present.</p>
+     * <p>Returns all of the permissions the account has (i.e. those associated with each of its roles).</p>
      * @param permission
+     * @return
      */
-    public void addPermission(final Permission permission) {
-        _permissions.add(permission);
+    public Collection<Permission> getPermissions(final Permission permission) {
+        return _getAllRolePermissions();
     }
 
-    public void setPermissions(final Collection<Permission> permissions) {
-        _permissions = new HashSet<>(permissions);
+    private Collection<Permission> _getAllRolePermissions() {
+        HashSet<Permission> permissions = new HashSet<>();
+        for (final Role role : _roles) {
+            permissions.addAll(role.getPermissions());
+        }
+        return permissions;
     }
 
     /**
@@ -87,7 +100,7 @@ public class Account {
      * @return
      */
     public boolean hasPermission(final Permission permission) {
-        return _permissions.contains(permission);
+        return _getAllRolePermissions().contains(permission);
     }
 
     /**
@@ -96,7 +109,7 @@ public class Account {
      * @throws AuthorizationException
      */
     public void requirePermission(final Permission permission) throws AuthorizationException {
-        if (!_permissions.contains(permission)) {
+        if (!_getAllRolePermissions().contains(permission)) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("User ");
             stringBuilder.append(_username);

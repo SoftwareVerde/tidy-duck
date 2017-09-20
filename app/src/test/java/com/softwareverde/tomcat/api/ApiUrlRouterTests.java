@@ -4,6 +4,7 @@ import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.FakeEnvironment;
 import com.softwareverde.tidyduck.Permission;
+import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.api.AuthenticatedJsonRoute;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.FakeRequest;
@@ -17,15 +18,17 @@ import java.util.Map;
 
 public class ApiUrlRouterTests {
 
-    private Account accountWithAllPermissions;
+    private Account masterAccount;
 
     @Before
     public void setup() {
-        accountWithAllPermissions = new Account();
-        accountWithAllPermissions.setId(0L);
+        masterAccount = new Account();
+        masterAccount.setId(0L);
+        Role masterRole = new Role();
         for (Permission permission : Permission.values()) {
-            accountWithAllPermissions.addPermission(permission);
+            masterRole.addPermission(permission);
         }
+        masterAccount.addRole(masterRole);
     }
 
     @Test
@@ -44,7 +47,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
 
         // Assert
@@ -71,7 +74,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(errorJson.toString(), json.toString());
@@ -106,7 +109,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
@@ -146,7 +149,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
@@ -190,7 +193,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
@@ -226,7 +229,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(errorJson.toString(), json.toString());
@@ -260,7 +263,7 @@ public class ApiUrlRouterTests {
 
         // Action
         final ApiRoute<AuthenticatedJsonRoute> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
-        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, accountWithAllPermissions, new FakeEnvironment());
+        final Json json = route.getRoute().handleAuthenticatedRequest(route.getParameters(), fakeRequest, BaseServlet.HttpMethod.GET, masterAccount, new FakeEnvironment());
 
         // Assert
         Assert.assertEquals(objectJson.toString(), json.toString());
