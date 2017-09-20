@@ -475,12 +475,24 @@
     width: 100%;
 }
 
+.accounts-table thead tr {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.accounts-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.accounts-table tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
 .accounts-table .input-field-small {
     float: none;
 }
 
 .accounts-table div.button {
-    margin: 0px;
+    margin: 5px 10px 10px 5px;
     width: auto;
 }
 
