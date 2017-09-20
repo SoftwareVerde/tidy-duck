@@ -49,6 +49,13 @@ public class DatabaseManager {
         }
     }
 
+    public String resetPassword(final long accountId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.resetPassword(accountId);
+        }
+    }
+
     public boolean insertCompany(final Company company) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);

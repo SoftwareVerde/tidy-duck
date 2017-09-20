@@ -8,6 +8,7 @@ import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.util.Util;
 
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.List;
 
@@ -67,6 +68,13 @@ class AccountDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public String resetPassword(final long accountId) throws DatabaseException {
+        final String newPassword = SecureHashUtil.generateRandomPassword();
+        _changePassword(accountId, newPassword);
+
+        return newPassword;
     }
 
     public boolean changePassword(final long accountId, final String oldPassword, final String newPassword) throws DatabaseException {
