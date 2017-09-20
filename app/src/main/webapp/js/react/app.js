@@ -74,6 +74,7 @@ class App extends React.Component {
 
         this.state = {
             account:                    null,
+            companies:                  [],
             navigationItems:            [],
             parentHistory:              [],
             searchResults:              [],
@@ -127,6 +128,7 @@ class App extends React.Component {
 
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
+        this.getAllCompanies = this.getAllCompanies.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
 
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
@@ -206,6 +208,8 @@ class App extends React.Component {
                 isLoadingChildren:      false
             });
         });
+
+        this.getAllCompanies()
     }
 
     onDuckClick() {
@@ -265,6 +269,29 @@ class App extends React.Component {
         company.setId(this.state.account.companyId);
         company.setName(this.state.account.companyName);
         return company;
+    }
+
+    getAllCompanies() {
+        const thisApp = this;
+
+        getCompanies(function(data) {
+            if (data.wasSuccess) {
+                const companiesJson = data.companies;
+                const companies = [];
+
+                for (let i in companiesJson) {
+                    const company = Company.fromJson(companiesJson[i]);
+                    companies.push(company);
+                }
+
+                thisApp.setState({
+                    companies: companies
+                });
+            }
+            else {
+                console.error("Unable to get companies:" + data.errorMessage);
+            }
+        });
     }
 
     onUpdateFunctionCatalog(functionCatalog) {
@@ -2780,7 +2807,7 @@ class App extends React.Component {
                     // accounts role
                     return (
                         <div id="main-content" className="container">
-                            <app.AccountsPage />
+                            <app.AccountsPage companies={this.state.companies}/>
                         </div>
                     );
                 } break;

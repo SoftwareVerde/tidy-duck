@@ -17,13 +17,14 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
     
     public AccountManagementServlet() {
-        super.defineEndpoint("account/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("accounts/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -34,7 +35,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("account/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("accounts/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -45,10 +46,17 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("account/create", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("accounts/create", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
                 return _insertAccount(request, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("accounts/companies/get-all", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _getCompanies(environment.getDatabase());
             }
         });
     }
@@ -68,6 +76,28 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         } catch (DatabaseException e) {
             _logger.error("Unable to get account.", e);
             return _generateErrorJson("Unable to get account.");
+        }
+    }
+
+    protected Json _getCompanies(final Database<Connection> database) throws DatabaseException {
+        final Json response = _generateSuccessJson();
+        final Json companiesJson = new Json();
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final CompanyInflater companyInflater = new CompanyInflater(databaseConnection);
+            final List<Company> companies = companyInflater.inflateAllCompanies();
+
+            for (final Company company : companies) {
+                final Json companyJson = _toJson(company);
+                companiesJson.add(companyJson);
+            }
+
+            response.put("companies", companiesJson);
+            return response;
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to get companies from database.", e);
+            return _generateErrorJson("Unable to get companies from database.");
         }
     }
 

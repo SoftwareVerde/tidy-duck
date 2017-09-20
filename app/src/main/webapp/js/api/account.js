@@ -2,7 +2,7 @@
 function getAccount(accountId, callbackFunction) {
     jsonFetch(
         new Request(
-            API_PREFIX + "account/" + accountId
+            API_PREFIX + "accounts/" + accountId
         ),
         function (data) {
             let account = null;
@@ -18,6 +18,22 @@ function getAccount(accountId, callbackFunction) {
             }
         }
     );
+}
+
+function getCompanies(callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "accounts/companies/get-all",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
 }
 
 function downloadAccount(callback) {
@@ -56,7 +72,7 @@ function updateSettings(settings, callback) {
 
 function createNewAccount(account, callback) {
     const request = new Request(
-        API_PREFIX + "account/create",
+        API_PREFIX + "accounts/create",
         {
             method: "POST",
             credentials: "include",
@@ -64,7 +80,7 @@ function createNewAccount(account, callback) {
                 "account":    account
             })
         }
-    )
+    );
     jsonFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
@@ -75,7 +91,7 @@ function createNewAccount(account, callback) {
 
 function changePassword(accountId, oldPassword, newPassword, callback) {
     const request = new Request(
-        API_PREFIX + "account/" + accountId + "/change-password",
+        API_PREFIX + "accounts/" + accountId + "/change-password",
         {
             method: "POST",
             credentials: "include",

@@ -3,7 +3,7 @@ class AccountsPage extends React.Component {
         super(props);
 
         const account = new Account();
-        const company = new Company();
+        const company = this.props.companies[0];
         account.setCompany(company);
 
         this.SaveButtonState = {
@@ -20,7 +20,7 @@ class AccountsPage extends React.Component {
 
         this.onNewAccountUsernameChanged = this.onNewAccountUsernameChanged.bind(this);
         this.onNewAccountNameChanged = this.onNewAccountNameChanged.bind(this);
-        this.onNewAccountCompanyIdChanged = this.onNewAccountCompanyIdChanged.bind(this);
+        this.onNewAccountCompanyChanged = this.onNewAccountCompanyChanged.bind(this);
         this.onSubmitNewAccount = this.onSubmitNewAccount.bind(this);
         this.renderCreateAccountForm = this.renderCreateAccountForm.bind(this);
         this.renderCreateAccountButtonText = this.renderCreateAccountButtonText.bind(this);
@@ -50,12 +50,17 @@ class AccountsPage extends React.Component {
         });
     }
 
-    onNewAccountCompanyIdChanged(value) {
-        // TODO: maybe this should be a select field with company names?
+    onNewAccountCompanyChanged(value) {
         const account = this.state.newAccount;
-        const company = account.getCompany();
-        company.setId(value);
-        account.setCompany(company);
+        const companies = this.props.companies;
+
+        for (let i in companies) {
+            const company = companies[i];
+            if (company.getName() == value) {
+                account.setCompany(company);
+                break;
+            }
+        }
 
         this.setState({
             newAccount: account,
@@ -122,6 +127,12 @@ class AccountsPage extends React.Component {
 
     renderCreateAccountForm() {
         const account = this.state.newAccount;
+        const companies = this.props.companies;
+        const companyOptions = [];
+
+        for (let i in companies) {
+            companyOptions.push(companies[i].getName());
+        }
 
         let createAccountSaveButton = <input type="submit" id="create-account-button" className="button" value={this.renderCreateAccountButtonText()} />;
         if (this.state.createAccountButtonState === this.SaveButtonState.saving) {
@@ -133,7 +144,7 @@ class AccountsPage extends React.Component {
                 <h1>Create Account</h1>
                 <app.InputField type="text" label="Username" name="username" value={account.getUsername()} onChange={this.onNewAccountUsernameChanged} isRequired={true}/>
                 <app.InputField type="text" label="Name" name="name" value={account.getName()} onChange={this.onNewAccountNameChanged} isRequired={true}/>
-                <app.InputField type="text" label="Company ID" name="name" value={account.getCompany().getId()} onChange={this.onNewAccountCompanyIdChanged} isRequired={true}/>
+                <app.InputField type="select" label="Company" name="company" value={account.getCompany().getName()} options={companyOptions} onChange={this.onNewAccountCompanyChanged} isRequired={true}/>
                 {createAccountSaveButton}
             </form>
         );

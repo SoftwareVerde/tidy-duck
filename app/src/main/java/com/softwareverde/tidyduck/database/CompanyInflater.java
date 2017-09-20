@@ -7,6 +7,7 @@ import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.most.Company;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CompanyInflater {
@@ -14,6 +15,24 @@ public class CompanyInflater {
 
     public CompanyInflater(final DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
+    }
+
+    public List<Company> inflateAllCompanies() throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM companies"
+        );
+
+        final List<Company> companies = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+
+        for (final Row row : rows) {
+            final Company company = new Company();
+            company.setId(row.getLong("id"));
+            company.setName(row.getString("name"));
+            companies.add(company);
+        }
+
+        return companies;
     }
 
     public Company inflateCompany(long companyId) throws DatabaseException {
