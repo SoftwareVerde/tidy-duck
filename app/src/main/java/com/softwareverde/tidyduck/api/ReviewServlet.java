@@ -194,6 +194,25 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 return _generateErrorJson(errorMessage);
             }
 
+            // Check review votes for at least one upvote from someone other than the review's creator.
+            final List<ReviewVote> reviewVotes = review.getReviewVotes();
+            long voteCounter = 0;
+            for (ReviewVote reviewVote : reviewVotes) {
+                if (reviewVote.isUpvote()) {
+                    final long reviewVoteAccountId = reviewVote.getAccount().getId();
+                    if (reviewVoteAccountId != reviewAccountId) {
+                        voteCounter++;
+                    }
+                }
+
+            }
+
+            if (voteCounter == 0) {
+                final String errorMessage = "Unable approve review: a review must be upvoted by at least one person other than the review's creator.";
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.approveReview(review);
         }
