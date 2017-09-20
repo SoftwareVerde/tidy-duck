@@ -54,6 +54,23 @@ function getAccount(accountId, callbackFunction) {
     );
 }
 
+function getAccounts(callbackFunction) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "accounts"
+        ),
+        function (data) {
+            if (!data.wasSuccess) {
+                console.log("Unable to get accounts: " + data.errorMessage);
+            }
+
+            if (typeof callbackFunction == "function") {
+                callbackFunction(data);
+            }
+        }
+    );
+}
+
 function updateSettings(settings, callback) {
     const request = new Request(
         API_PREFIX + "settings",
