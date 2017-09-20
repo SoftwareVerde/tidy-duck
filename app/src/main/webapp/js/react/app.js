@@ -2410,7 +2410,7 @@ class App extends React.Component {
         this.setTheme(themeName);
 
         const account = this.state.account;
-        account.getSetting().setTheme(themeName);
+        account.getSettings().setTheme(themeName);
 
         this.setState({
             account: account
