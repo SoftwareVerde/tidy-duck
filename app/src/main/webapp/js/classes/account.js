@@ -87,6 +87,10 @@ class Account {
         this._roles = roles;
     }
 
+    addRole(role) {
+        this._roles.push(role);
+    }
+
     getRoles() {
         return this._roles;
     }
@@ -99,6 +103,16 @@ class Account {
             }
         }
         return false;
+    }
+
+    removeRoleByName(roleName) {
+        for (let i in this._roles) {
+            const role = this._roles[i];
+            if (role.getName() == roleName) {
+                // remove role (index i, only that one)
+                this._roles.splice(i, 1);
+            }
+        }
     }
 
     hasPermission(permission) {
