@@ -1,4 +1,38 @@
 
+function checkAccount(callback) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "account",
+            {
+                method:         "GET",
+                credentials:    "include"
+            }
+        ),
+        function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
+function logout(callback) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "account/logout",
+            {
+                method:         "GET",
+                credentials:    "include"
+            }
+        ),
+        function (data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
 function getAccount(accountId, callbackFunction) {
     jsonFetch(
         new Request(
@@ -20,6 +54,23 @@ function getAccount(accountId, callbackFunction) {
     );
 }
 
+function getAccounts(callbackFunction) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "accounts"
+        ),
+        function (data) {
+            if (!data.wasSuccess) {
+                console.log("Unable to get accounts: " + data.errorMessage);
+            }
+
+            if (typeof callbackFunction == "function") {
+                callbackFunction(data);
+            }
+        }
+    );
+}
+
 function getCompanies(callbackFunction) {
     const request = new Request(
         API_PREFIX + "accounts/companies/get-all",
@@ -34,23 +85,6 @@ function getCompanies(callbackFunction) {
             callbackFunction(data);
         }
     });
-}
-
-function downloadAccount(callback) {
-    jsonFetch(
-        new Request(
-            API_PREFIX + "account",
-            {
-                method:         "GET",
-                credentials:    "include"
-            }
-        ),
-        function(data) {
-            if (typeof callback == "function") {
-                callback(data);
-            }
-        }
-    );
 }
 
 function updateSettings(settings, callback) {
@@ -72,7 +106,7 @@ function updateSettings(settings, callback) {
 
 function createNewAccount(account, callback) {
     const request = new Request(
-        API_PREFIX + "accounts/create",
+        API_PREFIX + "accounts",
         {
             method: "POST",
             credentials: "include",
@@ -102,23 +136,6 @@ function changePassword(accountId, oldPassword, newPassword, callback) {
         }
     )
     jsonFetch(request, function(data) {
-            if (typeof callback == "function") {
-                callback(data);
-            }
-        }
-    );
-}
-
-function logout(callback) {
-    jsonFetch(
-        new Request(
-            API_PREFIX + "account/logout",
-            {
-                method:         "GET",
-                credentials:    "include"
-            }
-        ),
-        function (data) {
             if (typeof callback == "function") {
                 callback(data);
             }

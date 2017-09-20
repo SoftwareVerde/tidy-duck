@@ -1,9 +1,10 @@
 package com.softwareverde.tidyduck.api;
 
-import com.softwareverde.database.*;
+import com.softwareverde.database.Database;
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.CompanyInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
@@ -17,51 +18,98 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
-    
+
     public AccountManagementServlet() {
+        super.defineEndpoint("accounts", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                return _getAccounts(environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("accounts", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_CREATE_USERS);
+
+                return _insertAccount(request, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("accounts/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
                 if (providedAccountId < 1) {
                     return _generateErrorJson("Invalid account ID provided.");
                 }
-                return _getAccount(providedAccountId, environment.getDatabase());
+
+                if (!currentAccount.getId().equals(providedAccountId)) {
+                    currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+                }
+
+                return _getAccount(currentAccount, providedAccountId, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("accounts/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
                 if (providedAccountId < 1) {
                     return _generateErrorJson("Invalid account ID provided.");
                 }
-                return _changePassword(providedAccountId, request, environment.getDatabase());
-            }
-        });
 
-        super.defineEndpoint("accounts/create", HttpMethod.POST, new AuthenticatedJsonRoute() {
-            @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _insertAccount(request, environment.getDatabase());
+                if (!currentAccount.getId().equals(providedAccountId)) {
+                    currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+                }
+
+                return _changePassword(providedAccountId, request, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("accounts/companies/get-all", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
                 return _getCompanies(environment.getDatabase());
             }
         });
     }
 
-    protected Json _getAccount(final Long accountId, final Database<Connection> database) {
+    private Json _getAccounts(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final AccountInflater accountInflater = new AccountInflater(databaseConnection);
+            final List<Account> accounts = accountInflater.inflateAccounts();
+
+            final Json response = new Json(false);
+
+            final Json accountsJson = new Json(true);
+            for (final Account account : accounts) {
+                final Json accountJson = _toJson(account);
+                accountsJson.add(accountJson);
+            }
+            response.put("accounts", accountsJson);
+
+            _setJsonSuccessFields(response);
+            return response;
+
+        } catch (DatabaseException e) {
+            _logger.error("Unable to get accounts.", e);
+            return _generateErrorJson("Unable to get accounts.");
+        }
+    }
+
+    protected Json _getAccount(final Account currentAccount, final Long accountId, final Database<Connection> database) throws AuthorizationException {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final AccountInflater accountInflater = new AccountInflater(databaseConnection);
             final Account account = accountInflater.inflateAccount(accountId);
@@ -142,13 +190,13 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _changePassword(final Long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
-        final Json jsonRequest = _getRequestDataAsJson(request);
-        final Json response = _generateSuccessJson();
-        final String oldPassword = jsonRequest.getString("oldPassword");
-        final String newPassword = jsonRequest.getString("newPassword");
-
+    protected Json _changePassword(final long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
         try {
+            final Json jsonRequest = _getRequestDataAsJson(request);
+            final Json response = _generateSuccessJson();
+            final String oldPassword = jsonRequest.getString("oldPassword");
+            final String newPassword = jsonRequest.getString("newPassword");
+
             if (Util.isBlank(oldPassword)) {
                 _logger.error("Unable to change password. Old password is invalid.");
                 return _generateErrorJson("Old password is invalid.");
@@ -163,13 +211,13 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 _logger.error("Unable to change password. Invalid credentials.");
                 return _generateErrorJson("Invalid credentials.");
             }
+
+            return response;
         }
         catch (final Exception e) {
             _logger.error("Unable to attempt password change.", e);
             return _generateErrorJson("Unable to attempt password change: " + e.getMessage());
         }
-
-        return response;
     }
 
     protected Json _toJson(final Account account) {
@@ -180,6 +228,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         json.put("username", account.getUsername());
         json.put("company", _toJson(account.getCompany()));
         json.put("settings", _toJson(account.getSettings()));
+        json.put("roles", _toJson(account.getRoles()));
 
         return json;
     }
@@ -197,6 +246,26 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         final Json json = new Json(false);
 
         json.put("theme", settings.getTheme());
+
+        return json;
+    }
+
+    private Json _toJson(final Collection<Role> roles) {
+        final Json json = new Json(true);
+
+        for (final Role role : roles) {
+            final Json roleJson = new Json(false);
+
+            final Json permissionsJson = new Json(true);
+            for (final Permission permission : role.getPermissions()) {
+                permissionsJson.add(permission.name());
+            }
+
+            roleJson.put("name", role.getName());
+            roleJson.put("permissions", permissionsJson);
+
+            json.add(roleJson);
+        }
 
         return json;
     }

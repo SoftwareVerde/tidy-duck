@@ -192,11 +192,14 @@ class App extends React.Component {
 
         const thisApp = this;
 
-        downloadAccount(function (data) {
-            if (data.wasSuccess) {
-                thisApp.setTheme(data.account.theme);
-                thisApp.setState({
-                    account:    data.account
+        checkAccount(function (checkData) {
+            if (checkData.wasSuccess) {
+                getAccount(checkData.accountId, function(accountData) {
+                    const account = Account.fromJson(accountData);
+                    thisApp.setTheme(account.getSettings().getTheme());
+                    thisApp.setState({
+                        account: account
+                    });
                 });
             }
         });
@@ -258,17 +261,11 @@ class App extends React.Component {
     }
 
     getCurrentAccountAuthor() {
-        const author = new Author();
-        author.setId(this.state.account.id);
-        author.setName(this.state.account.name);
-        return author;
+        return this.state.account.toAuthor();
     }
 
     getCurrentAccountCompany() {
-        const company = new Company();
-        company.setId(this.state.account.companyId);
-        company.setName(this.state.account.companyName);
-        return company;
+        return this.state.account.getCompany();
     }
 
     getAllCompanies() {
@@ -2052,7 +2049,7 @@ class App extends React.Component {
         const thisApp = this;
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const account = Account.fromJson(this.state.account);
+        const account = this.state.account;
         const reviewId = currentReview.getId();
 
         // Check existing votes to see if this account has any
@@ -2114,7 +2111,7 @@ class App extends React.Component {
     isReviewVoteSelected() {
         const currentReview = this.state.currentReview;
         const currentReviewVotes = currentReview.getReviewVotes();
-        const accountId = this.state.account.id;
+        const accountId = this.state.account.getId();
 
         // Check existing votes to see if this account has any
         for (let i in currentReviewVotes) {
@@ -2389,8 +2386,10 @@ class App extends React.Component {
 
     onThemeChange(themeName) {
         this.setTheme(themeName);
+
         const account = this.state.account;
-        account.theme = themeName;
+        account.getSetting().setTheme(themeName);
+
         this.setState({
             account: account
         });
@@ -2767,7 +2766,7 @@ class App extends React.Component {
         if (shouldShowApprovalForm) {
             reactComponents.push(
                 <app.ApprovalForm key="approvalForm"
-                                  account={Account.fromJson(this.state.account)}
+                                  account={this.state.account}
                                   review={this.state.currentReview}
                                   shouldShowVoteButtons={true}
                                   shouldShowSaveAnimation={shouldAnimateCreateButton}
@@ -2784,8 +2783,8 @@ class App extends React.Component {
 
     renderMainContent() {
         if (this.state.showSettingsPage) {
-            const theme = this.state.account ? this.state.account.theme : "Tidy";
-            const accountId = this.state.account.id;
+            const theme = this.state.account ? this.state.account.getSettings().getTheme() : "Tidy";
+            const accountId = this.state.account.getId();
             return (
                 <div id="main-content" className="container">
                     <app.SettingsPage theme={theme} accountId={accountId} onThemeChange={this.onThemeChange}/>
@@ -2912,7 +2911,7 @@ class App extends React.Component {
     }
 
     render() {
-        const accountName = this.state.account ? this.state.account.name : "";
+        const accountName = this.state.account ? this.state.account.getName() : "";
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">

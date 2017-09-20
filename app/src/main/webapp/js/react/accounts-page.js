@@ -15,8 +15,22 @@ class AccountsPage extends React.Component {
 
         this.state = {
             newAccount: account,
-            createAccountButtonState: this.SaveButtonState.submit
+            createAccountButtonState: this.SaveButtonState.submit,
+            isLoadingAccounts: true
         };
+
+        const thisPage = this;
+        getAccounts(function (data) {
+            if (data.wasSuccess) {
+                const accountsJson = data.accounts;
+                const accounts = accountsJson.map(Account.fromJson);
+
+                thisPage.setState({
+                    accounts: accounts,
+                    isLoadingAccounts: false
+                });
+            }
+        });
 
         this.onNewAccountUsernameChanged = this.onNewAccountUsernameChanged.bind(this);
         this.onNewAccountNameChanged = this.onNewAccountNameChanged.bind(this);
@@ -24,6 +38,8 @@ class AccountsPage extends React.Component {
         this.onSubmitNewAccount = this.onSubmitNewAccount.bind(this);
         this.renderCreateAccountForm = this.renderCreateAccountForm.bind(this);
         this.renderCreateAccountButtonText = this.renderCreateAccountButtonText.bind(this);
+        this.renderAccountAdministrationData = this.renderAccountAdministrationData.bind(this);
+        this.renderRoleComponents = this.renderRoleComponents.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -140,7 +156,7 @@ class AccountsPage extends React.Component {
         }
 
         return (
-            <form id="settings-container" onSubmit={this.onSubmitNewAccount}>
+            <form className="small-container" onSubmit={this.onSubmitNewAccount}>
                 <h1>Create Account</h1>
                 <app.InputField type="text" label="Username" name="username" value={account.getUsername()} onChange={this.onNewAccountUsernameChanged} isRequired={true}/>
                 <app.InputField type="text" label="Name" name="name" value={account.getName()} onChange={this.onNewAccountNameChanged} isRequired={true}/>
@@ -150,10 +166,69 @@ class AccountsPage extends React.Component {
         );
     }
 
+    renderAccountAdministrationData() {
+        if (this.state.isLoadingAccounts) {
+            return (
+                <div className="center">
+                    <i className="fa fa-3x fa-spin fa-refresh"></i>
+                </div>
+            );
+        }
+
+        const administrationTableRows = [];
+
+        for (let i in this.state.accounts) {
+            const account = this.state.accounts[i];
+
+            administrationTableRows.push(
+                <tr key={i}>
+                    <td key="name">{account.getName()}</td>
+                    <td key="roles">{this.renderRoleComponents(account)}</td>
+                    <td key="reset"><div className="button">Reset Password</div></td>
+                </tr>
+            );
+        }
+
+        return (
+            <table className="accounts-table">
+                <thead>
+                    <tr>
+                        <th key="name">Name</th>
+                        <th key="roles">Roles</th>
+                        <th key="reset"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {administrationTableRows}
+                </tbody>
+            </table>
+        );
+    }
+
+    renderRoleComponents(account) {
+        return (
+            <div className="role-components">
+                <app.InputField key="1" type="checkbox" label="Admin" checked={account.hasRole("Admin")} isSmallInputField={true}/>
+                <app.InputField key="2" type="checkbox" label="Release" checked={account.hasRole("Release")} isSmallInputField={true}/>
+                <app.InputField key="3" type="checkbox" label="Modify" checked={account.hasRole("Modify")} isSmallInputField={true}/>
+                <app.InputField key="4" type="checkbox" label="Review" checked={account.hasRole("Review")} isSmallInputField={true}/>
+                <app.InputField key="5" type="checkbox" label="View" checked={account.hasRole("View")} isSmallInputField={true}/>
+            </div>
+        );
+    }
+
     render() {
         return (
             <div className="account-administration-area">
-                {this.renderCreateAccountForm()}
+                <div className="create-account-area" key="create-account-area">
+                    {this.renderCreateAccountForm()}
+                </div>
+                <div className="accounts-area large-container" key="accounts-area">
+                    <div className="center">
+                        <h1>Accounts</h1>
+                    </div>
+                    {this.renderAccountAdministrationData()}
+                </div>
             </div>
         );
     }
