@@ -2765,6 +2765,7 @@ class App extends React.Component {
             );
         }
         else {
+            let childDisplayAreaStyle = "child-display-area clearfix";
             switch (this.state.activeRole) {
                 case this.roles.types: {
                     // types role
@@ -2786,6 +2787,7 @@ class App extends React.Component {
                 case this.roles.reviews: {
                     // reviews role
                     const currentReview = this.state.currentReview;
+                    childDisplayAreaStyle = "selected-review-display-area clearfix";
                     if (!currentReview) {
                         return (
                             <div id="main-content" className="container">
@@ -2814,7 +2816,7 @@ class App extends React.Component {
                             {navigationItems}
                             <div className="display-area">
                                 {this.renderForm()}
-                                <div id="child-display-area" className="clearfix">
+                                <div id="child-display-area" className={childDisplayAreaStyle}>
                                     {this.renderChildItems()}
                                 </div>
                             </div>
