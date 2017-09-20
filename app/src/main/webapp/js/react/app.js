@@ -5,7 +5,20 @@ class App extends React.Component {
                 shouldShow: true,
                 title:      title,
                 content:    content,
-                onConfirm:  onConfirm
+                onConfirm:  function () {
+                    if (typeof onConfirm == "function") {
+                        onConfirm();
+                    }
+
+                    App._instance.setState({
+                        alert: {
+                            shouldShow: false,
+                            title:      "",
+                            content:    "",
+                            onConfirm:  null
+                        }
+                    });
+                }
             }
         });
     }
@@ -814,12 +827,18 @@ class App extends React.Component {
         if (functionCatalog.isApproved()) {
             app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
         }
-        else if (confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
+        else if (! confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
+            callbackFunction();
+        }
+        else {
             const thisApp = this;
             const functionCatalogId = functionCatalog.getId();
 
             deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
-                if (success) {
+                if (! success) {
+                    app.App.alert("Delete Function Catalog", "Request to delete Function Catalog failed: " + errorMessage, callbackFunction);
+                }
+                else {
                     const newFunctionCatalogs = [];
                     const existingFunctionCatalogs = thisApp.state.functionCatalogs;
                     for (let i in existingFunctionCatalogs) {
@@ -857,12 +876,9 @@ class App extends React.Component {
                         }
                     }
                     thisApp.setState({
-                        functionCatalogs:       newFunctionCatalogs,
+                        functionCatalogs: newFunctionCatalogs,
                         currentNavigationLevel: thisApp.NavigationLevel.versions
                     });
-                }
-                else {
-                    app.App.alert("Delete Function Catalog", "Request to delete Function Catalog failed: " + errorMessage, callbackFunction);
                 }
             });
         }
@@ -2121,8 +2137,8 @@ class App extends React.Component {
                 }
                 else {
                     app.App.alert("Review Approval", "Unable to approve review: " + data.errorMessage);
-                    this.setState({
-                        createButtonState: this.CreateButtonState.normal
+                    thisApp.setState({
+                        createButtonState: thisApp.CreateButtonState.normal
                     });
                 }
             });
@@ -2382,7 +2398,7 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
-                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged}/>);
+                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged} onExportFunctionCatalog={exportFunctionCatalogToMost}/>);
                 }
             break;
 

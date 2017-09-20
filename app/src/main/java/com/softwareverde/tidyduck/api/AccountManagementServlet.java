@@ -9,6 +9,7 @@ import com.softwareverde.tidyduck.AuthorizationException;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.database.CompanyInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
@@ -25,7 +26,7 @@ import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
-    
+
     public AccountManagementServlet() {
         super.defineEndpoint("account/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
@@ -55,7 +56,16 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                     currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
                 }
 
-                return _changePassword(currentAccount, providedAccountId, request, environment.getDatabase());
+                return _changePassword(providedAccountId, request, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("account/create", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_CREATE_USERS);
+
+                return _insertAccount(request, environment.getDatabase());
             }
         });
     }
@@ -78,7 +88,48 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _changePassword(final Account currentAccount, final Long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
+    protected Json _insertAccount(final HttpServletRequest httpServletRequest, final Database<Connection> database) throws IOException {
+        final Json response = _generateSuccessJson();
+        final Json request = _getRequestDataAsJson(httpServletRequest);
+        final Json accountJson = request.get("account");
+        final Json companyJson = accountJson.get("company");
+
+        final String username = accountJson.getString("username");
+        final String name = accountJson.getString("name");
+        final Long companyId = Util.parseLong(companyJson.getString("id"));
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (companyId < 1) {
+                _logger.error("Unable to insert account: invalid company ID.");
+                return _generateErrorJson("Unable to insert account: invalid company ID.");
+            }
+
+            final Account account = new Account();
+            account.setUsername(username);
+            account.setName(name);
+
+            final CompanyInflater companyInflater = new CompanyInflater(databaseConnection);
+            final Company company = companyInflater.inflateCompany(companyId);
+            account.setCompany(company);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (! databaseManager.insertAccount(account)) {
+                _logger.error("Unable to insert account: username already exists.");
+                return _generateErrorJson("Unable to insert account: username already exists.");
+            }
+
+            response.put("accountId", account.getId());
+            response.put("password", account.getPassword());
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to create account.", e);
+            return _generateErrorJson("Unable to create account.");
+        }
+
+        return response;
+    }
+
+    protected Json _changePassword(final long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
         try {
             final Json jsonRequest = _getRequestDataAsJson(request);
             final Json response = _generateSuccessJson();

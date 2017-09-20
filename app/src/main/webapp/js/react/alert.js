@@ -82,7 +82,7 @@ class Alert extends React.Component {
     }
 
     onButtonClick(event) {
-        if (this.props.onConfirm) {
+        if (typeof this.props.onConfirm == "function") {
             this.props.onConfirm();
         }
 
@@ -92,16 +92,16 @@ class Alert extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const width = (newProperties.width || this.props.width || 400);
+        const width = (newProperties.width || 400);
 
         this.setState({
-            shouldShow: (newProperties.shouldShow || this.props.shouldShow || false),
-            title:      (newProperties.title || this.props.title || ""),
-            content:    (newProperties.content || this.props.content || ""),
-            onConfirm:  (newProperties.onConfirm || this.props.onConfirm || null),
+            shouldShow: (newProperties.shouldShow || false),
+            title:      (newProperties.title || ""),
+            content:    (newProperties.content || ""),
+            onConfirm:  (newProperties.onConfirm || null),
             width:      width,
-            x:          (newProperties.x || this.props.x || ((window.innerWidth - width) / 2) ),
-            y:          (newProperties.y || this.props.y || ((window.innerHeight - width) / 2) )
+            x:          (newProperties.x || ((window.innerWidth - width) / 2) ),
+            y:          (newProperties.y || ((window.innerHeight - width) / 2) )
         });
     }
 

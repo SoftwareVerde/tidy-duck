@@ -12,6 +12,7 @@ class FunctionCatalog extends React.Component {
         this.renderMenu = this.renderMenu.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
+        this.onExportFunctionCatalogClicked = this.onExportFunctionCatalogClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -75,6 +76,13 @@ class FunctionCatalog extends React.Component {
         }
     }
 
+    onExportFunctionCatalogClicked(event) {
+        event.stopPropagation();
+        if (typeof this.props.onExportFunctionCatalog == "function") {
+            this.props.onExportFunctionCatalog(this.props.functionCatalog.getId());
+        }
+    }
+
     renderMenu() {
         if (! this.state.showMenu) { return; }
 
@@ -83,6 +91,10 @@ class FunctionCatalog extends React.Component {
                 <div className="child-item-menu-item" onClick={this.deleteFunctionCatalog}>
                     Remove
                     <i className="fa fa-remove" />
+                </div>
+                <div className="child-item-menu-item" onClick={this.onExportFunctionCatalogClicked}>
+                    Download MOST XML
+                    <i className="fa fa-download" />
                 </div>
             </div>
         );

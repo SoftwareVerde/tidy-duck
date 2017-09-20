@@ -28,6 +28,12 @@ public class DatabaseManager {
     }
 
     // ACCOUNT METHODS
+    public boolean insertAccount(final Account account) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.insertAccount(account);
+        }
+    }
 
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {

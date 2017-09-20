@@ -215,9 +215,9 @@ class SettingsPage extends React.Component {
         reactComponents.push(
             <form key="Password Container" id="settings-container" onSubmit={this.onSaveNewPassword}>
                 <h1>Change Password</h1>
-                <app.InputField type="password" label="Current Password" name="old-password1" value={this.state.oldPassword} options={themeOptions} onChange={this.onOldPasswordChanged} isRequired={true}/>
-                <app.InputField type="password" label="New Password" name="new-password" value={this.state.newPassword} options={themeOptions} onChange={this.onNewPasswordChanged} isRequired={true}/>
-                <app.InputField type="password" label="Retype New Password" name="new-password-retype" value={this.state.newPasswordRetype} options={themeOptions} onChange={this.onNewPasswordRetypeChanged} isRequired={true}/>
+                <app.InputField type="password" label="Current Password" name="old-password1" value={this.state.oldPassword} onChange={this.onOldPasswordChanged} isRequired={true}/>
+                <app.InputField type="password" label="New Password" name="new-password" value={this.state.newPassword} onChange={this.onNewPasswordChanged} isRequired={true}/>
+                <app.InputField type="password" label="Retype New Password" name="new-password-retype" value={this.state.newPasswordRetype} onChange={this.onNewPasswordRetypeChanged} isRequired={true}/>
                 {this.renderPasswordsMatchWarning()}
                 {passwordSaveButton}
             </form>

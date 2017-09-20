@@ -108,7 +108,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 if (reviewId < 1) {
                     return _generateErrorJson("Invalid review id: " + reviewId);
                 }
-                return _approveReview(reviewId, environment.getDatabase());
+                return _approveReview(reviewId, accountId, environment.getDatabase());
             }
         });
 
@@ -199,11 +199,37 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _approveReview(final long reviewId, final Database<Connection> database) throws Exception {
+    private Json _approveReview(final long reviewId, final long accountId, final Database<Connection> database) throws Exception {
         final Json response = new Json(false);
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final ReviewInflater reviewInflater = new ReviewInflater(databaseConnection);
             final Review review = reviewInflater.inflateReview(reviewId);
+            final long reviewAccountId = review.getAccount().getId();
+
+            if (reviewAccountId == accountId) {
+                final String errorMessage = "Unable approve review: a review cannot be approved by its creator.";
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+
+            // Check review votes for at least one upvote from someone other than the review's creator.
+            final List<ReviewVote> reviewVotes = review.getReviewVotes();
+            long voteCounter = 0;
+            for (ReviewVote reviewVote : reviewVotes) {
+                if (reviewVote.isUpvote()) {
+                    final long reviewVoteAccountId = reviewVote.getAccount().getId();
+                    if (reviewVoteAccountId != reviewAccountId) {
+                        voteCounter++;
+                    }
+                }
+
+            }
+
+            if (voteCounter == 0) {
+                final String errorMessage = "Unable approve review: a review must be upvoted by at least one person other than the review's creator.";
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.approveReview(review);

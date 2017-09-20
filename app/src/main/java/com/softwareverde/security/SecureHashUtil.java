@@ -65,6 +65,18 @@ public class SecureHashUtil {
 
      }
 
+    public static String generateRandomPassword() {
+        // Catching NoSuchAlgorithmException here rather than throwing it at each layer of the API.
+        try {
+            return _toHex(_getSalt());
+        }
+        catch (NoSuchAlgorithmException e) {
+            final String msg = "Unable to generate random password.";
+            _logger.error(msg, e);
+            return "";
+        }
+    }
+
     private static byte[] _getSalt() throws NoSuchAlgorithmException {
         final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
         final byte[] salt = new byte[16];

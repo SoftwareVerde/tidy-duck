@@ -139,7 +139,7 @@
     background-color: #DDDDDD;
 }
 
-.child-item:hover .child-item-menu-item {
+.child-item-menu-item:hover {
     background-color: #F9EE99;
 }
 
