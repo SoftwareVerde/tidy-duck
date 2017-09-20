@@ -36,6 +36,25 @@ function getCompanies(callbackFunction) {
     });
 }
 
+function createNewCompany(company, callback) {
+    const request = new Request(
+        API_PREFIX + "companies",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "company":    company
+            })
+        }
+    );
+    jsonFetch(request, function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
 function downloadAccount(callback) {
     jsonFetch(
         new Request(

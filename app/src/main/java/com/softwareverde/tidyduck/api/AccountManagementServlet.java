@@ -59,6 +59,13 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 return _getCompanies(environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("companies", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+                return _insertCompany(request, environment.getDatabase());
+            }
+        });
     }
 
     protected Json _getAccount(final Long accountId, final Database<Connection> database) {
@@ -98,6 +105,36 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         catch (DatabaseException e) {
             _logger.error("Unable to get companies from database.", e);
             return _generateErrorJson("Unable to get companies from database.");
+        }
+    }
+
+    protected Json _insertCompany(final HttpServletRequest request, final Database<Connection> database) throws IOException {
+        final Json response = _generateSuccessJson();
+        final Json requestJson = _getRequestDataAsJson(request);
+        final Json companyJson = requestJson.get("company");
+        final String companyName = companyJson.getString("name");
+
+        if (Util.isBlank(companyName)) {
+            _logger.error("Unable to insert company: invalid company name.");
+            return _generateErrorJson("Unable to insert company: invalid company name.");
+        }
+
+        try {
+            final Company company = new Company();
+            company.setName(companyName);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (! databaseManager.insertCompany(company)) {
+                _logger.error("Unable to insert company: company name already exists.");
+                return _generateErrorJson("Unable to insert company: company name already exists.");
+            }
+
+            response.put("companyId", company.getId());
+            return response;
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to create company: ", e);
+            return _generateErrorJson("Unable to create company: " + e.getMessage());
         }
     }
 

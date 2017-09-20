@@ -4,6 +4,7 @@ import com.softwareverde.database.*;
 import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.util.Util;
 
 
@@ -39,6 +40,22 @@ class AccountDatabaseManager {
         final long accountId = _databaseConnection.executeSql(query);
         account.setId(accountId);
         account.setPassword(password);
+
+        return true;
+    }
+
+    public boolean insertCompany(final Company company) throws DatabaseException {
+        final String companyName = company.getName();
+        if (! _isCompanyNameUnique(companyName)) {
+            return false;
+        }
+
+        final Query query = new Query("INSERT INTO companies (name) VALUES (?)")
+                .setParameter(companyName)
+        ;
+
+        final long companyId = _databaseConnection.executeSql(query);
+        company.setId(companyId);
 
         return true;
     }
@@ -89,6 +106,18 @@ class AccountDatabaseManager {
         final Query query = new Query("SELECT COUNT(*) AS duplicate_count FROM accounts WHERE username = ?")
                 .setParameter(username)
         ;
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final Row row = rows.get(0);
+        final long duplicateCount = row.getLong("duplicate_count");
+        return (duplicateCount == 0);
+    }
+
+    private boolean _isCompanyNameUnique(final String companyName) throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS duplicate_count FROM companies WHERE name = ?")
+                .setParameter(companyName)
+                ;
 
         final List<Row> rows = _databaseConnection.query(query);
 
