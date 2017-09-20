@@ -12,7 +12,7 @@ VALUES
         (4, 'Review'),
         (5, 'View');
 
-CREATE TABLE roles_permissions (
+CREATE TABLE role_permissions (
     role_id INT UNSIGNED NOT NULL,
     admin_create_users BOOLEAN NOT NULL DEFAULT FALSE,
     admin_modify_users BOOLEAN NOT NULL DEFAULT FALSE,
@@ -28,10 +28,10 @@ CREATE TABLE roles_permissions (
     reviews_comments BOOLEAN NOT NULL DEFAULT FALSE,
     reviews_voting BOOLEAN NOT NULL DEFAULT FALSE,
     reviews_view BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY fk_roles_permissions_role_id (role_id) REFERENCES roles (id)
+    FOREIGN KEY fk_role_permissions_role_id (role_id) REFERENCES roles (id)
 );
 
-INSERT INTO roles_permissions
+INSERT INTO role_permissions
 VALUES
         (1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         (2, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1),

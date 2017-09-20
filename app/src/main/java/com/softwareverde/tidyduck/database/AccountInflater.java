@@ -51,7 +51,7 @@ public class AccountInflater {
     }
 
     private void loadPermissions(final Account account) throws DatabaseException {
-        final Query query = new Query("SELECT permissions.* FROM roles_permissions INNER JOIN accounts_roles ON accounts_roles.role_id = role_permissions.role_id WHERE account_id = ?");
+        final Query query = new Query("SELECT role_permissions.* FROM role_permissions INNER JOIN accounts_roles ON accounts_roles.role_id = role_permissions.role_id WHERE account_id = ?");
         query.setParameter(account.getId());
 
         List<Row> rows = _databaseConnection.query(query);
