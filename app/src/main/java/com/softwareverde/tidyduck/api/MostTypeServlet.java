@@ -55,7 +55,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("primitive-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("most-types/primitive-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -64,7 +64,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-units", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super.defineEndpoint("most-types/most-units", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
