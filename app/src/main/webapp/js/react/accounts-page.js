@@ -171,7 +171,7 @@ class AccountsPage extends React.Component {
 
             administrationTableRows.push(
                 <tr key={i}>
-                    <td key="name">{account.getName()} ({account.getUsername()})</td>
+                    <td key="name">{account.getName()}<br/>({account.getUsername()})</td>
                     <td key="roles">{this.renderRoleComponents(account)}</td>
                     <td key="reset"><div className="button">Reset Password</div></td>
                 </tr>
