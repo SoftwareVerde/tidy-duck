@@ -6,8 +6,17 @@ import java.util.Set;
 
 public class Role {
 
+    private Long _id;
     private String _name;
     private Set<Permission> _permissions = new HashSet<>();
+
+    public Long getId() {
+        return _id;
+    }
+
+    public void setId(final Long id) {
+        _id = id;
+    }
 
     public String getName() {
         return _name;

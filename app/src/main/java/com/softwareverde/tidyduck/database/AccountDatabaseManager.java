@@ -1,12 +1,14 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.*;
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
 import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
-import com.softwareverde.tidyduck.util.Util;
-
 
 import java.sql.Connection;
 import java.util.List;
@@ -124,5 +126,27 @@ class AccountDatabaseManager {
         final Row row = rows.get(0);
         final long duplicateCount = row.getLong("duplicate_count");
         return (duplicateCount == 0);
+    }
+
+    public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
+        _deleteExistingRoles(accountId);
+        for (final Role role : roles) {
+            _addRole(accountId, role.getId());
+        }
+    }
+
+    private void _deleteExistingRoles(final Long accountId) throws DatabaseException {
+        final Query query = new Query("DELETE FROM accounts_roles WHERE account_id = ?");
+        query.setParameter(accountId);
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _addRole(final Long accountId, final Long roleId) throws DatabaseException {
+        final Query query = new Query("INSERT INTO accounts_roles (account_id, role_id) VALUES (?, ?)");
+        query.setParameter(accountId);
+        query.setParameter(roleId);
+
+        _databaseConnection.executeSql(query);
     }
 }

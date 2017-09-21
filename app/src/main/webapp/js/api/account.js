@@ -71,6 +71,30 @@ function getAccounts(callbackFunction) {
     );
 }
 
+function updateAccountRoles(accountId, roleNames, callbackFunction) {
+    jsonFetch(
+        new Request(
+            API_PREFIX + "accounts/" + accountId + "/roles",
+            {
+                method:         "POST",
+                credentials:    "include",
+                body: JSON.stringify({
+                    roleNames: roleNames
+                })
+            }
+        ),
+        function (data) {
+            if (!data.wasSuccess) {
+                console.log("Unable to update roles: " + data.errorMessage);
+            }
+
+            if (typeof callbackFunction == "function") {
+                callbackFunction(data);
+            }
+        }
+    );
+}
+
 function getCompanies(callbackFunction) {
     const request = new Request(
         API_PREFIX + "companies",

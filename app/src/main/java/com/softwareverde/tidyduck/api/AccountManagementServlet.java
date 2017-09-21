@@ -8,6 +8,7 @@ import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.CompanyInflater;
 import com.softwareverde.tidyduck.database.DatabaseManager;
+import com.softwareverde.tidyduck.database.RoleInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.util.Util;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -52,11 +54,26 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid account ID provided.");
                 }
 
-                if (!currentAccount.getId().equals(providedAccountId)) {
-                    currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
-                }
+                // no permission check, allowing users to see other user's data, barring more private data being added
 
                 return _getAccount(currentAccount, providedAccountId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("accounts/<accountId>/roles", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
+                if (providedAccountId < 1) {
+                    return _generateErrorJson("Invalid account ID provided.");
+                }
+                if (currentAccount.getId().equals(providedAccountId)) {
+                    throw new AuthorizationException("Users cannot modify their own roles.");
+                }
+
+                return _updateRoles(request, providedAccountId, environment.getDatabase());
             }
         });
 
@@ -79,8 +96,6 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
-
                 return _getCompanies(environment.getDatabase());
             }
         });
@@ -227,6 +242,32 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    private Json _updateRoles(final HttpServletRequest request, final Long providedAccountId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Json jsonRequest = _getRequestDataAsJson(request);
+            final Json rolesJson = jsonRequest.get("roleNames");
+
+            final RoleInflater roleInflater = new RoleInflater(databaseConnection);
+
+            List<Role> roles = new ArrayList<>();
+            for (int i=0; i<rolesJson.length(); i++) {
+                final String roleName = rolesJson.getString(i);
+                final Role role = roleInflater.inflateRoleFromName(roleName);
+                roles.add(role);
+            }
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.updateAccountRoles(providedAccountId, roles);
+
+            final Json response = _generateSuccessJson();
+            return response;
+        }
+        catch (final Exception e) {
+            _logger.error("Unable to attempt password change.", e);
+            return _generateErrorJson("Unable to attempt password change: " + e.getMessage());
+        }
+    }
+
     protected Json _changePassword(final long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
         try {
             final Json jsonRequest = _getRequestDataAsJson(request);
@@ -298,6 +339,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 permissionsJson.add(permission.name());
             }
 
+            roleJson.put("id", role.getId());
             roleJson.put("name", role.getName());
             roleJson.put("permissions", permissionsJson);
 

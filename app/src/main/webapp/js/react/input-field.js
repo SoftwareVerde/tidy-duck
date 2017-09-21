@@ -13,7 +13,7 @@ class InputField extends React.Component {
     }
 
     onInputChanged(event) {
-        var newValue = event.target.value;
+        var newValue = this.props.type == "checkbox" ? event.target.checked : event.target.value;
 
         if (! this.props.readOnly) {
             this.setState({value: newValue});
