@@ -13,7 +13,8 @@ class Alert extends React.Component {
             x:          (this.props.x || ((window.innerWidth - width) / 2) ),
             y:          (this.props.y || ((window.innerHeight - width) / 2) ),
             isMoving:   false,
-            lastMoveTime: 0
+            lastMoveTime: 0,
+            hasEverMoved: false
         };
 
         this.onMouseDown = this.onMouseDown.bind(this);
@@ -38,11 +39,12 @@ class Alert extends React.Component {
         this.state.lastMoveTime = (new Date()).getTime();
 
         const width = this.refs.alertContainer.offsetWidth;
-        const height = this.refs.alertContainer.offsetWidth;
+        const height = this.refs.alertContainer.offsetHeight;
 
         this.setState({
-            x:  event.pageX - (width / 2),
-            y:  event.pageY - (25)
+            x:  event.clientX - (width / 2),
+            y:  event.clientY - (25),
+            hasEverMoved: true
         });
     }
 
