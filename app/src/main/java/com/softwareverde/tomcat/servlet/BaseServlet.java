@@ -1,6 +1,7 @@
 package com.softwareverde.tomcat.servlet;
 
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class BaseServlet extends HttpServlet {
+    public static final String BASE_API_URL = "/api/v1/";
 
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 

@@ -1,3 +1,27 @@
+// calls callbackFunction with the most function
+function getMostFunction(mostFunctionId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-functions/" + mostFunctionId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostFunction = null;
+
+        if (data.wasSuccess) {
+            mostFunction = data.mostFunction;
+        } else {
+            console.error("Unable to get most function: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostFunction);
+        }
+    });
+}
 
 // calls callbackFunction with an array of functions
 function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
@@ -118,6 +142,28 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function submitMostFunctionForReview(mostFunctionId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-functions/" + mostFunctionId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit most function for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

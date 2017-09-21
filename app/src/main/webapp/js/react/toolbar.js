@@ -15,7 +15,13 @@ class Toolbar extends React.Component {
         this.onStereotypeCommandWithAckClicked = this.onStereotypeCommandWithAckClicked.bind(this);
         this.onStereotypePropertyWithEventClicked = this.onStereotypePropertyWithEventClicked.bind(this);
         this.onBackButtonClicked = this.onBackButtonClicked.bind(this);
+        this.onUpvoteClicked = this.onUpvoteClicked.bind(this);
+        this.onDownvoteClicked = this.onDownvoteClicked.bind(this);
+        this.renderUpvoteButton = this.renderUpvoteButton.bind(this);
+        this.renderDownvoteButton = this.renderDownvoteButton.bind(this);
         this.renderForkButton = this.renderForkButton.bind(this);
+        this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
+        this.renderReleaseButton = this.renderReleaseButton.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
@@ -90,13 +96,84 @@ class Toolbar extends React.Component {
         }
     }
 
+    onUpvoteClicked() {
+        if (typeof this.props.onVoteClicked == "function") {
+            this.props.onVoteClicked(true);
+        }
+    }
+
+    onDownvoteClicked() {
+        if (typeof this.props.onVoteClicked == "function") {
+            this.props.onVoteClicked(false);
+        }
+    }
+
+    renderUpvoteButton() {
+        if (this.props.shouldShowVoteButtons) {
+            const buttonTitle = "Upvote";
+            let icon = "fa fa-4 fa-thumbs-o-up"
+            if (this.props.selectedVote === "isUpvote") {
+                icon = "fa fa-4 fa-thumbs-up";
+            }
+
+            return (
+                <div className="toolbar-item upvote" onClick={this.onUpvoteClicked} >
+                    <i className={icon} />
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
+    renderDownvoteButton() {
+        if (this.props.shouldShowVoteButtons) {
+            const buttonTitle = "Downvote";
+            let icon = "fa fa-4 fa-thumbs-o-down"
+            if (this.props.selectedVote === "isDownvote") {
+                icon = "fa fa-4 fa-thumbs-down";
+            }
+
+            return (
+                <div className="toolbar-item downvote" onClick={this.onDownvoteClicked} >
+                    <i className={icon} />
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
     renderForkButton() {
         if (this.props.shouldShowForkButton) {
             const buttonTitle = "Fork Version";
 
             return (
-                <div className="toolbar-item fork" onClick={this.props.onForkClicked} title={buttonTitle}>
+                <div className="toolbar-item fork" onClick={this.props.onForkClicked} >
                     <i className="fa fa-4 fa-code-fork" />
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
+    renderSubmitForReviewButton() {
+        if (this.props.shouldShowSubmitForReviewButton) {
+            const buttonTitle = "Submit for Review"
+            return (
+                <div className="toolbar-item submitReview" onClick={this.props.onSubmitForReviewClicked} >
+                    <i className="fa fa-4 fa-upload" />
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
+    renderReleaseButton() {
+        if (this.props.shouldShowReleaseButton) {
+            const buttonTitle = "Release Function Catalog";
+            return (
+                <div className="toolbar-item release" onClick={this.props.onReleaseClicked} >
+                    <i className="fa fa-4 fa-book" />
+                    <div className="tooltip">{buttonTitle}</div>
                 </div>
             );
         }
@@ -124,12 +201,18 @@ class Toolbar extends React.Component {
                     break;
             }
 
-            const buttonTitle = "Edit Current " + buttonTitleType;
+            let buttonTitle = "Edit Current " + buttonTitleType;
+            let button = <i className="fa fa-4 fa-edit" />;
+            if (this.props.shouldShowViewInfoButton) {
+                buttonTitle = "View " + buttonTitleType + " Data";
+                button = <i className="fa fa-4 fa-file-text-o" />;
+            }
 
             if (shouldShowButton) {
                 return (
-                    <div className="toolbar-item edit" onClick={this.props.onEditClicked} title={buttonTitle}>
-                        <i className="fa fa-4 fa-edit" />
+                    <div className="toolbar-item edit" onClick={this.props.onEditClicked} >
+                        {button}
+                        <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );
             }
@@ -162,8 +245,9 @@ class Toolbar extends React.Component {
 
             if (shouldShowButton) {
                 return (
-                    <div className="toolbar-item create" onClick={this.props.onCreateClicked} title={buttonTitle}>
+                    <div className="toolbar-item create" onClick={this.props.onCreateClicked} >
                         <i className="fa fa-4 fa-plus" />
+                        <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );
             }
@@ -192,8 +276,9 @@ class Toolbar extends React.Component {
 
             if (shouldShowButton) {
                 return (
-                    <div className="toolbar-item search" onClick={this.props.onSearchClicked} title={buttonTitle}>
+                    <div className="toolbar-item search" onClick={this.props.onSearchClicked} >
                         <i className="fa fa-4 fa-search" />
+                        <div className="tooltip">{buttonTitle}</div>
                     </div>
                 );
             }
@@ -202,21 +287,21 @@ class Toolbar extends React.Component {
 
 
     renderAddFunctionButtons() {
-        const navigationLevel = this.state.navigationLevel;
-        const currentNavigationLevel = this.state.currentNavigationLevel;
+        if (this.props.shouldShowCreateButton) {
+            const navigationLevel = this.state.navigationLevel;
+            const currentNavigationLevel = this.state.currentNavigationLevel;
 
-        if (currentNavigationLevel === navigationLevel.mostInterfaces) {
-            const reactComponents = [];
-            reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked} title="Event">E</div>);
-            reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked} title="ReadOnlyProperty">ROP</div>);
-            reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked} title="ReadOnlyPropertyWithEvent">ROPwE</div>);
-            reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked} title="PropertyWithEvent">PwE</div>);
-            reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked} title="CommandWithAck">CwA</div>);
-            reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked} title="Request/Response">R/R</div>);
+            if (currentNavigationLevel === navigationLevel.mostInterfaces) {
+                const reactComponents = [];
+                reactComponents.push(<div key="event" className="toolbar-item event" onClick={this.onStereotypeEventClicked}><div>E</div><div key="eventTooltip" className="tooltip">Event</div></div>);
+                reactComponents.push(<div key="readOnlyProperty" className="toolbar-item readOnlyProperty" onClick={this.onStereotypeReadOnlyPropertyClicked}><div>ROP</div><div className="tooltip">ReadOnlyProperty</div></div>);
+                reactComponents.push(<div key="readOnlyPropertyWithEvent" className="toolbar-item readOnlyPropertyWithEvent" onClick={this.onStereotypeReadOnlyPropertyWithEventClicked}><div>ROPwE</div><div className="tooltip">ReadOnlyPropertyWithEvent</div></div>);
+                reactComponents.push(<div key="propertyWithEvent" className="toolbar-item propertyWithEvent" onClick={this.onStereotypePropertyWithEventClicked}><div>PwE</div><div className="tooltip">PropertyWithEvent</div></div>);
+                reactComponents.push(<div key="commandWithAck" className="toolbar-item commandWithAck" onClick={this.onStereotypeCommandWithAckClicked}><div>CwA</div><div className="tooltip">CommandWithAck</div></div>);
+                reactComponents.push(<div key="requestResponse" className="toolbar-item requestResponse" onClick={this.onStereotypeRequestResponseClicked}><div>R/R</div><div className="tooltip">Request/Response</div></div>);
 
-
-
-            return reactComponents;
+                return reactComponents;
+            }
         }
     }
 
@@ -232,9 +317,12 @@ class Toolbar extends React.Component {
                     const title = navigationItem.getTitle();
                     let header =  navigationItem.getHeader();
                     let navigationItemStyle = "navigation-indicator";
-                    if (! navigationItem.isReleased()) {
-                        header = "UNRELEASED ".concat(header);
+                    if (! navigationItem.isApproved()) {
+                        header = "UNAPPROVED ".concat(header);
                         navigationItemStyle = "unreleased-navigation-indicator";
+                    }
+                    else if(! navigationItem.isReleased()) {
+                        header = "UNRELEASED ".concat(header);
                     }
 
                     const onClickCallback = navigationItem.getOnClickCallback();
@@ -258,7 +346,11 @@ class Toolbar extends React.Component {
                     {this.renderNavigationItems()}
                 </div>
                 <div>
+                    {this.renderUpvoteButton()}
+                    {this.renderDownvoteButton()}
+                    {this.renderSubmitForReviewButton()}
                     {this.renderForkButton()}
+                    {this.renderReleaseButton()}
                     {this.renderEditButton()}
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}

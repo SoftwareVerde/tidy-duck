@@ -2,14 +2,14 @@
 <html>
     <head>
         <title>Tidy Duck</title>
-        <link rel="stylesheet" href="/css/font.css"/>
-        <link rel="stylesheet" href="/css/font-awesome.min.css"/>
-        <link href="https://fonts.googleapis.com/css?family=Lato:400,700|Righteous" rel="stylesheet">
+
+        <link rel="stylesheet" href="/deps/css/google-fonts.css"/>
+        <link rel="stylesheet" href="/deps/css/font-awesome.min.css"/>
 
         <!-- Import React modules, currently using DEV versions -->
-        <script src="https://unpkg.com/react@15/dist/react.js"></script>
-        <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+        <script src="/deps/js/react-15.6.1.js"></script>
+        <script src="/deps/js/react-dom-15.6.1.js"></script>
+        <script src="/deps/js/browser-5.8.23.min.js"></script>
 
         <!-- General purpose utility functions -->
         <script src="/js/util.js"></script>
@@ -23,11 +23,14 @@
         <script src="/js/api/most-function.js"></script>
         <script src="/js/api/most-type.js"></script>
         <script src="/js/api/most-function-stereotype.js"></script>
+        <script src="/js/api/review.js"></script>
 
         <!-- Allow for registering classes in global scope -->
         <script src="/js/classes/register-class.js"></script>
+        <script src="/js/classes/on-mouse-move.js"></script>
 
         <!-- Custom Data Classes -->
+        <script src="/js/classes/account.js"></script>
         <script src="/js/classes/author.js"></script>
         <script src="/js/classes/company.js"></script>
         <script src="/js/classes/function-catalog.js"></script>
@@ -47,9 +50,16 @@
         <script src="/js/classes/stream-case-parameter.js"></script>
         <script src="/js/classes/stream-case-signal.js"></script>
         <script src="/js/classes/navigation-item-config.js"></script>
+        <script src="/js/classes/review.js"></script>
+        <script src="/js/classes/review-vote.js"></script>
+        <script src="/js/classes/review-comment.js"></script>
+        <script src="/js/classes/settings.js"></script>
+        <script src="/js/classes/release-item.js"></script>
+        <script src="/js/classes/role.js"></script>
 
         <!-- Custom React Classes -->
         <script src="/js/react/input-field.js" type="text/babel"></script>
+        <script src="/js/react/alert.js" type="text/babel"></script>
         <script src="/js/react/toolbar.js" type="text/babel"></script>
         <script src="/js/react/search-bar.js" type="text/babel"></script>
         <script src="/js/react/role-toggle.js" type="text/babel"></script>
@@ -71,14 +81,25 @@
         <script src="/js/react/app.js" type="text/babel"></script>
         <script src="/js/react/settings-page.js" type="text/babel"></script>
         <script src="/js/react/types-page.js" type="text/babel"></script>
+        <script src="/js/react/reviews-page.js" type="text/babel"></script>
+        <script src="/js/react/review-comment.js" type="text/babel"></script>
+        <script src="/js/react/approval-form.js" type="text/babel"></script>
+        <script src="/js/react/release-page.js" type="text/babel"></script>
+        <script src="/js/react/accounts-page.js" type="text/babel"></script>
 
         <!-- Base Styling -->
         <link rel="stylesheet" href="/css/core.css"/>
+        <link rel="stylesheet" href="/css/font.css"/>
         <link rel="stylesheet" href="/css/app.css"/>
+        <link rel="stylesheet" href="/css/release.css"/>
+        <link rel="stylesheet" href="/css/reviews.css"/>
+        <link rel="stylesheet" href="/css/alert.css"/>
         <!-- Setup Theme -->
         <link id="core-css"                 rel="stylesheet" href="/css/themes/tidy/core.css"/>
         <link id="app-css"                  rel="stylesheet" href="/css/themes/tidy/app.css"/>
         <link id="palette-css"              rel="stylesheet" href="/css/themes/tidy/palette.css"/>
+        <link id="release-css"              rel="stylesheet" href="/css/themes/tidy/release.css"/>
+        <link id="reviews-css"              rel="stylesheet" href="/css/themes/tidy/reviews.css"/>
         <link id="react-input-field-css"    rel="stylesheet" href="/css/themes/tidy/react/input-field.css"/>
         <link id="react-toolbar-css"        rel="stylesheet" href="/css/themes/tidy/react/toolbar.css"/>
     </head>

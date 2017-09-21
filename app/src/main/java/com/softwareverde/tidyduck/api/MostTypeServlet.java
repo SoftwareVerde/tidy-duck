@@ -3,13 +3,14 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostTypeInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
-import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tidyduck.util.Util;
+import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,42 +18,60 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class MostTypeServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
-    @Override
-    protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, long accountId, Environment environment) throws Exception {
-        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-types".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
+    public MostTypeServlet() {
+        super.defineEndpoint("most-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 return _listMostTypes(environment);
             }
-            if (httpMethod == HttpMethod.POST) {
+        });
+
+        super.defineEndpoint("most-types", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.TYPES_CREATE);
+
                 return _insertType(request, environment);
             }
-        }
-        if ("primitive-types".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
-                return _listPrimitiveTypes(environment);
-            }
-        }
-        if ("most-units".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
-                return _listUnits(environment);
-            }
-        }
-        else { // not base mostType, must have ID
-            final long mostTypeId = Util.parseLong(finalUrlSegment);
-            if (mostTypeId < 1) {
-                return _generateErrorJson("Invalid Most Type id.");
-            }
+        });
 
-            if (httpMethod == HttpMethod.POST) {
+        super.defineEndpoint("most-types/<mostTypeId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.TYPES_MODIFY);
+
+                final long mostTypeId = Util.parseLong(parameters.get("mostTypeId"));
+                if (mostTypeId < 1) {
+                    return _generateErrorJson("Invalid Most Type ID.");
+                }
                 return _updateMostType(request, mostTypeId, environment);
             }
-        }
-        return super._generateErrorJson("Unimplemented HTTP method in request.");
+        });
+
+        super.defineEndpoint("most-types/primitive-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                return _listPrimitiveTypes(environment);
+            }
+        });
+
+        super.defineEndpoint("most-types/most-units", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                return _listUnits(environment);
+            }
+        });
     }
 
     private Json _listMostTypes(final Environment environment) {
@@ -157,68 +176,76 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         // Validate inputs based on primitive type name.
         switch (primitiveTypeName) {
             case "TArray": {
-                if (Util.isBlank(arrayName)) {
+                /*if (Util.isBlank(arrayName)) {
                     throw new Exception("Invalid Type array name.");
-                }
+                }*/
+                /*
                 if (Util.isBlank(arrayDescription)) {
                     throw new Exception("Invalid Type array description.");
                 }
-                if (Util.isBlank(arraySize)) {
-                    throw new Exception("Invalid Type array size.");
+                */
+                if (arrayElementTypeId < 1) {
+                    throw new Exception("Invalid Type array element ID: " + arrayElementTypeId);
                 }
+                /*if (Util.isBlank(arraySize)) {
+                    throw new Exception("Invalid Type array size.");
+                }*/
             } break;
             case "TBitField": {
-                if (Util.isBlank(bitfieldLength)) {
+                /*if (Util.isBlank(bitfieldLength)) {
                     throw new Exception("Invalid Type BitField length.");
-                }
+                }*/
             } break;
             case "TCStream": {
-                if (Util.isBlank(streamMaxLength)) {
+                /*if (Util.isBlank(streamMaxLength)) {
                     throw new Exception("Invalid Type stream max length.");
-                }
-                if (Util.isBlank(streamMediaType)) {
+                }*/
+                /*if (Util.isBlank(streamMediaType)) {
                     throw new Exception("Invalid Type stream media type.");
-                }
+                }*/
             } break;
             case "TNumber": {
                 if (Util.isBlank(numberExponent)) {
                     throw new Exception("Invalid Type exponent.");
                 }
-                if (Util.isBlank(numberRangeMin)) {
-                    throw new Exception("Invalid Type range min.");
+                // range min and range max are required is one is populated
+                if (Util.isBlank(numberRangeMin) && !Util.isBlank(numberRangeMax)) {
+                    throw new Exception("Range min must be used with range max.");
                 }
-                if (Util.isBlank(numberRangeMax)) {
-                    throw new Exception("Invalid Type range max.");
+                if (Util.isBlank(numberRangeMax) && !Util.isBlank(numberRangeMin)) {
+                    throw new Exception("Range max must be used with range min.");
                 }
                 if (Util.isBlank(numberStep)) {
                     throw new Exception("Invalid Type number step.");
                 }
             } break;
             case "TRecord": {
-                if (Util.isBlank(recordName)) {
+                /*if (Util.isBlank(recordName)) {
                     throw new Exception("Invalid Type record name.");
-                }
+                }*/
+                /*
                 if (Util.isBlank(recordDescription)) {
                     throw new Exception("Invalid Type record description.");
                 }
-                if (Util.isBlank(recordSize)) {
+                */
+                /*if (Util.isBlank(recordSize)) {
                     throw new Exception("Invalid Type record size.");
-                }
+                }*/
             } break;
             case "TShortStream": {
-                if (Util.isBlank(streamMaxLength)) {
+                /*if (Util.isBlank(streamMaxLength)) {
                     throw new Exception("Invalid Type stream max length.");
-                }
+                }*/
             } break;
             case "TStream": {
-                if (Util.isBlank(streamLength)) {
+                /*if (Util.isBlank(streamLength)) {
                     throw new Exception("Invalid Type stream length.");
-                }
+                }*/
             } break;
             case "TString": {
-                if (Util.isBlank(stringMaxSize)) {
+                /*if (Util.isBlank(stringMaxSize)) {
                     throw new Exception("Invalid Type string max size.");
-                }
+                }*/
             } break;
         }
 
@@ -303,7 +330,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(bitPosition)) {
             throw new Exception("Invalid boolean field bit position");
         }
-
+        /*
         if (Util.isBlank(trueDescription)) {
             throw new Exception("Invalid boolean field true description.");
         }
@@ -311,7 +338,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(falseDescription)) {
             throw new Exception("Invalid boolean field false description.");
         }
-
+        */
         final BooleanField booleanField = new BooleanField();
         booleanField.setId(id);
         booleanField.setBitPosition(bitPosition);
@@ -324,6 +351,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long id = json.getLong("id");
         final String name = json.getString("name");
         final String code = json.getString("code");
+        final String description = json.getString("description");
 
         // Validate inputs
         if (Util.isBlank(name)) {
@@ -333,11 +361,16 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(code)) {
             throw new Exception("Invalid enum value code.");
         }
-
+        /*
+        if (Util.isBlank(description)) {
+            throw new Exception("Invalid enum value description.");
+        }
+        */
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
         enumValue.setName(name);
         enumValue.setCode(code);
+        enumValue.setDescription(description);
         return enumValue;
     }
 
@@ -347,12 +380,10 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final String streamPositionY = json.getString("streamPositionY");
 
         // Validate inputs
-        if (Util.isBlank(streamPositionX)) {
-            throw new Exception("Invalid stream position X.");
-        }
-
-        if (Util.isBlank(streamPositionY)) {
-            throw new Exception("Invalid stream position Y.");
+        if (!Util.isBlank(streamPositionY)) {
+            if (Util.isBlank(streamPositionX)) {
+                throw new Exception("Stream position X must be populated if stream position Y is populated.");
+            }
         }
 
         final StreamCase streamCase = new StreamCase();
@@ -386,8 +417,13 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(parameterName)) {
             throw new Exception("Invalid stream case parameter name.");
         }
+        /*
         if (Util.isBlank(parameterDescription)) {
             throw new Exception("Invalid stream case parameter description.");
+        }
+        */
+        if (parameterTypeId < 1) {
+            throw new Exception("Invalid stream case parameter type ID: " + parameterTypeId);
         }
 
         final MostType parameterType = new MostType();
@@ -413,9 +449,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(signalName)) {
             throw new Exception("Invalid stream case signal name.");
         }
+        /*
         if (Util.isBlank(signalDescription)) {
             throw new Exception("Invalid stream case signal description.");
         }
+        */
         if (Util.isBlank(signalBitLength)) {
             throw new Exception("Invalid stream case signal bit length.");
         }
@@ -441,8 +479,13 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(fieldName)) {
             throw new Exception("Invalid record field name.");
         }
+        /*
         if (Util.isBlank(fieldDescription)) {
             throw new Exception("Invalid record field description.");
+        }
+        */
+        if (fieldTypeId < 1) {
+            throw new Exception("Invalid record field type ID: " + fieldTypeId);
         }
 
         final MostType fieldType = new MostType();
@@ -648,10 +691,12 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long enumValueId = enumValue.getId();
         final String enumValueName = enumValue.getName();
         final String enumValueCode = enumValue.getCode();
+        final String enumValueDescription = enumValue.getDescription();
 
         enumValueJson.put("id", enumValueId);
         enumValueJson.put("name", enumValueName);
         enumValueJson.put("code", enumValueCode);
+        enumValueJson.put("description", enumValueDescription);
 
         return enumValueJson;
     }

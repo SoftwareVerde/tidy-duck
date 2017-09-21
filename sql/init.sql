@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS function_blocks_interfaces;
 DROP TABLE IF EXISTS interfaces_functions;
 DROP TABLE IF EXISTS functions_operations;
 -- drop data tables in reverse hierarchical order
+DROP TABLE IF EXISTS review_votes;
+DROP TABLE IF EXISTS review_comments;
+DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS function_stereotypes_operations;
 DROP TABLE IF EXISTS operations;
 DROP TABLE IF EXISTS function_parameters;
@@ -282,6 +285,7 @@ CREATE TABLE function_catalogs (
     release_version VARCHAR(255) NOT NULL,
     account_id INT UNSIGNED NOT NULL,
     company_id INT UNSIGNED NOT NULL,
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
     is_released BOOLEAN NOT NULL DEFAULT FALSE,
     base_version_id INT UNSIGNED NULL,
     prior_version_id INT UNSIGNED NULL,
@@ -296,11 +300,12 @@ CREATE TABLE function_blocks (
     kind VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    last_modified_date date NOT NULL,
+    last_modified_date DATE NOT NULL,
     release_version VARCHAR(255) NOT NULL,
     account_id INT UNSIGNED NOT NULL,
     company_id INT UNSIGNED NOT NULL,
     access VARCHAR(255) NOT NULL,
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
     is_released BOOLEAN NOT NULL DEFAULT FALSE,
     base_version_id INT UNSIGNED NULL,
     prior_version_id INT UNSIGNED NULL,
@@ -322,8 +327,9 @@ CREATE TABLE interfaces (
     most_id VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    last_modified_date date NOT NULL,
+    last_modified_date DATE NOT NULL,
     version varchar(255) NOT NULL,
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
     is_released boolean NOT NULL DEFAULT FALSE,
     base_version_id int unsigned NULL,
     prior_version_id int unsigned NULL,
@@ -585,6 +591,7 @@ CREATE TABLE functions (
     company_id INT UNSIGNED NOT NULL,
     return_type_id INT UNSIGNED NOT NULL,
     supports_notification BOOLEAN NOT NULL,
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
     is_released BOOLEAN NOT NULL DEFAULT FALSE,
     prior_version_id INT UNSIGNED NULL,
     FOREIGN KEY (function_stereotype_id) REFERENCES function_stereotypes (id),
@@ -606,6 +613,8 @@ CREATE TABLE interfaces_functions (
 CREATE TABLE function_parameters (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     function_id INT UNSIGNED NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     parameter_index INT UNSIGNED NOT NULL,
     most_type_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_id) REFERENCES functions (id),
@@ -675,5 +684,40 @@ CREATE TABLE functions_operations (
     operation_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (function_id) REFERENCES functions (id),
     FOREIGN KEY (operation_id) REFERENCES operations (id)
+) ENGINE=INNODB;
+
+CREATE TABLE reviews (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    function_catalog_id INT UNSIGNED NULL,
+    function_block_id INT UNSIGNED NULL,
+    interface_id INT UNSIGNED NULL,
+    function_id INT UNSIGNED NULL,
+    account_id INT UNSIGNED NOT NULL,
+    created_date DATETIME NOT NULL,
+    FOREIGN KEY (function_catalog_id) REFERENCES function_catalogs (id),
+    FOREIGN KEY (function_block_id) REFERENCES function_blocks (id),
+    FOREIGN KEY (interface_id) REFERENCES interfaces (id),
+    FOREIGN KEY (function_id) REFERENCES functions (id),
+    FOREIGN KEY (account_id) REFERENCES accounts (id)
+) ENGINE=INNODB;
+
+CREATE TABLE review_comments (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    review_id INT UNSIGNED NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    created_date DATETIME NOT NULL,
+    comment TEXT NOT NULL,
+    FOREIGN KEY (review_id) REFERENCES reviews (id),
+    FOREIGN KEY (account_id) REFERENCES accounts (id)
+) ENGINE=INNODB;
+
+CREATE TABLE review_votes (
+    id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    review_id INT UNSIGNED NOT NULL,
+    account_id INT UNSIGNED NOT NULL,
+    created_date DATETIME NOT NULL,
+    is_upvote BOOLEAN NOT NULL DEFAULT TRUE,
+    FOREIGN KEY (review_id) REFERENCES reviews (id),
+    FOREIGN KEY (account_id) REFERENCES accounts (id)
 ) ENGINE=INNODB;
 

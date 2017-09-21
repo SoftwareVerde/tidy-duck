@@ -1,10 +1,12 @@
 package com.softwareverde.mostadapter;
 
 import com.softwareverde.mostadapter.type.MostType;
+import com.softwareverde.util.Util;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -126,16 +128,19 @@ public abstract class MostFunction implements XmlNode {
         Element functionDescription = XmlUtil.createTextElement(document, "FunctionDescription", _description);
         functionElement.appendChild(functionDescription);
 
-        Element functionVersion = document.createElement("FunctionVersion");
+        Element functionVersionElement = document.createElement("FunctionVersion");
 
         Element functionRelease = XmlUtil.createTextElement(document, "Release", _release);
-        functionVersion.appendChild(functionRelease);
+        functionVersionElement.appendChild(functionRelease);
+        final Date currentDate = new Date();
+        final Element dateElement = XmlUtil.createTextElement(document, "Date", XmlUtil.formatDate(currentDate));
+        functionVersionElement.appendChild(dateElement);
         Element functionAuthor = XmlUtil.createTextElement(document, "Author", _author);
-        functionVersion.appendChild(functionAuthor);
+        functionVersionElement.appendChild(functionAuthor);
         Element functionCompany = XmlUtil.createTextElement(document, "Company", _company);
-        functionVersion.appendChild(functionCompany);
+        functionVersionElement.appendChild(functionCompany);
 
-        functionElement.appendChild(functionVersion);
+        functionElement.appendChild(functionVersionElement);
 
         Element functionClassElement = getFunctionClassElement(document);
         functionElement.appendChild(functionClassElement);
@@ -150,9 +155,9 @@ public abstract class MostFunction implements XmlNode {
         functionClassElement.appendChild(functionClassDescriptionElement);
 
         Element functionTypeElement = document.createElement(getFunctionType());
-        Element trueClassElement = document.createElement(getFunctionClassTagName());
+        populateFunctionTypeElement(document, functionTypeElement);
 
-        // TODO: determine how to add attributes for classElement
+        Element trueClassElement = document.createElement(getFunctionClassTagName());
         populateTrueClassElement(document, trueClassElement);
 
         functionTypeElement.appendChild(trueClassElement);
@@ -162,8 +167,16 @@ public abstract class MostFunction implements XmlNode {
     }
 
     /**
-     * <p></p>
+     * <p>Should be overridden by function implementations as necessary.</p>
      *
+     * @param document
+     * @param functionTypeElement
+     */
+    protected void populateFunctionTypeElement(Document document, Element functionTypeElement) {
+        // do nothing, not required for all functions
+    }
+
+    /**
      * <p>Should be overridden by function class implementations as necessary.  Most will not need to since
      * these elements only apply to certain function classes.</p>
      * @param document
@@ -185,30 +198,26 @@ public abstract class MostFunction implements XmlNode {
         // do nothing, not required for most function classes
     }
 
-    protected void populateTrueClassElement(Document document, Element trueClassElement) {
+    protected void populateTrueClassElement(final Document document, final Element trueClassElement) {
         setClassAttributes(document, trueClassElement);
         appendPositionDescriptionElements(document, trueClassElement);
 
         for (final MostParameter mostParameter : _mostParameters) {
-            Element paramElement = document.createElement(this.getParamTagName());
+            final Element paramElement = document.createElement(this.getParamTagName());
             paramElement.setAttribute("details", mostParameter.hasDetails() ? "true" : "false");
 
-            // TODO: remove null checks once these are being populated
-            if (mostParameter.getName() != null) {
-                Element paramNameElement = XmlUtil.createTextElement(document, "ParamName", mostParameter.getName());
-                paramNameElement.setAttribute("ParamIdx", mostParameter.getIndex());
-                paramElement.appendChild(paramNameElement);
-            }
-            if (mostParameter.getDescription() != null) {
-                Element paramDescriptionElement = XmlUtil.createTextElement(document, "ParamDescription", mostParameter.getDescription());
-                paramElement.appendChild(paramDescriptionElement);
-            }
-            
-            Element paramOpTypeElement = document.createElement(getParamOPTypeTagName());
+            final Element paramNameElement = XmlUtil.createTextElement(document, "ParamName", Util.coalesce(mostParameter.getName()));
+            paramNameElement.setAttribute("ParamIdx", mostParameter.getIndex());
+            paramElement.appendChild(paramNameElement);
+
+            final Element paramDescriptionElement = XmlUtil.createTextElement(document, "ParamDescription", Util.coalesce(mostParameter.getDescription()));
+            paramElement.appendChild(paramDescriptionElement);
+
+            final Element paramOpTypeElement = document.createElement(getParamOPTypeTagName());
             populateParamOpTypeElement(document, paramOpTypeElement, mostParameter.getOperations());
             paramElement.appendChild(paramOpTypeElement);
 
-            Element paramTypeElement = document.createElement(getParamTypeTagName());
+            final Element paramTypeElement = document.createElement(getParamTypeTagName());
             populateParamTypeElement(document, paramTypeElement, mostParameter.getType());
             paramElement.appendChild(paramTypeElement);
 

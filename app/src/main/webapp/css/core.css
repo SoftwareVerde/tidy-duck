@@ -1,3 +1,7 @@
+html, #header {
+    min-width: 900px;
+}
+
 html, body, #main, #app-root {
     display: flex;
     min-height: 100%;
@@ -30,14 +34,24 @@ body * {
     left: 0;
     right: 0;
     height: 50px;
+    border-bottom: solid 2px;
 
     font-weight: bold;
     padding-left: 10px;
 }
 
+.tidy-logo {
+    height: 90%;
+    box-sizing: border-box;
+    margin: 0 0.5em 0 0.5em;
+    transform: scaleX(-1);
+    top: 3px;
+    position: relative;
+    vertical-align: top;
+}
+
 #main-content {
     top: 50px;
-    border-top: solid 2px;
     min-height: 100%;
     width: 100%;
 }
@@ -80,4 +94,11 @@ body * {
     content:    "";
     display:    block;
     clear:      both;
+}
+
+.wordwrap {
+   white-space: pre-wrap;      /* CSS3 */
+   white-space: -moz-pre-wrap; /* Firefox */
+   white-space: -o-pre-wrap;   /* Opera 7 */
+   word-wrap: break-word;      /* IE */
 }

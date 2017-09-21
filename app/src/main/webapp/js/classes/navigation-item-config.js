@@ -1,13 +1,23 @@
 class NavigationItemConfig {
     constructor() {
+        this._id = null;
         this._title = null;
         this._header = null;
         this._isReleased = null;
+        this._isApproved = null;
         this._onClickCallback = null;
         this._menuItemConfigs = [];
         this._iconName = "";
 
         this._form = null;
+    }
+
+    setId(id) {
+        this._id = id;
+    }
+
+    getId() {
+        return this._id;
     }
 
     setTitle(title) {
@@ -32,6 +42,14 @@ class NavigationItemConfig {
 
     isReleased() {
         return this._isReleased;
+    }
+
+    setIsApproved(isApproved) {
+        this._isApproved = isApproved;
+    }
+
+    isApproved() {
+        return this._isApproved;
     }
 
     setOnClickCallback(callback) {

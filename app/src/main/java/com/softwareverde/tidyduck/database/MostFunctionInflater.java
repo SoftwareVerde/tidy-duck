@@ -52,8 +52,11 @@ public class MostFunctionInflater {
         final String description = row.getString("description");
         final String releaseVersion = row.getString("release_version");
         final String category = row.getString("category");
+        final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
+        final String returnParameterName = row.getString("return_parameter_name");
+        final String returnParameterDescription = row.getString("return_parameter_description");
         final long returnTypeId = row.getLong("return_type_id");
         final Long accountId = row.getLong("account_id");
         final long companyId = row.getLong("company_id");
@@ -88,8 +91,11 @@ public class MostFunctionInflater {
         mostFunction.setName(name);
         mostFunction.setDescription(description);
         mostFunction.setRelease(releaseVersion);
-        mostFunction.setReleased(isReleased);
+        mostFunction.setIsApproved(isApproved);
+        mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
+        mostFunction.setReturnParameterName(returnParameterName);
+        mostFunction.setReturnParameterDescription(returnParameterDescription);
         mostFunction.setReturnType(returnType);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
@@ -118,19 +124,23 @@ public class MostFunctionInflater {
 
     public List<MostFunctionParameter> inflateMostFunctionParametersFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT parameter_index, most_type_id FROM function_parameters WHERE function_id = ?"
+                "SELECT parameter_name, parameter_description, parameter_index, most_type_id FROM function_parameters WHERE function_id = ?"
         );
         query.setParameter(mostFunctionId);
 
         List<MostFunctionParameter> mostFunctionParameters = new ArrayList<MostFunctionParameter>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
+            final String parameterName = row.getString("parameter_name");
+            final String parameterDescription = row.getString("parameter_description");
             final Integer parameterIndex = row.getInteger("parameter_index");
             final Long parameterTypeId = row.getLong("most_type_id");
             final MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
             final MostType parameterType = mostTypeInflater.inflateMostType(parameterTypeId);
 
             MostFunctionParameter mostFunctionParameter = new MostFunctionParameter();
+            mostFunctionParameter.setName(parameterName);
+            mostFunctionParameter.setDescription(parameterDescription);
             mostFunctionParameter.setParameterIndex(parameterIndex);
             mostFunctionParameter.setMostType(parameterType);
             mostFunctionParameters.add(mostFunctionParameter);

@@ -5,7 +5,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.transaction.DatabaseRunnable;
 import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
-import com.softwareverde.tidyduck.Settings;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.most.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +28,38 @@ public class DatabaseManager {
     }
 
     // ACCOUNT METHODS
+    public boolean insertAccount(final Account account) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.insertAccount(account);
+        }
+    }
 
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
             accountDatabaseManager.updateAccountSettings(accountId, settings);
+        }
+    }
+
+    public boolean changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.changePassword(accountId, oldPassword, newPasswordHash);
+        }
+    }
+
+    public String resetPassword(final long accountId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.resetPassword(accountId);
+        }
+    }
+
+    public boolean insertCompany(final Company company) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.insertCompany(company);
         }
     }
 
@@ -64,6 +91,43 @@ public class DatabaseManager {
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
                 functionCatalogDatabaseManager.deleteFunctionCatalog(functionCatalogId);
+            }
+        });
+    }
+
+    public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                functionCatalogDatabaseManager.submitFunctionCatalogForReview(functionCatalogId, accountId);
+            }
+        });
+    }
+
+    public boolean isFunctionCatalogApproved(final Long functionCatalogId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.isApproved(functionCatalogId);
+        }
+    }
+
+    // RELEASE
+
+
+    public List<ReleaseItem> getReleaseItemList(final long functionCatalogId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
+            return releaseDatabaseManager.getReleaseItemList(functionCatalogId);
+        }
+    }
+
+    public void releaseFunctionCatalog(final long functionCatalogId, final List<ReleaseItem> releaseItems) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+            final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
+            releaseDatabaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
             }
         });
     }
@@ -127,6 +191,16 @@ public class DatabaseManager {
         }
     }
 
+    public void submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.submitFunctionBlockForReview(functionBlockId, accountId);
+            }
+        });
+    }
+
     // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
@@ -135,7 +209,6 @@ public class DatabaseManager {
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
-
             }
         });
     }
@@ -185,6 +258,16 @@ public class DatabaseManager {
             final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
             return mostInterfaceDatabaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
         }
+    }
+
+    public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
+            }
+        });
     }
 
     // MOST FUNCTION METHODS
@@ -237,6 +320,87 @@ public class DatabaseManager {
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
                 mostTypeDatabaseManager.updateMostType(mostType);
+            }
+        });
+    }
+
+    // REVIEW METHODS
+    public void insertReview(final Review review) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.insertReview(review);
+            }
+        });
+    }
+
+    public void updateReview(final Review review) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.updateReview(review);
+            }
+        });
+    }
+
+    public void approveReview(final Review review) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.approveReview(review);
+            }
+        });
+    }
+
+    public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.insertReviewVote(reviewVote, reviewId);
+            }
+        });
+    }
+
+    public void updateReviewVote(final ReviewVote reviewVote) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.updateReviewVote(reviewVote);
+            }
+        });
+    }
+
+    public void deleteReviewVote(final long reviewVoteId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.deleteReviewVote(reviewVoteId);
+            }
+        });
+    }
+
+    public void insertReviewComment(final ReviewComment reviewComment, final long reviewId) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
+                reviewDatabaseManager.insertReviewComment(reviewComment, reviewId);
+            }
+        });
+    }
+
+    public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+                accountDatabaseManager.updateAccountRoles(accountId, roles);
             }
         });
     }

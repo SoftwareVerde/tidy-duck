@@ -1,0 +1,13 @@
+
+.review-entry:hover {
+    background-color: #FFDD66;
+    border-color: #DDCC44;
+}
+
+.review-entry:hover .review-name {
+    border-color: #DDCC44;
+}
+
+.approval-form {
+    background-color: #EDEDED;
+}

@@ -89,7 +89,7 @@ class FunctionBlock extends React.Component {
 
     onClick() {
         if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionBlock, false, true);
+            this.props.onClick(this.props.functionBlock, false);
         }
     }
 
@@ -114,19 +114,21 @@ class FunctionBlock extends React.Component {
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
         const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
+        const childItemStyle = this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+        const releasedIcon = this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book" title="This Function Block is Released" /> : "";
 
-        // TODO: remove displayVersion if Release mode allows changing versions and saving those changes to a parent function catalog.
         const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div> :
-            <select name={"Version"} value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+            <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
         
         return (
-            <div className="child-item" onClick={this.onClick}>
+            <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
                     {name}
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {releasedIcon}
                     {this.renderMenu()}
                 </div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>

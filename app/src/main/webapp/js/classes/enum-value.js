@@ -9,6 +9,7 @@ class EnumValue {
         enumValue.setId(json.id);
         enumValue.setName(json.name);
         enumValue.setCode(json.code);
+        enumValue.setDescription(json.description);
 
         return enumValue;
     }
@@ -18,9 +19,10 @@ class EnumValue {
             return null;
         }
         return {
-            id:     enumValue.getId(),
-            name:   enumValue.getName(),
-            code:   enumValue.getCode()
+            id:             enumValue.getId(),
+            name:           enumValue.getName(),
+            code:           enumValue.getCode(),
+            description:    enumValue.getDescription()
         };
     }
 
@@ -28,6 +30,7 @@ class EnumValue {
         this._id            = null;
         this._name          = null;
         this._code          = null;
+        this._description   = null;
         this._valueIndex    = null;
     }
 
@@ -53,6 +56,14 @@ class EnumValue {
 
     getCode() {
         return this._code;
+    }
+
+    setDescription(description) {
+        this._description = description;
+    }
+
+    getDescription() {
+        return this._description;
     }
 
     setValueIndex(valueIndex) {

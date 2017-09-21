@@ -2,6 +2,8 @@
 WAR_FILE_NAME="tidy-duck-1.0-SNAPSHOT.war"
 DEST_FILE_NAME="ROOT.war"
 BASE_DIR="$(dirname $0)/../../"
+
+date +"[%Y-%m-%d %H:%M:%S]"
 cd $BASE_DIR
 ./gradlew war
 cd -

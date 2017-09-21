@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.most.MostFunction;
 
@@ -72,18 +73,19 @@ public class MostInterfaceDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _updateUnreleasedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
+    private void _updateUnapprovedMostInterface(MostInterface proposedMostInterface) throws DatabaseException {
         final String newMostId = proposedMostInterface.getMostId();
         final String newName = proposedMostInterface.getName();
         final String newVersion = proposedMostInterface.getVersion();
         final String newDescription = proposedMostInterface.getDescription();
         final long mostInterfaceId = proposedMostInterface.getId();
 
-        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ? WHERE id = ?")
+        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ?, is_approved = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newName)
             .setParameter(newDescription)
             .setParameter(newVersion)
+            .setParameter(false)
             .setParameter(mostInterfaceId)
         ;
 
@@ -102,19 +104,20 @@ public class MostInterfaceDatabaseManager {
         final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE interface_id = ? and function_block_id IN (" +
                 "SELECT DISTINCT function_blocks.id\n" +
                     "FROM function_blocks\n" +
-                    "WHERE function_blocks.is_released=0)")
+                    "WHERE function_blocks.is_approved=0)")
                 .setParameter(mostInterfaceId);
 
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteMostInterfaceIfUnreleased(final long mostInterfaceId) throws DatabaseException {
+    private void _deleteMostInterfaceIfUnapproved(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (!mostInterface.isReleased()) {
-            // interface isn't released and isn't associated with any function blocks, we can delete it
+        if (! mostInterface.isApproved()) {
+            // interface isn't approved and isn't associated with any function blocks, we can delete it
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
+            _deleteReviewForMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
         }
     }
@@ -125,10 +128,9 @@ public class MostInterfaceDatabaseManager {
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
-            // function is not released, we can delete it.
+            // function is not approved, we can delete it.
             mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
         }
-
     }
 
     private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
@@ -160,7 +162,7 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
-        // TODO: check to see whether function block is released.
+        // TODO: check to see whether function block is approved.
         _insertMostInterface(mostInterface);
         _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
     }
@@ -174,19 +176,31 @@ public class MostInterfaceDatabaseManager {
 
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
-        if (!originalMostInterface.isReleased()) {
-            // not released, can update existing interface
-            _updateUnreleasedMostInterface(proposedMostInterface);
+        if (!originalMostInterface.isApproved()) {
+            // not approved, can update existing interface
+            _updateUnapprovedMostInterface(proposedMostInterface);
         } else {
-            // current block is released, need to insert a new interface replace this one
+            // current block is approved, need to insert a new interface replace this one
             _insertMostInterface(proposedMostInterface, originalMostInterface);
             final long newMostInterfaceId = proposedMostInterface.getId();
+            _copyMostInterfaceMostFunctions(inputMostInterfaceId, newMostInterfaceId);
             // change association with function block if id isn't 0
             if (functionBlockId != 0) {
-                // TODO: check if function block is released?
+                // TODO: check if function block is approved?
                 _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
                 _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
             }
+        }
+    }
+
+    private void _copyMostInterfaceMostFunctions(final long originalMostInterfaceId, final long newMostInterfaceId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(originalMostInterfaceId);
+
+        final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
+        for (final MostFunction mostFunction : mostFunctions) {
+            // Need to insert copy of most function rather than associate existing most function.
+            mostFunctionDatabaseManager.insertMostFunctionForMostInterface(newMostInterfaceId, mostFunction);
         }
     }
 
@@ -199,7 +213,7 @@ public class MostInterfaceDatabaseManager {
                 _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(mostInterfaceId);
             }
             else {
-                _deleteMostInterfaceIfUnreleased(mostInterfaceId);
+                _deleteMostInterfaceIfUnapproved(mostInterfaceId);
             }
         }
     }
@@ -225,5 +239,69 @@ public class MostInterfaceDatabaseManager {
             return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         return null;
+    }
+
+    public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        if (_mostInterfaceHasReview(mostInterfaceId)) {
+            // already present, return
+            return;
+        }
+        _submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
+    }
+
+    private boolean _mostInterfaceHasReview(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE interface_id = ?");
+        query.setParameter(mostInterfaceId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
+    }
+
+    private void _submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+        final Query query = new Query("INSERT INTO reviews (interface_id, account_id, created_date) VALUES (?, ?, NOW())");
+        query.setParameter(mostInterfaceId);
+        query.setParameter(submittingAccountId);
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void approveMostInterface(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(mostInterfaceId);
+
+        _databaseConnection.executeSql(query);
+
+        _approveMostFunctionsForMostInterfaceId(mostInterfaceId);
+    }
+
+    private void _approveMostFunctionsForMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+        final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+
+        final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
+        for (final MostFunction mostFunction : mostFunctions) {
+            mostFunctionDatabaseManager.approveMostFunction(mostFunction.getId());
+        }
+    }
+
+    private void _deleteReviewForMostInterface(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE interface_id = ?")
+                .setParameter(mostInterfaceId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final List<Review> reviews = new ArrayList<>();
+
+        // Inflate reviews
+        final ReviewInflater reviewInflater = new ReviewInflater(_databaseConnection);
+        for (Row row : rows) {
+            final Review review = reviewInflater._convertRowToReview(row);
+            reviews.add(review);
+        }
+
+        final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(_databaseConnection);
+        for (Review review: reviews) {
+            reviewDatabaseManager.deleteReview(review);
+        }
     }
 }

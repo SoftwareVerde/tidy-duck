@@ -1,3 +1,27 @@
+// calls callbackFunction with the function block
+function getFunctionBlock(functionBlockId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-blocks/" + functionBlockId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionBlock = null;
+
+        if (data.wasSuccess) {
+            functionBlock = data.functionBlock;
+        } else {
+            console.error("Unable to get function block: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlock);
+        }
+    });
+}
 
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
@@ -32,7 +56,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
 function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/search?name=" + searchString,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/search/" + searchString,
         {
             method: "GET",
             credentials: "include"
@@ -179,6 +203,28 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-blocks/" + functionBlockId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit function block for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

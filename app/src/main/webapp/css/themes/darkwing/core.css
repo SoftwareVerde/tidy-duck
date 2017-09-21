@@ -5,6 +5,7 @@ body * {
 
 .button {
     background-color: #032C46;
+    border: none;
     color: #FFF;
 
     transition: background-color 0.5s ease;

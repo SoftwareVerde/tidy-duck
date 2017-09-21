@@ -10,8 +10,8 @@ import java.util.List;
 
 public class StreamCase implements XmlNode {
     private PositionDescription _positionDescription;
-    private List<StreamParameter> _streamParameters;
-    private List<StreamSignal> _streamSignals;
+    private List<StreamParameter> _streamParameters = new ArrayList<>();
+    private List<StreamSignal> _streamSignals = new ArrayList<>();
 
     public PositionDescription getPositionDescription() {
         return _positionDescription;

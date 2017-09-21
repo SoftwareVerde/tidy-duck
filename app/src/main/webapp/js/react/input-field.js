@@ -13,7 +13,7 @@ class InputField extends React.Component {
     }
 
     onInputChanged(event) {
-        var newValue = event.target.value;
+        var newValue = this.props.type == "checkbox" ? event.target.checked : event.target.value;
 
         if (! this.props.readOnly) {
             this.setState({value: newValue});
@@ -38,24 +38,24 @@ class InputField extends React.Component {
         switch (this.props.type) {
             case 'select':
                 return (
-                    <select id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} >
+                    <select id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} disabled={this.props.readOnly} required={this.props.isRequired} >
                         {this.renderOptions()}
                     </select>
                 );
                 break;
             case 'textarea':
                 return (
-                    <textarea id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />
+                    <textarea id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} required={this.props.isRequired} />
                 );
                 break;
             case 'checkbox':
                 return (
-                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} checked={this.props.checked}/>
+                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} tabIndex="-1" checked={this.props.checked}/>
                 );
                 break;
             default:
                 return (
-                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} />
+                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                 );
         }
     }
@@ -70,17 +70,21 @@ class InputField extends React.Component {
     }
 
     render() {
+        let label = '';
+        if (this.props.label) {
+            label = <label htmlFor={this.props.id}>{this.props.label}:</label>;
+        }
         if (this.props.isSmallInputField) {
             return (
                 <div className="input-field-small">
-                    <label htmlFor={this.props.id}>{this.props.label}:</label>
+                    {label}
                     {this.renderInput()}
                 </div>
             );
         }
         return (
             <div className="input-field">
-                <label htmlFor={this.props.id}>{this.props.label}:</label>
+                {label}
                 {this.renderInput()}
             </div>
         );

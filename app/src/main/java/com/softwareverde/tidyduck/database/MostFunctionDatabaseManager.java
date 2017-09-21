@@ -22,15 +22,15 @@ class MostFunctionDatabaseManager {
     }
 
     /**
-     * <p>This method updates a function, provided its interface is not released.  If the interface is released, a new function is added
+     * <p>This method updates a function, provided its interface is not approved.  If the interface is approved, a new function is added
      * and associated with the interface.</p>
      *
      * <p>This relies on the following assumptions:</p>
      * <ol>
-     *     <li>When interfaces are released, their functions are also marked released</li>
-     *     <li>When a released interface is changed, a new version of that interface is created with references to the same functions</li>
-     *     <li>When a released function on an unreleased interface is changed, a new function should be added to contain the changes</li>
-     *     <li>No attempts will be made to update a function on a released interface</li>
+     *     <li>When interfaces are approved, their functions are also marked approved</li>
+     *     <li>When a approved interface is changed, a new version of that interface is created with references to the same functions</li>
+     *     <li>When a approved function on an approved interface is changed, a new function should be added to contain the changes</li>
+     *     <li>No attempts will be made to update a function on a approved interface</li>
      * </ol>
      * @param mostInterfaceId
      * @param proposedMostFunction
@@ -42,12 +42,12 @@ class MostFunctionDatabaseManager {
         MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         MostFunction databaseMostFunction = mostFunctionInflater.inflateMostFunction(inputMostFunctionId);
 
-        if (!databaseMostFunction.isReleased()) {
-            // not released, can update existing function
-            _updateUnreleasedMostFunction(proposedMostFunction);
+        if (!databaseMostFunction.isApproved()) {
+            // not approved, can update existing function
+            _updateUnapprovedMostFunction(proposedMostFunction);
         }
         else {
-            // current function is released to an interface
+            // current function is approved to an interface
             // need to insert a new function to replace this one
             _insertMostFunction(proposedMostFunction);
             final long newMostFunctionId = proposedMostFunction.getId();
@@ -57,7 +57,7 @@ class MostFunctionDatabaseManager {
         }
     }
 
-    private void _updateUnreleasedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
+    private void _updateUnapprovedMostFunction(final MostFunction proposedMostFunction) throws DatabaseException {
         final String name = proposedMostFunction.getName();
         final String mostId = proposedMostFunction.getMostId();
         final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
@@ -65,6 +65,8 @@ class MostFunctionDatabaseManager {
         final String release = proposedMostFunction.getRelease();
         final long authorId = proposedMostFunction.getAuthor().getId();
         final long companyId = proposedMostFunction.getCompany().getId();
+        final String returnParameterName = proposedMostFunction.getReturnParameterName();
+        final String returnParameterDescription = proposedMostFunction.getReturnParameterDescription();
         final long returnTypeId = proposedMostFunction.getReturnType().getId();
         final long mostFunctionId = proposedMostFunction.getId();
 
@@ -74,7 +76,7 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_type_id = ?, supports_notification = ? WHERE id = ? ")
+        final Query query = new Query("UPDATE functions SET name = ?, most_id = ?, category = ?, function_stereotype_id = ?, description = ?, release_version = ?, account_id = ?, company_id = ?, return_parameter_name = ?, return_parameter_description = ?, return_type_id = ?, supports_notification = ?, is_approved = ? WHERE id = ? ")
                 .setParameter(name)
                 .setParameter(mostId)
                 .setParameter(proposedMostFunction.getFunctionType())
@@ -83,8 +85,11 @@ class MostFunctionDatabaseManager {
                 .setParameter(release)
                 .setParameter(authorId)
                 .setParameter(companyId)
+                .setParameter(returnParameterName)
+                .setParameter(returnParameterDescription)
                 .setParameter(returnTypeId)
                 .setParameter(supportsNotification ? 1 : 0)
+                .setParameter(false)
                 .setParameter(mostFunctionId)
         ;
 
@@ -114,6 +119,8 @@ class MostFunctionDatabaseManager {
         final String release = mostFunction.getRelease();
         final Long authorId = mostFunction.getAuthor().getId();
         final Long companyId = mostFunction.getCompany().getId();
+        final String returnParameterName = mostFunction.getReturnParameterName();
+        final String returnParameterDescription = mostFunction.getReturnParameterDescription();
         final Long returnTypeId = mostFunction.getReturnType().getId();
 
         boolean supportsNotification = false;
@@ -122,7 +129,7 @@ class MostFunctionDatabaseManager {
             supportsNotification = property.supportsNotification();
         }
 
-        final Query query = new Query("INSERT INTO functions (name, most_id, category, function_stereotype_id, description, release_version, account_id, company_id, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO functions (name, most_id, category, function_stereotype_id, description, release_version, account_id, company_id, return_parameter_name, return_parameter_description, return_type_id, supports_notification) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(mostId)
             .setParameter(mostFunction.getFunctionType())
@@ -131,6 +138,8 @@ class MostFunctionDatabaseManager {
             .setParameter(release)
             .setParameter(authorId)
             .setParameter(companyId)
+            .setParameter(returnParameterName)
+            .setParameter(returnParameterDescription)
             .setParameter(returnTypeId)
             .setParameter(supportsNotification ? 1 : 0)
         ;
@@ -151,8 +160,10 @@ class MostFunctionDatabaseManager {
     }
 
     private void _addInputParameterToFunction(final long newFunctionId, final MostFunctionParameter parameter) throws DatabaseException {
-        final Query query = new Query("INSERT INTO function_parameters (function_id, parameter_index, most_type_id) VALUES (?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_parameters (function_id, parameter_name, parameter_description, parameter_index, most_type_id) VALUES (?, ?, ?, ?, ?)")
             .setParameter(newFunctionId)
+            .setParameter(parameter.getName())
+            .setParameter(parameter.getDescription())
             .setParameter(parameter.getParameterIndex())
             .setParameter(parameter.getMostType().getId())
         ;
@@ -204,10 +215,10 @@ class MostFunctionDatabaseManager {
 
     public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
-        _deleteMostFunctionIfUnreleased(mostFunctionId);
+        _deleteMostFunctionIfUnapproved(mostFunctionId);
     }
 
-    private void _deleteMostFunctionIfUnreleased(final long mostFunctionId) throws DatabaseException {
+    private void _deleteMostFunctionIfUnapproved(final long mostFunctionId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 
@@ -225,6 +236,14 @@ class MostFunctionDatabaseManager {
         final Query query = new Query("DELETE FROM functions WHERE id = ?")
             .setParameter(mostFunctionId)
         ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void approveMostFunction(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(mostFunctionId);
 
         _databaseConnection.executeSql(query);
     }

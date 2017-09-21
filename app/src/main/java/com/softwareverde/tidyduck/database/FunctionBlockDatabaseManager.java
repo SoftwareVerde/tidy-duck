@@ -6,6 +6,7 @@ import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostInterface;
+import com.softwareverde.tidyduck.Review;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
-        // TODO: check to see whether function catalog is released.
+        // TODO: check to see whether function catalog is approved.
         _insertFunctionBlock(functionBlock);
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
@@ -96,7 +97,7 @@ public class FunctionBlockDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _updateUnreleasedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
+    private void _updateUnapprovedFunctionBlock(final FunctionBlock proposedFunctionBlock) throws DatabaseException {
         final String newMostId = proposedFunctionBlock.getMostId();
         final String newKind = proposedFunctionBlock.getKind();
         final String newName = proposedFunctionBlock.getName();
@@ -107,7 +108,7 @@ public class FunctionBlockDatabaseManager {
         final long newCompanyId = proposedFunctionBlock.getCompany().getId();
         final long functionBlockId = proposedFunctionBlock.getId();
 
-        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_approved = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newKind)
             .setParameter(newName)
@@ -116,6 +117,7 @@ public class FunctionBlockDatabaseManager {
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
             .setParameter(newAccess)
+            .setParameter(false)
             .setParameter(functionBlockId)
         ;
 
@@ -131,23 +133,24 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _disassociateFunctionBlockFromAllUnreleasedFunctionCatalogs(final long functionBlockId) throws DatabaseException {
+    private void _disassociateFunctionBlockFromAllUnapprovedFunctionCatalogs(final long functionBlockId) throws DatabaseException {
         final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_block_id = ? and function_catalog_id IN (" +
                                         "SELECT DISTINCT function_catalogs.id\n" +
                                                 "FROM function_catalogs\n" +
-                                                "WHERE function_catalogs.is_released=0)")
+                                                "WHERE function_catalogs.is_approved=0)")
                 .setParameter(functionBlockId);
 
         _databaseConnection.executeSql(query);
 
     }
 
-    private void _deleteFunctionBlockIfUnreleased(final long functionBlockId) throws DatabaseException {
+    private void _deleteFunctionBlockIfUnapproved(final long functionBlockId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
         if (! functionBlock.isReleased()) {
             _deleteInterfacesFromFunctionBlock(functionBlockId);
+            _deleteReviewForFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
     }
@@ -158,7 +161,7 @@ public class FunctionBlockDatabaseManager {
 
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
-            // function block isn't released, we can delete it
+            // function block isn't approved, we can delete it
             mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
     }
@@ -194,9 +197,9 @@ public class FunctionBlockDatabaseManager {
     }
 
     /**
-     * If the functionBlock already exists and is released, a new one is inserted and associated with the functionCatalogId.
+     * If the functionBlock already exists and is approved, a new one is inserted and associated with the functionCatalogId.
      *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
-     *  If the functionBlock is not released, then the values are updated within the database.
+     *  If the functionBlock is not approved, then the values are updated within the database.
      */
     public void updateFunctionBlockForFunctionCatalog(final long functionCatalogId, final FunctionBlock updatedFunctionBlock) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
@@ -204,21 +207,32 @@ public class FunctionBlockDatabaseManager {
         final long inputFunctionBlockId = updatedFunctionBlock.getId();
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
 
-        if (originalFunctionBlock.isReleased()) {
-            // current block is released, need to insert a new function block replace this one
+        if (originalFunctionBlock.isApproved()) {
+            // current block is approved, need to insert a new function block replace this one
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
+            _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);
 
             // change association with function catalog if provided id isn't 0
             if (functionCatalogId != 0) {
-                // TODO: Check if functionCatalog is also released...?
+                // TODO: Check if functionCatalog is also approved...?
                 _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
                 _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
             }
         }
         else {
-            // not released, can update existing function block
-            _updateUnreleasedFunctionBlock(updatedFunctionBlock);
+            // not approve, can update existing function block
+            _updateUnapprovedFunctionBlock(updatedFunctionBlock);
+        }
+    }
+
+    private void _copyFunctionBlockInterfacesAssociations(final long originalFunctionBlockId, final long newFunctionBlockId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(originalFunctionBlockId);
+
+        final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (final MostInterface mostInterface : mostInterfaces) {
+            mostInterfaceDatabaseManager.associateMostInterfaceWithFunctionBlock(newFunctionBlockId, mostInterface.getId());
         }
     }
 
@@ -228,10 +242,10 @@ public class FunctionBlockDatabaseManager {
         }
         else {
             if (!_isOrphaned(functionBlockId)) {
-                _disassociateFunctionBlockFromAllUnreleasedFunctionCatalogs(functionBlockId);
+                _disassociateFunctionBlockFromAllUnapprovedFunctionCatalogs(functionBlockId);
             }
             else {
-                _deleteFunctionBlockIfUnreleased(functionBlockId);
+                _deleteFunctionBlockIfUnapproved(functionBlockId);
             }
         }
     }
@@ -250,5 +264,69 @@ public class FunctionBlockDatabaseManager {
             functionCatalogIds.add(functionCatalogId);
         }
         return functionCatalogIds;
+    }
+
+    public void submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+        if (_functionBlockHasReview(functionBlockId)) {
+            // already present, return
+            return;
+        }
+        _submitFunctionBlockForReview(functionBlockId, accountId);
+    }
+
+    private boolean _functionBlockHasReview(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE function_block_id = ?");
+        query.setParameter(functionBlockId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
+    }
+
+    private void _submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+        final Query query = new Query("INSERT INTO reviews (function_block_id, account_id, created_date) VALUES (?, ?, NOW())");
+        query.setParameter(functionBlockId);
+        query.setParameter(accountId);
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void approveFunctionBlock(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET is_approved = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(functionBlockId);
+
+        _databaseConnection.executeSql(query);
+
+        _approveMostInterfacesForFunctionBlockId(functionBlockId);
+    }
+
+    private void _approveMostInterfacesForFunctionBlockId(final long functionBlockId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
+
+        final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
+        for (final MostInterface mostInterface : mostInterfaces) {
+            mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId());
+        }
+    }
+
+    private void _deleteReviewForFunctionBlock(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM reviews WHERE function_block_id = ?")
+            .setParameter(functionBlockId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final List<Review> reviews = new ArrayList<>();
+
+        // Inflate reviews
+        final ReviewInflater reviewInflater = new ReviewInflater(_databaseConnection);
+        for (Row row : rows) {
+            final Review review = reviewInflater._convertRowToReview(row);
+            reviews.add(review);
+        }
+
+        final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(_databaseConnection);
+        for (Review review: reviews) {
+            reviewDatabaseManager.deleteReview(review);
+        }
     }
 }

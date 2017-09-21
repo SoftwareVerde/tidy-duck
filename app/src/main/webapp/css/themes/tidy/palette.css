@@ -14,6 +14,10 @@
     color: #4A4A4A;
 }
 
+.primary-contrast {
+    color: #333;
+}
+
 .primary-bg {
     background-color: #F3F3F3;
 }
@@ -29,7 +33,6 @@
 .accent-bg {
     background-color: #4A4A4A;
 }
-
 
 .primary-border {
     border-color: #F3F3F3;

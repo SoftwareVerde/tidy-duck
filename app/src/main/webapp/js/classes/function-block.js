@@ -20,6 +20,7 @@ class FunctionBlock {
         functionBlock.setBaseVersionId(json.baseVersionId);
         functionBlock.setPriorVersionId(json.priorVersionId);
         functionBlock.setIsReleased(json.isReleased);
+        functionBlock.setIsApproved(json.isApproved);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(json.access);
@@ -30,7 +31,7 @@ class FunctionBlock {
     static toJson(functionBlock) {
         const jsonFunctionBlock = {
             id:                 functionBlock.getId(),
-            mostId:             functionBlock.getMostId(),
+            mostId:             formatHex(functionBlock.getMostId()),
             kind:               functionBlock.getKind(),
             name:               functionBlock.getName(),
             description:        functionBlock.getDescription(),
@@ -39,6 +40,7 @@ class FunctionBlock {
             baseVersionId:      functionBlock.getBaseVersionId(),
             priorVersionId:     functionBlock.getPriorVersionId(),
             isReleased:         functionBlock.isReleased(),
+            isApproved:         functionBlock.isApproved(),
             access:             functionBlock.getAccess()
         };
         const author = (functionBlock.getAuthor() || new Author());
@@ -65,6 +67,7 @@ class FunctionBlock {
         this._access                = "";
         this._versionsJson          = null;
         this._isReleased            = null;
+        this._isApproved            = null;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
 
@@ -185,6 +188,14 @@ class FunctionBlock {
 
     isReleased() {
         return this._isReleased;
+    }
+
+    setIsApproved(isApproved) {
+        this._isApproved = isApproved;
+    }
+
+    isApproved() {
+        return this._isApproved;
     }
 
     getDisplayVersion() {

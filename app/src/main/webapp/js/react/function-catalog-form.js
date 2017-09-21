@@ -8,7 +8,8 @@ class FunctionCatalogForm extends React.Component {
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:         this.props.defaultButtonTitle
+            defaultButtonTitle:         this.props.defaultButtonTitle,
+            readOnly:                   (this.props.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
@@ -28,7 +29,8 @@ class FunctionCatalogForm extends React.Component {
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
             buttonTitle:                (newProperties.buttonTitle || "Submit"),
-            defaultButtonTitle:         newProperties.defaultButtonTitle
+            defaultButtonTitle:         newProperties.defaultButtonTitle,
+            readOnly:                   (newProperties.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
         });
     }
 
@@ -61,11 +63,13 @@ class FunctionCatalogForm extends React.Component {
     }
 
 
-    onSubmit() {
+    onSubmit(event) {
         const createdFunctionCatalog = this.state.functionCatalog;
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionCatalog);
         }
+
+        event.preventDefault();
 
         /*
             // Clear the form...
@@ -86,19 +90,25 @@ class FunctionCatalogForm extends React.Component {
 
     render() {
         const reactComponents = [];
-        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={this.state.functionCatalog.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} />);
-        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={this.state.functionCatalog.getReleaseVersion()} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} />);
+        const functionCatalog = this.state.functionCatalog;
+        const version = functionCatalog.isApproved() ? functionCatalog.getDisplayVersion() : functionCatalog.getReleaseVersion();
+        const readOnly = this.state.readOnly;
 
-        if(this.state.shouldShowSaveAnimation)  {
-            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
-        } else {
-            reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit" onClick={this.onSubmit}>{this.state.buttonTitle}</div></div>);
+        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true}/>);
+        reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />);
+
+        if (! readOnly) {
+            if(this.state.shouldShowSaveAnimation)  {
+                reactComponents.push(<div key="button submit-button" className="center"><div className="button submit-button" id="function-catalog-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
+            } else {
+                reactComponents.push(<div key="button submit-button" className="center"><input type="submit" className="button submit-button" id="function-catalog-submit" value={this.state.buttonTitle}/></div>);
+            }
         }
         return (
-            <div className="metadata-form" onClick={this.onClick}>
+            <form className="metadata-form clearfix" onClick={this.onClick} onSubmit={this.onSubmit}>
                 {this.renderFormTitle()}
                 {reactComponents}
-            </div>
+            </form>
         );
     }
 }

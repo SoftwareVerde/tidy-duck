@@ -18,10 +18,13 @@ public abstract class MostFunction {
     private String _name;
     private String _description;
     private String _release;
+    private boolean _isApproved;
     private boolean _isReleased;
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
     private Company _company;
+    private String _returnParameterName;
+    private String _returnParameterDescription;
     private MostType _returnType;
     private List<Operation> _operations = new ArrayList<>();
 
@@ -65,11 +68,19 @@ public abstract class MostFunction {
         _release = release;
     }
 
+    public boolean isApproved() {
+        return _isApproved;
+    }
+
+    public void setIsApproved(final boolean approved) {
+        _isApproved = approved;
+    }
+
     public boolean isReleased() {
         return _isReleased;
     }
 
-    public void setReleased(boolean released) {
+    public void setIsReleased(boolean released) {
         _isReleased = released;
     }
 
@@ -95,6 +106,22 @@ public abstract class MostFunction {
 
     public void setCompany(Company company) {
         _company = company;
+    }
+
+    public String getReturnParameterName() {
+        return _returnParameterName;
+    }
+
+    public void setReturnParameterName(final String returnParameterName) {
+        _returnParameterName = returnParameterName;
+    }
+
+    public String getReturnParameterDescription() {
+        return _returnParameterDescription;
+    }
+
+    public void setReturnParameterDescription(final String returnParameterDescription) {
+        _returnParameterDescription = returnParameterDescription;
     }
 
     public MostType getReturnType() {

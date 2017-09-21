@@ -81,7 +81,7 @@ class NavigationItem extends React.Component {
         const config = this.props.navigationItemConfig || new NavigationItemConfig();
 
         return (
-            <div className="navigation-item" onClick={this.onClick}>
+            <div className="navigation-item clearfix" onClick={this.onClick}>
                 {config.getTitle()}
                 {this.renderMenu()}
                 {this.renderForm()}

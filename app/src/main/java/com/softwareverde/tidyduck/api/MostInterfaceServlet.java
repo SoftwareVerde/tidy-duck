@@ -4,19 +4,22 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -24,65 +27,143 @@ import java.util.Map;
 public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final long accountId, final Environment environment) throws Exception {
-        final Database<Connection> database = environment.getDatabase();
-        final String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-interfaces".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.POST) {
-                return _insertMostInterface(request, database);
-            }
-            if (httpMethod == HttpMethod.GET) {
+    public MostInterfaceServlet() {
+        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final String requestFunctionBlockId = request.getParameter("function_block_id");
 
                 if (Util.isBlank(requestFunctionBlockId)) {
-                    return _listAllMostInterfaces(database);
+                    return _listAllMostInterfaces(environment.getDatabase());
                 }
 
                 final long functionBlockId = Util.parseLong(Util.coalesce(requestFunctionBlockId));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id.");
                 }
-                return _listMostInterfaces(functionBlockId, database);
+                return _listMostInterfaces(functionBlockId, environment.getDatabase());
             }
-        }
-        else if ("search".equals(finalUrlSegment)){
-            if (httpMethod == HttpMethod.GET) {
-                final String searchString = Util.coalesce(request.getParameter("name"));
-                if (searchString.length() < 1) {
+        });
+
+        super.defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                return _insertMostInterface(request, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                final String searchString = Util.coalesce(parameters.get("name"));
+                if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for interface.");
                 }
-                return _listMostInterfacesMatchingSearchString(searchString, database);
+                return _listMostInterfacesMatchingSearchString(searchString, environment.getDatabase());
             }
-        }
-        else if ("function-blocks".equals(finalUrlSegment)) {
-            // most-interface/<id>/function-blocks
-            final long mostInterfaceId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
-            if (mostInterfaceId < 1) {
-                return _generateErrorJson("Invalid function block id.");
-            }
-            if (httpMethod == HttpMethod.GET) {
-                return _listFunctionBlocksContainingMostInterface(mostInterfaceId, database);
-            }
-            if (httpMethod == HttpMethod.POST) {
-                return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, database);
-            }
-        }
-        else {
-            // not base interface, must have ID
-            final long mostInterfaceId = Util.parseLong(finalUrlSegment);
-            if (mostInterfaceId < 1) {
-                return _generateErrorJson("Invalid interface id.");
-            }
+        });
 
-            if (httpMethod == HttpMethod.POST) {
-                return _updateMostInterface(request, mostInterfaceId, database);
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _getMostInterface(mostInterfaceId, environment.getDatabase());
             }
-            else if (httpMethod == HttpMethod.DELETE) {
-                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, database);
+        });
+
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _updateMostInterface(request, mostInterfaceId, environment.getDatabase());
             }
+        });
+
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _listFunctionBlocksContainingMostInterface(mostInterfaceId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment.getDatabase());
+            }
+        });
+
+        super.defineEndpoint("most-interfaces/<mostInterfaceId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _submitMostInterfaceForReview(mostInterfaceId, currentAccount, environment.getDatabase());
+            }
+        });
+    }
+
+    private Json _getMostInterface(final Long mostInterfaceId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+            final Json response = new Json(false);
+
+            response.put("mostInterface", _toJson(mostInterface));
+
+            _setJsonSuccessFields(response);
+            return response;
         }
-        return _generateErrorJson("Unimplemented HTTP method in request.");
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list interfaces", exception);
+            return _generateErrorJson("Unable to list interfaces.");
+        }
     }
 
     protected Json _insertMostInterface(final HttpServletRequest request, final Database database) throws Exception {
@@ -265,11 +346,18 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Database<Connection> database) {
+        final String decodedSearchString;
+        try{ decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
+        catch (UnsupportedEncodingException e) {
+            _logger.error("Unable to list interfaces from search", e);
+            return _generateErrorJson("Unable to list interfaces from search.");
+        }
+
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(searchString);
+            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(decodedSearchString);
 
             final Json mostInterfacesJson = new Json(true);
             for (final Long baseVersionId : mostInterfaces.keySet()) {
@@ -317,6 +405,22 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
+    protected Json _submitMostInterfaceForReview(final Long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
+        try {
+            final Json response = new Json(false);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.submitMostInterfaceForReview(mostInterfaceId, currentAccount.getId());
+
+            super._setJsonSuccessFields(response);
+            return response;
+        } catch (DatabaseException e) {
+            String errorMessage = "Unable to submit interface for review.";
+            _logger.error(errorMessage, e);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
     protected MostInterface _populateMostInterfaceFromJson(final Json mostInterfaceJson) throws Exception {
         final String mostId = mostInterfaceJson.getString("mostId");
         final String name = mostInterfaceJson.getString("name");
@@ -327,19 +431,24 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
+            if (!Util.isLong(mostId)) {
+                throw new Exception("Interface MOST ID must be an integer.");
+            }
 
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
-
+            /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
             }
-
+            */
             if (Util.isBlank(releaseVersion)) {
                 throw new Exception("Version field is required.");
             }
-
+            if (!Util.isLong(releaseVersion)) {
+                throw new Exception("Interface version must be an integer.");
+            }
         }
 
         final MostInterface mostInterface = new MostInterface();
@@ -359,6 +468,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterfaceJson.put("description", mostInterface.getDescription());
         mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
         mostInterfaceJson.put("releaseVersion", mostInterface.getVersion());
+        mostInterfaceJson.put("isReleased", mostInterface.isReleased());
+        mostInterfaceJson.put("isApproved", mostInterface.isApproved());
         mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());
         mostInterfaceJson.put("priorVersionId", mostInterface.getPriorVersionId());
         return mostInterfaceJson;

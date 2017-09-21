@@ -262,7 +262,7 @@ public class MostTypeConverter {
         final List<String> operationNames = _getOperationNames(property.getOperations());
 
         // add return type parameter
-        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationNames, property.getName(), "1");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationNames, "1");
         convertedProperty.addMostParameter(returnTypeParameter);
 
         // add get parameter
@@ -298,12 +298,13 @@ public class MostTypeConverter {
         return convertedProperty;
     }
 
-    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterName, String parameterIndex) {
+    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterIndex) {
 
         final MostType returnType = mostFunction.getReturnType();
 
         final MostParameter returnTypeParameter = new MostParameter();
-        returnTypeParameter.setName(parameterName);
+        returnTypeParameter.setName(mostFunction.getReturnParameterName());
+        returnTypeParameter.setDescription(mostFunction.getReturnParameterDescription());
         returnTypeParameter.setIndex(MOST_NULL);
         returnTypeParameter.setType(_convertMostType(returnType));
 
@@ -412,6 +413,7 @@ public class MostTypeConverter {
                     final com.softwareverde.mostadapter.type.EnumValue mostEnumValue = new com.softwareverde.mostadapter.type.EnumValue();
                     mostEnumValue.setName(enumValue.getName());
                     mostEnumValue.setCode(enumValue.getCode());
+                    mostEnumValue.setDescription(enumValue.getDescription());
 
                     enumType.addEnumValue(mostEnumValue);
                 }
@@ -568,22 +570,23 @@ public class MostTypeConverter {
         senderHandleParameter.setIndex(MOST_NULL);
         senderHandleParameter.setType(senderHandleType);
 
+        if (operationNames.contains("AbortAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
+        }
         if (operationNames.contains("StartResultAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
         }
-        if (operationNames.contains("AbortAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
+
+        if (operationNames.contains("ErrorAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
         }
         if (operationNames.contains("ProcessingAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
         }
-        if (operationNames.contains("ErrorAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
-        }
         convertedMethod.addMostParameter(senderHandleParameter);
 
         // add return type parameter
-        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationNames, "ReturnValue", "2");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationNames, "2");
         convertedMethod.addMostParameter(returnTypeParameter);
 
         // add input parameters
@@ -617,10 +620,13 @@ public class MostTypeConverter {
 
                 final com.softwareverde.mostadapter.type.MostType parameterType = _convertMostType(mostFunctionParameter.getMostType());
                 // add one to parameter index because of sender handle parameter
+                final String parameterName = mostFunctionParameter.getName();
+                final String parameterDescription = mostFunctionParameter.getDescription();
                 final int parameterIndex = mostFunctionParameter.getParameterIndex()+1;
                 final String parameterIndexString = Integer.toString(parameterIndex);
 
-                // TODO: add parameter names/description
+                mostParameter.setName(parameterName);
+                mostParameter.setDescription(parameterDescription);
                 mostParameter.setIndex(MOST_NULL);
                 mostParameter.setType(parameterType);
                 _addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
@@ -648,21 +654,21 @@ public class MostTypeConverter {
 
         errorCode.setEnumMax("67");
 
-        com.softwareverde.mostadapter.type.EnumValue value1 = new com.softwareverde.mostadapter.type.EnumValue("0x1", "FBlockIdNotAvailable");
-        com.softwareverde.mostadapter.type.EnumValue value3 = new com.softwareverde.mostadapter.type.EnumValue("0x3", "FunctionIdNotAvailable");
-        com.softwareverde.mostadapter.type.EnumValue value4 = new com.softwareverde.mostadapter.type.EnumValue("0x4", "OpTypeNotAvailable");
-        com.softwareverde.mostadapter.type.EnumValue value5 = new com.softwareverde.mostadapter.type.EnumValue("0x5", "InvalidLength");
-        com.softwareverde.mostadapter.type.EnumValue value6 = new com.softwareverde.mostadapter.type.EnumValue("0x6", "WrongParameter");
-        com.softwareverde.mostadapter.type.EnumValue value7 = new com.softwareverde.mostadapter.type.EnumValue("0x7", "ParameterNotAvailable");
-        com.softwareverde.mostadapter.type.EnumValue valueB = new com.softwareverde.mostadapter.type.EnumValue("0xB", "DeviceMalfunction");
-        com.softwareverde.mostadapter.type.EnumValue valueC = new com.softwareverde.mostadapter.type.EnumValue("0xC", "SegmentationError");
-        com.softwareverde.mostadapter.type.EnumValue value40 = new com.softwareverde.mostadapter.type.EnumValue("0x40", "Busy");
-        com.softwareverde.mostadapter.type.EnumValue value41 = new com.softwareverde.mostadapter.type.EnumValue("0x41", "FunctionTemporaryNotAvailable");
-        com.softwareverde.mostadapter.type.EnumValue value42 = new com.softwareverde.mostadapter.type.EnumValue("0x42", "ProcessingError");
-        com.softwareverde.mostadapter.type.EnumValue value43 = new com.softwareverde.mostadapter.type.EnumValue("0x43", "MethodAborted");
-        com.softwareverde.mostadapter.type.EnumValue valueC0 = new com.softwareverde.mostadapter.type.EnumValue("0xC0", "FunctionSignatureInvalid");
-        com.softwareverde.mostadapter.type.EnumValue valueC1 = new com.softwareverde.mostadapter.type.EnumValue("0xC1", "FunctionNotImplemented");
-        com.softwareverde.mostadapter.type.EnumValue valueC2 = new com.softwareverde.mostadapter.type.EnumValue("0xC2", "InsufficientAccess");
+        com.softwareverde.mostadapter.type.EnumValue value1 = new com.softwareverde.mostadapter.type.EnumValue("0x1", "FBlockIdNotAvailable", "");
+        com.softwareverde.mostadapter.type.EnumValue value3 = new com.softwareverde.mostadapter.type.EnumValue("0x3", "FunctionIdNotAvailable", "");
+        com.softwareverde.mostadapter.type.EnumValue value4 = new com.softwareverde.mostadapter.type.EnumValue("0x4", "OpTypeNotAvailable", "");
+        com.softwareverde.mostadapter.type.EnumValue value5 = new com.softwareverde.mostadapter.type.EnumValue("0x5", "InvalidLength", "");
+        com.softwareverde.mostadapter.type.EnumValue value6 = new com.softwareverde.mostadapter.type.EnumValue("0x6", "WrongParameter", "");
+        com.softwareverde.mostadapter.type.EnumValue value7 = new com.softwareverde.mostadapter.type.EnumValue("0x7", "ParameterNotAvailable", "");
+        com.softwareverde.mostadapter.type.EnumValue valueB = new com.softwareverde.mostadapter.type.EnumValue("0xB", "DeviceMalfunction", "");
+        com.softwareverde.mostadapter.type.EnumValue valueC = new com.softwareverde.mostadapter.type.EnumValue("0xC", "SegmentationError", "");
+        com.softwareverde.mostadapter.type.EnumValue value40 = new com.softwareverde.mostadapter.type.EnumValue("0x40", "Busy", "");
+        com.softwareverde.mostadapter.type.EnumValue value41 = new com.softwareverde.mostadapter.type.EnumValue("0x41", "FunctionTemporaryNotAvailable", "");
+        com.softwareverde.mostadapter.type.EnumValue value42 = new com.softwareverde.mostadapter.type.EnumValue("0x42", "ProcessingError", "");
+        com.softwareverde.mostadapter.type.EnumValue value43 = new com.softwareverde.mostadapter.type.EnumValue("0x43", "MethodAborted", "");
+        com.softwareverde.mostadapter.type.EnumValue valueC0 = new com.softwareverde.mostadapter.type.EnumValue("0xC0", "FunctionSignatureInvalid", "");
+        com.softwareverde.mostadapter.type.EnumValue valueC1 = new com.softwareverde.mostadapter.type.EnumValue("0xC1", "FunctionNotImplemented", "");
+        com.softwareverde.mostadapter.type.EnumValue valueC2 = new com.softwareverde.mostadapter.type.EnumValue("0xC2", "InsufficientAccess", "");
 
         errorCode.addEnumValue(value1);
         errorCode.addEnumValue(value3);

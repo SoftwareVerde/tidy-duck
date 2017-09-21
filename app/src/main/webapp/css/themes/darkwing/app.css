@@ -1,3 +1,8 @@
+.small-container, .large-container {
+    background-color: #9DA1AE;
+    color: #FFF !important;
+}
+
 #settings-container {
     background-color: #9DA1AE;
     color: #FFF !important;
@@ -124,17 +129,22 @@
     color: #FFF;
 }
 
-.parameter i:hover {
+.parameter-display-area i:hover {
     color: #9CF;
 }
 
-.child-item {
+.child-item, .unreleased-child-item {
     color: #032334;
     background-color: #9DA1AE;
     transition: background-color 0.5s ease;
 }
 
-.child-item:hover {
+.unreleased-child-item {
+    box-sizing: border-box;
+    border: 2px dashed #FFFFFF;
+}
+
+.child-item:hover, .unreleased-child-item:hover {
     background-color: #C4C7CF;
 }
 

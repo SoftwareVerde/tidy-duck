@@ -1,3 +1,27 @@
+// calls callbackFunction with the function catalog
+function getFunctionCatalog(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let functionCatalog = null;
+
+        if (data.wasSuccess) {
+            functionCatalog = data.functionCatalog;
+        } else {
+            console.error("Unable to get function catalog: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalog);
+        }
+    });
+}
 
 // calls callbackFunction with an array of function catalogs
 function getFunctionCatalogs(callbackFunction) {
@@ -53,14 +77,15 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
 }
 
 //calls callbackFunction with modified function catalog ID
-function updateFunctionCatalog(functionCatalogId, functionCatalog, callbackFunction) {
+function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                "functionCatalog": functionCatalog
+                "functionCatalog": functionCatalog,
+                "shouldRelease":   shouldRelease
             })
         }
     );
@@ -101,6 +126,75 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function submitFunctionCatalogForReview(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit function catalog for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
+        }
+    });
+}
+
+function getReleaseItemList(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/release-item-list",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to get release items: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+function releaseFunctionCatalog(functionCatalogId, releaseItems, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/release",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                releaseItems: releaseItems
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to release function catalog " + functionCatalogId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
         }
     });
 }

@@ -1,17 +1,12 @@
 package com.softwareverde.tidyduck.api;
 
-import com.softwareverde.database.Database;
-import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.*;
 import com.softwareverde.json.Json;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
 import com.softwareverde.tomcat.servlet.Session;
-import com.softwareverde.util.HashUtil;
 import com.softwareverde.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,26 +36,9 @@ public class AccountServlet extends JsonServlet {
             }
 
             final Long accountId = Session.getAccountId(request);
-            final Account account;
-            try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-                final AccountInflater accountInflater = new AccountInflater(databaseConnection);
-                account = accountInflater.inflateAccount(accountId);
-            }
-            catch (final DatabaseException databaseException) {
-                _logger.error("Error authenticating.", databaseException);
-                return super._generateErrorJson("Invalid account.");
-            }
-
-            final Json accountJson = new Json();
-            accountJson.put("id", account.getId());
-            accountJson.put("username", account.getUsername());
-            accountJson.put("name", account.getName());
-            accountJson.put("companyId", account.getCompany().getId());
-            accountJson.put("companyName", account.getCompany().getName());
-            accountJson.put("theme", account.getSettings().getTheme());
 
             final Json responseJson = super._generateSuccessJson();
-            responseJson.put("account", accountJson);
+            responseJson.put("accountId", accountId);
             return responseJson;
         }
         else if (isPost && doAuthenticate) {
@@ -68,21 +46,9 @@ public class AccountServlet extends JsonServlet {
             final String password = Util.coalesce(request.getParameter("password"));
 
             try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-                final List<Row> rows = databaseConnection.query(
-                    "SELECT id FROM accounts WHERE username = ? AND password = ?",
-                    new String[] {
-                        username, HashUtil.sha256(password)
-                    }
-                );
-
-                if (rows.isEmpty()) {
+                if (! authenticateAccount(username, password, request, databaseConnection)) {
                     return super._generateErrorJson("Invalid credentials.");
                 }
-
-                final Row row = rows.get(0);
-                final Long accountId = row.getLong("id");
-
-                Session.setAccountId(accountId, request);
 
                 return super._generateSuccessJson();
             }
@@ -97,5 +63,27 @@ public class AccountServlet extends JsonServlet {
         }
 
         return super._generateErrorJson("Invalid endpoint.");
+    }
+
+    private boolean authenticateAccount(final String username, final String password, final HttpServletRequest request, final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+        final Query query = new Query("SELECT id, password FROM accounts WHERE username = ?")
+                .setParameter(username)
+                ;
+
+        final List<Row> rows = databaseConnection.query(query);
+        if (rows.isEmpty()) {
+            return false;
+        }
+
+        final Row row = rows.get(0);
+        final Long accountId = row.getLong("id");
+        final String storedPassword = row.getString("password");
+
+        if (SecureHashUtil.validateHashWithPbkdf2(password, storedPassword)) {
+            Session.setAccountId(accountId, request);
+            return true;
+        }
+
+        return false;
     }
 }

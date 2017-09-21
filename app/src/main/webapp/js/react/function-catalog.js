@@ -12,6 +12,7 @@ class FunctionCatalog extends React.Component {
         this.renderMenu = this.renderMenu.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
+        this.onExportFunctionCatalogClicked = this.onExportFunctionCatalogClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -75,6 +76,13 @@ class FunctionCatalog extends React.Component {
         }
     }
 
+    onExportFunctionCatalogClicked(event) {
+        event.stopPropagation();
+        if (typeof this.props.onExportFunctionCatalog == "function") {
+            this.props.onExportFunctionCatalog(this.props.functionCatalog.getId());
+        }
+    }
+
     renderMenu() {
         if (! this.state.showMenu) { return; }
 
@@ -84,13 +92,17 @@ class FunctionCatalog extends React.Component {
                     Remove
                     <i className="fa fa-remove" />
                 </div>
+                <div className="child-item-menu-item" onClick={this.onExportFunctionCatalogClicked}>
+                    Download MOST XML
+                    <i className="fa fa-download" />
+                </div>
             </div>
         );
     }
 
     onClick() {
         if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionCatalog, false, true);
+            this.props.onClick(this.props.functionCatalog, false);
         }
     }
 
@@ -113,18 +125,21 @@ class FunctionCatalog extends React.Component {
         const author = this.props.functionCatalog.getAuthor();
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
+        const childItemStyle = this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
+        const releasedIcon = this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book" title="This Function Catalog is Released" /> : "";
 
         return (
-            <div className="child-item" onClick={this.onClick}>
+            <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
                     {name}
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {releasedIcon}
                     {this.renderMenu()}
                 </div>
-                <select name={"Version"} value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
+                <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
                 <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
             </div>

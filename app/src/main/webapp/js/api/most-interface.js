@@ -1,3 +1,27 @@
+// calls callbackFunction with the most interface
+function getMostInterface(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interfaces/" + mostInterfaceId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        let mostInterface = null;
+
+        if (data.wasSuccess) {
+            mostInterface = data.mostInterface;
+        } else {
+            console.error("Unable to get most interface: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterface);
+        }
+    });
+}
 
 // calls callbackFunction with an array of MOST interfaces.
 function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
@@ -32,7 +56,7 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
 function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/search?name=" + searchString,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/search/" + searchString,
         {
             method: "GET",
             credentials: "include"
@@ -179,6 +203,28 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/submit-for-review",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to submit interface for review: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess);
         }
     });
 }

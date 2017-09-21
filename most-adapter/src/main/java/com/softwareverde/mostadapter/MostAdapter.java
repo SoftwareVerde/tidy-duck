@@ -18,7 +18,10 @@ import java.io.StringWriter;
 
 public class MostAdapter {
 
+    private static final long DEFAULT_INDENTATION_AMOUNT = 4;
+
     private boolean _isIndented = false;
+    private long _indentationAmount = DEFAULT_INDENTATION_AMOUNT;
 
     public boolean isIndented() {
         return _isIndented;
@@ -26,6 +29,14 @@ public class MostAdapter {
 
     public void setIndented(final boolean indented) {
         _isIndented = indented;
+    }
+
+    public long getIndentationAmount() {
+        return _indentationAmount;
+    }
+
+    public void setIndentationAmount(final long indentationAmount) {
+        _indentationAmount = indentationAmount;
     }
 
     public String getMostXml(final FunctionCatalog functionCatalog) throws MostAdapterException {
@@ -61,7 +72,7 @@ public class MostAdapter {
         transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, documentType.getSystemId());
         if (_isIndented) {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Long.toString(_indentationAmount));
         }
         // write document to string and return
         final StringWriter writer = new StringWriter();

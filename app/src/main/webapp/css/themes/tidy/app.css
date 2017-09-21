@@ -1,3 +1,8 @@
+.small-container, .large-container {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+}
+
 #settings-container {
     background-color: #EDEDED;
     box-shadow: 0px 0px 15px #CCCCCC;
@@ -108,18 +113,22 @@
     transition: background-color 0.5s ease;
 }
 
-.parameter i:hover {
+.parameter-display-area i:hover {
     color: #FFDD66;
 }
 
-.child-item {
+.child-item, .unreleased-child-item {
     border: solid 1px #C0C0C0;
     background-color: #EEEEEE;
 
     transition: background-color 0.5s ease;
 }
 
-.child-item:hover {
+.unreleased-child-item {
+    border: dashed 2px #C0C0C0;
+}
+
+.child-item:hover, .unreleased-child-item:hover {
     background-color: #FFDD66;
 }
 
@@ -135,7 +144,7 @@
     background-color: #DDDDDD;
 }
 
-.child-item:hover .child-item-menu-item {
+.child-item-menu-item:hover {
     background-color: #F9EE99;
 }
 

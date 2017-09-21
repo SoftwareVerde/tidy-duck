@@ -56,4 +56,7 @@
 
 .input-field-small input, .input-field-small textarea {
     border: solid 1px #CCCCCC;
+    vertical-align: middle;
+    margin-left: 5px;
+    display: inline-block;
 }
