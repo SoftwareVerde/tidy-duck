@@ -289,9 +289,12 @@ class AccountsPage extends React.Component {
         }
 
         const administrationTableRows = [];
+        const accounts = this.state.accounts.sort(function(a, b) {
+            return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+        });
 
-        for (let i in this.state.accounts) {
-            const account = this.state.accounts[i];
+        for (let i in accounts) {
+            const account = accounts[i];
 
             administrationTableRows.push(
                 <tr key={i}>
