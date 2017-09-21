@@ -72,6 +72,7 @@ class TypesPage extends React.Component {
         this.getMostUnitByName = this.getMostUnitByName.bind(this);
         this.getBaseTypes = this.getBaseTypes.bind(this);
         this.getPrimaryTypes = this.getPrimaryTypes.bind(this);
+        this.getPrimaryTypeLabels = this.getPrimaryTypeLabels.bind(this);
         this.getNumberBaseTypes = this.getNumberBaseTypes.bind(this);
         this.checkTypeCircularReferences = this.checkTypeCircularReferences.bind(this);
         this.getStreamParamTypes = this.getStreamParamTypes.bind(this);
@@ -164,6 +165,20 @@ class TypesPage extends React.Component {
             let type = this.props.mostTypes[i];
             if (type.isPrimaryType()) {
                 primaryTypes.push(type.getName());
+            }
+        }
+
+        return primaryTypes.sort();
+    }
+
+    getPrimaryTypeLabels() {
+        const primaryTypes = [];
+
+        for (let i in this.props.mostTypes) {
+            let type = this.props.mostTypes[i];
+            if (type.isPrimaryType()) {
+                const releasedText = type.isReleased() ? ' \uD83D\uDCD5' : '';
+                primaryTypes.push(type.getName() + releasedText);
             }
         }
 
@@ -975,12 +990,14 @@ class TypesPage extends React.Component {
         if (this.state.selectedOption == "Edit Type") {
             // add empty option in selector
             const primaryTypes = [''].concat(this.getPrimaryTypes());
+            const primaryTypeLabels = [''].concat(this.getPrimaryTypeLabels());
+
             let selectedType = this.state.selectedType;
             if (!selectedType) {
                 selectedType = primaryTypes[0];
             }
             typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector"
-                                           value={selectedType} options={primaryTypes} onChange={this.onTypeSelected}/>
+                                           value={selectedType} options={primaryTypes} optionLabels={primaryTypeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
                 return (
