@@ -132,6 +132,7 @@ class App extends React.Component {
         this.getAllCompanies = this.getAllCompanies.bind(this);
         this.onCreateCompany = this.onCreateCompany.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
+        this.getValidRoleItems = this.getValidRoleItems.bind(this);
 
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
@@ -202,6 +203,8 @@ class App extends React.Component {
                     thisApp.setState({
                         account: account
                     });
+                    const firstValidRole = thisApp.getValidRoleItems(account)[0];
+                    thisApp.handleRoleClick(firstValidRole, null, false);
                 });
             }
         });
@@ -2896,13 +2899,30 @@ class App extends React.Component {
         }
     }
 
-    renderRoleToggle() {
+    getValidRoleItems(account) {
         const roleItems = [];
-        roleItems.push(this.roles.release);
-        roleItems.push(this.roles.development);
-        roleItems.push(this.roles.types);
-        roleItems.push(this.roles.reviews);
-        roleItems.push(this.roles.accounts);
+
+        if (account) {
+            if (account.hasPermission("MOST_COMPONENTS_VIEW")) {
+                roleItems.push(this.roles.release);
+                roleItems.push(this.roles.development);
+            }
+            if (account.hasPermission("TYPES_CREATE") || account.hasPermission("TYPES_MODIFY")) {
+                roleItems.push(this.roles.types);
+            }
+            if (account.hasPermission("REVIEWS_VIEW")) {
+                roleItems.push(this.roles.reviews);
+            }
+            if (account.hasPermission("ADMIN_MODIFY_USERS")) {
+                roleItems.push(this.roles.accounts);
+            }
+        }
+
+        return roleItems;
+    }
+
+    renderRoleToggle() {
+        const roleItems = this.getValidRoleItems(this.state.account);
 
         return (
             <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />
