@@ -107,6 +107,20 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super.defineEndpoint("accounts/<accountId>/deactivate", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
+                if (providedAccountId < 1) {
+                    return _generateErrorJson("Invalid account ID provided.");
+                }
+
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                return _deactivateAccount(currentAccount, providedAccountId, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -266,6 +280,21 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
+    }
+
+    protected Json _deactivateAccount(final Account currentAccount, final Long providedAccountId, final Database<Connection> database) {
+        final Json response = _generateSuccessJson();
+        try{
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.deactivateAccount(providedAccountId);
+
+            _logger.info("User " + currentAccount.getId() + " deactivated user " + providedAccountId + "'s account.");
+            return response;
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to deactivate account: ", e);
+            return _generateErrorJson("Unable to deactivate account: " + e.getMessage());
+        }
     }
 
     private Json _updateRoles(final Account currentAccount, final HttpServletRequest request, final Long providedAccountId, final Database<Connection> database) {

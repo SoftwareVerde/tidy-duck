@@ -66,7 +66,7 @@ public class AccountServlet extends JsonServlet {
     }
 
     private boolean authenticateAccount(final String username, final String password, final HttpServletRequest request, final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        final Query query = new Query("SELECT id, password FROM accounts WHERE username = ?")
+        final Query query = new Query("SELECT id, password, login_permission FROM accounts WHERE username = ?")
                 .setParameter(username)
                 ;
 
@@ -76,6 +76,11 @@ public class AccountServlet extends JsonServlet {
         }
 
         final Row row = rows.get(0);
+        final boolean loginPermission = row.getBoolean("login_permission");
+        if (! loginPermission) {
+            return false;
+        }
+
         final Long accountId = row.getLong("id");
         final String storedPassword = row.getString("password");
 
