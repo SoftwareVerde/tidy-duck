@@ -72,6 +72,7 @@ public class MostGeneratorServlet extends BaseServlet {
 
             final MostAdapter mostAdapter = new MostAdapter();
             mostAdapter.setIndented(true);
+            mostAdapter.setIndentationAmount(2);
 
             MostTypeConverter mostTypeConverter = new MostTypeConverter();
             final String mostXml = mostAdapter.getMostXml(mostTypeConverter.convertFunctionCatalog(functionCatalog));
