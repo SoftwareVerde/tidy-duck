@@ -117,6 +117,9 @@ class AccountsPage extends React.Component {
             if (data.wasSuccess) {
                 const usernameString = "Username: " + account.getUsername();
                 const passwordString = "Password: " + data.password;
+                const accounts = thisApp.state.accounts;
+                accounts.push(account);
+
                 const alertString = <div>
                                         Account ID {data.accountId} created with the following login information:
                                         <br/>
@@ -132,7 +135,8 @@ class AccountsPage extends React.Component {
 
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.saved,
-                    newAccount: newAccount
+                    newAccount: newAccount,
+                    accounts: accounts
                 });
             }
             else {
@@ -164,7 +168,7 @@ class AccountsPage extends React.Component {
         }
     }
 
-    onRoleChange(account, roleName, checked) {
+    onRoleChange(account, roleName, checked, isNewAccount) {
         if (checked) {
             // add role
             const role = new Role();
@@ -176,7 +180,8 @@ class AccountsPage extends React.Component {
             account.removeRoleByName(roleName);
         }
         this.setState({
-            accounts: this.state.accounts
+            accounts: this.state.accounts,
+            newAccount: isNewAccount ? account : this.state.newAccount
         })
         // get new set of roles
         const roles = account.getRoles();
@@ -185,6 +190,12 @@ class AccountsPage extends React.Component {
             const role = roles[i];
             roleNames.push(role.getName());
         }
+
+        // Don't call API if role was changed for the Create New Account form.
+        if (isNewAccount) {
+            return;
+        }
+
         updateAccountRoles(account.getId(), roleNames, function (data) {
             if (!data.wasSuccess) {
                 app.App.alert(
@@ -245,7 +256,7 @@ class AccountsPage extends React.Component {
                 <app.InputField type="text" label="Username" name="username" value={account.getUsername()} onChange={this.onNewAccountUsernameChanged} isRequired={true}/>
                 <app.InputField type="text" label="Name" name="name" value={account.getName()} onChange={this.onNewAccountNameChanged} isRequired={true}/>
                 <app.InputField type="select" label="Company" name="company" value={account.getCompany().getName()} options={companyOptions} onChange={this.onNewAccountCompanyChanged} isRequired={true}/>
-                {this.renderRoleComponents(account)}
+                {this.renderRoleComponents(account, true)}
                 {createAccountSaveButton}
             </form>
         );
@@ -307,14 +318,14 @@ class AccountsPage extends React.Component {
         );
     }
 
-    renderRoleComponents(account) {
+    renderRoleComponents(account, isNewAccount) {
         return (
             <div className="role-components">
-                <app.InputField key="1" type="checkbox" label="Admin" checked={account.hasRole("Admin")} onChange={(value) => this.onRoleChange(account, "Admin", value)} isSmallInputField={true}/>
-                <app.InputField key="2" type="checkbox" label="Release" checked={account.hasRole("Release")} onChange={(value) => this.onRoleChange(account, "Release", value)} isSmallInputField={true}/>
-                <app.InputField key="3" type="checkbox" label="Modify" checked={account.hasRole("Modify")} onChange={(value) => this.onRoleChange(account, "Modify", value)} isSmallInputField={true}/>
-                <app.InputField key="4" type="checkbox" label="Review" checked={account.hasRole("Review")} onChange={(value) => this.onRoleChange(account, "Review", value)} isSmallInputField={true}/>
-                <app.InputField key="5" type="checkbox" label="View" checked={account.hasRole("View")} onChange={(value) => this.onRoleChange(account, "View", value)} isSmallInputField={true}/>
+                <app.InputField key="1" type="checkbox" label="Admin" checked={account.hasRole("Admin")} onChange={(value) => this.onRoleChange(account, "Admin", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="2" type="checkbox" label="Release" checked={account.hasRole("Release")} onChange={(value) => this.onRoleChange(account, "Release", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="3" type="checkbox" label="Modify" checked={account.hasRole("Modify")} onChange={(value) => this.onRoleChange(account, "Modify", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="4" type="checkbox" label="Review" checked={account.hasRole("Review")} onChange={(value) => this.onRoleChange(account, "Review", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="5" type="checkbox" label="View" checked={account.hasRole("View")} onChange={(value) => this.onRoleChange(account, "View", value, isNewAccount)} isSmallInputField={true}/>
             </div>
         );
     }

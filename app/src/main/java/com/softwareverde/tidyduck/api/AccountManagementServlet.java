@@ -221,6 +221,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         final Json request = _getRequestDataAsJson(httpServletRequest);
         final Json accountJson = request.get("account");
         final Json companyJson = accountJson.get("company");
+        final Json rolesJson = accountJson.get("roles");
 
         final String username = accountJson.getString("username");
         final String name = accountJson.getString("name");
@@ -239,6 +240,14 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             final CompanyInflater companyInflater = new CompanyInflater(databaseConnection);
             final Company company = companyInflater.inflateCompany(companyId);
             account.setCompany(company);
+
+            final RoleInflater roleInflater = new RoleInflater(databaseConnection);
+
+            for (int i=0; i<rolesJson.length(); i++) {
+                final Json roleJson = rolesJson.get(i);
+                final Role role = roleInflater.inflateRoleFromName(roleJson.getString("name"));
+                account.addRole(role);
+            }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (! databaseManager.insertAccount(account)) {

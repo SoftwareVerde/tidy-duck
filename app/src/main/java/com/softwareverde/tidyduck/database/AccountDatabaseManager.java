@@ -12,6 +12,7 @@ import com.softwareverde.tidyduck.most.Company;
 
 import javax.xml.crypto.Data;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 class AccountDatabaseManager {
@@ -32,6 +33,7 @@ class AccountDatabaseManager {
         final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
         final String name = account.getName();
         final Long companyId = account.getCompany().getId();
+        final List<Role> roles = new ArrayList<>(account.getRoles());
 
         final Query query = new Query("INSERT INTO accounts (username, password, name, company_id) VALUES (?, ?, ?, ?)")
                 .setParameter(username)
@@ -43,6 +45,10 @@ class AccountDatabaseManager {
         final long accountId = _databaseConnection.executeSql(query);
         account.setId(accountId);
         account.setPassword(password);
+
+        for (final Role role : roles) {
+            _addRole(accountId, role.getId());
+        }
 
         return true;
     }
