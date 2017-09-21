@@ -125,4 +125,12 @@ class Account {
         return false;
     }
 
+    toAuthor() {
+        const author = new Author();
+
+        author.setId(this._id);
+        author.setName(this._name);
+
+        return author;
+    }
 }
