@@ -35,13 +35,6 @@ public class DatabaseManager {
         }
     }
 
-    public void deactivateAccount(final long accountId) throws DatabaseException {
-        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
-            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
-            accountDatabaseManager.deactivateAccount(accountId);
-        }
-    }
-
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);

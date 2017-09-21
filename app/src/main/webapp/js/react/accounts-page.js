@@ -216,22 +216,6 @@ class AccountsPage extends React.Component {
         }
     }
 
-    onDeactivateAccount(account) {
-        const thisApp = this;
-
-        if (typeof this.props.onDeactivateAccount == "function") {
-            this.props.onDeactivateAccount(account, function() {
-                const accounts = thisApp.state.accounts.filter(function(value) {
-                    return value.getId() != account.getId();
-                });
-
-                thisApp.setState({
-                    accounts: accounts
-                });
-            });
-        }
-    }
-
     renderCreateButtonText(typeOfObjectCreated) {
         let buttonState = this.state.createAccountButtonState;
         if (typeOfObjectCreated == "Company") {
@@ -320,7 +304,6 @@ class AccountsPage extends React.Component {
                     <td key="name">{account.getName()}<br/>({account.getUsername()})</td>
                     <td key="roles">{this.renderRoleComponents(account)}</td>
                     <td key="reset"><div className="button" onClick={() => this.onResetPassword(account)}>Reset Password</div></td>
-                    <td key="deactivate"><div className="button" onClick={() => this.onDeactivateAccount(account)}>Deactivate</div></td>
                 </tr>
             );
         }

@@ -128,7 +128,6 @@ class App extends React.Component {
 
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
-        this.onDeactivateAccount = this.onDeactivateAccount.bind(this);
         this.onResetPassword = this.onResetPassword.bind(this);
         this.getAllCompanies = this.getAllCompanies.bind(this);
         this.onCreateCompany = this.onCreateCompany.bind(this);
@@ -272,26 +271,6 @@ class App extends React.Component {
 
     getCurrentAccountCompany() {
         return this.state.account.getCompany();
-    }
-
-    onDeactivateAccount(account, callbackFunction) {
-        const accountId = account.getId();
-        const accountName = account.getName();
-
-        if (! confirm("Are you sure you want to deactivate " + accountName + "'s account?")) {
-            return;
-        }
-        else {
-            deactivateAccount(accountId, function(data) {
-                if (! data.wasSuccess) {
-                    app.App.alert("Unable to deactivate account", data.errorMessage);
-                }
-                else {
-                    app.App.alert("Account Deactivated", accountName + "'s account has been deactivated.");
-                    callbackFunction();
-                }
-            });
-        }
     }
 
     onResetPassword(account) {

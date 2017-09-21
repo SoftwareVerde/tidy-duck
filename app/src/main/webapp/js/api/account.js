@@ -183,22 +183,6 @@ function createNewAccount(account, callback) {
     );
 }
 
-function deactivateAccount(accountId, callback) {
-    const request = new Request(
-        API_PREFIX + "accounts/" + accountId + "/deactivate",
-        {
-            method: "POST",
-            credentials: "include"
-        }
-    );
-    jsonFetch(request, function(data) {
-            if (typeof callback == "function") {
-                callback(data);
-            }
-        }
-    );
-}
-
 function changePassword(accountId, oldPassword, newPassword, callback) {
     const request = new Request(
         API_PREFIX + "accounts/" + accountId + "/change-password",

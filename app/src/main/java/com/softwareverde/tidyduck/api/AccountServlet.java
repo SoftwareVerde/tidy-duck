@@ -94,7 +94,7 @@ public class AccountServlet extends JsonServlet {
                 return true;
             }
         }
-        
+
         return false;
     }
 }
