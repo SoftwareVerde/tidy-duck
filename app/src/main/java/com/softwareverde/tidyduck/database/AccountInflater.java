@@ -5,10 +5,12 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AccountInflater {
@@ -17,6 +19,19 @@ public class AccountInflater {
 
     public AccountInflater(DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
+    }
+
+    public List<Account> inflateAccounts() throws DatabaseException {
+        final Query query = new Query("SELECT id FROM accounts");
+
+        List<Row> rows = _databaseConnection.query(query);
+        List<Account> accounts = new ArrayList<>();
+        for (final Row row : rows) {
+            final long accountId = row.getLong("id");
+            final Account account = inflateAccount(accountId);
+            accounts.add(account);
+        }
+        return accounts;
     }
 
     public Account inflateAccount(final Long accountId) throws DatabaseException {
@@ -37,12 +52,32 @@ public class AccountInflater {
         settings.setTheme(row.getString("theme"));
 
         final Account account = new Account();
-        account.setId(row.getLong("id"));
+        account.setId(accountId);
         account.setName(row.getString("name"));
         account.setUsername(row.getString("username"));
         account.setPassword(row.getString("password"));
         account.setCompany(company);
         account.setSettings(settings);
+        account.setRoles(getRoles(accountId));
+
         return account;
+    }
+
+    private List<Role> getRoles(final long accountId) throws DatabaseException {
+        final Query query = new Query("SELECT roles.id FROM roles INNER JOIN accounts_roles ON accounts_roles.role_id = roles.id WHERE accounts_roles.account_id = ?");
+        query.setParameter(accountId);
+
+        List<Row> rows = _databaseConnection.query(query);
+
+        final RoleInflater roleInflater = new RoleInflater(_databaseConnection);
+
+        List<Role> roles = new ArrayList<>();
+        for (final Row row : rows) {
+            final long roleId = row.getLong("id");
+
+            final Role role = roleInflater.inflateRole(roleId);
+            roles.add(role);
+        }
+        return roles;
     }
 }

@@ -6,7 +6,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
-import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -33,7 +33,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     public FunctionBlockServlet() {
         super.defineEndpoint("function-blocks", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final String requestFunctionCatalogId = request.getParameter("function_catalog_id");
 
                 if (Util.isBlank(requestFunctionCatalogId)) {
@@ -44,20 +46,25 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog id: " + functionCatalogId);
                 }
+
                 return _listFunctionBlocks(functionCatalogId, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-blocks", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _insertFunctionBlock(request, accountId, environment.getDatabase());
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                return _insertFunctionBlock(request, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-blocks/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final String searchString = Util.coalesce(parameters.get("name"));
                 if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for function block.");
@@ -68,7 +75,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
@@ -79,18 +88,22 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _updateFunctionBlock(request, functionBlockId, accountId, environment.getDatabase());
+                return _updateFunctionBlock(request, functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
@@ -101,7 +114,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
@@ -112,7 +127,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
@@ -123,12 +140,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("function-blocks/<functionBlockId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final long functionBlockId = Util.parseLong(getNthFromLastUrlSegment(request, 1));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _submitFunctionBlockForReview(functionBlockId, accountId, environment.getDatabase());
+                return _submitFunctionBlockForReview(functionBlockId, currentAccount, environment.getDatabase());
             }
         });
     }
@@ -152,14 +171,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertFunctionBlock(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
+    protected Json _insertFunctionBlock(final HttpServletRequest request, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
         final Json functionBlockJson = jsonRequest.get("functionBlock");
         final String requestFunctionCatalogId = jsonRequest.getString("functionCatalogId");
 
         try {
-            final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
+            final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, currentAccount, database);
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // If function catalog ID isn't null, insert function block for function catalog
@@ -186,14 +205,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     }
 
 
-    protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final long accountId, final Database<Connection> database) throws Exception {
+    protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
         final String requestFunctionCatalogId = request.getString("functionCatalogId");
         final Json response = new Json(false);
         final Json functionBlockJson = request.get("functionBlock");
 
         try {
-            final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, accountId, database);
+            final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, currentAccount, database);
             functionBlock.setId(functionBlockId);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -391,12 +410,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _submitFunctionBlockForReview(final long functionBlockId, final Long accountId, final Database<Connection> database) {
+    protected Json _submitFunctionBlockForReview(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try {
             final Json response = new Json(false);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.submitFunctionBlockForReview(functionBlockId, accountId);
+            databaseManager.submitFunctionBlockForReview(functionBlockId, currentAccount.getId());
 
             super._setJsonSuccessFields(response);
             return response;
@@ -407,7 +426,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson, final long accountId, final Database database) throws Exception {
+    protected FunctionBlock _populateFunctionBlockFromJson(final Json functionBlockJson, final Account currentAccount, final Database database) throws Exception {
         final String mostId = functionBlockJson.getString("mostId");
         final String kind = functionBlockJson.getString("kind");
         final String name = functionBlockJson.getString("name");
@@ -420,6 +439,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
+            }
+            if (!mostId.matches("0x[0-9A-F]{2}")) {
+                throw new Exception("Function block MOST ID must be between '0x00' and '0xFF'.");
             }
 
             if (Util.isBlank(kind)) {
@@ -455,14 +477,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         else {
             // use users's account ID
-            try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-                AccountInflater accountInflater = new AccountInflater(databaseConnection);
-
-                Account account = accountInflater.inflateAccount(accountId);
-
-                company = account.getCompany();
-                author = account.toAuthor();
-            }
+            company = currentAccount.getCompany();
+            author = currentAccount.toAuthor();
         }
 
         FunctionBlock functionBlock = new FunctionBlock();

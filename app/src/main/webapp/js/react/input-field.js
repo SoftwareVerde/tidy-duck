@@ -13,7 +13,7 @@ class InputField extends React.Component {
     }
 
     onInputChanged(event) {
-        var newValue = event.target.value;
+        var newValue = this.props.type == "checkbox" ? event.target.checked : event.target.value;
 
         if (! this.props.readOnly) {
             this.setState({value: newValue});
@@ -55,7 +55,7 @@ class InputField extends React.Component {
                 break;
             default:
                 return (
-                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} required={this.props.isRequired}/>
+                    <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                 );
         }
     }

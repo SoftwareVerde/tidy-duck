@@ -5,7 +5,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.database.AccountInflater;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostFunctionInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -26,7 +26,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
     public MostFunctionServlet() {
         super.defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final long mostInterfaceId = Util.parseLong(Util.coalesce(request.getParameter("most_interface_id")));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
@@ -37,14 +39,18 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-functions", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
-                return _insertMostFunction(request, accountId, environment.getDatabase());
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                return _insertMostFunction(request, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final Long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
                 if (mostFunctionId < 1) {
                     return _generateErrorJson("Invalid function id.");
@@ -55,18 +61,22 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         
         super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
                 if (mostFunctionId < 1) {
                     return _generateErrorJson("Invalid function id.");
                 }
-                return _updateMostFunction(request, mostFunctionId, accountId, environment.getDatabase());
+                return _updateMostFunction(request, mostFunctionId, currentAccount, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
                 if (mostFunctionId < 1) {
                     return _generateErrorJson("Invalid function id.");
@@ -94,7 +104,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertMostFunction(final HttpServletRequest request, final long accountId, final Database<Connection> database) throws Exception {
+    protected Json _insertMostFunction(final HttpServletRequest request, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
@@ -109,7 +119,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         final Json mostFunctionJson = jsonRequest.get("mostFunction");
         try {
-            final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, accountId, database);
+            final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, currentAccount, database);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
@@ -123,7 +133,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateMostFunction(final HttpServletRequest httpRequest, final long mostFunctionId, final long accountId, final Database<Connection> database) throws Exception {
+    protected Json _updateMostFunction(final HttpServletRequest httpRequest, final long mostFunctionId, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
 
         final Long mostInterfaceId = Util.parseLong(request.getString("mostInterfaceId"));
@@ -138,7 +148,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, accountId, database);
+            MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, currentAccount, database);
             mostFunction.setId(mostFunctionId);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
@@ -202,21 +212,31 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final long accountId, final Database<Connection> database) throws Exception {
+    private void validateMostFunctionId(final String mostId) throws Exception {
+        if (Util.isBlank(mostId)) {
+            throw new Exception("Invalid Most ID");
+        }
+        if (!mostId.matches("0x[0-9A-F]{3}") || "0xFFF".equals(mostId)) {
+            throw new Exception("Function MOST ID must be between 0x000 and 0xFFE");
+        }
+        // matches regex and is not 0xFFF - passes validation
+    }
+
+    protected MostFunction _populateMostFunctionFromJson(final Json mostFunctionJson, final Account currentAccount, final Database<Connection> database) throws Exception {
         final String mostId = mostFunctionJson.getString("mostId");
         final String name = mostFunctionJson.getString("name");
         final String release = mostFunctionJson.getString("releaseVersion");
         final String description = mostFunctionJson.getString("description");
         final String functionType = mostFunctionJson.getString("functionType");
+        final String returnParameterName = mostFunctionJson.getString("returnParameterName");
+        final String returnParameterDescription = mostFunctionJson.getString("returnParameterDescription");
         final Long returnTypeId = mostFunctionJson.getLong("returnTypeId");
         final Long stereotypeId = mostFunctionJson.getLong("stereotypeId");
         final Long authorId = mostFunctionJson.getLong("authorId");
         final Long companyId = mostFunctionJson.getLong("companyId");
 
         { // Validate Inputs
-            if (Util.isBlank(mostId)) {
-                throw new Exception("Invalid Most ID");
-            }
+            validateMostFunctionId(mostId);
 
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
@@ -228,6 +248,10 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             */
             if (Util.isBlank(release)) {
                 throw new Exception("Version field is required.");
+            }
+
+            if (Util.isBlank(returnParameterName)) {
+                throw new Exception("Return parameter name is required.");
             }
 
             if (returnTypeId < 1) {
@@ -246,14 +270,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             author.setId(authorId);
         } else {
             // use users's account ID
-            try (DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-                AccountInflater accountInflater = new AccountInflater(databaseConnection);
-
-                Account account = accountInflater.inflateAccount(accountId);
-
-                company = account.getCompany();
-                author = account.toAuthor();
-            }
+            company = currentAccount.getCompany();
+            author = currentAccount.toAuthor();
         }
 
         final MostType mostReturnType = new MostType();
@@ -319,6 +337,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunction.setName(name);
         mostFunction.setRelease(release);
         mostFunction.setDescription(description);
+        mostFunction.setReturnParameterName(returnParameterName);
+        mostFunction.setReturnParameterDescription(returnParameterDescription);
         mostFunction.setReturnType(mostReturnType);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
         mostFunction.setAuthor(author);
@@ -348,6 +368,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("isApproved", mostFunction.isApproved());
         mostFunctionJson.put("description", mostFunction.getDescription());
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
+        mostFunctionJson.put("returnParameterName", mostFunction.getReturnParameterName());
+        mostFunctionJson.put("returnParameterDescription", mostFunction.getReturnParameterDescription());
         mostFunctionJson.put("returnTypeId", mostFunction.getReturnType().getId());
         mostFunctionJson.put("returnTypeName", mostFunction.getReturnType().getName());
         mostFunctionJson.put("stereotypeId", mostFunction.getFunctionStereotype().getId());

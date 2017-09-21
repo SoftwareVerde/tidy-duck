@@ -34,6 +34,7 @@ body * {
     left: 0;
     right: 0;
     height: 50px;
+    border-bottom: solid 2px;
 
     font-weight: bold;
     padding-left: 10px;
@@ -51,7 +52,6 @@ body * {
 
 #main-content {
     top: 50px;
-    border-top: solid 2px;
     min-height: 100%;
     width: 100%;
 }

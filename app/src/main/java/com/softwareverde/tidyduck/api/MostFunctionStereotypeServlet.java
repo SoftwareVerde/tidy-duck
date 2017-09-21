@@ -3,31 +3,33 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.MostFunctionStereotypeInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.MostFunctionStereotype;
 import com.softwareverde.tidyduck.most.Operation;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
 public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
-    @Override
-    protected Json handleAuthenticatedRequest(HttpServletRequest request, HttpMethod httpMethod, long accountId, Environment environment) throws Exception {
-        String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
-        if ("most-function-stereotypes".equals(finalUrlSegment)) {
-            if (httpMethod == HttpMethod.GET) {
+    public MostFunctionStereotypeServlet() {
+        super.defineEndpoint("most-function-stereotypes", HttpMethod.GET, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 return _listMostFunctionStereotypes(environment);
             }
-        }
-        return super._generateErrorJson("Unimplemented HTTP method in request.");
+        });
     }
 
     private Json _listMostFunctionStereotypes(final Environment environment) {

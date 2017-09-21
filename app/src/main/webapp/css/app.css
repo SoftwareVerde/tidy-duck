@@ -17,10 +17,10 @@
     cursor: pointer;
 }
 
-#settings-container {
+.small-container {
     width: 300px;
     display: block;
-    margin: 5em auto auto auto;
+    margin: 2em 2em auto 0;
 
     border: 0px solid;
     border-radius: 5px;
@@ -28,6 +28,44 @@
     padding-left: 1em;
     padding-right: 1em;
     padding-bottom: 1em;
+}
+
+.large-container {
+    border: 0px solid;
+    border-radius: 5px;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+    margin: 2em;
+    width: calc(100% - 6em);
+}
+
+.small-container h1, .large-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.small-container .input-field {
+    width: 100%;
+}
+
+#settings-container {
+    width: 300px;
+    display: block;
+    margin: 2em auto auto auto;
+
+    border: 0px solid;
+    border-radius: 5px;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+}
+
+#settings-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
 }
 
 #settings-container .input-field {
@@ -126,7 +164,7 @@
 }
 
 .display-area {
-    padding: 5px 0 320px 0;
+    padding: 5px 0;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -301,6 +339,11 @@
     padding: 5px;
 }
 
+.selected-review-display-area {
+    padding: 5px;
+    margin-bottom: 320px;
+}
+
 #loading-children-icon {
     margin: 10px;
 }
@@ -416,4 +459,49 @@
 
 .repeating-field-header {
     display: flex;
+}
+
+.account-administration-area {
+    width: 100%;
+    text-align: center;
+}
+
+.create-account-area {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.accounts-table {
+    width: 100%;
+}
+
+.accounts-table thead tr {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.accounts-table th {
+    padding: 5px 0px;
+    font-size: 125%;
+}
+
+.accounts-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.accounts-table tbody tr:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.accounts-table .input-field-small {
+    float: none;
+}
+
+.accounts-table div.button {
+    margin: 5px 10px 10px 5px;
+    width: auto;
+}
+
+.role-components {
+    text-align: center;
 }

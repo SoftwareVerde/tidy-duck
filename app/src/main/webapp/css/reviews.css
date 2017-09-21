@@ -71,6 +71,7 @@
     height: 250px;
     display: inline-block;
     overflow-y: scroll;
+    scroll-behavior: smooth;
     margin: 5px 0px;
     background-color: rgba(100, 100, 100, 0.2);
     border: #777 solid thin;

@@ -28,11 +28,38 @@ public class DatabaseManager {
     }
 
     // ACCOUNT METHODS
+    public boolean insertAccount(final Account account) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.insertAccount(account);
+        }
+    }
 
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
             accountDatabaseManager.updateAccountSettings(accountId, settings);
+        }
+    }
+
+    public boolean changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.changePassword(accountId, oldPassword, newPasswordHash);
+        }
+    }
+
+    public String resetPassword(final long accountId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.resetPassword(accountId);
+        }
+    }
+
+    public boolean insertCompany(final Company company) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.insertCompany(company);
         }
     }
 
@@ -364,6 +391,16 @@ public class DatabaseManager {
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
                 reviewDatabaseManager.insertReviewComment(reviewComment, reviewId);
+            }
+        });
+    }
+
+    public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
+        this.executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+                accountDatabaseManager.updateAccountRoles(accountId, roles);
             }
         });
     }

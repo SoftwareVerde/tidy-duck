@@ -4,7 +4,9 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -17,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import java.net.URLDecoder;
 
 public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -28,7 +30,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     public MostInterfaceServlet() {
         super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final String requestFunctionBlockId = request.getParameter("function_block_id");
 
                 if (Util.isBlank(requestFunctionBlockId)) {
@@ -45,14 +49,18 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
                 return _insertMostInterface(request, environment.getDatabase());
             }
         });
 
         super.defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final String searchString = Util.coalesce(parameters.get("name"));
                 if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for interface.");
@@ -63,7 +71,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
@@ -74,7 +84,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
@@ -85,7 +97,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
@@ -96,7 +110,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
@@ -107,7 +123,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
@@ -118,12 +136,14 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         super.defineEndpoint("most-interfaces/<mostInterfaceId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Long accountId, final Environment environment) throws Exception {
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
                 }
-                return _submitMostInterfaceForReview(mostInterfaceId, accountId, environment.getDatabase());
+                return _submitMostInterfaceForReview(mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
     }
@@ -385,12 +405,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _submitMostInterfaceForReview(final Long mostInterfaceId, final Long accountId, final Database<Connection> database) {
+    protected Json _submitMostInterfaceForReview(final Long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try {
             final Json response = new Json(false);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.submitMostInterfaceForReview(mostInterfaceId, accountId);
+            databaseManager.submitMostInterfaceForReview(mostInterfaceId, currentAccount.getId());
 
             super._setJsonSuccessFields(response);
             return response;
@@ -411,6 +431,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
+            if (!Util.isLong(mostId)) {
+                throw new Exception("Interface MOST ID must be an integer.");
+            }
 
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
@@ -422,6 +445,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             */
             if (Util.isBlank(releaseVersion)) {
                 throw new Exception("Version field is required.");
+            }
+            if (!Util.isLong(releaseVersion)) {
+                throw new Exception("Interface version must be an integer.");
             }
         }
 

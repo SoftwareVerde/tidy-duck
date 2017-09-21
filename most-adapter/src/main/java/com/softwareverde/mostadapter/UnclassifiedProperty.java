@@ -38,6 +38,8 @@ public class UnclassifiedProperty extends Property {
     protected void setClassAttributes(Document document, Element trueClassElement) {
         super.setClassAttributes(document, trueClassElement);
 
-        trueClassElement.setAttribute("Length", _length);
+        if (_length != null && _length.trim().length() > 0) {
+            trueClassElement.setAttribute("Length", _length);
+        }
     }
 }

@@ -1,3 +1,8 @@
+.small-container, .large-container {
+    background-color: #9DA1AE;
+    color: #FFF !important;
+}
+
 #settings-container {
     background-color: #9DA1AE;
     color: #FFF !important;

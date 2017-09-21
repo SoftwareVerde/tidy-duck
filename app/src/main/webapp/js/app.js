@@ -4,7 +4,7 @@ function redirectToLogin() {
 
 
 (function() {
-    downloadAccount(function(data) {
+    checkAccount(function(data) {
         if (! data.wasSuccess) {
             redirectToLogin();
         }

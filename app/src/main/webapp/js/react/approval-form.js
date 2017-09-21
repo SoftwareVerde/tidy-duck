@@ -24,6 +24,7 @@ class ApprovalForm extends React.Component{
         this.renderVoteList = this.renderVoteList.bind(this);
         this.renderComments = this.renderComments.bind(this);
         this.renderTicketUrlArea = this.renderTicketUrlArea.bind(this);
+        this.renderSubmitButton = this.renderSubmitButton.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -46,8 +47,8 @@ class ApprovalForm extends React.Component{
 
     onSubmitComment() {
         const reviewComment = this.state.reviewComment;
-        if (!reviewComment.getCommentText()) {
-            alert("Empty comments are not allowed.");
+        if (! reviewComment.getCommentText()) {
+            app.App.alert("Submit Comment", "Empty comments are not allowed.");
             return;
         }
 
@@ -231,15 +232,45 @@ class ApprovalForm extends React.Component{
         );
     }
 
-    render() {
-        let submitCommentButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmitComment}>Submit Comment</button>;
-        if (this.state.shouldShowSaveCommentAnimation) {
-            submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+    renderSubmitButton() {
+        const accountId = this.props.account.getId();
+        const reviewAccountId = this.props.review.getAccount().getId();
+        const reviewVotes = this.props.review.getReviewVotes();
+
+        // Render button if at least one upvote from a different account exists, and the current account is different.
+        if (accountId == reviewAccountId) {
+            return;
+        }
+
+        let upvoteCounter = 0;
+        for (let i in reviewVotes) {
+            const reviewVote = reviewVotes[i];
+            if (reviewVote.isUpvote()) {
+                const reviewVoteAccountId = reviewVote.getAccount().getId();
+                if (reviewVoteAccountId != reviewAccountId) {
+                    upvoteCounter++;
+                    // TODO: verify if we only need one upvote that isn't from the review's creator.
+                    break;
+                }
+            }
+        }
+
+        if (upvoteCounter == 0) {
+            return;
         }
 
         let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
         if (this.props.shouldShowSaveAnimation) {
             submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+        }
+
+        return submitApprovalButton;
+    }
+
+    render() {
+        let submitCommentButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmitComment}>Submit Comment</button>;
+        if (this.state.shouldShowSaveCommentAnimation) {
+            submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
         }
 
         return(
@@ -258,7 +289,7 @@ class ApprovalForm extends React.Component{
                             {this.renderDownvoteButton()}
                         </div>
                         {this.renderVoteList()}
-                        {submitApprovalButton}
+                        {this.renderSubmitButton()}
                     </div>
                 </div>
             </div>
