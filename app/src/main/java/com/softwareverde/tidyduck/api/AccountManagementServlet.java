@@ -54,9 +54,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid account ID provided.");
                 }
 
-                if (!currentAccount.getId().equals(providedAccountId)) {
-                    currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
-                }
+                // no permission check, allowing users to see other user's data, barring more private data being added
 
                 return _getAccount(currentAccount, providedAccountId, environment.getDatabase());
             }
@@ -98,8 +96,6 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
-
                 return _getCompanies(environment.getDatabase());
             }
         });

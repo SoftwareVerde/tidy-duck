@@ -20,7 +20,8 @@ class AccountsPage extends React.Component {
             newCompany: newCompany,
             createAccountButtonState: this.SaveButtonState.submit,
             createCompanyButtonState: this.SaveButtonState.submit,
-            isLoadingAccounts: true
+            isLoadingAccounts: true,
+            accounts: []
         };
 
         const thisPage = this;
