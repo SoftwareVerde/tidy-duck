@@ -28,6 +28,10 @@
     min-height: 115px;
 }
 
+.alert .alert-content * {
+    color: inherit;
+}
+
 .alert .alert-button {
     border: solid 1px #505050;
     padding: 5px;

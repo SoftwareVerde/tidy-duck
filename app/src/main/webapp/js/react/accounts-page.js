@@ -117,7 +117,7 @@ class AccountsPage extends React.Component {
             if (data.wasSuccess) {
                 const usernameString = "Username: " + account.getUsername();
                 const passwordString = "Password: " + data.password;
-                const alertString = <div className="alert-content">
+                const alertString = <div>
                                         Account ID {data.accountId} created with the following login information:
                                         <br/>
                                         <br/> {usernameString}
@@ -189,7 +189,11 @@ class AccountsPage extends React.Component {
             if (!data.wasSuccess) {
                 app.App.alert(
                     "Unable to update roles",
-                    "Unable to remove role " + roleName + " from " + account.getName() + "(" + account.getUsername() + ").<br/><br/>Please refresh the page to reset role information."
+                    <div>
+                        Unable to remove role {roleName} from {account.getName()} ({account.getUsername()}).<br/>
+                        <br/>
+                        Please refresh the page to reset role information.
+                    </div>
                 );
             }
         });
