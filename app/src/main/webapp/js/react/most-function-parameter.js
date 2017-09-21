@@ -73,10 +73,13 @@ class MostFunctionParameter extends React.Component {
         const parameter = this.state.parameter;
 
         const mostTypes = this.props.mostTypes;
-        const options = [];
+        let options = [];
         for (let i in mostTypes) {
             options.push(mostTypes[i].getName());
         }
+        options = options.sort(function(a, b) {
+            return a.localeCompare(b, undefined, {numeric : true, sensitivity: 'base'});
+        });
 
         const parameterName = parameter.getName();
         const parameterDescription = parameter.getDescription();
