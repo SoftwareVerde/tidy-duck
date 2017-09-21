@@ -93,6 +93,20 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super.defineEndpoint("accounts/<accountId>/reset-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
+                if (providedAccountId < 1) {
+                    return _generateErrorJson("Invalid account ID provided.");
+                }
+
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                return _resetPassword(providedAccountId, environment.getDatabase());
+            }
+        });
+
         super.defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -295,6 +309,21 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         catch (final Exception e) {
             _logger.error("Unable to attempt password change.", e);
             return _generateErrorJson("Unable to attempt password change: " + e.getMessage());
+        }
+    }
+
+    protected Json _resetPassword(final long accountId, final Database<Connection> database) {
+        final Json response = _generateSuccessJson();
+        try{
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final String newPassword = databaseManager.resetPassword(accountId);
+
+            response.put("newPassword", newPassword);
+            return response;
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to reset password: ", e);
+            return _generateErrorJson("Unable to reset password: " + e.getMessage());
         }
     }
 

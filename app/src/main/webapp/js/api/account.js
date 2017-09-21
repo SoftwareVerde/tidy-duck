@@ -194,7 +194,23 @@ function changePassword(accountId, oldPassword, newPassword, callback) {
                 "newPassword":    newPassword
             })
         }
-    )
+    );
+    jsonFetch(request, function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
+function resetPassword(accountId, callback) {
+    const request = new Request(
+        API_PREFIX + "accounts/" + accountId + "/reset-password",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
     jsonFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);

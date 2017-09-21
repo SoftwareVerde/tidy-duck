@@ -128,6 +128,7 @@ class App extends React.Component {
 
         this.getCurrentAccountAuthor = this.getCurrentAccountAuthor.bind(this);
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
+        this.onResetPassword = this.onResetPassword.bind(this);
         this.getAllCompanies = this.getAllCompanies.bind(this);
         this.onCreateCompany = this.onCreateCompany.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
@@ -267,6 +268,25 @@ class App extends React.Component {
 
     getCurrentAccountCompany() {
         return this.state.account.getCompany();
+    }
+
+    onResetPassword(account) {
+        const accountId = account.getId();
+        const accountName = account.getName();
+
+        if (! confirm("Are you sure you want to reset the password for " + accountName + "?")) {
+            return;
+        }
+        else {
+            resetPassword(accountId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Unable to reset password", data.errorMessage);
+                }
+                else {
+                    app.App.alert("Password reset", "The new password for " + accountName + " is " + data.newPassword);
+                }
+            });
+        }
     }
 
     getAllCompanies() {
@@ -2829,7 +2849,7 @@ class App extends React.Component {
                     // accounts role
                     return (
                         <div id="main-content" className="container">
-                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany}/>
+                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword}/>
                         </div>
                     );
                 } break;

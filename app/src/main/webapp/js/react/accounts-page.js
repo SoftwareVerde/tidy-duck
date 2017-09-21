@@ -43,6 +43,7 @@ class AccountsPage extends React.Component {
         this.onNewCompanyNameChanged = this.onNewCompanyNameChanged.bind(this);
         this.onSubmitNewAccount = this.onSubmitNewAccount.bind(this);
         this.onSubmitNewCompany = this.onSubmitNewCompany.bind(this);
+        this.onResetPassword = this.onResetPassword.bind(this);
         this.renderCreateAccountForm = this.renderCreateAccountForm.bind(this);
         this.renderCreateCompanyForm = this.renderCreateCompanyForm.bind(this);
         this.renderCreateButtonText = this.renderCreateButtonText.bind(this);
@@ -194,6 +195,12 @@ class AccountsPage extends React.Component {
         });
     }
 
+    onResetPassword(account) {
+        if (typeof this.props.onResetPassword == "function") {
+            this.props.onResetPassword(account);
+        }
+    }
+
     renderCreateButtonText(typeOfObjectCreated) {
         let buttonState = this.state.createAccountButtonState;
         if (typeOfObjectCreated == "Company") {
@@ -275,7 +282,7 @@ class AccountsPage extends React.Component {
                 <tr key={i}>
                     <td key="name">{account.getName()}<br/>({account.getUsername()})</td>
                     <td key="roles">{this.renderRoleComponents(account)}</td>
-                    <td key="reset"><div className="button">Reset Password</div></td>
+                    <td key="reset"><div className="button" onClick={() => this.onResetPassword(account)}>Reset Password</div></td>
                 </tr>
             );
         }
