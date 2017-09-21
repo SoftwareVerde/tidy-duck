@@ -83,12 +83,11 @@ public class AccountServlet extends JsonServlet {
 
         final Row row = rows.get(0);
         final Long accountId = row.getLong("id");
-        final String storedPassword = row.getString("password");
         final AccountInflater accountInflater = new AccountInflater(databaseConnection);
         final Account account = accountInflater.inflateAccount(accountId);
 
         if (account.hasPermission(Permission.LOGIN)) {
-
+            final String storedPassword = row.getString("password");
             if (SecureHashUtil.validateHashWithPbkdf2(password, storedPassword)) {
                 Session.setAccountId(accountId, request);
                 return true;
