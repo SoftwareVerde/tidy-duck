@@ -553,11 +553,13 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long id = mostType.getId();
         final String name = mostType.getName();
         final boolean isPrimaryType = mostType.isPrimaryType();
+        final boolean isReleased = mostType.isReleased();
         final PrimitiveType primitiveType = mostType.getPrimitiveType();
 
         json.put("id", id);
         json.put("name", name);
         json.put("isPrimaryType", isPrimaryType);
+        json.put("isReleased", isReleased);
         json.put("primitiveType", _toJson(primitiveType));
 
         switch (primitiveType.getName()) {

@@ -15,6 +15,7 @@ class MostType {
         mostType.setName(json.name);
         mostType.setPrimitiveType(primitiveType);
         mostType.setIsPrimaryType(json.isPrimaryType);
+        mostType.setIsReleased(json.isReleased);
         mostType.setBitFieldLength(json.bitfieldLength);
         mostType.setEnumMax(json.enumMax);
         mostType.setNumberBaseType(numberBaseType);
@@ -78,6 +79,7 @@ class MostType {
             primitiveTypeId:    mostType.getPrimitiveType().getId(),
             primitiveTypeName:  mostType.getPrimitiveType().getName(),
             isPrimaryType:      mostType.isPrimaryType(),
+            isReleased:         mostType.isReleased(),
             bitfieldLength:     mostType.getBitFieldLength(),
             enumMax:            mostType.getEnumMax(),
             numberBaseTypeId:   mostType.getNumberBaseType() == null ? null : mostType.getNumberBaseType().getId(),
@@ -112,6 +114,7 @@ class MostType {
         this._name  = "";
         this._primitiveType = null;
         this._isPrimaryType = false;
+        this._isReleased = false;
         this._bitfieldLength = null;
         this._enumMax = null;
         this._numberBaseType = null;
@@ -167,6 +170,14 @@ class MostType {
 
     isPrimaryType() {
         return this._isPrimaryType;
+    }
+
+    setIsReleased(isReleased) {
+        this._isReleased = isReleased;
+    }
+
+    isReleased() {
+        return this._isReleased;
     }
 
     setBitFieldLength(bitfieldLength) {

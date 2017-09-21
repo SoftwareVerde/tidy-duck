@@ -106,6 +106,7 @@ public class MostTypeInflater {
         final String name = row.getString("name");
         final long primitiveTypeId = row.getLong("primitive_type_id");
         final boolean isPrimaryType = row.getBoolean("is_primary_type");
+        final boolean isReleased = row.getBoolean("is_released");
         final String bitfieldLength = row.getString("bitfield_length");
         final String enumMax = row.getString("enum_max");
         final Long numberBaseTypeId = row.getLong("number_base_type_id");
@@ -153,6 +154,7 @@ public class MostTypeInflater {
         mostType.setName(name);
         mostType.setPrimitiveType(primitiveType);
         mostType.setIsPrimaryType(isPrimaryType);
+        mostType.setIsReleased(isReleased);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setBitfieldLength(bitfieldLength);
         mostType.setEnumMax(enumMax);
