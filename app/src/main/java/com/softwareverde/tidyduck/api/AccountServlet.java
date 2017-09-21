@@ -76,17 +76,16 @@ public class AccountServlet extends JsonServlet {
         }
 
         final Row row = rows.get(0);
+
         final boolean loginPermission = row.getBoolean("login_permission");
-        if (! loginPermission) {
-            return false;
-        }
+        if (loginPermission) {
+            final Long accountId = row.getLong("id");
+            final String storedPassword = row.getString("password");
 
-        final Long accountId = row.getLong("id");
-        final String storedPassword = row.getString("password");
-
-        if (SecureHashUtil.validateHashWithPbkdf2(password, storedPassword)) {
-            Session.setAccountId(accountId, request);
-            return true;
+            if (SecureHashUtil.validateHashWithPbkdf2(password, storedPassword)) {
+                Session.setAccountId(accountId, request);
+                return true;
+            }
         }
 
         return false;
