@@ -283,7 +283,7 @@ class App extends React.Component {
                     app.App.alert("Unable to reset password", data.errorMessage);
                 }
                 else {
-                    app.App.alert("Password reset", "The new password for " + accountName + " is " + data.newPassword);
+                    app.App.alert("Password reset", accountName + "'s password has been reset to: " + data.newPassword);
                 }
             });
         }
