@@ -239,11 +239,14 @@ class AccountsPage extends React.Component {
     renderCreateAccountForm() {
         const account = this.state.newAccount;
         const companies = this.props.companies;
-        const companyOptions = [];
+        let companyOptions = [];
 
         for (let i in companies) {
             companyOptions.push(companies[i].getName());
         }
+        companyOptions.sort(function(a, b) {
+            return a.localeCompare(b, undefined, {numeric : true, sensitivity: 'base'});
+        });
 
         let createAccountSaveButton = <input type="submit" id="create-account-button" className="button" value={this.renderCreateButtonText("Account")} />;
         if (this.state.createAccountButtonState === this.SaveButtonState.saving) {
