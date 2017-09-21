@@ -42,7 +42,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.ADMIN_CREATE_USERS);
 
-                return _insertAccount(request, environment.getDatabase());
+                return _insertAccount(currentAccount, request, environment.getDatabase());
             }
         });
 
@@ -73,7 +73,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                     throw new AuthorizationException("Users cannot modify their own roles.");
                 }
 
-                return _updateRoles(request, providedAccountId, environment.getDatabase());
+                return _updateRoles(currentAccount, request, providedAccountId, environment.getDatabase());
             }
         });
 
@@ -89,7 +89,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                     currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
                 }
 
-                return _changePassword(providedAccountId, request, environment.getDatabase());
+                return _changePassword(currentAccount, providedAccountId, request, environment.getDatabase());
             }
         });
 
@@ -103,7 +103,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
                 currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
 
-                return _resetPassword(providedAccountId, environment.getDatabase());
+                return _resetPassword(currentAccount, providedAccountId, environment.getDatabase());
             }
         });
 
@@ -117,7 +117,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("companies", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                return _insertCompany(request, environment.getDatabase());
+                return _insertCompany(currentAccount, request, environment.getDatabase());
             }
         });
     }
@@ -185,7 +185,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertCompany(final HttpServletRequest request, final Database<Connection> database) throws IOException {
+    protected Json _insertCompany(final Account currentAccount, final HttpServletRequest request, final Database<Connection> database) throws IOException {
         final Json response = _generateSuccessJson();
         final Json requestJson = _getRequestDataAsJson(request);
         final Json companyJson = requestJson.get("company");
@@ -207,6 +207,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
 
             response.put("companyId", company.getId());
+            _logger.info("User " + currentAccount.getId() + " created company " + company.getId());
             return response;
         }
         catch (DatabaseException e) {
@@ -215,7 +216,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertAccount(final HttpServletRequest httpServletRequest, final Database<Connection> database) throws IOException {
+    protected Json _insertAccount(final Account currentAccount, final HttpServletRequest httpServletRequest, final Database<Connection> database) throws IOException {
         final Json response = _generateSuccessJson();
         final Json request = _getRequestDataAsJson(httpServletRequest);
         final Json accountJson = request.get("account");
@@ -247,6 +248,8 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             response.put("accountId", account.getId());
             response.put("password", account.getPassword());
+            // TODO: add roles to log statement
+            _logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId());
         }
         catch (DatabaseException e) {
             _logger.error("Unable to create account.", e);
@@ -256,7 +259,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _updateRoles(final HttpServletRequest request, final Long providedAccountId, final Database<Connection> database) {
+    private Json _updateRoles(final Account currentAccount, final HttpServletRequest request, final Long providedAccountId, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json jsonRequest = _getRequestDataAsJson(request);
             final Json rolesJson = jsonRequest.get("roleNames");
@@ -273,6 +276,8 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateAccountRoles(providedAccountId, roles);
 
+            _logger.info("User " + currentAccount.getId() + " changed user " + providedAccountId + "'s roles to " + rolesJson.toString());
+
             final Json response = _generateSuccessJson();
             return response;
         }
@@ -282,7 +287,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _changePassword(final long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
+    protected Json _changePassword(final Account currentAccount, final long accountId, final HttpServletRequest request, final Database<Connection> database) throws IOException {
         try {
             final Json jsonRequest = _getRequestDataAsJson(request);
             final Json response = _generateSuccessJson();
@@ -304,6 +309,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
                 return _generateErrorJson("Invalid credentials.");
             }
 
+            _logger.info("User " + currentAccount.getId() + " changed user " + accountId + "'s password.");
             return response;
         }
         catch (final Exception e) {
@@ -312,13 +318,15 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _resetPassword(final long accountId, final Database<Connection> database) {
+    protected Json _resetPassword(final Account currentAccount, final long accountId, final Database<Connection> database) {
         final Json response = _generateSuccessJson();
         try{
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final String newPassword = databaseManager.resetPassword(accountId);
 
             response.put("newPassword", newPassword);
+
+            _logger.info("User " + currentAccount.getId() + " reset user " + accountId + "'s password.");
             return response;
         }
         catch (DatabaseException e) {
