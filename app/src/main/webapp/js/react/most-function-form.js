@@ -408,11 +408,14 @@ class MostFunctionForm extends React.Component {
         const returnParameterDescription = mostFunction.getReturnParameterDescription();
         const returnTypeName = mostFunction.getReturnType() ? mostFunction.getReturnType().getName() : "";
 
-        const mostTypeNames = [];
+        let mostTypeNames = [];
         for (let i in this.props.mostTypes) {
             const typeName = this.props.mostTypes[i].getName();
             mostTypeNames.push(typeName);
         }
+        mostTypeNames = mostTypeNames.sort(function(a, b) {
+            return a.localeCompare(b, undefined, {numeric : true, sensitivity: 'base'});
+        });
 
         // 0x000 through 0xFFE, case insensitive
         // Regex break-down:     0[xX](        FF[0-E]     or    0x[0-E][0-F][0-F]    or       0x[0-F][0-E][0-F]        )
