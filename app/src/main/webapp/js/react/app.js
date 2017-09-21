@@ -2466,7 +2466,9 @@ class App extends React.Component {
         let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
-                childItems = this.state.functionCatalogs;
+                childItems = this.state.functionCatalogs.sort(function(a, b) {
+                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                });
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
@@ -2476,6 +2478,9 @@ class App extends React.Component {
 
             case NavigationLevel.functionCatalogs:
                 childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
+                childItems = childItems.sort(function(a, b) {
+                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                });
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
@@ -2485,6 +2490,9 @@ class App extends React.Component {
 
             case NavigationLevel.functionBlocks:
                 childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
+                childItems = childItems.sort(function(a, b) {
+                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                });
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
@@ -2493,7 +2501,9 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.mostInterfaces:
-                childItems = this.state.mostFunctions;
+                childItems = this.state.mostFunctions.sort(function(a, b) {
+                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                });
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const mostFunctionKey = "mostFunction" + i;
