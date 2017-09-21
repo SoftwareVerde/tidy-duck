@@ -3,6 +3,11 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.*;
 import com.softwareverde.json.Json;
 import com.softwareverde.security.SecureHashUtil;
+import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.AuthorizationException;
+import com.softwareverde.tidyduck.Permission;
+import com.softwareverde.tidyduck.Role;
+import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
@@ -13,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 
 public class AccountServlet extends JsonServlet {
@@ -66,7 +72,7 @@ public class AccountServlet extends JsonServlet {
     }
 
     private boolean authenticateAccount(final String username, final String password, final HttpServletRequest request, final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        final Query query = new Query("SELECT id, password, login_permission FROM accounts WHERE username = ?")
+        final Query query = new Query("SELECT id, password FROM accounts WHERE username = ?")
                 .setParameter(username)
                 ;
 
@@ -76,18 +82,19 @@ public class AccountServlet extends JsonServlet {
         }
 
         final Row row = rows.get(0);
+        final Long accountId = row.getLong("id");
+        final String storedPassword = row.getString("password");
+        final AccountInflater accountInflater = new AccountInflater(databaseConnection);
+        final Account account = accountInflater.inflateAccount(accountId);
 
-        final boolean loginPermission = row.getBoolean("login_permission");
-        if (loginPermission) {
-            final Long accountId = row.getLong("id");
-            final String storedPassword = row.getString("password");
+        if (account.hasPermission(Permission.LOGIN)) {
 
             if (SecureHashUtil.validateHashWithPbkdf2(password, storedPassword)) {
                 Session.setAccountId(accountId, request);
                 return true;
             }
         }
-
+        
         return false;
     }
 }
