@@ -1,9 +1,11 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.MostTypeModificationChecker;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostTypeInflater;
@@ -29,7 +31,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
-                return _listMostTypes(environment);
+                return _listMostTypes(environment.getDatabase());
             }
         });
 
@@ -38,7 +40,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.TYPES_CREATE);
 
-                return _insertType(request, environment);
+                return _insertType(request, environment.getDatabase());
             }
         });
 
@@ -51,7 +53,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 if (mostTypeId < 1) {
                     return _generateErrorJson("Invalid Most Type ID.");
                 }
-                return _updateMostType(request, mostTypeId, environment);
+                return _updateMostType(request, mostTypeId, environment.getDatabase());
             }
         });
 
@@ -74,8 +76,8 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         });
     }
 
-    private Json _listMostTypes(final Environment environment) {
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
+    private Json _listMostTypes(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             Json response = new Json(false);
 
             MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
@@ -96,12 +98,12 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _insertType(HttpServletRequest request, Environment environment) throws IOException {
+    private Json _insertType(HttpServletRequest request, Database<Connection> database) throws IOException {
         Json response = new Json(false);
         final Json jsonRequest = _getRequestDataAsJson(request);
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(environment.getDatabase());
+            DatabaseManager databaseManager = new DatabaseManager(database);
 
             final MostType mostType = _populateMostTypeFromJson(jsonRequest);
             databaseManager.insertMostType(mostType);
@@ -117,27 +119,36 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateMostType(final HttpServletRequest request, final long mostTypeId, Environment environment) throws IOException {
+    protected Json _updateMostType(final HttpServletRequest request, final long mostTypeId, Database<Connection> database) throws IOException {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json mostTypeJson = jsonRequest.get("mostType");
 
-        try {
-            MostType mostType = _populateMostTypeFromJson(mostTypeJson);
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+
+            final MostType mostType = _populateMostTypeFromJson(mostTypeJson);
             mostType.setId(mostTypeId);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment.getDatabase());
+            final MostTypeModificationChecker mostTypeModificationChecker = new MostTypeModificationChecker(databaseConnection);
+            List<String> errors = mostTypeModificationChecker.checkTypeForIllegalChanges(mostType);
+            if (errors.size() > 0) {
+                final Json response = _generateErrorJson("Unable to update type.");
+                final Json errorsJson = new Json(errors);
+                response.put("validationErrors", errorsJson);
+                return response;
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateMostType(mostType);
 
+            final Json response = new Json(false);
+            _setJsonSuccessFields(response);
+            return response;
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update Most Type: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
-
-        final Json response = new Json(false);
-        _setJsonSuccessFields(response);
-        return response;
     }
 
     private MostType _populateMostTypeFromJson(final Json jsonRequest) throws Exception {
