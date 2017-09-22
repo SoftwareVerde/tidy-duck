@@ -110,6 +110,7 @@ public class MostTypeModificationChecker {
     private void _checkEnum(final List<String> errors, final MostType mostType, final MostType storedType) {
         if (mostType.getEnumValues().size() < storedType.getEnumValues().size()) {
             errors.add("Enum values cannot be removed.");
+            return;
         }
         // check that all stored values are present in order
         for (int i=0; i<storedType.getEnumValues().size(); i++) {
