@@ -88,13 +88,7 @@ class TypesPage extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        let mostType = TypesPage.createNewMostType(newProps.primitiveTypes);
 
-        this.state = {
-            selectedOption: this.options[0],
-            mostType: mostType,
-            saveButtonText: 'Save'
-        };
     }
 
     static createNewMostType(primitiveTypes) {
@@ -362,7 +356,7 @@ class TypesPage extends React.Component {
     }
 
     onTypeSelected(value) {
-        const newMostType = this.getMostTypeByName(value);
+        const newMostType = copyMostObject(MostType, this.getMostTypeByName(value));
 
         this.setState({
             mostType: newMostType,
