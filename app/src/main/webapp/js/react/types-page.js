@@ -996,7 +996,7 @@ class TypesPage extends React.Component {
             if (!selectedType) {
                 selectedType = primaryTypes[0];
             }
-            typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector"
+            typeSelector = <app.InputField key="type-selector" id="type-selector" type="select" label="Type to Edit" name="type-selector"
                                            value={selectedType} options={primaryTypes} optionLabels={primaryTypeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {

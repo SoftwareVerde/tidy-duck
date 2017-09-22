@@ -505,3 +505,7 @@
 .role-components {
     text-align: center;
 }
+
+#type-selector {
+    height: 2em; /* expand to allow for emojis */
+}
