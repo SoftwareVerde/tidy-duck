@@ -17,6 +17,18 @@ class PrimitiveType {
         return primitiveType;
     }
 
+    static toJson(primitiveType) {
+        return {
+            id:                 primitiveType.getId(),
+            name:               primitiveType.getName(),
+            isBaseType:         primitiveType.isBaseType(),
+            isNumberBaseType:   primitiveType.isNumberBaseType(),
+            isStreamParamType:  primitiveType.isStreamParamType(),
+            isArrayType:        primitiveType.isArrayType(),
+            isRecordType:       primitiveType.isRecordType()
+        };
+    }
+
     constructor() {
         this._id    = null;
         this._name  = null;

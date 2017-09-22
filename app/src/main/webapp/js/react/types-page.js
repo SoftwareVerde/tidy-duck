@@ -326,6 +326,7 @@ class TypesPage extends React.Component {
                     }
                 }
                 else {
+                    const validationErrors = data.validationErrors.map((errorMessage) => <li>{errorMessage}</li>);
                     app.App.alert("Most Type", "Unable to create type: " + data.errorMessage);
                 }
                 // reset fields
@@ -337,14 +338,31 @@ class TypesPage extends React.Component {
         }
         else if (this.state.selectedOption === this.options[1]) {
             const mostTypeId = this.state.mostType.getId();
-            updateMostType(mostTypeId, mostTypeJson, function (wasSuccess, errorMessage) {
+            updateMostType(mostTypeId, mostTypeJson, function (data) {
                 let saveButtonText = 'Save';
-                if (wasSuccess) {
+                if (data.wasSuccess) {
                     app.App.alert("Most Type", "Changes to Most Type " + mostType.getName() + " have been successfully saved.");
                     saveButtonText = 'Saved';
                 }
                 else {
-                    app.App.alert("Most Type", "Unable to update Most Type: " + errorMessage);
+                    const validationErrors = data.validationErrors;
+                    if (validationErrors) {
+                        const errorListItems =  data.validationErrors.map((errorMessage, index) => <li key={index}>{errorMessage}</li>);
+                        app.App.alert(
+                            "Unable to Update Most Type",
+                             <div>
+                                Unable to update Most type: {data.errorMessage}<br/>
+                                <br/>
+                                Validation errors:
+                                <ul>
+                                    {errorListItems}
+                                </ul>
+                             </div>
+                        );
+                    } else {
+                        app.App.alert("Unable to Update Most Type", "Unable to update Most type: " + data.errorMessage);
+                    }
+
                 }
                 // Most Type is already updated in App and in Database, only need to reset save button text.
 

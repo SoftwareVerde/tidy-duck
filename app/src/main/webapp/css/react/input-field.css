@@ -8,7 +8,7 @@
     font-size: 0.85rem;
 }
 
-.input-field:nth-child(2n) {
+.input-field:nth-of-type(even) {
     float: right;
 }
 
