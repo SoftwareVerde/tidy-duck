@@ -1,11 +1,15 @@
 .input-field {
     float: left;
     position: relative;
-    min-width: 33%;
+    width: 50%;
     display: inline-block;
     box-sizing: border-box;
-    padding: 2em 3em;
+    padding: 1em 1em;
     font-size: 0.85rem;
+}
+
+.input-field:nth-child(2n) {
+    float: right;
 }
 
 .input-field label {
@@ -27,6 +31,19 @@
     font-size: 1rem;
     margin: 0px;
     box-sizing: border-box;
+}
+
+.input-field select {
+    width: auto;
+    min-width: 50%;
+}
+
+.input-field select {
+    height: 2.3em;
+}
+
+.input-field textarea {
+    height: 8em;
 }
 
 .input-field-small {
