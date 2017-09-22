@@ -225,7 +225,21 @@ class App extends React.Component {
     }
 
     showAlert() {
-        
+        const account = this.state.account;
+        const settings = account.getSettings();
+
+        const theme = settings.getTheme();
+        let message = "";
+        switch (theme) {
+            case "Darkwing": {
+                message = "I am the terror that flaps in the night!";
+            } break;
+            default: {
+                message = "Quack quack!";
+            }
+        }
+
+        app.App.alert(theme, message);
     }
 
     onCreateFunctionCatalog(functionCatalog) {
@@ -2456,7 +2470,6 @@ class App extends React.Component {
         document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
         document.getElementById('release-css').href =           '/css/themes/' + themeCssDirectory + '/release.css';
         document.getElementById('reviews-css').href =           '/css/themes/' + themeCssDirectory + '/reviews.css';
-        document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
         document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
     }
 
@@ -3004,7 +3017,7 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
-                    <img onClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
+                    <img onDoubleClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">

@@ -21,6 +21,9 @@ public class TestDataLoader {
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-08_add_parameter_name_and_description.sql")));
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-12_roles.sql")));
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-18_add_return_parameter_fields.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-21_add_login_permission.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-21_add_release_types.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-21_add_update_password_hashes.sql")));
     }
 
     public static void insertFakeCompany(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {

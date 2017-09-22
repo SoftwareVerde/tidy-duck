@@ -144,11 +144,12 @@ public class ReleaseDatabaseManager {
         // release each release item
         for (final ReleaseItem releaseItem : releaseItems) {
             final String queryString = getReleaseQuery(releaseItem);
-            executeReleaseQuery(queryString, releaseItem);
+            _executeReleaseQuery(queryString, releaseItem);
         }
+        _releaseAssociatedMostTypes(functionCatalogId);
     }
 
-    private void executeReleaseQuery(final String queryString, final ReleaseItem releaseItem) throws DatabaseException {
+    private void _executeReleaseQuery(final String queryString, final ReleaseItem releaseItem) throws DatabaseException {
         final Query query = new Query(queryString);
         query.setParameter(releaseItem.getNewVersion());
         query.setParameter(releaseItem.getItemId());
@@ -176,5 +177,24 @@ public class ReleaseDatabaseManager {
             }
         }
         return query;
+    }
+
+    private void _releaseAssociatedMostTypes(final long functionCatalogId) throws DatabaseException {
+        _releaseReturnTypes(functionCatalogId);
+        _releaseParameterTypes(functionCatalogId);
+    }
+
+    private void _releaseReturnTypes(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE most_types SET is_released = 1 WHERE most_types.id IN (SELECT DISTINCT return_type_id FROM functions INNER JOIN interfaces_functions ON interfaces_functions.function_id = functions.id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id WHERE function_catalog_id = ?)");
+        query.setParameter(functionCatalogId);
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _releaseParameterTypes(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE most_types SET is_released = 1 WHERE most_types.id IN (SELECT DISTINCT most_type_id FROM function_parameters INNER JOIN functions ON functions.id = function_parameters.function_id INNER JOIN interfaces_functions ON interfaces_functions.function_id = functions.id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id WHERE function_catalog_id = ?)");
+        query.setParameter(functionCatalogId);
+
+        _databaseConnection.executeSql(query);
     }
 }
