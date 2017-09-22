@@ -37,6 +37,8 @@ public class MostTypeModificationChecker {
 
         final List<String> errors = new ArrayList<>();
 
+        _ifNotEqualAppendError(errors, mostType.isPrimaryType(), storedType.isPrimaryType(), "Primary type flag cannot be changed.");
+
         switch (storedType.getPrimitiveType().getName()) {
             case "TArray": {
                 _checkArray(errors, mostType, storedType);
@@ -210,7 +212,9 @@ public class MostTypeModificationChecker {
     }
 
     /**
-     * Returns true iff the error message was added.
+     * <p>If <code>a</code> and <code>b</code> are not equals, adds <code>errorMessage</code> to <code>errors</code>.</p>
+     *
+     * <p>Returns true iff the error message was added.</p>
      * @param errors
      * @param a
      * @param b
