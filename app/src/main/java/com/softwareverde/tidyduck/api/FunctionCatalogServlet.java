@@ -360,11 +360,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             throw new IllegalArgumentException("New version (" + newVersion + ") is invalid for item " + itemId);
         }
 
-        /*
         if (newVersion.equals(releaseItem.getItemVersion())) {
             throw new IllegalArgumentException("New version (" + newVersion + ") must be different from old version (" + itemVersion + "), item " + itemId);
         }
-        */
 
         final DatabaseManager databaseManager = new DatabaseManager(database);
         if (! databaseManager.isNewReleaseVersionUnique(itemType, itemId, newVersion)) {
