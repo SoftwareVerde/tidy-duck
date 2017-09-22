@@ -53,6 +53,15 @@ class AccountDatabaseManager {
         return true;
     }
 
+    public void deactivateAccount(final long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE accounts SET login_permission = ? WHERE id = ?")
+                .setParameter(false)
+                .setParameter(accountId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     public boolean insertCompany(final Company company) throws DatabaseException {
         final String companyName = company.getName();
         if (! _isCompanyNameUnique(companyName)) {

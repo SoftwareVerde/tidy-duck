@@ -58,6 +58,7 @@ class TypesPage extends React.Component {
         this.onArrayDescriptionChanged = this.onArrayDescriptionChanged.bind(this);
         this.onArrayElementTypeChanged = this.onArrayElementTypeChanged.bind(this);
         this.onArraySizeChanged = this.onArraySizeChanged.bind(this);
+        this.onIsPrimaryTypeChanged = this.onIsPrimaryTypeChanged.bind(this);
         this.onRecordFieldAddButtonClicked = this.onRecordFieldAddButtonClicked.bind(this);
         this.onRecordFieldRemoveButtonClicked = this.onRecordFieldRemoveButtonClicked.bind(this);
         this.onRecordNameChanged = this.onRecordNameChanged.bind(this);
@@ -72,7 +73,7 @@ class TypesPage extends React.Component {
         this.getMostUnitByName = this.getMostUnitByName.bind(this);
         this.getBaseTypes = this.getBaseTypes.bind(this);
         this.getPrimaryTypes = this.getPrimaryTypes.bind(this);
-        this.getPrimaryTypeLabels = this.getPrimaryTypeLabels.bind(this);
+        this.getTypeLabel = this.getTypeLabel.bind(this);
         this.getNumberBaseTypes = this.getNumberBaseTypes.bind(this);
         this.checkTypeCircularReferences = this.checkTypeCircularReferences.bind(this);
         this.getStreamParamTypes = this.getStreamParamTypes.bind(this);
@@ -171,18 +172,10 @@ class TypesPage extends React.Component {
         return primaryTypes.sort();
     }
 
-    getPrimaryTypeLabels() {
-        const primaryTypes = [];
-
-        for (let i in this.props.mostTypes) {
-            let type = this.props.mostTypes[i];
-            if (type.isPrimaryType()) {
-                const releasedText = type.isReleased() ? ' \uD83D\uDCD5' : '';
-                primaryTypes.push(type.getName() + releasedText);
-            }
-        }
-
-        return primaryTypes.sort();
+    getTypeLabel(type) {
+        const releasedText = type.isReleased() ? ' \uD83D\uDCD5' : '';
+        const label = type.getName() + releasedText;
+        return label;
     }
 
     getNumberBaseTypes() {
@@ -883,6 +876,16 @@ class TypesPage extends React.Component {
         });
     }
 
+    onIsPrimaryTypeChanged(value) {
+        const mostType = this.state.mostType;
+        mostType.setIsPrimaryType(value);
+
+        this.setState({
+            mostType: mostType,
+            saveButtonText: 'Save'
+        });
+    }
+
     onRecordFieldAddButtonClicked() {
         const mostType = this.state.mostType;
         const recordField = new RecordField();
@@ -989,15 +992,15 @@ class TypesPage extends React.Component {
         let typeSelector = "";
         if (this.state.selectedOption == "Edit Type") {
             // add empty option in selector
-            const primaryTypes = [''].concat(this.getPrimaryTypes());
-            const primaryTypeLabels = [''].concat(this.getPrimaryTypeLabels());
+            const thisPage = this;
+            const mostTypes = [''].concat(this.props.mostTypes.map((type) => type.getName()).sort());
+            const typeLabels = [''].concat(this.props.mostTypes.map((type) => thisPage.getTypeLabel(type)).sort());
 
             let selectedType = this.state.selectedType;
             if (!selectedType) {
-                selectedType = primaryTypes[0];
+                selectedType = mostTypes[0];
             }
-            typeSelector = <app.InputField key="type-selector" id="type-selector" type="select" label="Type to Edit" name="type-selector"
-                                           value={selectedType} options={primaryTypes} optionLabels={primaryTypeLabels} onChange={this.onTypeSelected}/>
+            typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
                 return (
@@ -1024,14 +1027,15 @@ class TypesPage extends React.Component {
             saveButton = <div className="button"><i className="fa fa-refresh fa-spin"/></div>;
         }
 
+        const isPrimaryType = mostType.isPrimaryType();
+
         return (
             <form onSubmit={this.onSave}>
                 <div id="types-main-inputs">
                     {typeSelector}
-                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName}
-                                    onChange={this.onTypeNameChanged} isRequired={true}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type"
-                                    value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
+                    <app.InputField className="is-primary-type-container" key="isPrimaryType" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false}/>
+                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
                 <div key="save-button" className="center">{saveButton}</div>
@@ -1049,10 +1053,7 @@ class TypesPage extends React.Component {
 
         switch (mostType.getPrimitiveType().getName()) {
             case 'TBitField': {
-                reactComponents.push(<div key="bitfield-length" className="clearfix">
-                    <app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"
-                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={false}/>
-                </div>);
+                reactComponents.push(<div key="bitfield-length" className="clearfix"><app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length" value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={false}/></div>);
             } // fall through
             case 'TBool': {
                 const thisPage = this;
@@ -1320,17 +1321,10 @@ class TypesPage extends React.Component {
                 const arrayElementType = mostType.getArrayElementType();
                 const arrayElementTypeName = arrayElementType ? arrayElementType.getName() : null;
                 const arraySize = mostType.getArraySize();
-                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name"
-                                                     value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>);
-                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description"
-                                                     name="array-description" value={arrayDescription}
-                                                     onChange={this.onArrayDescriptionChanged} isRequired={false}/>);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type"
-                                                     name="array-element-type" value={arrayElementTypeName}
-                                                     options={arrayElementTypes}
-                                                     onChange={this.onArrayElementTypeChanged} isRequired={true}/>);
-                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size"
-                                                     value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>);
+                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>);
+                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>);
+                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} isRequired={true}/>);
+                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>);
             }
                 break;
             case 'TRecord': {

@@ -114,7 +114,6 @@ public class DatabaseManager {
 
     // RELEASE
 
-
     public List<ReleaseItem> getReleaseItemList(final long functionCatalogId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
@@ -130,6 +129,13 @@ public class DatabaseManager {
             releaseDatabaseManager.releaseFunctionCatalog(functionCatalogId, releaseItems);
             }
         });
+    }
+
+    public boolean isNewReleaseVersionUnique(final String itemType, final long itemId, final String proposedReleaseVersion) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
+            return releaseDatabaseManager.isNewReleaseVersionUnique(itemType, itemId, proposedReleaseVersion);
+        }
     }
 
     // FUNCTION BLOCK METHODS

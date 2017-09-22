@@ -13,6 +13,10 @@ class AccountsPage extends React.Component {
         const accountCompany = this.props.companies[0];
         account.setCompany(accountCompany);
 
+        const loginRole = new Role();
+        loginRole.setName("Login");
+        account.addRole(loginRole);
+
         const newCompany = new Company();
 
         this.state = {
@@ -132,6 +136,11 @@ class AccountsPage extends React.Component {
                 const newAccount = new Account();
                 const newCompany = new Company();
                 newAccount.setCompany(newCompany);
+
+                const loginRole = new Role();
+                loginRole.setName("Login");
+                newAccount.addRole(loginRole);
+
 
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.saved,
@@ -327,11 +336,12 @@ class AccountsPage extends React.Component {
     renderRoleComponents(account, isNewAccount) {
         return (
             <div className="role-components">
-                <app.InputField key="1" type="checkbox" label="Admin" checked={account.hasRole("Admin")} onChange={(value) => this.onRoleChange(account, "Admin", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="2" type="checkbox" label="Release" checked={account.hasRole("Release")} onChange={(value) => this.onRoleChange(account, "Release", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="3" type="checkbox" label="Modify" checked={account.hasRole("Modify")} onChange={(value) => this.onRoleChange(account, "Modify", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="4" type="checkbox" label="Review" checked={account.hasRole("Review")} onChange={(value) => this.onRoleChange(account, "Review", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="5" type="checkbox" label="View" checked={account.hasRole("View")} onChange={(value) => this.onRoleChange(account, "View", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="1" type="checkbox" label="Login" checked={account.hasRole("Login")} onChange={(value) => this.onRoleChange(account, "Login", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="2" type="checkbox" label="Admin" checked={account.hasRole("Admin")} onChange={(value) => this.onRoleChange(account, "Admin", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="3" type="checkbox" label="Release" checked={account.hasRole("Release")} onChange={(value) => this.onRoleChange(account, "Release", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="4" type="checkbox" label="Modify" checked={account.hasRole("Modify")} onChange={(value) => this.onRoleChange(account, "Modify", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="5" type="checkbox" label="Review" checked={account.hasRole("Review")} onChange={(value) => this.onRoleChange(account, "Review", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="6" type="checkbox" label="View" checked={account.hasRole("View")} onChange={(value) => this.onRoleChange(account, "View", value, isNewAccount)} isSmallInputField={true}/>
             </div>
         );
     }

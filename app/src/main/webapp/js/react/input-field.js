@@ -71,20 +71,18 @@ class InputField extends React.Component {
     }
 
     render() {
+        let className = "input-field" + (this.props.isSmallInputField ? "-small" : "");
+        if (this.props.className) {
+            className += (" "+ this.props.className);
+        }
+
         let label = '';
         if (this.props.label) {
             label = <label htmlFor={this.props.id}>{this.props.label}:</label>;
         }
-        if (this.props.isSmallInputField) {
-            return (
-                <div className="input-field-small">
-                    {label}
-                    {this.renderInput()}
-                </div>
-            );
-        }
+
         return (
-            <div className="input-field">
+            <div className={className}>
                 {label}
                 {this.renderInput()}
             </div>

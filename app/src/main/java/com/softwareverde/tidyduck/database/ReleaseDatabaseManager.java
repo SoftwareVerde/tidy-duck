@@ -35,6 +35,42 @@ public class ReleaseDatabaseManager {
         return releaseItems;
     }
 
+    public boolean isNewReleaseVersionUnique(final String itemType, final long itemId, final String proposedReleaseVersion) throws DatabaseException {
+        String queryString;
+        switch (itemType) {
+            case "FUNCTION CATALOG": {
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_catalogs WHERE release_version = ? AND is_released = ? AND base_version_id IN (" +
+                                    "SELECT function_catalogs.base_version_id FROM function_catalogs WHERE function_catalogs.id = ?)";
+            } break;
+            case "FUNCTION BLOCK": {
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_blocks WHERE release_version = ? AND is_released = ? AND base_version_id IN (" +
+                                    "SELECT function_blocks.base_version_id FROM function_blocks WHERE function_blocks.id = ?)";
+            } break;
+            case "INTERFACE": {
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM interfaces WHERE version = ? AND is_released = ? AND base_version_id IN (" +
+                                    "SELECT interfaces.base_version_id FROM interfaces WHERE interfaces.id = ?)";
+            } break;
+            case "FUNCTION": {
+                return true;
+            }
+            default: {
+                throw new IllegalArgumentException("Invalid release item type '" + itemType + "' found.");
+            }
+        }
+
+        final Query query = new Query(queryString)
+                .setParameter(proposedReleaseVersion)
+                .setParameter(true)
+                .setParameter(itemId)
+        ;
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final Row row = rows.get(0);
+        final long duplicateCount = row.getLong("duplicate_count");
+
+        return (duplicateCount == 0);
+    }
+
     private List<ReleaseItem> _getFunctionCatalogReleaseItem(final long functionCatalogId) throws DatabaseException {
         final Query query = new Query("SELECT 'FUNCTION CATALOG' AS type, id, name, release_version AS version " +
                 "FROM function_catalogs " +
