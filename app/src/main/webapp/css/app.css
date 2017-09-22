@@ -95,6 +95,10 @@
     padding: 1em;
 }
 
+#types-container .is-primary-type-container {
+
+}
+
 #extended-type-fields {
     clear: left;
     border: #AAA solid thin;
