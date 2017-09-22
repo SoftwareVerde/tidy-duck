@@ -22,10 +22,11 @@ class Toolbar extends React.Component {
         this.renderForkButton = this.renderForkButton.bind(this);
         this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
-        this.renderEditButton = this.renderEditButton.bind(this);
+        this.renderMetadataButton = this.renderMetadataButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
         this.renderAddFunctionButtons = this.renderAddFunctionButtons.bind(this);
+        this.renderButtons = this.renderButtons.bind(this);
         this.renderNavigationItems = this.renderNavigationItems.bind(this);
     }
 
@@ -168,7 +169,7 @@ class Toolbar extends React.Component {
     }
 
     renderReleaseButton() {
-        if (this.props.shouldShowReleaseButton) {
+        if (this.props.shouldShowReleaseButton && this.props.canRelease) {
             const buttonTitle = "Release Function Catalog";
             return (
                 <div className="toolbar-item release" onClick={this.props.onReleaseClicked} >
@@ -179,7 +180,7 @@ class Toolbar extends React.Component {
         }
     }
 
-    renderEditButton() {
+    renderMetadataButton() {
         if (this.props.shouldShowEditButton) {
             const navigationLevel = this.state.navigationLevel;
             const currentNavigationLevel = this.state.currentNavigationLevel;
@@ -305,6 +306,30 @@ class Toolbar extends React.Component {
         }
     }
 
+    renderButtons() {
+        if (this.props.canModify) {
+            return (
+                <div>
+                    {this.renderSubmitForReviewButton()}
+                    {this.renderForkButton()}
+                    {this.renderReleaseButton()}
+                    {this.renderMetadataButton()}
+                    {this.renderItemCreateButton()}
+                    {this.renderSearchButton()}
+                    {this.renderAddFunctionButtons()}
+                </div>
+            );
+        }
+
+        return (
+            <div>
+                {this.renderSubmitForReviewButton()}
+                {this.renderReleaseButton()}
+                {this.renderMetadataButton()}
+            </div>
+        );
+    }
+
     renderNavigationItems() {
         if (this.props.shouldShowBackButton) {
             const reactComponents = [];
@@ -346,15 +371,7 @@ class Toolbar extends React.Component {
                     {this.renderNavigationItems()}
                 </div>
                 <div>
-                    {this.renderUpvoteButton()}
-                    {this.renderDownvoteButton()}
-                    {this.renderSubmitForReviewButton()}
-                    {this.renderForkButton()}
-                    {this.renderReleaseButton()}
-                    {this.renderEditButton()}
-                    {this.renderItemCreateButton()}
-                    {this.renderSearchButton()}
-                    {this.renderAddFunctionButtons()}
+                    {this.renderButtons()}
                 </div>
             </div>
         );

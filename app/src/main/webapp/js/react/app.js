@@ -354,6 +354,7 @@ class App extends React.Component {
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItem);
@@ -399,6 +400,7 @@ class App extends React.Component {
                         functionCatalog={functionCatalog}
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -488,6 +490,7 @@ class App extends React.Component {
                 functionBlock={functionBlock}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItem);
@@ -539,6 +542,7 @@ class App extends React.Component {
                         functionBlock={functionBlock}
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -614,6 +618,7 @@ class App extends React.Component {
                 mostInterface={mostInterface}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItem);
@@ -664,6 +669,7 @@ class App extends React.Component {
                         mostInterface={mostInterface}
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
                     />
                 );
 
@@ -844,6 +850,7 @@ class App extends React.Component {
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -976,6 +983,7 @@ class App extends React.Component {
                 functionBlock={functionBlock}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
 
@@ -1327,6 +1335,7 @@ class App extends React.Component {
                mostInterface={mostInterface}
                buttonTitle="Save"
                defaultButtonTitle="Save"
+               readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
 
@@ -2455,6 +2464,7 @@ class App extends React.Component {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -2516,7 +2526,7 @@ class App extends React.Component {
                 const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
                 const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
-                    readOnly={this.state.selectedItem.isApproved()}
+                    readOnly={this.state.selectedItem.isApproved() || ! canModify}
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
                     buttonTitle={buttonTitle}
@@ -2546,6 +2556,9 @@ class App extends React.Component {
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
         const selectedItem = this.state.selectedItem;
+        const account = this.state.account;
+        const canModify = account ? account.hasRole("Modify") : false;
+        const canRelease = account ? account.hasRole("Release") : false;
 
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
@@ -2668,11 +2681,13 @@ class App extends React.Component {
                     shouldShowSearchIcon={shouldShowSearchButton}
                     shouldShowBackButton={shouldShowBackButton}
                     shouldShowEditButton={shouldShowEditButton}
-                    shouldShowViewInfoButton={isApproved}
+                    shouldShowViewInfoButton={(isApproved || ! canModify)}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
+                    canModify={canModify}
+                    canRelease={canRelease}
                 />
             );
         }
@@ -2740,6 +2755,7 @@ class App extends React.Component {
                            functionBlock={selectedItem}
                            buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
+                           readOnly={! canModify}
                         />
                     );
                 }
@@ -2785,6 +2801,7 @@ class App extends React.Component {
                            mostInterface={selectedItem}
                            buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
+                           readOnly={! canModify}
                         />
                     );
                 }
