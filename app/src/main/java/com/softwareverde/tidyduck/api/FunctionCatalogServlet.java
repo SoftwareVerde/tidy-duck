@@ -7,6 +7,7 @@ import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
+import com.softwareverde.tidyduck.database.ReleaseDatabaseManager;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
@@ -290,7 +291,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             for (int i=0; i<releaseItemsJson.length(); i++) {
                 final Json releaseItemJson = releaseItemsJson.get(i);
                 final ReleaseItem releaseItem = _populateReleaseItemFromJson(releaseItemJson);
-                _validateReleaseItem(releaseItem);
+                _validateReleaseItem(releaseItem, database);
                 releaseItems.add(releaseItem);
             }
 
@@ -306,7 +307,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         } catch (Exception e) {
             String errorMessage = "Unable to release function catalog.";
             _logger.error(errorMessage, e);
-            return super._generateErrorJson(errorMessage);
+            return super._generateErrorJson("Unable to release Function Catalog: " + e.getMessage());
         }
     }
 
@@ -342,9 +343,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         // same number of items and all have matches, provided list is valid
     }
 
-    private void _validateReleaseItem(final ReleaseItem releaseItem) {
+    private void _validateReleaseItem(final ReleaseItem releaseItem, final Database<Connection> database) throws DatabaseException {
         final Long itemId = releaseItem.getItemId();
         final String itemType = releaseItem.getItemType();
+        final String itemName = releaseItem.getItemName();
         final String itemVersion = releaseItem.getItemVersion();
         final String newVersion = releaseItem.getNewVersion();
 
@@ -357,9 +359,18 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(newVersion)) {
             throw new IllegalArgumentException("New version (" + newVersion + ") is invalid for item " + itemId);
         }
+
+        /*
         if (newVersion.equals(releaseItem.getItemVersion())) {
             throw new IllegalArgumentException("New version (" + newVersion + ") must be different from old version (" + itemVersion + "), item " + itemId);
         }
+        */
+
+        final DatabaseManager databaseManager = new DatabaseManager(database);
+        if (! databaseManager.isNewReleaseVersionUnique(itemType, itemId, newVersion)) {
+            throw new IllegalArgumentException("New version (" + newVersion + ") for " + itemType + " " + itemName + " already exists as a released version.");
+        }
+
     }
 
     protected Json _toJson(final FunctionCatalog functionCatalog) {
