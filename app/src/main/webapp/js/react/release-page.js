@@ -80,7 +80,7 @@ class ReleasePage extends React.Component {
                 }
             }
             else {
-                app.App.alert("Release Function Catalog", "Unable to release function catalog: " + data.errorMessage);
+                app.App.alert("Release Function Catalog", data.errorMessage);
                 thisPage.setState({
                     shouldShowSaveAnimation: false
                 });

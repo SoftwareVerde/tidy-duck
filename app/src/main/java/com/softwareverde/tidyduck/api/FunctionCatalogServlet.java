@@ -356,16 +356,16 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             throw new IllegalArgumentException("Invalid type (" + itemType + ") for item " + itemId);
         }
         if (Util.isBlank(newVersion)) {
-            throw new IllegalArgumentException("New version (" + newVersion + ") is invalid for item " + itemId);
+            throw new IllegalArgumentException("Item ID: " + itemId + ". The new version (" + newVersion + ") is invalid for " + itemType.toLowerCase() + " \"" + itemName + "\" .");
         }
-
+        
         if (newVersion.equals(releaseItem.getItemVersion())) {
-            throw new IllegalArgumentException("New version (" + newVersion + ") must be different from old version (" + itemVersion + "), item " + itemId);
+            throw new IllegalArgumentException("Item ID: " + itemId + ". The new version for " + itemType.toLowerCase() + " \"" + itemName + "\" must be different from its previous version, " + itemVersion + ".");
         }
 
         final DatabaseManager databaseManager = new DatabaseManager(database);
         if (! databaseManager.isNewReleaseVersionUnique(itemType, itemId, newVersion)) {
-            throw new IllegalArgumentException("New version (" + newVersion + ") for " + itemType + " " + itemName + " already exists as a released version.");
+            throw new IllegalArgumentException("Item ID: " + itemId + ". The new version (" + newVersion + ") for " + itemType.toLowerCase() + " \"" + itemName + "\" already exists as a released version.");
         }
 
     }
