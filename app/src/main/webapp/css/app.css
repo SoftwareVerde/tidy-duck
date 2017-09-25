@@ -485,8 +485,8 @@
     font-size: 125%;
 }
 
-.accounts-table tbody tr:hover {
-    box-shadow: 3px 6px 15px #888888;
+.accounts-table tbody tr {
+    transition: box-shadow 0.5s ease;
 }
 
 .accounts-table tbody tr:nth-child(even) {
@@ -495,6 +495,10 @@
 
 .accounts-table tbody tr:nth-child(odd) {
     background-color: rgba(255, 255, 255, 0.4);
+}
+
+.accounts-table tbody tr:hover {
+    box-shadow: 3px 6px 15px #888888;
 }
 
 .accounts-table .input-field-small {
