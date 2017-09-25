@@ -451,6 +451,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
+            if (!name.matches("[A-z0-9]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters.");
+            }
+
             /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
@@ -458,6 +462,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             */
             if (Util.isBlank(release)) {
                 throw new Exception("Release field is required.");
+            }
+            if (!release.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?")) {
+                throw new Exception("Release version must be in the form 'Major.Minor(.Patch)'.");
             }
 
             if (Util.isBlank(access)) {

@@ -7,7 +7,6 @@ import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
-import com.softwareverde.tidyduck.database.ReleaseDatabaseManager;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
@@ -409,9 +408,15 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Invalid Name: " + name);
             }
+            if (!name.matches("[A-z0-9]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters.");
+            }
 
             if (Util.isBlank(release)) {
                 throw new Exception("Invalid Release: " + release);
+            }
+            if (!release.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?")) {
+                throw new Exception("Release version must be in the form 'Major.Minor(.Patch)'.");
             }
         }
 
