@@ -8,12 +8,6 @@
     font-size: 0.85rem;
 }
 
-.input-field:nth-of-type(even) {
-    /*
-    float: right;
-    */
-}
-
 .input-field label {
     display: block;
     color: #353535;

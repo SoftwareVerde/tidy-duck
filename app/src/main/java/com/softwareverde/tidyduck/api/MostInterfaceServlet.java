@@ -438,6 +438,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
+            if (!name.matches("I[A-z0-9]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters and start with an 'I'.");
+            }
+
             /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
