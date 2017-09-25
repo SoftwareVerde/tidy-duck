@@ -250,7 +250,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 throw new Exception("Description field is required.");
             }
             */
-            
+
             if (Util.isBlank(release)) {
                 throw new Exception("Version field is required.");
             }

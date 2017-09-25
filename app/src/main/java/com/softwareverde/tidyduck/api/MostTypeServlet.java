@@ -184,6 +184,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(name)) {
             throw new Exception("Invalid Type name.");
         }
+
         // Validate inputs based on primitive type name.
         switch (primitiveTypeName) {
             case "TArray": {
@@ -368,15 +369,23 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(name)) {
             throw new Exception("Invalid enum value name.");
         }
+        if (!name.matches("[A-Z0-9_]+")) {
+            throw new Exception("Enum value names must use CAPS_WITH_UNDERSCORES.");
+        }
 
         if (Util.isBlank(code)) {
             throw new Exception("Invalid enum value code.");
         }
+        if (!code.matches("0[xX][0-9A-Fa-f]+")) {
+            throw new Exception("Enum value codes must be formatted as hexadecimal (with '0x' prefix).");
+        }
+
         /*
         if (Util.isBlank(description)) {
             throw new Exception("Invalid enum value description.");
         }
         */
+
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
         enumValue.setName(name);
