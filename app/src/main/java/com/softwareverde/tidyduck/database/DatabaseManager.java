@@ -320,6 +320,13 @@ public class DatabaseManager {
         });
     }
 
+    public boolean isMostTypeNameUnique(final MostType mostType) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
+            return mostTypeDatabaseManager.isMostTypeNameUnique(mostType);
+        }
+    }
+
     public void updateMostType(final MostType mostType) throws DatabaseException {
         this.executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
