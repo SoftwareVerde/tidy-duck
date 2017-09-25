@@ -156,3 +156,7 @@
 .navigation-item-menu-item {
     color: #7D7B67;
 }
+
+.accounts-table .user-column:hover {
+    background-color: #FFEE77;
+}

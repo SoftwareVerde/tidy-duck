@@ -434,7 +434,7 @@ class AccountsPage extends React.Component {
 
             administrationTableRows.push(
                 <tr key={i}>
-                    <td key="name" onClick={() => this.onAccountClicked(account)}>{account.getName()}<br/>({account.getUsername()})</td>
+                    <td key="name" className="user-column" onClick={() => this.onAccountClicked(account)}><i className="fa fa-edit"/>{account.getName()}<br/>({account.getUsername()})</td>
                     <td key="roles">{this.renderRoleComponents(account)}</td>
                     <td key="reset"><div className="button" onClick={() => this.onResetPassword(account)}>Reset Password</div></td>
                 </tr>

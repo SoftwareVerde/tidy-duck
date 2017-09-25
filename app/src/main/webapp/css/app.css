@@ -545,6 +545,21 @@
     width: auto;
 }
 
+.accounts-table td i {
+    position: absolute;
+    visibility: hidden;
+    left: 8em;
+    font-size: 3em;
+}
+
+.accounts-table .user-column {
+    cursor: pointer;
+}
+
+.accounts-table tbody tr:hover i {
+    visibility: visible;
+}
+
 .role-components {
     text-align: center;
 }
