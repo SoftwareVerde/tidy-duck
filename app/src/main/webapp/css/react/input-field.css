@@ -90,3 +90,8 @@
     margin-left: 5px;
     display: inline-block;
 }
+
+.input-icons {
+    float: right;
+    color: red;
+}

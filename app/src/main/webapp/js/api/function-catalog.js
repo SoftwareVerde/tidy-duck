@@ -198,3 +198,29 @@ function releaseFunctionCatalog(functionCatalogId, releaseItems, callbackFunctio
         }
     });
 }
+
+function checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-catalog-duplicate-check",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                functionCatalogName: functionCatalogName,
+                functionCatalogVersionSeries: functionCatalogVersionSeries
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to check for duplicate function catalog: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}

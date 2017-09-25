@@ -112,10 +112,10 @@ public class DatabaseManager {
         }
     }
 
-    public FunctionCatalog checkForDuplicateFunctionCatalog(final FunctionCatalog inputCatalog) throws DatabaseException {
+    public FunctionCatalog checkForDuplicateFunctionCatalog(final String functionCatalogName, final Long functionCatalogVersionSeries) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-            return functionCatalogDatabaseManager.checkForDuplicateFunctionCatalog(inputCatalog);
+            return functionCatalogDatabaseManager.checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries);
         }
     }
 

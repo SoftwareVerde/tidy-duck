@@ -379,20 +379,19 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     private Json _checkForDuplicateFunctionCatalog(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) throws IOException {
         try {
             final Json request = _getRequestDataAsJson(httpRequest);
-            final Json functionCatalogJson = request.get("functionCatalog");
-
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, currentAccount, database);
+            final String functionCatalogName = request.getString("functionCatalogName");
+            final long functionCatalogVersionSeries = request.getLong("functionCatalogVersionSeries");
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            final FunctionCatalog matchedFunctionCatalog = databaseManager.checkForDuplicateFunctionCatalog(functionCatalog);
+            final FunctionCatalog matchedFunctionCatalog = databaseManager.checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries);
 
             final Json response = new Json(false);
 
             if (matchedFunctionCatalog == null) {
-                response.put("matchFound", true);
-            } else {
                 response.put("matchFound", false);
-                response.put("matchedFunctionCatalog", matchedFunctionCatalog);
+            } else {
+                response.put("matchFound", true);
+                response.put("matchedFunctionCatalog", _toJson(matchedFunctionCatalog));
             }
 
             super._setJsonSuccessFields(response);
