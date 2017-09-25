@@ -143,6 +143,10 @@
     margin: 0;
 }
 
+.submit-comment-form .input-field textarea {
+    height: 5em;
+}
+
 .vote-area .button {
     width: 20%;
     margin: 0;
