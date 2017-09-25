@@ -42,6 +42,13 @@ public class DatabaseManager {
         }
     }
 
+    public boolean updateAccountMetadata(final Account account, final boolean isNewUsernameDifferent) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            return accountDatabaseManager.updateAccountMetadata(account, isNewUsernameDifferent);
+        }
+    }
+
     public boolean changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
