@@ -222,4 +222,31 @@ class FunctionCatalogDatabaseManager {
         }
         return false;
     }
+
+    public FunctionCatalog checkForDuplicateFunctionCatalog(final FunctionCatalog inputCatalog) throws DatabaseException {
+        return _checkForDuplicateFunctionCatalog(inputCatalog);
+    }
+
+    private FunctionCatalog _checkForDuplicateFunctionCatalog(final FunctionCatalog inputCatalog) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_catalogs WHERE name = ?");
+        query.setParameter(inputCatalog.getName());
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
+
+        FunctionCatalog matchedFunctionCatalog = null;
+        for (final Row row : rows) {
+            final long functionCatalogId = row.getLong("id");
+            final FunctionCatalog rowFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+            if (inputCatalog.getBaseVersionId() == null || inputCatalog.getBaseVersionId().equals(rowFunctionCatalog.getBaseVersionId())) {
+                matchedFunctionCatalog = rowFunctionCatalog;
+                break;
+            }
+        }
+
+        return matchedFunctionCatalog;
+    }
+
+
 }

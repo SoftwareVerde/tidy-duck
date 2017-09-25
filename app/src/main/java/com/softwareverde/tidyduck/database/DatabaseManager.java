@@ -112,6 +112,13 @@ public class DatabaseManager {
         }
     }
 
+    public FunctionCatalog checkForDuplicateFunctionCatalog(final FunctionCatalog inputCatalog) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.checkForDuplicateFunctionCatalog(inputCatalog);
+        }
+    }
+
     // RELEASE
 
     public List<ReleaseItem> getReleaseItemList(final long functionCatalogId) throws DatabaseException {

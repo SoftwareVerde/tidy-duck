@@ -94,6 +94,10 @@
         <servlet-name>FunctionCatalog</servlet-name>
         <url-pattern>/api/v1/function-catalogs/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FunctionCatalog</servlet-name>
+        <url-pattern>/api/v1/function-catalog-duplicate-check</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>FunctionBlock</servlet-name>
@@ -102,6 +106,10 @@
     <servlet-mapping>
         <servlet-name>FunctionBlock</servlet-name>
         <url-pattern>/api/v1/function-blocks/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FunctionBlock</servlet-name>
+        <url-pattern>/api/v1/function-block-duplicate-check</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -112,6 +120,10 @@
         <servlet-name>MostInterface</servlet-name>
         <url-pattern>/api/v1/most-interfaces/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MostInterface</servlet-name>
+        <url-pattern>/api/v1/most-interface-duplicate-check</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostFunction</servlet-name>
@@ -120,6 +132,10 @@
     <servlet-mapping>
         <servlet-name>MostFunction</servlet-name>
         <url-pattern>/api/v1/most-functions/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MostFunction</servlet-name>
+        <url-pattern>/api/v1/most-function-duplicate-check</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
