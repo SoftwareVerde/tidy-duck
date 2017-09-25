@@ -78,7 +78,7 @@ class FunctionCatalogForm extends React.Component {
         const createdFunctionCatalog = this.state.functionCatalog;
 
         if (this.state.isDuplicateFunctionCatalog) {
-            const submitAnyway = confirm("There is another function catalog with this name?  Are you sure you want to save this?");
+            const submitAnyway = confirm("There is another function catalog with this name.  Are you sure you want to save this?");
             if (!submitAnyway) {
                 return;
             }
