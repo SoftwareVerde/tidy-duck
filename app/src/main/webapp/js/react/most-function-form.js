@@ -335,16 +335,16 @@ class MostFunctionForm extends React.Component {
 
         return (
             <div className="operation-display-area">
-                <app.InputField id="operation-get" name="get" type="checkbox" label="Get" isSmallInputField={true} value={operationsJson["Get"] == true} checked={operationsJson["Get"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-set" name="set" type="checkbox" label="Set" isSmallInputField={true} value={operationsJson["Set"] == true} checked={operationsJson["Set"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-status" name="status" type="checkbox" label="Status" isSmallInputField={true} value={operationsJson["Status"] == true} checked={operationsJson["Status"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-error" name="error" type="checkbox" label="Error" isSmallInputField={true} value={operationsJson["Error"] == true} checked={operationsJson["Error"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-start-result-ack" name="startResultAck" type="checkbox" label="StartResultAck" isSmallInputField={true} value={operationsJson["StartResultAck"] == true} checked={operationsJson["StartResultAck"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-error-ack" name="errorAck" type="checkbox" label="ErrorAck" isSmallInputField={true} value={operationsJson["ErrorAck"] == true} checked={operationsJson["ErrorAck"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" isSmallInputField={true} value={operationsJson["ResultAck"] == true} checked={operationsJson["ResultAck"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" isSmallInputField={true} value={operationsJson["ProcessingAck"] == true} checked={operationsJson["ProcessingAck"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" isSmallInputField={true} value={operationsJson["AbortAct"] == true} checked={operationsJson["AbortAck"] == true} readOnly={readOnly}/>
-                <app.InputField id="operation-notification" name="notification" type="checkbox" label="Notification" isSmallInputField={true} value={supportsNotification} checked={supportsNotification} readOnly={readOnly}/>
+                <app.InputField id="operation-get" name="get" type="checkbox" label="Get" isSmallInputField={true} value={operationsJson["Get"] == true} checked={operationsJson["Get"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-set" name="set" type="checkbox" label="Set" isSmallInputField={true} value={operationsJson["Set"] == true} checked={operationsJson["Set"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-status" name="status" type="checkbox" label="Status" isSmallInputField={true} value={operationsJson["Status"] == true} checked={operationsJson["Status"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-error" name="error" type="checkbox" label="Error" isSmallInputField={true} value={operationsJson["Error"] == true} checked={operationsJson["Error"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-start-result-ack" name="startResultAck" type="checkbox" label="StartResultAck" isSmallInputField={true} value={operationsJson["StartResultAck"] == true} checked={operationsJson["StartResultAck"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-error-ack" name="errorAck" type="checkbox" label="ErrorAck" isSmallInputField={true} value={operationsJson["ErrorAck"] == true} checked={operationsJson["ErrorAck"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" isSmallInputField={true} value={operationsJson["ResultAck"] == true} checked={operationsJson["ResultAck"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" isSmallInputField={true} value={operationsJson["ProcessingAck"] == true} checked={operationsJson["ProcessingAck"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" isSmallInputField={true} value={operationsJson["AbortAct"] == true} checked={operationsJson["AbortAck"] == true} readOnly={readOnly} tabIndex={-1}/>
+                <app.InputField id="operation-notification" name="notification" type="checkbox" label="Notification" isSmallInputField={true} value={supportsNotification} checked={supportsNotification} readOnly={readOnly} tabIndex={-1}/>
             </div>
         );
     }

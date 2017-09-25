@@ -1047,7 +1047,7 @@ class TypesPage extends React.Component {
                 <div id="types-main-inputs">
                     {typeSelector}
                     <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
-                    <app.InputField className="is-primary-type-container" key="isPrimaryType" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false}/>
+                    <app.InputField className="is-primary-type-container" key="isPrimaryType" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false} tabIndex={0}/>
                     <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
