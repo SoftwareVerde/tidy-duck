@@ -422,19 +422,27 @@ class MostFunctionForm extends React.Component {
         const functionIdRegex = "0[xX](?:[Ff][Ff][0-9A-Ea-e]|[0-9A-Ea-e][0-9A-Fa-f]{2}|[0-9A-Fa-f][0-9A-Ea-e][0-9A-Fa-f])";
 
         const reactComponents = [];
-        reactComponents.push(<app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID (0x000 - 0xFFE)" pattern={functionIdRegex} title="0x000 through 0xFFE" value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
-        reactComponents.push(<app.InputField key="most-function-name" id="most-function-name" name="name" type="text" label="Name" value={mostFunction.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} isRequired={true} />);
-        reactComponents.push(<app.InputField key="most-function-description" id="most-function-description" name="description" type="textarea" label="Description" value={mostFunction.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />);
-        reactComponents.push(<app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />);
-        reactComponents.push(<app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={stereotypeName} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />);
-        reactComponents.push(<app.InputField key="most-function-return-parameter-name" id="most-function-return-parameter-name" name="returnName" type="text" label="Return Parameter Name" value={returnParameterName} readOnly={this.props.readOnly} onChange={this.onReturnParameterNameChanged} isRequired={true}/>);
-        reactComponents.push(<app.InputField key="most-function-return-parameter-description" id="most-function-return-parameter-description" name="returnDescription" type="textarea" label="Return Parameter Description" value={returnParameterDescription} readOnly={this.props.readOnly} onChange={this.onReturnParameterDescriptionChanged} />);
-        reactComponents.push(<app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={returnTypeName} options={mostTypeNames} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />);
+        reactComponents.push(
+            <div key="input-group1" className="clearfix">
+                <app.InputField key="most-function-most-id" id="most-function-most-id" name="id" type="text" label="ID (0x000 - 0xFFE)" pattern={functionIdRegex} title="0x000 through 0xFFE" value={mostFunction.getMostId()} readOnly={this.props.readOnly} onChange={this.onMostIdChanged} isRequired={true} />
+                <app.InputField key="most-function-name" id="most-function-name" name="name" type="text" label="Name" value={mostFunction.getName()} readOnly={this.props.readOnly} onChange={this.onNameChanged} isRequired={true} />
+                <app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />
+                <app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={stereotypeName} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />
+                <app.InputField key="most-function-return-parameter-name" id="most-function-return-parameter-name" name="returnName" type="text" label="Return Parameter Name" value={returnParameterName} readOnly={this.props.readOnly} onChange={this.onReturnParameterNameChanged} isRequired={true}/>
+                <app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="select" label="Return Type" value={returnTypeName} options={mostTypeNames} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} />
+            </div>
+        );
+        reactComponents.push(
+            <div key="input-group2" className="clearfix">
+                <app.InputField key="most-function-description" id="most-function-description" name="description" type="textarea" label="Description" value={mostFunction.getDescription()} readOnly={this.props.readOnly} onChange={this.onDescriptionChange} />
+                <app.InputField key="most-function-return-parameter-description" id="most-function-return-parameter-description" name="returnDescription" type="textarea" label="Return Parameter Description" value={returnParameterDescription} readOnly={this.props.readOnly} onChange={this.onReturnParameterDescriptionChanged} />
+            </div>
+        );
 
         return (
             <form className="metadata-form clearfix" onClick={this.onClick} onSubmit={this.onSubmit}>
                 {this.renderFormTitle()}
-                <div className="metadata-form-inputs">{reactComponents}</div>
+                {reactComponents}
                 <div className="metadata-form-title">Operations</div>
                 {this.renderOperationCheckboxes()}
                 {this.renderParameters()}

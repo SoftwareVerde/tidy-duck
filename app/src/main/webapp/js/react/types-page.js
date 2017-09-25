@@ -995,6 +995,7 @@ class TypesPage extends React.Component {
         if (this.props.isLoadingTypesPage) {
             // types props must not have been populated yet, show loading icon
             return (
+
                 <div className="center">
                     <i className="fa fa-spin fa-3x fa-refresh"></i>
                 </div>
@@ -1333,10 +1334,14 @@ class TypesPage extends React.Component {
                 const arrayElementType = mostType.getArrayElementType();
                 const arrayElementTypeName = arrayElementType ? arrayElementType.getName() : null;
                 const arraySize = mostType.getArraySize();
-                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>);
-                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} isRequired={true}/>);
-                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>);
+                reactComponents.push(
+                    <div key="TArray-input-group" className="clearfix">
+                        <app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>
+                        <app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>
+                        <app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>
+                        <app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} isRequired={true}/>
+                    </div>
+                );
             }
                 break;
             case 'TRecord': {
@@ -1379,13 +1384,16 @@ class TypesPage extends React.Component {
 
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">
-                        <app.InputField key="record1" type="text" label="Record Name" name="record-name"
-                                        value={recordName} onChange={this.onRecordNameChanged} isRequired={false}/>
+                        <div className="clearfix">
+                            <app.InputField key="record1" type="text" label="Record Name" name="record-name"
+                                            value={recordName} onChange={this.onRecordNameChanged} isRequired={false}/>
+
+                            <app.InputField key="record3" type="text" label="Record Size" name="record-size"
+                                            value={recordSize} onChange={this.onRecordSizeChanged} isRequired={false}/>
+                        </div>
                         <app.InputField key="record2" type="textarea" label="Record Description"
                                         name="record-description" value={recordDescription}
                                         onChange={this.onRecordDescriptionChanged}/>
-                        <app.InputField key="record3" type="text" label="Record Size" name="record-size"
-                                        value={recordSize} onChange={this.onRecordSizeChanged} isRequired={false}/>
                     </div>
                 );
                 reactComponents.push(recordFields);

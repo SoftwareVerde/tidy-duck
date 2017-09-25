@@ -9,7 +9,9 @@
 }
 
 .input-field:nth-of-type(even) {
+    /*
     float: right;
+    */
 }
 
 .input-field label {
