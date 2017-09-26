@@ -546,10 +546,8 @@
 }
 
 .accounts-table td i {
-    position: absolute;
     visibility: hidden;
-    left: 8em;
-    font-size: 3em;
+    margin-right: 5px;
 }
 
 .accounts-table .user-column {
