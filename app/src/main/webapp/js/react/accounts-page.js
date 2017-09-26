@@ -237,9 +237,7 @@ class AccountsPage extends React.Component {
                 app.App.alert(
                     "Unable to update roles",
                     <div>
-                        Unable to remove role {roleName} from {account.getName()} ({account.getUsername()}).<br/>
-                        <br/>
-                        Please refresh the page to reset role information.
+                        Unable to remove role {roleName} from {account.getName()} ({account.getUsername()}).
                     </div>
                 );
 
