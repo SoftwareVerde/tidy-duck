@@ -329,4 +329,22 @@ public class MostInterfaceDatabaseManager {
 
         return matchedMostInterface;
     }
+
+    public List<String> listAssociatedFunctionIds(final long mostInterfaceId) throws DatabaseException {
+        return _getAssociatedFunctionIds(mostInterfaceId);
+    }
+
+    private List<String> _getAssociatedFunctionIds(final long mostInterfaceId) throws DatabaseException {
+        final List<String> functionIds = new ArrayList<>();
+
+        final Query query = new Query("SELECT functions.most_id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id WHERE interface_id = ?");
+        query.setParameter(mostInterfaceId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            functionIds.add(row.getString("most_id"));
+        }
+
+        return functionIds;
+    }
 }

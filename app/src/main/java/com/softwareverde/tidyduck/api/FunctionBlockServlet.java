@@ -154,6 +154,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("function-block-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _checkForDuplicateFunctionBlock(request, currentAccount, environment.getDatabase());
             }
         });
@@ -294,8 +296,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             databaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
         }
         catch (final Exception exception) {
-            _logger.error("Unable to insert Interface.", exception);
-            return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+            _logger.error("Unable to insert Function Block.", exception);
+            return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
         }
 
         return response;

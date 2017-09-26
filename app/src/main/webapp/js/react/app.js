@@ -725,28 +725,30 @@ class App extends React.Component {
             proposedItem:       mostFunction
         });
 
-        insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
-            if (! (mostFunctionId > 0)) {
-                console.error("Unable to create function.");
+        insertMostFunction(mostInterfaceId, mostFunctionJson, function(data) {
+            if (data.wasSuccess) {
+                const mostFunctionId = data.mostFunctionId;
+
+                mostFunction.setId(mostFunctionId);
+                mostFunction.setAuthor(thisApp.getCurrentAccountAuthor());
+                mostFunction.setCompany(thisApp.getCurrentAccountCompany());
+
+                const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
+
                 thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal
+                    createButtonState:          thisApp.CreateButtonState.success,
+                    mostFunctions:              mostFunctions,
+                    currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
+                    proposedItem:               null,
+                    shouldShowCreateChildForm:  false
                 });
-                return;
+            } else {
+                app.App.alert("Unable to Create Function", data.errorMessage, function() {
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal
+                    });
+                });
             }
-
-            mostFunction.setId(mostFunctionId);
-            mostFunction.setAuthor(thisApp.getCurrentAccountAuthor());
-            mostFunction.setCompany(thisApp.getCurrentAccountCompany());
-
-            const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
-
-            thisApp.setState({
-                createButtonState:          thisApp.CreateButtonState.success,
-                mostFunctions:              mostFunctions,
-                currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
-                proposedItem:               null,
-                shouldShowCreateChildForm:  false
-            });
         });
     }
 
@@ -761,8 +763,8 @@ class App extends React.Component {
             selectedItem:       mostFunction
         });
 
-        updateMostFunction(mostInterfaceId, mostFunctionId, mostFunctionJson, function(wasSuccess) {
-            if (wasSuccess) {
+        updateMostFunction(mostInterfaceId, mostFunctionId, mostFunctionJson, function(data) {
+            if (data.wasSuccess) {
                 const mostFunctions = thisApp.state.mostFunctions.filter(function(value) {
                     return value.getId() != mostFunctionId;
                 });
@@ -795,9 +797,10 @@ class App extends React.Component {
                     createButtonState:      thisApp.CreateButtonState.success
                 });
             } else {
-                console.error("Unable to update Function.");
-                thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal,
+                app.App.alert("Unable to Update Function", data.errorMessage, function() {
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal
+                    });
                 });
             }
         });

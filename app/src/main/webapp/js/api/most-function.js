@@ -83,16 +83,12 @@ function insertMostFunction(mostInterfaceId, mostFunction, callbackFunction) {
     );
 
     jsonFetch(request, function(data) {
-        let mostFunctionId = null;
-
-        if (data.wasSuccess) {
-            mostFunctionId = data.mostFunctionId;
-        } else {
+        if (!data.wasSuccess) {
             console.error("Unable to insert function for version " + mostInterfaceId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(mostFunctionId);
+            callbackFunction(data);
         }
     });
 }
@@ -118,7 +114,7 @@ function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callb
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(data);
         }
     });
 }
