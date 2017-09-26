@@ -7,6 +7,7 @@ class FunctionCatalogForm extends React.Component {
             showTitle:                  this.props.showTitle,
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
             functionCatalog:            functionCatalog,
+            isDuplicateFunctionCatalog: false,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
             defaultButtonTitle:         this.props.defaultButtonTitle,
             readOnly:                   (this.props.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
@@ -38,6 +39,15 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setName(newValue);
 
+        const thisForm = this;
+        checkForDuplicateFunctionCatalog(newValue, functionCatalog.getBaseVersionId(), function (data) {
+            if (data.wasSuccess) {
+                thisForm.setState({
+                    isDuplicateFunctionCatalog: data.matchFound
+                });
+            }
+        });
+
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
 
@@ -62,22 +72,21 @@ class FunctionCatalogForm extends React.Component {
         event.stopPropagation();
     }
 
-
     onSubmit(event) {
+        event.preventDefault();
+
         const createdFunctionCatalog = this.state.functionCatalog;
+
+        if (this.state.isDuplicateFunctionCatalog) {
+            const submitAnyway = confirm("There is another function catalog with this name.  Are you sure you want to save this?");
+            if (!submitAnyway) {
+                return;
+            }
+        }
+
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionCatalog);
         }
-
-        event.preventDefault();
-
-        /*
-            // Clear the form...
-            const functionCatalog = new FunctionCatalog();
-            this.setState({
-                functionCatalog: functionCatalog
-            });
-        */
     }
 
     renderFormTitle() {
@@ -94,7 +103,13 @@ class FunctionCatalogForm extends React.Component {
         const version = functionCatalog.isApproved() ? functionCatalog.getDisplayVersion() : functionCatalog.getReleaseVersion();
         const readOnly = this.state.readOnly;
 
-        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true}/>);
+        let duplicateNameElement = '';
+        if (this.state.isDuplicateFunctionCatalog) {
+            const iconStyle = { color: 'red' };
+            duplicateNameElement = <i className="fa fa-files-o" title="Duplicate function catalog name." style={iconStyle}></i>;
+        }
+
+        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true}/>);
         reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />);
 
         if (! readOnly) {

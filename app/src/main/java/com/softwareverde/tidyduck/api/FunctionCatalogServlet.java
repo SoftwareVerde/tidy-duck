@@ -122,6 +122,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return _releaseFunctionCatalog(request, functionCatalogId, environment.getDatabase());
             }
         });
+        
+        super.defineEndpoint("function-catalog-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                return _checkForDuplicateFunctionCatalog(request, currentAccount, environment.getDatabase());
+            }
+        });
     }
 
     private Json _getFunctionCatalog(final Long functionCatalogId, final Database<Connection> database) {
@@ -367,7 +374,33 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         if (! databaseManager.isNewReleaseVersionUnique(itemType, itemId, newVersion)) {
             throw new IllegalArgumentException("Item ID: " + itemId + ". The new version (" + newVersion + ") for " + itemType.toLowerCase() + " \"" + itemName + "\" already exists as a released version.");
         }
+    }
 
+    private Json _checkForDuplicateFunctionCatalog(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) throws IOException {
+        try {
+            final Json request = _getRequestDataAsJson(httpRequest);
+            final String functionCatalogName = request.getString("functionCatalogName");
+            final Long functionCatalogVersionSeries = request.getLong("functionCatalogVersionSeries");
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            final FunctionCatalog matchedFunctionCatalog = databaseManager.checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries);
+
+            final Json response = new Json(false);
+
+            if (matchedFunctionCatalog == null) {
+                response.put("matchFound", false);
+            } else {
+                response.put("matchFound", true);
+                response.put("matchedFunctionCatalog", _toJson(matchedFunctionCatalog));
+            }
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to check for duplicate Function Catalog.", exception);
+            return super._generateErrorJson("Unable to check for duplicate Function Catalog: " + exception.getMessage());
+        }
     }
 
     protected Json _toJson(final FunctionCatalog functionCatalog) {

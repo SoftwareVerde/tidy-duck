@@ -21,7 +21,8 @@ class FunctionBlockForm extends React.Component {
             functionBlock:              functionBlock,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
             defaultButtonTitle:         this.props.defaultButtonTitle,
-            readOnly:                   (this.props.readOnly || functionBlock.isApproved() || functionBlock.isReleased())
+            readOnly:                   (this.props.readOnly || functionBlock.isApproved() || functionBlock.isReleased()),
+            isDuplicateFunctionBlock:   false
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -86,6 +87,15 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setName(newValue);
 
+        const thisForm = this;
+        checkForDuplicateFunctionBlock(newValue, functionBlock.getBaseVersionId(), function (data) {
+            if (data.wasSuccess) {
+                thisForm.setState({
+                    isDuplicateFunctionBlock: data.matchFound
+                });
+            }
+        });
+
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
 
@@ -135,12 +145,20 @@ class FunctionBlockForm extends React.Component {
     }
 
     onSubmit(event) {
+        event.preventDefault();
+
         const createdFunctionBlock = this.state.functionBlock;
+
+        if (this.state.isDuplicateFunctionBlock) {
+            const submitAnyway = confirm("There is another function block with this name.  Are you sure you want to save this?");
+            if (!submitAnyway) {
+                return;
+            }
+        }
+
         if (typeof this.props.onSubmit == "function") {
             this.props.onSubmit(createdFunctionBlock);
         }
-
-        event.preventDefault();
     }
 
     renderFormTitle() {
@@ -165,12 +183,18 @@ class FunctionBlockForm extends React.Component {
         accessOptions.push('private');
         accessOptions.push('preliminary');
 
+        let duplicateNameElement = '';
+        if (this.state.isDuplicateFunctionBlock) {
+            const iconStyle = { color: 'red' };
+            duplicateNameElement = <i className="fa fa-files-o" title="Duplicate function block name." style={iconStyle}></i>;
+        }
+
         const reactComponents = [];
         reactComponents.push(
             <div key="input-group" className="clearfix">
                 <app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID (0x00 - 0xFF)" pattern="0[xX][0-9A-Fa-f]{2}" title="0x00 through 0xFF" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />
                 <app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} isRequired={true} />
-                <app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true} />
+                <app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true} />
                 <app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />
             </div>
         );
