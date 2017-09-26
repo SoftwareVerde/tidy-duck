@@ -237,23 +237,26 @@ class App extends React.Component {
                     
                     const validRoles = thisApp.getValidRoleItems(account);
                     const defaultMode = account.getSettings().getDefaultMode();
-
+                    let defaultValidRole = validRoles[0];
                     if (validRoles.includes(defaultMode)) {
+                        defaultValidRole = defaultMode;
                         thisApp.handleRoleClick(defaultMode, null, false);
                     }
                     else {
-                        thisApp.handleRoleClick(validRoles[0], null, false);
+                        thisApp.handleRoleClick(defaultValidRole, null, false);
+                    }
+
+                    if (defaultValidRole == thisApp.roles.release) {
+                        thisApp.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                            thisApp.setState({
+                                functionCatalogs:       functionCatalogs,
+                                currentNavigationLevel: thisApp.NavigationLevel.versions,
+                                isLoadingChildren:      false
+                            });
+                        });
                     }
                 });
             }
-        });
-
-        this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-            thisApp.setState({
-                functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions,
-                isLoadingChildren:      false
-            });
         });
 
         this.getAllCompanies()
@@ -2348,7 +2351,7 @@ class App extends React.Component {
                 // Development Mode
                 // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
                 const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
-                const newNavigationLevel = newActiveSubRole === this.developmentRoles.mostInterface ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
+                const newNavigationLevel = (newActiveSubRole === this.developmentRoles.mostInterface) ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
 
                 this.setState({
                     navigationItems:            [],
