@@ -288,6 +288,16 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(database);
+
+            List<String> functionBlockFunctionIds = databaseManager.listFunctionIdsAssociatedWithFunctionBlock(functionBlockId);
+            List<String> mostInterfaceFunctionIds = databaseManager.listFunctionIdsAssociatedWithMostInterface(mostInterfaceId);
+            functionBlockFunctionIds.retainAll(mostInterfaceFunctionIds);
+            if (functionBlockFunctionIds.size() > 0) {
+                final String errorMessage = "Conflicting function IDs found: " + functionBlockFunctionIds.toString();
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         catch (final Exception exception) {

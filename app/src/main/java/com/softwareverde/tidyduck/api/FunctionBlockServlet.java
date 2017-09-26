@@ -296,8 +296,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             databaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
         }
         catch (final Exception exception) {
-            _logger.error("Unable to insert Interface.", exception);
-            return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
+            _logger.error("Unable to insert Function Block.", exception);
+            return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
         }
 
         return response;

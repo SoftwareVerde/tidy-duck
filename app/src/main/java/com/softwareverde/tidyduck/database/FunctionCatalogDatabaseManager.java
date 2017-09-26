@@ -247,4 +247,22 @@ class FunctionCatalogDatabaseManager {
 
         return matchedFunctionCatalog;
     }
+    
+    public List<String> listAssociatedFunctionIds(final long functionCatalogId) throws DatabaseException {
+        return _getAssociatedFunctionIds(functionCatalogId);
+    }
+
+    private List<String> _getAssociatedFunctionIds(final long functionCatalogId) throws DatabaseException {
+        final List<String> functionIds = new ArrayList<>();
+
+        final Query query = new Query("SELECT functions.most_id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id WHERE function_catalog_id = ?");
+        query.setParameter(functionCatalogId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            functionIds.add(row.getString("most_id"));
+        }
+
+        return functionIds;
+    }
 }

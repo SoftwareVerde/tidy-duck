@@ -354,4 +354,22 @@ public class FunctionBlockDatabaseManager {
 
         return matchedFunctionBlock;
     }
+
+    public List<String> listAssociatedFunctionIds(final long functionBlockId) throws DatabaseException {
+        return _getAssociatedFunctionIds(functionBlockId);
+    }
+
+    private List<String> _getAssociatedFunctionIds(final long functionBlockId) throws DatabaseException {
+        final List<String> functionIds = new ArrayList<>();
+
+        final Query query = new Query("SELECT functions.most_id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id WHERE function_block_id = ?");
+        query.setParameter(functionBlockId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            functionIds.add(row.getString("most_id"));
+        }
+
+        return functionIds;
+    }
 }
