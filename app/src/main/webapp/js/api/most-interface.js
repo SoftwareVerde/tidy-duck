@@ -228,3 +228,29 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
         }
     });
 }
+
+function checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interface-duplicate-check",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                mostInterfaceName: mostInterfaceName,
+                mostInterfaceVersionSeries: mostInterfaceVersionSeries
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to check for duplicate function catalog: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}

@@ -81,8 +81,14 @@ class InputField extends React.Component {
             label = <label htmlFor={this.props.id}>{this.props.label}:</label>;
         }
 
+        let icons = '';
+        if (this.props.icons) {
+            icons = <span className="input-icons">{this.props.icons}</span>
+        }
+
         return (
             <div className={className}>
+                {icons}
                 {label}
                 {this.renderInput()}
             </div>
