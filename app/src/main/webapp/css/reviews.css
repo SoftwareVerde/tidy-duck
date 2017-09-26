@@ -95,7 +95,7 @@
 
 @media only screen and (max-width: 940px) {
     .approval-form .comments-area, .approval-form .vote-area {
-        height: 290px;
+        height: 300px;
     }
 
     .selected-review-display-area {
