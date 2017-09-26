@@ -152,6 +152,13 @@ public class DatabaseManager {
         }
     }
 
+    public List<String> listFunctionIdsAssociatedWithFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.listAssociatedFunctionIds(functionCatalogId);
+        }
+    }
+
     // FUNCTION BLOCK METHODS
 
     public void insertFunctionBlock(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
@@ -228,6 +235,13 @@ public class DatabaseManager {
         }
     }
 
+    public List<String> listFunctionIdsAssociatedWithFunctionBlock(final long functionBlockId) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+            return functionBlockDatabaseManager.listAssociatedFunctionIds(functionBlockId);
+        }
+    }
+
     // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
@@ -301,6 +315,13 @@ public class DatabaseManager {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
             return mostInterfaceDatabaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+        }
+    }
+
+    public List<String> listFunctionIdsAssociatedWithMostInterface(final long mostInterfaceId) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            return mostInterfaceDatabaseManager.listAssociatedFunctionIds(mostInterfaceId);
         }
     }
 

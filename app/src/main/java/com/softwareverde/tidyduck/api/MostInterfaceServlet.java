@@ -150,6 +150,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("most-interface-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _checkForDuplicateMostInterface(request, currentAccount, environment.getDatabase());
             }
         });
@@ -286,6 +288,16 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(database);
+
+            List<String> functionBlockFunctionIds = databaseManager.listFunctionIdsAssociatedWithFunctionBlock(functionBlockId);
+            List<String> mostInterfaceFunctionIds = databaseManager.listFunctionIdsAssociatedWithMostInterface(mostInterfaceId);
+            functionBlockFunctionIds.retainAll(mostInterfaceFunctionIds);
+            if (functionBlockFunctionIds.size() > 0) {
+                final String errorMessage = "Conflicting function IDs found: " + functionBlockFunctionIds.toString();
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         catch (final Exception exception) {

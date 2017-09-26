@@ -122,6 +122,12 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, currentAccount, database);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
+
+            final Json errorJson = _checkForFunctionIdCollisions(databaseManager, mostFunction, mostInterfaceId);
+            if (errorJson != null) {
+                return errorJson;
+            }
+
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
             response.put("mostFunctionId", mostFunction.getId());
         }
@@ -152,6 +158,12 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             mostFunction.setId(mostFunctionId);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
+
+            final Json errorJson = _checkForFunctionIdCollisions(databaseManager, mostFunction, mostInterfaceId);
+            if (errorJson != null) {
+                return errorJson;
+            }
+
             databaseManager.updateMostFunction(mostInterfaceId, mostFunction);
         }
         catch (final Exception exception) {
@@ -163,6 +175,40 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final Json response = new Json(false);
         _setJsonSuccessFields(response);
         return response;
+    }
+
+    /**
+     * <p>Check for possible function ID collisions and, if one is found, returns an appropriate error Json object.</p>
+     * @param databaseManager
+     * @param mostFunction
+     * @param mostInterfaceId
+     * @return
+     * @throws DatabaseException
+     */
+    private Json _checkForFunctionIdCollisions(final DatabaseManager databaseManager, final MostFunction mostFunction, final Long mostInterfaceId) throws DatabaseException {
+        // check for duplicate function ID in parent interface
+        List<String> mostInterfaceFunctionIds = databaseManager.listFunctionIdsAssociatedWithMostInterface(mostInterfaceId);
+        if (mostInterfaceFunctionIds.contains(mostFunction.getMostId())) {
+            final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on interface " + mostInterfaceId;
+            _logger.error(errorMessage);
+            return _generateErrorJson(errorMessage);
+        }
+        // check for duplicate function ID in parent function blocks
+        List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
+        for (final Long functionBlockId : functionBlockIds) {
+            if (_functionBlockHasFunctionId(databaseManager, functionBlockId, mostFunction.getMostId())) {
+                final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on function block " + functionBlockId;
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+        }
+        // no collisions, don't return an error
+        return null;
+    }
+
+    private boolean _functionBlockHasFunctionId(final DatabaseManager databaseManager, final Long functionBlockId, final String mostId) throws DatabaseException {
+        List<String> functionBlockMostIds = databaseManager.listFunctionIdsAssociatedWithFunctionBlock(functionBlockId);
+        return functionBlockMostIds.contains(mostId);
     }
 
     protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Database<Connection> database) {

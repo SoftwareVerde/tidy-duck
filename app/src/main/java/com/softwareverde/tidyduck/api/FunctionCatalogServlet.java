@@ -126,6 +126,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("function-catalog-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _checkForDuplicateFunctionCatalog(request, currentAccount, environment.getDatabase());
             }
         });
