@@ -103,11 +103,16 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Json jsonRequest = _getRequestDataAsJson(request);
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(database);
-
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             final MostType mostType = _populateMostTypeFromJson(jsonRequest);
-            databaseManager.insertMostType(mostType);
 
+            if (! databaseManager.isMostTypeNameUnique(mostType)) {
+                final String msg = "Unable to create type: type name \"" + mostType.getName() + "\" already exists in the database.";
+                _logger.error(msg);
+                return super._generateErrorJson(msg);
+            }
+
+            databaseManager.insertMostType(mostType);
             response.put("mostTypeId", mostType.getId());
             super._setJsonSuccessFields(response);
         } catch (Exception e) {

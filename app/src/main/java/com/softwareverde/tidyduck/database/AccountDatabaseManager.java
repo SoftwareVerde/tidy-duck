@@ -87,6 +87,30 @@ class AccountDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    public boolean updateAccountMetadata(final Account account, final boolean isNewUsernameDifferent) throws DatabaseException {
+        final String newUsername = account.getUsername();
+        if (isNewUsernameDifferent) {
+            if (!_isUsernameUnique(newUsername)) {
+                return false;
+            }
+        }
+
+        final long accountId = account.getId();
+        final String newName = account.getName();
+        final long newCompanyId = account.getCompany().getId();
+
+        final Query query = new Query("UPDATE accounts SET username = ?, name = ?, company_id = ? WHERE id = ?")
+                .setParameter(newUsername)
+                .setParameter(newName)
+                .setParameter(newCompanyId)
+                .setParameter(accountId)
+        ;
+
+        _databaseConnection.executeSql(query);
+
+        return true;
+    }
+
     public String resetPassword(final long accountId) throws DatabaseException {
         final String newPassword = SecureHashUtil.generateRandomPassword();
         _changePassword(accountId, newPassword);

@@ -4,6 +4,17 @@
     right: 0px;
 }
 
+#backdrop {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: black;
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
 #logout {
     height: 0.8em;
     margin-left: 10px;
@@ -41,12 +52,37 @@
     width: calc(100% - 6em);
 }
 
-.small-container h1, .large-container h1 {
+.popup-container {
+    position: fixed;
+    width: 300px;
+    display: block;
+    margin: 2em 2em auto 0;
+
+    border: 0px solid;
+    border-radius: 5px;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+
+    z-index: 2;
+}
+
+.cancel-button button {
+    background-color: #D0D0D0;
+    margin: 0.5em;
+}
+
+.small-container h1, .large-container h1, .popup-container h1 {
     font-size: 1.5rem;
     text-align: center;
 }
 
-.small-container .input-field {
+.small-container .input-field, .popup-container .input-field {
+    width: 100%;
+}
+
+.small-container .input-field select, .popup-container .input-field select, #settings-container select {
     width: 100%;
 }
 
@@ -507,6 +543,21 @@
 .accounts-table div.button {
     margin: 5px 10px 10px 5px;
     width: auto;
+}
+
+.accounts-table td i {
+    position: absolute;
+    visibility: hidden;
+    left: 8em;
+    font-size: 3em;
+}
+
+.accounts-table .user-column {
+    cursor: pointer;
+}
+
+.accounts-table tbody tr:hover i {
+    visibility: visible;
 }
 
 .role-components {

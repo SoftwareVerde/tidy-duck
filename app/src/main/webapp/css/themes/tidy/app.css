@@ -1,4 +1,4 @@
-.small-container, .large-container {
+.small-container, .large-container, .popup-container {
     background-color: #EDEDED;
     box-shadow: 0px 0px 15px #CCCCCC;
 }
@@ -155,4 +155,8 @@
 
 .navigation-item-menu-item {
     color: #7D7B67;
+}
+
+.accounts-table .user-column:hover {
+    background-color: #FFEE77;
 }

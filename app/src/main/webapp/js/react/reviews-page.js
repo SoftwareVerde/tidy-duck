@@ -25,6 +25,16 @@ class ReviewsPage extends React.Component {
                 </div>
             );
         }
+
+        if (this.props.reviews.length == 0) {
+            return (
+                < div className="center">
+                    <h1>There are no reviews that require approval.</h1>
+                    <i className="fa fa-4x fa-thumbs-up"/>
+                </div>
+            );
+        }
+
         const reactComponents = [];
         for (let i in this.props.reviews) {
             const review = this.props.reviews[i];
