@@ -252,7 +252,7 @@ class SettingsPage extends React.Component {
                 <h1>User Settings</h1>
                 <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
                 <app.InputField type="select" label="Default Tab" name="defaultMode" value={this.state.currentDefaultMode} options={modeOptions} onChange={this.onDefaultModeChanged}/>
-                <div id="save-settings-button" className="button" onClick={this.onSettingsSave}>{this.renderSettingsSaveButtonText()}</div>
+                <div id="save-settings-button" className="button" onClick={() => this.onSettingsSave(false)}>{this.renderSettingsSaveButtonText()}</div>
             </div>
         );
 
