@@ -117,7 +117,7 @@ class App extends React.Component {
             mostFunctionStereotypes:    [],
             reviews:                    [],
             currentReview:              null,
-            activeRole:                 this.roles.release,
+            activeRole:                 null,
             activeSubRole:              null,
             selectedItem:               null,
             parentItem:                 null,
@@ -215,6 +215,7 @@ class App extends React.Component {
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
+        this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
         this.logout = this.logout.bind(this);
@@ -229,11 +230,20 @@ class App extends React.Component {
                 getAccount(checkData.accountId, function(accountData) {
                     const account = Account.fromJson(accountData);
                     thisApp.setTheme(account.getSettings().getTheme());
+
                     thisApp.setState({
                         account: account
                     });
-                    const firstValidRole = thisApp.getValidRoleItems(account)[0];
-                    thisApp.handleRoleClick(firstValidRole, null, false);
+                    
+                    const validRoles = thisApp.getValidRoleItems(account);
+                    const defaultMode = account.getSettings().getDefaultMode();
+
+                    if (validRoles.includes(defaultMode)) {
+                        thisApp.handleRoleClick(defaultMode, null, false);
+                    }
+                    else {
+                        thisApp.handleRoleClick(validRoles[0], null, false);
+                    }
                 });
             }
         });
@@ -2164,10 +2174,11 @@ class App extends React.Component {
                         if (! wasSuccess) {
                             app.App.alert("Review Vote", "Unable to remove vote for approval.");
                         }
-
-                        currentReviewVotes.splice(i, 1);
-                        currentReview.setReviewVotes(currentReviewVotes);
-                        thisApp.setState({ currentReview: currentReview });
+                        else {
+                            currentReviewVotes.splice(i, 1);
+                            currentReview.setReviewVotes(currentReviewVotes);
+                            thisApp.setState({ currentReview: currentReview });
+                        }
                     });
                 }
                 else {
@@ -2179,9 +2190,10 @@ class App extends React.Component {
                         if (! wasSuccess) {
                             app.App.alert("Review Vote", "Unable to update vote for approval.");
                         }
-
-                        currentReviewVote.setIsUpvote(isUpvote);
-                        thisApp.setState({ currentReview: currentReview });
+                        else {
+                            currentReviewVote.setIsUpvote(isUpvote);
+                            thisApp.setState({ currentReview: currentReview });
+                        }
                     });
                 }
                 return;
@@ -2493,6 +2505,11 @@ class App extends React.Component {
         this.setState({
             account: account
         });
+    }
+
+    onDefaultModeChanged(roleName) {
+        const account = this.state.account;
+        account.getSettings().setDefaultMode(roleName);
     }
 
     setTheme(themeName) {
@@ -2900,11 +2917,15 @@ class App extends React.Component {
 
     renderMainContent() {
         if (this.state.showSettingsPage) {
-            const theme = this.state.account ? this.state.account.getSettings().getTheme() : "Tidy";
-            const accountId = this.state.account.getId();
+            const account = this.state.account;
+            const theme = account ? account.getSettings().getTheme() : "Tidy";
+            const defaultMode = account ? account.getSettings().getDefaultMode() : "Release";
+            const accountId = account.getId();
+            const validRoles = this.getValidRoleItems(account);
+
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage theme={theme} accountId={accountId} onThemeChange={this.onThemeChange}/>
+                    <app.SettingsPage theme={theme} defaultMode={defaultMode} accountId={accountId} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged} handleSettingsClick={this.handleSettingsClick}/>
                 </div>
             );
         }
@@ -2924,7 +2945,7 @@ class App extends React.Component {
                     // accounts role
                     return (
                         <div id="main-content" className="container">
-                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword} thisAccount={this.state.account}/>
+                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword} thisAccount={this.state.account} />
                         </div>
                     );
                 } break;

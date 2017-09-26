@@ -440,6 +440,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         final Json json = new Json(false);
 
         json.put("theme", settings.getTheme());
+        json.put("defaultMode", settings.getDefaultMode());
 
         return json;
     }

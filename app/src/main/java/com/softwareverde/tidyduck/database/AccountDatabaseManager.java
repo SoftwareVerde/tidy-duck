@@ -79,8 +79,9 @@ class AccountDatabaseManager {
     }
 
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
-        final Query query = new Query("UPDATE accounts SET theme = ? WHERE id = ?")
+        final Query query = new Query("UPDATE accounts SET theme = ?, default_mode = ? WHERE id = ?")
             .setParameter(settings.getTheme())
+            .setParameter(settings.getDefaultMode())
             .setParameter(accountId)
         ;
 

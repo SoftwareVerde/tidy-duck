@@ -50,6 +50,7 @@ public class AccountInflater {
 
         final Settings settings = new Settings();
         settings.setTheme(row.getString("theme"));
+        settings.setDefaultMode(row.getString("default_mode"));
 
         final Account account = new Account();
         account.setId(accountId);
