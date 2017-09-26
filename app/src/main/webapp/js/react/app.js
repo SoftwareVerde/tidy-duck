@@ -2894,7 +2894,7 @@ class App extends React.Component {
 
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage theme={theme} defaultMode={defaultMode} accountId={accountId} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged}/>
+                    <app.SettingsPage theme={theme} defaultMode={defaultMode} accountId={accountId} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged} handleSettingsClick={this.handleSettingsClick}/>
                 </div>
             );
         }
@@ -2914,7 +2914,7 @@ class App extends React.Component {
                     // accounts role
                     return (
                         <div id="main-content" className="container">
-                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword} thisAccount={this.state.account}/>
+                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword} thisAccount={this.state.account} />
                         </div>
                     );
                 } break;

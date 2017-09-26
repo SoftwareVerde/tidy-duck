@@ -19,6 +19,7 @@ class SettingsPage extends React.Component {
             passwordsMatch:     false,
         };
 
+        this.handleKeyPress = this.handleKeyPress.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.onNewPasswordChanged = this.onNewPasswordChanged.bind(this);
@@ -29,6 +30,24 @@ class SettingsPage extends React.Component {
         this.renderPasswordsMatchWarning = this.renderPasswordsMatchWarning.bind(this);
         this.renderSettingsSaveButtonText = this.renderSettingsSaveButtonText.bind(this);
         this.renderPasswordSaveButtonText = this.renderPasswordSaveButtonText.bind(this);
+    }
+
+    handleKeyPress(e) {
+        if (e.keyCode == 27) {
+            if (typeof this.props.handleSettingsClick == "function") {
+                // Bypass setting this page's state when saving settings.
+                this.onSettingsSave(true);
+                this.props.handleSettingsClick();
+            }
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyPress);
     }
 
     componentWillReceiveProps(newProperties) {
@@ -141,7 +160,7 @@ class SettingsPage extends React.Component {
         });
     }
 
-    onSettingsSave() {
+    onSettingsSave(bypassSetState) {
         const settings = {
             theme:          this.state.currentTheme,
             defaultMode:    this.state.currentDefaultMode
@@ -153,9 +172,11 @@ class SettingsPage extends React.Component {
         const thisButton = this;
         updateSettings(settings, function(data) {
             if (data.wasSuccess) {
-                thisButton.setState({
-                    settingsSaveButtonState: thisButton.SaveButtonState.saved
-                });
+                if (! bypassSetState) {
+                    thisButton.setState({
+                        settingsSaveButtonState: thisButton.SaveButtonState.saved
+                    });
+                }
             }
             else {
                 app.App.alert("Update Settings", data.errorMessage);
