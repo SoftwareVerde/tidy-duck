@@ -150,6 +150,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("most-interface-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _checkForDuplicateMostInterface(request, currentAccount, environment.getDatabase());
             }
         });

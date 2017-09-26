@@ -154,6 +154,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         super.defineEndpoint("function-block-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
                 return _checkForDuplicateFunctionBlock(request, currentAccount, environment.getDatabase());
             }
         });
