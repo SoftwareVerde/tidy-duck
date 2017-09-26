@@ -228,3 +228,29 @@ function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
         }
     });
 }
+
+function checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "function-block-duplicate-check",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                functionBlockName: functionBlockName,
+                functionBlockVersionSeries: functionBlockVersionSeries
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to check for duplicate function block: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}

@@ -329,4 +329,29 @@ public class FunctionBlockDatabaseManager {
             reviewDatabaseManager.deleteReview(review);
         }
     }
+
+    public FunctionBlock checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
+        return _checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+    }
+
+    private FunctionBlock _checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_blocks WHERE name = ?");
+        query.setParameter(functionBlockName);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+
+        FunctionBlock matchedFunctionBlock = null;
+        for (final Row row : rows) {
+            final long functionBlockId = row.getLong("id");
+            final FunctionBlock rowFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeries)) {
+                matchedFunctionBlock = rowFunctionBlock;
+                break;
+            }
+        }
+
+        return matchedFunctionBlock;
+    }
 }

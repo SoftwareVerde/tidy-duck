@@ -146,6 +146,13 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 return _submitMostInterfaceForReview(mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("most-interface-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                return _checkForDuplicateMostInterface(request, currentAccount, environment.getDatabase());
+            }
+        });
     }
 
     private Json _getMostInterface(final Long mostInterfaceId, final Database<Connection> database) {
@@ -235,6 +242,33 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         _setJsonSuccessFields(response);
         return response;
+    }
+
+    private Json _checkForDuplicateMostInterface(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) {
+        try {
+            final Json request = _getRequestDataAsJson(httpRequest);
+            final String mostInterfaceName = request.getString("mostInterfaceName");
+            final Long mostInterfaceVersionSeries = request.getLong("mostInterfaceVersionSeries");
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            final MostInterface matchedMostInterface = databaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+
+            final Json response = new Json(false);
+
+            if (matchedMostInterface == null) {
+                response.put("matchFound", false);
+            } else {
+                response.put("matchFound", true);
+                response.put("matchedMostInterface", _toJson(matchedMostInterface));
+            }
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to check for duplicate Function Block.", exception);
+            return super._generateErrorJson("Unable to check for duplicate Function Block: " + exception.getMessage());
+        }
     }
 
     private Json _associateInterfaceWithFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Database<Connection> database) throws IOException {

@@ -37,11 +37,7 @@ class MostFunction extends React.Component {
                 showWorkingIcon: true
             });
             const thisMostFunction = this;
-            this.props.onDelete(this.props.mostFunction, function () {
-                thisMostFunction.setState({
-                    showWorkingIcon: false
-                });
-            });
+            this.props.onDelete(this.props.mostFunction);
         }
     }
 

@@ -39,10 +39,10 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setName(newValue);
 
-        const thisInput = this;
+        const thisForm = this;
         checkForDuplicateFunctionCatalog(newValue, functionCatalog.getBaseVersionId(), function (data) {
             if (data.wasSuccess) {
-                thisInput.setState({
+                thisForm.setState({
                     isDuplicateFunctionCatalog: data.matchFound
                 });
             }

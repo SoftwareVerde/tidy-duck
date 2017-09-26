@@ -304,4 +304,29 @@ public class MostInterfaceDatabaseManager {
             reviewDatabaseManager.deleteReview(review);
         }
     }
+
+    public MostInterface checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+        return _checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+    }
+
+    private MostInterface _checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM interfaces WHERE name = ?");
+        query.setParameter(mostInterfaceName);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+
+        MostInterface matchedMostInterface = null;
+        for (final Row row : rows) {
+            final long mostInterfaceId = row.getLong("id");
+            final MostInterface rowMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+            if (!rowMostInterface.getBaseVersionId().equals(mostInterfaceVersionSeries)) {
+                matchedMostInterface = rowMostInterface;
+                break;
+            }
+        }
+
+        return matchedMostInterface;
+    }
 }

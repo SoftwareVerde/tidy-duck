@@ -214,6 +214,13 @@ public class DatabaseManager {
         });
     }
 
+    public FunctionBlock checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+            return functionBlockDatabaseManager.checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+        }
+    }
+
     // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
@@ -281,6 +288,13 @@ public class DatabaseManager {
                 mostInterfaceDatabaseManager.submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
             }
         });
+    }
+
+    public MostInterface checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            return mostInterfaceDatabaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+        }
     }
 
     // MOST FUNCTION METHODS

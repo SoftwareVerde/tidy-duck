@@ -380,7 +380,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try {
             final Json request = _getRequestDataAsJson(httpRequest);
             final String functionCatalogName = request.getString("functionCatalogName");
-            final long functionCatalogVersionSeries = request.getLong("functionCatalogVersionSeries");
+            final Long functionCatalogVersionSeries = request.getLong("functionCatalogVersionSeries");
 
             DatabaseManager databaseManager = new DatabaseManager(database);
             final FunctionCatalog matchedFunctionCatalog = databaseManager.checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries);
@@ -398,8 +398,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final Exception exception) {
-            _logger.error("Unable to store Function Catalog.", exception);
-            return super._generateErrorJson("Unable to store Function Catalog: " + exception.getMessage());
+            _logger.error("Unable to check for duplicate Function Catalog.", exception);
+            return super._generateErrorJson("Unable to check for duplicate Function Catalog: " + exception.getMessage());
         }
     }
 

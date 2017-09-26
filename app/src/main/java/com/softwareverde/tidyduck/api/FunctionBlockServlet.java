@@ -150,6 +150,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return _submitFunctionBlockForReview(functionBlockId, currentAccount, environment.getDatabase());
             }
         });
+
+        super.defineEndpoint("function-block-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                return _checkForDuplicateFunctionBlock(request, currentAccount, environment.getDatabase());
+            }
+        });
     }
 
     private Json _getFunctionBlock(final long functionBlockId, final Database<Connection> database) {
@@ -240,6 +247,33 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         super._setJsonSuccessFields(response);
         return response;
+    }
+
+    private Json _checkForDuplicateFunctionBlock(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) {
+        try {
+            final Json request = _getRequestDataAsJson(httpRequest);
+            final String functionBlockName = request.getString("functionBlockName");
+            final Long functionBlockVersionSeries = request.getLong("functionBlockVersionSeries");
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            final FunctionBlock matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+
+            final Json response = new Json(false);
+
+            if (matchedFunctionBlock == null) {
+                response.put("matchFound", false);
+            } else {
+                response.put("matchFound", true);
+                response.put("matchedFunctionBlock", _toJson(matchedFunctionBlock));
+            }
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to check for duplicate Function Block.", exception);
+            return super._generateErrorJson("Unable to check for duplicate Function Block: " + exception.getMessage());
+        }
     }
 
     private Json _associateFunctionBlockWithFunctionCatalog(final HttpServletRequest request, final long functionBlockId, final Database<Connection> database) throws IOException {
