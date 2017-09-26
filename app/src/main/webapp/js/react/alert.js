@@ -108,14 +108,12 @@ class Alert extends React.Component {
     }
 
     render() {
-        if (! this.state.shouldShow) {
-            return null;
-        }
-
         const divStyle = {
-            "top":    this.state.y,
-            "left":   this.state.x,
-            "width":  this.state.width
+            "top":          this.state.y,
+            "left":         this.state.x,
+            "width":        this.state.width,
+            "visibility":   this.state.shouldShow ? 'visible' : 'hidden',
+            "opacity":      this.state.shouldShow ? 1 : 0
         };
 
         const hasMoved = (this.state.lastMoveTime > 0);

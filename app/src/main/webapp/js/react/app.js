@@ -1,26 +1,54 @@
 class App extends React.Component {
     static alert(title, content, onConfirm) {
-        App._instance.setState({
-            alert: {
-                shouldShow: true,
-                title:      title,
-                content:    content,
-                onConfirm:  function () {
-                    if (typeof onConfirm == "function") {
-                        onConfirm();
-                    }
+        const alertQueue = App._instance.state.alertQueue;
 
-                    App._instance.setState({
-                        alert: {
-                            shouldShow: false,
-                            title:      "",
-                            content:    "",
-                            onConfirm:  null
-                        }
-                    });
-                }
-            }
+        // add to queue
+        alertQueue.push({
+            title: title,
+            content: content,
+            onConfirm: onConfirm
         });
+        App._instance.setState({
+            alertQueue: alertQueue
+        });
+
+        if (App._instance.state.alert.shouldShow) {
+            // alert is current being displayed, bail out
+            return;
+        }
+        // need to display alert
+        function displayAlert(alert) {
+            App._instance.setState({
+                alert: {
+                    shouldShow: true,
+                    title:      alert.title,
+                    content:    alert.content,
+                    onConfirm:  function () {
+                        if (typeof alert.onConfirm == "function") {
+                            alert.onConfirm();
+                        }
+
+                        if (alertQueue.length == 0) {
+                            App._instance.setState({
+                                alert: {
+                                    shouldShow: false,
+                                    title:      "",
+                                    content:    "",
+                                    onConfirm:  null
+                                }
+                            });
+                        }
+                        else {
+                            const nextAlert = alertQueue.shift();
+                            displayAlert(nextAlert);
+                        }
+                    }
+                }
+            });
+        }
+
+        const alert = alertQueue.shift();
+        displayAlert(alert);
     }
 
     constructor(props) {
@@ -116,7 +144,8 @@ class App extends React.Component {
                 title:      "",
                 content:    "",
                 onConfirm:  null
-            }
+            },
+            alertQueue:                 []
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
