@@ -82,7 +82,7 @@
     width: 100%;
 }
 
-.small-container .input-field select, .popup-container .input-field select {
+.small-container .input-field select, .popup-container .input-field select, #settings-container select {
     width: 100%;
 }
 
