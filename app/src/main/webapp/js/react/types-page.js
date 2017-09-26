@@ -1012,7 +1012,9 @@ class TypesPage extends React.Component {
             if (!selectedType) {
                 selectedType = mostTypes[0];
             }
-            typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
+            const typeSelectorInfo = "Types with \uD83D\uDCD5 icon have been included in a release.  Edits will be restricted.";
+            const infoIcon = <i key="type-selector-info" className="fa fa-info-circle" title={typeSelectorInfo}></i>;
+            typeSelector = <app.InputField key="type-selector" type="select" label={["Type to Edit ", infoIcon]} name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
                 return (
