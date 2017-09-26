@@ -10,6 +10,7 @@ class SettingsPage extends React.Component {
 
         this.state = {
             currentTheme:       this.props.theme,
+            currentDefaultMode: this.props.defaultMode,
             newPassword:        "",
             newPasswordRetype:  "",
             oldPassword:        "",
@@ -19,6 +20,7 @@ class SettingsPage extends React.Component {
         };
 
         this.onThemeChange = this.onThemeChange.bind(this);
+        this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.onNewPasswordChanged = this.onNewPasswordChanged.bind(this);
         this.onNewPasswordRetypeChanged = this.onNewPasswordRetypeChanged.bind(this);
         this.onOldPasswordChanged = this.onOldPasswordChanged.bind(this);
@@ -32,13 +34,28 @@ class SettingsPage extends React.Component {
     componentWillReceiveProps(newProperties) {
         this.setState({
             currentTheme:       newProperties.theme,
+            currentDefaultMode: newProperties.defaultMode
         });
     }
 
     onThemeChange(value) {
-        this.props.onThemeChange(value);
+        if (typeof this.props.onThemeChange == "function") {
+            this.props.onThemeChange(value);
+        }
+
         this.setState({
             currentTheme:       value,
+            settingsSaveButtonState:    this.SaveButtonState.save
+        });
+    }
+
+    onDefaultModeChanged(value) {
+        if (typeof this.props.onDefaultModeChanged == "function") {
+            this.props.onDefaultModeChanged(value);
+        }
+
+        this.setState({
+            currentDefaultMode:         value,
             settingsSaveButtonState:    this.SaveButtonState.save
         });
     }
@@ -126,8 +143,10 @@ class SettingsPage extends React.Component {
 
     onSettingsSave() {
         const settings = {
-            theme: this.state.currentTheme
+            theme:          this.state.currentTheme,
+            defaultMode:    this.state.currentDefaultMode
         };
+
         this.setState({
             settingsSaveButtonState: this.SaveButtonState.saving
         });
@@ -137,7 +156,9 @@ class SettingsPage extends React.Component {
                 thisButton.setState({
                     settingsSaveButtonState: thisButton.SaveButtonState.saved
                 });
-            } else {
+            }
+            else {
+                app.App.alert("Update Settings", data.errorMessage);
                 thisButton.setState({
                     settingsSaveButtonState: thisButton.SaveButtonState.save
                 });
@@ -197,6 +218,7 @@ class SettingsPage extends React.Component {
 
     render() {
         const themeOptions = ['Tidy', 'Darkwing'];
+        const modeOptions = this.props.roles;
         const reactComponents = [];
 
         let passwordSaveButton = <input type="submit" id="save-settings-button" className="button" value={this.renderPasswordSaveButtonText()} />;
@@ -208,6 +230,7 @@ class SettingsPage extends React.Component {
             <div key="Theme Container" id="settings-container">
                 <h1>User Settings</h1>
                 <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
+                <app.InputField type="select" label="Default Tab" name="defaultMode" value={this.state.currentDefaultMode} options={modeOptions} onChange={this.onDefaultModeChanged}/>
                 <div id="save-settings-button" className="button" onClick={this.onSettingsSave}>{this.renderSettingsSaveButtonText()}</div>
             </div>
         );

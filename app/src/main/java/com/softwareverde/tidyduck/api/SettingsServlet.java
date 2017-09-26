@@ -32,21 +32,26 @@ public class SettingsServlet extends AuthenticatedJsonServlet {
     private Json updateSettings(final HttpServletRequest request, final Account currentAccount, final Environment environment) {
         final Database<Connection> database = environment.getDatabase();
 
-        Json response = super._generateSuccessJson();
+        final Json response = super._generateSuccessJson();
 
         try {
             Json jsonRequest = _getRequestDataAsJson(request);
 
-            String theme = jsonRequest.getString("theme");
+            final String theme = jsonRequest.getString("theme");
+            final String defaultMode = jsonRequest.getString("defaultMode");
 
             if (Util.isBlank(theme)) {
                 return super._generateErrorJson("Invalid theme: " + theme);
             }
+            if (Util.isBlank(defaultMode)) {
+                return super._generateErrorJson("Invalid default mode: " + defaultMode);
+            }
 
             final Settings settings = new Settings();
             settings.setTheme(theme);
+            settings.setDefaultMode(defaultMode);
 
-            DatabaseManager databaseManager = new DatabaseManager(database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateAccountSettings(currentAccount.getId(), settings);
         } catch (Exception e) {
             String message = "Unable to update settings.";

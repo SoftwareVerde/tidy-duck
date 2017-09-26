@@ -89,7 +89,7 @@ class App extends React.Component {
             mostFunctionStereotypes:    [],
             reviews:                    [],
             currentReview:              null,
-            activeRole:                 this.roles.release,
+            activeRole:                 null,
             activeSubRole:              null,
             selectedItem:               null,
             parentItem:                 null,
@@ -186,6 +186,7 @@ class App extends React.Component {
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
+        this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
         this.logout = this.logout.bind(this);
@@ -200,11 +201,20 @@ class App extends React.Component {
                 getAccount(checkData.accountId, function(accountData) {
                     const account = Account.fromJson(accountData);
                     thisApp.setTheme(account.getSettings().getTheme());
+
                     thisApp.setState({
                         account: account
                     });
-                    const firstValidRole = thisApp.getValidRoleItems(account)[0];
-                    thisApp.handleRoleClick(firstValidRole, null, false);
+                    
+                    const validRoles = thisApp.getValidRoleItems(account);
+                    const defaultMode = account.getSettings().getDefaultMode();
+
+                    if (validRoles.includes(defaultMode)) {
+                        thisApp.handleRoleClick(defaultMode, null, false);
+                    }
+                    else {
+                        thisApp.handleRoleClick(validRoles[0], null, false);
+                    }
                 });
             }
         });
@@ -2463,6 +2473,11 @@ class App extends React.Component {
         });
     }
 
+    onDefaultModeChanged(roleName) {
+        const account = this.state.account;
+        account.getSettings().setDefaultMode(roleName);
+    }
+
     setTheme(themeName) {
         const themeCssDirectory = themeName.toLowerCase();
         document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
@@ -2868,11 +2883,15 @@ class App extends React.Component {
 
     renderMainContent() {
         if (this.state.showSettingsPage) {
-            const theme = this.state.account ? this.state.account.getSettings().getTheme() : "Tidy";
-            const accountId = this.state.account.getId();
+            const account = this.state.account;
+            const theme = account ? account.getSettings().getTheme() : "Tidy";
+            const defaultMode = account ? account.getSettings().getDefaultMode() : "Release";
+            const accountId = account.getId();
+            const validRoles = this.getValidRoleItems(account);
+
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage theme={theme} accountId={accountId} onThemeChange={this.onThemeChange}/>
+                    <app.SettingsPage theme={theme} defaultMode={defaultMode} accountId={accountId} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged}/>
                 </div>
             );
         }

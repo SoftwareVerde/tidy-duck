@@ -1,0 +1,1 @@
+ALTER TABLE accounts ADD COLUMN default_mode VARCHAR(255) NOT NULL DEFAULT 'Release' AFTER theme;
