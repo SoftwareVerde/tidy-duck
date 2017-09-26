@@ -558,6 +558,10 @@
     visibility: visible;
 }
 
+.accounts-table .user-column:hover {
+    font-weight: bold;
+}
+
 .role-components {
     text-align: center;
 }
