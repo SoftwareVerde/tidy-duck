@@ -2145,10 +2145,11 @@ class App extends React.Component {
                         if (! wasSuccess) {
                             app.App.alert("Review Vote", "Unable to remove vote for approval.");
                         }
-
-                        currentReviewVotes.splice(i, 1);
-                        currentReview.setReviewVotes(currentReviewVotes);
-                        thisApp.setState({ currentReview: currentReview });
+                        else {
+                            currentReviewVotes.splice(i, 1);
+                            currentReview.setReviewVotes(currentReviewVotes);
+                            thisApp.setState({ currentReview: currentReview });
+                        }
                     });
                 }
                 else {
@@ -2160,9 +2161,10 @@ class App extends React.Component {
                         if (! wasSuccess) {
                             app.App.alert("Review Vote", "Unable to update vote for approval.");
                         }
-
-                        currentReviewVote.setIsUpvote(isUpvote);
-                        thisApp.setState({ currentReview: currentReview });
+                        else {
+                            currentReviewVote.setIsUpvote(isUpvote);
+                            thisApp.setState({ currentReview: currentReview });
+                        }
                     });
                 }
                 return;
