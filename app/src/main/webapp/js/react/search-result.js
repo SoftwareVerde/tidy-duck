@@ -90,7 +90,7 @@ class SearchResult extends React.Component {
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const resultStyle = searchResult.isApproved() ? "search-result" : "unapproved-search-result";
-        const releasedIcon = searchResult.isReleased() ? <i className="fa fa-book"/> : "";
+        const releasedIcon = searchResult.isReleased() ? <i title="This item has been released as part of an existing Function Catalog." className="fa fa-book"/> : "";
         var shortDescription = "";
 
         switch (currentNavigationLevel) {
