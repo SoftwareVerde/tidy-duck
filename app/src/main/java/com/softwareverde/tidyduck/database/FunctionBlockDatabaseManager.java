@@ -5,6 +5,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.most.FunctionBlock;
+import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.Review;
 
@@ -355,21 +356,24 @@ public class FunctionBlockDatabaseManager {
         return matchedFunctionBlock;
     }
 
-    public List<String> listAssociatedFunctionIds(final long functionBlockId) throws DatabaseException {
-        return _getAssociatedFunctionIds(functionBlockId);
+    public List<MostFunction> listAssociatedFunctions(final long functionBlockId) throws DatabaseException {
+        return _getAssociatedFunctions(functionBlockId);
     }
 
-    private List<String> _getAssociatedFunctionIds(final long functionBlockId) throws DatabaseException {
-        final List<String> functionIds = new ArrayList<>();
+    private List<MostFunction> _getAssociatedFunctions(final long functionBlockId) throws DatabaseException {
+        final List<MostFunction> functions = new ArrayList<>();
 
-        final Query query = new Query("SELECT functions.most_id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id WHERE function_block_id = ?");
+        final Query query = new Query("SELECT functions.id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id WHERE function_block_id = ?");
         query.setParameter(functionBlockId);
 
         final List<Row> rows = _databaseConnection.query(query);
+        MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         for (final Row row : rows) {
-            functionIds.add(row.getString("most_id"));
+            final long mostFunctionId = row.getLong("id");
+            final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
+            functions.add(mostFunction);
         }
 
-        return functionIds;
+        return functions;
     }
 }

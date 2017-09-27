@@ -187,8 +187,8 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
      */
     private Json _checkForFunctionIdCollisions(final DatabaseManager databaseManager, final MostFunction mostFunction, final Long mostInterfaceId) throws DatabaseException {
         // check for duplicate function ID in parent interface
-        List<String> mostInterfaceFunctionIds = databaseManager.listFunctionIdsAssociatedWithMostInterface(mostInterfaceId);
-        if (mostInterfaceFunctionIds.contains(mostFunction.getMostId())) {
+        List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
+        if (_hasConflictingFunction(mostInterfaceFunctions, mostFunction)) {
             final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on interface " + mostInterfaceId;
             _logger.error(errorMessage);
             return _generateErrorJson(errorMessage);
@@ -196,7 +196,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         // check for duplicate function ID in parent function blocks
         List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
         for (final Long functionBlockId : functionBlockIds) {
-            if (_functionBlockHasFunctionId(databaseManager, functionBlockId, mostFunction.getMostId())) {
+            if (_functionBlockHasFunctionId(databaseManager, functionBlockId, mostFunction)) {
                 final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on function block " + functionBlockId;
                 _logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
@@ -206,9 +206,19 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return null;
     }
 
-    private boolean _functionBlockHasFunctionId(final DatabaseManager databaseManager, final Long functionBlockId, final String mostId) throws DatabaseException {
-        List<String> functionBlockMostIds = databaseManager.listFunctionIdsAssociatedWithFunctionBlock(functionBlockId);
-        return functionBlockMostIds.contains(mostId);
+    private boolean _hasConflictingFunction(final List<MostFunction> functions, final MostFunction mostFunction) {
+        for (final MostFunction listFunction : functions) {
+            // has same Most ID but a different database ID (or supplied mostFunction is new and doesn't have one)
+            if (listFunction.getMostId().equals(mostFunction.getMostId()) && !listFunction.getId().equals(mostFunction.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean _functionBlockHasFunctionId(final DatabaseManager databaseManager, final Long functionBlockId, final MostFunction mostFunction) throws DatabaseException {
+        List<MostFunction> functionBlockMostIds = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
+        return _hasConflictingFunction(functionBlockMostIds, mostFunction);
     }
 
     protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Database<Connection> database) {

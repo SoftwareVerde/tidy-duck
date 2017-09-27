@@ -235,10 +235,10 @@ public class DatabaseManager {
         }
     }
 
-    public List<String> listFunctionIdsAssociatedWithFunctionBlock(final long functionBlockId) throws DatabaseException {
+    public List<MostFunction> listFunctionsAssociatedWithFunctionBlock(final long functionBlockId) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-            return functionBlockDatabaseManager.listAssociatedFunctionIds(functionBlockId);
+            return functionBlockDatabaseManager.listAssociatedFunctions(functionBlockId);
         }
     }
 
@@ -318,10 +318,10 @@ public class DatabaseManager {
         }
     }
 
-    public List<String> listFunctionIdsAssociatedWithMostInterface(final long mostInterfaceId) throws DatabaseException {
+    public List<MostFunction> listFunctionsAssociatedWithMostInterface(final long mostInterfaceId) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-            return mostInterfaceDatabaseManager.listAssociatedFunctionIds(mostInterfaceId);
+            return mostInterfaceDatabaseManager.listAssociatedFunctions(mostInterfaceId);
         }
     }
 

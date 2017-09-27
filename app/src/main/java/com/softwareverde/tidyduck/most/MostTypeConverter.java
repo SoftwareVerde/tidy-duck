@@ -576,7 +576,9 @@ public class MostTypeConverter {
         if (operationNames.contains("StartResultAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
         }
-
+        if (operationNames.contains("ResultAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.RESULT_ACK, "1");
+        }
         if (operationNames.contains("ErrorAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
         }
@@ -598,13 +600,13 @@ public class MostTypeConverter {
             errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex(MOST_NULL);
             errorCodeParameter.setType(_createErrorCodeType());
-            _addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "2");
+            _addOperationAtIndex(errorCodeParameter, OperationType.ERROR_ACK, "2");
 
             final MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(_createErrorInfoType());
-            _addOperationAtIndex(errorInfoParameter, OperationType.METHOD_ERROR, "3");
+            _addOperationAtIndex(errorInfoParameter, OperationType.ERROR_ACK, "3");
 
             convertedMethod.addMostParameter(errorCodeParameter);
             convertedMethod.addMostParameter(errorInfoParameter);

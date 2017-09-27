@@ -84,7 +84,7 @@ class MostType {
             bitfieldLength:     mostType.getBitFieldLength(),
             enumMax:            mostType.getEnumMax(),
             numberBaseTypeId:   mostType.getNumberBaseType() == null ? null : mostType.getNumberBaseType().getId(),
-            numberBaseType:     MostType.toJson(mostType.getNumberBaseType()),
+            numberBaseType:     PrimitiveType.toJson(mostType.getNumberBaseType()),
             numberExponent:     mostType.getNumberExponent(),
             numberRangeMin:     mostType.getNumberRangeMin(),
             numberRangeMax:     mostType.getNumberRangeMax(),

@@ -330,21 +330,24 @@ public class MostInterfaceDatabaseManager {
         return matchedMostInterface;
     }
 
-    public List<String> listAssociatedFunctionIds(final long mostInterfaceId) throws DatabaseException {
-        return _getAssociatedFunctionIds(mostInterfaceId);
+    public List<MostFunction> listAssociatedFunctions(final long mostInterfaceId) throws DatabaseException {
+        return _getAssociatedFunctions(mostInterfaceId);
     }
 
-    private List<String> _getAssociatedFunctionIds(final long mostInterfaceId) throws DatabaseException {
-        final List<String> functionIds = new ArrayList<>();
+    private List<MostFunction> _getAssociatedFunctions(final long mostInterfaceId) throws DatabaseException {
+        final List<MostFunction> functions = new ArrayList<>();
 
-        final Query query = new Query("SELECT functions.most_id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id WHERE interface_id = ?");
+        final Query query = new Query("SELECT functions.id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id WHERE interface_id = ?");
         query.setParameter(mostInterfaceId);
 
         final List<Row> rows = _databaseConnection.query(query);
+        MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         for (final Row row : rows) {
-            functionIds.add(row.getString("most_id"));
+            final long mostFunctionId = row.getLong("id");
+            final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
+            functions.add(mostFunction);
         }
 
-        return functionIds;
+        return functions;
     }
 }

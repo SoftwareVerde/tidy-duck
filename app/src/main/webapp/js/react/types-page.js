@@ -302,14 +302,14 @@ class TypesPage extends React.Component {
     }
 
     onSave(event) {
+        event.preventDefault();
+
         const mostType = this.state.mostType;
         const mostTypeJson = MostType.toJson(mostType);
         const thisApp = this;
         this.setState({
             saveButtonText: "Loading"
         });
-
-        event.preventDefault();
 
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
@@ -398,8 +398,9 @@ class TypesPage extends React.Component {
 
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
 
-        mostType.setName(oldMostType.getName());
         mostType.setId(oldMostType.getId());
+        mostType.setName(oldMostType.getName());
+        mostType.setIsPrimaryType(oldMostType.isPrimaryType());
 
         const newPrimitiveType = this.getPrimitiveTypeByName(value);
         mostType.setPrimitiveType(newPrimitiveType);
