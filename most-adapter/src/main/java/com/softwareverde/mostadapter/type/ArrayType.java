@@ -54,7 +54,7 @@ public class ArrayType extends MostType {
 
     @Override
     protected void appendChildElements(Document document, Element typeElement) {
-        if (_maxSize != null) {
+        if (_maxSize != null && _maxSize.trim().length() > 0) {
             typeElement.setAttribute("NMax", _maxSize);
         }
 
