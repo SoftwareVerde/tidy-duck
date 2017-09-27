@@ -10,6 +10,7 @@ import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -289,11 +291,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         try {
             DatabaseManager databaseManager = new DatabaseManager(database);
 
-            List<String> functionBlockFunctionIds = databaseManager.listFunctionIdsAssociatedWithFunctionBlock(functionBlockId);
-            List<String> mostInterfaceFunctionIds = databaseManager.listFunctionIdsAssociatedWithMostInterface(mostInterfaceId);
-            functionBlockFunctionIds.retainAll(mostInterfaceFunctionIds);
-            if (functionBlockFunctionIds.size() > 0) {
-                final String errorMessage = "Conflicting function IDs found: " + functionBlockFunctionIds.toString();
+            List<MostFunction> functionBlockFunctions = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
+            List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
+            List<String> conflictingMostIds = getConflictingMostIds(functionBlockFunctions, mostInterfaceFunctions);
+            if (conflictingMostIds.size() > 0) {
+                final String errorMessage = "Conflicting function IDs found: " + conflictingMostIds.toString();
                 _logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
             }
@@ -306,6 +308,20 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
+    }
+
+    private List<String> getConflictingMostIds(final List<MostFunction> functionBlockFunctions, final List<MostFunction> mostInterfaceFunctions) {
+        List<String> conflictingMostIds = new ArrayList<>();
+        for (final MostFunction functionBlockMostFunction : functionBlockFunctions) {
+            for (final MostFunction mostInterfaceMostFunction : mostInterfaceFunctions) {
+                final String functionBlockFunctionId = functionBlockMostFunction.getMostId();
+                final String mostInterfaceFunctionId = mostInterfaceMostFunction.getMostId();
+                if (functionBlockFunctionId.equals(mostInterfaceFunctionId)) {
+                    conflictingMostIds.add(functionBlockFunctionId);
+                }
+            }
+        }
+        return conflictingMostIds;
     }
 
     protected Json _deleteMostInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Database<Connection> database) {
