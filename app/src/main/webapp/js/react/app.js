@@ -963,7 +963,9 @@ class App extends React.Component {
             app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
         }
         else if (! confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
-            callbackFunction();
+            if (typeof callbackFunction == "function") {
+                callbackFunction();
+            }
         }
         else {
             const thisApp = this;
@@ -1268,22 +1270,18 @@ class App extends React.Component {
         const thisApp = this;
         const functionCatalogId = "";
         const functionBlockId = functionBlock.getId();
-        let executeCallback = true;
 
         const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unapproved function catalogs?");
         if (shouldDisassociate) {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
-                    // TODO: some indication that disassociation completed. Maybe an icon on the child element?
                     if (! functionBlock.isApproved()) {
                         const shouldDelete = confirm("Would you like to delete this function block version from the database?");
                         if (shouldDelete) {
-                            executeCallback = false;
                             thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
                         }
                     }
-
-                    if (typeof callbackFunction == "function") {
+                    else if (typeof callbackFunction == "function") {
                         callbackFunction();
                     }
                 }
@@ -1580,20 +1578,12 @@ class App extends React.Component {
                 if (data.wasSuccess) {
                     if (data.functionBlockIds.length > 0) {
                         thisApp.disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction);
-
-                        if (typeof callbackFunction == "function") {
-                            callbackFunction();
-                        }
                     }
                     else if (mostInterface.isApproved()) {
-                        app.App.alert("Approve Interface", "This Interface is approved for release and cannot be deleted.", callbackFunction);
+                        app.App.alert("Delete Interface", "This Interface is approved for release and cannot be deleted.", callbackFunction);
                     }
                     else {
                         thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
-
-                        if (typeof callbackFunction == "function") {
-                            callbackFunction();
-                        }
                     }
                 }
             });
@@ -1634,11 +1624,10 @@ class App extends React.Component {
         const thisApp = this;
         const functionBlockId = "";
         const mostInterfaceId = mostInterface.getId();
-        let executeCallback = true;
 
         const shouldDisassociate = confirm("Are you sure you want to disassociate this interface version from all unapproved function blocks?");
         if (! shouldDisassociate) {
-            if (typeof executeCallback == "function") {
+            if (typeof callbackFunction == "function") {
                 callbackFunction();
             }
             return;
@@ -1654,12 +1643,10 @@ class App extends React.Component {
             if (! mostInterface.isApproved()) {
                 const shouldDelete = confirm("Would you like to delete this function block version from the database?");
                 if (shouldDelete) {
-                    executeCallback = false;
                     thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
                 }
             }
-
-            if (typeof executeCallback == "function") {
+            else if (typeof callbackFunction == "function") {
                 callbackFunction();
             }
         });
