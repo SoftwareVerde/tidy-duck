@@ -67,7 +67,11 @@ class MostInterface extends React.Component {
                 showWorkingIcon: true
             });
             const thisMostInterface = this;
-            this.props.onDelete(this.props.mostInterface);
+            this.props.onDelete(this.props.mostInterface, function() {
+                thisMostInterface.setState({
+                    showWorkingIcon: false
+                });
+            });
         }
     }
 
