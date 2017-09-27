@@ -301,7 +301,7 @@
     right: 0.25em;
 }
 
-.search-result {
+.search-result, .unapproved-search-result {
     width: auto;
     border: 1px solid;
     border-radius: 5px;
@@ -310,7 +310,7 @@
     float: top;
 }
 
-.search-result i.assign-button {
+.search-result i.assign-button, .unapproved-search-result i.assign-button {
     margin: 0 2px 0 auto;
     cursor: pointer;
 }
@@ -333,6 +333,10 @@
     padding: 0;
     margin: 0.75em;
     width: 10%;
+}
+
+.search-result-property-short i {
+    margin: 0 10px 0 -23px;
 }
 
 .parameter {
