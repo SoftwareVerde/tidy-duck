@@ -224,7 +224,8 @@ public class MostTypeConverter {
     protected com.softwareverde.mostadapter.MostFunction _createPropertyFunction(Property property) {
         com.softwareverde.mostadapter.Property convertedProperty = null;
         switch (property.getReturnType().getName()) {
-            case "TBool": {
+            case "TBool":
+            case "TBitField": {
                 final SwitchProperty switchProperty = new SwitchProperty();
                 convertedProperty = switchProperty;
             } break;
@@ -232,12 +233,6 @@ public class MostTypeConverter {
                 final EnumProperty enumProperty = new EnumProperty();
                 convertedProperty = enumProperty;
             } break;
-            case "TUByte":
-            case "TSByte":
-            case "TUWord":
-            case "TSWord":
-            case "TULong":
-            case "TSLong":
             case "TNumber": {
                 final NumberProperty numberProperty = new NumberProperty();
                 convertedProperty = numberProperty;
@@ -246,10 +241,22 @@ public class MostTypeConverter {
                 final TextProperty textProperty = new TextProperty();
                 convertedProperty = textProperty;
             } break;
-            case "TStream":
-            case "TShortStream": {
+            case "TCStream": {
                 final ContainerProperty containerProperty = new ContainerProperty();
                 convertedProperty = containerProperty;
+            } break;
+            // commented because these are not used
+//            case "TArray": {
+//                final ArrayProperty arrayProperty =  new ArrayProperty();
+//                convertedProperty = arrayProperty;
+//            } break;
+//            case "TRecord": {
+//                final RecordProperty recordProperty = new RecordProperty();
+//                convertedProperty = recordProperty;
+//            } break;
+            case "TShortStream": {
+                final SequenceProperty sequenceProperty = new SequenceProperty();
+                convertedProperty = sequenceProperty;
             } break;
             default: {
                 final UnclassifiedProperty unclassifiedProperty = new UnclassifiedProperty();
@@ -549,8 +556,11 @@ public class MostTypeConverter {
                     convertedMethod = new TriggerMethod();
                 }
                 else {
-                    // CommandWithAck with parameters -> Sequence
-                    convertedMethod = new SequenceMethod();
+                    if (_isSequenceMethod(method)) {
+                        convertedMethod = new SequenceMethod();
+                    } else {
+                        convertedMethod = new UnclassifiedMethod();
+                    }
                 }
             } break;
             default: {
@@ -613,6 +623,28 @@ public class MostTypeConverter {
         }
 
         return convertedMethod;
+    }
+
+    private boolean _isSequenceMethod(final Method method) {
+        // CommandWithAck with parameters (TBool, TBitField, TNumber, TEnum, TString, TCStream, TShortStream, TVoid) -> Sequence
+        for (final MostFunctionParameter parameter : method.getInputParameters()) {
+            switch (parameter.getMostType().getPrimitiveType().getName()) {
+                case "TBool":
+                case "TBitField":
+                case "TNumber":
+                case "TEnum":
+                case "TString":
+                case "TCStream":
+                case "TShortStream":
+                case "TVoid": {
+                    // pass
+                } break;
+                default: {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void _addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, List<String> operationNames) {
