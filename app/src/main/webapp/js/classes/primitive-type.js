@@ -18,6 +18,9 @@ class PrimitiveType {
     }
 
     static toJson(primitiveType) {
+        if (primitiveType == null) {
+            return null;
+        }
         return {
             id:                 primitiveType.getId(),
             name:               primitiveType.getName(),
