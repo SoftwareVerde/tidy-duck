@@ -30,7 +30,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public MostInterfaceServlet() {
-        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -49,7 +49,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -58,7 +58,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -71,7 +71,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -84,7 +84,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -97,7 +97,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -110,7 +110,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -123,7 +123,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -136,7 +136,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -149,7 +149,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interface-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interface-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);

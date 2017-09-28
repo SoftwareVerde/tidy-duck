@@ -8,6 +8,6 @@ import com.softwareverde.tomcat.servlet.BaseServlet;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public interface AuthenticatedJsonRoute {
+public interface AuthenticatedJsonRequestHandler {
     Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final BaseServlet.HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception;
 }

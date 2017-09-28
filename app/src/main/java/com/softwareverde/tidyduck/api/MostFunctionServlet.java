@@ -24,7 +24,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public MostFunctionServlet() {
-        super.defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -37,7 +37,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-functions", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -46,7 +46,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -59,7 +59,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
         
-        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -72,7 +72,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);

@@ -4,9 +4,7 @@ import com.softwareverde.database.*;
 import com.softwareverde.json.Json;
 import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.AuthorizationException;
 import com.softwareverde.tidyduck.Permission;
-import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.servlet.BaseServlet;
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 
 public class AccountServlet extends JsonServlet {
@@ -31,9 +28,9 @@ public class AccountServlet extends JsonServlet {
         final String finalUrlSegment = BaseServlet.getFinalUrlSegment(request);
 
         final Boolean isPost = (httpMethod == HttpMethod.POST);
-        final Boolean doSelect = ("account".equals(finalUrlSegment));
-        final Boolean doAuthenticate = ("authenticate".equals(finalUrlSegment));
-        final Boolean doLogout = ("logout".equals(finalUrlSegment));
+        final Boolean doSelect = "account".equals(finalUrlSegment);
+        final Boolean doAuthenticate = "authenticate".equals(finalUrlSegment);
+        final Boolean doLogout = "logout".equals(finalUrlSegment);
 
         if ( (! isPost) && (doSelect) ) {
             final Boolean isAuthenticated = Session.isAuthenticated(request);

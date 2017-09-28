@@ -28,7 +28,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
     public AccountManagementServlet() {
-        super.defineEndpoint("accounts", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
@@ -37,7 +37,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.ADMIN_CREATE_USERS);
@@ -46,7 +46,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts/<accountId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts/<accountId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -60,7 +60,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts/<accountId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts/<accountId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -74,7 +74,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts/<accountId>/roles", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts/<accountId>/roles", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
@@ -91,7 +91,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts/<accountId>/change-password", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -107,7 +107,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("accounts/<accountId>/reset-password", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("accounts/<accountId>/reset-password", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
@@ -121,14 +121,14 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 return _getCompanies(environment.getDatabase());
             }
         });
 
-        super.defineEndpoint("companies", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("companies", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 return _insertCompany(currentAccount, request, environment.getDatabase());

@@ -31,7 +31,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
 
     public FunctionBlockServlet() {
-        super.defineEndpoint("function-blocks", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -51,7 +51,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -60,7 +60,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/search/<name>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -73,7 +73,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -86,7 +86,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -99,7 +99,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -112,7 +112,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -125,7 +125,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -138,7 +138,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-blocks/<functionBlockId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-blocks/<functionBlockId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -151,7 +151,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-block-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-block-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
