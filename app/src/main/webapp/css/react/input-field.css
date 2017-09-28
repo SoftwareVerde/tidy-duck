@@ -93,8 +93,7 @@
 
 .input-field .filtered-results {
     width: 100%;
-    padding: 0.50em;
-    font-size: 1rem;
+    max-height: 360px;
     margin: 0;
     box-sizing: border-box;
     border: solid 1px #CCCCCC;
@@ -102,11 +101,21 @@
     background-color: #FFF;
     position: absolute;
     z-index: 1;
+    overflow-y: auto;
 }
 
-.filtered-result:hover, .selected-result {
+.filtered-result, .selected-result {
+    padding: 0.5em;
     cursor: default;
-    background-color: #CCCCCC;
+    font-size: 1rem;
+}
+
+.filtered-result:nth-child(even) {
+    background-color: #EEEEEE;
+}
+
+.selected-result {
+    background-color: #FFEE77;
 }
 
 .dropdown {
