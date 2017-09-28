@@ -27,7 +27,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public ReviewServlet() {
-        super.defineEndpoint("reviews", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_VIEW);
@@ -42,7 +42,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("reviews", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -51,7 +51,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("reviews/<reviewId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews/<reviewId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -60,7 +60,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("reviews/<reviewId>/votes", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews/<reviewId>/votes", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_VIEW);
@@ -73,7 +73,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("reviews/<reviewId>/comments", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews/<reviewId>/comments", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_COMMENTS);
@@ -86,7 +86,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("reviews/<reviewId>/comments", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews/<reviewId>/comments", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_COMMENTS);
@@ -99,7 +99,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("reviews/<reviewId>/approve", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("reviews/<reviewId>/approve", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_APPROVAL);
@@ -112,7 +112,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_VOTING);
@@ -125,7 +125,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_VOTING);

@@ -22,7 +22,7 @@ public class DatabaseManager {
         _database = database;
     }
 
-    protected void executeTransaction(final DatabaseRunnable<Connection> databaseRunnable) throws DatabaseException {
+    protected void _executeTransaction(final DatabaseRunnable<Connection> databaseRunnable) throws DatabaseException {
         final JdbcDatabaseTransaction jdbcDatabaseTransaction = new JdbcDatabaseTransaction(_database);
         jdbcDatabaseTransaction.execute(databaseRunnable);
     }
@@ -73,7 +73,7 @@ public class DatabaseManager {
     // FUNCTION CATALOG METHODS
 
     public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
@@ -83,7 +83,7 @@ public class DatabaseManager {
     }
 
     public void updateFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
@@ -93,7 +93,7 @@ public class DatabaseManager {
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
@@ -103,7 +103,7 @@ public class DatabaseManager {
     }
 
     public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
@@ -136,7 +136,7 @@ public class DatabaseManager {
     }
 
     public void releaseFunctionCatalog(final long functionCatalogId, final List<ReleaseItem> releaseItems) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
             final ReleaseDatabaseManager releaseDatabaseManager = new ReleaseDatabaseManager(databaseConnection);
@@ -162,7 +162,7 @@ public class DatabaseManager {
     // FUNCTION BLOCK METHODS
 
     public void insertFunctionBlock(final Long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
@@ -172,7 +172,7 @@ public class DatabaseManager {
     }
 
     public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
@@ -182,7 +182,7 @@ public class DatabaseManager {
     }
 
     public void associateFunctionBlockWithFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
@@ -192,7 +192,7 @@ public class DatabaseManager {
     }
 
     public void updateFunctionBlock(final long functionCatalogId, final FunctionBlock functionBlock) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
@@ -202,7 +202,7 @@ public class DatabaseManager {
     }
 
     public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
@@ -219,7 +219,7 @@ public class DatabaseManager {
     }
 
     public void submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
@@ -245,7 +245,7 @@ public class DatabaseManager {
     // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
@@ -255,7 +255,7 @@ public class DatabaseManager {
     }
 
     public void insertOrphanedMostInterface(final MostInterface mostInterface) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
@@ -265,7 +265,7 @@ public class DatabaseManager {
     }
 
     public void associateMostInterfaceWithFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
@@ -275,7 +275,7 @@ public class DatabaseManager {
     }
 
     public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
@@ -285,7 +285,7 @@ public class DatabaseManager {
     }
 
     public void deleteMostInterface(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
@@ -302,7 +302,7 @@ public class DatabaseManager {
     }
 
     public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
@@ -328,7 +328,7 @@ public class DatabaseManager {
     // MOST FUNCTION METHODS
 
     public void insertMostFunction(final Long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
@@ -338,7 +338,7 @@ public class DatabaseManager {
     }
 
     public void updateMostFunction(final long mostInterfaceId, final MostFunction mostFunction) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
@@ -348,7 +348,7 @@ public class DatabaseManager {
     }
 
     public void deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
@@ -360,7 +360,7 @@ public class DatabaseManager {
     // MOST TYPE METHODS
 
     public void insertMostType(final MostType mostType) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
@@ -377,7 +377,7 @@ public class DatabaseManager {
     }
 
     public void updateMostType(final MostType mostType) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostTypeDatabaseManager mostTypeDatabaseManager = new MostTypeDatabaseManager(databaseConnection);
@@ -388,7 +388,7 @@ public class DatabaseManager {
 
     // REVIEW METHODS
     public void insertReview(final Review review) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -398,7 +398,7 @@ public class DatabaseManager {
     }
 
     public void updateReview(final Review review) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -408,7 +408,7 @@ public class DatabaseManager {
     }
 
     public void approveReview(final Review review) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -418,7 +418,7 @@ public class DatabaseManager {
     }
 
     public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -428,7 +428,7 @@ public class DatabaseManager {
     }
 
     public void updateReviewVote(final ReviewVote reviewVote) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -438,7 +438,7 @@ public class DatabaseManager {
     }
 
     public void deleteReviewVote(final long reviewVoteId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -448,7 +448,7 @@ public class DatabaseManager {
     }
 
     public void insertReviewComment(final ReviewComment reviewComment, final long reviewId) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final ReviewDatabaseManager reviewDatabaseManager = new ReviewDatabaseManager(databaseConnection);
@@ -458,7 +458,7 @@ public class DatabaseManager {
     }
 
     public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
-        this.executeTransaction(new DatabaseRunnable<Connection>() {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);

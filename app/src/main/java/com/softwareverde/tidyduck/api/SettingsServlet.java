@@ -21,7 +21,7 @@ public class SettingsServlet extends AuthenticatedJsonServlet {
     public SettingsServlet() {
         // TODO: consider moving into AccountManagementServlet
 
-        super.defineEndpoint("settings", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("settings", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 return updateSettings(request, currentAccount, environment);

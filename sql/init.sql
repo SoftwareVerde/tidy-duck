@@ -275,7 +275,6 @@ CREATE TABLE accounts (
     password VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     theme VARCHAR(255) NOT NULL DEFAULT 'Tidy',
-    default_mode VARCHAR(255) NOT NULL DEFAULT 'Release',
     company_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies (id)
 ) ENGINE=INNODB;

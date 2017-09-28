@@ -22,7 +22,7 @@ public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
     public MostFunctionStereotypeServlet() {
-        super.defineEndpoint("most-function-stereotypes", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-function-stereotypes", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);

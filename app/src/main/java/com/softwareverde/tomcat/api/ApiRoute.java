@@ -4,10 +4,10 @@ import java.util.Map;
 
 public class ApiRoute<T> {
     private Map<String, String> _parameters;
-    private T _route;
+    private T _requestHandler;
 
-    protected ApiRoute(final T route, final Map<String, String> parameters) {
-        this._route = route;
+    protected ApiRoute(final T requestHandler, final Map<String, String> parameters) {
+        this._requestHandler = requestHandler;
         this._parameters = parameters;
     }
 
@@ -19,11 +19,11 @@ public class ApiRoute<T> {
         this._parameters = parameters;
     }
 
-    public T getRoute() {
-        return _route;
+    public T getRequestHandler() {
+        return _requestHandler;
     }
 
-    public void setRoute(final T route) {
-        this._route = route;
+    public void setRequestHandler(final T requestHandler) {
+        this._requestHandler = requestHandler;
     }
 }
