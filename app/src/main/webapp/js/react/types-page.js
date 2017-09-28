@@ -306,7 +306,7 @@ class TypesPage extends React.Component {
 
         const mostType = this.state.mostType;
         const mostTypeJson = MostType.toJson(mostType);
-        const thisApp = this;
+        const thisPage = this;
         this.setState({
             saveButtonText: "Loading"
         });
@@ -317,19 +317,19 @@ class TypesPage extends React.Component {
                 let currentMostType = mostType;
                 let saveButtonText = 'Save';
                 if (data.wasSuccess) {
-                    if (typeof thisApp.props.onTypeCreated == "function") {
+                    if (typeof thisPage.props.onTypeCreated == "function") {
                         mostType.setId(data.mostTypeId);
-                        thisApp.props.onTypeCreated(mostType);
-                        currentMostType = TypesPage.createNewMostType(thisApp.props.primitiveTypes);
-                        saveButtonText = 'Saved'
-                        app.App.alert("Most Type", "Most Type " + mostType.getName() + " has been successfully saved.");
+                        thisPage.props.onTypeCreated(mostType);
                     }
+                    currentMostType = TypesPage.createNewMostType(thisPage.props.primitiveTypes);
+                    saveButtonText = 'Saved'
+                    app.App.alert("Most Type", "Most Type " + mostType.getName() + " has been successfully saved.");
                 }
                 else {
                     app.App.alert("Most Type", "Unable to create type: " + data.errorMessage);
                 }
                 // reset fields
-                thisApp.setState({
+                thisPage.setState({
                     mostType: currentMostType,
                     saveButtonText: saveButtonText
                 })
@@ -340,6 +340,9 @@ class TypesPage extends React.Component {
             updateMostType(mostTypeId, mostTypeJson, function (data) {
                 let saveButtonText = 'Save';
                 if (data.wasSuccess) {
+                    if (typeof thisPage.props.onTypeChanged == "function") {
+                        thisPage.props.onTypeChanged(thisPage.state.mostType);
+                    }
                     app.App.alert("Most Type", "Changes to Most Type " + mostType.getName() + " have been successfully saved.");
                     saveButtonText = 'Saved';
                 }
@@ -363,10 +366,12 @@ class TypesPage extends React.Component {
                     }
 
                 }
-                // Most Type is already updated in App and in Database, only need to reset save button text.
+                // need to update selectedType in case name changed
+                const typeName = thisPage.state.mostType.getName();
 
-                thisApp.setState({
-                    saveButtonText: saveButtonText
+                thisPage.setState({
+                    saveButtonText: saveButtonText,
+                    selectedType: typeName
                 });
             });
         }
@@ -995,7 +1000,6 @@ class TypesPage extends React.Component {
         if (this.props.isLoadingTypesPage) {
             // types props must not have been populated yet, show loading icon
             return (
-
                 <div className="center">
                     <i className="fa fa-spin fa-3x fa-refresh"></i>
                 </div>
