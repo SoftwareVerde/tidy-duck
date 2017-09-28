@@ -1,26 +1,54 @@
 class App extends React.Component {
     static alert(title, content, onConfirm) {
-        App._instance.setState({
-            alert: {
-                shouldShow: true,
-                title:      title,
-                content:    content,
-                onConfirm:  function () {
-                    if (typeof onConfirm == "function") {
-                        onConfirm();
-                    }
+        const alertQueue = App._instance.state.alertQueue;
 
-                    App._instance.setState({
-                        alert: {
-                            shouldShow: false,
-                            title:      "",
-                            content:    "",
-                            onConfirm:  null
-                        }
-                    });
-                }
-            }
+        // add to queue
+        alertQueue.push({
+            title: title,
+            content: content,
+            onConfirm: onConfirm
         });
+        App._instance.setState({
+            alertQueue: alertQueue
+        });
+
+        if (App._instance.state.alert.shouldShow) {
+            // alert is current being displayed, bail out
+            return;
+        }
+        // need to display alert
+        function displayAlert(alert) {
+            App._instance.setState({
+                alert: {
+                    shouldShow: true,
+                    title:      alert.title,
+                    content:    alert.content,
+                    onConfirm:  function () {
+                        if (typeof alert.onConfirm == "function") {
+                            alert.onConfirm();
+                        }
+
+                        if (alertQueue.length == 0) {
+                            App._instance.setState({
+                                alert: {
+                                    shouldShow: false,
+                                    title:      "",
+                                    content:    "",
+                                    onConfirm:  null
+                                }
+                            });
+                        }
+                        else {
+                            const nextAlert = alertQueue.shift();
+                            displayAlert(nextAlert);
+                        }
+                    }
+                }
+            });
+        }
+
+        const alert = alertQueue.shift();
+        displayAlert(alert);
     }
 
     constructor(props) {
@@ -89,7 +117,7 @@ class App extends React.Component {
             mostFunctionStereotypes:    [],
             reviews:                    [],
             currentReview:              null,
-            activeRole:                 this.roles.release,
+            activeRole:                 null,
             activeSubRole:              null,
             selectedItem:               null,
             parentItem:                 null,
@@ -116,7 +144,8 @@ class App extends React.Component {
                 title:      "",
                 content:    "",
                 onConfirm:  null
-            }
+            },
+            alertQueue:                 []
         };
 
         this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
@@ -174,6 +203,7 @@ class App extends React.Component {
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.onTypeCreated = this.onTypeCreated.bind(this);
+        this.onTypeChanged = this.onTypeChanged.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
         this.updateReviews = this.updateReviews.bind(this);
 
@@ -186,6 +216,7 @@ class App extends React.Component {
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
+        this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
         this.logout = this.logout.bind(this);
@@ -200,21 +231,33 @@ class App extends React.Component {
                 getAccount(checkData.accountId, function(accountData) {
                     const account = Account.fromJson(accountData);
                     thisApp.setTheme(account.getSettings().getTheme());
+
                     thisApp.setState({
                         account: account
                     });
-                    const firstValidRole = thisApp.getValidRoleItems(account)[0];
-                    thisApp.handleRoleClick(firstValidRole, null, false);
+                    
+                    const validRoles = thisApp.getValidRoleItems(account);
+                    const defaultMode = account.getSettings().getDefaultMode();
+                    let defaultValidRole = validRoles[0];
+                    if (validRoles.includes(defaultMode)) {
+                        defaultValidRole = defaultMode;
+                        thisApp.handleRoleClick(defaultMode, null, false);
+                    }
+                    else {
+                        thisApp.handleRoleClick(defaultValidRole, null, false);
+                    }
+
+                    if (defaultValidRole == thisApp.roles.release) {
+                        thisApp.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
+                            thisApp.setState({
+                                functionCatalogs:       functionCatalogs,
+                                currentNavigationLevel: thisApp.NavigationLevel.versions,
+                                isLoadingChildren:      false
+                            });
+                        });
+                    }
                 });
             }
-        });
-
-        this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-            thisApp.setState({
-                functionCatalogs:       functionCatalogs,
-                currentNavigationLevel: thisApp.NavigationLevel.versions,
-                isLoadingChildren:      false
-            });
         });
 
         this.getAllCompanies()
@@ -225,7 +268,21 @@ class App extends React.Component {
     }
 
     showAlert() {
-        
+        const account = this.state.account;
+        const settings = account.getSettings();
+
+        const theme = settings.getTheme();
+        let message = "";
+        switch (theme) {
+            case "Darkwing": {
+                message = "I am the terror that flaps in the night!";
+            } break;
+            default: {
+                message = "Quack quack!";
+            }
+        }
+
+        app.App.alert(theme, message);
     }
 
     onCreateFunctionCatalog(functionCatalog) {
@@ -354,6 +411,7 @@ class App extends React.Component {
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItem);
@@ -399,6 +457,7 @@ class App extends React.Component {
                         functionCatalog={functionCatalog}
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -488,6 +547,7 @@ class App extends React.Component {
                 functionBlock={functionBlock}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItem);
@@ -539,6 +599,7 @@ class App extends React.Component {
                         functionBlock={functionBlock}
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -614,6 +675,7 @@ class App extends React.Component {
                 mostInterface={mostInterface}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItem);
@@ -664,6 +726,7 @@ class App extends React.Component {
                         mostInterface={mostInterface}
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
                     />
                 );
 
@@ -695,28 +758,30 @@ class App extends React.Component {
             proposedItem:       mostFunction
         });
 
-        insertMostFunction(mostInterfaceId, mostFunctionJson, function(mostFunctionId) {
-            if (! (mostFunctionId > 0)) {
-                console.error("Unable to create function.");
+        insertMostFunction(mostInterfaceId, mostFunctionJson, function(data) {
+            if (data.wasSuccess) {
+                const mostFunctionId = data.mostFunctionId;
+
+                mostFunction.setId(mostFunctionId);
+                mostFunction.setAuthor(thisApp.getCurrentAccountAuthor());
+                mostFunction.setCompany(thisApp.getCurrentAccountCompany());
+
+                const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
+
                 thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal
+                    createButtonState:          thisApp.CreateButtonState.success,
+                    mostFunctions:              mostFunctions,
+                    currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
+                    proposedItem:               null,
+                    shouldShowCreateChildForm:  false
                 });
-                return;
+            } else {
+                app.App.alert("Unable to Create Function", data.errorMessage, function() {
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal
+                    });
+                });
             }
-
-            mostFunction.setId(mostFunctionId);
-            mostFunction.setAuthor(thisApp.getCurrentAccountAuthor());
-            mostFunction.setCompany(thisApp.getCurrentAccountCompany());
-
-            const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
-
-            thisApp.setState({
-                createButtonState:          thisApp.CreateButtonState.success,
-                mostFunctions:              mostFunctions,
-                currentNavigationLevel:     thisApp.NavigationLevel.mostInterfaces,
-                proposedItem:               null,
-                shouldShowCreateChildForm:  false
-            });
         });
     }
 
@@ -731,8 +796,8 @@ class App extends React.Component {
             selectedItem:       mostFunction
         });
 
-        updateMostFunction(mostInterfaceId, mostFunctionId, mostFunctionJson, function(wasSuccess) {
-            if (wasSuccess) {
+        updateMostFunction(mostInterfaceId, mostFunctionId, mostFunctionJson, function(data) {
+            if (data.wasSuccess) {
                 const mostFunctions = thisApp.state.mostFunctions.filter(function(value) {
                     return value.getId() != mostFunctionId;
                 });
@@ -765,9 +830,10 @@ class App extends React.Component {
                     createButtonState:      thisApp.CreateButtonState.success
                 });
             } else {
-                console.error("Unable to update Function.");
-                thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal,
+                app.App.alert("Unable to Update Function", data.errorMessage, function() {
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal
+                    });
                 });
             }
         });
@@ -844,6 +910,7 @@ class App extends React.Component {
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -897,7 +964,9 @@ class App extends React.Component {
             app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
         }
         else if (! confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
-            callbackFunction();
+            if (typeof callbackFunction == "function") {
+                callbackFunction();
+            }
         }
         else {
             const thisApp = this;
@@ -976,6 +1045,7 @@ class App extends React.Component {
                 functionBlock={functionBlock}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
+                readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
 
@@ -1201,22 +1271,18 @@ class App extends React.Component {
         const thisApp = this;
         const functionCatalogId = "";
         const functionBlockId = functionBlock.getId();
-        let executeCallback = true;
 
         const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unapproved function catalogs?");
         if (shouldDisassociate) {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
-                    // TODO: some indication that disassociation completed. Maybe an icon on the child element?
                     if (! functionBlock.isApproved()) {
                         const shouldDelete = confirm("Would you like to delete this function block version from the database?");
                         if (shouldDelete) {
-                            executeCallback = false;
                             thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
                         }
                     }
-
-                    if (typeof callbackFunction == "function") {
+                    else if (typeof callbackFunction == "function") {
                         callbackFunction();
                     }
                 }
@@ -1327,6 +1393,7 @@ class App extends React.Component {
                mostInterface={mostInterface}
                buttonTitle="Save"
                defaultButtonTitle="Save"
+               readOnly={! thisApp.state.account.hasRole("Modify")}
             />
         );
 
@@ -1512,20 +1579,12 @@ class App extends React.Component {
                 if (data.wasSuccess) {
                     if (data.functionBlockIds.length > 0) {
                         thisApp.disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction);
-
-                        if (typeof callbackFunction == "function") {
-                            callbackFunction();
-                        }
                     }
                     else if (mostInterface.isApproved()) {
-                        app.App.alert("Approve Interface", "This Interface is approved for release and cannot be deleted.", callbackFunction);
+                        app.App.alert("Delete Interface", "This Interface is approved for release and cannot be deleted.", callbackFunction);
                     }
                     else {
                         thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
-
-                        if (typeof callbackFunction == "function") {
-                            callbackFunction();
-                        }
                     }
                 }
             });
@@ -1566,11 +1625,10 @@ class App extends React.Component {
         const thisApp = this;
         const functionBlockId = "";
         const mostInterfaceId = mostInterface.getId();
-        let executeCallback = true;
 
         const shouldDisassociate = confirm("Are you sure you want to disassociate this interface version from all unapproved function blocks?");
         if (! shouldDisassociate) {
-            if (typeof executeCallback == "function") {
+            if (typeof callbackFunction == "function") {
                 callbackFunction();
             }
             return;
@@ -1586,12 +1644,10 @@ class App extends React.Component {
             if (! mostInterface.isApproved()) {
                 const shouldDelete = confirm("Would you like to delete this function block version from the database?");
                 if (shouldDelete) {
-                    executeCallback = false;
                     thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
                 }
             }
-
-            if (typeof executeCallback == "function") {
+            else if (typeof callbackFunction == "function") {
                 callbackFunction();
             }
         });
@@ -1958,6 +2014,10 @@ class App extends React.Component {
         });
     }
 
+    onTypeChanged(changedType) {
+        this.updateMostTypes();
+    }
+
     onReviewSubmitted(selectedItem) {
         if (confirm("Submit " + selectedItem.getName() + " for review and approval?")) {
             const currentNavigationLevel = this.state.currentNavigationLevel;
@@ -2109,10 +2169,11 @@ class App extends React.Component {
                         if (! wasSuccess) {
                             app.App.alert("Review Vote", "Unable to remove vote for approval.");
                         }
-
-                        currentReviewVotes.splice(i, 1);
-                        currentReview.setReviewVotes(currentReviewVotes);
-                        thisApp.setState({ currentReview: currentReview });
+                        else {
+                            currentReviewVotes.splice(i, 1);
+                            currentReview.setReviewVotes(currentReviewVotes);
+                            thisApp.setState({ currentReview: currentReview });
+                        }
                     });
                 }
                 else {
@@ -2124,9 +2185,10 @@ class App extends React.Component {
                         if (! wasSuccess) {
                             app.App.alert("Review Vote", "Unable to update vote for approval.");
                         }
-
-                        currentReviewVote.setIsUpvote(isUpvote);
-                        thisApp.setState({ currentReview: currentReview });
+                        else {
+                            currentReviewVote.setIsUpvote(isUpvote);
+                            thisApp.setState({ currentReview: currentReview });
+                        }
                     });
                 }
                 return;
@@ -2281,7 +2343,7 @@ class App extends React.Component {
                 // Development Mode
                 // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
                 const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
-                const newNavigationLevel = newActiveSubRole === this.developmentRoles.mostInterface ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
+                const newNavigationLevel = (newActiveSubRole === this.developmentRoles.mostInterface) ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
 
                 this.setState({
                     navigationItems:            [],
@@ -2440,6 +2502,11 @@ class App extends React.Component {
         });
     }
 
+    onDefaultModeChanged(roleName) {
+        const account = this.state.account;
+        account.getSettings().setDefaultMode(roleName);
+    }
+
     setTheme(themeName) {
         const themeCssDirectory = themeName.toLowerCase();
         document.getElementById('core-css').href =              '/css/themes/' + themeCssDirectory + '/core.css';
@@ -2447,7 +2514,6 @@ class App extends React.Component {
         document.getElementById('palette-css').href =           '/css/themes/' + themeCssDirectory + '/palette.css';
         document.getElementById('release-css').href =           '/css/themes/' + themeCssDirectory + '/release.css';
         document.getElementById('reviews-css').href =           '/css/themes/' + themeCssDirectory + '/reviews.css';
-        document.getElementById('react-input-field-css').href = '/css/themes/' + themeCssDirectory + '/react/input-field.css';
         document.getElementById('react-toolbar-css').href =     '/css/themes/' + themeCssDirectory + '/react/toolbar.css';
     }
 
@@ -2455,6 +2521,7 @@ class App extends React.Component {
         const reactComponents = [];
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
+        const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -2516,7 +2583,7 @@ class App extends React.Component {
                 const shouldAnimateCreateButton = (this.state.createButtonState == this.CreateButtonState.animate);
                 const buttonTitle = (this.state.createButtonState == this.CreateButtonState.success) ? "Changes Saved" : "Save";
                 reactComponents.push(<app.MostFunctionForm key="MostFunctionForm"
-                    readOnly={this.state.selectedItem.isApproved()}
+                    readOnly={this.state.selectedItem.isApproved() || ! canModify}
                     showTitle={true}
                     onSubmit={this.onUpdateMostFunction}
                     buttonTitle={buttonTitle}
@@ -2546,6 +2613,9 @@ class App extends React.Component {
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
         const selectedItem = this.state.selectedItem;
+        const account = this.state.account;
+        const canModify = account ? account.hasRole("Modify") : false;
+        const canRelease = account ? account.hasRole("Release") : false;
 
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
@@ -2668,11 +2738,13 @@ class App extends React.Component {
                     shouldShowSearchIcon={shouldShowSearchButton}
                     shouldShowBackButton={shouldShowBackButton}
                     shouldShowEditButton={shouldShowEditButton}
-                    shouldShowViewInfoButton={isApproved}
+                    shouldShowViewInfoButton={(isApproved || ! canModify)}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
+                    canModify={canModify}
+                    canRelease={canRelease}
                 />
             );
         }
@@ -2740,6 +2812,7 @@ class App extends React.Component {
                            functionBlock={selectedItem}
                            buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
+                           readOnly={! canModify}
                         />
                     );
                 }
@@ -2785,6 +2858,7 @@ class App extends React.Component {
                            mostInterface={selectedItem}
                            buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
+                           readOnly={! canModify}
                         />
                     );
                 }
@@ -2838,11 +2912,15 @@ class App extends React.Component {
 
     renderMainContent() {
         if (this.state.showSettingsPage) {
-            const theme = this.state.account ? this.state.account.getSettings().getTheme() : "Tidy";
-            const accountId = this.state.account.getId();
+            const account = this.state.account;
+            const theme = account ? account.getSettings().getTheme() : "Tidy";
+            const defaultMode = account ? account.getSettings().getDefaultMode() : "Release";
+            const accountId = account.getId();
+            const validRoles = this.getValidRoleItems(account);
+
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage theme={theme} accountId={accountId} onThemeChange={this.onThemeChange}/>
+                    <app.SettingsPage theme={theme} defaultMode={defaultMode} accountId={accountId} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged} handleSettingsClick={this.handleSettingsClick}/>
                 </div>
             );
         }
@@ -2853,7 +2931,7 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
+                            <app.TypesPage onTypeCreated={this.onTypeCreated} onTypeChanged={this.onTypeChanged} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
                                            isLoadingTypesPage={this.state.isLoadingMostTypes || this.state.isLoadingPrimitiveTypes || this.state.isLoadingUnits} />
                         </div>
                     );
@@ -2862,7 +2940,7 @@ class App extends React.Component {
                     // accounts role
                     return (
                         <div id="main-content" className="container">
-                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword}/>
+                            <app.AccountsPage companies={this.state.companies} onCreateCompany={this.onCreateCompany} onResetPassword={this.onResetPassword} thisAccount={this.state.account} />
                         </div>
                     );
                 } break;
@@ -2987,7 +3065,7 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
-                    <img onClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
+                    <img onDoubleClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">

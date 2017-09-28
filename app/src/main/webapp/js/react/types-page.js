@@ -24,6 +24,7 @@ class TypesPage extends React.Component {
         this.onBooleanFieldBitPositionChanged = this.onBooleanFieldBitPositionChanged.bind(this);
         this.onBooleanFieldTrueDescriptionChanged = this.onBooleanFieldTrueDescriptionChanged.bind(this);
         this.onBooleanFieldFalseDescriptionChanged = this.onBooleanFieldFalseDescriptionChanged.bind(this);
+        this.onEnumMaxChanged = this.onEnumMaxChanged.bind(this);
         this.onEnumValueAddButtonClicked = this.onEnumValueAddButtonClicked.bind(this);
         this.onEnumValueRemoveButtonClicked = this.onEnumValueRemoveButtonClicked.bind(this);
         this.onEnumValueNameChanged = this.onEnumValueNameChanged.bind(this);
@@ -58,6 +59,7 @@ class TypesPage extends React.Component {
         this.onArrayDescriptionChanged = this.onArrayDescriptionChanged.bind(this);
         this.onArrayElementTypeChanged = this.onArrayElementTypeChanged.bind(this);
         this.onArraySizeChanged = this.onArraySizeChanged.bind(this);
+        this.onIsPrimaryTypeChanged = this.onIsPrimaryTypeChanged.bind(this);
         this.onRecordFieldAddButtonClicked = this.onRecordFieldAddButtonClicked.bind(this);
         this.onRecordFieldRemoveButtonClicked = this.onRecordFieldRemoveButtonClicked.bind(this);
         this.onRecordNameChanged = this.onRecordNameChanged.bind(this);
@@ -72,6 +74,7 @@ class TypesPage extends React.Component {
         this.getMostUnitByName = this.getMostUnitByName.bind(this);
         this.getBaseTypes = this.getBaseTypes.bind(this);
         this.getPrimaryTypes = this.getPrimaryTypes.bind(this);
+        this.getTypeLabel = this.getTypeLabel.bind(this);
         this.getNumberBaseTypes = this.getNumberBaseTypes.bind(this);
         this.checkTypeCircularReferences = this.checkTypeCircularReferences.bind(this);
         this.getStreamParamTypes = this.getStreamParamTypes.bind(this);
@@ -86,13 +89,7 @@ class TypesPage extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        let mostType = TypesPage.createNewMostType(newProps.primitiveTypes);
 
-        this.state = {
-            selectedOption: this.options[0],
-            mostType: mostType,
-            saveButtonText: 'Save'
-        };
     }
 
     static createNewMostType(primitiveTypes) {
@@ -168,6 +165,12 @@ class TypesPage extends React.Component {
         }
 
         return primaryTypes.sort();
+    }
+
+    getTypeLabel(type) {
+        const releasedText = type.isReleased() ? ' \uD83D\uDCD5' : '';
+        const label = type.getName() + releasedText;
+        return label;
     }
 
     getNumberBaseTypes() {
@@ -300,14 +303,14 @@ class TypesPage extends React.Component {
     }
 
     onSave(event) {
+        event.preventDefault();
+
         const mostType = this.state.mostType;
         const mostTypeJson = MostType.toJson(mostType);
-        const thisApp = this;
+        const thisPage = this;
         this.setState({
             saveButtonText: "Loading"
         });
-
-        event.preventDefault();
 
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
@@ -315,19 +318,19 @@ class TypesPage extends React.Component {
                 let currentMostType = mostType;
                 let saveButtonText = 'Save';
                 if (data.wasSuccess) {
-                    if (typeof thisApp.props.onTypeCreated == "function") {
+                    if (typeof thisPage.props.onTypeCreated == "function") {
                         mostType.setId(data.mostTypeId);
-                        thisApp.props.onTypeCreated(mostType);
-                        currentMostType = TypesPage.createNewMostType(thisApp.props.primitiveTypes);
-                        saveButtonText = 'Saved'
-                        app.App.alert("Most Type", "Most Type " + mostType.getName() + " has been successfully saved.");
+                        thisPage.props.onTypeCreated(mostType);
                     }
+                    currentMostType = TypesPage.createNewMostType(thisPage.props.primitiveTypes);
+                    saveButtonText = 'Saved'
+                    app.App.alert("Most Type", "Most Type " + mostType.getName() + " has been successfully saved.");
                 }
                 else {
                     app.App.alert("Most Type", "Unable to create type: " + data.errorMessage);
                 }
                 // reset fields
-                thisApp.setState({
+                thisPage.setState({
                     mostType: currentMostType,
                     saveButtonText: saveButtonText
                 })
@@ -335,26 +338,48 @@ class TypesPage extends React.Component {
         }
         else if (this.state.selectedOption === this.options[1]) {
             const mostTypeId = this.state.mostType.getId();
-            updateMostType(mostTypeId, mostTypeJson, function (wasSuccess, errorMessage) {
+            updateMostType(mostTypeId, mostTypeJson, function (data) {
                 let saveButtonText = 'Save';
-                if (wasSuccess) {
+                if (data.wasSuccess) {
+                    if (typeof thisPage.props.onTypeChanged == "function") {
+                        thisPage.props.onTypeChanged(thisPage.state.mostType);
+                    }
                     app.App.alert("Most Type", "Changes to Most Type " + mostType.getName() + " have been successfully saved.");
                     saveButtonText = 'Saved';
                 }
                 else {
-                    app.App.alert("Most Type", "Unable to update Most Type: " + errorMessage);
-                }
-                // Most Type is already updated in App and in Database, only need to reset save button text.
+                    const validationErrors = data.validationErrors;
+                    if (validationErrors) {
+                        const errorListItems =  data.validationErrors.map((errorMessage, index) => <li key={index}>{errorMessage}</li>);
+                        app.App.alert(
+                            "Unable to Update Most Type",
+                             <div>
+                                Unable to update Most type: {data.errorMessage}<br/>
+                                <br/>
+                                Validation errors:
+                                <ul>
+                                    {errorListItems}
+                                </ul>
+                             </div>
+                        );
+                    } else {
+                        app.App.alert("Unable to Update Most Type", "Unable to update Most type: " + data.errorMessage);
+                    }
 
-                thisApp.setState({
-                    saveButtonText: saveButtonText
+                }
+                // need to update selectedType in case name changed
+                const typeName = thisPage.state.mostType.getName();
+
+                thisPage.setState({
+                    saveButtonText: saveButtonText,
+                    selectedType: typeName
                 });
             });
         }
     }
 
     onTypeSelected(value) {
-        const newMostType = this.getMostTypeByName(value);
+        const newMostType = copyMostObject(MostType, this.getMostTypeByName(value));
 
         this.setState({
             mostType: newMostType,
@@ -379,8 +404,9 @@ class TypesPage extends React.Component {
 
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
 
-        mostType.setName(oldMostType.getName());
         mostType.setId(oldMostType.getId());
+        mostType.setName(oldMostType.getName());
+        mostType.setIsPrimaryType(oldMostType.isPrimaryType());
 
         const newPrimitiveType = this.getPrimitiveTypeByName(value);
         mostType.setPrimitiveType(newPrimitiveType);
@@ -478,6 +504,14 @@ class TypesPage extends React.Component {
 
     onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription) {
         booleanField.setFalseDescription(falseDescription);
+
+        this.updateState();
+    }
+
+    onEnumMaxChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setEnumMax(value);
 
         this.updateState();
     }
@@ -868,6 +902,16 @@ class TypesPage extends React.Component {
         });
     }
 
+    onIsPrimaryTypeChanged(value) {
+        const mostType = this.state.mostType;
+        mostType.setIsPrimaryType(value);
+
+        this.setState({
+            mostType: mostType,
+            saveButtonText: 'Save'
+        });
+    }
+
     onRecordFieldAddButtonClicked() {
         const mostType = this.state.mostType;
         const recordField = new RecordField();
@@ -974,13 +1018,17 @@ class TypesPage extends React.Component {
         let typeSelector = "";
         if (this.state.selectedOption == "Edit Type") {
             // add empty option in selector
-            const primaryTypes = [''].concat(this.getPrimaryTypes());
+            const thisPage = this;
+            const mostTypes = [''].concat(this.props.mostTypes.map((type) => type.getName()).sort());
+            const typeLabels = [''].concat(this.props.mostTypes.map((type) => thisPage.getTypeLabel(type)).sort());
+
             let selectedType = this.state.selectedType;
             if (!selectedType) {
-                selectedType = primaryTypes[0];
+                selectedType = mostTypes[0];
             }
-            typeSelector = <app.InputField key="type-selector" type="select" label="Type to Edit" name="type-selector"
-                                           value={selectedType} options={primaryTypes} onChange={this.onTypeSelected}/>
+            const typeSelectorInfo = "Types with \uD83D\uDCD5 icon have been included in a release.  Edits will be restricted.";
+            const infoIcon = <i key="type-selector-info" className="fa fa-info-circle" title={typeSelectorInfo}></i>;
+            typeSelector = <app.InputField key="type-selector" type="select" label={["Type to Edit ", infoIcon]} name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
                 return (
@@ -1007,14 +1055,15 @@ class TypesPage extends React.Component {
             saveButton = <div className="button"><i className="fa fa-refresh fa-spin"/></div>;
         }
 
+        const isPrimaryType = mostType.isPrimaryType();
+
         return (
             <form onSubmit={this.onSave}>
                 <div id="types-main-inputs">
                     {typeSelector}
-                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName}
-                                    onChange={this.onTypeNameChanged} isRequired={true}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type"
-                                    value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
+                    <app.InputField className="is-primary-type-container" key="isPrimaryType" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false} tabIndex={0}/>
+                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
                 <div key="save-button" className="center">{saveButton}</div>
@@ -1032,10 +1081,7 @@ class TypesPage extends React.Component {
 
         switch (mostType.getPrimitiveType().getName()) {
             case 'TBitField': {
-                reactComponents.push(<div key="bitfield-length" className="clearfix">
-                    <app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length"
-                                    value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={false}/>
-                </div>);
+                reactComponents.push(<div key="bitfield-length" className="clearfix"><app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length" value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={false}/></div>);
             } // fall through
             case 'TBool': {
                 const thisPage = this;
@@ -1071,6 +1117,8 @@ class TypesPage extends React.Component {
             }
                 break;
             case 'TEnum': {
+                reactComponents.push(<div key="enum-max" className="clearfix"><app.InputField key="enum-max" type="number" step="1" label="Enum Max" name="enum-max" value={mostType.getEnumMax()} onChange={this.onEnumMaxChanged} isRequired={false}/></div>);
+
                 const thisPage = this;
                 let i = 1;
                 mostType.getEnumValues().forEach(function (enumValue) {
@@ -1084,8 +1132,9 @@ class TypesPage extends React.Component {
                             <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name"
                                             value={enumValue.getName()}
                                             onChange={(name) => thisPage.onEnumValueNameChanged(enumValue, name)} isRequired={true}/>
+                                            {/*pattern="[A-Z0-9_]+" title="CAPS_WITH_UNDERSCORES"*/}
                             <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code"
-                                            value={enumValue.getCode()}
+                                            value={enumValue.getCode()} pattern="0[xX][0-9A-Fa-f]+" title="Hexadecimal (with leading '0x')."
                                             onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)} isRequired={true}/>
                             <app.InputField key="enum3" type="text" label="Enum Value Description" name="enum-value-description"
                                             value={enumValue.getDescription()}
@@ -1303,17 +1352,14 @@ class TypesPage extends React.Component {
                 const arrayElementType = mostType.getArrayElementType();
                 const arrayElementTypeName = arrayElementType ? arrayElementType.getName() : null;
                 const arraySize = mostType.getArraySize();
-                reactComponents.push(<app.InputField key="array1" type="text" label="Array Name" name="array-name"
-                                                     value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>);
-                reactComponents.push(<app.InputField key="array2" type="textarea" label="Array Description"
-                                                     name="array-description" value={arrayDescription}
-                                                     onChange={this.onArrayDescriptionChanged} isRequired={false}/>);
-                reactComponents.push(<app.InputField key="array3" type="select" label="Array Element Type"
-                                                     name="array-element-type" value={arrayElementTypeName}
-                                                     options={arrayElementTypes}
-                                                     onChange={this.onArrayElementTypeChanged} isRequired={true}/>);
-                reactComponents.push(<app.InputField key="array4" type="text" label="Array Size" name="array-size"
-                                                     value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>);
+                reactComponents.push(
+                    <div key="TArray-input-group" className="clearfix">
+                        <app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>
+                        <app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>
+                        <app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>
+                        <app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} isRequired={true}/>
+                    </div>
+                );
             }
                 break;
             case 'TRecord': {
@@ -1356,13 +1402,16 @@ class TypesPage extends React.Component {
 
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">
-                        <app.InputField key="record1" type="text" label="Record Name" name="record-name"
-                                        value={recordName} onChange={this.onRecordNameChanged} isRequired={false}/>
+                        <div className="clearfix">
+                            <app.InputField key="record1" type="text" label="Record Name" name="record-name"
+                                            value={recordName} onChange={this.onRecordNameChanged} isRequired={false}/>
+
+                            <app.InputField key="record3" type="text" label="Record Size" name="record-size"
+                                            value={recordSize} onChange={this.onRecordSizeChanged} isRequired={false}/>
+                        </div>
                         <app.InputField key="record2" type="textarea" label="Record Description"
                                         name="record-description" value={recordDescription}
                                         onChange={this.onRecordDescriptionChanged}/>
-                        <app.InputField key="record3" type="text" label="Record Size" name="record-size"
-                                        value={recordSize} onChange={this.onRecordSizeChanged} isRequired={false}/>
                     </div>
                 );
                 reactComponents.push(recordFields);

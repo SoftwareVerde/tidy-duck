@@ -27,7 +27,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public FunctionCatalogServlet() {
-        super.defineEndpoint("function-catalogs", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -36,7 +36,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -45,7 +45,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -58,7 +58,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -71,7 +71,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -84,7 +84,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs/<functionCatalogId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -97,7 +97,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs/<functionCatalogId>/release-item-list", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/release-item-list", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_RELEASE);
@@ -110,7 +110,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("function-catalogs/<functionCatalogId>/release", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/release", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_RELEASE);
@@ -120,6 +120,15 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
                 return _releaseFunctionCatalog(request, functionCatalogId, environment.getDatabase());
+            }
+        });
+        
+        super._defineEndpoint("function-catalog-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                return _checkForDuplicateFunctionCatalog(request, currentAccount, environment.getDatabase());
             }
         });
     }
@@ -290,7 +299,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             for (int i=0; i<releaseItemsJson.length(); i++) {
                 final Json releaseItemJson = releaseItemsJson.get(i);
                 final ReleaseItem releaseItem = _populateReleaseItemFromJson(releaseItemJson);
-                _validateReleaseItem(releaseItem);
+                _validateReleaseItem(releaseItem, database);
                 releaseItems.add(releaseItem);
             }
 
@@ -306,7 +315,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         } catch (Exception e) {
             String errorMessage = "Unable to release function catalog.";
             _logger.error(errorMessage, e);
-            return super._generateErrorJson(errorMessage);
+            return super._generateErrorJson("Unable to release Function Catalog: " + e.getMessage());
         }
     }
 
@@ -342,9 +351,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         // same number of items and all have matches, provided list is valid
     }
 
-    private void _validateReleaseItem(final ReleaseItem releaseItem) {
+    private void _validateReleaseItem(final ReleaseItem releaseItem, final Database<Connection> database) throws DatabaseException {
         final Long itemId = releaseItem.getItemId();
         final String itemType = releaseItem.getItemType();
+        final String itemName = releaseItem.getItemName();
         final String itemVersion = releaseItem.getItemVersion();
         final String newVersion = releaseItem.getNewVersion();
 
@@ -355,10 +365,43 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             throw new IllegalArgumentException("Invalid type (" + itemType + ") for item " + itemId);
         }
         if (Util.isBlank(newVersion)) {
-            throw new IllegalArgumentException("New version (" + newVersion + ") is invalid for item " + itemId);
+            throw new IllegalArgumentException("Item ID: " + itemId + ". The new version (" + newVersion + ") is invalid for " + itemType.toLowerCase() + " \"" + itemName + "\" .");
         }
+        
         if (newVersion.equals(releaseItem.getItemVersion())) {
-            throw new IllegalArgumentException("New version (" + newVersion + ") must be different from old version (" + itemVersion + "), item " + itemId);
+            throw new IllegalArgumentException("Item ID: " + itemId + ". The new version for " + itemType.toLowerCase() + " \"" + itemName + "\" must be different from its previous version, " + itemVersion + ".");
+        }
+
+        final DatabaseManager databaseManager = new DatabaseManager(database);
+        if (! databaseManager.isNewReleaseVersionUnique(itemType, itemId, newVersion)) {
+            throw new IllegalArgumentException("Item ID: " + itemId + ". The new version (" + newVersion + ") for " + itemType.toLowerCase() + " \"" + itemName + "\" already exists as a released version.");
+        }
+    }
+
+    private Json _checkForDuplicateFunctionCatalog(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) throws IOException {
+        try {
+            final Json request = _getRequestDataAsJson(httpRequest);
+            final String functionCatalogName = request.getString("functionCatalogName");
+            final Long functionCatalogVersionSeries = request.getLong("functionCatalogVersionSeries");
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            final FunctionCatalog matchedFunctionCatalog = databaseManager.checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries);
+
+            final Json response = new Json(false);
+
+            if (matchedFunctionCatalog == null) {
+                response.put("matchFound", false);
+            } else {
+                response.put("matchFound", true);
+                response.put("matchedFunctionCatalog", _toJson(matchedFunctionCatalog));
+            }
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to check for duplicate Function Catalog.", exception);
+            return super._generateErrorJson("Unable to check for duplicate Function Catalog: " + exception.getMessage());
         }
     }
 
@@ -400,9 +443,15 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Invalid Name: " + name);
             }
+            if (!name.matches("[A-z0-9]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters.");
+            }
 
             if (Util.isBlank(release)) {
                 throw new Exception("Invalid Release: " + release);
+            }
+            if (!release.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?")) {
+                throw new Exception("Release version must be in the form 'Major.Minor(.Patch)'.");
             }
         }
 

@@ -1,4 +1,4 @@
-.small-container, .large-container {
+.small-container, .large-container, .popup-container {
     background-color: #EDEDED;
     box-shadow: 0px 0px 15px #CCCCCC;
 }
@@ -101,7 +101,14 @@
     transition: background-color 0.5s ease;
 }
 
-.search-result i:hover {
+.unapproved-search-result {
+    border: dashed 2px #C0C0C0;
+    background-color: #EEEEEE;
+
+    transition: background-color 0.5s ease;
+}
+
+.search-result i:hover, .unapproved-search-result i:hover {
     color: #FFDD66;
 }
 
@@ -155,4 +162,8 @@
 
 .navigation-item-menu-item {
     color: #7D7B67;
+}
+
+.accounts-table .user-column:hover {
+    background-color: #FFEE77;
 }

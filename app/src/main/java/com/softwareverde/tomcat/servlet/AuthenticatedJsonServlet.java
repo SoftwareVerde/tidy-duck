@@ -3,7 +3,7 @@ package com.softwareverde.tomcat.servlet;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.api.AuthenticatedJsonRoute;
+import com.softwareverde.tidyduck.api.AuthenticatedJsonRequestHandler;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.api.ApiRoute;
@@ -18,10 +18,10 @@ import java.util.Map;
 public class AuthenticatedJsonServlet extends JsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ApiUrlRouter<AuthenticatedJsonRoute> _apiUrlRouter;
+    private final ApiUrlRouter<AuthenticatedJsonRequestHandler> _apiUrlRouter;
 
     public AuthenticatedJsonServlet() {
-        _apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRoute>(BASE_API_URL, new AuthenticatedJsonRoute() {
+        _apiUrlRouter = new ApiUrlRouter<AuthenticatedJsonRequestHandler>(BASE_API_URL, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account account, final Environment environment) throws Exception {
                 return _generateErrorJson("Invalid request.");
@@ -29,14 +29,14 @@ public class AuthenticatedJsonServlet extends JsonServlet {
         });
     }
 
-    protected void defineEndpoint(final String endpointPattern, final HttpMethod httpMethod, final AuthenticatedJsonRoute route) {
+    protected void _defineEndpoint(final String endpointPattern, final HttpMethod httpMethod, final AuthenticatedJsonRequestHandler route) {
         _apiUrlRouter.defineEndpoint(endpointPattern, httpMethod, route);
     }
 
     protected Json handleAuthenticatedRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-        final ApiRoute<AuthenticatedJsonRoute> route = _apiUrlRouter.route(request, httpMethod);
-        final AuthenticatedJsonRoute jsonRoute = route.getRoute();
-        return jsonRoute.handleAuthenticatedRequest(route.getParameters(), request, httpMethod, currentAccount, environment);
+        final ApiRoute<AuthenticatedJsonRequestHandler> route = _apiUrlRouter.route(request, httpMethod);
+        final AuthenticatedJsonRequestHandler requestHandler = route.getRequestHandler();
+        return requestHandler.handleAuthenticatedRequest(route.getParameters(), request, httpMethod, currentAccount, environment);
     }
 
     @Override

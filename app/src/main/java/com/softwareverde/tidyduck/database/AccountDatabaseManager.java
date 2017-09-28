@@ -53,6 +53,15 @@ class AccountDatabaseManager {
         return true;
     }
 
+    public void deactivateAccount(final long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE accounts SET login_permission = ? WHERE id = ?")
+                .setParameter(false)
+                .setParameter(accountId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     public boolean insertCompany(final Company company) throws DatabaseException {
         final String companyName = company.getName();
         if (! _isCompanyNameUnique(companyName)) {
@@ -70,12 +79,37 @@ class AccountDatabaseManager {
     }
 
     public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
-        final Query query = new Query("UPDATE accounts SET theme = ? WHERE id = ?")
+        final Query query = new Query("UPDATE accounts SET theme = ?, default_mode = ? WHERE id = ?")
             .setParameter(settings.getTheme())
+            .setParameter(settings.getDefaultMode())
             .setParameter(accountId)
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public boolean updateAccountMetadata(final Account account, final boolean isNewUsernameDifferent) throws DatabaseException {
+        final String newUsername = account.getUsername();
+        if (isNewUsernameDifferent) {
+            if (!_isUsernameUnique(newUsername)) {
+                return false;
+            }
+        }
+
+        final long accountId = account.getId();
+        final String newName = account.getName();
+        final long newCompanyId = account.getCompany().getId();
+
+        final Query query = new Query("UPDATE accounts SET username = ?, name = ?, company_id = ? WHERE id = ?")
+                .setParameter(newUsername)
+                .setParameter(newName)
+                .setParameter(newCompanyId)
+                .setParameter(accountId)
+        ;
+
+        _databaseConnection.executeSql(query);
+
+        return true;
     }
 
     public String resetPassword(final long accountId) throws DatabaseException {

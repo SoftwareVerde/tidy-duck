@@ -24,7 +24,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public MostFunctionServlet() {
-        super.defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -37,7 +37,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-functions", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -46,7 +46,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -59,7 +59,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
         
-        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -72,7 +72,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -122,6 +122,12 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, currentAccount, database);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
+
+            final Json errorJson = _checkForFunctionIdCollisions(databaseManager, mostFunction, mostInterfaceId);
+            if (errorJson != null) {
+                return errorJson;
+            }
+
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
             response.put("mostFunctionId", mostFunction.getId());
         }
@@ -152,6 +158,12 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             mostFunction.setId(mostFunctionId);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
+
+            final Json errorJson = _checkForFunctionIdCollisions(databaseManager, mostFunction, mostInterfaceId);
+            if (errorJson != null) {
+                return errorJson;
+            }
+
             databaseManager.updateMostFunction(mostInterfaceId, mostFunction);
         }
         catch (final Exception exception) {
@@ -163,6 +175,50 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         final Json response = new Json(false);
         _setJsonSuccessFields(response);
         return response;
+    }
+
+    /**
+     * <p>Check for possible function ID collisions and, if one is found, returns an appropriate error Json object.</p>
+     * @param databaseManager
+     * @param mostFunction
+     * @param mostInterfaceId
+     * @return
+     * @throws DatabaseException
+     */
+    private Json _checkForFunctionIdCollisions(final DatabaseManager databaseManager, final MostFunction mostFunction, final Long mostInterfaceId) throws DatabaseException {
+        // check for duplicate function ID in parent interface
+        List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
+        if (_hasConflictingFunction(mostInterfaceFunctions, mostFunction)) {
+            final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on interface " + mostInterfaceId;
+            _logger.error(errorMessage);
+            return _generateErrorJson(errorMessage);
+        }
+        // check for duplicate function ID in parent function blocks
+        List<Long> functionBlockIds = databaseManager.listFunctionBlocksContainingMostInterface(mostInterfaceId);
+        for (final Long functionBlockId : functionBlockIds) {
+            if (_functionBlockHasFunctionId(databaseManager, functionBlockId, mostFunction)) {
+                final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on function block " + functionBlockId;
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+        }
+        // no collisions, don't return an error
+        return null;
+    }
+
+    private boolean _hasConflictingFunction(final List<MostFunction> functions, final MostFunction mostFunction) {
+        for (final MostFunction listFunction : functions) {
+            // has same Most ID but a different database ID (or supplied mostFunction is new and doesn't have one)
+            if (listFunction.getMostId().equals(mostFunction.getMostId()) && !listFunction.getId().equals(mostFunction.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean _functionBlockHasFunctionId(final DatabaseManager databaseManager, final Long functionBlockId, final MostFunction mostFunction) throws DatabaseException {
+        List<MostFunction> functionBlockMostIds = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
+        return _hasConflictingFunction(functionBlockMostIds, mostFunction);
     }
 
     protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Database<Connection> database) {
@@ -241,13 +297,21 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
+            if (!name.matches("[A-z0-9]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters.");
+            }
+
             /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");
             }
             */
+
             if (Util.isBlank(release)) {
                 throw new Exception("Version field is required.");
+            }
+            if (!release.matches("[0-9]+\\.[0-9]+(\\.[0-9]+)?")) {
+                throw new Exception("Release version must be in the form 'Major.Minor(.Patch)'.");
             }
 
             if (Util.isBlank(returnParameterName)) {

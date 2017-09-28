@@ -10,6 +10,7 @@ class SettingsPage extends React.Component {
 
         this.state = {
             currentTheme:       this.props.theme,
+            currentDefaultMode: this.props.defaultMode,
             newPassword:        "",
             newPasswordRetype:  "",
             oldPassword:        "",
@@ -18,7 +19,9 @@ class SettingsPage extends React.Component {
             passwordsMatch:     false,
         };
 
+        this.handleKeyPress = this.handleKeyPress.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
+        this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.onNewPasswordChanged = this.onNewPasswordChanged.bind(this);
         this.onNewPasswordRetypeChanged = this.onNewPasswordRetypeChanged.bind(this);
         this.onOldPasswordChanged = this.onOldPasswordChanged.bind(this);
@@ -29,16 +32,49 @@ class SettingsPage extends React.Component {
         this.renderPasswordSaveButtonText = this.renderPasswordSaveButtonText.bind(this);
     }
 
+    handleKeyPress(e) {
+        if (e.keyCode == 27) {
+            if (typeof this.props.handleSettingsClick == "function") {
+                // Bypass setting this page's state when saving settings.
+                this.onSettingsSave(true);
+                this.props.handleSettingsClick();
+            }
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyPress);
+    }
+
     componentWillReceiveProps(newProperties) {
         this.setState({
             currentTheme:       newProperties.theme,
+            currentDefaultMode: newProperties.defaultMode
         });
     }
 
     onThemeChange(value) {
-        this.props.onThemeChange(value);
+        if (typeof this.props.onThemeChange == "function") {
+            this.props.onThemeChange(value);
+        }
+
         this.setState({
             currentTheme:       value,
+            settingsSaveButtonState:    this.SaveButtonState.save
+        });
+    }
+
+    onDefaultModeChanged(value) {
+        if (typeof this.props.onDefaultModeChanged == "function") {
+            this.props.onDefaultModeChanged(value);
+        }
+
+        this.setState({
+            currentDefaultMode:         value,
             settingsSaveButtonState:    this.SaveButtonState.save
         });
     }
@@ -124,20 +160,26 @@ class SettingsPage extends React.Component {
         });
     }
 
-    onSettingsSave() {
+    onSettingsSave(bypassSetState) {
         const settings = {
-            theme: this.state.currentTheme
+            theme:          this.state.currentTheme,
+            defaultMode:    this.state.currentDefaultMode
         };
+
         this.setState({
             settingsSaveButtonState: this.SaveButtonState.saving
         });
         const thisButton = this;
         updateSettings(settings, function(data) {
             if (data.wasSuccess) {
-                thisButton.setState({
-                    settingsSaveButtonState: thisButton.SaveButtonState.saved
-                });
-            } else {
+                if (! bypassSetState) {
+                    thisButton.setState({
+                        settingsSaveButtonState: thisButton.SaveButtonState.saved
+                    });
+                }
+            }
+            else {
+                app.App.alert("Update Settings", data.errorMessage);
                 thisButton.setState({
                     settingsSaveButtonState: thisButton.SaveButtonState.save
                 });
@@ -197,6 +239,7 @@ class SettingsPage extends React.Component {
 
     render() {
         const themeOptions = ['Tidy', 'Darkwing'];
+        const modeOptions = this.props.roles;
         const reactComponents = [];
 
         let passwordSaveButton = <input type="submit" id="save-settings-button" className="button" value={this.renderPasswordSaveButtonText()} />;
@@ -208,7 +251,8 @@ class SettingsPage extends React.Component {
             <div key="Theme Container" id="settings-container">
                 <h1>User Settings</h1>
                 <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
-                <div id="save-settings-button" className="button" onClick={this.onSettingsSave}>{this.renderSettingsSaveButtonText()}</div>
+                <app.InputField type="select" label="Default Tab" name="defaultMode" value={this.state.currentDefaultMode} options={modeOptions} onChange={this.onDefaultModeChanged}/>
+                <div id="save-settings-button" className="button" onClick={() => this.onSettingsSave(false)}>{this.renderSettingsSaveButtonText()}</div>
             </div>
         );
 

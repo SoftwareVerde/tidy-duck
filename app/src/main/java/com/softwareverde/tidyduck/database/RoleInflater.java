@@ -68,6 +68,7 @@ public class RoleInflater {
 
         List<Permission> permissions = new ArrayList<>();
         for (final Row row : rows) {
+            addPermission(permissions, Permission.LOGIN,                    row.getBoolean("login"));
             addPermission(permissions, Permission.ADMIN_CREATE_USERS,       row.getBoolean("admin_create_users"));
             addPermission(permissions, Permission.ADMIN_MODIFY_USERS,       row.getBoolean("admin_modify_users"));
             addPermission(permissions, Permission.ADMIN_DELETE_USERS,       row.getBoolean("admin_delete_users"));

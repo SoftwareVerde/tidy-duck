@@ -3,9 +3,11 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
 import com.softwareverde.tidyduck.most.*;
 
 import java.sql.Connection;
+import java.util.List;
 
 class MostTypeDatabaseManager {
 
@@ -330,5 +332,17 @@ class MostTypeDatabaseManager {
                 ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public boolean isMostTypeNameUnique(final MostType mostType) throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS duplicate_count FROM most_types WHERE name = ?")
+                .setParameter(mostType.getName())
+                ;
+
+        final List<Row> rows = _databaseConnection.query(query);
+
+        final Row row = rows.get(0);
+        final long duplicateCount = row.getLong("duplicate_count");
+        return (duplicateCount == 0);
     }
 }

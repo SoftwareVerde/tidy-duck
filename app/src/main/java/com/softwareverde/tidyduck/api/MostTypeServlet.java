@@ -1,9 +1,11 @@
 package com.softwareverde.tidyduck.api;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.MostTypeModificationChecker;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostTypeInflater;
@@ -24,25 +26,25 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
     private Logger _logger = LoggerFactory.getLogger(getClass());
 
     public MostTypeServlet() {
-        super.defineEndpoint("most-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-types", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
-                return _listMostTypes(environment);
+                return _listMostTypes(environment.getDatabase());
             }
         });
 
-        super.defineEndpoint("most-types", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-types", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.TYPES_CREATE);
 
-                return _insertType(request, environment);
+                return _insertType(request, environment.getDatabase());
             }
         });
 
-        super.defineEndpoint("most-types/<mostTypeId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-types/<mostTypeId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.TYPES_MODIFY);
@@ -51,11 +53,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
                 if (mostTypeId < 1) {
                     return _generateErrorJson("Invalid Most Type ID.");
                 }
-                return _updateMostType(request, mostTypeId, environment);
+                return _updateMostType(request, mostTypeId, environment.getDatabase());
             }
         });
 
-        super.defineEndpoint("most-types/primitive-types", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-types/primitive-types", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -64,7 +66,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-types/most-units", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-types/most-units", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -74,8 +76,8 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         });
     }
 
-    private Json _listMostTypes(final Environment environment) {
-        try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
+    private Json _listMostTypes(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             Json response = new Json(false);
 
             MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
@@ -96,16 +98,21 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _insertType(HttpServletRequest request, Environment environment) throws IOException {
+    private Json _insertType(HttpServletRequest request, Database<Connection> database) throws IOException {
         Json response = new Json(false);
         final Json jsonRequest = _getRequestDataAsJson(request);
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(environment.getDatabase());
-
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             final MostType mostType = _populateMostTypeFromJson(jsonRequest);
-            databaseManager.insertMostType(mostType);
 
+            if (! databaseManager.isMostTypeNameUnique(mostType)) {
+                final String msg = "Unable to create type: type name \"" + mostType.getName() + "\" already exists in the database.";
+                _logger.error(msg);
+                return super._generateErrorJson(msg);
+            }
+
+            databaseManager.insertMostType(mostType);
             response.put("mostTypeId", mostType.getId());
             super._setJsonSuccessFields(response);
         } catch (Exception e) {
@@ -117,27 +124,36 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateMostType(final HttpServletRequest request, final long mostTypeId, Environment environment) throws IOException {
+    protected Json _updateMostType(final HttpServletRequest request, final long mostTypeId, Database<Connection> database) throws IOException {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json mostTypeJson = jsonRequest.get("mostType");
 
-        try {
-            MostType mostType = _populateMostTypeFromJson(mostTypeJson);
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+
+            final MostType mostType = _populateMostTypeFromJson(mostTypeJson);
             mostType.setId(mostTypeId);
 
-            DatabaseManager databaseManager = new DatabaseManager(environment.getDatabase());
+            final MostTypeModificationChecker mostTypeModificationChecker = new MostTypeModificationChecker(databaseConnection);
+            List<String> errors = mostTypeModificationChecker.checkTypeForIllegalChanges(mostType);
+            if (errors.size() > 0) {
+                final Json response = _generateErrorJson("Unable to update type.");
+                final Json errorsJson = new Json(errors);
+                response.put("validationErrors", errorsJson);
+                return response;
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateMostType(mostType);
 
+            final Json response = new Json(false);
+            _setJsonSuccessFields(response);
+            return response;
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update Most Type: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
-
-        final Json response = new Json(false);
-        _setJsonSuccessFields(response);
-        return response;
     }
 
     private MostType _populateMostTypeFromJson(final Json jsonRequest) throws Exception {
@@ -173,6 +189,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(name)) {
             throw new Exception("Invalid Type name.");
         }
+
         // Validate inputs based on primitive type name.
         switch (primitiveTypeName) {
             case "TArray": {
@@ -357,15 +374,25 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(name)) {
             throw new Exception("Invalid enum value name.");
         }
+        /*
+        if (!name.matches("[A-Z0-9_]+")) {
+            throw new Exception("Enum value names must use CAPS_WITH_UNDERSCORES.");
+        }
+        */
 
         if (Util.isBlank(code)) {
             throw new Exception("Invalid enum value code.");
         }
+        if (!code.matches("0[xX][0-9A-Fa-f]+")) {
+            throw new Exception("Enum value codes must be formatted as hexadecimal (with '0x' prefix).");
+        }
+
         /*
         if (Util.isBlank(description)) {
             throw new Exception("Invalid enum value description.");
         }
         */
+
         final EnumValue enumValue = new EnumValue();
         enumValue.setId(id);
         enumValue.setName(name);
@@ -553,11 +580,13 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         final Long id = mostType.getId();
         final String name = mostType.getName();
         final boolean isPrimaryType = mostType.isPrimaryType();
+        final boolean isReleased = mostType.isReleased();
         final PrimitiveType primitiveType = mostType.getPrimitiveType();
 
         json.put("id", id);
         json.put("name", name);
         json.put("isPrimaryType", isPrimaryType);
+        json.put("isReleased", isReleased);
         json.put("primitiveType", _toJson(primitiveType));
 
         switch (primitiveType.getName()) {

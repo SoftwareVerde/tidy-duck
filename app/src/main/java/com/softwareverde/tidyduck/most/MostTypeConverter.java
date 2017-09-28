@@ -232,12 +232,6 @@ public class MostTypeConverter {
                 final EnumProperty enumProperty = new EnumProperty();
                 convertedProperty = enumProperty;
             } break;
-            case "TUByte":
-            case "TSByte":
-            case "TUWord":
-            case "TSWord":
-            case "TULong":
-            case "TSLong":
             case "TNumber": {
                 final NumberProperty numberProperty = new NumberProperty();
                 convertedProperty = numberProperty;
@@ -246,10 +240,22 @@ public class MostTypeConverter {
                 final TextProperty textProperty = new TextProperty();
                 convertedProperty = textProperty;
             } break;
-            case "TStream":
-            case "TShortStream": {
+            case "TCStream": {
                 final ContainerProperty containerProperty = new ContainerProperty();
                 convertedProperty = containerProperty;
+            } break;
+            // commented because these are not used
+//            case "TArray": {
+//                final ArrayProperty arrayProperty =  new ArrayProperty();
+//                convertedProperty = arrayProperty;
+//            } break;
+//            case "TRecord": {
+//                final RecordProperty recordProperty = new RecordProperty();
+//                convertedProperty = recordProperty;
+//            } break;
+            case "TShortStream": {
+                final SequenceProperty sequenceProperty = new SequenceProperty();
+                convertedProperty = sequenceProperty;
             } break;
             default: {
                 final UnclassifiedProperty unclassifiedProperty = new UnclassifiedProperty();
@@ -409,6 +415,8 @@ public class MostTypeConverter {
             case "TEnum": {
                 final EnumType enumType = new EnumType();
 
+                enumType.setEnumMax(mostType.getEnumMax());
+
                 for (final EnumValue enumValue : mostType.getEnumValues()) {
                     final com.softwareverde.mostadapter.type.EnumValue mostEnumValue = new com.softwareverde.mostadapter.type.EnumValue();
                     mostEnumValue.setName(enumValue.getName());
@@ -549,8 +557,11 @@ public class MostTypeConverter {
                     convertedMethod = new TriggerMethod();
                 }
                 else {
-                    // CommandWithAck with parameters -> Sequence
-                    convertedMethod = new SequenceMethod();
+                    if (_isSequenceMethod(method)) {
+                        convertedMethod = new SequenceMethod();
+                    } else {
+                        convertedMethod = new UnclassifiedMethod();
+                    }
                 }
             } break;
             default: {
@@ -576,7 +587,9 @@ public class MostTypeConverter {
         if (operationNames.contains("StartResultAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
         }
-
+        if (operationNames.contains("ResultAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.RESULT_ACK, "1");
+        }
         if (operationNames.contains("ErrorAck")) {
             _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
         }
@@ -598,19 +611,41 @@ public class MostTypeConverter {
             errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex(MOST_NULL);
             errorCodeParameter.setType(_createErrorCodeType());
-            _addOperationAtIndex(errorCodeParameter, OperationType.METHOD_ERROR, "2");
+            _addOperationAtIndex(errorCodeParameter, OperationType.ERROR_ACK, "2");
 
             final MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(_createErrorInfoType());
-            _addOperationAtIndex(errorInfoParameter, OperationType.METHOD_ERROR, "3");
+            _addOperationAtIndex(errorInfoParameter, OperationType.ERROR_ACK, "3");
 
             convertedMethod.addMostParameter(errorCodeParameter);
             convertedMethod.addMostParameter(errorInfoParameter);
         }
 
         return convertedMethod;
+    }
+
+    private boolean _isSequenceMethod(final Method method) {
+        // CommandWithAck with parameters (TBool, TBitField, TNumber, TEnum, TString, TCStream, TShortStream, TVoid) -> Sequence
+        for (final MostFunctionParameter parameter : method.getInputParameters()) {
+            switch (parameter.getMostType().getPrimitiveType().getName()) {
+                case "TBool":
+                case "TBitField":
+                case "TNumber":
+                case "TEnum":
+                case "TString":
+                case "TCStream":
+                case "TShortStream":
+                case "TVoid": {
+                    // pass
+                } break;
+                default: {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void _addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, List<String> operationNames) {

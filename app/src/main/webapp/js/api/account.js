@@ -164,6 +164,25 @@ function updateSettings(settings, callback) {
     );
 }
 
+function updateAccountMetadata(account, callback) {
+    const request = new Request(
+        API_PREFIX + "accounts/" + account.id,
+        {
+            method:         "POST",
+            credentials:    "include",
+            body:           JSON.stringify({
+                "account": account
+            })
+        }
+    );
+    jsonFetch(request, function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}
+
 function createNewAccount(account, callback) {
     const request = new Request(
         API_PREFIX + "accounts",

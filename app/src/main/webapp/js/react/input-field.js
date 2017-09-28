@@ -50,7 +50,7 @@ class InputField extends React.Component {
                 break;
             case 'checkbox':
                 return (
-                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} tabIndex="-1" checked={this.props.checked}/>
+                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} tabIndex={this.props.tabIndex} checked={this.props.checked}/>
                 );
                 break;
             default:
@@ -64,26 +64,31 @@ class InputField extends React.Component {
         const options = []
         for (let i in this.props.options) {
             const optionName = this.props.options[i];
-            options.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
+            const optionLabel = this.props.optionLabels ? this.props.optionLabels[i] : optionName;
+            options.push(<option key={optionName + i} value={optionName}>{optionLabel}</option>);
         }
         return options;
     }
 
     render() {
+        let className = "input-field" + (this.props.isSmallInputField ? "-small" : "");
+        if (this.props.className) {
+            className += (" "+ this.props.className);
+        }
+
         let label = '';
         if (this.props.label) {
             label = <label htmlFor={this.props.id}>{this.props.label}:</label>;
         }
-        if (this.props.isSmallInputField) {
-            return (
-                <div className="input-field-small">
-                    {label}
-                    {this.renderInput()}
-                </div>
-            );
+
+        let icons = '';
+        if (this.props.icons) {
+            icons = <span className="input-icons">{this.props.icons}</span>
         }
+
         return (
-            <div className="input-field">
+            <div className={className}>
+                {icons}
                 {label}
                 {this.renderInput()}
             </div>

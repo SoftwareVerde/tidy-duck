@@ -15,6 +15,7 @@ class MostType {
         mostType.setName(json.name);
         mostType.setPrimitiveType(primitiveType);
         mostType.setIsPrimaryType(json.isPrimaryType);
+        mostType.setIsReleased(json.isReleased);
         mostType.setBitFieldLength(json.bitfieldLength);
         mostType.setEnumMax(json.enumMax);
         mostType.setNumberBaseType(numberBaseType);
@@ -77,21 +78,26 @@ class MostType {
             name:               mostType.getName(),
             primitiveTypeId:    mostType.getPrimitiveType().getId(),
             primitiveTypeName:  mostType.getPrimitiveType().getName(),
+            primitiveType:      PrimitiveType.toJson(mostType.getPrimitiveType()),
             isPrimaryType:      mostType.isPrimaryType(),
+            isReleased:         mostType.isReleased(),
             bitfieldLength:     mostType.getBitFieldLength(),
             enumMax:            mostType.getEnumMax(),
             numberBaseTypeId:   mostType.getNumberBaseType() == null ? null : mostType.getNumberBaseType().getId(),
+            numberBaseType:     PrimitiveType.toJson(mostType.getNumberBaseType()),
             numberExponent:     mostType.getNumberExponent(),
             numberRangeMin:     mostType.getNumberRangeMin(),
             numberRangeMax:     mostType.getNumberRangeMax(),
             numberStep:         mostType.getNumberStep(),
             numberUnitId:       mostType.getNumberUnit() == null ? null : mostType.getNumberUnit().getId(),
+            numberUnit:         MostUnit.toJson(mostType.getNumberUnit()),
             stringMaxSize:      mostType.getStringMaxSize(),
             streamLength:       mostType.getStreamLength(),
             streamMaxLength:    mostType.getStreamMaxLength(),
             streamMediaType:    mostType.getStreamMediaType(),
             arrayName:          mostType.getArrayName(),
             arrayElementTypeId: mostType.getArrayElementType() == null ? null : mostType.getArrayElementType().getId(),
+            arrayElementType:   MostType.toJson(mostType.getArrayElementType()),
             arrayDescription:   mostType.getArrayDescription(),
             arraySize:          mostType.getArraySize(),
             recordName:         mostType.getRecordName(),
@@ -112,6 +118,7 @@ class MostType {
         this._name  = "";
         this._primitiveType = null;
         this._isPrimaryType = false;
+        this._isReleased = false;
         this._bitfieldLength = null;
         this._enumMax = null;
         this._numberBaseType = null;
@@ -167,6 +174,14 @@ class MostType {
 
     isPrimaryType() {
         return this._isPrimaryType;
+    }
+
+    setIsReleased(isReleased) {
+        this._isReleased = isReleased;
+    }
+
+    isReleased() {
+        return this._isReleased;
     }
 
     setBitFieldLength(bitfieldLength) {

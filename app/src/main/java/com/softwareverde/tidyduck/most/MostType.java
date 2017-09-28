@@ -8,6 +8,7 @@ public class MostType {
     private String _name;
     private PrimitiveType _primitiveType;
     private boolean _isPrimaryType;
+    private boolean _isReleased;
     private String _bitfieldLength;
     private String _enumMax;
     private PrimitiveType _numberBaseType;
@@ -62,6 +63,14 @@ public class MostType {
 
     public void setIsPrimaryType(boolean primaryType) {
         _isPrimaryType = primaryType;
+    }
+
+    public boolean isReleased() {
+        return _isReleased;
+    }
+
+    public void setIsReleased(final boolean released) {
+        _isReleased = released;
     }
 
     public String getBitfieldLength() {

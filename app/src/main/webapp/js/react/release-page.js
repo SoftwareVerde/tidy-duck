@@ -20,6 +20,8 @@ class ReleasePage extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
+        // Calling setState and populate release items will reset any version numbers typed in by the user.
+        /*
         this.setState({
             showLoadingReleaseItemsIcon:    true,
             showSaveAnimation:              false,
@@ -28,6 +30,7 @@ class ReleasePage extends React.Component {
         });
 
         this.populateReleaseItems();
+        */
     }
 
     populateReleaseItems() {
@@ -77,7 +80,7 @@ class ReleasePage extends React.Component {
                 }
             }
             else {
-                app.App.alert("Release Function Catalog", "Unable to release function catalog: " + data.errorMessage);
+                app.App.alert("Release Function Catalog", data.errorMessage);
                 thisPage.setState({
                     shouldShowSaveAnimation: false
                 });

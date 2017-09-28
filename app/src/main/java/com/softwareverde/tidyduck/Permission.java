@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck;
 
 public enum Permission {
+    LOGIN,              // Ability to authenticate into application
     ADMIN_CREATE_USERS, // Ability to create new users
     ADMIN_MODIFY_USERS, // Ability to assign permissions to other users
     ADMIN_DELETE_USERS, // Ability to delete users

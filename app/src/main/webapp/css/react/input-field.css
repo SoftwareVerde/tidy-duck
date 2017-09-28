@@ -1,10 +1,10 @@
 .input-field {
     float: left;
     position: relative;
-    min-width: 33%;
+    width: 50%;
     display: inline-block;
     box-sizing: border-box;
-    padding: 2em 3em;
+    padding: 1em 1em;
     font-size: 0.85rem;
 }
 
@@ -14,6 +14,22 @@
     font-family: 'Lato', sans-serif !important;
     font-weight: 700 !important;
     text-align: left;
+}
+
+.input-field input[type="checkbox"] {
+    margin: 0.25em;
+    width: auto;
+}
+@supports (zoom:2) {
+    .input-field input[type="checkbox"] {
+        zoom: 2;
+    }
+}
+@supports not (zoom:2) {
+    .input-field input[type="checkbox"] {
+        transform: scale(2);
+        transform-origin: left top;
+    }
 }
 
 .input-field input, .input-field textarea {
@@ -27,6 +43,19 @@
     font-size: 1rem;
     margin: 0px;
     box-sizing: border-box;
+}
+
+.input-field select {
+    width: auto;
+    min-width: 50%;
+}
+
+.input-field select {
+    height: 2.3em;
+}
+
+.input-field textarea {
+    height: 8em;
 }
 
 .input-field-small {
@@ -44,6 +73,7 @@
     font-family: 'Lato', sans-serif !important;
     font-weight: 700 !important;
     text-align: left;
+    vertical-align: middle;
 }
 
 .input-field-small input, .input-field-small select {
@@ -59,4 +89,9 @@
     vertical-align: middle;
     margin-left: 5px;
     display: inline-block;
+}
+
+.input-icons {
+    float: right;
+    color: red;
 }

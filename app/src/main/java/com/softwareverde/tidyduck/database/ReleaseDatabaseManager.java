@@ -35,6 +35,42 @@ public class ReleaseDatabaseManager {
         return releaseItems;
     }
 
+    public boolean isNewReleaseVersionUnique(final String itemType, final long itemId, final String proposedReleaseVersion) throws DatabaseException {
+        String queryString;
+        switch (itemType) {
+            case "FUNCTION CATALOG": {
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_catalogs WHERE release_version = ? AND is_released = ? AND base_version_id IN (" +
+                                    "SELECT function_catalogs.base_version_id FROM function_catalogs WHERE function_catalogs.id = ?)";
+            } break;
+            case "FUNCTION BLOCK": {
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_blocks WHERE release_version = ? AND is_released = ? AND base_version_id IN (" +
+                                    "SELECT function_blocks.base_version_id FROM function_blocks WHERE function_blocks.id = ?)";
+            } break;
+            case "INTERFACE": {
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM interfaces WHERE version = ? AND is_released = ? AND base_version_id IN (" +
+                                    "SELECT interfaces.base_version_id FROM interfaces WHERE interfaces.id = ?)";
+            } break;
+            case "FUNCTION": {
+                return true;
+            }
+            default: {
+                throw new IllegalArgumentException("Invalid release item type '" + itemType + "' found.");
+            }
+        }
+
+        final Query query = new Query(queryString)
+                .setParameter(proposedReleaseVersion)
+                .setParameter(true)
+                .setParameter(itemId)
+        ;
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final Row row = rows.get(0);
+        final long duplicateCount = row.getLong("duplicate_count");
+
+        return (duplicateCount == 0);
+    }
+
     private List<ReleaseItem> _getFunctionCatalogReleaseItem(final long functionCatalogId) throws DatabaseException {
         final Query query = new Query("SELECT 'FUNCTION CATALOG' AS type, id, name, release_version AS version " +
                 "FROM function_catalogs " +
@@ -108,11 +144,12 @@ public class ReleaseDatabaseManager {
         // release each release item
         for (final ReleaseItem releaseItem : releaseItems) {
             final String queryString = getReleaseQuery(releaseItem);
-            executeReleaseQuery(queryString, releaseItem);
+            _executeReleaseQuery(queryString, releaseItem);
         }
+        _releaseAssociatedMostTypes(functionCatalogId);
     }
 
-    private void executeReleaseQuery(final String queryString, final ReleaseItem releaseItem) throws DatabaseException {
+    private void _executeReleaseQuery(final String queryString, final ReleaseItem releaseItem) throws DatabaseException {
         final Query query = new Query(queryString);
         query.setParameter(releaseItem.getNewVersion());
         query.setParameter(releaseItem.getItemId());
@@ -140,5 +177,24 @@ public class ReleaseDatabaseManager {
             }
         }
         return query;
+    }
+
+    private void _releaseAssociatedMostTypes(final long functionCatalogId) throws DatabaseException {
+        _releaseReturnTypes(functionCatalogId);
+        _releaseParameterTypes(functionCatalogId);
+    }
+
+    private void _releaseReturnTypes(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE most_types SET is_released = 1 WHERE most_types.id IN (SELECT DISTINCT return_type_id FROM functions INNER JOIN interfaces_functions ON interfaces_functions.function_id = functions.id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id WHERE function_catalog_id = ?)");
+        query.setParameter(functionCatalogId);
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _releaseParameterTypes(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE most_types SET is_released = 1 WHERE most_types.id IN (SELECT DISTINCT most_type_id FROM function_parameters INNER JOIN functions ON functions.id = function_parameters.function_id INNER JOIN interfaces_functions ON interfaces_functions.function_id = functions.id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id WHERE function_catalog_id = ?)");
+        query.setParameter(functionCatalogId);
+
+        _databaseConnection.executeSql(query);
     }
 }

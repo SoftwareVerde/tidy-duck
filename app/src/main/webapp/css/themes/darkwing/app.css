@@ -1,4 +1,4 @@
-.small-container, .large-container {
+.small-container, .large-container, .popup-container {
     background-color: #9DA1AE;
     color: #FFF !important;
 }
@@ -15,6 +15,10 @@
 #types-container {
     background-color: #9DA1AE;
     color: #FFF !important;
+}
+
+.accounts-table {
+    color: #032C46;
 }
 
 .navigation-column {
@@ -107,6 +111,14 @@
 
 .search-result {
     border: solid 1px #000;
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.unapproved-search-result {
+    border: dashed 2px #FFF;
     background-color: #032C46;
     color: #FFF;
 

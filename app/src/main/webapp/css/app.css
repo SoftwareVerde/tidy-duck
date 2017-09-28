@@ -4,6 +4,17 @@
     right: 0px;
 }
 
+#backdrop {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: black;
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
 #logout {
     height: 0.8em;
     margin-left: 10px;
@@ -41,12 +52,37 @@
     width: calc(100% - 6em);
 }
 
-.small-container h1, .large-container h1 {
+.popup-container {
+    position: fixed;
+    width: 300px;
+    display: block;
+    margin: 2em 2em auto 0;
+
+    border: 0px solid;
+    border-radius: 5px;
+
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+
+    z-index: 2;
+}
+
+.cancel-button button {
+    background-color: #D0D0D0;
+    margin: 0.5em;
+}
+
+.small-container h1, .large-container h1, .popup-container h1 {
     font-size: 1.5rem;
     text-align: center;
 }
 
-.small-container .input-field {
+.small-container .input-field, .popup-container .input-field {
+    width: 100%;
+}
+
+.small-container .input-field select, .popup-container .input-field select, #settings-container select {
     width: 100%;
 }
 
@@ -86,7 +122,6 @@
 }
 
 #types-main-inputs .input-field {
-    float: none;
     display: block;
     padding: 1em 3em;
 }
@@ -266,7 +301,7 @@
     right: 0.25em;
 }
 
-.search-result {
+.search-result, .unapproved-search-result {
     width: auto;
     border: 1px solid;
     border-radius: 5px;
@@ -275,7 +310,7 @@
     float: top;
 }
 
-.search-result i.assign-button {
+.search-result i.assign-button, .unapproved-search-result i.assign-button {
     margin: 0 2px 0 auto;
     cursor: pointer;
 }
@@ -298,6 +333,10 @@
     padding: 0;
     margin: 0.75em;
     width: 10%;
+}
+
+.search-result-property-short i {
+    margin: 0 10px 0 -23px;
 }
 
 .parameter {
@@ -485,12 +524,20 @@
     font-size: 125%;
 }
 
+.accounts-table tbody tr {
+    transition: box-shadow 0.5s ease;
+}
+
 .accounts-table tbody tr:nth-child(even) {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
 .accounts-table tbody tr:nth-child(odd) {
     background-color: rgba(255, 255, 255, 0.4);
+}
+
+.accounts-table tbody tr:hover {
+    box-shadow: 3px 6px 15px #888888;
 }
 
 .accounts-table .input-field-small {
@@ -502,6 +549,27 @@
     width: auto;
 }
 
+.accounts-table td i {
+    visibility: hidden;
+    margin-right: 5px;
+}
+
+.accounts-table .user-column {
+    cursor: pointer;
+}
+
+.accounts-table tbody tr:hover i {
+    visibility: visible;
+}
+
+.accounts-table .user-column:hover {
+    font-weight: bold;
+}
+
 .role-components {
     text-align: center;
+}
+
+#type-selector {
+    height: 2em; /* expand to allow for emojis */
 }

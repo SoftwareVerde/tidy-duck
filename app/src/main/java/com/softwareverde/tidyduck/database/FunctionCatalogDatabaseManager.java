@@ -222,4 +222,47 @@ class FunctionCatalogDatabaseManager {
         }
         return false;
     }
+
+    public FunctionCatalog checkForDuplicateFunctionCatalog(final String functionCatalogName, final Long functionCatalogVersionSeries) throws DatabaseException {
+        return _checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries);
+    }
+
+    private FunctionCatalog _checkForDuplicateFunctionCatalog(final String functionCatalogName, final Long functionCatalogVersionSeries) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_catalogs WHERE name = ?");
+        query.setParameter(functionCatalogName);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
+
+        FunctionCatalog matchedFunctionCatalog = null;
+        for (final Row row : rows) {
+            final long functionCatalogId = row.getLong("id");
+            final FunctionCatalog rowFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+            if (!rowFunctionCatalog.getBaseVersionId().equals(functionCatalogVersionSeries)) {
+                matchedFunctionCatalog = rowFunctionCatalog;
+                break;
+            }
+        }
+
+        return matchedFunctionCatalog;
+    }
+    
+    public List<String> listAssociatedFunctionIds(final long functionCatalogId) throws DatabaseException {
+        return _getAssociatedFunctionIds(functionCatalogId);
+    }
+
+    private List<String> _getAssociatedFunctionIds(final long functionCatalogId) throws DatabaseException {
+        final List<String> functionIds = new ArrayList<>();
+
+        final Query query = new Query("SELECT functions.most_id FROM functions INNER JOIN interfaces_functions ON functions.id = interfaces_functions.function_id INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id INNER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id WHERE function_catalog_id = ?");
+        query.setParameter(functionCatalogId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            functionIds.add(row.getString("most_id"));
+        }
+
+        return functionIds;
+    }
 }

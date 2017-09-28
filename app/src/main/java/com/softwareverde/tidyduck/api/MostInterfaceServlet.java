@@ -10,6 +10,7 @@ import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +30,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
     public MostInterfaceServlet() {
-        super.defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -47,7 +49,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
@@ -56,7 +58,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/search/<name>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -69,7 +71,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -82,7 +84,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -95,7 +97,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.DELETE, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -108,7 +110,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.GET, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
@@ -121,7 +123,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -134,7 +136,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super.defineEndpoint("most-interfaces/<mostInterfaceId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRoute() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/submit-for-review", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -144,6 +146,15 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid interface id.");
                 }
                 return _submitMostInterfaceForReview(mostInterfaceId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("most-interface-duplicate-check", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                return _checkForDuplicateMostInterface(request, currentAccount, environment.getDatabase());
             }
         });
     }
@@ -237,6 +248,33 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    private Json _checkForDuplicateMostInterface(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) {
+        try {
+            final Json request = _getRequestDataAsJson(httpRequest);
+            final String mostInterfaceName = request.getString("mostInterfaceName");
+            final Long mostInterfaceVersionSeries = request.getLong("mostInterfaceVersionSeries");
+
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            final MostInterface matchedMostInterface = databaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+
+            final Json response = new Json(false);
+
+            if (matchedMostInterface == null) {
+                response.put("matchFound", false);
+            } else {
+                response.put("matchFound", true);
+                response.put("matchedMostInterface", _toJson(matchedMostInterface));
+            }
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final Exception exception) {
+            _logger.error("Unable to check for duplicate Function Block.", exception);
+            return super._generateErrorJson("Unable to check for duplicate Function Block: " + exception.getMessage());
+        }
+    }
+
     private Json _associateInterfaceWithFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Database<Connection> database) throws IOException {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
@@ -252,6 +290,16 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         try {
             DatabaseManager databaseManager = new DatabaseManager(database);
+
+            List<MostFunction> functionBlockFunctions = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
+            List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
+            List<String> conflictingMostIds = getConflictingMostIds(functionBlockFunctions, mostInterfaceFunctions);
+            if (conflictingMostIds.size() > 0) {
+                final String errorMessage = "Conflicting function IDs found: " + conflictingMostIds.toString();
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         catch (final Exception exception) {
@@ -260,6 +308,20 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
+    }
+
+    private List<String> getConflictingMostIds(final List<MostFunction> functionBlockFunctions, final List<MostFunction> mostInterfaceFunctions) {
+        List<String> conflictingMostIds = new ArrayList<>();
+        for (final MostFunction functionBlockMostFunction : functionBlockFunctions) {
+            for (final MostFunction mostInterfaceMostFunction : mostInterfaceFunctions) {
+                final String functionBlockFunctionId = functionBlockMostFunction.getMostId();
+                final String mostInterfaceFunctionId = mostInterfaceMostFunction.getMostId();
+                if (functionBlockFunctionId.equals(mostInterfaceFunctionId)) {
+                    conflictingMostIds.add(functionBlockFunctionId);
+                }
+            }
+        }
+        return conflictingMostIds;
     }
 
     protected Json _deleteMostInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Database<Connection> database) {
@@ -438,6 +500,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Name field is required.");
             }
+            if (!name.matches("I[A-z0-9]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters and start with an 'I'.");
+            }
+
             /*
             if (Util.isBlank(description)) {
                 throw new Exception("Description field is required.");

@@ -13,14 +13,20 @@ class AccountsPage extends React.Component {
         const accountCompany = this.props.companies[0];
         account.setCompany(accountCompany);
 
+        const loginRole = new Role();
+        loginRole.setName("Login");
+        account.addRole(loginRole);
+
         const newCompany = new Company();
 
         this.state = {
             newAccount: account,
             newCompany: newCompany,
             createAccountButtonState: this.SaveButtonState.submit,
+            editedAccountButtonState: this.SaveButtonState.save,
             createCompanyButtonState: this.SaveButtonState.submit,
             isLoadingAccounts: true,
+            editedAccount: null,
             accounts: []
         };
 
@@ -37,22 +43,47 @@ class AccountsPage extends React.Component {
             }
         });
 
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.onAccountClicked = this.onAccountClicked.bind(this);
         this.onNewAccountUsernameChanged = this.onNewAccountUsernameChanged.bind(this);
         this.onNewAccountNameChanged = this.onNewAccountNameChanged.bind(this);
         this.onNewAccountCompanyChanged = this.onNewAccountCompanyChanged.bind(this);
         this.onNewCompanyNameChanged = this.onNewCompanyNameChanged.bind(this);
         this.onSubmitNewAccount = this.onSubmitNewAccount.bind(this);
         this.onSubmitNewCompany = this.onSubmitNewCompany.bind(this);
+        this.onEditedAccountCompanyChanged = this.onEditedAccountCompanyChanged.bind(this);
+        this.onEditedAccountNameChanged = this.onEditedAccountNameChanged.bind(this);
+        this.onEditedAccountUsernameChanged = this.onEditedAccountUsernameChanged.bind(this);
         this.onResetPassword = this.onResetPassword.bind(this);
+        this.onUpdateAccountMetadata = this.onUpdateAccountMetadata.bind(this);
+        this.onCancelUpdateAccount = this.onCancelUpdateAccount.bind(this);
         this.renderCreateAccountForm = this.renderCreateAccountForm.bind(this);
         this.renderCreateCompanyForm = this.renderCreateCompanyForm.bind(this);
         this.renderCreateButtonText = this.renderCreateButtonText.bind(this);
         this.renderAccountAdministrationData = this.renderAccountAdministrationData.bind(this);
+        this.renderEditUserForm = this.renderEditUserForm.bind(this);
+        this.renderBackdrop = this.renderBackdrop.bind(this);
         this.renderRoleComponents = this.renderRoleComponents.bind(this);
     }
 
     componentWillReceiveProps(newProperties) {
 
+    }
+
+    handleKeyPress(e) {
+        if (e.keyCode == 27) {
+            this.setState({
+                editedAccount: null,
+            });
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyPress);
     }
 
     onNewAccountNameChanged(value) {
@@ -133,6 +164,11 @@ class AccountsPage extends React.Component {
                 const newCompany = new Company();
                 newAccount.setCompany(newCompany);
 
+                const loginRole = new Role();
+                loginRole.setName("Login");
+                newAccount.addRole(loginRole);
+
+
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.saved,
                     newAccount: newAccount,
@@ -201,12 +237,105 @@ class AccountsPage extends React.Component {
                 app.App.alert(
                     "Unable to update roles",
                     <div>
-                        Unable to remove role {roleName} from {account.getName()} ({account.getUsername()}).<br/>
-                        <br/>
-                        Please refresh the page to reset role information.
+                        Unable to remove role {roleName} from {account.getName()} ({account.getUsername()}).
                     </div>
                 );
+
+                // Undo prior changes
+                if (checked) {
+                    // remove role check
+                    account.removeRoleByName(roleName);
+
+                } else {
+                    // reinstate role
+                    const role = new Role();
+                    role.setName(roleName);
+                    account.addRole(role);
+                }
             }
+        });
+    }
+
+    onAccountClicked(account) {
+        const editedAccount = Account.fromJson(Account.toJson(account));
+        this.setState({
+            isEditingAccount: true,
+            editedAccount: editedAccount,
+            editedAccountButtonState: this.SaveButtonState.save,
+        });
+    }
+
+    onUpdateAccountMetadata(event) {
+        event.preventDefault();
+        const editedAccount = this.state.editedAccount;
+        const editedAccountJson = Account.toJson(editedAccount);
+        const thisApp = this;
+
+        this.setState({
+            editedAccountButtonState: this.SaveButtonState.saving,
+        });
+
+        updateAccountMetadata(editedAccountJson, function(data) {
+            if (data.wasSuccess) {
+                app.App.alert("Update Account", editedAccount.getName() + "'s account has been successfully updated.");
+
+                const editedAccountId = editedAccount.getId();
+                const accounts = thisApp.state.accounts.filter(function(value) {
+                    return value.getId() != editedAccountId;
+                });
+                accounts.push(editedAccount);
+
+                thisApp.setState({
+                    accounts: accounts,
+                    editedAccount: null,
+                });
+            }
+            else {
+                app.App.alert("Update Account", data.errorMessage);
+
+                thisApp.setState({
+                    editedAccountButtonState: thisApp.SaveButtonState.save,
+                });
+            }
+        });
+    }
+
+    onEditedAccountNameChanged(value) {
+        const account = this.state.editedAccount;
+        account.setName(value);
+
+        this.setState({
+            editedAccount: account,
+            editedAccountButtonState: this.SaveButtonState.save,
+        });
+    }
+
+
+    onEditedAccountUsernameChanged(value) {
+        const account = this.state.editedAccount;
+        account.setUsername(value);
+
+        this.setState({
+            editedAccount: account,
+            editedAccountButtonState: this.SaveButtonState.save,
+        });
+    }
+
+    onEditedAccountCompanyChanged(value) {
+        const account = this.state.editedAccount;
+        const companies = this.props.companies;
+
+        for (let i in companies) {
+            const company = companies[i];
+            if (company.getName() == value) {
+                account.setCompany(company);
+                break;
+            }
+        }
+
+        this.setState({
+            editedAccount: account,
+            editedAccountButtonState: this.SaveButtonState.save,
         });
     }
 
@@ -216,13 +345,27 @@ class AccountsPage extends React.Component {
         }
     }
 
+    onCancelUpdateAccount(event) {
+        event.preventDefault();
+
+        this.setState({
+            editedAccount: null
+        });
+    }
+
     renderCreateButtonText(typeOfObjectCreated) {
         let buttonState = this.state.createAccountButtonState;
         if (typeOfObjectCreated == "Company") {
             buttonState = this.state.createCompanyButtonState;
         }
+        else if (this.state.editedAccount) {
+            buttonState: this.editedAccountButtonState;
+        }
 
         switch (buttonState) {
+            case this.SaveButtonState.save:
+                return "Save";
+
             case this.SaveButtonState.submit:
                 return "Submit";
 
@@ -301,7 +444,7 @@ class AccountsPage extends React.Component {
 
             administrationTableRows.push(
                 <tr key={i}>
-                    <td key="name">{account.getName()}<br/>({account.getUsername()})</td>
+                    <td key="name" className="user-column" onClick={() => this.onAccountClicked(account)}><i className="fa fa-edit"/>{account.getName()}<br/>({account.getUsername()})</td>
                     <td key="roles">{this.renderRoleComponents(account)}</td>
                     <td key="reset"><div className="button" onClick={() => this.onResetPassword(account)}>Reset Password</div></td>
                 </tr>
@@ -325,15 +468,67 @@ class AccountsPage extends React.Component {
     }
 
     renderRoleComponents(account, isNewAccount) {
+        const readOnly = this.props.thisAccount.getId() == account.getId();
+
+        if (readOnly) {
+            return (
+                <div className="role-components">
+                    <app.InputField key="1" type="checkbox" label="Login" checked={account.hasRole("Login")} isSmallInputField={true} readOnly={readOnly}/>
+                    <app.InputField key="2" type="checkbox" label="Admin" checked={account.hasRole("Admin")} isSmallInputField={true} readOnly={readOnly}/>
+                    <app.InputField key="3" type="checkbox" label="Release" checked={account.hasRole("Release")} isSmallInputField={true} readOnly={readOnly}/>
+                    <app.InputField key="4" type="checkbox" label="Modify" checked={account.hasRole("Modify")} isSmallInputField={true} readOnly={readOnly}/>
+                    <app.InputField key="5" type="checkbox" label="Review" checked={account.hasRole("Review")} isSmallInputField={true} readOnly={readOnly}/>
+                    <app.InputField key="6" type="checkbox" label="View" checked={account.hasRole("View")} isSmallInputField={true} readOnly={readOnly}/>
+                </div>
+            );
+        }
         return (
             <div className="role-components">
-                <app.InputField key="1" type="checkbox" label="Admin" checked={account.hasRole("Admin")} onChange={(value) => this.onRoleChange(account, "Admin", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="2" type="checkbox" label="Release" checked={account.hasRole("Release")} onChange={(value) => this.onRoleChange(account, "Release", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="3" type="checkbox" label="Modify" checked={account.hasRole("Modify")} onChange={(value) => this.onRoleChange(account, "Modify", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="4" type="checkbox" label="Review" checked={account.hasRole("Review")} onChange={(value) => this.onRoleChange(account, "Review", value, isNewAccount)} isSmallInputField={true}/>
-                <app.InputField key="5" type="checkbox" label="View" checked={account.hasRole("View")} onChange={(value) => this.onRoleChange(account, "View", value, isNewAccount)} isSmallInputField={true}/>
+                <app.InputField key="1" type="checkbox" label="Login" checked={account.hasRole("Login")} onChange={(value) => this.onRoleChange(account, "Login", value, isNewAccount)} isSmallInputField={true} />
+                <app.InputField key="2" type="checkbox" label="Admin" checked={account.hasRole("Admin")} onChange={(value) => this.onRoleChange(account, "Admin", value, isNewAccount)} isSmallInputField={true} />
+                <app.InputField key="3" type="checkbox" label="Release" checked={account.hasRole("Release")} onChange={(value) => this.onRoleChange(account, "Release", value, isNewAccount)} isSmallInputField={true} />
+                <app.InputField key="4" type="checkbox" label="Modify" checked={account.hasRole("Modify")} onChange={(value) => this.onRoleChange(account, "Modify", value, isNewAccount)} isSmallInputField={true} />
+                <app.InputField key="5" type="checkbox" label="Review" checked={account.hasRole("Review")} onChange={(value) => this.onRoleChange(account, "Review", value, isNewAccount)} isSmallInputField={true} />
+                <app.InputField key="6" type="checkbox" label="View" checked={account.hasRole("View")} onChange={(value) => this.onRoleChange(account, "View", value, isNewAccount)} isSmallInputField={true} />
             </div>
         );
+    }
+
+    renderEditUserForm() {
+        if (this.state.editedAccount) {
+            const editedAccount = this.state.editedAccount;
+            const companies = this.props.companies;
+            let companyOptions = [];
+
+            for (let i in companies) {
+                companyOptions.push(companies[i].getName());
+            }
+            companyOptions.sort(function(a, b) {
+                return a.localeCompare(b, undefined, {numeric : true, sensitivity: 'base'});
+            });
+
+            let editedAccountSaveButton = <button type="save" id="create-account-button" className="button">{this.renderCreateButtonText("Account")}</button>;
+            if (this.state.editedAccountButtonState === this.SaveButtonState.saving) {
+                editedAccountSaveButton = <div id="create-account-button" className="button">{this.renderCreateButtonText("Account")}</div>;
+            }
+
+            return (
+                <form id="edit-user" className="popup-container" onSubmit={this.onUpdateAccountMetadata}>
+                    <h1>Edit Account</h1>
+                    <app.InputField type="text" label="Username" name="username" value={editedAccount.getUsername()} onChange={this.onEditedAccountUsernameChanged} isRequired={true}/>
+                    <app.InputField type="text" label="Name" name="name" value={editedAccount.getName()} onChange={this.onEditedAccountNameChanged} isRequired={true} />
+                    <app.InputField type="select" label="Company" name="company" value={editedAccount.getCompany().getName()} options={companyOptions} onChange={this.onEditedAccountCompanyChanged} isRequired={true}/>
+                    {editedAccountSaveButton}
+                    <div className="cancel-button"><button className="button" onClick={this.onCancelUpdateAccount}>Cancel</button></div>
+                </form>
+            );
+        }
+    }
+
+    renderBackdrop() {
+        if (this.state.editedAccount) {
+            return(<div id="backdrop" onClick={() => this.setState({ editedAccount: null })} />);
+        }
     }
 
     render() {
@@ -342,6 +537,8 @@ class AccountsPage extends React.Component {
                 <div className="create-account-area" key="create-account-area">
                     {this.renderCreateAccountForm()}
                     {this.renderCreateCompanyForm()}
+                    {this.renderBackdrop()}
+                    {this.renderEditUserForm()}
                 </div>
                 <div className="accounts-area large-container" key="accounts-area">
                     <div className="center">

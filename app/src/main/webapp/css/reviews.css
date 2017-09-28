@@ -10,6 +10,12 @@
     padding: 0 1em;
 }
 
+#reviews-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 2em 0;
+}
+
 #loading-reviews-icon {
     margin-top: 3em;
 }
@@ -87,6 +93,20 @@
     overflow-y: auto;
 }
 
+@media only screen and (max-width: 940px) {
+    .approval-form .comments-area, .approval-form .vote-area {
+        height: 300px;
+    }
+
+    .selected-review-display-area {
+        margin-bottom: 370px;
+    }
+
+    .input-field {
+        min-width: 170px;
+    }
+}
+
 .approval-form .toolbar {
     min-height: 50px;
     display: block;
@@ -140,11 +160,17 @@
 
 .vote-area .submit-comment-form .button {
     width: 50%;
+    min-width: 115px;
     margin: 0;
+}
+
+.submit-comment-form .input-field textarea {
+    height: 5em;
 }
 
 .vote-area .button {
     width: 20%;
+    min-width: 100px;
     margin: 0;
 }
 
