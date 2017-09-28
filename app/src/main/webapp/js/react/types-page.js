@@ -1119,8 +1119,9 @@ class TypesPage extends React.Component {
                                    onClick={() => thisPage.onEnumValueRemoveButtonClicked(enumValue)}/>
                             </div>
                             <app.InputField key="enum1" type="text" label="Enum Value Name" name="enum-value-name"
-                                            value={enumValue.getName()} pattern="[A-Z0-9_]+" title="CAPS_WITH_UNDERSCORES"
+                                            value={enumValue.getName()}
                                             onChange={(name) => thisPage.onEnumValueNameChanged(enumValue, name)} isRequired={true}/>
+                                            {/*pattern="[A-Z0-9_]+" title="CAPS_WITH_UNDERSCORES"*/}
                             <app.InputField key="enum2" type="text" label="Enum Value Code" name="enum-value-code"
                                             value={enumValue.getCode()} pattern="0[xX][0-9A-Fa-f]+" title="Hexadecimal (with leading '0x')."
                                             onChange={(code) => thisPage.onEnumValueCodeChanged(enumValue, code)} isRequired={true}/>
