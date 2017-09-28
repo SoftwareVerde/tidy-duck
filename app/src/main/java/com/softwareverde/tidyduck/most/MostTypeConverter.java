@@ -415,6 +415,8 @@ public class MostTypeConverter {
             case "TEnum": {
                 final EnumType enumType = new EnumType();
 
+                enumType.setEnumMax(mostType.getEnumMax());
+
                 for (final EnumValue enumValue : mostType.getEnumValues()) {
                     final com.softwareverde.mostadapter.type.EnumValue mostEnumValue = new com.softwareverde.mostadapter.type.EnumValue();
                     mostEnumValue.setName(enumValue.getName());

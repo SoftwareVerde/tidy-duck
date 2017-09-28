@@ -24,6 +24,7 @@ class TypesPage extends React.Component {
         this.onBooleanFieldBitPositionChanged = this.onBooleanFieldBitPositionChanged.bind(this);
         this.onBooleanFieldTrueDescriptionChanged = this.onBooleanFieldTrueDescriptionChanged.bind(this);
         this.onBooleanFieldFalseDescriptionChanged = this.onBooleanFieldFalseDescriptionChanged.bind(this);
+        this.onEnumMaxChanged = this.onEnumMaxChanged.bind(this);
         this.onEnumValueAddButtonClicked = this.onEnumValueAddButtonClicked.bind(this);
         this.onEnumValueRemoveButtonClicked = this.onEnumValueRemoveButtonClicked.bind(this);
         this.onEnumValueNameChanged = this.onEnumValueNameChanged.bind(this);
@@ -503,6 +504,14 @@ class TypesPage extends React.Component {
 
     onBooleanFieldFalseDescriptionChanged(booleanField, falseDescription) {
         booleanField.setFalseDescription(falseDescription);
+
+        this.updateState();
+    }
+
+    onEnumMaxChanged(value) {
+        const mostType = this.state.mostType;
+
+        mostType.setEnumMax(value);
 
         this.updateState();
     }
@@ -1108,6 +1117,8 @@ class TypesPage extends React.Component {
             }
                 break;
             case 'TEnum': {
+                reactComponents.push(<div key="enum-max" className="clearfix"><app.InputField key="enum-max" type="number" step="1" label="Enum Max" name="enum-max" value={mostType.getEnumMax()} onChange={this.onEnumMaxChanged} isRequired={false}/></div>);
+
                 const thisPage = this;
                 let i = 1;
                 mostType.getEnumValues().forEach(function (enumValue) {
