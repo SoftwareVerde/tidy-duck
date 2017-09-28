@@ -374,9 +374,11 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         if (Util.isBlank(name)) {
             throw new Exception("Invalid enum value name.");
         }
+        /*
         if (!name.matches("[A-Z0-9_]+")) {
             throw new Exception("Enum value names must use CAPS_WITH_UNDERSCORES.");
         }
+        */
 
         if (Util.isBlank(code)) {
             throw new Exception("Invalid enum value code.");
