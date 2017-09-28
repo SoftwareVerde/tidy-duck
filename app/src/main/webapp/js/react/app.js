@@ -203,6 +203,7 @@ class App extends React.Component {
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
         this.onTypeCreated = this.onTypeCreated.bind(this);
+        this.onTypeChanged = this.onTypeChanged.bind(this);
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
         this.updateReviews = this.updateReviews.bind(this);
 
@@ -2013,6 +2014,10 @@ class App extends React.Component {
         });
     }
 
+    onTypeChanged(changedType) {
+        this.updateMostTypes();
+    }
+
     onReviewSubmitted(selectedItem) {
         if (confirm("Submit " + selectedItem.getName() + " for review and approval?")) {
             const currentNavigationLevel = this.state.currentNavigationLevel;
@@ -2926,7 +2931,7 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage onTypeCreated={this.onTypeCreated} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
+                            <app.TypesPage onTypeCreated={this.onTypeCreated} onTypeChanged={this.onTypeChanged} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
                                            isLoadingTypesPage={this.state.isLoadingMostTypes || this.state.isLoadingPrimitiveTypes || this.state.isLoadingUnits} />
                         </div>
                     );
