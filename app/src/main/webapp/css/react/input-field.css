@@ -91,6 +91,27 @@
     display: inline-block;
 }
 
+.input-field .filtered-results {
+    width: 100%;
+    padding: 0.50em;
+    font-size: 1rem;
+    margin: 0;
+    box-sizing: border-box;
+    border: solid 1px #CCCCCC;
+    border-top: none;
+    background-color: #FFF;
+    position: absolute;
+    z-index: 1;
+}
+
+.filtered-result:hover, .selected-result {
+    background-color: #CCCCCC;
+}
+
+.dropdown {
+    position: relative;
+}
+
 .input-icons {
     float: right;
     color: red;
