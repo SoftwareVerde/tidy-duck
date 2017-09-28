@@ -96,9 +96,12 @@ public class TestDataLoader {
         return mostInterfaceId;
     }
 
+    /// TODO: Insert Function and Return Type for Function
+    /*
     private static long insertFakeMostFunction(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
 
     }
 
     private static long insertFakeMostType(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+    */
 }
