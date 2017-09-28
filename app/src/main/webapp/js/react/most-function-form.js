@@ -49,8 +49,8 @@ class MostFunctionForm extends React.Component {
         this.onStereotypeChanged = this.onStereotypeChanged.bind(this);
         this.onReturnParameterNameChanged = this.onReturnParameterNameChanged.bind(this);
         this.onReturnParameterDescriptionChanged = this.onReturnParameterDescriptionChanged.bind(this);
-        this.onReturnTypeChanged = this.onReturnTypeChanged.bind(this);
-        this.onReturnTypeLostFocus = this.onReturnTypeLostFocus.bind(this);
+        this.onReturnTypeInputChanged = this.onReturnTypeInputChanged.bind(this);
+        this.onReturnTypeSelected = this.onReturnTypeSelected.bind(this);
         this.onParameterChanged = this.onParameterChanged.bind(this);
 
         this.onAddParameterClicked = this.onAddParameterClicked.bind(this);
@@ -209,36 +209,15 @@ class MostFunctionForm extends React.Component {
         }
     }
 
-    onReturnTypeChanged(newValue) {
-
-        /*
-        const mostFunction = this.state.mostFunction;
-
-        const mostTypes = this.props.mostTypes;
-        for (let i in mostTypes) {
-            const mostType = mostTypes[i];
-            const mostTypeName = mostType.getName();
-            if (mostTypeName == newValue) {
-                mostFunction.setReturnType(mostType);
-                break;
-            }
-        }
-        */
-
+    onReturnTypeInputChanged(newValue) {
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({
             buttonTitle: defaultButtonTitle,
             returnTypeFilterString: newValue
         });
-
-        /*
-        if (typeof this.props.onUpdate == "function") {
-            this.props.onUpdate();
-        }
-        */
     }
 
-    onReturnTypeLostFocus(newValue) {
+    onReturnTypeSelected(newValue) {
         const mostFunction = this.state.mostFunction;
         let returnTypeName = mostFunction.getReturnType() ? mostFunction.getReturnType().getName() : "";
 
@@ -467,7 +446,7 @@ class MostFunctionForm extends React.Component {
                 <app.InputField key="most-function-release-version" id="most-function-release-version" name="releaseVersion" type="text" label="Release" pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" value={version} readOnly={this.props.readOnly} onChange={this.onReleaseVersionChanged} isRequired={true} />
                 <app.InputField key="most-function-stereotype" id="most-function-stereotype" name="stereotype" type="select" label="Stereotype" value={stereotypeName} options={stereotypeOptions} readOnly={this.props.readOnly} onChange={this.onStereotypeChanged} />
                 <app.InputField key="most-function-return-parameter-name" id="most-function-return-parameter-name" name="returnName" type="text" label="Return Parameter Name" value={returnParameterName} readOnly={this.props.readOnly} onChange={this.onReturnParameterNameChanged} isRequired={true}/>
-                <app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="dropdown" label="Return Type" value={this.state.returnTypeFilterString} options={mostTypeNames} defaultValue={returnTypeName} readOnly={this.props.readOnly} onChange={this.onReturnTypeChanged} onBlur={this.onReturnTypeLostFocus} />
+                <app.InputField key="most-function-return-type" id="most-function-return-type" name="returnType" type="dropdown" label="Return Type" value={this.state.returnTypeFilterString} options={mostTypeNames} defaultValue={returnTypeName} readOnly={this.props.readOnly} onChange={this.onReturnTypeInputChanged} onSelect={this.onReturnTypeSelected} />
             </div>
         );
         reactComponents.push(

@@ -12,27 +12,13 @@ class InputField extends React.Component {
         this.onDropdownKeyPress = this.onDropdownKeyPress.bind(this);
         this.onDropdownFocus = this.onDropdownFocus.bind(this);
         this.onDropdownBlur = this.onDropdownBlur.bind(this);
+        this.onFilteredResultMouseOver = this.onFilteredResultMouseOver.bind(this);
+        this.onFilteredResultClick = this.onFilteredResultClick.bind(this);
         this.renderInput = this.renderInput.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
         this.renderFilteredResults = this.renderFilteredResults.bind(this);
         this.getFilteredResults = this.getFilteredResults.bind(this);
         this.getValue = this.getValue.bind(this);
-    }
-
-    onInputChanged(event) {
-        var inputType = this.props.type;
-        var newValue = inputType == "checkbox" ? event.target.checked : event.target.value;
-
-        if (! this.props.readOnly) {
-            this.setState({
-                value: newValue,
-                showDropdown: (inputType == "dropdown")
-            });
-        }
-
-        if (this.props.onChange) {
-            this.props.onChange(newValue, this.props.name)
-        }
     }
 
     componentWillReceiveProps(newProperties) {
@@ -58,9 +44,25 @@ class InputField extends React.Component {
         });
     }
 
+    onInputChanged(event) {
+        var inputType = this.props.type;
+        var newValue = inputType == "checkbox" ? event.target.checked : event.target.value;
+
+        if (! this.props.readOnly) {
+            this.setState({
+                value:          newValue,
+                showDropdown:   true
+            });
+        }
+
+        if (this.props.onChange) {
+            this.props.onChange(newValue, this.props.name)
+        }
+    }
+
     onDropdownKeyPress(e) {
         const options = this.getFilteredResults();
-        const selectedResult = this.state.selectedResult || this.state.value;
+        const selectedResult = this.state.selectedResult || options[0];
         const selectedResultIndex = options.indexOf(selectedResult);
         const previousOption = options[Math.max(0, selectedResultIndex-1)];
         const nextOption = options[Math.min(options.length-1, selectedResultIndex+1)];
@@ -69,9 +71,12 @@ class InputField extends React.Component {
             case 13:
             case 32:
                 e.preventDefault();
+                if (typeof this.props.onSelect == "function") {
+                    this.props.onSelect(selectedResult, this.props.name)
+                }
                 this.setState({
                     value: selectedResult,
-                    showDropdown: false
+                    showDropdown: false,
                 });
                 break;
 
@@ -100,12 +105,27 @@ class InputField extends React.Component {
     }
 
     onDropdownBlur() {
-        if (typeof this.props.onBlur == "function") {
-            this.props.onBlur(this.state.value, this.props.name)
+        this.setState({
+            showDropdown: false,
+            value: this.props.defaultValue,
+            selectedResult: ""
+        });
+    }
+
+    onFilteredResultMouseOver(value) {
+        this.setState({
+            selectedResult: value
+        });
+    }
+
+    onFilteredResultClick() {
+        if (typeof this.props.onSelect == "function") {
+            this.props.onSelect(this.state.selectedResult, this.props.name)
         }
 
         this.setState({
-            showDropdown: false,
+            value:          this.state.selectedResult,
+            showDropdown:   false,
         });
     }
 
@@ -130,7 +150,7 @@ class InputField extends React.Component {
                 break;
             case 'dropdown':
                 return (
-                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onFocus={this.onDropdownFocus} onBlur={this.onDropdownBlur}>
+                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onFocus={this.onDropdownFocus}>
                         <input type="text" id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                         {this.renderFilteredResults()}
                     </div>
@@ -157,14 +177,16 @@ class InputField extends React.Component {
         if (this.state.showDropdown) {
             const reactComponents = [];
             const options = this.getFilteredResults();
+            const selectedResult = this.state.selectedResult || options[0];
 
             for (let i in options) {
-                const resultStyle = (options[i] == this.state.selectedResult) ? "selected-result" : "filtered-result";
-                reactComponents.push(<div key={i} className={resultStyle}>{options[i]}</div>)
+                const option = options[i];
+                const resultStyle = (options[i] == selectedResult) ? "selected-result" : "filtered-result";
+                reactComponents.push(<div key={i} className={resultStyle} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
             }
 
             return(
-                <div className="filtered-results">
+                <div className="filtered-results" onBlur={this.onDropdownBlur} onClick={this.onFilteredResultClick} >
                     {reactComponents}
                 </div>
             );

@@ -105,6 +105,7 @@
 }
 
 .filtered-result:hover, .selected-result {
+    cursor: default;
     background-color: #CCCCCC;
 }
 
