@@ -10,7 +10,6 @@ class TypesPage extends React.Component {
             selectedOption: this.options[0],
             mostType: mostType,
             saveButtonText: 'Save',
-            typeFilterString: ""
         };
 
         // for methods that don't actually have an object to set on the state
@@ -18,7 +17,6 @@ class TypesPage extends React.Component {
 
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
         this.onBaseTypeChanged = this.onBaseTypeChanged.bind(this);
-        this.onTypeDropdownChanged = this.onTypeDropdownChanged.bind(this);
         this.onTypeSelected = this.onTypeSelected.bind(this);
         this.onBitFieldLengthChanged = this.onBitFieldLengthChanged.bind(this);
         this.onBoolFieldAddButtonClicked = this.onBoolFieldAddButtonClicked.bind(this);
@@ -388,13 +386,6 @@ class TypesPage extends React.Component {
             selectedType: value,
             saveButtonText: 'Save'
         })
-    }
-
-    onTypeDropdownChanged(newValue) {
-        this.setState({
-            saveButtonText: 'Save',
-            typeFilterString: newValue
-        });
     }
 
     onTypeNameChanged(value) {
@@ -896,8 +887,7 @@ class TypesPage extends React.Component {
 
         this.setState({
             mostType: mostType,
-            saveButtonText: 'Save',
-            typeFilterString: value
+            saveButtonText: 'Save'
         });
     }
 
@@ -1011,8 +1001,7 @@ class TypesPage extends React.Component {
 
         this.setState({
             mostType: mostType,
-            saveButtonText: 'Save',
-            typeFilterString: typeName
+            saveButtonText: 'Save'
         });
     }
 
@@ -1085,7 +1074,6 @@ class TypesPage extends React.Component {
     renderBaseTypeSpecificInputs() {
         const reactComponents = [];
         const mostType = this.state.mostType;
-        const filterString = this.state.typeFilterString;
 
         if (!mostType.getPrimitiveType()) {
             return;
@@ -1239,9 +1227,9 @@ class TypesPage extends React.Component {
                                                 isSmallInputField={true}
                                                 value={streamParameter.getParameterDescription()}
                                                 onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true}
-                                                value={parameterTypeName} options={streamParamTypes}
-                                                onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)}/>
+                                <app.InputField name="type" type="dropdown" label="Type" isSmallInputField={true}
+                                                defaultValue={parameterTypeName} options={streamParamTypes}
+                                                onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)}/>
                                 <i className="remove-button fa fa-remove fa-3x"
                                    onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
                             </div>
@@ -1369,7 +1357,7 @@ class TypesPage extends React.Component {
                         <app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>
                         <app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>
                         <app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>
-                        <app.InputField key="array3" type="dropdown" label="Array Element Type" name="array-element-type" value={filterString} defaultValue={arrayElementTypeName} options={arrayElementTypes} onChange={this.onTypeDropdownChanged} onSelect={this.onArrayElementTypeChanged} isRequired={true}/>
+                        <app.InputField key="array3" type="dropdown" label="Array Element Type" name="array-element-type" defaultValue={arrayElementTypeName} options={arrayElementTypes} onSelect={this.onArrayElementTypeChanged} isRequired={true}/>
                     </div>
                 );
             }
@@ -1404,8 +1392,8 @@ class TypesPage extends React.Component {
                                             name="record-field-description" value={recordField.getFieldDescription()}
                                             onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} isRequired={true}/>
                             <app.InputField key="recordField3" type="dropdown" label="Record Field Type"
-                                            name="record-field-type" value={filterString} defaultValue={recordFieldTypeName}
-                                            options={recordFieldTypes} onChange={thisPage.onTypeDropdownChanged}
+                                            name="record-field-type" defaultValue={recordFieldTypeName}
+                                            options={recordFieldTypes}
                                             onSelect={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
                         </div>
                     );

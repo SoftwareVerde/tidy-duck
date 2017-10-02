@@ -122,6 +122,10 @@
     position: relative;
 }
 
+.input-field-small .dropdown {
+    display: inline-block;
+}
+
 .input-icons {
     float: right;
     color: red;

@@ -3,14 +3,14 @@ class InputField extends React.Component {
         super(props);
 
         this.state = {
-            value: (this.props.value || this.props.defaultValue || ""),
-            showDropdown: false,
+            value:          (this.props.value || this.props.defaultValue || ""),
+            filterString:   (this.props.value || this.props.defaultValue || ""),
+            showDropdown:   false,
             selectedResult: "",
-            ignoreMouse: false
+            ignoreMouse:    false
         };
 
         this.onInputChanged = this.onInputChanged.bind(this);
-        // this.isInViewport = this.isInViewport.bind(this);
         this.onDropdownKeyPress = this.onDropdownKeyPress.bind(this);
         this.onDropdownFocus = this.onDropdownFocus.bind(this);
         this.onDropdownBlur = this.onDropdownBlur.bind(this);
@@ -35,7 +35,7 @@ class InputField extends React.Component {
     }
 
     getFilteredResults() {
-        const filterString = this.state.value.toLowerCase();
+        const filterString = this.state.filterString.toLowerCase();
         const options = this.props.options;
         const filteredOptions = options.filter(function(value) {
             const lowerCaseValue = value.toLowerCase();
@@ -54,6 +54,7 @@ class InputField extends React.Component {
         if (! this.props.readOnly) {
             this.setState({
                 value:          newValue,
+                filterString:   newValue,
                 showDropdown:   true
             });
         }
@@ -63,39 +64,12 @@ class InputField extends React.Component {
         }
     }
 
-    /*
-    isInViewport(element, parentElement) {
-        const boundingBox = element.getBoundingClientRect();
-        const documentElement = document.documentElement;
-        let elementTop = 0;
-        let elementLeft = 0;
-        let elementBottom = (window.innerHeight || documentElement.clientHeight);
-        let elementRight =  (window.innerWidth || documentElement.clientWidth);
-
-        if (parentElement) {
-            const parentBoundingBox = parentElement.getBoundingClientRect();
-            elementTop = parentBoundingBox.top;
-            elementLeft = parentBoundingBox.left;
-            elementBottom = parentBoundingBox.bottom;
-            elementRight = parentBoundingBox.right;
-        }
-
-        return (
-            boundingBox.top >= elementTop &&
-            boundingBox.left >= elementLeft &&
-            boundingBox.bottom <=  elementBottom &&
-            boundingBox.right <= elementRight
-        );
-    }
-    */
-
     onDropdownKeyPress(e) {
         const options = this.getFilteredResults();
         const selectedResult = this.state.selectedResult || options[0];
         const selectedResultIndex = options.indexOf(selectedResult);
         const previousOption = options[Math.max(0, selectedResultIndex-1)];
         const nextOption = options[Math.min(options.length-1, selectedResultIndex+1)];
-        // const filteredResultsElement = document.getElementById("filtered-results");
 
         switch (e.keyCode) {
             case 13:
@@ -106,6 +80,7 @@ class InputField extends React.Component {
                 }
                 this.setState({
                     value: selectedResult,
+                    filterString: selectedResult,
                     showDropdown: false,
                 });
             break;
@@ -183,6 +158,7 @@ class InputField extends React.Component {
 
         this.setState({
             value:          this.state.selectedResult,
+            filterString:   this.state.selectedResult,
             showDropdown:   false,
         });
     }
@@ -209,7 +185,7 @@ class InputField extends React.Component {
             case 'dropdown':
                 return (
                     <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
-                        <input type="text" id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
+                        <input type="text" id={this.props.id} name={this.props.name} value={this.state.filterString} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                         {this.renderFilteredResults()}
                     </div>
                 );
