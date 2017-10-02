@@ -896,7 +896,8 @@ class TypesPage extends React.Component {
 
         this.setState({
             mostType: mostType,
-            saveButtonText: 'Save'
+            saveButtonText: 'Save',
+            typeFilterString: value
         });
     }
 
@@ -1368,7 +1369,7 @@ class TypesPage extends React.Component {
                         <app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>
                         <app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>
                         <app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>
-                        <app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} isRequired={true}/>
+                        <app.InputField key="array3" type="dropdown" label="Array Element Type" name="array-element-type" value={filterString} defaultValue={arrayElementTypeName} options={arrayElementTypes} onChange={this.onTypeDropdownChanged} onSelect={this.onArrayElementTypeChanged} isRequired={true}/>
                     </div>
                 );
             }
@@ -1410,13 +1411,6 @@ class TypesPage extends React.Component {
                     );
                     i++;
                 });
-
-                /*
-                    <app.InputField key="recordField3" type="select" label="Record Field Type"
-                    name="record-field-type" value={recordFieldTypeName}
-                    options={recordFieldTypes}
-                    onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
-                */
 
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">

@@ -10,7 +10,7 @@ class InputField extends React.Component {
         };
 
         this.onInputChanged = this.onInputChanged.bind(this);
-        this.isInViewport = this.isInViewport.bind(this);
+        // this.isInViewport = this.isInViewport.bind(this);
         this.onDropdownKeyPress = this.onDropdownKeyPress.bind(this);
         this.onDropdownFocus = this.onDropdownFocus.bind(this);
         this.onDropdownBlur = this.onDropdownBlur.bind(this);
@@ -63,6 +63,7 @@ class InputField extends React.Component {
         }
     }
 
+    /*
     isInViewport(element, parentElement) {
         const boundingBox = element.getBoundingClientRect();
         const documentElement = document.documentElement;
@@ -79,9 +80,6 @@ class InputField extends React.Component {
             elementRight = parentBoundingBox.right;
         }
 
-        // const elementTop = parentElement ? parentElement.offsetTop : 0;
-        // const elementLeft = parentElement ? parentElement.offsetLeft : 0;
-
         return (
             boundingBox.top >= elementTop &&
             boundingBox.left >= elementLeft &&
@@ -89,6 +87,7 @@ class InputField extends React.Component {
             boundingBox.right <= elementRight
         );
     }
+    */
 
     onDropdownKeyPress(e) {
         const options = this.getFilteredResults();
@@ -96,7 +95,7 @@ class InputField extends React.Component {
         const selectedResultIndex = options.indexOf(selectedResult);
         const previousOption = options[Math.max(0, selectedResultIndex-1)];
         const nextOption = options[Math.min(options.length-1, selectedResultIndex+1)];
-        const filteredResultsElement = document.getElementById("filtered-results");
+        // const filteredResultsElement = document.getElementById("filtered-results");
 
         switch (e.keyCode) {
             case 13:
@@ -115,13 +114,6 @@ class InputField extends React.Component {
                 const previousElement = document.getElementById(previousOption);
                 if(previousElement) {
                     e.preventDefault();
-                    /*
-                        if (! this.isInViewport(previousElement, filteredResultsElement)) {
-                            console.log("Previous element was not visible!");
-                            //filteredResultsElement.scrollTop = previousElement.offsetTop;
-                            // previousElement.scrollIntoView(true);
-                        }
-                    */
                     previousElement.scrollIntoViewIfNeeded(false);
 
                     this.setState({
@@ -136,13 +128,6 @@ class InputField extends React.Component {
                 const nextElement = document.getElementById(nextOption);
                 if (nextElement) {
                     e.preventDefault();
-                    /*
-                        if (! this.isInViewport(nextElement, filteredResultsElement)) {
-                            console.log("Next element was not visible!");
-                            // filteredResultsElement.scrollTop = nextElement.offsetTop;
-                            // nextElement.scrollIntoView(false);
-                        }
-                    */
                     nextElement.scrollIntoViewIfNeeded(false);
 
                     this.setState({
