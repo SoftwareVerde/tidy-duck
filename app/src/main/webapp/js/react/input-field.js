@@ -78,7 +78,7 @@ class InputField extends React.Component {
                     value: selectedResult,
                     showDropdown: false,
                 });
-                break;
+            break;
 
             case 38:
                 e.preventDefault();
@@ -88,7 +88,7 @@ class InputField extends React.Component {
                     showDropdown: true,
                     selectedResult: previousOption
                 });
-                break;
+            break;
 
             case 40:
                 e.preventDefault();
@@ -98,7 +98,14 @@ class InputField extends React.Component {
                     showDropdown: true,
                     selectedResult: nextOption
                 });
-                break;
+            break;
+
+            default:
+                this.setState({
+                    selectedResult: selectedResult,
+                    showDropdown: true
+                });
+            break;
         }
     }
 
