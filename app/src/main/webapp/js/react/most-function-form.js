@@ -14,8 +14,13 @@ class MostFunctionForm extends React.Component {
         let stereotypeName = this.props.selectedFunctionStereotype;
          // If a new function is created, set the Return Type to default. If not, use the name of the existing function's stereotype.
         if (isNewMostFunction) {
-            mostFunction.setReturnType(this.props.mostTypes[0]);
-        } else {
+            const sortedMostTypes = this.props.mostTypes.sort(function(a, b) {
+                return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+            });
+
+            mostFunction.setReturnType(sortedMostTypes[0]);
+        }
+        else {
             stereotypeName = mostFunction.getStereotype().getName();
         }
 

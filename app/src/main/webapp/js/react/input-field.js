@@ -5,14 +5,17 @@ class InputField extends React.Component {
         this.state = {
             value: (this.props.value || this.props.defaultValue || ""),
             showDropdown: false,
-            selectedResult: ""
+            selectedResult: "",
+            ignoreMouse: false
         };
 
         this.onInputChanged = this.onInputChanged.bind(this);
+        this.isInViewport = this.isInViewport.bind(this);
         this.onDropdownKeyPress = this.onDropdownKeyPress.bind(this);
         this.onDropdownFocus = this.onDropdownFocus.bind(this);
         this.onDropdownBlur = this.onDropdownBlur.bind(this);
         this.onFilteredResultMouseOver = this.onFilteredResultMouseOver.bind(this);
+        this.onFilteredResultsMouseMove = this.onFilteredResultsMouseMove.bind(this);
         this.onFilteredResultClick = this.onFilteredResultClick.bind(this);
         this.renderInput = this.renderInput.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
@@ -60,12 +63,40 @@ class InputField extends React.Component {
         }
     }
 
+    isInViewport(element, parentElement) {
+        const boundingBox = element.getBoundingClientRect();
+        const documentElement = document.documentElement;
+        let elementTop = 0;
+        let elementLeft = 0;
+        let elementBottom = (window.innerHeight || documentElement.clientHeight);
+        let elementRight =  (window.innerWidth || documentElement.clientWidth);
+
+        if (parentElement) {
+            const parentBoundingBox = parentElement.getBoundingClientRect();
+            elementTop = parentBoundingBox.top;
+            elementLeft = parentBoundingBox.left;
+            elementBottom = parentBoundingBox.bottom;
+            elementRight = parentBoundingBox.right;
+        }
+
+        // const elementTop = parentElement ? parentElement.offsetTop : 0;
+        // const elementLeft = parentElement ? parentElement.offsetLeft : 0;
+
+        return (
+            boundingBox.top >= elementTop &&
+            boundingBox.left >= elementLeft &&
+            boundingBox.bottom <=  elementBottom &&
+            boundingBox.right <= elementRight
+        );
+    }
+
     onDropdownKeyPress(e) {
         const options = this.getFilteredResults();
         const selectedResult = this.state.selectedResult || options[0];
         const selectedResultIndex = options.indexOf(selectedResult);
         const previousOption = options[Math.max(0, selectedResultIndex-1)];
         const nextOption = options[Math.min(options.length-1, selectedResultIndex+1)];
+        const filteredResultsElement = document.getElementById("filtered-results");
 
         switch (e.keyCode) {
             case 13:
@@ -81,29 +112,51 @@ class InputField extends React.Component {
             break;
 
             case 38:
-                e.preventDefault();
                 const previousElement = document.getElementById(previousOption);
-                previousElement.scrollIntoView(false);
-                this.setState({
-                    showDropdown: true,
-                    selectedResult: previousOption
-                });
+                if(previousElement) {
+                    e.preventDefault();
+                    /*
+                        if (! this.isInViewport(previousElement, filteredResultsElement)) {
+                            console.log("Previous element was not visible!");
+                            //filteredResultsElement.scrollTop = previousElement.offsetTop;
+                            // previousElement.scrollIntoView(true);
+                        }
+                    */
+                    previousElement.scrollIntoViewIfNeeded(false);
+
+                    this.setState({
+                        showDropdown: true,
+                        selectedResult: previousOption,
+                        ignoreMouse: true
+                    });
+                }
             break;
 
             case 40:
-                e.preventDefault();
                 const nextElement = document.getElementById(nextOption);
-                nextElement.scrollIntoView(false);
-                this.setState({
-                    showDropdown: true,
-                    selectedResult: nextOption
-                });
+                if (nextElement) {
+                    e.preventDefault();
+                    /*
+                        if (! this.isInViewport(nextElement, filteredResultsElement)) {
+                            console.log("Next element was not visible!");
+                            // filteredResultsElement.scrollTop = nextElement.offsetTop;
+                            // nextElement.scrollIntoView(false);
+                        }
+                    */
+                    nextElement.scrollIntoViewIfNeeded(false);
+
+                    this.setState({
+                        showDropdown: true,
+                        selectedResult: nextOption,
+                        ignoreMouse: true
+                    });
+                }
             break;
 
             default:
                 this.setState({
                     selectedResult: selectedResult,
-                    showDropdown: true
+                    showDropdown: true,
                 });
             break;
         }
@@ -124,10 +177,18 @@ class InputField extends React.Component {
         });
     }
 
-    onFilteredResultMouseOver(value) {
+    onFilteredResultsMouseMove() {
         this.setState({
-            selectedResult: value
+            ignoreMouse: false
         });
+    }
+
+    onFilteredResultMouseOver(value) {
+        if (! this.state.ignoreMouse) {
+            this.setState({
+                selectedResult: value
+            });
+        }
     }
 
     onFilteredResultClick() {
@@ -194,11 +255,11 @@ class InputField extends React.Component {
             for (let i in options) {
                 const option = options[i];
                 const resultStyle = (option == selectedResult) ? "selected-result" : "filtered-result";
-                reactComponents.push(<div key={"result" + i} id={option} className={resultStyle} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
+                reactComponents.push(<div key={"result" + i} id={option} className={resultStyle} onMouseMove={this.onFilteredResultsMouseMove} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
             }
 
             return(
-                <div className="filtered-results" onClick={this.onFilteredResultClick} >
+                <div className="filtered-results" id="filtered-results" onClick={this.onFilteredResultClick} >
                     {reactComponents}
                 </div>
             );

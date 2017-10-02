@@ -9,7 +9,8 @@ class TypesPage extends React.Component {
         this.state = {
             selectedOption: this.options[0],
             mostType: mostType,
-            saveButtonText: 'Save'
+            saveButtonText: 'Save',
+            typeFilterString: ""
         };
 
         // for methods that don't actually have an object to set on the state
@@ -17,6 +18,7 @@ class TypesPage extends React.Component {
 
         this.onTypeNameChanged = this.onTypeNameChanged.bind(this);
         this.onBaseTypeChanged = this.onBaseTypeChanged.bind(this);
+        this.onTypeDropdownChanged = this.onTypeDropdownChanged.bind(this);
         this.onTypeSelected = this.onTypeSelected.bind(this);
         this.onBitFieldLengthChanged = this.onBitFieldLengthChanged.bind(this);
         this.onBoolFieldAddButtonClicked = this.onBoolFieldAddButtonClicked.bind(this);
@@ -386,6 +388,13 @@ class TypesPage extends React.Component {
             selectedType: value,
             saveButtonText: 'Save'
         })
+    }
+
+    onTypeDropdownChanged(newValue) {
+        this.setState({
+            saveButtonText: 'Save',
+            typeFilterString: newValue
+        });
     }
 
     onTypeNameChanged(value) {
@@ -1001,7 +1010,8 @@ class TypesPage extends React.Component {
 
         this.setState({
             mostType: mostType,
-            saveButtonText: 'Save'
+            saveButtonText: 'Save',
+            typeFilterString: typeName
         });
     }
 
@@ -1074,6 +1084,7 @@ class TypesPage extends React.Component {
     renderBaseTypeSpecificInputs() {
         const reactComponents = [];
         const mostType = this.state.mostType;
+        const filterString = this.state.typeFilterString;
 
         if (!mostType.getPrimitiveType()) {
             return;
@@ -1391,14 +1402,21 @@ class TypesPage extends React.Component {
                             <app.InputField key="recordField2" type="text" label="Record Field Description"
                                             name="record-field-description" value={recordField.getFieldDescription()}
                                             onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} isRequired={true}/>
-                            <app.InputField key="recordField3" type="select" label="Record Field Type"
-                                            name="record-field-type" value={recordFieldTypeName}
-                                            options={recordFieldTypes}
-                                            onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
+                            <app.InputField key="recordField3" type="dropdown" label="Record Field Type"
+                                            name="record-field-type" value={filterString} defaultValue={recordFieldTypeName}
+                                            options={recordFieldTypes} onChange={thisPage.onTypeDropdownChanged}
+                                            onSelect={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
                         </div>
                     );
                     i++;
                 });
+
+                /*
+                    <app.InputField key="recordField3" type="select" label="Record Field Type"
+                    name="record-field-type" value={recordFieldTypeName}
+                    options={recordFieldTypes}
+                    onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
+                */
 
                 reactComponents.push(
                     <div key="TRecord" className="clearfix">
