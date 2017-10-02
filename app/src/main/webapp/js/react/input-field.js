@@ -82,6 +82,8 @@ class InputField extends React.Component {
 
             case 38:
                 e.preventDefault();
+                const previousElement = document.getElementById(previousOption);
+                previousElement.scrollIntoView(false);
                 this.setState({
                     showDropdown: true,
                     selectedResult: previousOption
@@ -90,6 +92,8 @@ class InputField extends React.Component {
 
             case 40:
                 e.preventDefault();
+                const nextElement = document.getElementById(nextOption);
+                nextElement.scrollIntoView(false);
                 this.setState({
                     showDropdown: true,
                     selectedResult: nextOption
@@ -105,6 +109,7 @@ class InputField extends React.Component {
     }
 
     onDropdownBlur() {
+        this.onFilteredResultClick();
         this.setState({
             showDropdown: false,
             value: this.props.defaultValue,
@@ -150,7 +155,7 @@ class InputField extends React.Component {
                 break;
             case 'dropdown':
                 return (
-                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onFocus={this.onDropdownFocus}>
+                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
                         <input type="text" id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                         {this.renderFilteredResults()}
                     </div>
@@ -181,12 +186,12 @@ class InputField extends React.Component {
 
             for (let i in options) {
                 const option = options[i];
-                const resultStyle = (options[i] == selectedResult) ? "selected-result" : "filtered-result";
-                reactComponents.push(<div key={i} className={resultStyle} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
+                const resultStyle = (option == selectedResult) ? "selected-result" : "filtered-result";
+                reactComponents.push(<div key={"result" + i} id={option} className={resultStyle} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
             }
 
             return(
-                <div className="filtered-results" onBlur={this.onDropdownBlur} onClick={this.onFilteredResultClick} >
+                <div className="filtered-results" onClick={this.onFilteredResultClick} >
                     {reactComponents}
                 </div>
             );
