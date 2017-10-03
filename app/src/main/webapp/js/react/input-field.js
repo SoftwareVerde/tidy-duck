@@ -89,7 +89,13 @@ class InputField extends React.Component {
                 const previousElement = document.getElementById(previousOption);
                 if(previousElement) {
                     e.preventDefault();
-                    previousElement.scrollIntoViewIfNeeded(false);
+
+                    if (navigator.userAgent.indexOf('Firefox') > -1) {
+                        previousElement.scrollIntoView(false);
+                    }
+                    else {
+                        previousElement.scrollIntoViewIfNeeded(false);
+                    }
 
                     this.setState({
                         showDropdown: true,
@@ -103,7 +109,13 @@ class InputField extends React.Component {
                 const nextElement = document.getElementById(nextOption);
                 if (nextElement) {
                     e.preventDefault();
-                    nextElement.scrollIntoViewIfNeeded(false);
+
+                    if (navigator.userAgent.indexOf('Firefox') > -1) {
+                        nextElement.scrollIntoView(false);
+                    }
+                    else {
+                        nextElement.scrollIntoViewIfNeeded(false);
+                    }
 
                     this.setState({
                         showDropdown: true,
@@ -186,7 +198,7 @@ class InputField extends React.Component {
                 return (
                     <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
                         <input type="text" id={this.props.id} name={this.props.name} value={this.state.filterString} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
-                        <i className="fa fa-filter"/>
+                        <i className="fa fa-sort"/>
                         {this.renderFilteredResults()}
                     </div>
                 );

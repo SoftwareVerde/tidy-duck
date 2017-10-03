@@ -145,6 +145,10 @@
     color: #9CF;
 }
 
+.dropdown {
+    color: #032334;
+}
+
 .child-item, .unreleased-child-item {
     color: #032334;
     background-color: #9DA1AE;
