@@ -186,6 +186,7 @@ class InputField extends React.Component {
                 return (
                     <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
                         <input type="text" id={this.props.id} name={this.props.name} value={this.state.filterString} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
+                        <i className="fa fa-filter"/>
                         {this.renderFilteredResults()}
                     </div>
                 );

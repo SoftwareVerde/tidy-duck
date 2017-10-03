@@ -126,6 +126,14 @@
     display: inline-block;
 }
 
+.dropdown .fa-filter {
+    position: absolute;
+    top: 15%;
+    right: 2%;
+    font-size: 2em;
+
+}
+
 .input-icons {
     float: right;
     color: red;

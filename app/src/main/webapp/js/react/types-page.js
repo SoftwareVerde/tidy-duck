@@ -1179,9 +1179,9 @@ class TypesPage extends React.Component {
                                                      value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} isRequired={numberRangeMin.length != 0}/>);
                 reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step"
                                                      value={numberStep} onChange={this.onNumberStepChanged} isRequired={true}/>);
-                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit"
-                                                     value={numberUnitName} options={units}
-                                                     onChange={this.onNumberUnitChanged} isRequired={true}/>);
+                reactComponents.push(<app.InputField key="number6" type="dropdown" label="Unit" name="unit"
+                                                     defaultValue={numberUnitName} options={units}
+                                                     onSelect={this.onNumberUnitChanged} isRequired={true}/>);
             }
                 break;
             case 'TString': {
