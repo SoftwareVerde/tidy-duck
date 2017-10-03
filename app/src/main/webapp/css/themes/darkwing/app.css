@@ -21,6 +21,10 @@
     color: #032C46;
 }
 
+.accounts-table .user-column:hover {
+    box-shadow: 3px 6px 15px #888888;
+}
+
 .navigation-column {
     background-color: #032C46;
     color: #101010;
