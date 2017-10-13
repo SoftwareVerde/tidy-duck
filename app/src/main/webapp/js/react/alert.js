@@ -83,9 +83,14 @@ class Alert extends React.Component {
         return true;
     }
 
-    onButtonClick(event) {
-        if (typeof this.props.onConfirm == "function") {
-            this.props.onConfirm();
+    onButtonClick(isConfirmClicked) {
+        if (isConfirmClicked) {
+            if (typeof this.props.onConfirm == "function") {
+                this.props.onConfirm();
+            }
+        }
+        else if (typeof this.props.onCancel == "function") {
+            this.props.onCancel();
         }
 
         this.setState({
@@ -117,6 +122,15 @@ class Alert extends React.Component {
         };
 
         const hasMoved = (this.state.lastMoveTime > 0);
+
+        let cancelButton = "";
+        let confirmButtonText = "Got it!";
+        const isConfirmAlert = this.props.onCancel;
+        if (isConfirmAlert) {
+            confirmButtonText = "OK";
+            cancelButton = <div className="alert-button" onClick={() => this.onButtonClick(false)}>Cancel</div>
+        }
+
         if (this.state.isMoving) {
             OnMouseMove.addCallback(this.onMouseMove);
         }
@@ -128,7 +142,8 @@ class Alert extends React.Component {
             <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} style={divStyle} >
                 <div className="alert-title" onMouseUp={this.onMouseUp} onMouseDown={this.onMouseDown}>{this.state.title}</div>
                 <div className="alert-content">{this.state.content}</div>
-                <div className="alert-button" onClick={this.onButtonClick}>Got it!</div>
+                <div className="alert-button" onClick={() => this.onButtonClick(true)}>{confirmButtonText}</div>
+                {cancelButton}
             </div>
         );
     }
