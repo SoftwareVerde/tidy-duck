@@ -93,7 +93,7 @@ class SearchResult extends React.Component {
         const releasedIcon = searchResult.isReleased() ? <i title="This item has been released as part of an existing Function Catalog." className="fa fa-book"/> : "";
         const resultName = searchResult.getName();
         const resultDescription = searchResult.getDescription();
-        const shortName = shortenString(resultName, 22, false);
+        const shortName = shortenString(resultName, 25, false);
         const shortDescription = shortenString(resultDescription, 25);
 
         switch (currentNavigationLevel) {

@@ -51,11 +51,11 @@
 }
 
 .input-field select {
-    height: 2.3em;
+    min-height: 2.3em;
 }
 
 .input-field textarea {
-    height: 8em;
+    min-height: 8em;
 }
 
 .input-field-small {
