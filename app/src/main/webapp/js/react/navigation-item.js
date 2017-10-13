@@ -79,10 +79,11 @@ class NavigationItem extends React.Component {
 
     render() {
         const config = this.props.navigationItemConfig || new NavigationItemConfig();
+        const configTitle = config.getTitle();
 
         return (
             <div className="navigation-item clearfix" onClick={this.onClick}>
-                {config.getTitle()}
+                <span title={configTitle}>{shortenString(configTitle, 32, false)}</span>
                 {this.renderMenu()}
                 {this.renderForm()}
             </div>
