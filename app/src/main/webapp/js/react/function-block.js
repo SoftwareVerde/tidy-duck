@@ -113,6 +113,7 @@ class FunctionBlock extends React.Component {
         const author = this.props.functionBlock.getAuthor();
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
+        const shortName = shortenString(name, 25, false);
         const shortDescription = shortenString(this.props.functionBlock.getDescription(), 25);
         const childItemStyle = this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item";
 
@@ -125,7 +126,7 @@ class FunctionBlock extends React.Component {
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
-                    {name}
+                    <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {releasedIcon}
