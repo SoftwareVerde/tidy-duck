@@ -90,10 +90,18 @@ body * {
 .cell {
     display: table-cell;
 }
+
 .clearfix::after {
     content:    "";
     display:    block;
     clear:      both;
+}
+
+.clear-left {
+    clear: left;
+}
+.clear-right {
+    clear: right;
 }
 
 .wordwrap {

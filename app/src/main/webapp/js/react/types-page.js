@@ -1061,9 +1061,9 @@ class TypesPage extends React.Component {
             <form onSubmit={this.onSave}>
                 <div id="types-main-inputs">
                     {typeSelector}
-                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
-                    <app.InputField className="is-primary-type-container" key="isPrimaryType" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false} tabIndex={0}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="type-name" className="clear-left" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
+                    <app.InputField key="isPrimaryType" className="is-primary-type-container" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false} tabIndex={0}/>
+                    <app.InputField key="base-type" className="clear-left" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
                 <div key="save-button" className="center">{saveButton}</div>
