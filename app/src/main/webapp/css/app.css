@@ -394,8 +394,9 @@
 .child-item, .unreleased-child-item {
     padding: 1em;
     margin: 1em;
-    width: 250px;
-    height: 250px;
+    min-width: 350px;
+    width: 22vw;
+    height: 200px;
     display: inline-block;
     box-sizing: border-box;
 
