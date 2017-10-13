@@ -9,7 +9,7 @@ class TypesPage extends React.Component {
         this.state = {
             selectedOption: this.options[0],
             mostType: mostType,
-            saveButtonText: 'Save'
+            saveButtonText: 'Save',
         };
 
         // for methods that don't actually have an object to set on the state
@@ -1061,9 +1061,9 @@ class TypesPage extends React.Component {
             <form onSubmit={this.onSave}>
                 <div id="types-main-inputs">
                     {typeSelector}
-                    <app.InputField key="type-name" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
-                    <app.InputField className="is-primary-type-container" key="isPrimaryType" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false} tabIndex={0}/>
-                    <app.InputField key="base-type" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
+                    <app.InputField key="type-name" className="clear-left" type="text" label="Type Name" name="type-name" value={typeName} onChange={this.onTypeNameChanged} isRequired={true}/>
+                    <app.InputField key="isPrimaryType" className="is-primary-type-container" type="checkbox" label="Is Primary Type" name="array-is-primary-type" checked={isPrimaryType} onChange={this.onIsPrimaryTypeChanged} isRequired={false} tabIndex={0}/>
+                    <app.InputField key="base-type" className="clear-left" type="select" label="Base Type" name="base-type" value={baseTypeName} options={baseTypes} onChange={this.onBaseTypeChanged}/>
                 </div>
                 {this.renderBaseTypeSpecificInputs()}
                 <div key="save-button" className="center">{saveButton}</div>
@@ -1179,9 +1179,9 @@ class TypesPage extends React.Component {
                                                      value={numberRangeMax} onChange={this.onNumberRangeMaxChanged} isRequired={numberRangeMin.length != 0}/>);
                 reactComponents.push(<app.InputField key="number5" type="text" label="Step" name="step"
                                                      value={numberStep} onChange={this.onNumberStepChanged} isRequired={true}/>);
-                reactComponents.push(<app.InputField key="number6" type="select" label="Unit" name="unit"
-                                                     value={numberUnitName} options={units}
-                                                     onChange={this.onNumberUnitChanged} isRequired={true}/>);
+                reactComponents.push(<app.InputField key="number6" type="dropdown" label="Unit" name="unit"
+                                                     defaultValue={numberUnitName} options={units}
+                                                     onSelect={this.onNumberUnitChanged} isRequired={true}/>);
             }
                 break;
             case 'TString': {
@@ -1227,9 +1227,9 @@ class TypesPage extends React.Component {
                                                 isSmallInputField={true}
                                                 value={streamParameter.getParameterDescription()}
                                                 onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="select" label="Type" isSmallInputField={true}
-                                                value={parameterTypeName} options={streamParamTypes}
-                                                onChange={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)}/>
+                                <app.InputField name="type" type="dropdown" label="Type" isSmallInputField={true}
+                                                defaultValue={parameterTypeName} options={streamParamTypes}
+                                                onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)}/>
                                 <i className="remove-button fa fa-remove fa-3x"
                                    onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
                             </div>
@@ -1357,7 +1357,7 @@ class TypesPage extends React.Component {
                         <app.InputField key="array1" type="text" label="Array Name" name="array-name" value={arrayName} onChange={this.onArrayNameChanged} isRequired={false}/>
                         <app.InputField key="array4" type="text" label="Array Size" name="array-size" value={arraySize} onChange={this.onArraySizeChanged} isRequired={false}/>
                         <app.InputField key="array2" type="textarea" label="Array Description" name="array-description" value={arrayDescription} onChange={this.onArrayDescriptionChanged} isRequired={false}/>
-                        <app.InputField key="array3" type="select" label="Array Element Type" name="array-element-type" value={arrayElementTypeName} options={arrayElementTypes} onChange={this.onArrayElementTypeChanged} isRequired={true}/>
+                        <app.InputField key="array3" type="dropdown" label="Array Element Type" name="array-element-type" defaultValue={arrayElementTypeName} options={arrayElementTypes} onSelect={this.onArrayElementTypeChanged} isRequired={true}/>
                     </div>
                 );
             }
@@ -1391,10 +1391,10 @@ class TypesPage extends React.Component {
                             <app.InputField key="recordField2" type="text" label="Record Field Description"
                                             name="record-field-description" value={recordField.getFieldDescription()}
                                             onChange={(description) => thisPage.onRecordFieldDescriptionChanged(recordField, description)} isRequired={true}/>
-                            <app.InputField key="recordField3" type="select" label="Record Field Type"
-                                            name="record-field-type" value={recordFieldTypeName}
+                            <app.InputField key="recordField3" type="dropdown" label="Record Field Type"
+                                            name="record-field-type" defaultValue={recordFieldTypeName}
                                             options={recordFieldTypes}
-                                            onChange={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
+                                            onSelect={(value) => thisPage.onRecordFieldTypeChanged(recordField, value)} isRequired={true}/>
                         </div>
                     );
                     i++;

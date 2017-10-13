@@ -68,7 +68,8 @@ class MostFunction extends React.Component {
         const author = this.props.mostFunction.getAuthor();
         const company = this.props.mostFunction.getCompany();
         const name = this.props.mostFunction.getName();
-        const shortDescription = shortenString(this.props.mostFunction.getDescription(), 25);
+        const shortName = shortenString(name, 35, false);
+        const shortDescription = shortenString(this.props.mostFunction.getDescription(), 35);
         const childItemStyle = (this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
@@ -77,7 +78,7 @@ class MostFunction extends React.Component {
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
-                    {name}
+                    <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {releasedIcon}

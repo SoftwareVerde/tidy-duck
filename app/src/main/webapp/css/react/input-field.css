@@ -51,11 +51,11 @@
 }
 
 .input-field select {
-    height: 2.3em;
+    min-height: 2.3em;
 }
 
 .input-field textarea {
-    height: 8em;
+    min-height: 8em;
 }
 
 .input-field-small {
@@ -89,6 +89,49 @@
     vertical-align: middle;
     margin-left: 5px;
     display: inline-block;
+}
+
+.input-field .filtered-results, .input-field-small .filtered-results {
+    width: 100%;
+    max-height: 360px;
+    margin: 0;
+    box-sizing: border-box;
+    border: solid 1px #CCCCCC;
+    border-top: none;
+    background-color: #FFF;
+    position: absolute;
+    z-index: 1;
+    overflow-y: auto;
+}
+
+.filtered-result, .selected-result {
+    padding: 0.5em;
+    cursor: default;
+    font-size: 1rem;
+}
+
+.filtered-result:nth-child(even) {
+    background-color: #EEEEEE;
+}
+
+.selected-result {
+    background-color: #FFEE77;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.input-field-small .dropdown {
+    display: inline-block;
+}
+
+.dropdown .fa-sort {
+    position: absolute;
+    top: 15%;
+    right: 2%;
+    font-size: 2em;
+
 }
 
 .input-icons {

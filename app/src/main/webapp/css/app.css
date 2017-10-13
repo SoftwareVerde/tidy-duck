@@ -326,7 +326,7 @@
 .search-result-property {
     padding: 0;
     margin: 0.75em;
-    width: 20%
+    width: 27.5%
 }
 
 .search-result-property-short {
@@ -394,8 +394,9 @@
 .child-item, .unreleased-child-item {
     padding: 1em;
     margin: 1em;
-    width: 250px;
-    height: 250px;
+    min-width: 350px;
+    width: 22vw;
+    height: 200px;
     display: inline-block;
     box-sizing: border-box;
 

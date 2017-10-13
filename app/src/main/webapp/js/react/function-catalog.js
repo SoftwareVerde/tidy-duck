@@ -125,6 +125,7 @@ class FunctionCatalog extends React.Component {
         const author = this.props.functionCatalog.getAuthor();
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
+        const shortName = shortenString(name, 35, false);
         const childItemStyle = this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
@@ -133,7 +134,7 @@ class FunctionCatalog extends React.Component {
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
-                    {name}
+                    <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {releasedIcon}

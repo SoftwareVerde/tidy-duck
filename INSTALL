@@ -31,22 +31,33 @@ MySQL Setup
 
         (This will enable strict mode in order to enforce data integrity constraints.)
 
-
     ------------------
     Load MySQL Schema
     ------------------
         1. From the tidy-duck directory, connect to MySQL
 
-            mysql -u root -p
+                mysql -u root -p
 
         2. Run the init-schema.sql script.
 
-            source sql/init-schema.sql
+                source sql/init-schema.sql
 
         3. Run the init.sql script.
 
-            use tidy_duck;
-            source sql/init.sql
+                use tidy_duck;
+                source sql/init.sql
+                source sql/init-accounts.sql
+
+        4. Run any database migrations (in chronological order)
+
+               source sql/migrations/[file1].sql
+               source sql/migrations/[file2].sql
+                ...
+               source sql/migrations/[fileN].sql
+
+           Alternatively, the following command should run each migration (the root password will need to be typed for each file):
+
+               ls sql/migrations/ | while read file; do echo $file; mysql tidy_duck -u root -p < $file; done
 
     ------------------
     Create MySQL User
@@ -55,11 +66,15 @@ MySQL Setup
         Create the application sql-account (with limited access)
         Be sure to modify the command below to use the password set within app/src/{environment}/resources/server.conf
 
-            mysql -u root -p tidy_duck -e "DROP USER IF EXISTS tidy_duck; CREATE USER 'tidy_duck'@'%' IDENTIFIED BY '__PASSWORD__'; GRANT SELECT, INSERT, UPDATE, DELETE ON tidy_duck.* TO 'tidy_duck'@'%'; FLUSH PRIVILEGES;"
+            mysql -u root -p tidy_duck -e "CREATE USER 'tidy_duck'@'%' IDENTIFIED BY '__PASSWORD__'; GRANT SELECT, INSERT, UPDATE, DELETE ON tidy_duck.* TO 'tidy_duck'@'%'; FLUSH PRIVILEGES;"
 
-===========
+        If the above command fails the tidy_duck user already exist and needs re-created, the following command will delete it:
+
+            mysql -u root -p tidy_duck -e "DROP USER tidy_duck;"
+
+=======
 Logging
-===========
+=======
 
     Create the logging destination directory.
     (This file may be configured within app/src/{environment}/resources/log4j2.xml)
@@ -68,20 +83,21 @@ Logging
         sudo chmod -R 770 /var/log/tidy-duck
         sudo chown -R tomcat7:tomcat7 /var/log/tidy-duck
 
-===========
+====================
 Create User Accounts
-===========
+====================
 
     1. Update the accounts sql-script:
-    Passwords are hashed via sha256. The default password provided is "quack quack".
 
-        vim sql/init-accounts.sql
+        The default password provided is "quack quack".
+
+            vim sql/init-accounts.sql
 
     2. From the tidy-duck directory, connect to MySQL and run the sql script:
 
-        mysql -u root -p
-        use tidy_duck;
-        source sql/init-accounts.sql
+            mysql -u root -p
+            use tidy_duck;
+            source sql/init-accounts.sql
 
 ===========
 Compilation
@@ -96,9 +112,9 @@ Compilation
 
     This script will echo the location of the war file for deployment.
 
-===========
+==========
 Deployment
-===========
+==========
 
     Tidy Duck is a Tomcat7 application. To deploy it, take the generated war file and move it to the Tomcat Modules directory.
     The application should be the only application on the server; thus "ROOT.war" should be the name of the application file.
@@ -118,16 +134,9 @@ Deployment
         sudo mv app/build/libs/*.war /var/lib/tomcat7/webapps/ROOT.war
         sudo chown tomcat7:tomcat7 /var/lib/tomcat7/webapps/ROOT.war
 
-
-===========
-SSL Setup
-===========
-
-    TODO
-
-===========
+==========
 Web Access
-===========
+==========
 
     Tomcat is configured to listen on port 8080 by default.
     Depending on your network configuration, it may be best to setup a reverse proxy.
@@ -137,8 +146,27 @@ Web Access
 
         sudo iptables -t nat -A OUTPUT -o lo -p tcp --dport 80 -j REDIRECT --to-port 8080
 
+===============
+Troubleshooting
+===============
 
-    Configure Tomcat Port for 80:
+    Depending on the server setup prior to installation you may need to take some additional steps to get started.
 
-        TODO
+    -------------------------------------------
+    Can't access application on configured port
+    -------------------------------------------
+
+        It's possible that a firewall setting is preventing traffic to the configured port.  Try temporarily disabling
+        iptables or working with a system administrator to check any other firewall or network settings that might be
+        preventing access.
+
+    ---------------------------------------------------
+    Permission denied error when accessing the database
+    ---------------------------------------------------
+
+        This can be caused by SELinux not allowing name-based resolution of the database server or some other restriction.
+        Have a system adminstrator check the SELinux logs to determine if it is getting in the way.  Exceptions may need to
+        added in order to get the applicaiton working.
+
+        Alternatively, or at least temporarily, disable SELinux to ensure that it is not causing the probelm.
 

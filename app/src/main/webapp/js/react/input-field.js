@@ -3,20 +3,60 @@ class InputField extends React.Component {
         super(props);
 
         this.state = {
-            value: (this.props.value || "")
+            value:          (this.props.value || this.props.defaultValue || ""),
+            filterString:   (this.props.value || this.props.defaultValue || ""),
+            showDropdown:   false,
+            selectedResult: "",
+            ignoreMouse:    false
         };
 
         this.onInputChanged = this.onInputChanged.bind(this);
+        this.onDropdownKeyPress = this.onDropdownKeyPress.bind(this);
+        this.onDropdownFocus = this.onDropdownFocus.bind(this);
+        this.onDropdownBlur = this.onDropdownBlur.bind(this);
+        this.onFilteredResultMouseOver = this.onFilteredResultMouseOver.bind(this);
+        this.onFilteredResultsMouseMove = this.onFilteredResultsMouseMove.bind(this);
+        this.onFilteredResultClick = this.onFilteredResultClick.bind(this);
         this.renderInput = this.renderInput.bind(this);
         this.renderOptions = this.renderOptions.bind(this);
+        this.renderFilteredResults = this.renderFilteredResults.bind(this);
+        this.getFilteredResults = this.getFilteredResults.bind(this);
         this.getValue = this.getValue.bind(this);
     }
 
+    componentWillReceiveProps(newProperties) {
+        this.setState({
+            value: (newProperties.value || ""),
+        });
+    }
+
+    getValue() {
+        return this.state.value;
+    }
+
+    getFilteredResults() {
+        const filterString = this.state.filterString.toLowerCase();
+        const options = this.props.options;
+        const filteredOptions = options.filter(function(value) {
+            const lowerCaseValue = value.toLowerCase();
+            return lowerCaseValue.includes(filterString);
+        });
+
+        return filteredOptions.sort(function(a, b) {
+            return a.localeCompare(b, undefined, {numeric : true, sensitivity: 'base'});
+        });
+    }
+
     onInputChanged(event) {
-        var newValue = this.props.type == "checkbox" ? event.target.checked : event.target.value;
+        var inputType = this.props.type;
+        var newValue = inputType == "checkbox" ? event.target.checked : event.target.value;
 
         if (! this.props.readOnly) {
-            this.setState({value: newValue});
+            this.setState({
+                value:          newValue,
+                filterString:   newValue,
+                showDropdown:   true
+            });
         }
 
         if (this.props.onChange) {
@@ -24,14 +64,115 @@ class InputField extends React.Component {
         }
     }
 
-    componentWillReceiveProps(newProperties) {
+    onDropdownKeyPress(e) {
+        const options = this.getFilteredResults();
+        const selectedResult = this.state.selectedResult || options[0];
+        const selectedResultIndex = options.indexOf(selectedResult);
+        const previousOption = options[Math.max(0, selectedResultIndex-1)];
+        const nextOption = options[Math.min(options.length-1, selectedResultIndex+1)];
+
+        switch (e.keyCode) {
+            case 13:
+            case 32:
+                e.preventDefault();
+                if (typeof this.props.onSelect == "function") {
+                    this.props.onSelect(selectedResult, this.props.name)
+                }
+                this.setState({
+                    value: selectedResult,
+                    filterString: selectedResult,
+                    showDropdown: false,
+                });
+            break;
+
+            case 38:
+                const previousElement = document.getElementById(previousOption);
+                if(previousElement) {
+                    e.preventDefault();
+
+                    if (navigator.userAgent.indexOf('Firefox') > -1) {
+                        previousElement.scrollIntoView(false);
+                    }
+                    else {
+                        previousElement.scrollIntoViewIfNeeded(false);
+                    }
+
+                    this.setState({
+                        showDropdown: true,
+                        selectedResult: previousOption,
+                        ignoreMouse: true
+                    });
+                }
+            break;
+
+            case 40:
+                const nextElement = document.getElementById(nextOption);
+                if (nextElement) {
+                    e.preventDefault();
+
+                    if (navigator.userAgent.indexOf('Firefox') > -1) {
+                        nextElement.scrollIntoView(false);
+                    }
+                    else {
+                        nextElement.scrollIntoViewIfNeeded(false);
+                    }
+
+                    this.setState({
+                        showDropdown: true,
+                        selectedResult: nextOption,
+                        ignoreMouse: true
+                    });
+                }
+            break;
+
+            default:
+                this.setState({
+                    selectedResult: selectedResult,
+                    showDropdown: true,
+                });
+            break;
+        }
+    }
+
+    onDropdownFocus() {
         this.setState({
-            value: (newProperties.value || "")
+            showDropdown: true,
         });
     }
 
-    getValue() {
-        return this.state.value;
+    onDropdownBlur() {
+        this.onFilteredResultClick();
+        this.setState({
+            showDropdown: false,
+            value: this.props.defaultValue,
+            selectedResult: ""
+        });
+    }
+
+    onFilteredResultsMouseMove() {
+        this.setState({
+            ignoreMouse: false
+        });
+    }
+
+    onFilteredResultMouseOver(value) {
+        if (! this.state.ignoreMouse) {
+            this.setState({
+                selectedResult: value
+            });
+        }
+    }
+
+    onFilteredResultClick() {
+        if (typeof this.props.onSelect == "function") {
+            this.props.onSelect(this.state.selectedResult, this.props.name)
+        }
+
+        this.setState({
+            value:          this.state.selectedResult,
+            filterString:   this.state.selectedResult,
+            showDropdown:   false,
+        });
     }
 
     renderInput() {
@@ -53,6 +194,15 @@ class InputField extends React.Component {
                     <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} tabIndex={this.props.tabIndex} checked={this.props.checked}/>
                 );
                 break;
+            case 'dropdown':
+                return (
+                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
+                        <input type="text" id={this.props.id} name={this.props.name} value={this.state.filterString} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
+                        <i className="fa fa-sort"/>
+                        {this.renderFilteredResults()}
+                    </div>
+                );
+                break;
             default:
                 return (
                     <input type={this.props.type} id={this.props.id} name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
@@ -68,6 +218,26 @@ class InputField extends React.Component {
             options.push(<option key={optionName + i} value={optionName}>{optionLabel}</option>);
         }
         return options;
+    }
+
+    renderFilteredResults() {
+        if (this.state.showDropdown) {
+            const reactComponents = [];
+            const options = this.getFilteredResults();
+            const selectedResult = this.state.selectedResult || options[0];
+
+            for (let i in options) {
+                const option = options[i];
+                const resultStyle = (option == selectedResult) ? "selected-result" : "filtered-result";
+                reactComponents.push(<div key={"result" + i} id={option} className={resultStyle} onMouseMove={this.onFilteredResultsMouseMove} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
+            }
+
+            return(
+                <div className="filtered-results" id="filtered-results" onClick={this.onFilteredResultClick} >
+                    {reactComponents}
+                </div>
+            );
+        }
     }
 
     render() {
