@@ -91,17 +91,19 @@ class SearchResult extends React.Component {
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const resultStyle = searchResult.isApproved() ? "search-result" : "unapproved-search-result";
         const releasedIcon = searchResult.isReleased() ? <i title="This item has been released as part of an existing Function Catalog." className="fa fa-book"/> : "";
-        var shortDescription = "";
+        const resultName = searchResult.getName();
+        const resultDescription = searchResult.getDescription();
+        const shortName = shortenString(resultName, 22, false);
+        const shortDescription = shortenString(resultDescription, 25);
 
         switch (currentNavigationLevel) {
             case navigationLevel.functionCatalogs:
-                shortDescription = shortenString(searchResult.getDescription(), 25);
                 return (
                     <div className={resultStyle}>
-                        <div className="search-result-property">{searchResult.getName()}</div>
+                        <div className="search-result-property" title={resultName}>{shortName}</div>
                         <div className="search-result-property-short">{searchResult.getMostId()}</div>
                         <div className="search-result-property-short">{searchResult.getKind()}</div>
-                        <div className="search-result-property">{shortDescription}</div>
+                        <div className="search-result-property" title={resultDescription}>{shortDescription}</div>
                         <div className="search-result-property-short">
                             {releasedIcon}
                             <select name={"Version"} value={searchResult.getDisplayVersion()} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
@@ -112,12 +114,11 @@ class SearchResult extends React.Component {
                 );
                 break;
             case navigationLevel.functionBlocks:
-                shortDescription = shortenString(searchResult.getDescription(), 25);
                 return (
                     <div className={resultStyle}>
-                        <div className="search-result-property">{searchResult.getName()}</div>
+                        <div className="search-result-property" title={resultName}>{shortName}</div>
                         <div className="search-result-property-short">{searchResult.getMostId()}</div>
-                        <div className="search-result-property">{shortDescription}</div>
+                        <div className="search-result-property" title={resultDescription}>{shortDescription}</div>
                         <div className="search-result-property-short">
                             {releasedIcon}
                             <select name={"Version"} value={searchResult.getDisplayVersion()} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
