@@ -223,7 +223,7 @@ public class MostTypeConverter {
 
     protected com.softwareverde.mostadapter.MostFunction _createPropertyFunction(Property property) {
         com.softwareverde.mostadapter.Property convertedProperty = null;
-        switch (property.getReturnType().getName()) {
+        switch (property.getReturnType().getPrimitiveType().getName()) {
             case "TBool": {
                 final SwitchProperty switchProperty = new SwitchProperty();
                 convertedProperty = switchProperty;
