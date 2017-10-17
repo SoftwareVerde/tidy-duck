@@ -4,9 +4,7 @@ import com.softwareverde.util.Util;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class FunctionCatalog implements XmlNode {
     private String _name;
@@ -209,7 +207,9 @@ public class FunctionCatalog implements XmlNode {
 
         rootElement.appendChild(catalogVersionElement);
 
-        for (final FunctionBlock functionBlock : _functionBlocks) {
+        // ensure function blocks are sorted by ID
+        final List<FunctionBlock> sortedFunctionBlocks = _getSortedFunctionBlocks();
+        for (final FunctionBlock functionBlock : sortedFunctionBlocks) {
             final Element functionBlockElement = functionBlock.generateXmlElement(document);
             rootElement.appendChild(functionBlockElement);
         }
@@ -251,5 +251,20 @@ public class FunctionCatalog implements XmlNode {
         rootElement.appendChild(definitionElement);
 
         return rootElement;
+    }
+
+    /**
+     * <p>Returns a sorted list of the function blocks added to this function catalog.</p>
+     * @return
+     */
+    private List<FunctionBlock> _getSortedFunctionBlocks() {
+        final List<FunctionBlock> functionBlocksCopy = new ArrayList<>(_functionBlocks);
+        Collections.sort(functionBlocksCopy, new Comparator<FunctionBlock>() {
+            @Override
+            public int compare(final FunctionBlock o1, final FunctionBlock o2) {
+                return o1.getMostId().compareTo(o2.getMostId());
+            }
+        });
+        return functionBlocksCopy;
     }
 }

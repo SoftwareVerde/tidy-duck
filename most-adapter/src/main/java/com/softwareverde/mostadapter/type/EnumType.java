@@ -5,6 +5,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class EnumType extends MostType {
@@ -47,7 +49,8 @@ public class EnumType extends MostType {
             typeElement.setAttribute("TEnumMax", _enumMax);
         }
 
-        for (final EnumValue enumValue : _enumValues) {
+        final List<EnumValue> sortedEnumValues = _getSortedEnumValues();
+        for (final EnumValue enumValue : sortedEnumValues) {
             String description = enumValue.getDescription();
             if (description == null) {
                 description = "";
@@ -59,5 +62,28 @@ public class EnumType extends MostType {
 
             typeElement.appendChild(enumValueElement);
         }
+    }
+
+    /**
+     * <p>Returns the set of enum values added to this type, sorted by code.</p>
+     * @return
+     */
+    private List<EnumValue> _getSortedEnumValues() {
+        final List<EnumValue> enumValuesCopy = new ArrayList<>(_enumValues);
+        Collections.sort(enumValuesCopy, new Comparator<EnumValue>() {
+            @Override
+            public int compare(final EnumValue o1, final EnumValue o2) {
+                if (o1.getCode().length() < o2.getCode().length()) {
+                    // shorter string, smaller value
+                    return -1;
+                }
+                if (o1.getCode().length() > o2.getCode().length()) {
+                    // longer string, larger value
+                    return 1;
+                }
+                return o1.getCode().compareTo(o2.getCode());
+            }
+        });
+        return enumValuesCopy;
     }
 }
