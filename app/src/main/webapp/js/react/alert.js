@@ -125,7 +125,7 @@ class Alert extends React.Component {
 
         let cancelButton = "";
         let confirmButtonText = "Got it!";
-        const isConfirmAlert = this.props.onCancel;
+        const isConfirmAlert = this.props.isConfirmAlert;
         if (isConfirmAlert) {
             confirmButtonText = "OK";
             cancelButton = <div className="alert-button" onClick={() => this.onButtonClick(false)}>Cancel</div>
