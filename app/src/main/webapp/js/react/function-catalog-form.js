@@ -85,7 +85,7 @@ class FunctionCatalogForm extends React.Component {
         };
 
         if (this.state.isDuplicateFunctionCatalog) {
-            app.App.alert("Submit Function Catalog", "There is another function catalog with this name.  Are you sure you want to save this?", submitFunction, true,);
+            app.App.alert("Submit Function Catalog", "There is another function catalog with this name.  Are you sure you want to save this?", submitFunction, true);
             return;
         }
 
