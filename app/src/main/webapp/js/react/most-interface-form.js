@@ -106,17 +106,20 @@ class MostInterfaceForm extends React.Component {
         event.preventDefault();
 
         const createdMostInterface = this.state.mostInterface;
+        const thisForm = this;
+
+        const submitFunction = function() {
+            if (typeof thisForm.props.onSubmit == "function") {
+                thisForm.props.onSubmit(createdMostInterface);
+            }
+        };
 
         if (this.state.isDuplicateMostInterface) {
-            const submitAnyway = confirm("There is another most interface with this name.  Are you sure you want to save this?");
-            if (!submitAnyway) {
-                return;
-            }
+            app.App.alert("Submit Interface", "There is another most interface with this name.  Are you sure you want to save this?", submitFunction, true);
+            return;
         }
 
-        if (typeof this.props.onSubmit == "function") {
-            this.props.onSubmit(createdMostInterface);
-        }
+        submitFunction();
     }
 
     renderFormTitle() {
