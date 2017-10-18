@@ -2549,7 +2549,7 @@ class App extends React.Component {
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
                 childItems = this.state.functionCatalogs.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -2561,7 +2561,7 @@ class App extends React.Component {
             case NavigationLevel.functionCatalogs:
                 childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
                 childItems = childItems.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -2573,7 +2573,7 @@ class App extends React.Component {
             case NavigationLevel.functionBlocks:
                 childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
                 childItems = childItems.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -2584,7 +2584,7 @@ class App extends React.Component {
 
             case NavigationLevel.mostInterfaces:
                 childItems = this.state.mostFunctions.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];

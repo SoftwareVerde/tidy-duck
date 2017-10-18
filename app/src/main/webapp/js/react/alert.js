@@ -23,7 +23,17 @@ class Alert extends React.Component {
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
         this.onMouseOut = this.onMouseOut.bind(this);
+        this.onTabPress = this.onTabPress.bind(this);
         this.onButtonClick = this.onButtonClick.bind(this);
+    }
+
+    componentDidMount() {
+        /*
+        const alertButtons = document.querySelectorAll(".alert-button");
+        alertButtons[0].focus();
+        */
+
+        //this.refs.alertContainer.focus();
     }
 
     onMouseDown(event) {
@@ -85,6 +95,22 @@ class Alert extends React.Component {
         return true;
     }
 
+    onTabPress(e) {
+        if (this.props.isConfirmAlert) {
+            if (e.keyCode == 9) {
+                e.preventDefault();
+                const alertButtons = document.querySelectorAll(".alert-button");
+
+                if (document.activeElement.tabIndex == 2) {
+                    alertButtons[0].focus();
+                }
+                else {
+                    alertButtons[1].focus();
+                }
+            }
+        }
+    }
+
     onButtonClick(isConfirmClicked) {
         if (isConfirmClicked) {
             if (typeof this.props.onConfirm == "function") {
@@ -132,7 +158,7 @@ class Alert extends React.Component {
         const isConfirmAlert = this.props.isConfirmAlert;
         if (isConfirmAlert) {
             confirmButtonText = "Yes, please!";
-            cancelButton = <div className="alert-button" onClick={() => this.onButtonClick(false)}>No thanks.</div>;
+            cancelButton = <input className="alert-button" type="button" ref={input => input && input.focus()} tabIndex="2" value={"No thanks."} onClick={() => this.onButtonClick(false)}/>;
             backdrop = <div id="backdrop"/>;
         }
 
@@ -144,12 +170,12 @@ class Alert extends React.Component {
         }
 
         return (
-            <div>
+            <div onKeyDown={this.onTabPress}>
                 {backdrop}
                 <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} style={divStyle} >
                     <div className="alert-title" onMouseUp={this.onMouseUp} onMouseDown={this.onMouseDown}>{this.state.title}</div>
                     <div className="alert-content">{this.state.content}</div>
-                    <div className="alert-button" onClick={() => this.onButtonClick(true)}>{confirmButtonText}</div>
+                    <input className="alert-button" type="button" tabIndex="1" value={confirmButtonText} onClick={() => this.onButtonClick(true)}/>
                     {cancelButton}
                 </div>
             </div>
