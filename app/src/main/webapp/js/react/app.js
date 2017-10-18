@@ -1384,10 +1384,10 @@ class App extends React.Component {
 
         if (! shouldSkipConfirmation) {
             app.App.alert("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+            return;
         }
-        else {
-            deleteFunction();
-        }
+
+        deleteFunction();
     }
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
@@ -1733,10 +1733,10 @@ class App extends React.Component {
 
         if (! shouldSkipConfirmation) {
             app.App.alert("Delete Interface", "This action will delete the last reference to this Interface version. Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+            return;
         }
-        else {
-            deleteFunction();
-        }
+
+        deleteFunction();
     }
 
     onMostFunctionSelected(mostFunction) {
