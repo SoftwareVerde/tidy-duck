@@ -114,7 +114,6 @@ class FunctionBlock extends React.Component {
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
         const shortName = shortenString(name, 35, false);
-        const shortDescription = shortenString(this.props.functionBlock.getDescription(), 35);
         const childItemStyle = this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
@@ -134,7 +133,7 @@ class FunctionBlock extends React.Component {
                 </div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
                 <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
-                <div className="child-function-catalog-property">{shortDescription}</div>
+                <div className="child-function-catalog-property">{this.props.functionBlock.getDescription()}</div>
                 {displayVersion}
                 <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
