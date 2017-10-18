@@ -1,12 +1,14 @@
 class App extends React.Component {
-    static alert(title, content, onConfirm) {
+    static alert(title, content, onConfirm, isConfirmAlert, onCancel) {
         const alertQueue = App._instance.state.alertQueue;
 
         // add to queue
         alertQueue.push({
             title: title,
             content: content,
-            onConfirm: onConfirm
+            onConfirm: onConfirm,
+            isConfirmAlert: isConfirmAlert,
+            onCancel: onCancel,
         });
         App._instance.setState({
             alertQueue: alertQueue
@@ -31,10 +33,35 @@ class App extends React.Component {
                         if (alertQueue.length == 0) {
                             App._instance.setState({
                                 alert: {
-                                    shouldShow: false,
-                                    title:      "",
-                                    content:    "",
-                                    onConfirm:  null
+                                    shouldShow:     false,
+                                    title:          "",
+                                    content:        "",
+                                    onConfirm:      null,
+                                    onCancel:       null,
+                                    isConfirmAlert: false
+                                }
+                            });
+                        }
+                        else {
+                            const nextAlert = alertQueue.shift();
+                            displayAlert(nextAlert);
+                        }
+                    },
+                    isConfirmAlert: alert.isConfirmAlert,
+                    onCancel: function() {
+                        if (typeof alert.onCancel == "function") {
+                            alert.onCancel();
+                        }
+
+                        if (alertQueue.length == 0) {
+                            App._instance.setState({
+                                alert: {
+                                    shouldShow:     false,
+                                    title:          "",
+                                    content:        "",
+                                    onConfirm:      null,
+                                    onCancel:       null,
+                                    isConfirmAlert: false
                                 }
                             });
                         }
@@ -140,10 +167,12 @@ class App extends React.Component {
             shouldShowEditForm:         false,
             releasingFunctionCatalog:   null,
             alert: {
-                shouldShow: false,
-                title:      "",
-                content:    "",
-                onConfirm:  null
+                shouldShow:     false,
+                title:          "",
+                content:        "",
+                onConfirm:      null,
+                onCancel:       null,
+                isConfirmAlert: false
             },
             alertQueue:                 []
         };
@@ -1304,71 +1333,71 @@ class App extends React.Component {
             return;
         }
 
-        if (! shouldSkipConfirmation) {
-            if(! confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?")) {
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
-                }
-                return;
-            }
-        }
-
         const thisApp = this;
-        const functionCatalogId = "";
-        const functionBlockId = functionBlock.getId();
+        const deleteFunction = function() {
+            const functionCatalogId = "";
+            const functionBlockId = functionBlock.getId();
 
-        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-            if (success) {
-                const newFunctionBlocks = [];
-                const existingFunctionBlocks = thisApp.state.functionBlocks;
-                for (let i in existingFunctionBlocks) {
-                    const existingFunctionBlock = existingFunctionBlocks[i];
-                    const existingFunctionBlockId = existingFunctionBlock.getId();
-                    if (existingFunctionBlockId != functionBlockId) {
-                        newFunctionBlocks.push(existingFunctionBlock);
-                    }
-                    else {
-                        // Remove deleted version from child item. Don't push to new array if no versions remain.
-                        const existingVersionsJson = existingFunctionBlock.getVersionsJson();
-                        if (existingVersionsJson.length > 1) {
-                            // Find newest released version to be displayed on screen.
-                            let displayedVersionId = existingVersionsJson[0].id;
-                            let displayedVersionJson = existingVersionsJson[0];
+            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionBlocks = [];
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in existingFunctionBlocks) {
+                        const existingFunctionBlock = existingFunctionBlocks[i];
+                        const existingFunctionBlockId = existingFunctionBlock.getId();
+                        if (existingFunctionBlockId != functionBlockId) {
+                            newFunctionBlocks.push(existingFunctionBlock);
+                        }
+                        else {
+                            // Remove deleted version from child item. Don't push to new array if no versions remain.
+                            const existingVersionsJson = existingFunctionBlock.getVersionsJson();
+                            if (existingVersionsJson.length > 1) {
+                                // Find newest released version to be displayed on screen.
+                                let displayedVersionId = existingVersionsJson[0].id;
+                                let displayedVersionJson = existingVersionsJson[0];
 
-                            for (let j in existingVersionsJson) {
-                                const existingVersionJson = existingVersionsJson[j];
-                                if (existingFunctionBlockId == existingVersionJson.id) {
-                                    delete existingVersionsJson[j];
-                                }
-                                else {
-                                    if (existingVersionJson.isReleased) {
-                                        if (existingVersionJson.id > displayedVersionId) {
-                                            displayedVersionId = existingVersionJson.id;
-                                            displayedVersionJson = existingVersionJson;
+                                for (let j in existingVersionsJson) {
+                                    const existingVersionJson = existingVersionsJson[j];
+                                    if (existingFunctionBlockId == existingVersionJson.id) {
+                                        delete existingVersionsJson[j];
+                                    }
+                                    else {
+                                        if (existingVersionJson.isReleased) {
+                                            if (existingVersionJson.id > displayedVersionId) {
+                                                displayedVersionId = existingVersionJson.id;
+                                                displayedVersionJson = existingVersionJson;
+                                            }
                                         }
                                     }
                                 }
+                                const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
+                                newFunctionBlock.setVersionsJson(existingVersionsJson);
+                                newFunctionBlocks.push(newFunctionBlock);
                             }
-                            const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
-                            newFunctionBlock.setVersionsJson(existingVersionsJson);
-                            newFunctionBlocks.push(newFunctionBlock);
                         }
                     }
-                }
 
-                thisApp.setState({
-                    functionBlocks:         newFunctionBlocks,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                });
+                    thisApp.setState({
+                        functionBlocks:         newFunctionBlocks,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    });
 
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                    if (typeof callbackFunction == "function") {
+                        callbackFunction();
+                    }
                 }
-            }
-            else {
-                app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
-            }
-        });
+                else {
+                    app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+                }
+            });
+        };
+
+        if (! shouldSkipConfirmation) {
+            app.App.alert("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+        }
+        else {
+            deleteFunction();
+        }
     }
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
@@ -3077,7 +3106,7 @@ class App extends React.Component {
                 </div>
                 {this.renderMainContent()}
 
-                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} />
+                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} isConfirmAlert={this.state.alert.isConfirmAlert} onConfirm={this.state.alert.onConfirm} onCancel={this.state.alert.onCancel}/>
             </div>
         );
     }

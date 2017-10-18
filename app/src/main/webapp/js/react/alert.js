@@ -5,16 +5,18 @@ class Alert extends React.Component {
         const width = (this.props.width || 400);
 
         this.state = {
-            shouldShow: (this.props.shouldShow || false),
-            title:      (this.props.title || ""),
-            content:    (this.props.content || ""),
-            onConfirm:  (this.props.onConfirm || null),
-            width:      width,
-            x:          (this.props.x || ((window.innerWidth - width) / 2) ),
-            y:          (this.props.y || ((window.innerHeight - width) / 2) ),
-            isMoving:   false,
-            lastMoveTime: 0,
-            hasEverMoved: false
+            shouldShow:     (this.props.shouldShow || false),
+            title:          (this.props.title || ""),
+            content:        (this.props.content || ""),
+            onConfirm:      (this.props.onConfirm || null),
+            onCancel:       (this.props.onCancel || null),
+            isConfirmAlert: this.props.isConfirmAlert,
+            width:          width,
+            x:              (this.props.x || ((window.innerWidth - width) / 2) ),
+            y:              (this.props.y || ((window.innerHeight - width) / 2) ),
+            isMoving:       false,
+            lastMoveTime:   0,
+            hasEverMoved:   false
         };
 
         this.onMouseDown = this.onMouseDown.bind(this);
@@ -106,6 +108,7 @@ class Alert extends React.Component {
             title:      (newProperties.title || ""),
             content:    (newProperties.content || ""),
             onConfirm:  (newProperties.onConfirm || null),
+            onCancel:   (newProperties.onCancel || null),
             width:      width,
             x:          (newProperties.x || ((window.innerWidth - width) / 2) ),
             y:          (newProperties.y || ((window.innerHeight - width) / 2) )
@@ -124,11 +127,13 @@ class Alert extends React.Component {
         const hasMoved = (this.state.lastMoveTime > 0);
 
         let cancelButton = "";
+        let backdrop = "";
         let confirmButtonText = "Got it!";
         const isConfirmAlert = this.props.isConfirmAlert;
         if (isConfirmAlert) {
-            confirmButtonText = "OK";
-            cancelButton = <div className="alert-button" onClick={() => this.onButtonClick(false)}>Cancel</div>
+            confirmButtonText = "Yes please!";
+            cancelButton = <div className="alert-button" onClick={() => this.onButtonClick(false)}>No thanks.</div>;
+            backdrop = <div id="backdrop"/>;
         }
 
         if (this.state.isMoving) {
@@ -139,11 +144,14 @@ class Alert extends React.Component {
         }
 
         return (
-            <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} style={divStyle} >
-                <div className="alert-title" onMouseUp={this.onMouseUp} onMouseDown={this.onMouseDown}>{this.state.title}</div>
-                <div className="alert-content">{this.state.content}</div>
-                <div className="alert-button" onClick={() => this.onButtonClick(true)}>{confirmButtonText}</div>
-                {cancelButton}
+            <div>
+                {backdrop}
+                <div ref="alertContainer" className="alert" onMouseOut={this.onMouseOut} style={divStyle} >
+                    <div className="alert-title" onMouseUp={this.onMouseUp} onMouseDown={this.onMouseDown}>{this.state.title}</div>
+                    <div className="alert-content">{this.state.content}</div>
+                    <div className="alert-button" onClick={() => this.onButtonClick(true)}>{confirmButtonText}</div>
+                    {cancelButton}
+                </div>
             </div>
         );
     }
