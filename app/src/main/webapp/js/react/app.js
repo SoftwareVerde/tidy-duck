@@ -1300,74 +1300,75 @@ class App extends React.Component {
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
         if (functionBlock.isApproved()) {
-            app.App.alert("Delete Function Block", "The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.", callbackFunction)
+            app.App.alert("Delete Function Block", "The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.", callbackFunction);
+            return;
         }
-        else {
-            const thisApp = this;
-            const functionCatalogId = "";
-            const functionBlockId = functionBlock.getId();
 
-            let shouldDelete = false;
-            if (shouldSkipConfirmation) { shouldDelete = true; }
-            else {
-                shouldDelete = confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?");
+        if (! shouldSkipConfirmation) {
+            if(! confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?")) {
+                if (typeof callbackFunction == "function") {
+                    callbackFunction();
+                }
+                return;
             }
+        }
 
-            if (shouldDelete) {
-                deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-                    if (success) {
-                        const newFunctionBlocks = [];
-                        const existingFunctionBlocks = thisApp.state.functionBlocks;
-                        for (let i in existingFunctionBlocks) {
-                            const existingFunctionBlock = existingFunctionBlocks[i];
-                            const existingFunctionBlockId = existingFunctionBlock.getId();
-                            if (existingFunctionBlockId != functionBlockId) {
-                                newFunctionBlocks.push(existingFunctionBlock);
-                            }
-                            else {
-                                // Remove deleted version from child item. Don't push to new array if no versions remain.
-                                const existingVersionsJson = existingFunctionBlock.getVersionsJson();
-                                if (existingVersionsJson.length > 1) {
-                                    // Find newest released version to be displayed on screen.
-                                    let displayedVersionId = existingVersionsJson[0].id;
-                                    let displayedVersionJson = existingVersionsJson[0];
+        const thisApp = this;
+        const functionCatalogId = "";
+        const functionBlockId = functionBlock.getId();
 
-                                    for (let j in existingVersionsJson) {
-                                        const existingVersionJson = existingVersionsJson[j];
-                                        if (existingFunctionBlockId == existingVersionJson.id) {
-                                            delete existingVersionsJson[j];
-                                        }
-                                        else {
-                                            if (existingVersionJson.isReleased) {
-                                                if (existingVersionJson.id > displayedVersionId) {
-                                                    displayedVersionId = existingVersionJson.id;
-                                                    displayedVersionJson = existingVersionJson;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
-                                    newFunctionBlock.setVersionsJson(existingVersionsJson);
-                                    newFunctionBlocks.push(newFunctionBlock);
-                                }
-                            }
-                        }
-
-                        thisApp.setState({
-                            functionBlocks:         newFunctionBlocks,
-                            currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                        });
-
-                        if (typeof callbackFunction == "function") {
-                            callbackFunction();
-                        }
+        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            if (success) {
+                const newFunctionBlocks = [];
+                const existingFunctionBlocks = thisApp.state.functionBlocks;
+                for (let i in existingFunctionBlocks) {
+                    const existingFunctionBlock = existingFunctionBlocks[i];
+                    const existingFunctionBlockId = existingFunctionBlock.getId();
+                    if (existingFunctionBlockId != functionBlockId) {
+                        newFunctionBlocks.push(existingFunctionBlock);
                     }
                     else {
-                        app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+                        // Remove deleted version from child item. Don't push to new array if no versions remain.
+                        const existingVersionsJson = existingFunctionBlock.getVersionsJson();
+                        if (existingVersionsJson.length > 1) {
+                            // Find newest released version to be displayed on screen.
+                            let displayedVersionId = existingVersionsJson[0].id;
+                            let displayedVersionJson = existingVersionsJson[0];
+
+                            for (let j in existingVersionsJson) {
+                                const existingVersionJson = existingVersionsJson[j];
+                                if (existingFunctionBlockId == existingVersionJson.id) {
+                                    delete existingVersionsJson[j];
+                                }
+                                else {
+                                    if (existingVersionJson.isReleased) {
+                                        if (existingVersionJson.id > displayedVersionId) {
+                                            displayedVersionId = existingVersionJson.id;
+                                            displayedVersionJson = existingVersionJson;
+                                        }
+                                    }
+                                }
+                            }
+                            const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
+                            newFunctionBlock.setVersionsJson(existingVersionsJson);
+                            newFunctionBlocks.push(newFunctionBlock);
+                        }
                     }
+                }
+
+                thisApp.setState({
+                    functionBlocks:         newFunctionBlocks,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
+
+                if (typeof callbackFunction == "function") {
+                    callbackFunction();
+                }
             }
-        }
+            else {
+                app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+            }
+        });
     }
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
