@@ -125,7 +125,7 @@ class FunctionCatalog extends React.Component {
         const author = this.props.functionCatalog.getAuthor();
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
-        const shortName = shortenString(name, 25, false);
+        const shortName = shortenString(name, 35, false);
         const childItemStyle = this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";

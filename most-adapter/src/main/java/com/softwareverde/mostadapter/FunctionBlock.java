@@ -3,9 +3,7 @@ package com.softwareverde.mostadapter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class FunctionBlock implements XmlNode {
     private String _mostId;
@@ -149,11 +147,27 @@ public class FunctionBlock implements XmlNode {
             versionElement.appendChild(modificationElement);
         }
 
-        for (final MostFunction mostFunction : _mostFunctions) {
+        final List<MostFunction> sortedMostFunctions = _getSortedMostFunctions();
+        for (final MostFunction mostFunction : sortedMostFunctions) {
             final Element functionElement = mostFunction.generateXmlElement(document);
             functionBlock.appendChild(functionElement);
         }
 
         return functionBlock;
+    }
+
+    /**
+     * <p>Returns a sorted list of the functions added to this function block.</p>
+     * @return
+     */
+    private List<MostFunction> _getSortedMostFunctions() {
+        final List<MostFunction> mostFunctionsCopy = new ArrayList<>(_mostFunctions);
+        Collections.sort(mostFunctionsCopy, new Comparator<MostFunction>() {
+            @Override
+            public int compare(final MostFunction o1, final MostFunction o2) {
+                return o1.getMostId().compareTo(o2.getMostId());
+            }
+        });
+        return mostFunctionsCopy;
     }
 }
