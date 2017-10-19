@@ -157,7 +157,7 @@ class FunctionBlockForm extends React.Component {
         };
 
         if (this.state.isDuplicateFunctionBlock) {
-            app.App.alert("Submit Function Block", "There is another function block with this name.  Are you sure you want to save this?", submitFunction, true);
+            app.App.confirm("Submit Function Block", "There is another function block with this name.  Are you sure you want to save this?", submitFunction);
             return;
         }
 

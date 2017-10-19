@@ -1,5 +1,5 @@
 class App extends React.Component {
-    static alert(title, content, onConfirm, isConfirmAlert, onCancel) {
+    static alert(title, content, onConfirm) {
         const alertQueue = App._instance.state.alertQueue;
 
         // add to queue
@@ -7,8 +7,7 @@ class App extends React.Component {
             title: title,
             content: content,
             onConfirm: onConfirm,
-            isConfirmAlert: isConfirmAlert,
-            onCancel: onCancel,
+            isConfirmAlert: false
         });
         App._instance.setState({
             alertQueue: alertQueue
@@ -18,64 +17,32 @@ class App extends React.Component {
             // alert is current being displayed, bail out
             return;
         }
-        // need to display alert
-        function displayAlert(alert) {
-            App._instance.setState({
-                alert: {
-                    shouldShow: true,
-                    title:      alert.title,
-                    content:    alert.content,
-                    onConfirm:  function () {
-                        if (typeof alert.onConfirm == "function") {
-                            alert.onConfirm();
-                        }
 
-                        if (alertQueue.length == 0) {
-                            App._instance.setState({
-                                alert: {
-                                    shouldShow:     false,
-                                    title:          "",
-                                    content:        "",
-                                    onConfirm:      null,
-                                    onCancel:       null,
-                                    isConfirmAlert: false
-                                }
-                            });
-                        }
-                        else {
-                            const nextAlert = alertQueue.shift();
-                            displayAlert(nextAlert);
-                        }
-                    },
-                    isConfirmAlert: alert.isConfirmAlert,
-                    onCancel: function() {
-                        if (typeof alert.onCancel == "function") {
-                            alert.onCancel();
-                        }
+        const alert = alertQueue.shift();
+        App._instance.displayAlert(alert);
+    }
 
-                        if (alertQueue.length == 0) {
-                            App._instance.setState({
-                                alert: {
-                                    shouldShow:     false,
-                                    title:          "",
-                                    content:        "",
-                                    onConfirm:      null,
-                                    onCancel:       null,
-                                    isConfirmAlert: false
-                                }
-                            });
-                        }
-                        else {
-                            const nextAlert = alertQueue.shift();
-                            displayAlert(nextAlert);
-                        }
-                    }
-                }
-            });
+    static confirm(title, content, onConfirm, onCancel) {
+        const alertQueue = App._instance.state.alertQueue;
+        // add to queue
+        alertQueue.push({
+            title: title,
+            content: content,
+            onConfirm: onConfirm,
+            onCancel: onCancel,
+            isConfirmAlert: true
+        });
+        App._instance.setState({
+            alertQueue: alertQueue
+        });
+
+        if (App._instance.state.alert.shouldShow) {
+            // alert is current being displayed, bail out
+            return;
         }
 
         const alert = alertQueue.shift();
-        displayAlert(alert);
+        App._instance.displayAlert(alert);
     }
 
     constructor(props) {
@@ -251,7 +218,9 @@ class App extends React.Component {
         this.logout = this.logout.bind(this);
 
         this.onDuckClick = this.onDuckClick.bind(this);
-        this.showAlert = this.showAlert.bind(this);
+        this.showDuckAlert = this.showDuckAlert.bind(this);
+
+        this.displayAlert = this.displayAlert.bind(this);
 
         const thisApp = this;
 
@@ -292,11 +261,69 @@ class App extends React.Component {
         this.getAllCompanies()
     }
 
-    onDuckClick() {
-        this.showAlert();
+    displayAlert(alert) {
+        const thisApp = this;
+        const alertQueue = this.state.alertQueue;
+
+        this.setState({
+            alert: {
+                shouldShow: true,
+                title:      alert.title,
+                content:    alert.content,
+                onConfirm:  function () {
+                    if (typeof alert.onConfirm == "function") {
+                        alert.onConfirm();
+                    }
+
+                    if (alertQueue.length == 0) {
+                        thisApp.setState({
+                            alert: {
+                                shouldShow:     false,
+                                title:          "",
+                                content:        "",
+                                onConfirm:      null,
+                                onCancel:       null,
+                                isConfirmAlert: false
+                            }
+                        });
+                    }
+                    else {
+                        const nextAlert = alertQueue.shift();
+                        displayAlert(nextAlert);
+                    }
+                },
+                isConfirmAlert: alert.isConfirmAlert,
+                onCancel: function() {
+                    if (typeof alert.onCancel == "function") {
+                        alert.onCancel();
+                    }
+
+                    if (alertQueue.length == 0) {
+                        thisApp.setState({
+                            alert: {
+                                shouldShow:     false,
+                                title:          "",
+                                content:        "",
+                                onConfirm:      null,
+                                onCancel:       null,
+                                isConfirmAlert: false
+                            }
+                        });
+                    }
+                    else {
+                        const nextAlert = alertQueue.shift();
+                        displayAlert(nextAlert);
+                    }
+                }
+            }
+        });
     }
 
-    showAlert() {
+    onDuckClick() {
+        this.showDuckAlert();
+    }
+
+    showDuckAlert() {
         const account = this.state.account;
         const settings = account.getSettings();
 
@@ -374,7 +401,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.alert("Reset Password", "Are you sure you want to reset the password for " + accountName + "?", resetPasswordFunction, true);
+        app.App.confirm("Reset Password", "Are you sure you want to reset the password for " + accountName + "?", resetPasswordFunction);
     }
 
     getAllCompanies() {
@@ -1045,7 +1072,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.alert("Delete Function Catalog", "This action will delete the last reference to this function catalog version. Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+        app.App.confirm("Delete Function Catalog", "This action will delete the last reference to this function catalog version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
     onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
@@ -1305,7 +1332,7 @@ class App extends React.Component {
                         const deleteFunction = function() {
                             thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
                         };
-                        app.App.alert("Delete Function Block", "Would you also like to delete this function block version from the database?", deleteFunction, true, callbackFunction);
+                        app.App.confirm("Delete Function Block", "Would you also like to delete this function block version from the database?", deleteFunction, callbackFunction);
                     }
                 }
                 else {
@@ -1314,7 +1341,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.alert("Disassociate Function Block", "Are you sure you want to disassociate this function block version from all unapproved function catalogs?", disassociateFunction, true, callbackFunction);
+        app.App.confirm("Disassociate Function Block", "Are you sure you want to disassociate this function block version from all unapproved function catalogs?", disassociateFunction, callbackFunction);
     }
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
@@ -1383,7 +1410,7 @@ class App extends React.Component {
         };
 
         if (! shouldSkipConfirmation) {
-            app.App.alert("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+            app.App.confirm("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, callbackFunction);
             return;
         }
 
@@ -1658,12 +1685,12 @@ class App extends React.Component {
                         thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
                     };
 
-                    app.App.alert("Delete Interface", "Would you like to delete this interface version from the database?", deleteFunction, true, callbackFunction);
+                    app.App.confirm("Delete Interface", "Would you like to delete this interface version from the database?", deleteFunction, callbackFunction);
                 }
             });
         };
 
-        app.App.alert("Disassociate Interface", "Are you sure you want to disassociate this interface version from all unapproved function blocks?", disassociateFunction, true, callbackFunction);
+        app.App.confirm("Disassociate Interface", "Are you sure you want to disassociate this interface version from all unapproved function blocks?", disassociateFunction, callbackFunction);
     }
 
     deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, shouldSkipConfirmation) {
@@ -1732,7 +1759,7 @@ class App extends React.Component {
         };
 
         if (! shouldSkipConfirmation) {
-            app.App.alert("Delete Interface", "This action will delete the last reference to this Interface version. Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+            app.App.confirm("Delete Interface", "This action will delete the last reference to this Interface version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
             return;
         }
 
@@ -1815,7 +1842,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.alert("Delete Function", "This action will delete the only reference to this function. Are you sure you want to delete it?", deleteFunction, true, callbackFunction);
+        app.App.confirm("Delete Function", "This action will delete the only reference to this function. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
     updateNavigationItems(itemId, navigationItemConfig, newNavigationItems) {
@@ -2055,7 +2082,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.alert("Submit for Review", "Submit " + selectedItem.getName() + " for review and approval?", submitReviewFunction, true);
+        app.App.confirm("Submit for Review", "Submit " + selectedItem.getName() + " for review and approval?", submitReviewFunction);
     }
 
     updateReviews() {
@@ -2269,10 +2296,10 @@ class App extends React.Component {
         const thisApp = this;
 
         const approveReviewFunction = function() {
-            const reviewId = this.state.currentReview.getId();
+            const reviewId = thisApp.state.currentReview.getId();
 
-            this.setState({
-                createButtonState: this.CreateButtonState.animate
+            thisApp.setState({
+                createButtonState: thisApp.CreateButtonState.animate
             });
             approveReview(reviewId, function (data) {
                 if (data.wasSuccess) {
@@ -2288,7 +2315,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.alert("Approve Review", "Are you sure you would like to approve this review?", approveReviewFunction, true);
+        app.App.confirm("Approve Review", "Are you sure you would like to approve this review?", approveReviewFunction);
     }
 
     updateMostFunctionStereotypes() {

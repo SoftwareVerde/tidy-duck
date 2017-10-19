@@ -115,7 +115,7 @@ class MostInterfaceForm extends React.Component {
         };
 
         if (this.state.isDuplicateMostInterface) {
-            app.App.alert("Submit Interface", "There is another most interface with this name.  Are you sure you want to save this?", submitFunction, true);
+            app.App.confirm("Submit Interface", "There is another most interface with this name.  Are you sure you want to save this?", submitFunction);
             return;
         }
 
