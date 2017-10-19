@@ -38,7 +38,6 @@ public class PositionDescription implements XmlNode {
 
     @Override
     public Element generateXmlElement(Document document) {
-        System.out.println("Position description value is: " + _value);
         Element posDescriptionElement = XmlUtil.createTextElement(document, "PosDescription", Util.coalesce(_value));
 
         posDescriptionElement.setAttribute("PosX", _positionX);

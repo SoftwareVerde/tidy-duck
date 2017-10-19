@@ -445,6 +445,12 @@
     margin-left: 5px;
 }
 
+.child-function-catalog-property {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .navigation-item .menu-button {
     float: right;
     margin-right: 5px;

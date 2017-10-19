@@ -76,17 +76,20 @@ class FunctionCatalogForm extends React.Component {
         event.preventDefault();
 
         const createdFunctionCatalog = this.state.functionCatalog;
+        const thisForm = this;
+
+        const submitFunction = function() {
+            if (typeof thisForm.props.onSubmit == "function") {
+                thisForm.props.onSubmit(createdFunctionCatalog);
+            }
+        };
 
         if (this.state.isDuplicateFunctionCatalog) {
-            const submitAnyway = confirm("There is another function catalog with this name.  Are you sure you want to save this?");
-            if (!submitAnyway) {
-                return;
-            }
+            app.App.confirm("Submit Function Catalog", "There is another function catalog with this name.  Are you sure you want to save this?", submitFunction);
+            return;
         }
 
-        if (typeof this.props.onSubmit == "function") {
-            this.props.onSubmit(createdFunctionCatalog);
-        }
+        submitFunction();
     }
 
     renderFormTitle() {

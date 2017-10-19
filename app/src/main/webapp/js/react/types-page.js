@@ -1229,7 +1229,7 @@ class TypesPage extends React.Component {
                                                 onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
                                 <app.InputField name="type" type="dropdown" label="Type" isSmallInputField={true}
                                                 defaultValue={parameterTypeName} options={streamParamTypes}
-                                                onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)}/>
+                                                onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} isRequired={true}/>
                                 <i className="remove-button fa fa-remove fa-3x"
                                    onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
                             </div>

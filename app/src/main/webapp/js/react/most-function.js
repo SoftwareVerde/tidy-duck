@@ -69,7 +69,6 @@ class MostFunction extends React.Component {
         const company = this.props.mostFunction.getCompany();
         const name = this.props.mostFunction.getName();
         const shortName = shortenString(name, 35, false);
-        const shortDescription = shortenString(this.props.mostFunction.getDescription(), 35);
         const childItemStyle = (this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item";
 
         const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
@@ -85,7 +84,7 @@ class MostFunction extends React.Component {
                     {this.renderMenu()}
                 </div>
                 <div className="child-function-catalog-property">{this.props.mostFunction.getMostId()}</div>
-                <div className="child-function-catalog-property">{shortDescription}</div>
+                <div className="child-function-catalog-property">{this.props.mostFunction.getDescription()}</div>
                 <div className="child-function-catalog-property">{this.props.mostFunction.getReleaseVersion()}</div>
                 <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
                 <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>

@@ -148,17 +148,20 @@ class FunctionBlockForm extends React.Component {
         event.preventDefault();
 
         const createdFunctionBlock = this.state.functionBlock;
+        const thisForm = this;
+
+        const submitFunction = function() {
+            if (typeof thisForm.props.onSubmit == "function") {
+                thisForm.props.onSubmit(createdFunctionBlock);
+            }
+        };
 
         if (this.state.isDuplicateFunctionBlock) {
-            const submitAnyway = confirm("There is another function block with this name.  Are you sure you want to save this?");
-            if (!submitAnyway) {
-                return;
-            }
+            app.App.confirm("Submit Function Block", "There is another function block with this name.  Are you sure you want to save this?", submitFunction);
+            return;
         }
 
-        if (typeof this.props.onSubmit == "function") {
-            this.props.onSubmit(createdFunctionBlock);
-        }
+        submitFunction();
     }
 
     renderFormTitle() {

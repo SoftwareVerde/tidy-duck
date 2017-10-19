@@ -6,7 +6,8 @@ class App extends React.Component {
         alertQueue.push({
             title: title,
             content: content,
-            onConfirm: onConfirm
+            onConfirm: onConfirm,
+            isConfirmAlert: false
         });
         App._instance.setState({
             alertQueue: alertQueue
@@ -16,39 +17,32 @@ class App extends React.Component {
             // alert is current being displayed, bail out
             return;
         }
-        // need to display alert
-        function displayAlert(alert) {
-            App._instance.setState({
-                alert: {
-                    shouldShow: true,
-                    title:      alert.title,
-                    content:    alert.content,
-                    onConfirm:  function () {
-                        if (typeof alert.onConfirm == "function") {
-                            alert.onConfirm();
-                        }
 
-                        if (alertQueue.length == 0) {
-                            App._instance.setState({
-                                alert: {
-                                    shouldShow: false,
-                                    title:      "",
-                                    content:    "",
-                                    onConfirm:  null
-                                }
-                            });
-                        }
-                        else {
-                            const nextAlert = alertQueue.shift();
-                            displayAlert(nextAlert);
-                        }
-                    }
-                }
-            });
+        const alert = alertQueue.shift();
+        App._instance.displayAlert(alert);
+    }
+
+    static confirm(title, content, onConfirm, onCancel) {
+        const alertQueue = App._instance.state.alertQueue;
+        // add to queue
+        alertQueue.push({
+            title: title,
+            content: content,
+            onConfirm: onConfirm,
+            onCancel: onCancel,
+            isConfirmAlert: true
+        });
+        App._instance.setState({
+            alertQueue: alertQueue
+        });
+
+        if (App._instance.state.alert.shouldShow) {
+            // alert is current being displayed, bail out
+            return;
         }
 
         const alert = alertQueue.shift();
-        displayAlert(alert);
+        App._instance.displayAlert(alert);
     }
 
     constructor(props) {
@@ -140,10 +134,12 @@ class App extends React.Component {
             shouldShowEditForm:         false,
             releasingFunctionCatalog:   null,
             alert: {
-                shouldShow: false,
-                title:      "",
-                content:    "",
-                onConfirm:  null
+                shouldShow:     false,
+                title:          "",
+                content:        "",
+                onConfirm:      null,
+                onCancel:       null,
+                isConfirmAlert: false
             },
             alertQueue:                 []
         };
@@ -222,7 +218,9 @@ class App extends React.Component {
         this.logout = this.logout.bind(this);
 
         this.onDuckClick = this.onDuckClick.bind(this);
-        this.showAlert = this.showAlert.bind(this);
+        this.showDuckAlert = this.showDuckAlert.bind(this);
+
+        this.displayAlert = this.displayAlert.bind(this);
 
         const thisApp = this;
 
@@ -263,11 +261,69 @@ class App extends React.Component {
         this.getAllCompanies()
     }
 
-    onDuckClick() {
-        this.showAlert();
+    displayAlert(alert) {
+        const thisApp = this;
+        const alertQueue = this.state.alertQueue;
+
+        this.setState({
+            alert: {
+                shouldShow: true,
+                title:      alert.title,
+                content:    alert.content,
+                onConfirm:  function () {
+                    if (typeof alert.onConfirm == "function") {
+                        alert.onConfirm();
+                    }
+
+                    if (alertQueue.length == 0) {
+                        thisApp.setState({
+                            alert: {
+                                shouldShow:     false,
+                                title:          "",
+                                content:        "",
+                                onConfirm:      null,
+                                onCancel:       null,
+                                isConfirmAlert: false
+                            }
+                        });
+                    }
+                    else {
+                        const nextAlert = alertQueue.shift();
+                        displayAlert(nextAlert);
+                    }
+                },
+                isConfirmAlert: alert.isConfirmAlert,
+                onCancel: function() {
+                    if (typeof alert.onCancel == "function") {
+                        alert.onCancel();
+                    }
+
+                    if (alertQueue.length == 0) {
+                        thisApp.setState({
+                            alert: {
+                                shouldShow:     false,
+                                title:          "",
+                                content:        "",
+                                onConfirm:      null,
+                                onCancel:       null,
+                                isConfirmAlert: false
+                            }
+                        });
+                    }
+                    else {
+                        const nextAlert = alertQueue.shift();
+                        displayAlert(nextAlert);
+                    }
+                }
+            }
+        });
     }
 
-    showAlert() {
+    onDuckClick() {
+        this.showDuckAlert();
+    }
+
+    showDuckAlert() {
         const account = this.state.account;
         const settings = account.getSettings();
 
@@ -334,10 +390,7 @@ class App extends React.Component {
         const accountId = account.getId();
         const accountName = account.getName();
 
-        if (! confirm("Are you sure you want to reset the password for " + accountName + "?")) {
-            return;
-        }
-        else {
+        const resetPasswordFunction = function() {
             resetPassword(accountId, function(data) {
                 if (! data.wasSuccess) {
                     app.App.alert("Unable to reset password", data.errorMessage);
@@ -346,7 +399,9 @@ class App extends React.Component {
                     app.App.alert("Password reset", accountName + "'s password has been reset to: " + data.newPassword);
                 }
             });
-        }
+        };
+
+        app.App.confirm("Reset Password", "Are you sure you want to reset the password for " + accountName + "?", resetPasswordFunction);
     }
 
     getAllCompanies() {
@@ -962,64 +1017,62 @@ class App extends React.Component {
     onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
         if (functionCatalog.isApproved()) {
             app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
+            return;
         }
-        else if (! confirm("This action will delete the last reference to this function catalog version. Are you sure you want to delete it?")) {
-            if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-        }
-        else {
-            const thisApp = this;
-            const functionCatalogId = functionCatalog.getId();
 
+        const thisApp = this;
+        const deleteFunction = function() {
+            const functionCatalogId = functionCatalog.getId();
             deleteFunctionCatalog(functionCatalogId, function (success, errorMessage) {
                 if (! success) {
                     app.App.alert("Delete Function Catalog", "Request to delete Function Catalog failed: " + errorMessage, callbackFunction);
+                    return;
                 }
-                else {
-                    const newFunctionCatalogs = [];
-                    const existingFunctionCatalogs = thisApp.state.functionCatalogs;
-                    for (let i in existingFunctionCatalogs) {
-                        const existingFunctionCatalog = existingFunctionCatalogs[i];
-                        const existingFunctionCatalogId = existingFunctionCatalog.getId();
-                        if (existingFunctionCatalogId != functionCatalog.getId()) {
-                            newFunctionCatalogs.push(existingFunctionCatalog);
-                        }
-                        else {
-                            // Remove deleted version from child item. Don't push to new array if no versions remain.
-                            const existingVersionsJson = existingFunctionCatalog.getVersionsJson();
-                            if (existingVersionsJson.length > 1) {
-                                // Find newest released version to be displayed on screen.
-                                let displayedVersionId = existingVersionsJson[0].id;
-                                let displayedVersionJson = existingVersionsJson[0];
 
-                                for (let j in existingVersionsJson) {
-                                    const existingVersionJson = existingVersionsJson[j];
-                                    if (existingFunctionCatalogId == existingVersionJson.id) {
-                                        delete existingVersionsJson[j];
-                                    }
-                                    else {
-                                        if (existingVersionJson.isReleased) {
-                                            if (existingVersionJson.id > displayedVersionId) {
-                                                displayedVersionId = existingVersionJson.id;
-                                                displayedVersionJson = existingVersionJson;
-                                            }
+                const newFunctionCatalogs = [];
+                const existingFunctionCatalogs = thisApp.state.functionCatalogs;
+                for (let i in existingFunctionCatalogs) {
+                    const existingFunctionCatalog = existingFunctionCatalogs[i];
+                    const existingFunctionCatalogId = existingFunctionCatalog.getId();
+                    if (existingFunctionCatalogId != functionCatalog.getId()) {
+                        newFunctionCatalogs.push(existingFunctionCatalog);
+                    }
+                    else {
+                        // Remove deleted version from child item. Don't push to new array if no versions remain.
+                        const existingVersionsJson = existingFunctionCatalog.getVersionsJson();
+                        if (existingVersionsJson.length > 1) {
+                            // Find newest released version to be displayed on screen.
+                            let displayedVersionId = existingVersionsJson[0].id;
+                            let displayedVersionJson = existingVersionsJson[0];
+
+                            for (let j in existingVersionsJson) {
+                                const existingVersionJson = existingVersionsJson[j];
+                                if (existingFunctionCatalogId == existingVersionJson.id) {
+                                    delete existingVersionsJson[j];
+                                }
+                                else {
+                                    if (existingVersionJson.isReleased) {
+                                        if (existingVersionJson.id > displayedVersionId) {
+                                            displayedVersionId = existingVersionJson.id;
+                                            displayedVersionJson = existingVersionJson;
                                         }
                                     }
                                 }
-                                const newFunctionCatalog = FunctionCatalog.fromJson(displayedVersionJson);
-                                newFunctionCatalog.setVersionsJson(existingVersionsJson);
-                                newFunctionCatalogs.push(newFunctionCatalog);
                             }
+                            const newFunctionCatalog = FunctionCatalog.fromJson(displayedVersionJson);
+                            newFunctionCatalog.setVersionsJson(existingVersionsJson);
+                            newFunctionCatalogs.push(newFunctionCatalog);
                         }
                     }
-                    thisApp.setState({
-                        functionCatalogs: newFunctionCatalogs,
-                        currentNavigationLevel: thisApp.NavigationLevel.versions
-                    });
                 }
+                thisApp.setState({
+                    functionCatalogs: newFunctionCatalogs,
+                    currentNavigationLevel: thisApp.NavigationLevel.versions
+                });
             });
-        }
+        };
+
+        app.App.confirm("Delete Function Catalog", "This action will delete the last reference to this function catalog version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
     onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
@@ -1272,102 +1325,96 @@ class App extends React.Component {
         const functionCatalogId = "";
         const functionBlockId = functionBlock.getId();
 
-        const shouldDisassociate = confirm("Are you sure you want to disassociate this function block version from all unapproved function catalogs?");
-        if (shouldDisassociate) {
+        const disassociateFunction = function() {
             deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
                     if (! functionBlock.isApproved()) {
-                        const shouldDelete = confirm("Would you like to delete this function block version from the database?");
-                        if (shouldDelete) {
+                        const deleteFunction = function() {
                             thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
-                        }
-                    }
-                    else if (typeof callbackFunction == "function") {
-                        callbackFunction();
+                        };
+                        app.App.confirm("Delete Function Block", "Would you also like to delete this function block version from the database?", deleteFunction, callbackFunction);
                     }
                 }
                 else {
                     app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
                 }
             });
-        }
-        else {
-            if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-        }
+        };
+
+        app.App.confirm("Disassociate Function Block", "Are you sure you want to disassociate this function block version from all unapproved function catalogs?", disassociateFunction, callbackFunction);
     }
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
         if (functionBlock.isApproved()) {
-            app.App.alert("Delete Function Block", "The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.", callbackFunction)
+            app.App.alert("Delete Function Block", "The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.", callbackFunction);
+            return;
         }
-        else {
-            const thisApp = this;
+
+        const thisApp = this;
+        const deleteFunction = function() {
             const functionCatalogId = "";
             const functionBlockId = functionBlock.getId();
 
-            let shouldDelete = false;
-            if (shouldSkipConfirmation) { shouldDelete = true; }
-            else {
-                shouldDelete = confirm("This action will delete the last reference to this function block version.  Are you sure you want to delete it?");
-            }
+            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionBlocks = [];
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in existingFunctionBlocks) {
+                        const existingFunctionBlock = existingFunctionBlocks[i];
+                        const existingFunctionBlockId = existingFunctionBlock.getId();
+                        if (existingFunctionBlockId != functionBlockId) {
+                            newFunctionBlocks.push(existingFunctionBlock);
+                        }
+                        else {
+                            // Remove deleted version from child item. Don't push to new array if no versions remain.
+                            const existingVersionsJson = existingFunctionBlock.getVersionsJson();
+                            if (existingVersionsJson.length > 1) {
+                                // Find newest released version to be displayed on screen.
+                                let displayedVersionId = existingVersionsJson[0].id;
+                                let displayedVersionJson = existingVersionsJson[0];
 
-            if (shouldDelete) {
-                deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-                    if (success) {
-                        const newFunctionBlocks = [];
-                        const existingFunctionBlocks = thisApp.state.functionBlocks;
-                        for (let i in existingFunctionBlocks) {
-                            const existingFunctionBlock = existingFunctionBlocks[i];
-                            const existingFunctionBlockId = existingFunctionBlock.getId();
-                            if (existingFunctionBlockId != functionBlockId) {
-                                newFunctionBlocks.push(existingFunctionBlock);
-                            }
-                            else {
-                                // Remove deleted version from child item. Don't push to new array if no versions remain.
-                                const existingVersionsJson = existingFunctionBlock.getVersionsJson();
-                                if (existingVersionsJson.length > 1) {
-                                    // Find newest released version to be displayed on screen.
-                                    let displayedVersionId = existingVersionsJson[0].id;
-                                    let displayedVersionJson = existingVersionsJson[0];
-
-                                    for (let j in existingVersionsJson) {
-                                        const existingVersionJson = existingVersionsJson[j];
-                                        if (existingFunctionBlockId == existingVersionJson.id) {
-                                            delete existingVersionsJson[j];
-                                        }
-                                        else {
-                                            if (existingVersionJson.isReleased) {
-                                                if (existingVersionJson.id > displayedVersionId) {
-                                                    displayedVersionId = existingVersionJson.id;
-                                                    displayedVersionJson = existingVersionJson;
-                                                }
+                                for (let j in existingVersionsJson) {
+                                    const existingVersionJson = existingVersionsJson[j];
+                                    if (existingFunctionBlockId == existingVersionJson.id) {
+                                        delete existingVersionsJson[j];
+                                    }
+                                    else {
+                                        if (existingVersionJson.isReleased) {
+                                            if (existingVersionJson.id > displayedVersionId) {
+                                                displayedVersionId = existingVersionJson.id;
+                                                displayedVersionJson = existingVersionJson;
                                             }
                                         }
                                     }
-                                    const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
-                                    newFunctionBlock.setVersionsJson(existingVersionsJson);
-                                    newFunctionBlocks.push(newFunctionBlock);
                                 }
+                                const newFunctionBlock = FunctionBlock.fromJson(displayedVersionJson);
+                                newFunctionBlock.setVersionsJson(existingVersionsJson);
+                                newFunctionBlocks.push(newFunctionBlock);
                             }
                         }
-
-                        thisApp.setState({
-                            functionBlocks:         newFunctionBlocks,
-                            currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                        });
-
-                        if (typeof callbackFunction == "function") {
-                            callbackFunction();
-                        }
                     }
-                    else {
-                        app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+
+                    thisApp.setState({
+                        functionBlocks:         newFunctionBlocks,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    });
+
+                    if (typeof callbackFunction == "function") {
+                        callbackFunction();
                     }
-                });
-            }
+                }
+                else {
+                    app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+                }
+            });
+        };
+
+        if (! shouldSkipConfirmation) {
+            app.App.confirm("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, callbackFunction);
+            return;
         }
+
+        deleteFunction();
     }
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
@@ -1626,105 +1673,97 @@ class App extends React.Component {
         const functionBlockId = "";
         const mostInterfaceId = mostInterface.getId();
 
-        const shouldDisassociate = confirm("Are you sure you want to disassociate this interface version from all unapproved function blocks?");
-        if (! shouldDisassociate) {
-            if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-            return;
-        }
-
-        deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-            if (! success) {
-                app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
-                return;
-            }
-
-            // TODO: some indication that disassociation completed. Maybe an icon on the child element?
-            if (! mostInterface.isApproved()) {
-                const shouldDelete = confirm("Would you like to delete this function block version from the database?");
-                if (shouldDelete) {
-                    thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
+        const disassociateFunction = function() {
+            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+                if (! success) {
+                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
+                    return;
                 }
-            }
-            else if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-        });
+
+                if (! mostInterface.isApproved()) {
+                    const deleteFunction = function() {
+                        thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
+                    };
+
+                    app.App.confirm("Delete Interface", "Would you like to delete this interface version from the database?", deleteFunction, callbackFunction);
+                }
+            });
+        };
+
+        app.App.confirm("Disassociate Interface", "Are you sure you want to disassociate this interface version from all unapproved function blocks?", disassociateFunction, callbackFunction);
     }
 
     deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, shouldSkipConfirmation) {
         if (mostInterface.isApproved()) {
-            app.App.alert("Delete Interface", "The currently selected interface version is approved for release. Approved interfaces cannot be deleted.", callbackFunction)
+            app.App.alert("Delete Interface", "The currently selected interface version is approved for release. Approved interfaces cannot be deleted.", callbackFunction);
             return;
         }
 
         const thisApp = this;
-        const functionBlockId = "";
-        const mostInterfaceId = mostInterface.getId();
+        const deleteFunction = function() {
+            const functionBlockId = "";
+            const mostInterfaceId = mostInterface.getId();
 
-        if (! shouldSkipConfirmation) {
-            const shouldDelete = confirm("This action will delete the last reference to this Interface version.  Are you sure you want to delete it?");
-
-            if (! shouldDelete) {
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
+            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+                if (! success) {
+                    app.App.alert("Delete Interface", "Request to delete Interface failed: " + errorMessage, callbackFunction);
+                    return;
                 }
-            }
-        }
 
-        deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-            if (! success) {
-                app.App.alert("Delete Interface", "Request to delete Interface failed: " + errorMessage, callbackFunction);
-                return;
-            }
+                const newMostInterfaces = [];
+                const existingMostInterfaces = thisApp.state.mostInterfaces;
+                for (let i in existingMostInterfaces) {
+                    const existingMostInterface = existingMostInterfaces[i];
+                    const existingMostInterfaceId = existingMostInterface.getId();
+                    if (existingMostInterfaceId != mostInterfaceId) {
+                        newMostInterfaces.push(existingMostInterface);
+                    }
+                    else {
+                        // Remove deleted version from child item. Don't push to new array if no versions remain.
+                        const existingVersionsJson = existingMostInterface.getVersionsJson();
+                        if (existingVersionsJson.length > 1) {
+                            // Find newest released version to be displayed on screen.
+                            let displayedVersionId = existingVersionsJson[0].id;
+                            let displayedVersionJson = existingVersionsJson[0];
 
-            const newMostInterfaces = [];
-            const existingMostInterfaces = thisApp.state.mostInterfaces;
-            for (let i in existingMostInterfaces) {
-                const existingMostInterface = existingMostInterfaces[i];
-                const existingMostInterfaceId = existingMostInterface.getId();
-                if (existingMostInterfaceId != mostInterfaceId) {
-                    newMostInterfaces.push(existingMostInterface);
-                }
-                else {
-                    // Remove deleted version from child item. Don't push to new array if no versions remain.
-                    const existingVersionsJson = existingMostInterface.getVersionsJson();
-                    if (existingVersionsJson.length > 1) {
-                        // Find newest released version to be displayed on screen.
-                        let displayedVersionId = existingVersionsJson[0].id;
-                        let displayedVersionJson = existingVersionsJson[0];
-
-                        for (let j in existingVersionsJson) {
-                            const existingVersionJson = existingVersionsJson[j];
-                            if (existingMostInterfaceId == existingVersionJson.id) {
-                                delete existingVersionsJson[j];
-                            }
-                            else {
-                                if (existingVersionJson.isReleased) {
-                                    if (existingVersionJson.id > displayedVersionId) {
-                                        displayedVersionId = existingVersionJson.id;
-                                        displayedVersionJson = existingVersionJson;
+                            for (let j in existingVersionsJson) {
+                                const existingVersionJson = existingVersionsJson[j];
+                                if (existingMostInterfaceId == existingVersionJson.id) {
+                                    delete existingVersionsJson[j];
+                                }
+                                else {
+                                    if (existingVersionJson.isReleased) {
+                                        if (existingVersionJson.id > displayedVersionId) {
+                                            displayedVersionId = existingVersionJson.id;
+                                            displayedVersionJson = existingVersionJson;
+                                        }
                                     }
                                 }
                             }
+                            const newMostInterface = MostInterface.fromJson(displayedVersionJson);
+                            newMostInterface.setVersionsJson(existingVersionsJson);
+                            newMostInterfaces.push(newMostInterface);
                         }
-                        const newMostInterface = MostInterface.fromJson(displayedVersionJson);
-                        newMostInterface.setVersionsJson(existingVersionsJson);
-                        newMostInterfaces.push(newMostInterface);
                     }
                 }
-            }
 
-            thisApp.setState({
-                mostInterfaces:         newMostInterfaces,
-                currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                thisApp.setState({
+                    mostInterfaces:         newMostInterfaces,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                });
+
+                if (typeof callbackFunction == "function") {
+                    callbackFunction();
+                }
             });
+        };
 
-            if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-        });
+        if (! shouldSkipConfirmation) {
+            app.App.confirm("Delete Interface", "This action will delete the last reference to this Interface version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
+            return;
+        }
+
+        deleteFunction();
     }
 
     onMostFunctionSelected(mostFunction) {
@@ -1773,41 +1812,37 @@ class App extends React.Component {
             return;
         }
 
-        const mostInterfaceId = selectedItem.getId();
-        const mostFunctionId = mostFunction.getId();
+        const deleteFunction = function() {
+            const mostInterfaceId = selectedItem.getId();
+            const mostFunctionId = mostFunction.getId();
 
-        const shouldDelete = confirm("This action will delete the only reference to this function. Are you sure you want to delete it?");
-        if (! shouldDelete) {
-            if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-            return;
-        }
-
-        deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
-            if (! success) {
-                app.App.alert("Delete Function", "Request to delete function failed: " + errorMessage);
-                return;
-            }
-
-            const newMostFunctions = [];
-            const existingMostFunctions = thisApp.state.mostFunctions;
-            for (let i in existingMostFunctions) {
-                const existingMostFunction = existingMostFunctions[i];
-                if (existingMostFunction.getId() !== mostFunction.getId()) {
-                    newMostFunctions.push(existingMostFunction);
+            deleteMostFunction(mostInterfaceId, mostFunctionId, function (success, errorMessage) {
+                if (! success) {
+                    app.App.alert("Delete Function", "Request to delete function failed: " + errorMessage);
+                    return;
                 }
-            }
 
-            thisApp.setState({
-                mostFunctions: newMostFunctions,
-                currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                const newMostFunctions = [];
+                const existingMostFunctions = thisApp.state.mostFunctions;
+                for (let i in existingMostFunctions) {
+                    const existingMostFunction = existingMostFunctions[i];
+                    if (existingMostFunction.getId() !== mostFunction.getId()) {
+                        newMostFunctions.push(existingMostFunction);
+                    }
+                }
+
+                thisApp.setState({
+                    mostFunctions: newMostFunctions,
+                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                });
+
+                if (typeof callbackFunction == "function") {
+                    callbackFunction();
+                }
             });
+        };
 
-            if (typeof callbackFunction == "function") {
-                callbackFunction();
-            }
-        });
+        app.App.confirm("Delete Function", "This action will delete the only reference to this function. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
     updateNavigationItems(itemId, navigationItemConfig, newNavigationItems) {
@@ -2019,18 +2054,20 @@ class App extends React.Component {
     }
 
     onReviewSubmitted(selectedItem) {
-        if (confirm("Submit " + selectedItem.getName() + " for review and approval?")) {
-            const currentNavigationLevel = this.state.currentNavigationLevel;
+        const thisApp = this;
+
+        const submitReviewFunction = function() {
+            const currentNavigationLevel = thisApp.state.currentNavigationLevel;
             let submitFunction = submitFunctionCatalogForReview;
 
             switch (currentNavigationLevel) {
-                case this.NavigationLevel.functionBlocks:
+                case thisApp.NavigationLevel.functionBlocks:
                     submitFunction = submitFunctionBlockForReview;
                     break;
-                case this.NavigationLevel.mostInterfaces:
+                case thisApp.NavigationLevel.mostInterfaces:
                     submitFunction = submitMostInterfaceforReview;
                     break;
-                case this.NavigationLevel.mostFunctions:
+                case thisApp.NavigationLevel.mostFunctions:
                     submitFunction = submitMostFunctionForReview;
                     break;
             }
@@ -2043,7 +2080,9 @@ class App extends React.Component {
                     app.App.alert("Request Review", "Unable to submit for review.");
                 }
             });
-        }
+        };
+
+        app.App.confirm("Submit for Review", "Submit " + selectedItem.getName() + " for review and approval?", submitReviewFunction);
     }
 
     updateReviews() {
@@ -2254,13 +2293,14 @@ class App extends React.Component {
     }
 
     onApproveButtonClicked() {
-        if (confirm("Are you sure you would like to approve this review?")) {
-            const reviewId = this.state.currentReview.getId();
-            const thisApp = this;
-            this.setState({
-               createButtonState: this.CreateButtonState.animate
-            });
+        const thisApp = this;
 
+        const approveReviewFunction = function() {
+            const reviewId = thisApp.state.currentReview.getId();
+
+            thisApp.setState({
+                createButtonState: thisApp.CreateButtonState.animate
+            });
             approveReview(reviewId, function (data) {
                 if (data.wasSuccess) {
                     app.App.alert("Review Approval", "Review has been successfully approved.");
@@ -2273,7 +2313,9 @@ class App extends React.Component {
                     });
                 }
             });
-        }
+        };
+
+        app.App.confirm("Approve Review", "Are you sure you would like to approve this review?", approveReviewFunction);
     }
 
     updateMostFunctionStereotypes() {
@@ -2534,7 +2576,7 @@ class App extends React.Component {
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
                 childItems = this.state.functionCatalogs.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -2546,7 +2588,7 @@ class App extends React.Component {
             case NavigationLevel.functionCatalogs:
                 childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
                 childItems = childItems.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -2558,7 +2600,7 @@ class App extends React.Component {
             case NavigationLevel.functionBlocks:
                 childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
                 childItems = childItems.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -2569,7 +2611,7 @@ class App extends React.Component {
 
             case NavigationLevel.mostInterfaces:
                 childItems = this.state.mostFunctions.sort(function(a, b) {
-                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -3076,7 +3118,7 @@ class App extends React.Component {
                 </div>
                 {this.renderMainContent()}
 
-                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} onConfirm={this.state.alert.onConfirm} />
+                <app.Alert shouldShow={this.state.alert.shouldShow} title={this.state.alert.title} content={this.state.alert.content} isConfirmAlert={this.state.alert.isConfirmAlert} onConfirm={this.state.alert.onConfirm} onCancel={this.state.alert.onCancel}/>
             </div>
         );
     }
