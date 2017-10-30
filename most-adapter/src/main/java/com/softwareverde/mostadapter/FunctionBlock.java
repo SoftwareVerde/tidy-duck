@@ -17,8 +17,8 @@ import java.util.*;
 
 public class FunctionBlock implements XmlNode {
     private static final String COMMON_FUNCTIONS_XML_RESOURCE_PATH = "/common-functions.xml";
-    private static final String SINK_FUNCTIONS_XML_RESOURCE_PATH = "/source-functions.xml";
-    private static final String SOURCE_FUNCTIONS_XML_RESOURCE_PATH = "/sink-functions.xml";
+    private static final String SOURCE_FUNCTIONS_XML_RESOURCE_PATH = "/source-functions.xml";
+    private static final String SINK_FUNCTIONS_XML_RESOURCE_PATH = "/sink-functions.xml";
     private static final String STREAM_DATA_INFO_FUNCTION_XML_RESOURCE_PATH = "/stream-data-info-function.xml";
 
     private String _mostId;
@@ -174,14 +174,14 @@ public class FunctionBlock implements XmlNode {
         // append all common functions
         appendFunctions(document, functionBlock, COMMON_FUNCTIONS_XML_RESOURCE_PATH);
 
-        // append sink functions
-        if (_isSink) {
-            appendFunctions(document, functionBlock, SINK_FUNCTIONS_XML_RESOURCE_PATH);
-        }
-
         // append source functions
         if (_isSource) {
             appendFunctions(document, functionBlock, SOURCE_FUNCTIONS_XML_RESOURCE_PATH);
+        }
+
+        // append sink functions
+        if (_isSink) {
+            appendFunctions(document, functionBlock, SINK_FUNCTIONS_XML_RESOURCE_PATH);
         }
 
         // append stream data info function (if sink or source)
