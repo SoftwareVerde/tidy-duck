@@ -29,7 +29,7 @@ class MostInterfaceForm extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         const isNewMostInterface = (! this.props.mostInterface && ! this.state.mostInterface);
-        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : newProperties.mostInterface || this.state.mostInterface));
+        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : this.state.mostInterface || newProperties.mostInterface));
 
         mostInterface.setId((newProperties.mostInterface || mostInterface).getId());
         this.setState({

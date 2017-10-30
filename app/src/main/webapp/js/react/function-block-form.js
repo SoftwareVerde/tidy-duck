@@ -42,7 +42,7 @@ class FunctionBlockForm extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         const isNewFunctionBlock = (! this.props.functionBlock && ! this.state.functionBlock);
-        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(isNewFunctionBlock ? new FunctionBlock() : newProperties.functionBlock || this.state.functionBlock));
+        const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(isNewFunctionBlock ? new FunctionBlock() : this.state.functionBlock || newProperties.functionBlock));
 
         // Default values for the function block...
         if (isNewFunctionBlock) {
