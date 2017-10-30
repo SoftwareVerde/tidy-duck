@@ -1,11 +1,23 @@
 package com.softwareverde.mostadapter;
 
+import com.softwareverde.util.IoUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 
 public class FunctionBlock implements XmlNode {
+    private static final String COMMON_FUNCTIONS_XML_RESOURCE_PATH = "/common-functions.xml";
+
     private String _mostId;
     private String _kind = "Proprietary";
     private String _name;
@@ -147,6 +159,21 @@ public class FunctionBlock implements XmlNode {
             versionElement.appendChild(modificationElement);
         }
 
+        // append all common functions
+        try {
+            final NodeList commonFunctions = getCommonFunctions();
+            for (int i=0; i<commonFunctions.getLength(); i++) {
+                Node function = commonFunctions.item(i);
+                if (function.getNodeType() != Node.TEXT_NODE) {
+                    function = document.importNode(function, true);
+                    functionBlock.appendChild(function);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to collect common functions.", e);
+        }
+
+        // append user-defined functions
         final List<MostFunction> sortedMostFunctions = _getSortedMostFunctions();
         for (final MostFunction mostFunction : sortedMostFunctions) {
             final Element functionElement = mostFunction.generateXmlElement(document);
@@ -154,6 +181,27 @@ public class FunctionBlock implements XmlNode {
         }
 
         return functionBlock;
+    }
+
+    /**
+     * <p>Reads static XML file for common function definitions.  Return the list of function nodes therein.</p>
+     *
+     * <p>The individual nodes must be imported (see Document.import) before appending them to the current document</p>
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    private NodeList getCommonFunctions() throws ParserConfigurationException, IOException, SAXException {
+        final String staticXml = IoUtil.getResource(COMMON_FUNCTIONS_XML_RESOURCE_PATH);
+
+        final String commonFunctionXml = "<root>" + staticXml + "</root>";
+
+        final DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Node fragmentNode = documentBuilder.parse(new InputSource(new StringReader(commonFunctionXml))).getDocumentElement();
+        NodeList commonFunctions = fragmentNode.getChildNodes();
+
+        return commonFunctions;
     }
 
     /**
