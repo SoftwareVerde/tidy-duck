@@ -1,0 +1,1167 @@
+    <Function>
+      <FunctionID>0x110</FunctionID>
+      <FunctionName>SinkInfo</FunctionName>
+      <FunctionDescription> The presence of this function is conditional; it is required for FBlocks that contain a sink. This
+		property gives particulars about the type of streaming sink data.
+		If notification is used for an FBlock with multiple sinks, multiple notifications will be sent when
+		the status changes for more than one sink.&lt;br&gt;
+		For further information please refer to the MOST Stream Transmission Specification Rev 3.0.
+		</FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_property">
+        <FunctionClassDesc />
+        <Property Notification="true">
+          <PUnclassified>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">BlockWidth</ParamName>
+              <ParamDescription> Number of transferred bytes per MOST frame.&lt;br&gt;&lt;br&gt;
+			&lt;table border="1" cellpadding="3" cellspacing="0"&gt;
+			&lt;tr&gt;&lt;th class="paramformat"&gt;Speed grade&lt;/th&gt;&lt;th class="paramformat"&gt;Parameter value range&lt;/th&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST50&lt;/td&gt;&lt;td class="paramformat"&gt;1...117&lt;/td&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST150&lt;/td&gt;&lt;td class="paramformat"&gt;1...372&lt;/td&gt;&lt;/tr&gt;
+			&lt;/table&gt;
+			&lt;br&gt;
+			</ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>2</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ConnectionLabel</ParamName>
+              <ParamDescription> Connection identifier. If no bandwidth was allocated yet, 0x0000 must be used.&lt;br&gt;&lt;br&gt;
+			&lt;table border="1" cellpadding="3" cellspacing="0"&gt;
+			&lt;tr&gt;&lt;th class="paramformat"&gt;Speed grade&lt;/th&gt;&lt;th class="paramformat"&gt;Parameter value range&lt;/th&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST50&lt;/td&gt;&lt;td class="paramformat"&gt;0; 11...127&lt;/td&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST150&lt;/td&gt;&lt;td class="paramformat"&gt;0; 12...383&lt;/td&gt;&lt;/tr&gt;
+			&lt;/table&gt;
+			&lt;br&gt;
+			</ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>3</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ContentDescription</ParamName>
+              <ParamDescription> The parameter depends on the used content type. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>7</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TShortStream TypeRef="type_shortstream">
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">AudioChannels</ParamName>
+                      <ParamDescription> Number of audio channels. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUByte TypeRef="type_unsigned_byte" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>255</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="2">Resolution</ParamName>
+                      <ParamDescription> Resolution of the audio samples in bytes. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUByte TypeRef="type_unsigned_byte" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>255</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x2" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">SpeedFactor</ParamName>
+                      <ParamDescription> SpeedFactor defines the speed factor of the content with respect to the transmission. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUByte TypeRef="type_unsigned_byte" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>255</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x8" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">DataConnectionLabel</ParamName>
+                      <ParamDescription> Connection identifier of the SAD associated stream.  If no bandwidth was allocated yet, 0x0000 must
+		be used.&lt;br&gt;&lt;br&gt;
+		&lt;table border="1" cellpadding="3" cellspacing="0"&gt;
+		&lt;tr&gt;&lt;th class="paramformat"&gt;Speed grade&lt;/th&gt;&lt;th class="paramformat"&gt;Parameter value range&lt;/th&gt;&lt;/tr&gt;
+		&lt;tr&gt;&lt;td class="paramformat"&gt;MOST50&lt;/td&gt;&lt;td class="paramformat"&gt;0; 11...127&lt;/td&gt;&lt;/tr&gt;
+		&lt;tr&gt;&lt;td class="paramformat"&gt;MOST150&lt;/td&gt;&lt;td class="paramformat"&gt;0; 12...383&lt;/td&gt;&lt;/tr&gt;
+		&lt;/table&gt;
+		&lt;br&gt;
+		</ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUWord TypeRef="type_unsigned_word" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>65535</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0xF" />
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x10" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">AudioChannels</ParamName>
+                      <ParamDescription> Number of audio channels. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUByte TypeRef="type_unsigned_byte" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>255</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="2seq1">AudioChannelList</ParamName>
+                      <ParamDescription> The parameter depends on the used transmission class. </ParamDescription>
+                      <ParamType>
+                        <TStream TypeRef="type_stream">
+                          <StreamCase>
+                            <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                            <StreamParam>
+                              <ParamName ParamIdx="1seq1">AudioChannelName</ParamName>
+                              <ParamDescription> Describe the channel name and determine the room position of the channel. </ParamDescription>
+                              <ParamType>
+                                <TEnum TypeRef="type_enum" TEnumMax="20">
+                                  <TEnumValue Code="0x0" SymbolicName="CurrentlyNotInUse"> Currently not in use </TEnumValue>
+                                  <TEnumValue Code="0x1" SymbolicName="FrontLeft"> Front Left  (FL) </TEnumValue>
+                                  <TEnumValue Code="0x2" SymbolicName="FrontRight"> Front Right (FR) </TEnumValue>
+                                  <TEnumValue Code="0x3" SymbolicName="FrontCenter"> Front Center (FC) </TEnumValue>
+                                  <TEnumValue Code="0x4" SymbolicName="LowFrequency"> Low Frequency (LF) </TEnumValue>
+                                  <TEnumValue Code="0x5" SymbolicName="BackLeft"> Back Left (BL) </TEnumValue>
+                                  <TEnumValue Code="0x6" SymbolicName="BackRight"> Back Right  (BR) </TEnumValue>
+                                  <TEnumValue Code="0x7" SymbolicName="FrontLeftCenter"> Front Left of Center (FLC) </TEnumValue>
+                                  <TEnumValue Code="0x8" SymbolicName="FrontRightCenter"> Front Right of Center (FRC) </TEnumValue>
+                                  <TEnumValue Code="0x9" SymbolicName="BackCenter"> Back Center (BC) </TEnumValue>
+                                  <TEnumValue Code="0xA" SymbolicName="SideLeft"> Side Left (SL) </TEnumValue>
+                                  <TEnumValue Code="0xB" SymbolicName="SideRight"> Side Right (SR) </TEnumValue>
+                                  <TEnumValue Code="0xC" SymbolicName="TopCenter"> Top Center (TC) </TEnumValue>
+                                  <TEnumValue Code="0xD" SymbolicName="TopFrontLeft"> Top Front Left (TFL) </TEnumValue>
+                                  <TEnumValue Code="0xE" SymbolicName="TopFrontCenter"> Top Front Center(TFC) </TEnumValue>
+                                  <TEnumValue Code="0xF" SymbolicName="TopFrontRight"> Top Front Right (TFR) </TEnumValue>
+                                  <TEnumValue Code="0x10" SymbolicName="TopBackLeft"> Top Back Left (TBL) </TEnumValue>
+                                  <TEnumValue Code="0x11" SymbolicName="TopBackCenter"> Top Back Center (TBC) </TEnumValue>
+                                  <TEnumValue Code="0x12" SymbolicName="TopBackRight"> Top Back Right (TBR) </TEnumValue>
+                                  <TEnumValue Code="0x13" SymbolicName="BackLeftCenter"> Back Left of Center (BCL) </TEnumValue>
+                                  <TEnumValue Code="0x14" SymbolicName="BackRightCenter"> Back Right of Center (BCR) </TEnumValue>
+                                </TEnum>
+                              </ParamType>
+                            </StreamParam>
+                            <StreamParam>
+                              <ParamName ParamIdx="2seq2">BitsPerSample</ParamName>
+                              <ParamDescription> Resolution of the audio samples in bits. </ParamDescription>
+                              <ParamType>
+                                <TNumber>
+                                  <BasisDataType>
+                                    <TUByte TypeRef="type_unsigned_byte" />
+                                  </BasisDataType>
+                                  <Exponent>0</Exponent>
+                                  <RangeMin>0</RangeMin>
+                                  <RangeMax>255</RangeMax>
+                                  <Step>1</Step>
+                                  <Unit UnitRef="unit_none" />
+                                </TNumber>
+                              </ParamType>
+                            </StreamParam>
+                          </StreamCase>
+                        </TStream>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x20" />
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x21" />
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x22" />
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x90" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">IP_Address</ParamName>
+                      <ParamDescription> ContentType "IP Stream" (0x90) is deprecated!&lt;br&gt;&lt;br&gt;Length parameter decides if IP_V4 (32bit
+		address) or IP_V6 (128bit) address is used.
+		&lt;ul&gt;
+		&lt;li class="description"&gt;Length=4 means IP_V4&lt;/li&gt;
+		&lt;li class="description"&gt;Length=16 means IP_V6&lt;/li&gt;
+		&lt;/ul&gt;
+		</ParamDescription>
+                      <ParamType>
+                        <TShortStream TypeRef="type_shortstream">
+                          <StreamCase>
+                            <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                            <StreamParam>
+                              <ParamName ParamIdx="1seq1">IP_Address</ParamName>
+                              <ParamDescription> ContentType "IP Stream" (0x90) is deprecated!&lt;br&gt;&lt;br&gt;Length parameter decides if IP_V4 (32bit
+		address) or IP_V6 (128bit) address is used.
+		&lt;ul&gt;
+		&lt;li class="description"&gt;Length=4 means IP_V4&lt;/li&gt;
+		&lt;li class="description"&gt;Length=16 means IP_V6&lt;/li&gt;
+		&lt;/ul&gt;
+		</ParamDescription>
+                              <ParamType>
+                                <TNumber>
+                                  <BasisDataType>
+                                    <TUByte TypeRef="type_unsigned_byte" />
+                                  </BasisDataType>
+                                  <Exponent>0</Exponent>
+                                  <RangeMin>0</RangeMin>
+                                  <RangeMax>255</RangeMax>
+                                  <Step>1</Step>
+                                  <Unit UnitRef="unit_none" />
+                                </TNumber>
+                              </ParamType>
+                            </StreamParam>
+                          </StreamCase>
+                        </TShortStream>
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="2">Port</ParamName>
+                      <ParamDescription> ContentType "IP Stream" (0x90) is deprecated!&lt;br&gt;&lt;br&gt;16 bit Port. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUWord TypeRef="type_unsigned_word" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>65535</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ContentType" PosY="0x91" />
+                  </StreamCase>
+                </TShortStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ContentProtection</ParamName>
+              <ParamDescription> Type of used Content Protection. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>5</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="3">
+                  <TEnumValue Code="0x0" SymbolicName="None"> None </TEnumValue>
+                  <TEnumValue Code="0x1" SymbolicName="SerialCopyManagement"> Serial Copy Management </TEnumValue>
+                  <TEnumValue Code="0x2" SymbolicName="MOSTDTCP"> MOST DTCP (Supplement B) </TEnumValue>
+                  <TEnumValue Code="0x3" SymbolicName="DTCPIP"> DTCP-IP (Supplement E) </TEnumValue>
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ContentType</ParamName>
+              <ParamDescription> Type of transported content. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>6</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="240">
+                  <TEnumValue Code="0x0" SymbolicName="Audio"> Audio </TEnumValue>
+                  <TEnumValue Code="0x1" SymbolicName="ReservedDeprecatedCDROM"> Reserved, usage deprecated (CDROM) </TEnumValue>
+                  <TEnumValue Code="0x2" SymbolicName="SPDIF"> SPDIF </TEnumValue>
+                  <TEnumValue Code="0x8" SymbolicName="SAD"> SAD </TEnumValue>
+                  <TEnumValue Code="0xF" SymbolicName="PhaseInformation"> Phase Information </TEnumValue>
+                  <TEnumValue Code="0x10" SymbolicName="GenericPCM"> GenericPCM </TEnumValue>
+                  <TEnumValue Code="0x11" SymbolicName="ReservedDeprecatedPCMDTCP"> Reserved, usage deprecated (GenericPCM/DTCP) </TEnumValue>
+                  <TEnumValue Code="0x20" SymbolicName="MPEG1SystemStream"> MPEG1_SystemStream </TEnumValue>
+                  <TEnumValue Code="0x21" SymbolicName="MPEG2ProgramStream"> MPEG2_ProgramStream </TEnumValue>
+                  <TEnumValue Code="0x22" SymbolicName="MPEG2TransportStream"> MPEG2_TransportStream </TEnumValue>
+                  <TEnumValue Code="0x30" SymbolicName="Reserved_for_MPEG_Elementary_Streams" />
+                  <TEnumValue Code="0x50" SymbolicName="Reserved_for_Compressed_Audio" />
+                  <TEnumValue Code="0x90" SymbolicName="IPStream"> IP Stream (deprecated) </TEnumValue>
+                  <TEnumValue Code="0x91" SymbolicName="Ethernet"> Ethernet </TEnumValue>
+                  <TEnumValue Code="0xC0" SymbolicName="System_Integrator_specific" />
+                  <TEnumValue Code="0xF0" SymbolicName="Supplier_specific" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">SinkNr</ParamName>
+              <ParamDescription> Number of a data sink (within one FBlock there can be more than one), for example, 0x01 for the first
+			sink.
+			</ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdGet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUByte TypeRef="type_unsigned_byte" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>255</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">TransmissionClass</ParamName>
+              <ParamDescription> Describe the used MOST transmission type. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>4</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="4">
+                  <TEnumValue Code="0x0" SymbolicName="Synchronous"> Synchronous </TEnumValue>
+                  <TEnumValue Code="0x1" SymbolicName="DiscreteFrameIsochronous"> DiscreteFrame Isochronous </TEnumValue>
+                  <TEnumValue Code="0x2" SymbolicName="PacketizedIsochronous"> Packetized Isochronous </TEnumValue>
+                  <TEnumValue Code="0x3" SymbolicName="QoSIP"> QoS IP </TEnumValue>
+                  <TEnumValue Code="0x4" SymbolicName="Asynchronous"> Asynchronous </TEnumValue>
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">TransmissionParameter</ParamName>
+              <ParamDescription> The parameter depends on the used transmission class. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>8</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="TransmissionClass" />
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="TransmissionClass" PosY="0x1" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">DataFrameBlockwidth</ParamName>
+                      <ParamDescription> Number of bytes the original data frame uses.
+				&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Note:&lt;/b&gt; DataFrameBlockwidth is set to 0x00 for ContentType 0x0F (Phase
+				Information).&lt;/i&gt;
+				</ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUByte TypeRef="type_unsigned_byte" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>255</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="2">DataSampleFrequency</ParamName>
+                      <ParamDescription> Sample frequency of the original data frame in Hz. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TULong TypeRef="type_unsigned_long" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>4294967295</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="3">ClkSrcLabel</ParamName>
+                      <ParamDescription> Connection label for Phase Information.  If no bandwidth was allocated yet, 0x0000 must be
+				used.&lt;br&gt;&lt;br&gt;
+				&lt;table border="1" cellpadding="3" cellspacing="0"&gt;
+				&lt;tr&gt;&lt;th class="paramformat"&gt;Speed grade&lt;/th&gt;&lt;th class="paramformat"&gt;Parameter value range&lt;/th&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td class="paramformat"&gt;MOST50&lt;/td&gt;&lt;td class="paramformat"&gt;0; 11...127&lt;/td&gt;&lt;/tr&gt;
+				&lt;tr&gt;&lt;td class="paramformat"&gt;MOST150&lt;/td&gt;&lt;td class="paramformat"&gt;0; 12...383&lt;/td&gt;&lt;/tr&gt;
+				&lt;/table&gt;
+				&lt;br&gt;
+				</ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUWord TypeRef="type_unsigned_word" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>65535</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="TransmissionClass" PosY="0x2" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">DataRate</ParamName>
+                      <ParamDescription> The maximum data rate of the original stream in kbit/s. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TULong TypeRef="type_unsigned_long" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>4294967295</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="TransmissionClass" PosY="0x3" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">DataRate</ParamName>
+                      <ParamDescription> The maximum data rate of the original stream in kbit/s. </ParamDescription>
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TULong TypeRef="type_unsigned_long" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>4294967295</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="TransmissionClass" PosY="0x4" />
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                  <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                  <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                  <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+          </PUnclassified>
+        </Property>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID>0x111</FunctionID>
+      <FunctionName>Connect</FunctionName>
+      <FunctionDescription> The presence of this function is conditional; it is required for FBlocks that contain a sink. By use
+		of the method Connect, channels for data streaming will be connected.
+		</FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_method">
+        <FunctionClassDesc />
+        <Method>
+          <MUnclassified>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">SenderHandle</ParamName>
+              <ParamDescription> Unique identifier of the requesting task within the device. </ParamDescription>
+              <MUParamOPType>
+                <MUCommand>
+                  <MCmdStartResultAck OPTypeRef="MCmdStartResultAck">
+                    <ParamPos>1</ParamPos>
+                  </MCmdStartResultAck>
+                </MUCommand>
+                <MUReport>
+                  <MReportErrorAck OPTypeRef="MReportErrorAck">
+                    <ParamPos>1</ParamPos>
+                  </MReportErrorAck>
+                  <MReportProcessingAck OPTypeRef="MReportProcessingAck">
+                    <ParamPos>1</ParamPos>
+                  </MReportProcessingAck>
+                  <MReportResultAck OPTypeRef="MReportResultAck">
+                    <ParamPos>1</ParamPos>
+                  </MReportResultAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">BlockWidth</ParamName>
+              <ParamDescription> Number of transferred bytes per MOST frame.&lt;br&gt;&lt;br&gt;
+			&lt;table border="1" cellpadding="3" cellspacing="0"&gt;
+			&lt;tr&gt;&lt;th class="paramformat"&gt;Speed grade&lt;/th&gt;&lt;th class="paramformat"&gt;Parameter value range&lt;/th&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST50&lt;/td&gt;&lt;td class="paramformat"&gt;1...117&lt;/td&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST150&lt;/td&gt;&lt;td class="paramformat"&gt;1...372&lt;/td&gt;&lt;/tr&gt;
+			&lt;/table&gt;
+			&lt;br&gt;
+			</ParamDescription>
+              <MUParamOPType>
+                <MUCommand>
+                  <MCmdStartResultAck OPTypeRef="MCmdStartResultAck">
+                    <ParamPos>3</ParamPos>
+                  </MCmdStartResultAck>
+                </MUCommand>
+              </MUParamOPType>
+              <MUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">ConnectionLabel</ParamName>
+              <ParamDescription> Connection identifier.&lt;br&gt;&lt;br&gt;
+			&lt;table border="1" cellpadding="3" cellspacing="0"&gt;
+			&lt;tr&gt;&lt;th class="paramformat"&gt;Speed grade&lt;/th&gt;&lt;th class="paramformat"&gt;Parameter value range&lt;/th&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST50&lt;/td&gt;&lt;td class="paramformat"&gt;11...127&lt;/td&gt;&lt;/tr&gt;
+			&lt;tr&gt;&lt;td class="paramformat"&gt;MOST150&lt;/td&gt;&lt;td class="paramformat"&gt;12...383&lt;/td&gt;&lt;/tr&gt;
+			&lt;/table&gt;
+			&lt;br&gt;
+			</ParamDescription>
+              <MUParamOPType>
+                <MUCommand>
+                  <MCmdStartResultAck OPTypeRef="MCmdStartResultAck">
+                    <ParamPos>4</ParamPos>
+                  </MCmdStartResultAck>
+                </MUCommand>
+              </MUParamOPType>
+              <MUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">SinkNr</ParamName>
+              <ParamDescription> Number of a data sink (within one FBlock there can be more than one), for example, 0x01 for the first
+			sink.
+			</ParamDescription>
+              <MUParamOPType>
+                <MUCommand>
+                  <MCmdStartResultAck OPTypeRef="MCmdStartResultAck">
+                    <ParamPos>2</ParamPos>
+                  </MCmdStartResultAck>
+                </MUCommand>
+                <MUReport>
+                  <MReportResultAck OPTypeRef="MReportResultAck">
+                    <ParamPos>2</ParamPos>
+                  </MReportResultAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUByte TypeRef="type_unsigned_byte" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>255</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <MUParamOPType>
+                <MUReport>
+                  <MReportErrorAck OPTypeRef="MReportErrorAck">
+                    <ParamPos>3</ParamPos>
+                  </MReportErrorAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <MUParamOPType>
+                <MUReport>
+                  <MReportErrorAck OPTypeRef="MReportErrorAck">
+                    <ParamPos>2</ParamPos>
+                  </MReportErrorAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x20" SymbolicName="ConnectionUnsupportable" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                  <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                  <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                  <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                </TEnum>
+              </MUParamType>
+            </MUParam>
+          </MUnclassified>
+        </Method>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID>0x112</FunctionID>
+      <FunctionName>DisConnect</FunctionName>
+      <FunctionDescription> The presence of this function is conditional; it is required for FBlocks that contain a sink. By use
+		of the method DisConnect, connections for data streaming will be disconnected.
+		</FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_method">
+        <FunctionClassDesc />
+        <Method>
+          <MUnclassified>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">SenderHandle</ParamName>
+              <ParamDescription> Unique identifier of the requesting task within the device. </ParamDescription>
+              <MUParamOPType>
+                <MUCommand>
+                  <MCmdStartResultAck OPTypeRef="MCmdStartResultAck">
+                    <ParamPos>1</ParamPos>
+                  </MCmdStartResultAck>
+                </MUCommand>
+                <MUReport>
+                  <MReportErrorAck OPTypeRef="MReportErrorAck">
+                    <ParamPos>1</ParamPos>
+                  </MReportErrorAck>
+                  <MReportProcessingAck OPTypeRef="MReportProcessingAck">
+                    <ParamPos>1</ParamPos>
+                  </MReportProcessingAck>
+                  <MReportResultAck OPTypeRef="MReportResultAck">
+                    <ParamPos>1</ParamPos>
+                  </MReportResultAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">SinkNr</ParamName>
+              <ParamDescription> Number of a data sink (within one FBlock there can be more than one), for example, 0x01 for the first
+			sink.
+			</ParamDescription>
+              <MUParamOPType>
+                <MUCommand>
+                  <MCmdStartResultAck OPTypeRef="MCmdStartResultAck">
+                    <ParamPos>2</ParamPos>
+                  </MCmdStartResultAck>
+                </MUCommand>
+                <MUReport>
+                  <MReportResultAck OPTypeRef="MReportResultAck">
+                    <ParamPos>2</ParamPos>
+                  </MReportResultAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUByte TypeRef="type_unsigned_byte" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>255</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <MUParamOPType>
+                <MUReport>
+                  <MReportErrorAck OPTypeRef="MReportErrorAck">
+                    <ParamPos>3</ParamPos>
+                  </MReportErrorAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </MUParamType>
+            </MUParam>
+            <MUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <MUParamOPType>
+                <MUReport>
+                  <MReportErrorAck OPTypeRef="MReportErrorAck">
+                    <ParamPos>2</ParamPos>
+                  </MReportErrorAck>
+                </MUReport>
+              </MUParamOPType>
+              <MUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x20" SymbolicName="ConnectionUnsupportable" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                  <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                  <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                  <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                </TEnum>
+              </MUParamType>
+            </MUParam>
+          </MUnclassified>
+        </Method>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID>0x113</FunctionID>
+      <FunctionName>Mute</FunctionName>
+      <FunctionDescription> This property is for setting and reading the mute status.
+		If notification is used for an FBlock with multiple sinks, multiple notifications will be sent when
+		the status changes for more than one sink.
+		</FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_property">
+        <FunctionClassDesc />
+        <Property Notification="true">
+          <PUnclassified>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">MuteStatus</ParamName>
+              <ParamDescription> The Status parameter determines whether a sink is muted. </ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdSet OPTypeRef="PCmdSet">
+                    <ParamPos>2</ParamPos>
+                  </PCmdSet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>2</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUByte TypeRef="type_unsigned_byte" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>255</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">SinkNr</ParamName>
+              <ParamDescription> Number of a data sink (within one FBlock there can be more than one), for example, 0x01 for the first
+				sink.&lt;br&gt;
+				Value 0x00 is used to mute / de-mute all sinks.
+			</ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdGet>
+                  <PCmdSet OPTypeRef="PCmdSet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdSet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUByte TypeRef="type_unsigned_byte" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>255</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x20" SymbolicName="ConnectionUnsupportable" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                  <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                  <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                  <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+          </PUnclassified>
+        </Property>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID>0x114</FunctionID>
+      <FunctionName>SinkName</FunctionName>
+      <FunctionDescription> By using property SinkName, a name for the streaming data can be requested.
+		If notification is used for an FBlock with multiple sinks, multiple notifications will be sent when
+		the status changes for more than one sink.
+		</FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_property">
+        <FunctionClassDesc />
+        <Property Notification="true">
+          <PUnclassified>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">SinkName</ParamName>
+              <ParamDescription> Name of the streaming data sink. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>2</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TString TypeRef="type_string" MaxSize="255" />
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">SinkNr</ParamName>
+              <ParamDescription> Number of a data sink (within one FBlock there can be more than one), for example, 0x01 for the first
+			sink.
+			</ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdGet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUByte TypeRef="type_unsigned_byte" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>255</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                  <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                  <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                  <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+          </PUnclassified>
+        </Property>
+      </FunctionClass>
+    </Function>

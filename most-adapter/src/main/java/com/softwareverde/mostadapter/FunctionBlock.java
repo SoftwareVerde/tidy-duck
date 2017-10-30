@@ -17,6 +17,9 @@ import java.util.*;
 
 public class FunctionBlock implements XmlNode {
     private static final String COMMON_FUNCTIONS_XML_RESOURCE_PATH = "/common-functions.xml";
+    private static final String SINK_FUNCTIONS_XML_RESOURCE_PATH = "/source-functions.xml";
+    private static final String SOURCE_FUNCTIONS_XML_RESOURCE_PATH = "/sink-functions.xml";
+    private static final String STREAM_DATA_INFO_FUNCTION_XML_RESOURCE_PATH = "/stream-data-info-function.xml";
 
     private String _mostId;
     private String _kind = "Proprietary";
@@ -27,7 +30,8 @@ public class FunctionBlock implements XmlNode {
     private String _author;
     private String _company;
     private String _access;
-    private boolean _isCommitted;
+    private boolean _isSource;
+    private boolean _isSink;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostFunction> _mostFunctions = new ArrayList<>();
 
@@ -103,12 +107,20 @@ public class FunctionBlock implements XmlNode {
         return _access;
     }
 
-    public boolean isCommitted() {
-        return _isCommitted;
+    public boolean isSource() {
+        return _isSource;
     }
 
-    public void setCommitted(boolean committed) {
-        _isCommitted = committed;
+    public void setIsSource(final boolean source) {
+        _isSource = source;
+    }
+
+    public boolean isSink() {
+        return _isSink;
+    }
+
+    public void setSink(final boolean sink) {
+        _isSink = sink;
     }
 
     public List<Modification> getModifications() {
@@ -160,17 +172,21 @@ public class FunctionBlock implements XmlNode {
         }
 
         // append all common functions
-        try {
-            final NodeList commonFunctions = getCommonFunctions();
-            for (int i=0; i<commonFunctions.getLength(); i++) {
-                Node function = commonFunctions.item(i);
-                if (function.getNodeType() != Node.TEXT_NODE) {
-                    function = document.importNode(function, true);
-                    functionBlock.appendChild(function);
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to collect common functions.", e);
+        appendFunctions(document, functionBlock, COMMON_FUNCTIONS_XML_RESOURCE_PATH);
+
+        // append sink functions
+        if (_isSink) {
+            appendFunctions(document, functionBlock, SINK_FUNCTIONS_XML_RESOURCE_PATH);
+        }
+
+        // append source functions
+        if (_isSource) {
+            appendFunctions(document, functionBlock, SOURCE_FUNCTIONS_XML_RESOURCE_PATH);
+        }
+
+        // append stream data info function (if sink or source)
+        if (_isSink || _isSource) {
+            appendFunctions(document, functionBlock, STREAM_DATA_INFO_FUNCTION_XML_RESOURCE_PATH);
         }
 
         // append user-defined functions
@@ -184,7 +200,28 @@ public class FunctionBlock implements XmlNode {
     }
 
     /**
-     * <p>Reads static XML file for common function definitions.  Return the list of function nodes therein.</p>
+     * <p>Retrieve functions from <code>resourceName</code> and add any nodes there as children of <code>functionBlock</code>.</p>
+     * @param document
+     * @param functionBlock
+     * @param resourceName
+     */
+    private void appendFunctions(final Document document, final Element functionBlock, final String resourceName) {
+        try {
+            final NodeList functions = getResourceXmlNodes(resourceName);
+            for (int i=0; i<functions.getLength(); i++) {
+                Node function = functions.item(i);
+                if (function.getNodeType() != Node.TEXT_NODE) {
+                    function = document.importNode(function, true);
+                    functionBlock.appendChild(function);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to collect functions from resource : " + resourceName, e);
+        }
+    }
+
+    /**
+     * <p>Reads static XML file for function definitions.  Return the list of function nodes therein.</p>
      *
      * <p>The individual nodes must be imported (see Document.import) before appending them to the current document</p>
      * @return
@@ -192,16 +229,15 @@ public class FunctionBlock implements XmlNode {
      * @throws IOException
      * @throws SAXException
      */
-    private NodeList getCommonFunctions() throws ParserConfigurationException, IOException, SAXException {
-        final String staticXml = IoUtil.getResource(COMMON_FUNCTIONS_XML_RESOURCE_PATH);
-
-        final String commonFunctionXml = "<root>" + staticXml + "</root>";
+    private NodeList getResourceXmlNodes(String resourceName) throws ParserConfigurationException, IOException, SAXException {
+        final String extractedXml = IoUtil.getResource(resourceName);
+        final String staticXml = "<root>" + extractedXml + "</root>";
 
         final DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Node fragmentNode = documentBuilder.parse(new InputSource(new StringReader(commonFunctionXml))).getDocumentElement();
-        NodeList commonFunctions = fragmentNode.getChildNodes();
+        Node fragmentNode = documentBuilder.parse(new InputSource(new StringReader(staticXml))).getDocumentElement();
+        NodeList functionNodes = fragmentNode.getChildNodes();
 
-        return commonFunctions;
+        return functionNodes;
     }
 
     /**
