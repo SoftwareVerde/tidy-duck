@@ -1,0 +1,4 @@
+
+ALTER TABLE function_blocks ADD COLUMN is_source BOOLEAN NOT NULL DEFAULT FALSE AFTER access;
+ALTER TABLE function_blocks ADD COLUMN is_sink BOOLEAN NOT NULL DEFAULT FALSE AFTER is_source;
+
