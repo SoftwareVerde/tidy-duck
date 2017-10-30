@@ -159,6 +159,8 @@ public class MostTypeConverter {
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
         final String access = functionBlock.getAccess();
+        final boolean isSource = functionBlock.isSource();
+        final boolean isSink = functionBlock.isSink();
         final String author = functionBlock.getAuthor().getName();
         final String company = functionBlock.getCompany().getName();
         final Date lastModifiedDate = functionBlock.getLastModifiedDate();
@@ -169,6 +171,8 @@ public class MostTypeConverter {
         convertedFunctionBlock.setDescription(description);
         convertedFunctionBlock.setRelease(release);
         convertedFunctionBlock.setAccess(access);
+        convertedFunctionBlock.setIsSource(isSource);
+        convertedFunctionBlock.setIsSink(isSink);
         convertedFunctionBlock.setAuthor(author);
         convertedFunctionBlock.setCompany(company);
         convertedFunctionBlock.setLastModifiedDate(lastModifiedDate);

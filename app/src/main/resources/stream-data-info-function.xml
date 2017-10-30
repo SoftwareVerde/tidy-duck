@@ -1,0 +1,161 @@
+
+    <Function>
+        <FunctionID>0x116</FunctionID>
+        <FunctionName>StreamDataInfo</FunctionName>
+        <FunctionDescription> The purpose of property StreamDataInfo is obtaining the list of source
+            numbers and sink numbers the FBlock provides. This function is required for FBlocks that contain a
+            source or sink.
+        </FunctionDescription>
+        <FunctionVersion>
+            <Release>1.0</Release>
+            <Author>Joe Porembski</Author>
+            <Company>Honda R+D Americas, Inc.</Company>
+        </FunctionVersion>
+        <FunctionClass ClassRef="class_sequence_property">
+            <FunctionClassDesc />
+            <Property Notification="false">
+                <PSequence>
+                    <PQParam details="false">
+                        <ParamName ParamIdx="#NULL#" />
+                        <ParamDescription />
+                        <PQParamOPType>
+                            <PQCommand>
+                                <PCmdGet OPTypeRef="PCmdGet">
+                                    <ParamPos>0</ParamPos>
+                                </PCmdGet>
+                            </PQCommand>
+                        </PQParamOPType>
+                        <PQParamType>
+                            <TVoid TypeRef="type_void" />
+                        </PQParamType>
+                    </PQParam>
+                    <PQParam details="true">
+                        <ParamName ParamIdx="#NULL#">SourceNrList</ParamName>
+                        <ParamDescription> List of the source numbers. The length field of the Short Stream corresponds to the amount of source
+                            numbers.
+                        </ParamDescription>
+                        <PQParamOPType>
+                            <PQReport>
+                                <PReportStatus OPTypeRef="PReportStatus">
+                                    <ParamPos>1</ParamPos>
+                                </PReportStatus>
+                            </PQReport>
+                        </PQParamOPType>
+                        <PQParamType>
+                            <TShortStream TypeRef="type_shortstream">
+                                <StreamCase>
+                                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                                    <StreamParam>
+                                        <ParamName ParamIdx="1seq1">SourceNrList</ParamName>
+                                        <ParamDescription> List of the source numbers. The length field of the Short Stream corresponds to the amount of source
+                                            numbers.
+                                        </ParamDescription>
+                                        <ParamType>
+                                            <TNumber>
+                                                <BasisDataType>
+                                                    <TUByte TypeRef="type_unsigned_byte" />
+                                                </BasisDataType>
+                                                <Exponent>0</Exponent>
+                                                <RangeMin>0</RangeMin>
+                                                <RangeMax>255</RangeMax>
+                                                <Step>1</Step>
+                                                <Unit UnitRef="unit_none" />
+                                            </TNumber>
+                                        </ParamType>
+                                    </StreamParam>
+                                </StreamCase>
+                            </TShortStream>
+                        </PQParamType>
+                    </PQParam>
+                    <PQParam details="true">
+                        <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+                        <ParamDescription> List of the sink numbers. The length field of the Short Stream corresponds to the amount of sink
+                            numbers.
+                        </ParamDescription>
+                        <PQParamOPType>
+                            <PQReport>
+                                <PReportError OPTypeRef="PReportError">
+                                    <ParamPos>2</ParamPos>
+                                </PReportError>
+                            </PQReport>
+                        </PQParamOPType>
+                        <PQParamType>
+                            <TStream TypeRef="type_stream">
+                                <StreamCase>
+                                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                                </StreamCase>
+                            </TStream>
+                        </PQParamType>
+                    </PQParam>
+                    <PQParam details="true">
+                        <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+                        <ParamDescription />
+                        <PQParamOPType>
+                            <PQReport>
+                                <PReportError OPTypeRef="PReportError">
+                                    <ParamPos>1</ParamPos>
+                                </PReportError>
+                            </PQReport>
+                        </PQParamOPType>
+                        <PQParamType>
+                            <TEnum TypeRef="type_enum" TEnumMax="67">
+                                <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                                <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                                <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                                <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                                <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                                <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                                <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                                <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                                <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                                <TEnumValue Code="0x20" SymbolicName="FunctionSpecific" />
+                                <TEnumValue Code="0x40" SymbolicName="Busy" />
+                                <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                                <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                                <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                                <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                                <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                                <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                            </TEnum>
+                        </PQParamType>
+                    </PQParam>
+                    <PQParam details="true">
+                        <ParamName ParamIdx="#NULL#">SinkNrList</ParamName>
+                        <ParamDescription />
+                        <PQParamOPType>
+                            <PQReport>
+                                <PReportStatus OPTypeRef="PReportStatus">
+                                    <ParamPos>2</ParamPos>
+                                </PReportStatus>
+                            </PQReport>
+                        </PQParamOPType>
+                        <PQParamType>
+                            <TShortStream TypeRef="type_shortstream">
+                                <StreamCase>
+                                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                                    <StreamParam>
+                                        <ParamName ParamIdx="1seq1">SinkNrList</ParamName>
+                                        <ParamDescription> List of the sink numbers. The length field of the Short Stream corresponds to the amount of sink
+                                            numbers.
+                                        </ParamDescription>
+                                        <ParamType>
+                                            <TNumber>
+                                                <BasisDataType>
+                                                    <TUByte TypeRef="type_unsigned_byte" />
+                                                </BasisDataType>
+                                                <Exponent>0</Exponent>
+                                                <RangeMin>0</RangeMin>
+                                                <RangeMax>255</RangeMax>
+                                                <Step>1</Step>
+                                                <Unit UnitRef="unit_none" />
+                                            </TNumber>
+                                        </ParamType>
+                                    </StreamParam>
+                                </StreamCase>
+                            </TShortStream>
+                        </PQParamType>
+                    </PQParam>
+                </PSequence>
+            </Property>
+        </FunctionClass>
+    </Function>
