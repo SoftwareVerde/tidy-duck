@@ -1,4 +1,14 @@
 
+ALTER TABLE enum_values ADD COLUMN description VARCHAR(255);
+
+
+ALTER TABLE reviews ADD COLUMN ticket_url VARCHAR(255) NULL AFTER account_id;
+
+
+ALTER TABLE function_parameters ADD COLUMN parameter_name VARCHAR(255) NOT NULL AFTER function_id;
+ALTER TABLE function_parameters ADD COLUMN parameter_description TEXT NULL AFTER parameter_name;
+
+
 CREATE TABLE roles (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL
@@ -50,4 +60,34 @@ CREATE TABLE accounts_roles (
 INSERT INTO accounts_roles (account_id, role_id)
 SELECT accounts.id, roles.id
 FROM accounts, roles;
+
+
+ALTER TABLE functions ADD COLUMN return_parameter_name VARCHAR(255) NOT NULL AFTER company_id;
+ALTER TABLE functions ADD COLUMN return_parameter_description TEXT NULL AFTER return_parameter_name;
+
+-- add login permission column to role permissions
+ALTER TABLE role_permissions ADD COLUMN login BOOLEAN NOT NULL DEFAULT FALSE AFTER role_id;
+
+-- add login role
+INSERT INTO roles VALUES (6, 'Login');
+
+-- set login role permissions
+INSERT INTO role_permissions
+VALUES
+        (6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+-- provide all existing accounts all roles
+INSERT INTO accounts_roles (account_id, role_id)
+SELECT accounts.id, 6
+FROM accounts;
+
+ALTER TABLE most_types ADD COLUMN is_released BOOLEAN NOT NULL DEFAULT FALSE AFTER is_primary_type;
+
+
+-- set all passwords to 'quack quack' (new hashing algorithm)
+UPDATE accounts SET password = '10814:943229eda758ee6c3006990153aff16b:e11cd806ea052d20c19c0455f9eb0218efe9ef334161f09e2616893ac675abac4d29c83eb03c3952d7509cc06269f51229d4a272ac0137773fc4e67b78d87cb7';
+
+ALTER TABLE accounts ADD COLUMN default_mode VARCHAR(255) NOT NULL DEFAULT 'Release' AFTER theme;
+ALTER TABLE function_blocks CHANGE last_modified_date last_modified_date DATETIME NOT NULL;
+ALTER TABLE interfaces CHANGE last_modified_date last_modified_date DATETIME NOT NULL;
 

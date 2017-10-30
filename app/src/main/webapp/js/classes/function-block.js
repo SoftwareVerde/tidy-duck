@@ -24,6 +24,8 @@ class FunctionBlock {
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(json.access);
+        functionBlock.setIsSource(json.isSource);
+        functionBlock.setIsSink(json.isSink);
 
         return functionBlock;
     }
@@ -41,7 +43,9 @@ class FunctionBlock {
             priorVersionId:     functionBlock.getPriorVersionId(),
             isReleased:         functionBlock.isReleased(),
             isApproved:         functionBlock.isApproved(),
-            access:             functionBlock.getAccess()
+            access:             functionBlock.getAccess(),
+            isSource:           functionBlock.isSource(),
+            isSink:             functionBlock.isSink()
         };
         const author = (functionBlock.getAuthor() || new Author());
         const company = (functionBlock.getCompany() || new Company());
@@ -65,6 +69,8 @@ class FunctionBlock {
         this._author                = null;
         this._company               = null;
         this._access                = "";
+        this._isSource              = false;
+        this._isSink                = false;
         this._versionsJson          = null;
         this._isReleased            = null;
         this._isApproved            = null;
@@ -148,6 +154,22 @@ class FunctionBlock {
 
     getInterfaces() {
         return this._interfaces;
+    }
+
+    setIsSource(isSource) {
+        this._isSource = isSource;
+    }
+
+    isSource() {
+        return this._isSource;
+    }
+
+    setIsSink(isSink) {
+        this._isSink = isSink;
+    }
+
+    isSink() {
+        return this._isSink;
     }
 
     setAccess(access) {
