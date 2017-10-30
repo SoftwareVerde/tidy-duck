@@ -137,6 +137,8 @@ class AccountsPage extends React.Component {
     onSubmitNewAccount(event) {
         event.preventDefault();
         const account = this.state.newAccount;
+        const accountCompany = account.getCompany();
+        const accountRoles = account.getRoles();
         const accountJson = Account.toJson(account);
         const thisApp = this;
 
@@ -161,13 +163,8 @@ class AccountsPage extends React.Component {
                 app.App.alert("Account Successfully Created", alertString);
 
                 const newAccount = new Account();
-                const newCompany = new Company();
-                newAccount.setCompany(newCompany);
-
-                const loginRole = new Role();
-                loginRole.setName("Login");
-                newAccount.addRole(loginRole);
-
+                newAccount.setCompany(accountCompany);
+                newAccount.setRoles(accountRoles);
 
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.saved,
@@ -358,8 +355,8 @@ class AccountsPage extends React.Component {
         if (typeOfObjectCreated == "Company") {
             buttonState = this.state.createCompanyButtonState;
         }
-        else if (this.state.editedAccount) {
-            buttonState: this.editedAccountButtonState;
+        else if (! typeOfObjectCreated) {
+            buttonState = this.state.editedAccountButtonState;
         }
 
         switch (buttonState) {
@@ -507,9 +504,9 @@ class AccountsPage extends React.Component {
                 return a.localeCompare(b, undefined, {numeric : true, sensitivity: 'base'});
             });
 
-            let editedAccountSaveButton = <button type="save" id="create-account-button" className="button">{this.renderCreateButtonText("Account")}</button>;
+            let editedAccountSaveButton = <button type="save" id="create-account-button" className="button">{this.renderCreateButtonText()}</button>;
             if (this.state.editedAccountButtonState === this.SaveButtonState.saving) {
-                editedAccountSaveButton = <div id="create-account-button" className="button">{this.renderCreateButtonText("Account")}</div>;
+                editedAccountSaveButton = <div id="create-account-button" className="button">{this.renderCreateButtonText()}</div>;
             }
 
             return (
