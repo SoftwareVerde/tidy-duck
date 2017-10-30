@@ -331,11 +331,11 @@ public class FunctionBlockDatabaseManager {
         }
     }
 
-    public FunctionBlock checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
-        return _checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+    public FunctionBlock checkForDuplicateFunctionBlockName(final String functionBlockName, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        return _checkForDuplicateFunctionBlockName(functionBlockName, functionBlockVersionSeriesId);
     }
 
-    private FunctionBlock _checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
+    private FunctionBlock _checkForDuplicateFunctionBlockName(final String functionBlockName, final Long functionBlockVersionSeriesId) throws DatabaseException {
         final Query query = new Query("SELECT id FROM function_blocks WHERE name = ?");
         query.setParameter(functionBlockName);
 
@@ -347,7 +347,32 @@ public class FunctionBlockDatabaseManager {
             final long functionBlockId = row.getLong("id");
             final FunctionBlock rowFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeries)) {
+            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeriesId)) {
+                matchedFunctionBlock = rowFunctionBlock;
+                break;
+            }
+        }
+
+        return matchedFunctionBlock;
+    }
+
+    public FunctionBlock checkForDuplicateFunctionBlockMostId(final String functionBlockMostId, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        return _checkForDuplicateFunctionBlockMostId(functionBlockMostId, functionBlockVersionSeriesId);
+    }
+
+    private FunctionBlock _checkForDuplicateFunctionBlockMostId(final String functionBlockMostId, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_blocks WHERE most_id = ?");
+        query.setParameter(functionBlockMostId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+
+        FunctionBlock matchedFunctionBlock = null;
+        for (final Row row : rows) {
+            final long functionBlockId = row.getLong("id");
+            final FunctionBlock rowFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeriesId)) {
                 matchedFunctionBlock = rowFunctionBlock;
                 break;
             }

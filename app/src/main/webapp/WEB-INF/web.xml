@@ -122,11 +122,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MostInterface</servlet-name>
-        <url-pattern>/api/v1/most-interface-duplicate-check-name</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>MostInterface</servlet-name>
-        <url-pattern>/api/v1/most-interface-duplicate-check-id</url-pattern>
+        <url-pattern>/api/v1/most-interface-duplicate-check</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

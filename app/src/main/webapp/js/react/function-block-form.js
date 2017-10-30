@@ -16,13 +16,14 @@ class FunctionBlockForm extends React.Component {
         }
 
         this.state = {
-            showTitle:                  this.props.showTitle,
-            shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
-            functionBlock:              functionBlock,
-            buttonTitle:                (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:         this.props.defaultButtonTitle,
-            readOnly:                   (this.props.readOnly || functionBlock.isApproved() || functionBlock.isReleased()),
-            isDuplicateFunctionBlock:   false
+            showTitle:                      this.props.showTitle,
+            shouldShowSaveAnimation:        this.props.shouldShowSaveAnimation,
+            functionBlock:                  functionBlock,
+            buttonTitle:                    (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:             this.props.defaultButtonTitle,
+            readOnly:                       (this.props.readOnly || functionBlock.isApproved() || functionBlock.isReleased()),
+            isDuplicateFunctionBlockName:   false,
+            isDuplicateFunctionBlockMostId: false,
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -63,6 +64,15 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         functionBlock.setMostId(newValue);
 
+        const thisForm = this;
+        checkForDuplicateFunctionBlock(null, newValue, functionBlock.getBaseVersionId(), function (data) {
+            if (data.wasSuccess) {
+                thisForm.setState({
+                    isDuplicateFunctionBlockMostId: data.matchFound
+                });
+            }
+        });
+
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
 
@@ -88,10 +98,10 @@ class FunctionBlockForm extends React.Component {
         functionBlock.setName(newValue);
 
         const thisForm = this;
-        checkForDuplicateFunctionBlock(newValue, functionBlock.getBaseVersionId(), function (data) {
+        checkForDuplicateFunctionBlock(newValue, null, functionBlock.getBaseVersionId(), function (data) {
             if (data.wasSuccess) {
                 thisForm.setState({
-                    isDuplicateFunctionBlock: data.matchFound
+                    isDuplicateFunctionBlockName: data.matchFound
                 });
             }
         });
@@ -156,8 +166,19 @@ class FunctionBlockForm extends React.Component {
             }
         };
 
-        if (this.state.isDuplicateFunctionBlock) {
-            app.App.confirm("Submit Function Block", "There is another function block with this name.  Are you sure you want to save this?", submitFunction);
+        if (this.state.isDuplicateFunctionBlockName || this.state.isDuplicateFunctionBlockMostId) {
+            let confirmString = "There is another function block with ";
+            let andString = "";
+
+            if (this.state.isDuplicateFunctionBlockName) {
+                confirmString = confirmString.concat("this name");
+                andString = " and ";
+            }
+            if (this.state.isDuplicateFunctionBlockMostId) {
+                confirmString = confirmString.concat(andString + "this MOST ID");
+            }
+
+            app.App.confirm("Submit Function Block", confirmString + ". Are you sure you want to save this?", submitFunction);
             return;
         }
 
@@ -186,8 +207,14 @@ class FunctionBlockForm extends React.Component {
         accessOptions.push('private');
         accessOptions.push('preliminary');
 
+        let duplicateIdElement = '';
+        if (this.state.isDuplicateFunctionBlockMostId) {
+            const iconStyle = { color: 'red' };
+            duplicateIdElement = <i className="fa fa-files-o" title="Duplicate function block MOST ID." style={iconStyle}></i>;
+        }
+
         let duplicateNameElement = '';
-        if (this.state.isDuplicateFunctionBlock) {
+        if (this.state.isDuplicateFunctionBlockName) {
             const iconStyle = { color: 'red' };
             duplicateNameElement = <i className="fa fa-files-o" title="Duplicate function block name." style={iconStyle}></i>;
         }
@@ -195,7 +222,7 @@ class FunctionBlockForm extends React.Component {
         const reactComponents = [];
         reactComponents.push(
             <div key="input-group" className="clearfix">
-                <app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID (0x00 - 0xFF)" pattern="0[xX][0-9A-Fa-f]{2}" title="0x00 through 0xFF" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />
+                <app.InputField key="function-block-most-id" id="function-block-most-id" name="id" type="text" label="ID (0x00 - 0xFF)" icons={duplicateIdElement} pattern="0[xX][0-9A-Fa-f]{2}" title="0x00 through 0xFF" value={functionBlock.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />
                 <app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} isRequired={true} />
                 <app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true} />
                 <app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />

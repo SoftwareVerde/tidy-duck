@@ -156,7 +156,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
-                return _checkForDuplicateFunctionBlock(request, currentAccount, environment.getDatabase());
+                return _checkForDuplicateFunctionBlock(request, environment.getDatabase());
             }
         });
     }
@@ -251,14 +251,22 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _checkForDuplicateFunctionBlock(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) {
+    private Json _checkForDuplicateFunctionBlock(final HttpServletRequest httpRequest, final Database<Connection> database) {
         try {
             final Json request = _getRequestDataAsJson(httpRequest);
+            final String functionBlockMostId = request.getString("functionBlockMostId");
             final String functionBlockName = request.getString("functionBlockName");
-            final Long functionBlockVersionSeries = request.getLong("functionBlockVersionSeries");
+            final Long functionBlockVersionSeriesId = request.getLong("functionBlockVersionSeriesId");
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            final FunctionBlock matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+            final FunctionBlock matchedFunctionBlock;
+
+            if (! Util.isBlank(functionBlockMostId)) {
+                matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlockMostId(functionBlockMostId, functionBlockVersionSeriesId);
+            }
+            else {
+                matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlockName(functionBlockName, functionBlockVersionSeriesId);
+            }
 
             final Json response = new Json(false);
 
