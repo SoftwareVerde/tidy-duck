@@ -71,8 +71,9 @@ class MostFunction extends React.Component {
         const shortName = shortenString(name, 35, false);
         const childItemStyle = (this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item";
 
-        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        const releasedIcon = this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book" title="This Function is Released" /> : "";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
+        const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book" title="This Function has been released." /> : "");
+        const approvedIcon = (this.props.mostFunction.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up" title="This Function has been approved." /> : "");
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -80,6 +81,7 @@ class MostFunction extends React.Component {
                     <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {approvedIcon}
                     {releasedIcon}
                     {this.renderMenu()}
                 </div>

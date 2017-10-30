@@ -128,8 +128,9 @@ class FunctionCatalog extends React.Component {
         const shortName = shortenString(name, 35, false);
         const childItemStyle = this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item";
 
-        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        const releasedIcon = this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book" title="This Function Catalog is Released" /> : "";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
+        const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book" title="This Function Catalog has been released." /> : "");
+        const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up" title="This Function Catalog has been approved." /> : "");
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -137,6 +138,7 @@ class FunctionCatalog extends React.Component {
                     <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {approvedIcon}
                     {releasedIcon}
                     {this.renderMenu()}
                 </div>

@@ -114,8 +114,9 @@ class MostInterface extends React.Component {
         const shortName = shortenString(name, 35, false);
         const childItemStyle = this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item";
 
-        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        const releasedIcon = this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book" title="This Interface is Released" /> : "";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
+        const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book" title="This Interface has been released." /> : "");
+        const approvedIcon = (this.props.mostInterface.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up" title="This Interface has been approved." /> : "");
 
         const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getReleaseVersion()}</div> :
             <select name="Version" title="Version" value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
@@ -126,6 +127,7 @@ class MostInterface extends React.Component {
                     <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {approvedIcon}
                     {releasedIcon}
                     {this.renderMenu()}
                 </div>

@@ -428,10 +428,14 @@
     cursor: pointer;
 }
 
-.child-item-title .release-icon {
+.child-item-title .release-icon,
+.child-item-title .approved-icon {
     float: right;
     padding: 5px;
     margin: -5px 0;
+}
+.child-item-title .approved-icon {
+    margin-left: -3px;
 }
 
 .child-item-menu-item {

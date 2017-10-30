@@ -114,10 +114,11 @@ class FunctionBlock extends React.Component {
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
         const shortName = shortenString(name, 35, false);
-        const childItemStyle = this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item";
+        const childItemStyle = (this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item");
 
-        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        const releasedIcon = this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book" title="This Function Block is Released" /> : "";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
+        const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book" title="This Function Block has been released." /> : "");
+        const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up" title="This Function Block has been approved." /> : "");
 
         const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div> :
             <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
@@ -128,6 +129,7 @@ class FunctionBlock extends React.Component {
                     <span title={name}>{shortName}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {approvedIcon}
                     {releasedIcon}
                     {this.renderMenu()}
                 </div>
