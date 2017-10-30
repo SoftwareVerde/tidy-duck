@@ -119,7 +119,7 @@ public class FunctionBlock implements XmlNode {
         return _isSink;
     }
 
-    public void setSink(final boolean sink) {
+    public void setIsSink(final boolean sink) {
         _isSink = sink;
     }
 
