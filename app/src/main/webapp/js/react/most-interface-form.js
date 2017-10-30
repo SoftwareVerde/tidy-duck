@@ -6,13 +6,13 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = isNewMostInterface ? new MostInterface() : copyMostObject(MostInterface, this.props.mostInterface);
 
         this.state = {
-            showTitle:                      this.props.showTitle,
-            shouldShowSaveAnimation:        this.props.shouldShowSaveAnimation,
-            mostInterface:                  mostInterface,
-            buttonTitle:                    (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:             this.props.defaultButtonTitle,
-            readOnly:                       (this.props.readOnly || mostInterface.isApproved() || mostInterface.isReleased()),
-            isDuplicateMostInterfaceName:   false,
+            showTitle:                          this.props.showTitle,
+            shouldShowSaveAnimation:            this.props.shouldShowSaveAnimation,
+            mostInterface:                      mostInterface,
+            buttonTitle:                        (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:                 this.props.defaultButtonTitle,
+            readOnly:                           (this.props.readOnly || mostInterface.isApproved() || mostInterface.isReleased()),
+            isDuplicateMostInterfaceName:       false,
             isDuplicateMostInterfaceMostId:     false,
         };
 
@@ -28,8 +28,8 @@ class MostInterfaceForm extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const isNewMostInterface = (! this.props.mostInterface);
-        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : newProperties.mostInterface));
+        const isNewMostInterface = (! this.props.mostInterface && ! this.state.mostInterface);
+        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : newProperties.mostInterface || this.state.mostInterface));
 
         mostInterface.setId((newProperties.mostInterface || mostInterface).getId());
         this.setState({
