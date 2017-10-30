@@ -163,13 +163,19 @@ class MostInterfaceForm extends React.Component {
         const version = mostInterface.isApproved() ? mostInterface.getDisplayVersion() : mostInterface.getReleaseVersion();
         const readOnly = this.state.readOnly;
 
+        let duplicateIdElement = '';
+        if (this.state.isDuplicateMostInterfaceMostId) {
+            const iconStyle = { color: 'red' };
+            duplicateIdElement = <i className="fa fa-files-o" title="Duplicate most interface MOST ID." style={iconStyle}></i>;
+        }
+
         let duplicateNameElement = '';
         if (this.state.isDuplicateMostInterfaceName) {
             const iconStyle = { color: 'red' };
             duplicateNameElement = <i className="fa fa-files-o" title="Duplicate most interface name." style={iconStyle}></i>;
         }
 
-        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" pattern="I[A-Za-z0-9]+" title="Only alpha-numeric characters, start with 'I'." label="Name" icons={duplicateNameElement} value={mostInterface.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={mostInterface.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
         reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" pattern="[1-9][0-9]*" title="Positive number" label="Version" value={version} readOnly={readOnly} onChange={this.onVersionChanged} isRequired={true} />);
