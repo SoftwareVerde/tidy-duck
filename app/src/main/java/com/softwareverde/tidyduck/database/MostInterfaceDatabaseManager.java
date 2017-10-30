@@ -305,11 +305,11 @@ public class MostInterfaceDatabaseManager {
         }
     }
 
-    public MostInterface checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
-        return _checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+    public MostInterface checkForDuplicateMostInterfaceName(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+        return _checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVersionSeries);
     }
 
-    private MostInterface _checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+    private MostInterface _checkForDuplicateMostInterfaceName(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
         final Query query = new Query("SELECT id FROM interfaces WHERE name = ?");
         query.setParameter(mostInterfaceName);
 
@@ -322,6 +322,31 @@ public class MostInterfaceDatabaseManager {
             final MostInterface rowMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
             if (!rowMostInterface.getBaseVersionId().equals(mostInterfaceVersionSeries)) {
+                matchedMostInterface = rowMostInterface;
+                break;
+            }
+        }
+
+        return matchedMostInterface;
+    }
+
+    public MostInterface checkForDuplicateMostInterfaceMostId(final String mostInterfaceMostId, final Long mostInterfaceVersionSeriesId) throws DatabaseException {
+        return _checkForDuplicateMostInterfaceMostId(mostInterfaceMostId, mostInterfaceVersionSeriesId);
+    }
+
+    private MostInterface _checkForDuplicateMostInterfaceMostId(final String mostInterfaceMostId, final Long mostInterfaceVersionSeriesId) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM interfaces WHERE most_id = ?");
+        query.setParameter(mostInterfaceMostId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+
+        MostInterface matchedMostInterface = null;
+        for (final Row row : rows) {
+            final long mostInterfaceId = row.getLong("id");
+            final MostInterface rowMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+            if (!rowMostInterface.getBaseVersionId().equals(mostInterfaceVersionSeriesId)) {
                 matchedMostInterface = rowMostInterface;
                 break;
             }

@@ -229,9 +229,9 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
     });
 }
 
-function checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries, callbackFunction) {
+function checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVersionSeries, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-interface-duplicate-check",
+        API_PREFIX + "most-interface-duplicate-check-name",
         {
             method: "POST",
             credentials: "include",
@@ -247,6 +247,32 @@ function checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionS
 
         if (! wasSuccess) {
             console.error("Unable to check for duplicate function catalog: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+function checkForDuplicateMostInterfaceMostId(mostInterfaceMostId, mostInterfaceVersionSeriesId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "most-interface-duplicate-check-id",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                mostInterfaceMostId: mostInterfaceMostId,
+                mostInterfaceVersionSeriesId: mostInterfaceVersionSeriesId
+            })
+        }
+    );
+
+    jsonFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (! wasSuccess) {
+            console.error("Unable to check for duplicate Interface MOST ID: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {

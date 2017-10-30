@@ -311,10 +311,17 @@ public class DatabaseManager {
         });
     }
 
-    public MostInterface checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+    public MostInterface checkForDuplicateMostInterfaceName(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-            return mostInterfaceDatabaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+            return mostInterfaceDatabaseManager.checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVersionSeries);
+        }
+    }
+
+    public MostInterface checkForDuplicateMostInterfaceMostId(final String mostInterfaceMostId, final Long mostInterfaceVersionSeries) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            return mostInterfaceDatabaseManager.checkForDuplicateMostInterfaceMostId(mostInterfaceMostId, mostInterfaceVersionSeries);
         }
     }
 

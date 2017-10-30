@@ -6,13 +6,14 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = isNewMostInterface ? new MostInterface() : copyMostObject(MostInterface, this.props.mostInterface);
 
         this.state = {
-            showTitle:                  this.props.showTitle,
-            shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
-            mostInterface:              mostInterface,
-            buttonTitle:                (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:         this.props.defaultButtonTitle,
-            readOnly:                   (this.props.readOnly || mostInterface.isApproved() || mostInterface.isReleased()),
-            isDuplicateMostInterface:   false
+            showTitle:                      this.props.showTitle,
+            shouldShowSaveAnimation:        this.props.shouldShowSaveAnimation,
+            mostInterface:                  mostInterface,
+            buttonTitle:                    (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:             this.props.defaultButtonTitle,
+            readOnly:                       (this.props.readOnly || mostInterface.isApproved() || mostInterface.isReleased()),
+            isDuplicateMostInterfaceName:   false,
+            isDuplicateMostInterfaceMostId:     false,
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -45,6 +46,16 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setMostId(newValue);
 
+        const thisForm = this;
+
+        checkForDuplicateMostInterfaceMostId(newValue, mostInterface.getBaseVersionId(), function (data) {
+            if (data.wasSuccess) {
+                thisForm.setState({
+                    isDuplicateMostInterfaceMostId: data.matchFound
+                });
+            }
+        });
+
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
 
@@ -58,10 +69,10 @@ class MostInterfaceForm extends React.Component {
         mostInterface.setName(newValue);
 
         const thisForm = this;
-        checkForDuplicateMostInterface(newValue, mostInterface.getBaseVersionId(), function (data) {
+        checkForDuplicateMostInterfaceName(newValue, mostInterface.getBaseVersionId(), function (data) {
             if (data.wasSuccess) {
                 thisForm.setState({
-                    isDuplicateMostInterface: data.matchFound
+                    isDuplicateMostInterfaceName: data.matchFound
                 });
             }
         });
@@ -114,8 +125,19 @@ class MostInterfaceForm extends React.Component {
             }
         };
 
-        if (this.state.isDuplicateMostInterface) {
-            app.App.confirm("Submit Interface", "There is another most interface with this name.  Are you sure you want to save this?", submitFunction);
+        if (this.state.isDuplicateMostInterfaceName || this.state.isDuplicateMostInterfaceMostId) {
+            let confirmString = "There is another most interface with ";
+            let andString = "";
+
+            if (this.state.isDuplicateMostInterfaceName) {
+                confirmString = confirmString.concat("this name");
+                andString = " and ";
+            }
+            if (this.state.isDuplicateMostInterfaceMostId) {
+                confirmString = confirmString.concat(andString + "this MOST ID");
+            }
+
+            app.App.confirm("Submit Interface", confirmString + ". Are you sure you want to save this?", submitFunction);
             return;
         }
 
@@ -142,7 +164,7 @@ class MostInterfaceForm extends React.Component {
         const readOnly = this.state.readOnly;
 
         let duplicateNameElement = '';
-        if (this.state.isDuplicateMostInterface) {
+        if (this.state.isDuplicateMostInterfaceName) {
             const iconStyle = { color: 'red' };
             duplicateNameElement = <i className="fa fa-files-o" title="Duplicate most interface name." style={iconStyle}></i>;
         }
