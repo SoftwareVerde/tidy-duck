@@ -32,6 +32,8 @@ class FunctionBlockForm extends React.Component {
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
         this.onKindChanged = this.onKindChanged.bind(this);
         this.onAccessChanged = this.onAccessChanged.bind(this);
+        this.onIsSourceChanged = this.onIsSourceChanged.bind(this);
+        this.onIsSinkChanged = this.onIsSinkChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -229,8 +231,8 @@ class FunctionBlockForm extends React.Component {
 
         reactComponents.push(<app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={functionBlock.getAccess()} options={accessOptions} readOnly={readOnly} onChange={this.onAccessChanged} isRequired={true} />);
 
-        reactComponents.push(<app.InputField key="function-block-is-source" id="function-block-is-source" name="is-source" type="checkbox" label="Is a Source" value={functionBlock.isSource()} readOnly={readOnly} onChange={this.onIsSourceChanged} isRequired={false} />);
-        reactComponents.push(<app.InputField key="function-block-is-sink" id="function-block-is-sink" name="is-sink" type="checkbox" label="Is a Sink" value={functionBlock.isSink()} readOnly={readOnly} onChange={this.onIsSinkChanged} isRequired={false} />);
+        reactComponents.push(<app.InputField key="function-block-is-source" id="function-block-is-source" name="is-source" type="checkbox" label="Is a Source" checked={functionBlock.isSource()} readOnly={readOnly} onChange={this.onIsSourceChanged} isRequired={false} />);
+        reactComponents.push(<app.InputField key="function-block-is-sink" id="function-block-is-sink" name="is-sink" type="checkbox" label="Is a Sink" checked={functionBlock.isSink()} readOnly={readOnly} onChange={this.onIsSinkChanged} isRequired={false} />);
 
         if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {

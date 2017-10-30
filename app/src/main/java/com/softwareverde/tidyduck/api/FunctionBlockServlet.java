@@ -558,8 +558,6 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("description", functionBlock.getDescription());
         blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
         blockJson.put("releaseVersion", functionBlock.getRelease());
-        blockJson.put("isSource", functionBlock.isSource());
-        blockJson.put("isSink", functionBlock.isSink());
         blockJson.put("isReleased", functionBlock.isReleased());
         blockJson.put("isApproved", functionBlock.isApproved());
         blockJson.put("baseVersionId", functionBlock.getBaseVersionId());
@@ -569,6 +567,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("companyId", functionBlock.getCompany().getId());
         blockJson.put("companyName", functionBlock.getCompany().getName());
         blockJson.put("access", functionBlock.getAccess());
+        blockJson.put("isSource", functionBlock.isSource());
+        blockJson.put("isSink", functionBlock.isSink());
         return blockJson;
     }
 }
