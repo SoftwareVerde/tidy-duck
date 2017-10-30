@@ -471,6 +471,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Long authorId = functionBlockJson.getLong("authorId");
         final Long companyId = functionBlockJson.getLong("companyId");
         final String access = functionBlockJson.getString("access");
+        final Boolean isSource = functionBlockJson.getBoolean("isSource");
+        final Boolean isSink = functionBlockJson.getBoolean("isSink");
 
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
@@ -506,6 +508,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(access)) {
                 throw new Exception("Access field is required.");
             }
+
+            if (isSource == null) {
+                throw new Exception("isSource is required.");
+            }
+
+            if (isSink == null) {
+                throw new Exception("isSink is required.");
+            }
         }
 
         final Company company;
@@ -533,6 +543,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(access);
+        functionBlock.setIsSource(isSource);
+        functionBlock.setIsSink(isSink);
 
         return functionBlock;
     }
@@ -546,6 +558,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("description", functionBlock.getDescription());
         blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
         blockJson.put("releaseVersion", functionBlock.getRelease());
+        blockJson.put("isSource", functionBlock.isSource());
+        blockJson.put("isSink", functionBlock.isSink());
         blockJson.put("isReleased", functionBlock.isReleased());
         blockJson.put("isApproved", functionBlock.isApproved());
         blockJson.put("baseVersionId", functionBlock.getBaseVersionId());

@@ -40,9 +40,11 @@ public class FunctionBlockDatabaseManager {
         final Long authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
         final String access = functionBlock.getAccess();
+        final boolean isSource = functionBlock.isSource();
+        final boolean isSink = functionBlock.isSink();
         final Long priorVersionId = priorFunctionBlock != null ? priorFunctionBlock.getId() : null;
 
-        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, prior_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, is_source, is_sink, prior_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(mostId)
             .setParameter(kind)
             .setParameter(name)
@@ -51,6 +53,8 @@ public class FunctionBlockDatabaseManager {
             .setParameter(authorId)
             .setParameter(companyId)
             .setParameter(access)
+            .setParameter(isSource)
+            .setParameter(isSink)
             .setParameter(priorVersionId)
         ;
 
@@ -105,11 +109,13 @@ public class FunctionBlockDatabaseManager {
         final String newReleaseVersion = proposedFunctionBlock.getRelease();
         final String newDescription = proposedFunctionBlock.getDescription();
         final String newAccess = proposedFunctionBlock.getAccess();
+        final boolean isSource = proposedFunctionBlock.isSource();
+        final boolean isSink = proposedFunctionBlock.isSink();
         final long newAuthorId = proposedFunctionBlock.getAuthor().getId();
         final long newCompanyId = proposedFunctionBlock.getCompany().getId();
         final long functionBlockId = proposedFunctionBlock.getId();
 
-        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_approved = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_source = ?, is_sink = ?, is_approved = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newKind)
             .setParameter(newName)
@@ -118,6 +124,8 @@ public class FunctionBlockDatabaseManager {
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
             .setParameter(newAccess)
+            .setParameter(isSource)
+            .setParameter(isSink)
             .setParameter(false)
             .setParameter(functionBlockId)
         ;
