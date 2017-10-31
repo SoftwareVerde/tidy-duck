@@ -436,6 +436,14 @@
     overflow-y: auto;
 }
 
+.child-item-title-name {
+    display: inline-block;
+    max-width: 80%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .child-item-title .menu-button {
     float: right;
     padding: 5px;
