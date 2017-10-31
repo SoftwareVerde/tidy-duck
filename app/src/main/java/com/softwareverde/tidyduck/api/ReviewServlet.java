@@ -357,7 +357,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         } catch (Exception e) {
             String errorMessage = "Unable to add review comment.";
             _logger.error(errorMessage, e);
-            return _generateErrorJson(errorMessage);
+            return _generateErrorJson(errorMessage + " " + e);
         }
     }
 

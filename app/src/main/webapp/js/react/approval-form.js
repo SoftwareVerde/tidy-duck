@@ -52,6 +52,13 @@ class ApprovalForm extends React.Component{
             return;
         }
 
+        const reviewCommentLength = reviewComment.getCommentText().length;
+        if (reviewCommentLength > 65535) {
+            const reviewCommentLengthExcess = reviewCommentLength - 65535;
+            app.App.alert("Submit Comment", "Comments cannot exceed 65535 characters in length. This comment exceeds the character limit by " + reviewCommentLengthExcess + " characters.");
+            return;
+        }
+
         this.setState({
             shouldShowSaveCommentAnimation: true
         });
@@ -61,8 +68,8 @@ class ApprovalForm extends React.Component{
         const review = this.props.review;
         const thisForm = this;
         const reviewCommentJson = ReviewComment.toJson(reviewComment);
-        insertReviewComment(review.getId(), reviewCommentJson, function (wasSuccess, reviewCommentId) {
-            if (wasSuccess) {
+        insertReviewComment(review.getId(), reviewCommentJson, function (data, reviewCommentId) {
+            if (data.wasSuccess) {
                 reviewComment.setId(reviewCommentId);
                 review.addReviewComment(reviewComment);
 
@@ -76,6 +83,12 @@ class ApprovalForm extends React.Component{
                 // scroll to bottom of comment area
                 const commentArea = document.getElementsByClassName('comments-area')[0];
                 commentArea.scrollTop = commentArea.scrollHeight;
+            }
+            else {
+                app.App.alert("Submit Comment", data.errorMessage);
+                thisForm.setState({
+                    shouldShowSaveCommentAnimation: false
+                });
             }
         });
     }

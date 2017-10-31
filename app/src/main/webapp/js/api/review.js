@@ -195,17 +195,14 @@ function insertReviewComment(reviewId, reviewComment, callbackFunction) {
     );
 
     jsonFetch(request, function(data) {
-        const wasSuccess = data.wasSuccess;
-
         let reviewCommentId = null;
-        if (wasSuccess) {
+
+        if (data.wasSuccess) {
             reviewCommentId = data.reviewCommentId;
-        } else {
-            console.error("Unable to comment on review: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, reviewCommentId);
+            callbackFunction(data, reviewCommentId);
         }
     });
 }
