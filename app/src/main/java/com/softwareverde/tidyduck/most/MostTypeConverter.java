@@ -2,6 +2,7 @@ package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.mostadapter.*;
 import com.softwareverde.mostadapter.type.*;
+import com.softwareverde.mostadapter.type.StreamCase;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -159,6 +160,8 @@ public class MostTypeConverter {
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
         final String access = functionBlock.getAccess();
+        final boolean isSource = functionBlock.isSource();
+        final boolean isSink = functionBlock.isSink();
         final String author = functionBlock.getAuthor().getName();
         final String company = functionBlock.getCompany().getName();
         final Date lastModifiedDate = functionBlock.getLastModifiedDate();
@@ -169,6 +172,8 @@ public class MostTypeConverter {
         convertedFunctionBlock.setDescription(description);
         convertedFunctionBlock.setRelease(release);
         convertedFunctionBlock.setAccess(access);
+        convertedFunctionBlock.setIsSource(isSource);
+        convertedFunctionBlock.setIsSink(isSink);
         convertedFunctionBlock.setAuthor(author);
         convertedFunctionBlock.setCompany(company);
         convertedFunctionBlock.setLastModifiedDate(lastModifiedDate);
@@ -445,37 +450,8 @@ public class MostTypeConverter {
 
                 streamType.setLength(mostType.getStreamLength());
 
-                for (final StreamCase streamCase : mostType.getStreamCases()) {
-                    final com.softwareverde.mostadapter.type.StreamCase mostStreamCase = new com.softwareverde.mostadapter.type.StreamCase();
-
-                    final PositionDescription positionDescription = new PositionDescription();
-                    positionDescription.setPositionX(streamCase.getStreamPositionX());
-                    positionDescription.setPositionY(streamCase.getStreamPositionY());
-
-                    mostStreamCase.setPositionDescription(positionDescription);
-
-                    for (final StreamCaseParameter streamCaseParameter : streamCase.getStreamCaseParameters()) {
-                        final com.softwareverde.mostadapter.type.MostType parameterType = _convertMostType(streamCaseParameter.getParameterType());
-
-                        final StreamParameter streamParameter = new StreamParameter();
-                        streamParameter.setName(streamCaseParameter.getParameterName());
-                        streamParameter.setIndex(streamCaseParameter.getParameterIndex());
-                        streamParameter.setDescription(streamCaseParameter.getParameterDescription());
-                        streamParameter.setType(parameterType);
-
-                        mostStreamCase.addStreamParameter(streamParameter);
-                    }
-                    for (final StreamCaseSignal streamCaseSignal : streamCase.getStreamCaseSignals()) {
-                        final StreamSignal streamSignal = new StreamSignal();
-                        streamSignal.setName(streamCaseSignal.getSignalName());
-                        streamSignal.setIndex(streamCaseSignal.getSignalIndex());
-                        streamSignal.setDescription(streamCaseSignal.getSignalDescription());
-                        streamSignal.setBitLength(streamCaseSignal.getSignalBitLength());
-
-                        mostStreamCase.addStreamSignal(streamSignal);
-                    }
-                    streamType.addStreamCase(mostStreamCase);
-                }
+                List<StreamCase> streamCases = convertStreamCases(mostType.getStreamCases());
+                streamType.setStreamCases(streamCases);
 
                 convertedMostType = streamType;
             } break;
@@ -497,6 +473,9 @@ public class MostTypeConverter {
                 if (mostType.getStreamMaxLength() != null) {
                     shortStreamType.setMaxLength(mostType.getStreamMaxLength());
                 }
+
+                List<StreamCase> streamCases = convertStreamCases(mostType.getStreamCases());
+                shortStreamType.setStreamCases(streamCases);
 
                 convertedMostType = shortStreamType;
             } break;
@@ -537,6 +516,42 @@ public class MostTypeConverter {
         }
 
         return convertedMostType;
+    }
+
+    private List<StreamCase> convertStreamCases(final List<com.softwareverde.tidyduck.most.StreamCase> streamCases) {
+        List<StreamCase> convertedStreamCases = new ArrayList<>();
+        for (final com.softwareverde.tidyduck.most.StreamCase streamCase : streamCases) {
+            final com.softwareverde.mostadapter.type.StreamCase mostStreamCase = new com.softwareverde.mostadapter.type.StreamCase();
+
+            final PositionDescription positionDescription = new PositionDescription();
+            positionDescription.setPositionX(streamCase.getStreamPositionX());
+            positionDescription.setPositionY(streamCase.getStreamPositionY());
+
+            mostStreamCase.setPositionDescription(positionDescription);
+
+            for (final StreamCaseParameter streamCaseParameter : streamCase.getStreamCaseParameters()) {
+                final com.softwareverde.mostadapter.type.MostType parameterType = _convertMostType(streamCaseParameter.getParameterType());
+
+                final StreamParameter streamParameter = new StreamParameter();
+                streamParameter.setName(streamCaseParameter.getParameterName());
+                streamParameter.setIndex(streamCaseParameter.getParameterIndex());
+                streamParameter.setDescription(streamCaseParameter.getParameterDescription());
+                streamParameter.setType(parameterType);
+
+                mostStreamCase.addStreamParameter(streamParameter);
+            }
+            for (final StreamCaseSignal streamCaseSignal : streamCase.getStreamCaseSignals()) {
+                final StreamSignal streamSignal = new StreamSignal();
+                streamSignal.setName(streamCaseSignal.getSignalName());
+                streamSignal.setIndex(streamCaseSignal.getSignalIndex());
+                streamSignal.setDescription(streamCaseSignal.getSignalDescription());
+                streamSignal.setBitLength(streamCaseSignal.getSignalBitLength());
+
+                mostStreamCase.addStreamSignal(streamSignal);
+            }
+            convertedStreamCases.add(mostStreamCase);
+        }
+        return convertedStreamCases;
     }
 
     protected List<String> _getOperationNames(final List<Operation> operations) {

@@ -88,6 +88,7 @@
 
 #settings-container {
     width: 300px;
+    min-height: 192px;
     display: block;
     margin: 2em auto auto auto;
 
@@ -106,6 +107,20 @@
 
 #settings-container .input-field {
     width: 100%;
+}
+
+.settings-success-container {
+    text-align: center;
+    display: inline-grid;
+}
+
+.settings-success-container h2 {
+    font-size: 1.25em;
+    margin: 0.25em 0;
+}
+
+.settings-success-container i {
+    font-size: 2.5em;
 }
 
 #types-container {
@@ -419,6 +434,14 @@
     margin-bottom: 5px;
     text-align: left;
     overflow-y: auto;
+}
+
+.child-item-title-name {
+    display: inline-block;
+    max-width: 80%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .child-item-title .menu-button {

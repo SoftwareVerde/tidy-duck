@@ -29,7 +29,7 @@ class MostInterfaceForm extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         const isNewMostInterface = (! this.props.mostInterface && ! this.state.mostInterface);
-        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : newProperties.mostInterface || this.state.mostInterface));
+        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : this.state.mostInterface || newProperties.mostInterface));
 
         mostInterface.setId((newProperties.mostInterface || mostInterface).getId());
         this.setState({
@@ -48,7 +48,7 @@ class MostInterfaceForm extends React.Component {
 
         const thisForm = this;
 
-        checkForDuplicateMostInterfaceMostId(newValue, mostInterface.getBaseVersionId(), function (data) {
+        checkForDuplicateMostInterface(null, newValue, mostInterface.getBaseVersionId(), function (data) {
             if (data.wasSuccess) {
                 thisForm.setState({
                     isDuplicateMostInterfaceMostId: data.matchFound
@@ -69,7 +69,7 @@ class MostInterfaceForm extends React.Component {
         mostInterface.setName(newValue);
 
         const thisForm = this;
-        checkForDuplicateMostInterfaceName(newValue, mostInterface.getBaseVersionId(), function (data) {
+        checkForDuplicateMostInterface(newValue, null, mostInterface.getBaseVersionId(), function (data) {
             if (data.wasSuccess) {
                 thisForm.setState({
                     isDuplicateMostInterfaceName: data.matchFound
@@ -166,13 +166,13 @@ class MostInterfaceForm extends React.Component {
         let duplicateIdElement = '';
         if (this.state.isDuplicateMostInterfaceMostId) {
             const iconStyle = { color: 'red' };
-            duplicateIdElement = <i className="fa fa-files-o" title="Duplicate most interface MOST ID." style={iconStyle}></i>;
+            duplicateIdElement = <i className="fa fa-files-o" title="Duplicate interface MOST ID." style={iconStyle}></i>;
         }
 
         let duplicateNameElement = '';
         if (this.state.isDuplicateMostInterfaceName) {
             const iconStyle = { color: 'red' };
-            duplicateNameElement = <i className="fa fa-files-o" title="Duplicate most interface name." style={iconStyle}></i>;
+            duplicateNameElement = <i className="fa fa-files-o" title="Duplicate interface name." style={iconStyle}></i>;
         }
 
         reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);

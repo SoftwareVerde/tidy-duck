@@ -229,15 +229,16 @@ function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
     });
 }
 
-function checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries, callbackFunction) {
+function checkForDuplicateFunctionBlock(functionBlockName, functionBlockMostId, functionBlockVersionSeriesId, callbackFunction) {
     const request = new Request(
         API_PREFIX + "function-block-duplicate-check",
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                functionBlockName: functionBlockName,
-                functionBlockVersionSeries: functionBlockVersionSeries
+                functionBlockName:              functionBlockName,
+                functionBlockMostId:            functionBlockMostId,
+                functionBlockVersionSeriesId:   functionBlockVersionSeriesId
             })
         }
     );

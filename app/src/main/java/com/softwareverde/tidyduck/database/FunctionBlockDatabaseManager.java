@@ -40,9 +40,11 @@ public class FunctionBlockDatabaseManager {
         final Long authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
         final String access = functionBlock.getAccess();
+        final boolean isSource = functionBlock.isSource();
+        final boolean isSink = functionBlock.isSink();
         final Long priorVersionId = priorFunctionBlock != null ? priorFunctionBlock.getId() : null;
 
-        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, prior_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, is_source, is_sink, prior_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(mostId)
             .setParameter(kind)
             .setParameter(name)
@@ -51,6 +53,8 @@ public class FunctionBlockDatabaseManager {
             .setParameter(authorId)
             .setParameter(companyId)
             .setParameter(access)
+            .setParameter(isSource)
+            .setParameter(isSink)
             .setParameter(priorVersionId)
         ;
 
@@ -105,11 +109,13 @@ public class FunctionBlockDatabaseManager {
         final String newReleaseVersion = proposedFunctionBlock.getRelease();
         final String newDescription = proposedFunctionBlock.getDescription();
         final String newAccess = proposedFunctionBlock.getAccess();
+        final boolean isSource = proposedFunctionBlock.isSource();
+        final boolean isSink = proposedFunctionBlock.isSink();
         final long newAuthorId = proposedFunctionBlock.getAuthor().getId();
         final long newCompanyId = proposedFunctionBlock.getCompany().getId();
         final long functionBlockId = proposedFunctionBlock.getId();
 
-        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_approved = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_source = ?, is_sink = ?, is_approved = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newKind)
             .setParameter(newName)
@@ -118,6 +124,8 @@ public class FunctionBlockDatabaseManager {
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
             .setParameter(newAccess)
+            .setParameter(isSource)
+            .setParameter(isSink)
             .setParameter(false)
             .setParameter(functionBlockId)
         ;
@@ -331,11 +339,11 @@ public class FunctionBlockDatabaseManager {
         }
     }
 
-    public FunctionBlock checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
-        return _checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+    public FunctionBlock checkForDuplicateFunctionBlockName(final String functionBlockName, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        return _checkForDuplicateFunctionBlockName(functionBlockName, functionBlockVersionSeriesId);
     }
 
-    private FunctionBlock _checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
+    private FunctionBlock _checkForDuplicateFunctionBlockName(final String functionBlockName, final Long functionBlockVersionSeriesId) throws DatabaseException {
         final Query query = new Query("SELECT id FROM function_blocks WHERE name = ?");
         query.setParameter(functionBlockName);
 
@@ -347,7 +355,32 @@ public class FunctionBlockDatabaseManager {
             final long functionBlockId = row.getLong("id");
             final FunctionBlock rowFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeries)) {
+            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeriesId)) {
+                matchedFunctionBlock = rowFunctionBlock;
+                break;
+            }
+        }
+
+        return matchedFunctionBlock;
+    }
+
+    public FunctionBlock checkForDuplicateFunctionBlockMostId(final String functionBlockMostId, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        return _checkForDuplicateFunctionBlockMostId(functionBlockMostId, functionBlockVersionSeriesId);
+    }
+
+    private FunctionBlock _checkForDuplicateFunctionBlockMostId(final String functionBlockMostId, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        final Query query = new Query("SELECT id FROM function_blocks WHERE most_id = ?");
+        query.setParameter(functionBlockMostId);
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+
+        FunctionBlock matchedFunctionBlock = null;
+        for (final Row row : rows) {
+            final long functionBlockId = row.getLong("id");
+            final FunctionBlock rowFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+            if (!rowFunctionBlock.getBaseVersionId().equals(functionBlockVersionSeriesId)) {
                 matchedFunctionBlock = rowFunctionBlock;
                 break;
             }

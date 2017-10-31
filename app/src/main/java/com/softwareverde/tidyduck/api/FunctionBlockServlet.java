@@ -156,7 +156,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
-                return _checkForDuplicateFunctionBlock(request, currentAccount, environment.getDatabase());
+                return _checkForDuplicateFunctionBlock(request, environment.getDatabase());
             }
         });
     }
@@ -251,14 +251,22 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _checkForDuplicateFunctionBlock(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) {
+    private Json _checkForDuplicateFunctionBlock(final HttpServletRequest httpRequest, final Database<Connection> database) {
         try {
             final Json request = _getRequestDataAsJson(httpRequest);
+            final String functionBlockMostId = request.getString("functionBlockMostId");
             final String functionBlockName = request.getString("functionBlockName");
-            final Long functionBlockVersionSeries = request.getLong("functionBlockVersionSeries");
+            final Long functionBlockVersionSeriesId = request.getLong("functionBlockVersionSeriesId");
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            final FunctionBlock matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+            final FunctionBlock matchedFunctionBlock;
+
+            if (! Util.isBlank(functionBlockMostId)) {
+                matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlockMostId(functionBlockMostId, functionBlockVersionSeriesId);
+            }
+            else {
+                matchedFunctionBlock = databaseManager.checkForDuplicateFunctionBlockName(functionBlockName, functionBlockVersionSeriesId);
+            }
 
             final Json response = new Json(false);
 
@@ -471,6 +479,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Long authorId = functionBlockJson.getLong("authorId");
         final Long companyId = functionBlockJson.getLong("companyId");
         final String access = functionBlockJson.getString("access");
+        final Boolean isSource = functionBlockJson.getBoolean("isSource");
+        final Boolean isSink = functionBlockJson.getBoolean("isSink");
 
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
@@ -506,6 +516,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(access)) {
                 throw new Exception("Access field is required.");
             }
+
+            if (isSource == null) {
+                throw new Exception("isSource is required.");
+            }
+
+            if (isSink == null) {
+                throw new Exception("isSink is required.");
+            }
         }
 
         final Company company;
@@ -533,6 +551,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(access);
+        functionBlock.setIsSource(isSource);
+        functionBlock.setIsSink(isSink);
 
         return functionBlock;
     }
@@ -555,6 +575,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("companyId", functionBlock.getCompany().getId());
         blockJson.put("companyName", functionBlock.getCompany().getName());
         blockJson.put("access", functionBlock.getAccess());
+        blockJson.put("isSource", functionBlock.isSource());
+        blockJson.put("isSink", functionBlock.isSink());
         return blockJson;
     }
 }

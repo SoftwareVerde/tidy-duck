@@ -229,15 +229,16 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
     });
 }
 
-function checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVersionSeries, callbackFunction) {
+function checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceMostId, mostInterfaceVersionSeriesId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-interface-duplicate-check-name",
+        API_PREFIX + "most-interface-duplicate-check",
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                mostInterfaceName: mostInterfaceName,
-                mostInterfaceVersionSeries: mostInterfaceVersionSeries
+                mostInterfaceName:              mostInterfaceName,
+                mostInterfaceMostId:            mostInterfaceMostId,
+                mostInterfaceVersionSeriesId:   mostInterfaceVersionSeriesId
             })
         }
     );
@@ -246,33 +247,7 @@ function checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVers
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
-            console.error("Unable to check for duplicate function catalog: " + data.errorMessage);
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction(data);
-        }
-    });
-}
-
-function checkForDuplicateMostInterfaceMostId(mostInterfaceMostId, mostInterfaceVersionSeriesId, callbackFunction) {
-    const request = new Request(
-        API_PREFIX + "most-interface-duplicate-check-id",
-        {
-            method: "POST",
-            credentials: "include",
-            body: JSON.stringify({
-                mostInterfaceMostId: mostInterfaceMostId,
-                mostInterfaceVersionSeriesId: mostInterfaceVersionSeriesId
-            })
-        }
-    );
-
-    jsonFetch(request, function(data) {
-        const wasSuccess = data.wasSuccess;
-
-        if (! wasSuccess) {
-            console.error("Unable to check for duplicate Interface MOST ID: " + data.errorMessage);
+            console.error("Unable to check for duplicate interface: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {

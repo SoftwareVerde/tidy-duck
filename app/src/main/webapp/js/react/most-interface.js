@@ -111,7 +111,6 @@ class MostInterface extends React.Component {
 
     render() {
         const name = this.props.mostInterface.getName();
-        const shortName = shortenString(name, 35, false);
         const childItemStyle = this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item";
 
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
@@ -124,7 +123,7 @@ class MostInterface extends React.Component {
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
-                    <span title={name}>{shortName}</span>
+                    <span className="child-item-title-name" title={name}>{name}</span>
                     {workingIcon}
                     <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {approvedIcon}
