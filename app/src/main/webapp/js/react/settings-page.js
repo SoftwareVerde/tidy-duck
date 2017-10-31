@@ -243,7 +243,6 @@ class SettingsPage extends React.Component {
             passwordSaveButton = <div type="submit" id="save-settings-button" className="button">{this.renderPasswordSaveButtonText()}</div>;
         }
 
-        // TODO: add "Changes Saved" next to green checkmark.
         const showCheckmark = (this.state.showCheckmark ? "visible" : "hidden");
 
         reactComponents.push(
