@@ -674,6 +674,14 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             case "TShortStream": {
                 final String streamMaxLength = mostType.getStreamMaxLength();
                 json.put("streamMaxLength", streamMaxLength);
+
+                // handle stream cases
+                final Json streamCasesJson = new Json(true);
+                for (final StreamCase streamCase : mostType.getStreamCases()) {
+                    final Json streamCaseJson = _toJson(streamCase);
+                    streamCasesJson.add(streamCaseJson);
+                }
+                json.put("streamCases", streamCasesJson);
             } break;
 
             case "TArray": {
