@@ -273,7 +273,7 @@ class ApprovalForm extends React.Component{
                     return;
                 }
 
-                let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Approve</button>;
+                let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Merge</button>;
                 if (this.props.shouldShowSaveAnimation) {
                     submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
                 }
