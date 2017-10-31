@@ -249,11 +249,12 @@ class SettingsPage extends React.Component {
         reactComponents.push(
             <div key="Theme Container" id="settings-container">
                 <h1>User Settings</h1>
-                <div>
-                    <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
-                    <app.InputField type="select" label="Default Tab" name="defaultMode" value={this.state.currentDefaultMode} options={modeOptions} onChange={this.onDefaultModeChanged}/>
+                <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
+                <app.InputField type="select" label="Default Tab" name="defaultMode" value={this.state.currentDefaultMode} options={modeOptions} onChange={this.onDefaultModeChanged}/>
+                <div className="settings-success-container" style={{visibility: showCheckmark}}>
+                    <h2>CHANGES SAVED</h2>
+                    <i className="fa fa-check-circle"/>
                 </div>
-                <i className="fa fa-check-circle fa-2x" style={{color: 'limegreen', visibility: showCheckmark}}/>
             </div>
         );
 

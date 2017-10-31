@@ -17,6 +17,10 @@
     color: #FFF !important;
 }
 
+.settings-success-container i {
+    color: #032C46;
+}
+
 .accounts-table {
     color: #032C46;
 }
