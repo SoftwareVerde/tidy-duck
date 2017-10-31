@@ -48,6 +48,7 @@ body * {
     top: 3px;
     position: relative;
     vertical-align: top;
+    cursor: pointer;
 }
 
 #main-content {

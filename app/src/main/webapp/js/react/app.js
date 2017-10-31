@@ -320,7 +320,8 @@ class App extends React.Component {
     }
 
     onDuckClick() {
-        this.showDuckAlert();
+        const accountDefaultMode = this.state.account.getSettings().getDefaultMode();
+        this.handleRoleClick(accountDefaultMode, null, false);
     }
 
     showDuckAlert() {
@@ -3107,7 +3108,7 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
-                    <img onDoubleClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
+                    <img onClick={this.onDuckClick} onDoubleClick={this.showDuckAlert} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">
