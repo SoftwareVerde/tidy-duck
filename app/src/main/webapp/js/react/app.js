@@ -3120,7 +3120,7 @@ class App extends React.Component {
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">
-                        {accountName}
+                        <div id="account-name">{accountName}</div>
                         <a id="logout" href="#" onClick={this.logout}>logout</a>
                         <i id="settings-icon" className="fa fa-cog fa-lg" onClick={this.handleSettingsClick}/>
                     </div>

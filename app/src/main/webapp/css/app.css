@@ -176,6 +176,7 @@
     margin-top: -5px;
     box-shadow: inset 0px 0px 5px #000000;
     color: #FFFFFF;
+    z-index: 2;
 }
 
 .role-toggle .role, .active-role {
