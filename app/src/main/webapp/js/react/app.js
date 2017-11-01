@@ -366,6 +366,7 @@ class App extends React.Component {
 
             const versions = [ FunctionCatalog.toJson(functionCatalog) ];
             functionCatalog.setVersionsJson(versions);
+            functionCatalog.setBaseVersionId(functionCatalogId);
 
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
@@ -566,6 +567,7 @@ class App extends React.Component {
 
             const versions = [ FunctionBlock.toJson(functionBlock) ];
             functionBlock.setVersionsJson(versions);
+            functionBlock.setBaseVersionId(functionBlockId);
 
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
@@ -697,6 +699,7 @@ class App extends React.Component {
 
             const versions = [ MostInterface.toJson(mostInterface) ];
             mostInterface.setVersionsJson(versions);
+            mostInterface.setBaseVersionId(mostInterfaceId);
 
             thisApp.setState({
                 createButtonState:          thisApp.CreateButtonState.success,
