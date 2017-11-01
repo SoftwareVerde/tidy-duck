@@ -37,7 +37,30 @@ public class TestDataLoader {
         databaseConnection.executeSql(new Query("INSERT INTO accounts (name, company_id) VALUES (?, ?)").setParameter(accountName).setParameter(companyId));
     }
 
-    public static void insertFakeCompleteFunctionCatalog(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+    /**
+     * <p>Inserts a review for a single component.</p>
+     *
+     * <p>If functionCatalogId is not null, only a review for that will be added.  Then functionBlockId will be checked, then interfaceId.</p>
+     * @param databaseConnection
+     * @param functionCatalogId
+     * @param functionBlockId
+     * @param interfaceId
+     */
+    public static Long insertFakeReview(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long functionBlockId, final Long interfaceId, final long accountId) throws DatabaseException {
+        if (functionCatalogId != null) {
+            return databaseConnection.executeSql(new Query("INSERT INTO reviews (function_catalog_id, account_id, created_date) VALUES (?, ?, NOW())").setParameter(functionCatalogId).setParameter(accountId));
+
+        }
+        if (functionBlockId != null) {
+            return databaseConnection.executeSql(new Query("INSERT INTO reviews (function_block_id, account_id, created_date) VALUES (?, ?, NOW())").setParameter(functionBlockId).setParameter(accountId));
+        }
+        if (interfaceId != null) {
+            return databaseConnection.executeSql(new Query("INSERT INTO reviews (interface_id, account_id, created_date) VALUES (?, ?, NOW())").setParameter(interfaceId).setParameter(accountId));
+        }
+        return null;
+    }
+
+    public static long insertFakeCompleteFunctionCatalog(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         final long functionCatalogId = databaseConnection.executeSql(new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, base_version_id) VALUES (?, ?, ?, ?, ?)")
                 .setParameter("TestFcat")
                 .setParameter("1.0")
@@ -52,10 +75,11 @@ public class TestDataLoader {
                 .setParameter(functionBlockId)
         );
 
+        return functionCatalogId;
     }
 
     private static long insertFakeFunctionBlock(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        final long functionBlockId = databaseConnection.executeSql(new Query("INSERT INTO function_catalogs (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, base_version_id) VALUES (?, ?, ?, ?, NOW()), ?, ?, ?, ?, ?")
+        final long functionBlockId = databaseConnection.executeSql(new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, base_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)")
                 .setParameter("0xFF")
                 .setParameter("Proprietary")
                 .setParameter("TestFblo")
@@ -77,7 +101,7 @@ public class TestDataLoader {
     }
 
     private static long insertFakeMostInterface(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        final long mostInterfaceId = databaseConnection.executeSql(new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, base_version_id) VALUES (?, ?, ?, NOW()), ?, ?")
+        final long mostInterfaceId = databaseConnection.executeSql(new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, base_version_id) VALUES (?, ?, ?, NOW(), ?, ?)")
                 .setParameter("1")
                 .setParameter("TestInterface")
                 .setParameter("Description.")
