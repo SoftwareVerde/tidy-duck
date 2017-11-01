@@ -91,6 +91,10 @@ class AccountsPage extends React.Component {
         // TODO: format indentation.
         const roleInfoString =
                 <ul>
+                    <li>Login</li>
+                    <ul>
+                        <li>Ability to log in and access the application</li>
+                    </ul>
                     <li>Admin</li>
                     <ul>
                         <li>Ability to create new users</li>
@@ -503,12 +507,6 @@ class AccountsPage extends React.Component {
 
     renderRoleComponents(account, isNewAccount) {
         const readOnly = this.props.thisAccount.getId() == account.getId();
-        const loginTitle = "";
-        const adminTitle = "";
-        const releaseTitle = "";
-        const modifyTitle = "";
-        const reviewTitle = "";
-        const viewTitle = "";
 
         if (readOnly) {
             return (
