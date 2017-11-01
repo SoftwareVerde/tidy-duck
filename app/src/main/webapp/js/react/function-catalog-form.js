@@ -112,7 +112,7 @@ class FunctionCatalogForm extends React.Component {
             duplicateNameElement = <i className="fa fa-files-o" title="Duplicate function catalog name." style={iconStyle}></i>;
         }
 
-        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true}/>);
+        reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9 ]+" title="Only alpha-numeric characters and spaces." isRequired={true}/>);
         reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />);
 
         if (! readOnly) {
