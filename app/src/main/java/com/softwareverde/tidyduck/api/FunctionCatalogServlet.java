@@ -443,8 +443,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(name)) {
                 throw new Exception("Invalid Name: " + name);
             }
-            if (!name.matches("[A-z0-9]+")) {
-                throw new Exception("Name must contain only alpha-numeric characters.");
+            if (!name.matches("[A-z0-9 ]+")) {
+                throw new Exception("Name must contain only alpha-numeric characters and spaces.");
             }
 
             if (Util.isBlank(release)) {
