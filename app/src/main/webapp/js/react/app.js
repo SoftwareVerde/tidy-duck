@@ -1298,30 +1298,32 @@ class App extends React.Component {
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-            if (success) {
-                const newFunctionBlocks = [];
-                const existingFunctionBlocks = thisApp.state.functionBlocks;
-                for (let i in existingFunctionBlocks) {
-                    const existingFunctionBlock = existingFunctionBlocks[i];
-                    if (existingFunctionBlock.getId() != functionBlockId) {
-                        newFunctionBlocks.push(existingFunctionBlock);
+        const deleteFunction = function() {
+            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionBlocks = [];
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in existingFunctionBlocks) {
+                        const existingFunctionBlock = existingFunctionBlocks[i];
+                        if (existingFunctionBlock.getId() != functionBlockId) {
+                            newFunctionBlocks.push(existingFunctionBlock);
+                        }
+                    }
+                    thisApp.setState({
+                        functionBlocks:         newFunctionBlocks,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    });
+
+                    if (typeof callbackFunction == "function") {
+                        callbackFunction();
                     }
                 }
-                thisApp.setState({
-                    functionBlocks:         newFunctionBlocks,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                });
-
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                else {
+                    app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
                 }
-            }
-            else {
-                app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
-            }
-        });
-
+            });
+        };
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Function Block and the currently selected Function Catalog?", deleteFunction, callbackFunction);
     }
 
     disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
@@ -1647,29 +1649,32 @@ class App extends React.Component {
         const functionBlockId = this.state.selectedItem.getId();
         const mostInterfaceId = mostInterface.getId();
 
-        deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-            if (success) {
-                const newMostInterfaces = [];
-                const existingMostInterfaces = thisApp.state.mostInterfaces;
-                for (let i in existingMostInterfaces) {
-                    const existingMostInterface = existingMostInterfaces[i];
-                    if (existingMostInterface.getId() != mostInterfaceId) {
-                        newMostInterfaces.push(existingMostInterface);
+        const deleteFunction = function() {
+            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+                if (success) {
+                    const newMostInterfaces = [];
+                    const existingMostInterfaces = thisApp.state.mostInterfaces;
+                    for (let i in existingMostInterfaces) {
+                        const existingMostInterface = existingMostInterfaces[i];
+                        if (existingMostInterface.getId() != mostInterfaceId) {
+                            newMostInterfaces.push(existingMostInterface);
+                        }
+                    }
+                    thisApp.setState({
+                        mostInterfaces:         newMostInterfaces,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                    });
+
+                    if (typeof callbackFunction == "function") {
+                        callbackFunction();
                     }
                 }
-                thisApp.setState({
-                    mostInterfaces:         newMostInterfaces,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-                });
-
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                else {
+                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
                 }
-            }
-            else {
-                app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
-            }
-        });
+            });
+        };
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Interface and the currently selected Function Block?", deleteFunction, callbackFunction);
     }
 
     disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction) {
