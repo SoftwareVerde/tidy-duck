@@ -289,7 +289,7 @@ class App extends React.Component {
                     }
                     else {
                         const nextAlert = alertQueue.shift();
-                        displayAlert(nextAlert);
+                        thisApp.displayAlert(nextAlert);
                     }
                 },
                 isConfirmAlert: alert.isConfirmAlert,
@@ -312,7 +312,7 @@ class App extends React.Component {
                     }
                     else {
                         const nextAlert = alertQueue.shift();
-                        displayAlert(nextAlert);
+                        thisApp.displayAlert(nextAlert);
                     }
                 }
             }
