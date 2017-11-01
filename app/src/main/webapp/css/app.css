@@ -41,6 +41,10 @@
     padding-bottom: 1em;
 }
 
+.small-container h2 i {
+    cursor: pointer;
+}
+
 .large-container {
     border: 0px solid;
     border-radius: 5px;
@@ -75,6 +79,12 @@
 
 .small-container h1, .large-container h1, .popup-container h1 {
     font-size: 1.5rem;
+    text-align: center;
+}
+
+.small-container h2, .large-container h2, .popup-container h2 {
+    font-size: 1.2rem;
+    margin: 0;
     text-align: center;
 }
 
@@ -556,6 +566,10 @@
 .accounts-table th {
     padding: 5px 0px;
     font-size: 125%;
+}
+
+.accounts-table th i {
+    cursor: pointer;
 }
 
 .accounts-table tbody tr {

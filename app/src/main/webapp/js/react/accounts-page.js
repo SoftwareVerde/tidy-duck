@@ -45,6 +45,7 @@ class AccountsPage extends React.Component {
 
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.onAccountClicked = this.onAccountClicked.bind(this);
+        this.onRolesInfoClicked = this.onRolesInfoClicked.bind(this);
         this.onNewAccountUsernameChanged = this.onNewAccountUsernameChanged.bind(this);
         this.onNewAccountNameChanged = this.onNewAccountNameChanged.bind(this);
         this.onNewAccountCompanyChanged = this.onNewAccountCompanyChanged.bind(this);
@@ -84,6 +85,41 @@ class AccountsPage extends React.Component {
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyPress);
+    }
+
+    onRolesInfoClicked() {
+        // TODO: format indentation.
+        const roleInfoString =
+                <ul>
+                    <li>Admin</li>
+                    <ul>
+                        <li>Ability to create new users</li>
+                        <li>Ability to assign permissions to other users</li>
+                        <li>Ability to reset other user's passwords</li>
+                    </ul>
+                    <li>Release</li>
+                    <ul>
+                        <li>Ability to release a new version of a function catalog, including setting version numbers for unreleased child components.</li>
+                    </ul>
+                    <li>Modify</li>
+                    <ul>
+                        <li>{"Ability to alter a MOST component (change metadata, add children)"}</li>
+                        <li>Ability to create/fork MOST components</li>
+                    </ul>
+                    <li>Review</li>
+                    <ul>
+                        <li>Ability to approve a review</li>
+                    </ul>
+                    <li>View</li>
+                    <ul>
+                        <li>Ability to see all MOST components and their metadata and children</li>
+                        <li>Ability to see reviews</li>
+                        <li>Ability to comment on a review (and see existing comments)</li>
+                        <li>Ability up-vote/down-vote a review</li>
+                    </ul>
+                </ul>;
+
+        app.App.alert("Roles", roleInfoString);
     }
 
     onNewAccountNameChanged(value) {
@@ -399,6 +435,7 @@ class AccountsPage extends React.Component {
                 <app.InputField type="text" label="Username" name="username" value={account.getUsername()} onChange={this.onNewAccountUsernameChanged} isRequired={true}/>
                 <app.InputField type="text" label="Name" name="name" value={account.getName()} onChange={this.onNewAccountNameChanged} isRequired={true}/>
                 <app.InputField type="select" label="Company" name="company" value={account.getCompany().getName()} options={companyOptions} onChange={this.onNewAccountCompanyChanged} isRequired={true}/>
+                <h2 key="roles">Roles <i className="fa fa-info-circle" onClick={this.onRolesInfoClicked}/></h2>
                 {this.renderRoleComponents(account, true)}
                 {createAccountSaveButton}
             </form>
@@ -453,7 +490,7 @@ class AccountsPage extends React.Component {
                 <thead>
                     <tr>
                         <th key="name">User</th>
-                        <th key="roles">Roles</th>
+                        <th key="roles">Roles <i className="fa fa-info-circle" onClick={this.onRolesInfoClicked}/></th>
                         <th key="reset"></th>
                     </tr>
                 </thead>
@@ -466,6 +503,12 @@ class AccountsPage extends React.Component {
 
     renderRoleComponents(account, isNewAccount) {
         const readOnly = this.props.thisAccount.getId() == account.getId();
+        const loginTitle = "";
+        const adminTitle = "";
+        const releaseTitle = "";
+        const modifyTitle = "";
+        const reviewTitle = "";
+        const viewTitle = "";
 
         if (readOnly) {
             return (
