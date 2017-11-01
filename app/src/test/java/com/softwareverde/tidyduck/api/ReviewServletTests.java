@@ -39,7 +39,7 @@ public class ReviewServletTests {
     }
 
     @Test
-    public void testAddComment_maxLength() throws ServletException, IOException {
+    public void should_add_comment_when_max_length() throws ServletException, IOException {
         // Setup
         final String maxLengthString = getLargeString(65535);
         final Json commentJson = new Json(false);
@@ -84,45 +84,45 @@ public class ReviewServletTests {
       *       It appears that H2 aliases TEXT to CLOB which is much larger.
       *       http://www.h2database.com/html/datatypes.html#clob_type
       */
-//    @Test
-//    public void testAddComment_tooLarge() throws ServletException, IOException {
-//        // Setup
-//        final String tooLargeString = getLargeString(65537);
-//        final Json commentJson = new Json(false);
-//        commentJson.put("commentText", tooLargeString);
-//        final Json requestJson = new Json(false);
-//        requestJson.put("reviewComment", commentJson);
-//
-//        final ReviewServlet reviewServlet = getMockReviewServlet();
-//
-//        final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-//        Mockito.when(request.getMethod()).thenReturn("POST");
-//        Mockito.when(request.getRequestURI()).thenReturn("/api/v1/reviews/" + reviewId + "/comments");
-//        final InputStream inputStream = new ByteArrayInputStream(requestJson.toString().getBytes());
-//        Mockito.when(request.getInputStream()).thenReturn(new ServletInputStream() {
-//            @Override
-//            public int read() throws IOException {
-//                return inputStream.read();
-//            }
-//        });
-//        final HttpSession mockSession = Mockito.mock(HttpSession.class);
-//        Mockito.when(mockSession.getAttribute("account_id")).thenReturn(1L);
-//        Mockito.when(request.getSession()).thenReturn(mockSession);
-//
-//        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
-//        StringWriter responseStringWriter = new StringWriter();
-//        PrintWriter responseWriter = new PrintWriter(responseStringWriter);
-//        Mockito.when(response.getWriter()).thenReturn(responseWriter);
-//
-//        // Action
-//        reviewServlet.service(request, response);
-//
-//        // Assert
-//        responseWriter.close();
-//        final String responseString = responseStringWriter.getBuffer().toString();
-//        final Json json = Json.parse(responseString);
-//        Assert.assertEquals("false", json.getString("wasSuccess"));
-//    }
+    //@Test
+    public void should_not_add_comment_when_text_too_large() throws ServletException, IOException {
+        // Setup
+        final String tooLargeString = getLargeString(65537);
+        final Json commentJson = new Json(false);
+        commentJson.put("commentText", tooLargeString);
+        final Json requestJson = new Json(false);
+        requestJson.put("reviewComment", commentJson);
+
+        final ReviewServlet reviewServlet = getMockReviewServlet();
+
+        final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getMethod()).thenReturn("POST");
+        Mockito.when(request.getRequestURI()).thenReturn("/api/v1/reviews/" + reviewId + "/comments");
+        final InputStream inputStream = new ByteArrayInputStream(requestJson.toString().getBytes());
+        Mockito.when(request.getInputStream()).thenReturn(new ServletInputStream() {
+            @Override
+            public int read() throws IOException {
+                return inputStream.read();
+            }
+        });
+        final HttpSession mockSession = Mockito.mock(HttpSession.class);
+        Mockito.when(mockSession.getAttribute("account_id")).thenReturn(1L);
+        Mockito.when(request.getSession()).thenReturn(mockSession);
+
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        StringWriter responseStringWriter = new StringWriter();
+        PrintWriter responseWriter = new PrintWriter(responseStringWriter);
+        Mockito.when(response.getWriter()).thenReturn(responseWriter);
+
+        // Action
+        reviewServlet.service(request, response);
+
+        // Assert
+        responseWriter.close();
+        final String responseString = responseStringWriter.getBuffer().toString();
+        final Json json = Json.parse(responseString);
+        Assert.assertEquals("false", json.getString("wasSuccess"));
+    }
 
     private String getLargeString(final int length) {
         char[] chars = new char[length];
