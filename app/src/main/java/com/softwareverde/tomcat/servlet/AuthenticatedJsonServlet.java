@@ -43,7 +43,7 @@ public class AuthenticatedJsonServlet extends JsonServlet {
     protected final Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) throws Exception {
 
         if (! Session.isAuthenticated(request)) {
-            return super._generateErrorJson("Not authenticated.");
+            return super._generateErrorJson("Not authenticated. Redirecting to login.");
         }
 
         final Long accountId = Session.getAccountId(request);

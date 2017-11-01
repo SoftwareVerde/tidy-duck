@@ -14,3 +14,16 @@ function jsonFetch(request, callbackFunction) {
         }
     });
 }
+
+function tidyFetch(request, callbackFunction) {
+    jsonFetch(request, function(json) {
+        if (json.errorMessage) {
+            if (json.errorMessage.includes("Not authenticated. Redirecting to login.")) {
+                app.App.alert("Session Expired", "Your session has expired. You will be redirected to the login page.", function() {window.location.replace("/");});
+            }
+        }
+        else if (typeof callbackFunction == "function") {
+            callbackFunction(json);
+        }
+    });
+}

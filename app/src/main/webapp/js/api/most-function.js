@@ -8,7 +8,7 @@ function getMostFunction(mostFunctionId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostFunction = null;
 
         if (data.wasSuccess) {
@@ -33,7 +33,7 @@ function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostFunctions = null;
 
         if (data.wasSuccess) {
@@ -58,7 +58,7 @@ function listMostInterfacesContainingMostFunction(mostFunctionId, callbackFuncti
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         if (!data.wasSuccess) {
             console.error("Unable to get interfaces associated with function " + mostFunctionId);
         }
@@ -82,7 +82,7 @@ function insertMostFunction(mostInterfaceId, mostFunction, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         if (!data.wasSuccess) {
             console.error("Unable to insert function for version " + mostInterfaceId + ": " + data.errorMessage);
         }
@@ -107,7 +107,7 @@ function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callb
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (!wasSuccess) {
             console.error("Unable to modify function " + mostFunctionId + " from interface " + mostInterfaceId + ": " + data.errorMessage);
@@ -128,7 +128,7 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
@@ -151,7 +151,7 @@ function submitMostFunctionForReview(mostFunctionId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {

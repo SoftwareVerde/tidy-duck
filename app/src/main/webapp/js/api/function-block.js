@@ -8,7 +8,7 @@ function getFunctionBlock(functionBlockId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionBlock = null;
 
         if (data.wasSuccess) {
@@ -38,7 +38,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionBlocks = null;
 
         if (data.wasSuccess) {
@@ -63,7 +63,7 @@ function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionBlocks = null;
 
         if (data.wasSuccess) {
@@ -88,7 +88,7 @@ function listFunctionCatalogsContainingFunctionBlock(functionBlockId, callbackFu
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         if (!data.wasSuccess) {
             console.error("Unable to get function catalogs associated with function block " + functionBlockId);
         }
@@ -112,7 +112,7 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionBlockId = null;
 
         if (data.wasSuccess) {
@@ -139,7 +139,7 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
             })
         }
     );
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (! wasSuccess) {
@@ -167,7 +167,7 @@ function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, 
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         let functionBlockId = null;
 
@@ -193,7 +193,7 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
@@ -216,7 +216,7 @@ function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
@@ -243,7 +243,7 @@ function checkForDuplicateFunctionBlock(functionBlockName, functionBlockMostId, 
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {

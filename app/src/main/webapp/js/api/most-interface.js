@@ -8,7 +8,7 @@ function getMostInterface(mostInterfaceId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostInterface = null;
 
         if (data.wasSuccess) {
@@ -38,7 +38,7 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostInterfaces = null;
 
         if (data.wasSuccess) {
@@ -63,7 +63,7 @@ function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostInterfaces = null;
 
         if (data.wasSuccess) {
@@ -88,7 +88,7 @@ function listFunctionBlocksContainingMostInterface(mostInterfaceId, callbackFunc
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         if (!data.wasSuccess) {
             console.error("Unable to get function blocks associated with interface " + mostInterfaceId);
         }
@@ -112,7 +112,7 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostInterfaceId = null;
 
         if (data.wasSuccess) {
@@ -139,7 +139,7 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
             })
         }
     );
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (! wasSuccess) {
@@ -167,7 +167,7 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         let mostInterfaceId = null;
 
@@ -193,7 +193,7 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
@@ -216,7 +216,7 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
@@ -243,7 +243,7 @@ function checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceMostId, 
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
