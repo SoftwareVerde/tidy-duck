@@ -170,7 +170,7 @@ class TypesPage extends React.Component {
     }
 
     getTypeLabel(type) {
-        const releasedText = type.isReleased() ? ' \uD83D\uDCD5' : '';
+        const releasedText = type.isReleased() ? ' (Released)' : '';
         const label = type.getName() + releasedText;
         return label;
     }
@@ -1153,7 +1153,7 @@ class TypesPage extends React.Component {
             if (!selectedType) {
                 selectedType = mostTypes[0];
             }
-            const typeSelectorInfo = "Types with \uD83D\uDCD5 icon have been included in a release.  Edits will be restricted.";
+            const typeSelectorInfo = "Types marked with (Released) have been included in a released Function Catalog.  Edits will be restricted.";
             const infoIcon = <i key="type-selector-info" className="fa fa-info-circle" title={typeSelectorInfo}></i>;
             typeSelector = <app.InputField key="type-selector" type="select" label={["Type to Edit ", infoIcon]} name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
