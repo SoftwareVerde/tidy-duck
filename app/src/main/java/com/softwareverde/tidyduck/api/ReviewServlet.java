@@ -433,7 +433,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
     }
 
     private ReviewComment _populateReviewCommentFromJson(final Json reviewCommentJson, final Account currentAccount, final Database<Connection> database) throws DatabaseException {
-        final long id = reviewCommentJson.getLong("id");
+        final Long id = reviewCommentJson.getLong("id");
         final String commentText = reviewCommentJson.getString("commentText");
 
         final ReviewComment reviewComment = new ReviewComment();

@@ -7,11 +7,11 @@ import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.api.AuthenticatedJsonRequestHandler;
 import com.softwareverde.tidyduck.environment.Environment;
-import com.softwareverde.tomcat.FakeRequest;
 import com.softwareverde.tomcat.servlet.BaseServlet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -42,8 +42,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects");
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
@@ -69,8 +69,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects");
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
@@ -104,8 +104,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects");
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
@@ -144,8 +144,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects/"+ objectId);
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects/"+ objectId);
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
@@ -188,8 +188,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects/"+ objectId +"/children/"+ childId);
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects/"+ objectId +"/children/"+ childId);
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
@@ -224,8 +224,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects");
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects");
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
@@ -258,8 +258,8 @@ public class ApiUrlRouterTests {
             }
         });
 
-        final FakeRequest fakeRequest = new FakeRequest();
-        fakeRequest._mock.setReturnValue("getRequestURI", baseUrl + "objects/");
+        final HttpServletRequest fakeRequest = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(fakeRequest.getRequestURI()).thenReturn(baseUrl + "objects/");
 
         // Action
         final ApiRoute<AuthenticatedJsonRequestHandler> route = apiUrlRouter.route(fakeRequest, BaseServlet.HttpMethod.GET);
