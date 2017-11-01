@@ -16,16 +16,8 @@ public class TestDataLoader {
 
     public static void initDatabase(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/init.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-06_add_enum_value_description.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-07_add_ticket_url_to_reviews.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-08_add_parameter_name_and_description.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-12_roles.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-18_add_return_parameter_fields.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-21_add_login_permission.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-21_add_release_types.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-21_add_update_password_hashes.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/2017-09-26_add_default_mode_to_accounts.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("sql/migrations/2017-09-26_convert_last_modified_dates.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
     }
 
     public static void insertFakeCompany(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
