@@ -257,10 +257,12 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             final RoleInflater roleInflater = new RoleInflater(databaseConnection);
 
+            final List<String> roleNames = new ArrayList<>(rolesJson.length());
             for (int i=0; i<rolesJson.length(); i++) {
                 final Json roleJson = rolesJson.get(i);
                 final Role role = roleInflater.inflateRoleFromName(roleJson.getString("name"));
                 account.addRole(role);
+                roleNames.add(role.getName());
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -271,8 +273,8 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             response.put("accountId", account.getId());
             response.put("password", account.getPassword());
-            // TODO: add roles to log statement
-            _logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId());
+
+            _logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId() + " and roles " + roleNames.toString());
         }
         catch (DatabaseException e) {
             _logger.error("Unable to create account.", e);

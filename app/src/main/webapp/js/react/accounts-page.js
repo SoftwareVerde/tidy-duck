@@ -188,6 +188,8 @@ class AccountsPage extends React.Component {
 
         createNewAccount(accountJson, function(data) {
             if (data.wasSuccess) {
+                account.setId(data.accountId);
+
                 const usernameString = "Username: " + account.getUsername();
                 const passwordString = "Password: " + data.password;
                 const accounts = thisApp.state.accounts;
@@ -204,7 +206,7 @@ class AccountsPage extends React.Component {
 
                 const newAccount = new Account();
                 newAccount.setCompany(accountCompany);
-                newAccount.setRoles(accountRoles);
+                newAccount.setRoles(accountRoles.slice()); // copy array
 
                 thisApp.setState({
                     createAccountButtonState: thisApp.SaveButtonState.saved,
