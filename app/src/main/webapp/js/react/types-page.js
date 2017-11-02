@@ -316,6 +316,7 @@ class TypesPage extends React.Component {
 
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
+            // new type: add
             insertMostType(mostTypeJson, function (data) {
                 let currentMostType = mostType;
                 let saveButtonText = 'Save';
@@ -339,6 +340,7 @@ class TypesPage extends React.Component {
             });
         }
         else if (this.state.selectedOption === this.options[1]) {
+            // existing type: update
             const mostTypeId = this.state.mostType.getId();
             updateMostType(mostTypeId, mostTypeJson, function (data) {
                 let saveButtonText = 'Save';
@@ -352,7 +354,7 @@ class TypesPage extends React.Component {
                 else {
                     const validationErrors = data.validationErrors;
                     if (validationErrors) {
-                        const errorListItems =  data.validationErrors.map((errorMessage, index) => <li key={index}>{errorMessage}</li>);
+                        const errorListItems =  validationErrors.map((errorMessage, index) => <li key={index}>{errorMessage}</li>);
                         app.App.alert(
                             "Unable to Update Most Type",
                              <div>
@@ -370,7 +372,7 @@ class TypesPage extends React.Component {
 
                 }
                 // need to update selectedType in case name changed
-                const typeName = thisPage.state.mostType.getName();
+                const typeName = mostType.getName();
 
                 thisPage.setState({
                     saveButtonText: saveButtonText,
