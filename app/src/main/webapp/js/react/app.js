@@ -289,7 +289,7 @@ class App extends React.Component {
                     }
                     else {
                         const nextAlert = alertQueue.shift();
-                        displayAlert(nextAlert);
+                        thisApp.displayAlert(nextAlert);
                     }
                 },
                 isConfirmAlert: alert.isConfirmAlert,
@@ -312,7 +312,7 @@ class App extends React.Component {
                     }
                     else {
                         const nextAlert = alertQueue.shift();
-                        displayAlert(nextAlert);
+                        thisApp.displayAlert(nextAlert);
                     }
                 }
             }
@@ -320,7 +320,8 @@ class App extends React.Component {
     }
 
     onDuckClick() {
-        this.showDuckAlert();
+        const accountDefaultMode = this.state.account.getSettings().getDefaultMode();
+        this.handleRoleClick(accountDefaultMode, null, false);
     }
 
     showDuckAlert() {
@@ -365,6 +366,7 @@ class App extends React.Component {
 
             const versions = [ FunctionCatalog.toJson(functionCatalog) ];
             functionCatalog.setVersionsJson(versions);
+            functionCatalog.setBaseVersionId(functionCatalogId);
 
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
 
@@ -565,6 +567,7 @@ class App extends React.Component {
 
             const versions = [ FunctionBlock.toJson(functionBlock) ];
             functionBlock.setVersionsJson(versions);
+            functionBlock.setBaseVersionId(functionBlockId);
 
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
 
@@ -696,6 +699,7 @@ class App extends React.Component {
 
             const versions = [ MostInterface.toJson(mostInterface) ];
             mostInterface.setVersionsJson(versions);
+            mostInterface.setBaseVersionId(mostInterfaceId);
 
             thisApp.setState({
                 createButtonState:          thisApp.CreateButtonState.success,
@@ -1294,30 +1298,32 @@ class App extends React.Component {
         const functionCatalogId = this.state.selectedItem.getId();
         const functionBlockId = functionBlock.getId();
 
-        deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-            if (success) {
-                const newFunctionBlocks = [];
-                const existingFunctionBlocks = thisApp.state.functionBlocks;
-                for (let i in existingFunctionBlocks) {
-                    const existingFunctionBlock = existingFunctionBlocks[i];
-                    if (existingFunctionBlock.getId() != functionBlockId) {
-                        newFunctionBlocks.push(existingFunctionBlock);
+        const deleteFunction = function() {
+            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+                if (success) {
+                    const newFunctionBlocks = [];
+                    const existingFunctionBlocks = thisApp.state.functionBlocks;
+                    for (let i in existingFunctionBlocks) {
+                        const existingFunctionBlock = existingFunctionBlocks[i];
+                        if (existingFunctionBlock.getId() != functionBlockId) {
+                            newFunctionBlocks.push(existingFunctionBlock);
+                        }
+                    }
+                    thisApp.setState({
+                        functionBlocks:         newFunctionBlocks,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    });
+
+                    if (typeof callbackFunction == "function") {
+                        callbackFunction();
                     }
                 }
-                thisApp.setState({
-                    functionBlocks:         newFunctionBlocks,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
-                });
-
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                else {
+                    app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
                 }
-            }
-            else {
-                app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
-            }
-        });
-
+            });
+        };
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Function Block and the currently selected Function Catalog?", deleteFunction, callbackFunction);
     }
 
     disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
@@ -1643,29 +1649,32 @@ class App extends React.Component {
         const functionBlockId = this.state.selectedItem.getId();
         const mostInterfaceId = mostInterface.getId();
 
-        deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-            if (success) {
-                const newMostInterfaces = [];
-                const existingMostInterfaces = thisApp.state.mostInterfaces;
-                for (let i in existingMostInterfaces) {
-                    const existingMostInterface = existingMostInterfaces[i];
-                    if (existingMostInterface.getId() != mostInterfaceId) {
-                        newMostInterfaces.push(existingMostInterface);
+        const deleteFunction = function() {
+            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+                if (success) {
+                    const newMostInterfaces = [];
+                    const existingMostInterfaces = thisApp.state.mostInterfaces;
+                    for (let i in existingMostInterfaces) {
+                        const existingMostInterface = existingMostInterfaces[i];
+                        if (existingMostInterface.getId() != mostInterfaceId) {
+                            newMostInterfaces.push(existingMostInterface);
+                        }
+                    }
+                    thisApp.setState({
+                        mostInterfaces:         newMostInterfaces,
+                        currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
+                    });
+
+                    if (typeof callbackFunction == "function") {
+                        callbackFunction();
                     }
                 }
-                thisApp.setState({
-                    mostInterfaces:         newMostInterfaces,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionBlocks
-                });
-
-                if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                else {
+                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
                 }
-            }
-            else {
-                app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
-            }
-        });
+            });
+        };
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Interface and the currently selected Function Block?", deleteFunction, callbackFunction);
     }
 
     disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction) {
@@ -3107,11 +3116,11 @@ class App extends React.Component {
         return (
             <div id="app-root">
                 <div id="header" className="secondary-bg accent title-font">
-                    <img onDoubleClick={this.onDuckClick} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
+                    <img onClick={this.onDuckClick} onDoubleClick={this.showDuckAlert} className="tidy-logo" src='/img/tidy-logo.svg' /> Tidy Duck
                     {this.renderRoleToggle()}
                     {this.renderSubRoleToggle()}
                     <div id="account-area">
-                        {accountName}
+                        <div id="account-name">{accountName}</div>
                         <a id="logout" href="#" onClick={this.logout}>logout</a>
                         <i id="settings-icon" className="fa fa-cog fa-lg" onClick={this.handleSettingsClick}/>
                     </div>

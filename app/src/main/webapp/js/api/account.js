@@ -1,6 +1,6 @@
 
 function checkAccount(callback) {
-    jsonFetch(
+    tidyFetch(
         new Request(
             API_PREFIX + "account",
             {
@@ -17,7 +17,7 @@ function checkAccount(callback) {
 }
 
 function logout(callback) {
-    jsonFetch(
+    tidyFetch(
         new Request(
             API_PREFIX + "account/logout",
             {
@@ -34,7 +34,7 @@ function logout(callback) {
 }
 
 function getAccount(accountId, callbackFunction) {
-    jsonFetch(
+    tidyFetch(
         new Request(
             API_PREFIX + "accounts/" + accountId
         ),
@@ -55,7 +55,7 @@ function getAccount(accountId, callbackFunction) {
 }
 
 function getAccounts(callbackFunction) {
-    jsonFetch(
+    tidyFetch(
         new Request(
             API_PREFIX + "accounts"
         ),
@@ -72,7 +72,7 @@ function getAccounts(callbackFunction) {
 }
 
 function updateAccountRoles(accountId, roleNames, callbackFunction) {
-    jsonFetch(
+    tidyFetch(
         new Request(
             API_PREFIX + "accounts/" + accountId + "/roles",
             {
@@ -104,7 +104,7 @@ function getCompanies(callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         if (typeof callbackFunction == "function") {
             callbackFunction(data);
         }
@@ -122,7 +122,7 @@ function createNewCompany(company, callback) {
             })
         }
     );
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
             }
@@ -131,7 +131,7 @@ function createNewCompany(company, callback) {
 }
 
 function downloadAccount(callback) {
-    jsonFetch(
+    tidyFetch(
         new Request(
             API_PREFIX + "account",
             {
@@ -156,7 +156,7 @@ function updateSettings(settings, callback) {
             body:           JSON.stringify(settings)
         }
     )
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
             }
@@ -175,7 +175,7 @@ function updateAccountMetadata(account, callback) {
             })
         }
     );
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
             }
@@ -194,7 +194,7 @@ function createNewAccount(account, callback) {
             })
         }
     );
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
             }
@@ -214,7 +214,7 @@ function changePassword(accountId, oldPassword, newPassword, callback) {
             })
         }
     );
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
             }
@@ -230,7 +230,7 @@ function resetPassword(accountId, callback) {
             credentials: "include"
         }
     );
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
             if (typeof callback == "function") {
                 callback(data);
             }

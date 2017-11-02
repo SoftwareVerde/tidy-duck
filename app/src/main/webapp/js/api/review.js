@@ -16,7 +16,7 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
        let reviews = null;
 
        if (data.wasSuccess) {
@@ -44,7 +44,7 @@ function insertReview(review, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let reviewId = null;
         const wasSuccess = data.wasSuccess;
 
@@ -73,7 +73,7 @@ function updateReview(review, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (!wasSuccess) {
@@ -95,7 +95,7 @@ function approveReview(reviewId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
@@ -121,7 +121,7 @@ function insertReviewVote(reviewId, reviewVote, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let reviewVoteId = null;
         const wasSuccess = data.wasSuccess;
 
@@ -149,7 +149,7 @@ function updateReviewVote(reviewVoteId, reviewVote, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (! wasSuccess) {
             console.error("Unable to update vote for approval: " + data.errorMessage);
@@ -170,7 +170,7 @@ function deleteReviewVote(reviewVoteId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         if (! wasSuccess) {
             console.error("Unable to remove vote for approval: " + data.errorMessage);
@@ -194,18 +194,15 @@ function insertReviewComment(reviewId, reviewComment, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
-        const wasSuccess = data.wasSuccess;
-
+    tidyFetch(request, function(data) {
         let reviewCommentId = null;
-        if (wasSuccess) {
+
+        if (data.wasSuccess) {
             reviewCommentId = data.reviewCommentId;
-        } else {
-            console.error("Unable to comment on review: " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, reviewCommentId);
+            callbackFunction(data, reviewCommentId);
         }
     });
 }

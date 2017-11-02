@@ -333,7 +333,7 @@ class Toolbar extends React.Component {
     renderNavigationItems() {
         if (this.props.shouldShowBackButton) {
             const reactComponents = [];
-            reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-left fa-4x"/></div>);
+            reactComponents.push(<div key="back-button" className="toolbar-item" onClick={this.onBackButtonClicked}><i className="fa fa-arrow-circle-up fa-4x"/></div>);
 
             if (this.props.shouldShowNavigationItems) {
                 const navigationItems = this.props.navigationItems;

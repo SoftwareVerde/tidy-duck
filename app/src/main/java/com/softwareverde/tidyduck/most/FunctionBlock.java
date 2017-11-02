@@ -17,6 +17,8 @@ public class FunctionBlock {
     private Author _author;
     private Company _company;
     private String _access;
+    private boolean _isSink;
+    private boolean _isSource;
     private boolean _isApproved;
     private boolean _isReleased;
     private Long _baseVersionId;
@@ -102,6 +104,22 @@ public class FunctionBlock {
 
     public String getAccess() {
         return _access;
+    }
+
+    public boolean isSink() {
+        return _isSink;
+    }
+
+    public void setIsSink(final boolean sink) {
+        _isSink = sink;
+    }
+
+    public boolean isSource() {
+        return _isSource;
+    }
+
+    public void setIsSource(final boolean source) {
+        _isSource = source;
     }
 
     public boolean isApproved() {

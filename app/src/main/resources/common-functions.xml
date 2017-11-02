@@ -1,0 +1,671 @@
+
+    <Function>
+      <FunctionID Wellknown="true">0x000</FunctionID>
+      <FunctionName>FunctionIDs</FunctionName>
+      <FunctionDescription> This function is mandatory for every FBlock with one exception, the NetBlock. 
+			With the property FktIDs, the functions of an FBlock may be queried.
+			Returns RLE-coded bitfield of available functions &lt;FktID1&gt;{, &lt;FktID2&gt;}...  (FktIDs are 12-bit encoded)		
+			This function is mandatory for every FBlock with one exception, the NetBlock.
+			With the property FktIDs, the functions of an FBlock may be queried. </FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_container">
+        <FunctionClassDesc />
+        <Property Notification="false">
+          <PContainer>
+            <PCParam details="false">
+              <ParamName ParamIdx="#NULL#" />
+              <ParamDescription />
+              <PCParamOPType>
+                <PCCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>0</ParamPos>
+                  </PCmdGet>
+                </PCCommand>
+              </PCParamOPType>
+              <PCParamType>
+                <TVoid TypeRef="type_void" />
+              </PCParamType>
+            </PCParam>
+            <PCParam details="true">
+              <ParamName ParamIdx="#NULL#">RleCodedIds</ParamName>
+              <ParamDescription> RLE-coded bitfield of available functions. Remark: FktIDs are 12-bit encoded! </ParamDescription>
+              <PCParamOPType>
+                <PCReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PCReport>
+              </PCParamOPType>
+              <PCParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PCParamType>
+            </PCParam>
+            <PCParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <PCParamOPType>
+                <PCReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PCReport>
+              </PCParamOPType>
+              <PCParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PCParamType>
+            </PCParam>
+            <PCParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PCParamOPType>
+                <PCReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PCReport>
+              </PCParamOPType>
+              <PCParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x20" SymbolicName="FunctionSpecific" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                </TEnum>
+              </PCParamType>
+            </PCParam>
+          </PContainer>
+        </Property>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID Wellknown="true">0x001</FunctionID>
+      <FunctionName>Notification</FunctionName>
+      <FunctionDescription> The presence of this function is conditional; it is required for FBlocks
+		   that support the notification mechanism. This property administrates the
+		   Notification Matrix of an FBlock. </FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_property">
+        <FunctionClassDesc />
+        <Property Notification="false">
+          <PUnclassified>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">Control</ParamName>
+              <ParamDescription> The parameter Control determines where the entry has to be done or the deletion respectively.</ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdSet OPTypeRef="PCmdSet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdSet>
+                </PUCommand>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="3">
+                  <TEnumValue Code="0x0" SymbolicName="SetAll"> Entry of DeviceID in all properties that support notification. </TEnumValue>
+                  <TEnumValue Code="0x1" SymbolicName="SetFunction"> Entry of DeviceID for the specified functions in the Notification Matrix. </TEnumValue>
+                  <TEnumValue Code="0x2" SymbolicName="ClearAll"> Deletion of DeviceID at all functions of the Notification Matrix. </TEnumValue>
+                  <TEnumValue Code="0x3" SymbolicName="ClearFunction"> Deletion of DeviceID for the specified functions in the Notification Matrix. </TEnumValue>
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">DeviceId</ParamName>
+              <ParamDescription> Either RxTxLog of a device or a group address. </ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdSet OPTypeRef="PCmdSet">
+                    <ParamPos>2</ParamPos>
+                  </PCmdSet>
+                </PUCommand>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">DeviceIdList</ParamName>
+              <ParamDescription> List of devices. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>2</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1seq1">Element</ParamName>
+                      <ParamDescription />
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUWord TypeRef="type_unsigned_word" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>65535</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">FunctionId</ParamName>
+              <ParamDescription> Function ID. </ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdGet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">FunctionIdList</ParamName>
+              <ParamDescription> List of functions. </ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdSet OPTypeRef="PCmdSet">
+                    <ParamPos>3</ParamPos>
+                  </PCmdSet>
+                </PUCommand>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1seq1">Element</ParamName>
+                      <ParamDescription />
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUWord TypeRef="type_unsigned_word" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>65535</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription> should have one of defined as constant values </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x20" SymbolicName="FunctionSpecific" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+          </PUnclassified>
+        </Property>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID Wellknown="true">0x002</FunctionID>
+      <FunctionName>NotificationCheck</FunctionName>
+      <FunctionDescription> Under certain system conditions, it can be helpful if a device can check whether
+		   its entries are still existent in the Notification Matrix. In case of an error,
+		   a device is able to renew its entries. </FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_property">
+        <FunctionClassDesc />
+        <Property Notification="false">
+          <PUnclassified>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">DeviceId</ParamName>
+              <ParamDescription> Either RxTxLog of a device or a group address. </ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdGet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">FunctionIdList</ParamName>
+              <ParamDescription> List of functions. </ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>2</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1seq1">Element</ParamName>
+                      <ParamDescription />
+                      <ParamType>
+                        <TNumber>
+                          <BasisDataType>
+                            <TUWord TypeRef="type_unsigned_word" />
+                          </BasisDataType>
+                          <Exponent>0</Exponent>
+                          <RangeMin>0</RangeMin>
+                          <RangeMax>65535</RangeMax>
+                          <Step>1</Step>
+                          <Unit UnitRef="unit_none" />
+                        </TNumber>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription>Besides the error information provided in the MOST Specification, additional function specific error info
+			   values are specified here.</ParamDescription>
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="32">
+                  <TEnumValue Code="0x1" SymbolicName="BufferOverflow">Buffer Overflow List of functions(parameter FktIDList of Status Message) is too long to be transmitted correctly by the message service, caused by a configuration fault.</TEnumValue>
+                  <TEnumValue Code="0x8" SymbolicName="DeviceIDNotRegistered">DeviceID is not registered in the Notification Service This happens when the corresponding DeviceID is not registered in the Notification Service.</TEnumValue>
+                  <TEnumValue Code="0x20" SymbolicName="FBlockNotRegistered">FBlock not registered in the Notification Service This happens when the corresponding FBlock is not registered in the Notification Service.</TEnumValue>
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x20" SymbolicName="FunctionSpecific" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+          </PUnclassified>
+        </Property>
+      </FunctionClass>
+    </Function>
+    <Function>
+      <FunctionID>0x011</FunctionID>
+      <FunctionName>FBlockInfo</FunctionName>
+      <FunctionDescription> To distinguish between the functionality of similar FBlocks with the same FBlockID the property
+		   FBlockInfo has to be implemented by each FBlock. The function FBlockInfo provides information
+		   about the FBlock name, the name of the instance, the corresponding MOST Specification version,
+		   and the version of the FBlock itself. All this information is provided in text form. The name of
+		   the instance is a string, which is assigned by the system integrator to allow a further differentiation
+		   of the application, e.g., "DISP_L" for a left display or "DISP_R" for a right display). </FunctionDescription>
+      <FunctionVersion>
+        <Release>1.0</Release>
+        <Author>Joe Porembski</Author>
+        <Company>Honda R+D Americas, Inc.</Company>
+      </FunctionVersion>
+      <FunctionClass ClassRef="class_unclassified_property">
+        <FunctionClassDesc />
+        <Property Notification="false">
+          <PUnclassified>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ID</ParamName>
+              <ParamDescription> The ID parameter corresponds to one entry of the Description parameter. </ParamDescription>
+              <PUParamOPType>
+                <PUCommand>
+                  <PCmdGet OPTypeRef="PCmdGet">
+                    <ParamPos>1</ParamPos>
+                  </PCmdGet>
+                </PUCommand>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>1</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TNumber>
+                  <BasisDataType>
+                    <TUWord TypeRef="type_unsigned_word" />
+                  </BasisDataType>
+                  <Exponent>0</Exponent>
+                  <RangeMin>0</RangeMin>
+                  <RangeMax>65535</RangeMax>
+                  <Step>1</Step>
+                  <Unit UnitRef="unit_none" />
+                </TNumber>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">Description</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportStatus OPTypeRef="PReportStatus">
+                    <ParamPos>2</ParamPos>
+                  </PReportStatus>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0x0...0xFFF" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">FunctionMaturity</ParamName>
+                      <ParamDescription>FunctionMaturity defines the implementation progress of one specific function that is identified by parameter ID.</ParamDescription>
+                      <ParamType>
+                        <TEnum TypeRef="type_enum" TEnumMax="18">
+                          <TEnumValue Code="0x0" SymbolicName="Unknown" />
+                          <TEnumValue Code="0x1" SymbolicName="InterfaceOnly" />
+                          <TEnumValue Code="0x2" SymbolicName="PartlyImplemented" />
+                          <TEnumValue Code="0x3" SymbolicName="FullyImplemented" />
+                          <TEnumValue Code="0x11" SymbolicName="PartlyImplementedVerified" />
+                          <TEnumValue Code="0x12" SymbolicName="FullyImplementedVerified" />
+                        </TEnum>
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF000" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">FBlockName</ParamName>
+                      <ParamDescription>Name of the FBlock corresponding to the FBlockID as specified in the FBlock library, e.g. "AmFmTuner".</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="2">SupplierVersion</ParamName>
+                      <ParamDescription>String, of format "x.y.z", where x,y,z are one or two digit numbers, which describe the version of the FBlock from the system integrator function catalog.</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="3">FBlockVersion</ParamName>
+                      <ParamDescription>This string has the format "x.y.z", where x,y, and z are one or two digit numbers. The combination x.y.z describes the FBlock version that the FBlock is based upon. In proprietary FBlocks this field contains "0.0.0".</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="4">MOSTVersion</ParamName>
+                      <ParamDescription>This string has the format "x.y.z", where x,y, and z are one or two digit numbers. The combination x.y.z describes the MOST Specification version that the FBlock is based upon. (This indicates, which version of the GeneralFBlock matches the implemented FBlock.)</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="5">SystemIntegrator</ParamName>
+                      <ParamDescription>String, which identifies the system integrator responsible for the system (e.g., "Audi", "BMW", "Daimler", or "Volvo"). A value "MOSTCo" specifies a generic FBlock implemented according to the MOST FBlock library.</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                    <StreamParam>
+                      <ParamName ParamIdx="6">FBlockType</ParamName>
+                      <ParamDescription>This string, which is assigned by the system integrator, allows a further differentiation of FBlock instances, e.g., "DISP_L" for a left display or "DISP_R" for a right display.</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF001" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">FBlockName</ParamName>
+                      <ParamDescription>Name of the FBlock corresponding to the FBlockID as specified in the FBlock library, e.g. "AmFmTuner".</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF002" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">SupplierVersion</ParamName>
+                      <ParamDescription>String, of format "x.y.z", where x,y,z are one or two digit numbers, which describe the version of the FBlock from the system integrator function catalog.</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF003" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">FBlockVersion</ParamName>
+                      <ParamDescription>This string has the format "x.y.z", where x,y, and z are one or two digit numbers. The combination x.y.z describes the FBlock version that the FBlock is based upon. In proprietary FBlocks this field contains "0.0.0".</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF004" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">MOSTVersion</ParamName>
+                      <ParamDescription>This string has the format "x.y.z", where x,y, and z are one or two digit numbers. The combination x.y.z describes the MOST Specification version that the FBlock is based upon. (This indicates, which version of the GeneralFBlock matches the implemented FBlock.)</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF005" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">SystemIntegrator</ParamName>
+                      <ParamDescription>String, which identifies the system integrator responsible for the system (e.g., "Audi", "BMW", "Daimler", or "Volvo"). A value "MOSTCo" specifies a generic FBlock implemented according to the MOST FBlock library.</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                  <StreamCase>
+                    <PosDescription PosX="ID" PosY="0xF006" />
+                    <StreamParam>
+                      <ParamName ParamIdx="1">FBlockType</ParamName>
+                      <ParamDescription>This string, which is assigned by the system integrator, allows a further differentiation of FBlock instances, e.g., "DISP_L" for a left display or "DISP_R" for a right display.</ParamDescription>
+                      <ParamType>
+                        <TString TypeRef="type_string" MaxSize="255" />
+                      </ParamType>
+                    </StreamParam>
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorInfo</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>2</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TStream TypeRef="type_stream">
+                  <StreamCase>
+                    <PosDescription PosX="#NULL#" PosY="#NULL#" />
+                  </StreamCase>
+                </TStream>
+              </PUParamType>
+            </PUParam>
+            <PUParam details="true">
+              <ParamName ParamIdx="#NULL#">ErrorCode</ParamName>
+              <ParamDescription />
+              <PUParamOPType>
+                <PUReport>
+                  <PReportError OPTypeRef="PReportError">
+                    <ParamPos>1</ParamPos>
+                  </PReportError>
+                </PUReport>
+              </PUParamOPType>
+              <PUParamType>
+                <TEnum TypeRef="type_enum" TEnumMax="67">
+                  <TEnumValue Code="0x1" SymbolicName="FBlockIdNotAvailable" />
+                  <TEnumValue Code="0x2" SymbolicName="InstanceIdNotAvailable" />
+                  <TEnumValue Code="0x3" SymbolicName="FunctionIdNotAvailable" />
+                  <TEnumValue Code="0x4" SymbolicName="OpTypeNotAvailable" />
+                  <TEnumValue Code="0x5" SymbolicName="InvalidLength" />
+                  <TEnumValue Code="0x6" SymbolicName="WrongParameter" />
+                  <TEnumValue Code="0x7" SymbolicName="ParameterNotAvailable" />
+                  <TEnumValue Code="0xB" SymbolicName="DeviceMalfunction" />
+                  <TEnumValue Code="0xC" SymbolicName="SegmentationError" />
+                  <TEnumValue Code="0x40" SymbolicName="Busy" />
+                  <TEnumValue Code="0x41" SymbolicName="FunctionTemporaryNotAvailable" />
+                  <TEnumValue Code="0x42" SymbolicName="ProcessingError" />
+                  <TEnumValue Code="0x43" SymbolicName="MethodAborted" />
+                  <TEnumValue Code="0xC0" SymbolicName="FunctionSignatureInvalid" />
+                  <TEnumValue Code="0xC1" SymbolicName="FunctionNotImplemented" />
+                  <TEnumValue Code="0xC2" SymbolicName="InsufficientAccess" />
+                </TEnum>
+              </PUParamType>
+            </PUParam>
+          </PUnclassified>
+        </Property>
+      </FunctionClass>
+    </Function>
+    

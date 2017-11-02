@@ -11,6 +11,7 @@ class SettingsPage extends React.Component {
         this.state = {
             currentTheme:       this.props.theme,
             currentDefaultMode: this.props.defaultMode,
+            showCheckmark:      false,
             newPassword:        "",
             newPasswordRetype:  "",
             oldPassword:        "",
@@ -35,8 +36,6 @@ class SettingsPage extends React.Component {
     handleKeyPress(e) {
         if (e.keyCode == 27) {
             if (typeof this.props.handleSettingsClick == "function") {
-                // Bypass setting this page's state when saving settings.
-                this.onSettingsSave(true);
                 this.props.handleSettingsClick();
             }
         }
@@ -60,22 +59,22 @@ class SettingsPage extends React.Component {
     onThemeChange(value) {
         if (typeof this.props.onThemeChange == "function") {
             this.props.onThemeChange(value);
+            this.onSettingsSave(value, this.state.currentDefaultMode);
         }
 
         this.setState({
             currentTheme:       value,
-            settingsSaveButtonState:    this.SaveButtonState.save
         });
     }
 
     onDefaultModeChanged(value) {
         if (typeof this.props.onDefaultModeChanged == "function") {
+            this.onSettingsSave(this.state.currentTheme, value);
             this.props.onDefaultModeChanged(value);
         }
 
         this.setState({
             currentDefaultMode:         value,
-            settingsSaveButtonState:    this.SaveButtonState.save
         });
     }
 
@@ -160,29 +159,26 @@ class SettingsPage extends React.Component {
         });
     }
 
-    onSettingsSave(bypassSetState) {
+    onSettingsSave(theme, defaultMode) {
         const settings = {
-            theme:          this.state.currentTheme,
-            defaultMode:    this.state.currentDefaultMode
+            theme:          theme,
+            defaultMode:    defaultMode
         };
 
+        const thisPage = this;
+
         this.setState({
-            settingsSaveButtonState: this.SaveButtonState.saving
+            showCheckmark: false
         });
-        const thisButton = this;
+
         updateSettings(settings, function(data) {
             if (data.wasSuccess) {
-                if (! bypassSetState) {
-                    thisButton.setState({
-                        settingsSaveButtonState: thisButton.SaveButtonState.saved
-                    });
-                }
+                thisPage.setState({
+                    showCheckmark: true
+                });
             }
             else {
                 app.App.alert("Update Settings", data.errorMessage);
-                thisButton.setState({
-                    settingsSaveButtonState: thisButton.SaveButtonState.save
-                });
             }
         });
     }
@@ -247,12 +243,17 @@ class SettingsPage extends React.Component {
             passwordSaveButton = <div type="submit" id="save-settings-button" className="button">{this.renderPasswordSaveButtonText()}</div>;
         }
 
+        const showCheckmark = (this.state.showCheckmark ? "visible" : "hidden");
+
         reactComponents.push(
             <div key="Theme Container" id="settings-container">
                 <h1>User Settings</h1>
                 <app.InputField type="select" label="Theme" name="theme" value={this.state.currentTheme} options={themeOptions} onChange={this.onThemeChange}/>
                 <app.InputField type="select" label="Default Tab" name="defaultMode" value={this.state.currentDefaultMode} options={modeOptions} onChange={this.onDefaultModeChanged}/>
-                <div id="save-settings-button" className="button" onClick={() => this.onSettingsSave(false)}>{this.renderSettingsSaveButtonText()}</div>
+                <div className="settings-success-container" style={{visibility: showCheckmark}}>
+                    <h2>CHANGES SAVED</h2>
+                    <i className="fa fa-check-circle"/>
+                </div>
             </div>
         );
 

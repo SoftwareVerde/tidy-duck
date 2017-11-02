@@ -165,7 +165,7 @@
 }
 
 .submit-comment-form .input-field textarea {
-    height: 5em;
+    min-height: 5em;
 }
 
 .vote-area .button {

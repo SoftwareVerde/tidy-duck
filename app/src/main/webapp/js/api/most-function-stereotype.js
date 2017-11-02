@@ -8,7 +8,7 @@ function getMostFunctionStereotypes(callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
        let mostFunctionStereotypes = null;
 
        if (data.wasSuccess) {

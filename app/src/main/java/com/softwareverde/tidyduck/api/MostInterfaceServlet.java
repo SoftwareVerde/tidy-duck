@@ -154,7 +154,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
-                return _checkForDuplicateMostInterface(request, currentAccount, environment.getDatabase());
+                return _checkForDuplicateMostInterface(request, environment.getDatabase());
             }
         });
     }
@@ -248,14 +248,22 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _checkForDuplicateMostInterface(final HttpServletRequest httpRequest, final Account currentAccount, final Database<Connection> database) {
+    private Json _checkForDuplicateMostInterface(final HttpServletRequest httpRequest, final Database<Connection> database) {
         try {
             final Json request = _getRequestDataAsJson(httpRequest);
+            final String mostInterfaceMostId = request.getString("mostInterfaceMostId");
             final String mostInterfaceName = request.getString("mostInterfaceName");
-            final Long mostInterfaceVersionSeries = request.getLong("mostInterfaceVersionSeries");
+            final Long mostInterfaceVersionSeriesId = request.getLong("mostInterfaceVersionSeriesId");
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            final MostInterface matchedMostInterface = databaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+            final MostInterface matchedMostInterface;
+
+            if (! Util.isBlank(mostInterfaceMostId)) {
+                matchedMostInterface = databaseManager.checkForDuplicateMostInterfaceMostId(mostInterfaceMostId, mostInterfaceVersionSeriesId);
+            }
+            else {
+                matchedMostInterface = databaseManager.checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVersionSeriesId);
+            }
 
             final Json response = new Json(false);
 

@@ -8,7 +8,7 @@ function getMostTypes(callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let mostTypes = null;
 
         if (data.wasSuccess) {
@@ -34,7 +34,7 @@ function insertMostType(mostType, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         if (!data.wasSuccess) {
             console.error("Unable to create MOST type: " + data.errorMessage);
         }
@@ -58,7 +58,7 @@ function updateMostType(mostTypeId, mostType, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
        const wasSuccess = data.wasSuccess;
        if (! wasSuccess) {
            console.error("Unable to modify Most Type " + mostTypeId + ": " + data.errorMessage);
@@ -81,7 +81,7 @@ function getPrimitiveTypes(callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let primitiveTypes = null;
 
         if (data.wasSuccess) {
@@ -106,7 +106,7 @@ function getUnits(callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let units = null;
 
         if (data.wasSuccess) {

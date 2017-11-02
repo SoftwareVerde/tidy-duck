@@ -228,10 +228,17 @@ public class DatabaseManager {
         });
     }
 
-    public FunctionBlock checkForDuplicateFunctionBlock(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
+    public FunctionBlock checkForDuplicateFunctionBlockName(final String functionBlockName, final Long functionBlockVersionSeries) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-            return functionBlockDatabaseManager.checkForDuplicateFunctionBlock(functionBlockName, functionBlockVersionSeries);
+            return functionBlockDatabaseManager.checkForDuplicateFunctionBlockName(functionBlockName, functionBlockVersionSeries);
+        }
+    }
+
+    public FunctionBlock checkForDuplicateFunctionBlockMostId(final String functionBlockMostId, final Long functionBlockVersionSeriesId) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+            return functionBlockDatabaseManager.checkForDuplicateFunctionBlockMostId(functionBlockMostId, functionBlockVersionSeriesId);
         }
     }
 
@@ -311,10 +318,17 @@ public class DatabaseManager {
         });
     }
 
-    public MostInterface checkForDuplicateMostInterface(final String mostInterfaceName, final Long mostInterfaceVersionSeries) throws DatabaseException {
+    public MostInterface checkForDuplicateMostInterfaceName(final String mostInterfaceName, final Long mostInterfaceVersionSeriesId) throws DatabaseException {
         try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-            return mostInterfaceDatabaseManager.checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceVersionSeries);
+            return mostInterfaceDatabaseManager.checkForDuplicateMostInterfaceName(mostInterfaceName, mostInterfaceVersionSeriesId);
+        }
+    }
+
+    public MostInterface checkForDuplicateMostInterfaceMostId(final String mostInterfaceMostId, final Long mostInterfaceVersionSeriesId) throws DatabaseException {
+        try (final DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            return mostInterfaceDatabaseManager.checkForDuplicateMostInterfaceMostId(mostInterfaceMostId, mostInterfaceVersionSeriesId);
         }
     }
 

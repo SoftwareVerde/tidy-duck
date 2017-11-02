@@ -48,6 +48,41 @@ body * {
     top: 3px;
     position: relative;
     vertical-align: top;
+    cursor: pointer;
+}
+
+#account-name {
+    display: inline-block;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+    float: left;
+}
+
+/* make account name disappear when screen is too small */
+@media (max-width: 1060px) {
+    #account-name {
+        display: none;
+    }
+}
+
+/* make name box bigger when screen gets bigger */
+@media (min-width: 1160px) {
+    #account-name {
+        width: 250px;
+    }
+}
+@media (min-width: 1260px) {
+    #account-name {
+        width: 350px;
+    }
+}
+@media (min-width: 1360px) {
+    #account-name {
+        width: 450px;
+    }
 }
 
 #main-content {

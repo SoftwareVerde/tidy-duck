@@ -9,7 +9,6 @@ class FunctionCatalog extends React.Component {
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
-        this.renderMenu = this.renderMenu.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
         this.onExportFunctionCatalogClicked = this.onExportFunctionCatalogClicked.bind(this);
@@ -83,23 +82,6 @@ class FunctionCatalog extends React.Component {
         }
     }
 
-    renderMenu() {
-        if (! this.state.showMenu) { return; }
-
-        return (
-            <div className="child-item-menu">
-                <div className="child-item-menu-item" onClick={this.deleteFunctionCatalog}>
-                    Remove
-                    <i className="fa fa-remove" />
-                </div>
-                <div className="child-item-menu-item" onClick={this.onExportFunctionCatalogClicked}>
-                    Download MOST XML
-                    <i className="fa fa-download" />
-                </div>
-            </div>
-        );
-    }
-
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.functionCatalog, false);
@@ -125,24 +107,32 @@ class FunctionCatalog extends React.Component {
         const author = this.props.functionCatalog.getAuthor();
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
-        const shortName = shortenString(name, 35, false);
-        const childItemStyle = this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item";
+        const childItemStyle = (this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object";
 
-        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        const releasedIcon = this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book" title="This Function Catalog is Released" /> : "";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
+        const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
+        const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
-                    <span title={name}>{shortName}</span>
+                    <span className="child-item-title-name" title={name}>{name}</span>
+                </div>
+                <div className="action-bar">
                     {workingIcon}
-                    <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
+                    {approvedIcon}
                     {releasedIcon}
-                    {this.renderMenu()}
+                    <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
+                    <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Downlad MOST XML" />
                 </div>
                 <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
-                <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
-                <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
+                <div className="description-wrapper">
+                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                        {(author ? author.getName() : "")}
+                        {((author && company) ? "-" : "")}
+                        {(company ? company.getName() : "")}
+                    </div>
+                </div>
             </div>
         );
     }

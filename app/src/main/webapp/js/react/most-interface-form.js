@@ -6,13 +6,14 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = isNewMostInterface ? new MostInterface() : copyMostObject(MostInterface, this.props.mostInterface);
 
         this.state = {
-            showTitle:                  this.props.showTitle,
-            shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
-            mostInterface:              mostInterface,
-            buttonTitle:                (this.props.buttonTitle || "Submit"),
-            defaultButtonTitle:         this.props.defaultButtonTitle,
-            readOnly:                   (this.props.readOnly || mostInterface.isApproved() || mostInterface.isReleased()),
-            isDuplicateMostInterface:   false
+            showTitle:                          this.props.showTitle,
+            shouldShowSaveAnimation:            this.props.shouldShowSaveAnimation,
+            mostInterface:                      mostInterface,
+            buttonTitle:                        (this.props.buttonTitle || "Submit"),
+            defaultButtonTitle:                 this.props.defaultButtonTitle,
+            readOnly:                           (this.props.readOnly || mostInterface.isApproved() || mostInterface.isReleased()),
+            isDuplicateMostInterfaceName:       false,
+            isDuplicateMostInterfaceMostId:     false,
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
@@ -27,8 +28,8 @@ class MostInterfaceForm extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const isNewMostInterface = (! this.props.mostInterface);
-        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : newProperties.mostInterface));
+        const isNewMostInterface = (! this.props.mostInterface && ! this.state.mostInterface);
+        const mostInterface = MostInterface.fromJson(MostInterface.toJson(isNewMostInterface ? new MostInterface() : this.state.mostInterface || newProperties.mostInterface));
 
         mostInterface.setId((newProperties.mostInterface || mostInterface).getId());
         this.setState({
@@ -45,6 +46,16 @@ class MostInterfaceForm extends React.Component {
         const mostInterface = this.state.mostInterface;
         mostInterface.setMostId(newValue);
 
+        const thisForm = this;
+
+        checkForDuplicateMostInterface(null, newValue, mostInterface.getBaseVersionId(), function (data) {
+            if (data.wasSuccess) {
+                thisForm.setState({
+                    isDuplicateMostInterfaceMostId: data.matchFound
+                });
+            }
+        });
+
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
 
@@ -58,10 +69,10 @@ class MostInterfaceForm extends React.Component {
         mostInterface.setName(newValue);
 
         const thisForm = this;
-        checkForDuplicateMostInterface(newValue, mostInterface.getBaseVersionId(), function (data) {
+        checkForDuplicateMostInterface(newValue, null, mostInterface.getBaseVersionId(), function (data) {
             if (data.wasSuccess) {
                 thisForm.setState({
-                    isDuplicateMostInterface: data.matchFound
+                    isDuplicateMostInterfaceName: data.matchFound
                 });
             }
         });
@@ -114,8 +125,19 @@ class MostInterfaceForm extends React.Component {
             }
         };
 
-        if (this.state.isDuplicateMostInterface) {
-            app.App.confirm("Submit Interface", "There is another most interface with this name.  Are you sure you want to save this?", submitFunction);
+        if (this.state.isDuplicateMostInterfaceName || this.state.isDuplicateMostInterfaceMostId) {
+            let confirmString = "There is another most interface with ";
+            let andString = "";
+
+            if (this.state.isDuplicateMostInterfaceName) {
+                confirmString = confirmString.concat("this name");
+                andString = " and ";
+            }
+            if (this.state.isDuplicateMostInterfaceMostId) {
+                confirmString = confirmString.concat(andString + "this MOST ID");
+            }
+
+            app.App.confirm("Submit Interface", confirmString + ". Are you sure you want to save this?", submitFunction);
             return;
         }
 
@@ -141,13 +163,19 @@ class MostInterfaceForm extends React.Component {
         const version = mostInterface.isApproved() ? mostInterface.getDisplayVersion() : mostInterface.getReleaseVersion();
         const readOnly = this.state.readOnly;
 
-        let duplicateNameElement = '';
-        if (this.state.isDuplicateMostInterface) {
+        let duplicateIdElement = '';
+        if (this.state.isDuplicateMostInterfaceMostId) {
             const iconStyle = { color: 'red' };
-            duplicateNameElement = <i className="fa fa-files-o" title="Duplicate most interface name." style={iconStyle}></i>;
+            duplicateIdElement = <i className="fa fa-files-o" title="Duplicate interface MOST ID." style={iconStyle}></i>;
         }
 
-        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
+        let duplicateNameElement = '';
+        if (this.state.isDuplicateMostInterfaceName) {
+            const iconStyle = { color: 'red' };
+            duplicateNameElement = <i className="fa fa-files-o" title="Duplicate interface name." style={iconStyle}></i>;
+        }
+
+        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" pattern="I[A-Za-z0-9]+" title="Only alpha-numeric characters, start with 'I'." label="Name" icons={duplicateNameElement} value={mostInterface.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={mostInterface.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
         reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" pattern="[1-9][0-9]*" title="Positive number" label="Version" value={version} readOnly={readOnly} onChange={this.onVersionChanged} isRequired={true} />);

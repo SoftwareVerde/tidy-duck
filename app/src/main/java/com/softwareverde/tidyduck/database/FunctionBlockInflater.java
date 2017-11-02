@@ -135,6 +135,8 @@ public class FunctionBlockInflater {
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
         final String access = row.getString("access");
+        final boolean isSource = row.getBoolean("is_source");
+        final boolean isSink = row.getBoolean("is_sink");
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
@@ -156,6 +158,8 @@ public class FunctionBlockInflater {
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setAccess(access);
+        functionBlock.setIsSource(isSource);
+        functionBlock.setIsSink(isSink);
         functionBlock.setIsApproved(isApproved);
         functionBlock.setIsReleased(isReleased);
         functionBlock.setBaseVersionId(baseVersionId);

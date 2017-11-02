@@ -82,6 +82,8 @@ class TypesPage extends React.Component {
         this.getRecordTypes = this.getRecordTypes.bind(this);
         this.getUnits = this.getUnits.bind(this);
 
+        this.addStreamCaseFields = this.addStreamCaseFields.bind(this);
+
         this.handleOptionClick = this.handleOptionClick.bind(this);
         this.renderFormElements = this.renderFormElements.bind(this);
         this.renderBaseTypeSpecificInputs = this.renderBaseTypeSpecificInputs.bind(this);
@@ -168,7 +170,7 @@ class TypesPage extends React.Component {
     }
 
     getTypeLabel(type) {
-        const releasedText = type.isReleased() ? ' \uD83D\uDCD5' : '';
+        const releasedText = type.isReleased() ? ' (Released)' : '';
         const label = type.getName() + releasedText;
         return label;
     }
@@ -314,6 +316,7 @@ class TypesPage extends React.Component {
 
         // Check if creating a new type or editing and existing one
         if (this.state.selectedOption === this.options[0]) {
+            // new type: add
             insertMostType(mostTypeJson, function (data) {
                 let currentMostType = mostType;
                 let saveButtonText = 'Save';
@@ -337,6 +340,7 @@ class TypesPage extends React.Component {
             });
         }
         else if (this.state.selectedOption === this.options[1]) {
+            // existing type: update
             const mostTypeId = this.state.mostType.getId();
             updateMostType(mostTypeId, mostTypeJson, function (data) {
                 let saveButtonText = 'Save';
@@ -350,7 +354,7 @@ class TypesPage extends React.Component {
                 else {
                     const validationErrors = data.validationErrors;
                     if (validationErrors) {
-                        const errorListItems =  data.validationErrors.map((errorMessage, index) => <li key={index}>{errorMessage}</li>);
+                        const errorListItems =  validationErrors.map((errorMessage, index) => <li key={index}>{errorMessage}</li>);
                         app.App.alert(
                             "Unable to Update Most Type",
                              <div>
@@ -368,7 +372,7 @@ class TypesPage extends React.Component {
 
                 }
                 // need to update selectedType in case name changed
-                const typeName = thisPage.state.mostType.getName();
+                const typeName = mostType.getName();
 
                 thisPage.setState({
                     saveButtonText: saveButtonText,
@@ -1005,6 +1009,131 @@ class TypesPage extends React.Component {
         });
     }
 
+    addStreamCaseFields(reactComponents, mostType) {
+        const thisPage = this;
+        let i = 1;
+        mostType.getStreamCases().forEach(function (streamCase) {
+            const key = "streamCase" + i;
+
+            // Populate stream parameters (repeats)
+            const streamParameters = [];
+            const streamParamTypes = thisPage.getStreamParamTypes();
+            const parameterAddButtonKey = "addStreamParameter" + i;
+            let j = 1;
+            streamCase.getStreamParameters().forEach(function (streamParameter) {
+                const parameterKey = ("streamParameter" + i) + '-' + j;
+                if (streamParameter.getParameterType() == null) {
+                    streamParameter.setParameterType(thisPage.getMostTypeByName(streamParamTypes[0]));
+                }
+                const parameterType = streamParameter.getParameterType();
+                const parameterTypeName = parameterType ? parameterType.getName() : null;
+
+                streamParameters.push(
+                    <div key={parameterKey} className="parameter">
+                        <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
+                        <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
+                                        value={streamParameter.getParameterName()}
+                                        onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)} isRequired={true}/>
+                        <app.InputField name="description" type="textarea" label="Description"
+                                        isSmallInputField={true}
+                                        value={streamParameter.getParameterDescription()}
+                                        onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
+                        <app.InputField name="type" type="dropdown" label="Type" isSmallInputField={true}
+                                        defaultValue={parameterTypeName} options={streamParamTypes}
+                                        onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} isRequired={true}/>
+                        <i className="remove-button fa fa-remove fa-3x"
+                           onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
+                    </div>
+                );
+                j++;
+            });
+
+            // Populate stream signals (repeats)
+            const streamSignals = [];
+            const signalAddKey = "addStreamSignal" + i;
+            j = 1;
+            streamCase.getStreamSignals().forEach(function (streamSignal) {
+                const signalKey = ("streamSignal" + i) + '-' + j;
+                streamSignals.push(
+                    <div key={signalKey} className="parameter">
+                        <div>Stream Signal {streamSignal.getSignalIndex()}</div>
+                        <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
+                                        value={streamSignal.getSignalName()}
+                                        onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)} isRequired={true}/>
+                        <app.InputField name="description" type="textarea" label="Description"
+                                        isSmallInputField={true} value={streamSignal.getSignalDescription()}
+                                        onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
+                        <app.InputField name="bit-length" type="text" label="Bit Length"
+                                        isSmallInputField={true} value={streamSignal.getSignalBitLength()}
+                                        onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)} isRequired={true}/>
+                        <i className="remove-button fa fa-remove fa-3x"
+                           onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)}/>
+                    </div>
+                );
+                j++;
+            });
+
+            const childComponents = [];
+            childComponents.push(
+                <div key="streamCaseRemoveButton" className="repeating-field-header clearfix">Stream Case {streamCase.getCaseIndex()}
+                    <i className="remove-button fa fa-remove fa-2x"
+                       onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
+                </div>
+            );
+            const streamPositionY = streamCase.getStreamPositionY() || '';
+            childComponents.push(
+                <div key="streamCasePositionDescription" className="clearfix">
+                    <app.InputField type="text" label="Position X" name="position-x" key="position-x"
+                                    value={streamCase.getStreamPositionX()}
+                                    onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}
+                                    isRequired={streamPositionY.length != 0}/>
+                    <app.InputField type="text" label="Position Y" name="position-y" key="position-y"
+                                    value={streamCase.getStreamPositionY()}
+                                    onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}
+                                    isRequired={false}/>
+                </div>
+            );
+            const hasStreamSignals = streamSignals.length;
+            const hasStreamParameters = streamParameters.length;
+            // only display parameters if there are no signals
+            if (!hasStreamSignals) {
+                childComponents.push(
+                    <div key="parameter-display-area" className="parameter-display-area clearfix">
+                        <div className="metadata-form-title">Stream Parameters</div>
+                        {streamParameters}
+                        <i key={parameterAddButtonKey} className="assign-button fa fa-plus-square fa-3x"
+                           onClick={() => thisPage.onStreamCaseParameterAddButtonClicked(streamCase)}/>
+                    </div>
+                );
+            }
+            // only display signals if there are no parameters
+            if (!hasStreamParameters) {
+                childComponents.push(
+                    <div key="signal-display-area" className="parameter-display-area clearfix">
+                        <div className="metadata-form-title">Stream Signals</div>
+                        {streamSignals}
+                        <i key={signalAddKey} className="assign-button fa fa-plus-square fa-3x"
+                           onClick={() => thisPage.onStreamCaseSignalAddButtonClicked(streamCase)}/>
+                    </div>
+                );
+            }
+            reactComponents.push(
+                <div key={key} className="repeating-field clearfix">
+                    {childComponents}
+                </div>
+            );
+            i++;
+        });
+
+        reactComponents.push(
+            <div key="plus-button" className="center">
+                <div key="plus-button" className="button" onClick={this.onStreamCaseAddButtonClicked}>
+                    <i className="fa fa-plus"></i>
+                </div>
+            </div>
+        );
+    }
+
     renderFormElements() {
         if (this.props.isLoadingTypesPage) {
             // types props must not have been populated yet, show loading icon
@@ -1026,8 +1155,8 @@ class TypesPage extends React.Component {
             if (!selectedType) {
                 selectedType = mostTypes[0];
             }
-            const typeSelectorInfo = "Types with \uD83D\uDCD5 icon have been included in a release.  Edits will be restricted.";
-            const infoIcon = <i key="type-selector-info" className="fa fa-info-circle" title={typeSelectorInfo}></i>;
+            const typeSelectorInfo = "Types marked with (Released) have been included in a released Function Catalog.  Edits will be restricted.";
+            const infoIcon = <i key="type-selector-info" id="type-selector-info" className="fa fa-info-circle" onClick={() => app.App.alert("Type Selection", typeSelectorInfo)}></i>;
             typeSelector = <app.InputField key="type-selector" type="select" label={["Type to Edit ", infoIcon]} name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
@@ -1072,8 +1201,9 @@ class TypesPage extends React.Component {
     }
 
     renderBaseTypeSpecificInputs() {
-        const reactComponents = [];
+        const thisPage = this;
         const mostType = this.state.mostType;
+        const reactComponents = [];
 
         if (!mostType.getPrimitiveType()) {
             return;
@@ -1084,7 +1214,6 @@ class TypesPage extends React.Component {
                 reactComponents.push(<div key="bitfield-length" className="clearfix"><app.InputField key="bitfield1" type="text" label="Length" name="bitfield-length" value={mostType.getBitFieldLength()} onChange={this.onBitFieldLengthChanged} isRequired={false}/></div>);
             } // fall through
             case 'TBool': {
-                const thisPage = this;
                 let i = 1;
                 mostType.getBooleanFields().forEach(function (booleanField) {
                     const key = "boolfield" + i;
@@ -1119,7 +1248,6 @@ class TypesPage extends React.Component {
             case 'TEnum': {
                 reactComponents.push(<div key="enum-max" className="clearfix"><app.InputField key="enum-max" type="number" step="1" label="Enum Max" name="enum-max" value={mostType.getEnumMax()} onChange={this.onEnumMaxChanged} isRequired={false}/></div>);
 
-                const thisPage = this;
                 let i = 1;
                 mostType.getEnumValues().forEach(function (enumValue) {
                     const key = "enum" + i;
@@ -1191,136 +1319,15 @@ class TypesPage extends React.Component {
             }
                 break;
             case 'TStream': {
-                const thisPage = this;
-                const streamParamTypes = this.getStreamParamTypes();
-
+                const streamLength = mostType.getStreamLength();
                 reactComponents.push(
                     <div key="TStream" className="clearfix">
                         <app.InputField key="streamLength" type="text" label="Stream Length" name="stream-length"
-                                        value={mostType.getStreamLength()} onChange={this.onStreamLengthChanged} isRequired={false}/>
+                                        value={streamLength} onChange={this.onStreamLengthChanged} isRequired={false}/>
                     </div>
                 );
 
-                let i = 1;
-                mostType.getStreamCases().forEach(function (streamCase) {
-                    const key = "streamCase" + i;
-
-                    // Populate stream parameters (repeats)
-                    const streamParameters = [];
-                    const parameterAddButtonKey = "addStreamParameter" + i;
-                    let j = 1;
-                    streamCase.getStreamParameters().forEach(function (streamParameter) {
-                        const parameterKey = ("streamParameter" + i) + j;
-                        if (streamParameter.getParameterType() == null) {
-                            streamParameter.setParameterType(thisPage.getMostTypeByName(streamParamTypes[0]));
-                        }
-                        const parameterType = streamParameter.getParameterType();
-                        const parameterTypeName = parameterType ? parameterType.getName() : null;
-
-                        streamParameters.push(
-                            <div key={parameterKey} className="parameter">
-                                <div>Stream Parameter {streamParameter.getParameterIndex()}</div>
-                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
-                                                value={streamParameter.getParameterName()}
-                                                onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)} isRequired={true}/>
-                                <app.InputField name="description" type="textarea" label="Description"
-                                                isSmallInputField={true}
-                                                value={streamParameter.getParameterDescription()}
-                                                onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
-                                <app.InputField name="type" type="dropdown" label="Type" isSmallInputField={true}
-                                                defaultValue={parameterTypeName} options={streamParamTypes}
-                                                onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} isRequired={true}/>
-                                <i className="remove-button fa fa-remove fa-3x"
-                                   onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
-                            </div>
-                        );
-                        j++;
-                    });
-
-                    // Populate stream signals (repeats)
-                    const streamSignals = [];
-                    const signalAddKey = "addStreamSignal" + i;
-                    j = 1;
-                    streamCase.getStreamSignals().forEach(function (streamSignal) {
-                        const signalKey = ("streamSignal" + i) + '-' + j;
-                        streamSignals.push(
-                            <div key={signalKey} className="parameter">
-                                <div>Stream Signal {streamSignal.getSignalIndex()}</div>
-                                <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
-                                                value={streamSignal.getSignalName()}
-                                                onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)} isRequired={true}/>
-                                <app.InputField name="description" type="textarea" label="Description"
-                                                isSmallInputField={true} value={streamSignal.getSignalDescription()}
-                                                onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
-                                <app.InputField name="bit-length" type="text" label="Bit Length"
-                                                isSmallInputField={true} value={streamSignal.getSignalBitLength()}
-                                                onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)} isRequired={true}/>
-                                <i className="remove-button fa fa-remove fa-3x"
-                                   onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)}/>
-                            </div>
-                        );
-                        j++;
-                    });
-
-                    const childComponents = [];
-                    childComponents.push(
-                        <div key="streamCaseRemoveButton" className="repeating-field-header clearfix">Stream Case {streamCase.getCaseIndex()}
-                            <i className="remove-button fa fa-remove fa-2x"
-                               onClick={() => thisPage.onStreamCaseRemoveButtonClicked(streamCase)}/>
-                        </div>
-                    );
-                    const streamPositionY = streamCase.getStreamPositionY() || '';
-                    childComponents.push(
-                        <div key="streamCasePositionDescription" className="clearfix">
-                            <app.InputField type="text" label="Position X" name="position-x" key="position-x"
-                                            value={streamCase.getStreamPositionX()}
-                                            onChange={(positionX) => thisPage.onStreamCasePositionXChanged(streamCase, positionX)}
-                                            isRequired={streamPositionY.length != 0}/>
-                            <app.InputField type="text" label="Position Y" name="position-y" key="position-y"
-                                            value={streamCase.getStreamPositionY()}
-                                            onChange={(positionY) => thisPage.onStreamCasePositionYChanged(streamCase, positionY)}
-                                            isRequired={false}/>
-                        </div>
-                    );
-                    const hasStreamSignals = streamSignals.length;
-                    const hasStreamParameters = streamParameters.length;
-                    // only display parameters if there are no signals
-                    if (!hasStreamSignals) {
-                        childComponents.push(
-                            <div key="parameter-display-area" className="parameter-display-area clearfix">
-                                <div className="metadata-form-title">Stream Parameters</div>
-                                {streamParameters}
-                                <i key={parameterAddButtonKey} className="assign-button fa fa-plus-square fa-3x"
-                                   onClick={() => thisPage.onStreamCaseParameterAddButtonClicked(streamCase)}/>
-                            </div>
-                        );
-                    }
-                    // only display signals if there are no parameters
-                    if (!hasStreamParameters) {
-                        childComponents.push(
-                            <div key="signal-display-area" className="parameter-display-area clearfix">
-                                <div className="metadata-form-title">Stream Signals</div>
-                                {streamSignals}
-                                <i key={signalAddKey} className="assign-button fa fa-plus-square fa-3x"
-                                   onClick={() => thisPage.onStreamCaseSignalAddButtonClicked(streamCase)}/>
-                            </div>
-                        );
-                    }
-                    reactComponents.push(
-                        <div key={key} className="repeating-field clearfix">
-                            {childComponents}
-                        </div>
-                    );
-                    i++;
-                });
-
-                reactComponents.push(
-                    <div key="plus-button" className="center">
-                        <div key="plus-button" className="button" onClick={this.onStreamCaseAddButtonClicked}>
-                            <i className="fa fa-plus"></i>
-                        </div>
-                    </div>
-                );
+                this.addStreamCaseFields(reactComponents, mostType);
             }
                 break;
             case 'TCStream': {
@@ -1336,9 +1343,15 @@ class TypesPage extends React.Component {
                 break;
             case 'TShortStream': {
                 const streamMaxLength = mostType.getStreamMaxLength();
-                reactComponents.push(<app.InputField key="shortstream1" type="text" label="Max Length"
+                reactComponents.push(
+                    <div key="TShortStream" className="clearfix">
+                        <app.InputField key="shortstream1" type="text" label="Max Length"
                                                      name="short-stream-max-length" value={streamMaxLength}
-                                                     onChange={this.onShortStreamMaxLengthChanged} isRequired={false}/>);
+                                                     onChange={this.onShortStreamMaxLengthChanged} isRequired={false}/>
+                    </div>
+                );
+
+                this.addStreamCaseFields(reactComponents, mostType);
             }
                 break;
             case 'TArray': {
@@ -1363,7 +1376,6 @@ class TypesPage extends React.Component {
             }
                 break;
             case 'TRecord': {
-                const thisPage = this;
                 const recordName = mostType.getRecordName();
                 const recordDescription = mostType.getRecordDescription();
                 const recordSize = mostType.getRecordSize();

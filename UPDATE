@@ -6,30 +6,50 @@
 Rebuilding the WAR file
 =======================
 
-After obtaining the new code-based, ensure the production database configuration
-is (still) set in:
+    After obtaining the new code-based, ensure the production database configuration
+    is (still) set in:
 
-    app/src/production/resources/server.conf
+        app/src/production/resources/server.conf
 
-Then run:
+    Then run:
 
-	scripts/make.sh
+        scripts/make.sh
 
-This will generate an updated WAR file and echo its location.
+    This will generate an updated WAR file and echo its location.
 
 =====================
 Installing the update
 =====================
 
-Transfer the WAR file to the server to be updated and move it to your tomcat
-webapps directory as ROOT.war.  For example:
+    ------------------
+     Database Changes
+    ------------------
 
-	/var/lib/tomcat/webapps/ROOT.war
+        Check for any new migrations in "sql/migrations/".  If new ones are present
+        login into MySQL to execute them.
 
-The permissions should be maintained but is necessary see the INSTALL file for how
-to appropriately set the permissions.
+            mysql -u root -p
 
-Tomcat should automatically detect that the WAR file has changed and
-unpackage/deploy it.  You should then be able to access the application
-through your browser.
+        From the MySQL console, run:
+
+            source sql/migrations/[file1].sql
+            source sql/migrations/[file2].sql
+              ...
+            source sql/migrations/[fileN].sql
+
+    ---------------------
+     Tomcat Installation
+    ---------------------
+
+        Transfer the WAR file to the server to be updated and move it to your tomcat
+        webapps directory as ROOT.war.  For example:
+
+            /var/lib/tomcat/webapps/ROOT.war
+
+        The permissions should be maintained but is necessary see the INSTALL file for how
+        to appropriately set the permissions.
+
+        Tomcat should automatically detect that the WAR file has changed and
+        unpackage/deploy it.  You should then be able to access the application
+        through your browser.
 

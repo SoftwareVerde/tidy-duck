@@ -8,7 +8,6 @@ class MostInterface extends React.Component {
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
-        this.renderMenu = this.renderMenu.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteMostInterface = this.deleteMostInterface.bind(this);
@@ -75,19 +74,6 @@ class MostInterface extends React.Component {
         }
     }
 
-    renderMenu() {
-        if (! this.state.showMenu) { return; }
-
-        return (
-            <div className="child-item-menu">
-                <div className="child-item-menu-item" onClick={this.deleteMostInterface}>
-                    Remove
-                    <i className="fa fa-remove" />
-                </div>
-            </div>
-        );
-    }
-
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.mostInterface, false);
@@ -111,27 +97,36 @@ class MostInterface extends React.Component {
 
     render() {
         const name = this.props.mostInterface.getName();
-        const shortName = shortenString(name, 35, false);
-        const childItemStyle = this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item";
+        const childItemStyle = (this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object";
 
-        const workingIcon = this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "";
-        const releasedIcon = this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book" title="This Interface is Released" /> : "";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
+        const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book icon" title="This Interface has been released." /> : "");
+        const approvedIcon = (this.props.mostInterface.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Interface has been approved." /> : "");
 
-        const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.mostInterface.getReleaseVersion()}</div> :
-            <select name="Version" title="Version" value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+        let displayVersion = <div className="child-function-catalog-property version">{this.props.mostInterface.getReleaseVersion()}</div>;
+        if (! this.props.displayVersionsList) {
+            displayVersion = <select name="Version" title="Version" value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+        }
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
-                    <span title={name}>{shortName}</span>
-                    {workingIcon}
-                    <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
-                    {releasedIcon}
-                    {this.renderMenu()}
+                    <span className="child-item-title-name" title={name}>{name}</span>
                 </div>
-                <div className="child-function-catalog-property">{this.props.mostInterface.getMostId()}</div>
-                <div className="child-function-catalog-property">{this.props.mostInterface.getDescription()}</div>
+                <div className="action-bar">
+                    {workingIcon}
+                    {approvedIcon}
+                    {releasedIcon}
+                    <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Remove"/>
+                </div>
                 {displayVersion}
+                <div className="description-wrapper">
+                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                        {this.props.mostInterface.getMostId()}
+                        {(this.props.mostInterface.getDescription() ? " - " : "")}
+                        {this.props.mostInterface.getDescription()}
+                    </div>
+                </div>
             </div>
         );
     }

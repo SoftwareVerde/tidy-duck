@@ -8,7 +8,7 @@ function getFunctionCatalog(functionCatalogId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionCatalog = null;
 
         if (data.wasSuccess) {
@@ -33,7 +33,7 @@ function getFunctionCatalogs(callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionCatalogs = null;
 
         if (data.wasSuccess) {
@@ -61,7 +61,7 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         let functionCatalogId = null;
 
         if (data.wasSuccess) {
@@ -90,7 +90,7 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
         let functionCatalogId = null;
 
@@ -116,7 +116,7 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function (data) {
+    tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
@@ -139,7 +139,7 @@ function submitFunctionCatalogForReview(functionCatalogId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
@@ -161,7 +161,7 @@ function getReleaseItemList(functionCatalogId, callbackFunction) {
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
@@ -186,7 +186,7 @@ function releaseFunctionCatalog(functionCatalogId, releaseItems, callbackFunctio
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
@@ -212,7 +212,7 @@ function checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVe
         }
     );
 
-    jsonFetch(request, function(data) {
+    tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
 
         if (! wasSuccess) {
