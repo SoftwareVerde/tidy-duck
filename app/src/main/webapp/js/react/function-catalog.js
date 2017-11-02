@@ -126,10 +126,12 @@ class FunctionCatalog extends React.Component {
                     <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Downlad MOST XML" />
                 </div>
                 <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
-                <div className="description" onClick={(event) => event.stopPropagation()}>
-                    {(author ? author.getName() : "")}
-                    {((author && company) ? "-" : "")}
-                    {(company ? company.getName() : "")}
+                <div className="description-wrapper">
+                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                        {(author ? author.getName() : "")}
+                        {((author && company) ? "-" : "")}
+                        {(company ? company.getName() : "")}
+                    </div>
                 </div>
             </div>
         );

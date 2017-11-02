@@ -654,20 +654,27 @@
     border: solid 1px;
     border-radius: 0.25rem;
     padding: 5px;
-    height: 55px;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    height: 3rem;
+    margin: 0px;
     text-align: left;
     border-color: rgba(0, 0, 0, 0.10);
     background-color: rgba(0, 0, 0, 0.02);
     position: relative;
+    overflow-y: auto;
 }
 
-.tidy-object .description:before {
+.tidy-object .description-wrapper {
+    position: relative;
+    padding: 0px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tidy-object .description-wrapper:before {
     content: 'Description:';
     position: absolute;
-    left: -0.25rem;
-    top: -0.65rem;
+    left: 0rem;
+    top: -1rem;
     font-weight: bold;
     color: rgba(0, 0, 0, 0.5);
     font-size: 85%;

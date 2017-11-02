@@ -203,12 +203,12 @@
     border-color: #FFDD66;
 }
 
-.tidy-object .description:before {
+.tidy-object .description-wrapper:before {
     background-color: rgba(157, 161, 174, 0.5);
     transition: background-color 0.5s ease;
 }
 
-.tidy-object:hover .description:before {
+.tidy-object:hover .description-wrapper:before {
     background-color: rgba(192, 199, 207, 0.5);
 }
 

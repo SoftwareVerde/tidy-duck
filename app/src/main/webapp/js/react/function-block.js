@@ -122,10 +122,12 @@ class FunctionBlock extends React.Component {
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
                 </div>
                 {displayVersion}
-                <div className="description" onClick={(event) => event.stopPropagation()}>
-                    {this.props.functionBlock.getMostId()}
-                    {(this.props.functionBlock.getDescription() ? " - " : "")}
-                    {this.props.functionBlock.getDescription()}
+                <div className="description-wrapper">
+                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                        {this.props.functionBlock.getMostId()}
+                        {(this.props.functionBlock.getDescription() ? " - " : "")}
+                        {this.props.functionBlock.getDescription()}
+                    </div>
                 </div>
             </div>
         );

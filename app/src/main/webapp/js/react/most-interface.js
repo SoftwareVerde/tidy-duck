@@ -120,10 +120,12 @@ class MostInterface extends React.Component {
                     <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Remove"/>
                 </div>
                 {displayVersion}
-                <div className="description" onClick={(event) => event.stopPropagation()}>
-                    {this.props.mostInterface.getMostId()}
-                    {(this.props.mostInterface.getDescription() ? " - " : "")}
-                    {this.props.mostInterface.getDescription()}
+                <div className="description-wrapper">
+                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                        {this.props.mostInterface.getMostId()}
+                        {(this.props.mostInterface.getDescription() ? " - " : "")}
+                        {this.props.mostInterface.getDescription()}
+                    </div>
                 </div>
             </div>
         );
