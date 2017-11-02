@@ -1156,7 +1156,7 @@ class TypesPage extends React.Component {
                 selectedType = mostTypes[0];
             }
             const typeSelectorInfo = "Types marked with (Released) have been included in a released Function Catalog.  Edits will be restricted.";
-            const infoIcon = <i key="type-selector-info" className="fa fa-info-circle" title={typeSelectorInfo}></i>;
+            const infoIcon = <i key="type-selector-info" id="type-selector-info" className="fa fa-info-circle" onClick={() => app.App.alert("Type Selection", typeSelectorInfo)}></i>;
             typeSelector = <app.InputField key="type-selector" type="select" label={["Type to Edit ", infoIcon]} name="type-selector" value={selectedType} options={mostTypes} optionLabels={typeLabels} onChange={this.onTypeSelected}/>
             // if no type is selected, only render that
             if (selectedType == '') {
