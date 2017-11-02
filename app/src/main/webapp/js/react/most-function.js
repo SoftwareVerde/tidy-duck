@@ -8,7 +8,6 @@ class MostFunction extends React.Component {
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
-        this.renderMenu = this.renderMenu.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteMostFunction = this.deleteMostFunction.bind(this);
 
@@ -51,44 +50,33 @@ class MostFunction extends React.Component {
         }
     }
 
-    renderMenu() {
-        if (! this.state.showMenu) { return; }
-
-        return (
-            <div className="child-item-menu">
-                <div className="child-item-menu-item" onClick={this.deleteMostFunction}>
-                    Remove
-                    <i className="fa fa-remove" />
-                </div>
-            </div>
-        );
-    }
-
     render() {
         const author = this.props.mostFunction.getAuthor();
         const company = this.props.mostFunction.getCompany();
         const name = this.props.mostFunction.getName();
-        const childItemStyle = (this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item";
+        const childItemStyle = ((this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item") + " tidy-object";
 
-        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
-        const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book" title="This Function has been released." /> : "");
-        const approvedIcon = (this.props.mostFunction.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up" title="This Function has been approved." /> : "");
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
+        const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function has been released." /> : "");
+        const approvedIcon = (this.props.mostFunction.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function has been approved." /> : "");
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
                     <span className="child-item-title-name" title={name}>{name}</span>
+                </div>
+                <div className="action-bar">
                     {workingIcon}
-                    <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {approvedIcon}
                     {releasedIcon}
-                    {this.renderMenu()}
+                    <i className="fa fa-remove action-button" onClick={this.deleteMostFunction} title="Remove"/>
                 </div>
-                <div className="child-function-catalog-property">{this.props.mostFunction.getMostId()}</div>
-                <div className="child-function-catalog-property">{this.props.mostFunction.getDescription()}</div>
-                <div className="child-function-catalog-property">{this.props.mostFunction.getReleaseVersion()}</div>
-                <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
-                <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
+                <div className="child-function-catalog-property version">{this.props.mostFunction.getReleaseVersion()}</div>
+                <div className="description">
+                    {this.props.mostFunction.getMostId()}
+                    {(this.props.mostFunction.getDescription() ? " - " : "")}
+                    {this.props.mostFunction.getDescription()}
+                </div>
             </div>
         );
     }

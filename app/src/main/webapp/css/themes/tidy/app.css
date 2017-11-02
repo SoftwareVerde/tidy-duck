@@ -171,3 +171,23 @@
 .accounts-table .user-column:hover {
     background-color: #FFEE77;
 }
+
+.tidy-object .action-button {
+    color: #4A4A4A;
+    border-color: #4A4A4A;
+}
+
+.tidy-object .action-button:hover {
+    color: #000000;
+    border-color: #000000;
+}
+
+.tidy-object .description:before {
+    background-color: rgba(238, 238, 238, 0.5);
+    transition: background-color 0.5s ease;
+}
+
+.tidy-object:hover .description:before {
+    background-color: rgba(255, 221, 102, 0.5);
+}
+

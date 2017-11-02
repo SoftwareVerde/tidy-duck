@@ -8,7 +8,6 @@ class FunctionBlock extends React.Component {
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
-        this.renderMenu = this.renderMenu.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
@@ -74,19 +73,6 @@ class FunctionBlock extends React.Component {
         }
     }
 
-    renderMenu() {
-        if (! this.state.showMenu) { return; }
-
-        return (
-            <div className="child-item-menu">
-                <div className="child-item-menu-item" onClick={this.deleteFunctionBlock}>
-                    Remove
-                    <i className="fa fa-remove" />
-                </div>
-            </div>
-        );
-    }
-
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.functionBlock, false);
@@ -114,30 +100,33 @@ class FunctionBlock extends React.Component {
         const company = this.props.functionBlock.getCompany();
         const name = this.props.functionBlock.getName();
 
-        const childItemStyle = this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item";
-        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin"/> : "");
-        const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book" title="This Function Block has been released." /> : "");
-        const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up" title="This Function Block has been approved." /> : "");
+        const childItemStyle = (this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object";
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
+        const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Block has been released." /> : "");
+        const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Block has been approved." /> : "");
 
-        const displayVersion = this.props.displayVersionsList ? <div className="child-function-catalog-property">{this.props.functionBlock.getReleaseVersion()}</div> :
-            <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+        let displayVersion = <div className="child-function-catalog-property version">{this.props.functionBlock.getReleaseVersion()}</div>;
+        if (! this.props.displayVersionsList) {
+            displayVersion = <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+        }
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
                     <span className="child-item-title-name" title={name}>{name}</span>
+                </div>
+                <div className="action-bar">
                     {workingIcon}
-                    <i className="menu-button fa fa-bars" onClick={this.onMenuButtonClick} />
                     {approvedIcon}
                     {releasedIcon}
-                    {this.renderMenu()}
+                    <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
                 </div>
-                <div className="child-function-catalog-property">{this.props.functionBlock.getMostId()}</div>
-                <div className="child-function-catalog-property">{this.props.functionBlock.getKind()}</div>
-                <div className="child-function-catalog-property">{this.props.functionBlock.getDescription()}</div>
                 {displayVersion}
-                <div className="child-function-catalog-property">{(author ? author.getName() : "")}</div>
-                <div className="child-function-catalog-property">{(company ? company.getName() : "")}</div>
+                <div className="description">
+                    {this.props.functionBlock.getMostId()}
+                    {(this.props.functionBlock.getDescription() ? " - " : "")}
+                    {this.props.functionBlock.getDescription()}
+                </div>
             </div>
         );
     }

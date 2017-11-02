@@ -192,3 +192,23 @@
     border: 1px solid rgba(0, 0, 0, 0.5) !important;
     color: #DDD;
 }
+
+.tidy-object .action-button {
+    color: #032334;
+    border-color: #032334;
+}
+
+.tidy-object .action-button:hover {
+    color: #FFDD66;
+    border-color: #FFDD66;
+}
+
+.tidy-object .description:before {
+    background-color: rgba(157, 161, 174, 0.5);
+    transition: background-color 0.5s ease;
+}
+
+.tidy-object:hover .description:before {
+    background-color: rgba(192, 199, 207, 0.5);
+}
+
