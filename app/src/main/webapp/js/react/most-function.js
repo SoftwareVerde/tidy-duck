@@ -72,7 +72,7 @@ class MostFunction extends React.Component {
                     <i className="fa fa-remove action-button" onClick={this.deleteMostFunction} title="Remove"/>
                 </div>
                 <div className="child-function-catalog-property version">{this.props.mostFunction.getReleaseVersion()}</div>
-                <div className="description">
+                <div className="description" onClick={(event) => event.stopPropagation()}>
                     {this.props.mostFunction.getMostId()}
                     {(this.props.mostFunction.getDescription() ? " - " : "")}
                     {this.props.mostFunction.getDescription()}
