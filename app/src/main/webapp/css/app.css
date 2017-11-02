@@ -155,6 +155,10 @@
     padding: 1em;
 }
 
+#type-selector-info {
+    cursor: pointer;
+}
+
 #extended-type-fields {
     clear: left;
     border: #AAA solid thin;

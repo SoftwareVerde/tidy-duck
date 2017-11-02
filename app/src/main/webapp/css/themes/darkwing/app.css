@@ -1,11 +1,11 @@
 .small-container, .large-container, .popup-container {
     background-color: #9DA1AE;
-    color: #FFF !important;
+    color: #032334 !important;
 }
 
 #settings-container {
     background-color: #9DA1AE;
-    color: #FFF !important;
+    color: #032334 !important;
 }
 
 #settings-icon:hover {
@@ -14,7 +14,7 @@
 
 #types-container {
     background-color: #9DA1AE;
-    color: #FFF !important;
+    color: #032334 !important;
 }
 
 .settings-success-container i {
