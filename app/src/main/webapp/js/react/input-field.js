@@ -26,7 +26,8 @@ class InputField extends React.Component {
 
     componentWillReceiveProps(newProperties) {
         this.setState({
-            value: (newProperties.value || ""),
+            value:          (newProperties.value || newProperties.defaultValue || ""),
+            filterString:   (newProperties.value || newProperties.defaultValue || "")
         });
     }
 
