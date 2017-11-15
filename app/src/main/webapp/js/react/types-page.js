@@ -1022,9 +1022,6 @@ class TypesPage extends React.Component {
             let j = 1;
             streamCase.getStreamParameters().forEach(function (streamParameter) {
                 const parameterKey = ("streamParameter" + i) + '-' + j;
-                if (streamParameter.getParameterType() == null) {
-                    streamParameter.setParameterType(thisPage.getMostTypeByName(streamParamTypes[0]));
-                }
                 const parameterType = streamParameter.getParameterType();
                 const parameterTypeName = parameterType ? parameterType.getName() : null;
 
@@ -1039,7 +1036,7 @@ class TypesPage extends React.Component {
                                         value={streamParameter.getParameterDescription()}
                                         onChange={(description) => thisPage.onStreamCaseParameterDescriptionChanged(streamParameter, description)}/>
                         <app.InputField name="type" type="dropdown" label="Type" isSmallInputField={true}
-                                        defaultValue={parameterTypeName} options={streamParamTypes}
+                                        value={parameterTypeName} options={streamParamTypes}
                                         onSelect={(value) => thisPage.onStreamCaseParameterTypeChanged(streamParameter, value)} isRequired={true}/>
                         <i className="remove-button fa fa-remove fa-3x"
                            onClick={() => thisPage.onStreamCaseParameterRemoveButtonClicked(streamCase, streamParameter)}/>
