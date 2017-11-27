@@ -410,10 +410,16 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         Json operationsJson = mostFunctionJson.get("operations");
         for (int i=0; i<operationsJson.length(); i++) {
-            long operationId = operationsJson.getLong(i);
+            Json operationJson = operationsJson.get(i);
+
+            long operationId = operationJson.getLong("id");
+            String operationName = operationJson.getString("name");
+            String operationChannel = operationJson.getString("channel");
 
             final Operation operation = new Operation();
             operation.setId(operationId);
+            operation.setName(operationName);
+            operation.setChannel(operationChannel);
 
             mostFunction.addOperation(operation);
         }
@@ -473,6 +479,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             Json operationJson = new Json(false);
             operationJson.put("id", operation.getId());
             operationJson.put("name", operation.getName());
+            operationJson.put("channel", operation.getChannel());
             operationsJson.add(operationJson);
         }
         mostFunctionJson.put("operations", operationsJson);

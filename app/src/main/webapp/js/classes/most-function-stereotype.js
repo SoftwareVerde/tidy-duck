@@ -6,10 +6,7 @@ class MostFunctionStereotype {
         const operationsJson = json.operations;
         for (let i in operationsJson) {
             const operationJson = operationsJson[i];
-            const operation = new Operation();
-            operation.setId(operationJson.id);
-            operation.setName(operationJson.name);
-
+            const operation = Operation.fromJson(operationJson);
             operations.push(operation);
         }
 
@@ -34,7 +31,8 @@ class MostFunctionStereotype {
         const operations = mostFunctionStereotype.getOperations();
         const operationsJson = [];
         for (let i in operations) {
-            operationsJson.push(operations[i].getId());
+            const operationJson = Operation.toJson(operations[i]);
+            operationsJson.push(operationJson);
         }
         jsonMostFunctionStereotype.operations = operationsJson;
 

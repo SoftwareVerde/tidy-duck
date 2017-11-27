@@ -1,4 +1,28 @@
 class Parameter {
+    static fromJson(json) {
+        const parameterType = new MostType();
+        parameterType.setId(json.typeId);
+        parameterType.setName(json.typeName);
+
+        const parameter = new Parameter();
+        parameter.setName(json.name);
+        parameter.setDescription(json.description);
+        parameter.setParameterIndex(json.parameterIndex);
+        parameter.setType(parameterType);
+
+        return parameter;
+    }
+
+    static toJson(parameter) {
+        return {
+            name:               parameter.getName(),
+            description:        parameter.getDescription(),
+            parameterIndex:     parameter.getParameterIndex(),
+            typeId:             parameter.getType().getId(),
+            typeName:           parameter.getType().getName()
+        };
+    }
+
     constructor() {
         this._name              = null;
         this._description       = null;

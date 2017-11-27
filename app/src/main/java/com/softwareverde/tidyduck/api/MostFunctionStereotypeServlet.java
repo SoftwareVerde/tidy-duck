@@ -68,6 +68,7 @@ public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
             Json operationJson = new Json(false);
             operationJson.put("id", operation.getId());
             operationJson.put("name", operation.getName());
+            operationJson.put("channel", operation.getChannel());
             operationsJson.add(operationJson);
         }
         json.put("operations", operationsJson);

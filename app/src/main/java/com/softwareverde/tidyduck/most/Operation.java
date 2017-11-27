@@ -5,6 +5,7 @@ public class Operation {
     private String _name;
     private String _opcode;
     private boolean _isInput;
+    private String _channel = com.softwareverde.mostadapter.Operation.DEFAULT_OPERATION;
 
     public Long getId() {
         return _id;
@@ -38,4 +39,11 @@ public class Operation {
         _isInput = input;
     }
 
+    public String getChannel() {
+        return _channel;
+    }
+
+    public void setChannel(final String channel) {
+        _channel = channel;
+    }
 }
