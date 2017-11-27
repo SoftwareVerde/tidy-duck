@@ -45,12 +45,14 @@ class TypesPage extends React.Component {
         this.onStreamCasePositionXChanged = this.onStreamCasePositionXChanged.bind(this);
         this.onStreamCasePositionYChanged = this.onStreamCasePositionYChanged.bind(this);
         this.onStreamCaseParameterNameChanged = this.onStreamCaseParameterNameChanged.bind(this);
+        this.onStreamCaseParameterIndexChanged = this.onStreamCaseParameterIndexChanged.bind(this);
         this.onStreamCaseParameterDescriptionChanged = this.onStreamCaseParameterDescriptionChanged.bind(this);
         this.onStreamCaseParameterTypeChanged = this.onStreamCaseParameterTypeChanged.bind(this);
         this.onStreamCaseParameterRemoveButtonClicked = this.onStreamCaseParameterRemoveButtonClicked.bind(this);
-        this.onStreamSignalNameChanged = this.onStreamSignalNameChanged.bind(this);
-        this.onStreamSignalDescriptionChanged = this.onStreamSignalDescriptionChanged.bind(this);
-        this.onStreamSignalBitLengthChanged = this.onStreamSignalBitLengthChanged.bind(this);
+        this.onStreamCaseSignalNameChanged = this.onStreamCaseSignalNameChanged.bind(this);
+        this.onStreamCaseSignalIndexChanged = this.onStreamCaseSignalIndexChanged.bind(this);
+        this.onStreamCaseSignalDescriptionChanged = this.onStreamCaseSignalDescriptionChanged.bind(this);
+        this.onStreamCaseSignalBitLengthChanged = this.onStreamCaseSignalBitLengthChanged.bind(this);
         this.onStreamCaseSignalRemoveButtonClicked = this.onStreamCaseSignalRemoveButtonClicked.bind(this);
         this.onClassifiedStreamMaxLengthChanged = this.onClassifiedStreamMaxLengthChanged.bind(this);
         this.onClassifiedStreamMediaTypeChanged = this.onClassifiedStreamMediaTypeChanged.bind(this);
@@ -719,14 +721,12 @@ class TypesPage extends React.Component {
         const mostType = this.state.mostType;
         const streamCaseParameters = streamCase.getStreamParameters();
         const newStreamParameters = [];
-        const streamParameterIndex = streamCaseParameter.getParameterIndex();
+        const excludedIndex = streamCaseParameter.getParameterIndex();
 
-        let indexCounter = 1;
+        // don't re-index, just map over, as the index can be set manually
         for (let i in streamCaseParameters) {
-            if (streamCaseParameters[i].getParameterIndex() !== streamParameterIndex) {
-                streamCaseParameters[i].setParameterIndex(indexCounter);
+            if (streamCaseParameters[i].getParameterIndex() !== excludedIndex) {
                 newStreamParameters.push(streamCaseParameters[i]);
-                indexCounter++;
             }
         }
 
@@ -741,14 +741,12 @@ class TypesPage extends React.Component {
         const mostType = this.state.mostType;
         const streamCaseSignals = streamCase.getStreamSignals();
         const newStreamSignals = [];
-        const streamSignalIndex = streamSignal.getSignalIndex();
+        const excludedIndex = streamSignal.getSignalIndex();
 
-        let indexCounter = 1;
+        // don't re-index, just map over, as the index can be set manually
         for (let i in streamCaseSignals) {
-            if (streamCaseSignals[i].getSignalIndex() !== streamSignalIndex) {
-                streamCaseSignals[i].setSignalIndex(indexCounter);
+            if (streamCaseSignals[i].getSignalIndex() !== excludedIndex) {
                 newStreamSignals.push(streamCaseSignals[i]);
-                indexCounter++;
             }
         }
 
@@ -792,6 +790,12 @@ class TypesPage extends React.Component {
         this.updateState();
     }
 
+    onStreamCaseParameterIndexChanged(streamCaseParameter, index) {
+        streamCaseParameter.setParameterIndex(index);
+
+        this.updateState();
+    }
+
     onStreamCaseParameterDescriptionChanged(streamCaseParameter, description) {
         streamCaseParameter.setParameterDescription(description);
 
@@ -810,19 +814,25 @@ class TypesPage extends React.Component {
         });
     }
 
-    onStreamSignalNameChanged(streamSignal, name) {
+    onStreamCaseSignalNameChanged(streamSignal, name) {
         streamSignal.setSignalName(name);
 
         this.updateState();
     }
 
-    onStreamSignalDescriptionChanged(streamSignal, description) {
+    onStreamCaseSignalIndexChanged(streamSignal, index) {
+        streamSignal.setSignalIndex(index);
+
+        this.updateState();
+    }
+
+    onStreamCaseSignalDescriptionChanged(streamSignal, description) {
         streamSignal.setSignalDescription(description);
 
         this.updateState();
     }
 
-    onStreamSignalBitLengthChanged(streamSignal, bitLength) {
+    onStreamCaseSignalBitLengthChanged(streamSignal, bitLength) {
         streamSignal.setSignalBitLength(bitLength);
 
         this.updateState();
@@ -1031,6 +1041,9 @@ class TypesPage extends React.Component {
                         <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
                                         value={streamParameter.getParameterName()}
                                         onChange={(name) => thisPage.onStreamCaseParameterNameChanged(streamParameter, name)} isRequired={true}/>
+                        <app.InputField name="index" type="text" label="Index" isSmallInputField={true}
+                                        value={streamParameter.getParameterIndex()}
+                                        onChange={(index) => thisPage.onStreamCaseParameterIndexChanged(streamParameter, index)} isRequired={true}/>
                         <app.InputField name="description" type="textarea" label="Description"
                                         isSmallInputField={true}
                                         value={streamParameter.getParameterDescription()}
@@ -1056,13 +1069,16 @@ class TypesPage extends React.Component {
                         <div>Stream Signal {streamSignal.getSignalIndex()}</div>
                         <app.InputField name="name" type="text" label="Name" isSmallInputField={true}
                                         value={streamSignal.getSignalName()}
-                                        onChange={(name) => thisPage.onStreamSignalNameChanged(streamSignal, name)} isRequired={true}/>
+                                        onChange={(name) => thisPage.onStreamCaseSignalNameChanged(streamSignal, name)} isRequired={true}/>
+                        <app.InputField name="index" type="text" label="Index" isSmallInputField={true}
+                                        value={streamSignal.getSignalIndex()}
+                                        onChange={(index) => thisPage.onStreamCaseSignalIndexChanged(streamSignal, index)} isRequired={true}/>
                         <app.InputField name="description" type="textarea" label="Description"
                                         isSmallInputField={true} value={streamSignal.getSignalDescription()}
-                                        onChange={(description) => thisPage.onStreamSignalDescriptionChanged(streamSignal, description)}/>
+                                        onChange={(description) => thisPage.onStreamCaseSignalDescriptionChanged(streamSignal, description)}/>
                         <app.InputField name="bit-length" type="text" label="Bit Length"
                                         isSmallInputField={true} value={streamSignal.getSignalBitLength()}
-                                        onChange={(bitLength) => thisPage.onStreamSignalBitLengthChanged(streamSignal, bitLength)} isRequired={true}/>
+                                        onChange={(bitLength) => thisPage.onStreamCaseSignalBitLengthChanged(streamSignal, bitLength)} isRequired={true}/>
                         <i className="remove-button fa fa-remove fa-3x"
                            onClick={() => thisPage.onStreamCaseSignalRemoveButtonClicked(streamCase, streamSignal)}/>
                     </div>
