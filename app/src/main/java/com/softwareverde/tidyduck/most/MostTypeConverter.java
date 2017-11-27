@@ -4,9 +4,7 @@ import com.softwareverde.mostadapter.*;
 import com.softwareverde.mostadapter.type.*;
 import com.softwareverde.mostadapter.type.StreamCase;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.softwareverde.mostadapter.Operation.OperationType;
 
@@ -270,37 +268,39 @@ public class MostTypeConverter {
 
         convertedProperty.setSupportsNotification(property.supportsNotification());
 
-        final List<String> operationNames = _getOperationNames(property.getOperations());
+        final Map<String, String> operationChannels = _getOperationChannels(property.getOperations());
 
         // add return type parameter
-        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationNames, "1");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(property, operationChannels, "1");
         convertedProperty.addMostParameter(returnTypeParameter);
 
         // add get parameter
-        if (operationNames.contains("Get")) {
+        if (operationChannels.containsKey("Get")) {
             final MostParameter getParameter = new MostParameter();
 
             final com.softwareverde.mostadapter.type.MostType getType = new VoidType();
 
             getParameter.setType(getType);
-            _addOperationAtIndex(getParameter, OperationType.GET, "1");
+            _addOperationAtIndex(getParameter, OperationType.GET, "1", operationChannels.get("Get"));
 
             convertedProperty.addMostParameter(getParameter);
         }
 
         // add error parameters
-        if (operationNames.contains("Error")) {
+        if (operationChannels.containsKey("Error")) {
+            final String channel = operationChannels.get("Error");
+
             final MostParameter errorCodeParameter = new MostParameter();
             errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex(MOST_NULL);
             errorCodeParameter.setType(_createErrorCodeType());
-            _addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "1");
+            _addOperationAtIndex(errorCodeParameter, OperationType.PROPERTY_ERROR, "1", channel);
 
             final MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(_createErrorInfoType());
-            _addOperationAtIndex(errorInfoParameter, OperationType.PROPERTY_ERROR, "2");
+            _addOperationAtIndex(errorInfoParameter, OperationType.PROPERTY_ERROR, "2", channel);
 
             convertedProperty.addMostParameter(errorCodeParameter);
             convertedProperty.addMostParameter(errorInfoParameter);
@@ -309,7 +309,7 @@ public class MostTypeConverter {
         return convertedProperty;
     }
 
-    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, List<String> operationNames, String parameterIndex) {
+    private MostParameter _createReturnTypeParameter(MostFunction mostFunction, Map<String, String> operationChannels, String parameterIndex) {
 
         final MostType returnType = mostFunction.getReturnType();
 
@@ -320,24 +320,25 @@ public class MostTypeConverter {
         returnTypeParameter.setType(_convertMostType(returnType));
 
         // Properties
-        if (operationNames.contains("Set")) {
-            _addOperationAtIndex(returnTypeParameter, OperationType.SET, parameterIndex);
+        if (operationChannels.containsKey("Set")) {
+            _addOperationAtIndex(returnTypeParameter, OperationType.SET, parameterIndex, operationChannels.get("Set"));
         }
-        if (operationNames.contains("Status")) {
-            _addOperationAtIndex(returnTypeParameter, OperationType.STATUS, parameterIndex);
+        if (operationChannels.containsKey("Status")) {
+            _addOperationAtIndex(returnTypeParameter, OperationType.STATUS, parameterIndex, operationChannels.get("Status"));
         }
         // Methods
-        if (operationNames.contains("ResultAck")) {
-            _addOperationAtIndex(returnTypeParameter, OperationType.RESULT_ACK, parameterIndex);
+        if (operationChannels.containsKey("ResultAck")) {
+            _addOperationAtIndex(returnTypeParameter, OperationType.RESULT_ACK, parameterIndex, operationChannels.get("ResultAck"));
         }
 
         return returnTypeParameter;
     }
 
-    private void _addOperationAtIndex(MostParameter mostParameter, OperationType operationType, String parameterIndex) {
+    private void _addOperationAtIndex(MostParameter mostParameter, OperationType operationType, String parameterIndex, String channel) {
         final com.softwareverde.mostadapter.Operation operation = new com.softwareverde.mostadapter.Operation();
         operation.setOperationType(operationType);
         operation.setParameterPosition(parameterIndex);
+        operation.setChannel(channel);
         mostParameter.addOperation(operation);
     }
 
@@ -554,13 +555,14 @@ public class MostTypeConverter {
         return convertedStreamCases;
     }
 
-    protected List<String> _getOperationNames(final List<Operation> operations) {
-        final ArrayList<String> operationNames = new ArrayList<>();
-        for (final Operation operation : operations) {
-            operationNames.add(operation.getName());
+    protected Map<String,String> _getOperationChannels(final List<Operation> operations) {
+        HashMap<String, String> mapping = new HashMap<String, String>();
+        for (Operation operation : operations) {
+            mapping.put(operation.getName(), operation.getChannel());
         }
-        return operationNames;
+        return mapping;
     }
+
 
     protected com.softwareverde.mostadapter.MostFunction _createMethodFunction(Method method) {
         com.softwareverde.mostadapter.MostFunction convertedMethod = null;
@@ -585,7 +587,7 @@ public class MostTypeConverter {
             }
         }
 
-        final List<String> operationNames = _getOperationNames(method.getOperations());
+        final Map<String, String> operationChannels = _getOperationChannels(method.getOperations());
 
         // add sender handle parameter
         final MostParameter senderHandleParameter = new MostParameter();
@@ -596,43 +598,45 @@ public class MostTypeConverter {
         senderHandleParameter.setIndex(MOST_NULL);
         senderHandleParameter.setType(senderHandleType);
 
-        if (operationNames.contains("AbortAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1");
+        if (operationChannels.containsKey("AbortAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.ABORT_ACK, "1", operationChannels.get("AbortAck"));
         }
-        if (operationNames.contains("StartResultAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1");
+        if (operationChannels.containsKey("StartResultAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.START_RESULT_ACK, "1", operationChannels.get("StartResultAck"));
         }
-        if (operationNames.contains("ResultAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.RESULT_ACK, "1");
+        if (operationChannels.containsKey("ResultAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.RESULT_ACK, "1", operationChannels.get("ResultAck"));
         }
-        if (operationNames.contains("ErrorAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1");
+        if (operationChannels.containsKey("ErrorAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.ERROR_ACK, "1", operationChannels.get("ErrorAck"));
         }
-        if (operationNames.contains("ProcessingAck")) {
-            _addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1");
+        if (operationChannels.containsKey("ProcessingAck")) {
+            _addOperationAtIndex(senderHandleParameter, OperationType.PROCESSING_ACK, "1", operationChannels.get("ProcessingAck"));
         }
         convertedMethod.addMostParameter(senderHandleParameter);
 
         // add return type parameter
-        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationNames, "2");
+        final MostParameter returnTypeParameter = _createReturnTypeParameter(method, operationChannels, "2");
         convertedMethod.addMostParameter(returnTypeParameter);
 
         // add input parameters
-        _addInputParameterOperations(convertedMethod, method.getInputParameters(), operationNames);
+        _addInputParameterOperations(convertedMethod, method.getInputParameters(), operationChannels);
 
         // add error parameters
-        if (operationNames.contains("ErrorAck")) {
+        if (operationChannels.containsKey("ErrorAck")) {
+            final String channel = operationChannels.get("ErrorAck");
+
             final MostParameter errorCodeParameter = new MostParameter();
             errorCodeParameter.setName("ErrorCode");
             errorCodeParameter.setIndex(MOST_NULL);
             errorCodeParameter.setType(_createErrorCodeType());
-            _addOperationAtIndex(errorCodeParameter, OperationType.ERROR_ACK, "2");
+            _addOperationAtIndex(errorCodeParameter, OperationType.ERROR_ACK, "2", channel);
 
             final MostParameter errorInfoParameter = new MostParameter();
             errorInfoParameter.setName("ErrorInfo");
             errorInfoParameter.setIndex(MOST_NULL);
             errorInfoParameter.setType(_createErrorInfoType());
-            _addOperationAtIndex(errorInfoParameter, OperationType.ERROR_ACK, "3");
+            _addOperationAtIndex(errorInfoParameter, OperationType.ERROR_ACK, "3", channel);
 
             convertedMethod.addMostParameter(errorCodeParameter);
             convertedMethod.addMostParameter(errorInfoParameter);
@@ -663,8 +667,8 @@ public class MostTypeConverter {
         return true;
     }
 
-    private void _addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, List<String> operationNames) {
-        if (operationNames.contains("StartResultAck")) {
+    private void _addInputParameterOperations(com.softwareverde.mostadapter.MostFunction convertedMethod, List<MostFunctionParameter> inputParameters, Map<String, String> operationChannels) {
+        if (operationChannels.containsKey("StartResultAck")) {
             for (final MostFunctionParameter mostFunctionParameter : inputParameters) {
                 final MostParameter mostParameter = new MostParameter();
 
@@ -679,7 +683,7 @@ public class MostTypeConverter {
                 mostParameter.setDescription(parameterDescription);
                 mostParameter.setIndex(MOST_NULL);
                 mostParameter.setType(parameterType);
-                _addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString);
+                _addOperationAtIndex(mostParameter, OperationType.START_RESULT_ACK, parameterIndexString, operationChannels.get("StartResultAck"));
 
                 convertedMethod.addMostParameter(mostParameter);
             }

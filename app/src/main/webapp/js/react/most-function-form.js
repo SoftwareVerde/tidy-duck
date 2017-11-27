@@ -19,21 +19,22 @@ class MostFunctionForm extends React.Component {
             });
 
             mostFunction.setReturnType(sortedMostTypes[0]);
+
+            // Obtain full stereotype data using the appropriate stereotype name.
+            for (let i in mostFunctionStereotypes) {
+                const mostFunctionStereotype = mostFunctionStereotypes[i];
+                if (stereotypeName === mostFunctionStereotype.getName()) {
+                    mostFunction.setStereotype(mostFunctionStereotype);
+                    mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
+                    mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                    const copyOfOperations = mostFunctionStereotype.getOperations().map(x => copyMostObject(Operation, x));
+                    mostFunction.setOperations(copyOfOperations);
+                    break;
+                }
+            }
         }
         else {
             stereotypeName = mostFunction.getStereotype().getName();
-        }
-
-        // Obtain full stereotype data using the appropriate stereotype name.
-        for (let i in mostFunctionStereotypes) {
-            const mostFunctionStereotype = mostFunctionStereotypes[i];
-            if (stereotypeName === mostFunctionStereotype.getName()) {
-                mostFunction.setStereotype(mostFunctionStereotype);
-                mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
-                mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
-                mostFunction.setOperations(mostFunctionStereotype.getOperations());
-                break;
-            }
         }
 
         this.state = {
@@ -58,12 +59,13 @@ class MostFunctionForm extends React.Component {
 
         this.onAddParameterClicked = this.onAddParameterClicked.bind(this);
         this.onDeleteParameterClicked = this.onDeleteParameterClicked.bind(this);
+        this.onOperationChannelChanged = this.onOperationChannelChanged.bind(this);
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
         this.renderParameters = this.renderParameters.bind(this);
         this.renderFormTitle = this.renderFormTitle.bind(this);
-        this.getStereotypeOperations = this.getStereotypeOperations.bind(this);
+        this.renderOperationChannelSelects = this.renderOperationChannelSelects.bind(this);
         this.renderOperationCheckboxes = this.renderOperationCheckboxes.bind(this);
         this.renderSubmitButton = this.renderSubmitButton.bind(this);
     }
@@ -77,20 +79,20 @@ class MostFunctionForm extends React.Component {
         // If a new function is created, set the Return Type to default. If not, use the name of the existing function's stereotype.
         if (isNewMostFunction) {
             mostFunction.setReturnType(newProperties.mostTypes[0]);
+
+            // Obtain full stereotype data using the appropriate stereotype name.
+            for (let i in mostFunctionStereotypes) {
+                const mostFunctionStereotype = mostFunctionStereotypes[i];
+                if (stereotypeName === mostFunctionStereotype.getName()) {
+                    mostFunction.setStereotype(mostFunctionStereotype);
+                    mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
+                    mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                    mostFunction.setOperations(mostFunctionStereotype.getOperations());
+                    break;
+                }
+            }
         } else {
             stereotypeName = mostFunction.getStereotype().getName();
-        }
-
-        // Obtain full stereotype data using the appropriate stereotype name.
-        for (let i in mostFunctionStereotypes) {
-            const mostFunctionStereotype = mostFunctionStereotypes[i];
-            if (stereotypeName === mostFunctionStereotype.getName()) {
-                mostFunction.setStereotype(mostFunctionStereotype);
-                mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
-                mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
-                mostFunction.setOperations(mostFunctionStereotype.getOperations());
-                break;
-            }
         }
 
         this.setState({
@@ -160,10 +162,13 @@ class MostFunctionForm extends React.Component {
             const mostFunctionStereotype = mostFunctionStereotypes[i];
             if (newValue === mostFunctionStereotype.getName()) {
                 const mostFunctionCategory = mostFunctionStereotype.getCategory();
+                const supportsNotification = mostFunctionStereotype.getSupportsNotification();
+                const copyOfOperations = mostFunctionStereotype.getOperations().map(x => copyMostObject(Operation, x));
+
                 mostFunction.setStereotype(mostFunctionStereotype);
                 mostFunction.setFunctionType(mostFunctionCategory);
-                mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
-                mostFunction.setOperations(mostFunctionStereotype.getOperations());
+                mostFunction.setSupportsNotification(supportsNotification);
+                mostFunction.setOperations(copyOfOperations);
 
                 // Clear array of parameters if new stereotype is a property.
                 if (mostFunctionCategory === "property") {
@@ -301,6 +306,14 @@ class MostFunctionForm extends React.Component {
         }
     }
 
+    onOperationChannelChanged(operation, channel) {
+        operation.setChannel(channel);
+
+        this.setState({
+            mostFunction: this.state.mostFunction
+        });
+    }
+
     onClick(event) {
         event.stopPropagation();
     }
@@ -326,36 +339,27 @@ class MostFunctionForm extends React.Component {
         return (<div className="metadata-form-title">New Function ({mostFunction.getStereotype().getName()})</div>);
     }
 
-    getStereotypeOperations() {
-        const mostFunctionStereotype = this.state.mostFunction.getStereotype();
-        const operationsJson = {};
-        const operations = mostFunctionStereotype.getOperations();
+    renderOperationChannelSelects() {
+        const channelOptions = ['Control', 'MOST-High'];
+
+        const operations = this.state.mostFunction.getOperations();
+        const reactComponents = [];
         for (let i in operations) {
             const operation = operations[i];
-            operationsJson[operation.getName()] = true;
-        }
 
-        return operationsJson;
+            reactComponents.push(<app.InputField key={i} type="select" name={operation.getName()} label={operation.getName()} isSmallInputField={true} options={channelOptions} value={operation.getChannel()} readOnly={this.props.readOnly} onChange={(channel) => this.onOperationChannelChanged(operation, channel)}/>);
+        }
+        return reactComponents;
     }
 
     renderOperationCheckboxes() {
-        const readOnly = true;
         const mostFunction = this.state.mostFunction;
         const supportsNotification = mostFunction.getSupportsNotification();
-        const operationsJson = this.getStereotypeOperations();
 
         return (
             <div className="operation-display-area">
-                <app.InputField id="operation-get" name="get" type="checkbox" label="Get" isSmallInputField={true} value={operationsJson["Get"] == true} checked={operationsJson["Get"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-set" name="set" type="checkbox" label="Set" isSmallInputField={true} value={operationsJson["Set"] == true} checked={operationsJson["Set"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-status" name="status" type="checkbox" label="Status" isSmallInputField={true} value={operationsJson["Status"] == true} checked={operationsJson["Status"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-error" name="error" type="checkbox" label="Error" isSmallInputField={true} value={operationsJson["Error"] == true} checked={operationsJson["Error"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-start-result-ack" name="startResultAck" type="checkbox" label="StartResultAck" isSmallInputField={true} value={operationsJson["StartResultAck"] == true} checked={operationsJson["StartResultAck"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-error-ack" name="errorAck" type="checkbox" label="ErrorAck" isSmallInputField={true} value={operationsJson["ErrorAck"] == true} checked={operationsJson["ErrorAck"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-result-ack" name="resultAck" type="checkbox" label="ResultAck" isSmallInputField={true} value={operationsJson["ResultAck"] == true} checked={operationsJson["ResultAck"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-processing-ack" name="processingAck" type="checkbox" label="ProcessingAck" isSmallInputField={true} value={operationsJson["ProcessingAck"] == true} checked={operationsJson["ProcessingAck"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-abort-ack" name="abortAck" type="checkbox" label="AbortAck" isSmallInputField={true} value={operationsJson["AbortAct"] == true} checked={operationsJson["AbortAck"] == true} readOnly={readOnly} tabIndex={-1}/>
-                <app.InputField id="operation-notification" name="notification" type="checkbox" label="Notification" isSmallInputField={true} value={supportsNotification} checked={supportsNotification} readOnly={readOnly} tabIndex={-1}/>
+                {this.renderOperationChannelSelects()}
+                <app.InputField key="n" id="operation-notification" name="notification" type="checkbox" label="Notification" isSmallInputField={true} value={supportsNotification} checked={supportsNotification} readOnly={true} tabIndex={-1}/>
             </div>
         );
     }

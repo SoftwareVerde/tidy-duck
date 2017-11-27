@@ -106,7 +106,7 @@ public class MostFunctionInflater {
 
     public List<Operation> inflateOperationsFromMostFunctionId(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query(
-                "SELECT operation_id FROM functions_operations WHERE function_id = ?"
+                "SELECT operation_id, channel FROM functions_operations WHERE function_id = ?"
         );
         query.setParameter(mostFunctionId);
 
@@ -116,7 +116,10 @@ public class MostFunctionInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final Long operationId = row.getLong("operation_id");
+            final String channel = row.getString("channel");
+
             Operation operation = operationInflater.inflateOperation(operationId);
+            operation.setChannel(channel);
             operations.add(operation);
         }
         return operations;

@@ -180,9 +180,10 @@ class MostFunctionDatabaseManager {
     }
 
     private void _addOperationToFunction(final long newFunctionId, final Operation operation) throws DatabaseException {
-        final Query query = new Query("INSERT INTO functions_operations (function_id, operation_id) VALUES (?, ?)")
+        final Query query = new Query("INSERT INTO functions_operations (function_id, operation_id, channel) VALUES (?, ?, ?)")
             .setParameter(newFunctionId)
             .setParameter(operation.getId())
+            .setParameter(operation.getChannel())
         ;
 
         _databaseConnection.executeSql(query);

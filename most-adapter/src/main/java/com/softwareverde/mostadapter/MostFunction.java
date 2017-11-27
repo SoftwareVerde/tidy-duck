@@ -234,6 +234,9 @@ public abstract class MostFunction implements XmlNode {
         for (final Operation operation : operations) {
             Element operationElement = document.createElement(operation.getOperationType().getName());
             operationElement.setAttribute("OPTypeRef", operation.getOperationType().getName());
+            if (!Operation.DEFAULT_OPERATION.equals(operation.getChannel())) {
+                operationElement.setAttribute("Channel", operation.getChannel());
+            }
 
             String parameterPosition = operation.getParameterPosition();
             if (parameterPosition != null) {

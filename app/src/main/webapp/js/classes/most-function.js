@@ -14,10 +14,7 @@ class MostFunction {
         const operationsJson = json.operations;
         for (let i in operationsJson) {
             const operationJson = operationsJson[i];
-            const operation = new Operation();
-            operation.setId(operationJson.id);
-            operation.setName(operationJson.name);
-
+            const operation = Operation.fromJson(operationJson);
             operations.push(operation);
         }
 
@@ -56,17 +53,7 @@ class MostFunction {
 
             for (let i in parametersJson) {
                 const parameterJson = parametersJson[i];
-
-                const parameterType = new MostType();
-                parameterType.setId(parameterJson.typeId);
-                parameterType.setName(parameterJson.typeName);
-
-                const parameter = new Parameter();
-                parameter.setName(parameterJson.name);
-                parameter.setDescription(parameterJson.description);
-                parameter.setParameterIndex(parameterJson.parameterIndex);
-                parameter.setType(parameterType);
-
+                const parameter = Parameter.fromJson(parameterJson);
                 parameters.push(parameter);
             }
             mostFunction.setParameters(parameters);
@@ -107,27 +94,21 @@ class MostFunction {
             jsonMostFunction.companyId = company.getId();
         }
 
-        // Jsonify parameters array, which contains parameter objects
+        // Jsonify parameters array
         const parameters = mostFunction.getParameters();
         const parametersJson = [];
         for (let i in parameters) {
-            const parameterJson = {
-                name:               parameters[i].getName(),
-                description:        parameters[i].getDescription(),
-                parameterIndex:     parameters[i].getParameterIndex(),
-                typeId:             parameters[i].getType().getId(),
-                typeName:           parameters[i].getType().getName()
-            };
-
+            const parameterJson = Parameter.toJson(parameters[i]);
             parametersJson.push(parameterJson);
         }
         jsonMostFunction.inputParameters = parametersJson;
 
-        // Jsonify operations array, which simply contains ids for operations.
+        // Jsonify operations array
         const operations = mostFunction.getOperations();
         const operationsJson = [];
         for (let i in operations) {
-            operationsJson.push(operations[i].getId());
+            const operationJson = Operation.toJson(operations[i]);
+            operationsJson.push(operationJson);
         }
         jsonMostFunction.operations = operationsJson;
 
