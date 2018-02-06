@@ -1201,11 +1201,14 @@ class App extends React.Component {
         if (filterString.length > 1) {
             const thisApp = this;
             this.setState({
-                isLoadingChildren: true,
-                filterString:      filterString
+                filterString:      filterString,
+                isLoadingSearchResults:     true
             });
 
+            let loadingTimeout = this.setLoadingIconTimeoutStateChange(1000);
+
             getFunctionBlocksMatchingSearchString(filterString, function(functionBlocksJson) {
+                clearTimeout(loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -2556,6 +2559,17 @@ class App extends React.Component {
     onDefaultModeChanged(roleName) {
         const account = this.state.account;
         account.getSettings().setDefaultMode(roleName);
+    }
+
+    setLoadingIconTimeoutStateChange(timeoutDelay) {
+        let thisApp = this;
+        return setTimeout(() => {
+            if (thisApp.state.isLoadingSearchResults) {
+                thisApp.setState({
+                    isLoadingChildren: true
+                });
+            }
+        }, timeoutDelay);
     }
 
     setTheme(themeName) {
