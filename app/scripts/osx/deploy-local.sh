@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # DESTINATION='../../tomcat'
-TOMCAT_VERSION="`ls /usr/local/Cellar/tomcat/ | sort | tail -n 1`"
+TOMCAT_VERSION="`ls /usr/local/Cellar/tomcat/ | sort -n | tail -n 1`"
 DESTINATION="/usr/local/Cellar/tomcat/${TOMCAT_VERSION}/libexec/webapps"
 
 date +"[%Y-%m-%d %H:%M:%S]"
