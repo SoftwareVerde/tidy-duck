@@ -122,6 +122,7 @@ class App extends React.Component {
             createButtonState:          this.CreateButtonState.normal,
             selectedFunctionStereotype: null,
             shouldShowSearchChildForm:  false,
+            shouldShowLoadingIcon:      false,
             isLoadingChildren:          true,
             isLoadingSearchResults:     false,
             isLoadingMostTypes:         true,
@@ -211,6 +212,7 @@ class App extends React.Component {
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
+        this.setLoadingIconTimeoutStateChange = this.setLoadingIconTimeoutStateChange.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
@@ -1151,9 +1153,12 @@ class App extends React.Component {
 
         if (searchString.length > 1) {
             const thisApp = this;
-            this.setState({isLoadingSearchResults: true});
+            this.setState({shouldShowLoadinIcon: true});
+
+            let loadingTimeout = this.setLoadingIconTimeoutStateChange(1000, true);
 
             getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
+                clearTimeout(loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1182,7 +1187,8 @@ class App extends React.Component {
                     thisApp.setState({
                         searchResults: functionBlocks,
                         lastSearchResultTimestamp: requestTime,
-                        isLoadingSearchResults: false
+                        isLoadingSearchResults: false,
+                        shouldShowLoadingIcon: false
                     });
                 }
             });
@@ -1202,10 +1208,10 @@ class App extends React.Component {
             const thisApp = this;
             this.setState({
                 filterString:      filterString,
-                isLoadingSearchResults:     true
+                shouldShowLoadingIcon:     true
             });
 
-            let loadingTimeout = this.setLoadingIconTimeoutStateChange(1000);
+            let loadingTimeout = this.setLoadingIconTimeoutStateChange(1000, false, true);
 
             getFunctionBlocksMatchingSearchString(filterString, function(functionBlocksJson) {
                 clearTimeout(loadingTimeout);
@@ -1222,7 +1228,7 @@ class App extends React.Component {
                         shouldShowFilteredResults:  true,
                         lastSearchResultTimestamp:  requestTime,
                         isLoadingChildren:          false,
-                        isLoadingSearchResults:     false
+                        shouldShowLoadingIcon:      false
                     });
                 }
             });
@@ -1501,9 +1507,12 @@ class App extends React.Component {
 
         if (searchString.length > 1) {
             const thisApp = this;
-            this.setState({isLoadingSearchResults: true});
+            this.setState({shouldShowLoadingIcon: true});
+
+            let loadingTimeout = this.setLoadingIconTimeoutStateChange(1000, true);
 
             getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
+                clearTimeout(loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1534,7 +1543,8 @@ class App extends React.Component {
                     thisApp.setState({
                         searchResults: mostInterfaces,
                         lastSearchResultTimestamp: requestTime,
-                        isLoadingSearchResults: false
+                        isLoadingSearchResults: false,
+                        shouldShowLoadingIcon: false
                     });
                 }
             });
@@ -1553,11 +1563,14 @@ class App extends React.Component {
         if (filterString.length > 1) {
             const thisApp = this;
             this.setState({
-                isLoadingChildren: true,
+                shouldShowLoadingIcon : true,
                 filterString:      filterString
             });
 
+            let loadingTimeout = this.setLoadingIconTimeoutStateChange(1000, false, true);
+
             getMostInterfacesMatchingSearchString(filterString, function(mostInterfacesJson) {
+                clearTimeout(loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1571,7 +1584,7 @@ class App extends React.Component {
                         shouldShowFilteredResults:  true,
                         lastSearchResultTimestamp:  requestTime,
                         isLoadingChildren:          false,
-                        isLoadingSearchResults:     false
+                        shouldShowLoadingIcon:     false
                     });
                 }
             });
@@ -2561,12 +2574,14 @@ class App extends React.Component {
         account.getSettings().setDefaultMode(roleName);
     }
 
-    setLoadingIconTimeoutStateChange(timeoutDelay) {
+    setLoadingIconTimeoutStateChange(timeoutDelay, displayIconForSearch, displayIconForFilter) {
         let thisApp = this;
         return setTimeout(() => {
-            if (thisApp.state.isLoadingSearchResults) {
+            if (thisApp.state.shouldShowLoadingIcon) {
                 thisApp.setState({
-                    isLoadingChildren: true
+                    isLoadingSearchResults: displayIconForSearch,
+                    isLoadingChildren: displayIconForFilter,
+                    shouldShowLoadingIcon: false
                 });
             }
         }, timeoutDelay);
