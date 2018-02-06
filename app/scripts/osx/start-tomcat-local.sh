@@ -1,4 +1,5 @@
 #!/bin/bash
 
-/usr/local/Cellar/tomcat/8.5.15/bin/catalina run
+TOMCAT_VERSION="`ls /usr/local/Cellar/tomcat/ | sort | tail -n 1`"
+/usr/local/Cellar/tomcat/${TOMCAT_VERSION}/bin/catalina run
 
