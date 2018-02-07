@@ -161,7 +161,7 @@ class Toolbar extends React.Component {
             const buttonTitle = "Submit for Review"
             return (
                 <div className="toolbar-item submitReview" onClick={this.props.onSubmitForReviewClicked} >
-                    <i className="fa fa-4 fa-upload" />
+                    <img className="svg-icon" src="/img/merge.svg" />
                     <div className="tooltip">{buttonTitle}</div>
                 </div>
             );

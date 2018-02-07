@@ -82,3 +82,9 @@
     padding-top: 5px;
     color: #FFFFFF;
 }
+
+.toolbar .toolbar-item .svg-icon {
+    /* #FFFFFF */
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
