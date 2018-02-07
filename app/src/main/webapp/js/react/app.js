@@ -78,6 +78,11 @@ class App extends React.Component {
             functionBlock:    "Function Block"
         };
 
+        this.typesRoles = {
+            createType: "Create Type",
+            editType:   "Edit Type"
+        };
+
         this.headers = {
           functionCatalog:  "FCAT",
           functionBlock:    "FBLOCK",
@@ -2468,7 +2473,7 @@ class App extends React.Component {
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
-                    activeSubRole:              null,
+                    activeSubRole:              thisApp.createType,
                     showSettingsPage:           false,
                     currentReview:              null
                 });
@@ -3069,14 +3074,20 @@ class App extends React.Component {
     }
 
     renderSubRoleToggle() {
-        if (this.state.activeRole === this.roles.development) {
-            const roleItems = [];
-            roleItems.push(this.developmentRoles.functionBlock);
-            roleItems.push(this.developmentRoles.mostInterface);
+        let thisApp = this;
+        function buildSubRolesToggle(activeRole, subRoles) {
+            const roleItems = Object.values(subRoles);
 
             return (
-                <app.RoleToggle roleItems={roleItems} handleClick={(subRole, canUseCachedChildren) => this.handleRoleClick(this.roles.development, subRole, canUseCachedChildren)} activeRole={this.state.activeSubRole} />
+                <app.RoleToggle roleItems={roleItems} handleClick={(subRole, canUseCachedChildren) => thisApp.handleRoleClick(activeRole, subRole, canUseCachedChildren)} activeRole={thisApp.state.activeSubRole} />
             );
+        }
+
+        if (this.state.activeRole === this.roles.development) {
+            return buildSubRolesToggle(this.roles.development, this.developmentRoles);
+        }
+        if (this.state.activeRole === this.roles.types) {
+            return buildSubRolesToggle(this.roles.types, this.typesRoles);
         }
     }
 
