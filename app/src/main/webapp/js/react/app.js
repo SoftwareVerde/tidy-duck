@@ -1156,7 +1156,7 @@ class App extends React.Component {
             const thisApp = this;
 
             clearTimeout(this.state.loadingTimeout);
-            let loadingTimeout = this.getLoadingIconTimeoutStateChange(1000, true);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, true);
 
             this.setState({
                 shouldShowLoadingIcon:  true,
@@ -1214,7 +1214,7 @@ class App extends React.Component {
             const thisApp = this;
 
             clearTimeout(this.state.loadingTimeout);
-            let loadingTimeout = this.getLoadingIconTimeoutStateChange(1000, false, true);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, false, true);
 
             this.setState({
                 filterString:               filterString,
@@ -1518,7 +1518,7 @@ class App extends React.Component {
             const thisApp = this;
 
             clearTimeout(this.state.loadingTimeout);
-            let loadingTimeout = this.getLoadingIconTimeoutStateChange(1000, true);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, true);
 
             this.setState({
                 shouldShowLoadingIcon:  true,
@@ -1575,7 +1575,7 @@ class App extends React.Component {
         const requestTime = (new Date()).getTime();
 
         clearTimeout(this.state.loadingTimeout);
-        let loadingTimeout = this.getLoadingIconTimeoutStateChange(1000, false, true);
+        let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, false, true);
 
         if (filterString.length > 1) {
             const thisApp = this;
