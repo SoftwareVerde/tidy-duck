@@ -3,6 +3,12 @@ body * {
     word-spacing: 1px;
 }
 
+.svg-icon {
+    /* #FFFFFF */
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
+
 .button {
     background-color: #032C46;
     border: none;

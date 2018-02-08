@@ -690,3 +690,9 @@
     font-weight: bold;
     color: rgba(0, 0, 0, 0.5);
 }
+
+.svg-icon {
+    padding: 10px;
+    height: calc(100% - 20px);
+    width: auto;
+}

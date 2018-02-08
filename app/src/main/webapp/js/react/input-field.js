@@ -137,16 +137,40 @@ class InputField extends React.Component {
         }
     }
 
-    onDropdownFocus() {
+    onDropdownFocus(clearContents) {
         if (! this.props.readOnly) {
-            let selectedResult = this.state.selectedResult;
-            if (! selectedResult) {
-                selectedResult = this.getFilteredResults()[0];
+            if (clearContents) {
+                // expecting search
+                let value = this.state.value;
+                this.setState({
+                    value: "",
+                    selectedResult: value,
+                    filterString: "",
+                    showDropdown: false
+                });
             }
-            this.setState({
-                showDropdown: true,
-                selectedResult: selectedResult,
-            });
+            else {
+                // expecting selection from drop-down
+                if (this.state.showDropdown) {
+                    // drop-down is already shown, hide it
+                    this.setState({
+                        showDropdown: false
+                    });
+
+                }
+                else {
+                    // down-down not shown, display it
+                    let selectedResult = this.state.selectedResult;
+                    if (! selectedResult) {
+                        selectedResult = this.getFilteredResults()[0];
+                    }
+                    this.setState({
+                        showDropdown: true,
+                        filterString: "",
+                        selectedResult: selectedResult,
+                    });
+                }
+            }
         }
     }
 
@@ -202,9 +226,9 @@ class InputField extends React.Component {
                 );
                 break;
             case 'dropdown':
-                const sortIcon = this.props.readOnly ? "" : <i className="fa fa-sort"/>;
+                const sortIcon = this.props.readOnly ? "" : <i className="fa fa-sort" onBlur={this.onDropdownBlur} onClick={() => this.onDropdownFocus(false)}/>;
                 return (
-                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
+                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={() => this.onDropdownFocus(true)}>
                         <input type="text" id={this.props.id} name={this.props.name} value={this.state.filterString} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                         {sortIcon}
                         {this.renderFilteredResults()}
