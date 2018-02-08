@@ -26,7 +26,14 @@ class AccountDatabaseManager {
     public boolean insertAccount(final Account account) throws DatabaseException {
         final String username = account.getUsername();
         if (! _isUsernameUnique(username)) {
-            return false;
+            final long duplicateAccountId = _isAccountUsernameMarkedAsDeleted(username);
+            if (duplicateAccountId > 0) {
+                _reactivateDeletedAccount(duplicateAccountId, account);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         final String password = SecureHashUtil.generateRandomPassword();
@@ -60,6 +67,38 @@ class AccountDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public void markAccountAsDeleted(final long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE accounts SET is_deleted = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(accountId)
+        ;
+
+        _databaseConnection.executeSql(query);
+        _deleteExistingRoles(accountId);
+    }
+
+    private void _reactivateDeletedAccount(final long accountId, final Account account) throws DatabaseException {
+        final String password = SecureHashUtil.generateRandomPassword();
+        final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
+        final String name = account.getName();
+        final Long companyId = account.getCompany().getId();
+        final List<Role> roles = new ArrayList<>(account.getRoles());
+
+        final Query query = new Query("UPDATE accounts SET password = ?, name = ?, company_id = ? WHERE id = ?")
+                .setParameter(passwordHash)
+                .setParameter(name)
+                .setParameter(companyId)
+        ;
+
+        _databaseConnection.executeSql(query);
+        account.setId(accountId);
+        account.setPassword(password);
+
+        for (final Role role : roles) {
+            _addRole(accountId, role.getId());
+        }
     }
 
     public boolean insertCompany(final Company company) throws DatabaseException {
@@ -162,6 +201,22 @@ class AccountDatabaseManager {
         final Row row = rows.get(0);
         final long duplicateCount = row.getLong("duplicate_count");
         return (duplicateCount == 0);
+    }
+
+    private long _isAccountUsernameMarkedAsDeleted(final String username) throws DatabaseException {
+        final Query query = new Query("SELECT FROM accounts WHERE username = ?")
+                .setParameter(username)
+        ;
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final Row row = rows.get(0);
+
+        if (row.getBoolean("is_deleted")) {
+            return row.getLong("id");
+        }
+        else {
+            return -1;
+        }
     }
 
     private boolean _isCompanyNameUnique(final String companyName) throws DatabaseException {

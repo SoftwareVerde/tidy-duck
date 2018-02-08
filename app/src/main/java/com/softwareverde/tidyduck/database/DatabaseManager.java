@@ -70,6 +70,13 @@ public class DatabaseManager {
         }
     }
 
+    public void markAccountAsDeleted(final long accountId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final AccountDatabaseManager accountDatabaseManager = new AccountDatabaseManager(databaseConnection);
+            accountDatabaseManager.markAccountAsDeleted(accountId);
+        }
+    }
+
     // FUNCTION CATALOG METHODS
 
     public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
