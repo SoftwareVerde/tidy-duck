@@ -141,18 +141,12 @@
     border: 0px solid;
     border-radius: 5px;
 
-    padding-left: 1em;
-    padding-right: 1em;
-    padding-bottom: 1em;
+    padding: 1em;
 }
 
 #types-main-inputs .input-field {
     display: block;
     padding: 1em 3em;
-}
-
-#types-options-container {
-    padding: 1em;
 }
 
 #type-selector-info {
