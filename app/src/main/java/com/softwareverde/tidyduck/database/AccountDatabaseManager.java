@@ -60,15 +60,6 @@ class AccountDatabaseManager {
         return true;
     }
 
-    public void deactivateAccount(final long accountId) throws DatabaseException {
-        final Query query = new Query("UPDATE accounts SET login_permission = ? WHERE id = ?")
-                .setParameter(false)
-                .setParameter(accountId)
-        ;
-
-        _databaseConnection.executeSql(query);
-    }
-
     public void markAccountAsDeleted(final long accountId) throws DatabaseException {
         final Query query = new Query("UPDATE accounts SET is_deleted = ? WHERE id = ?")
                 .setParameter(true)
@@ -86,10 +77,12 @@ class AccountDatabaseManager {
         final Long companyId = account.getCompany().getId();
         final List<Role> roles = new ArrayList<>(account.getRoles());
 
-        final Query query = new Query("UPDATE accounts SET password = ?, name = ?, company_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE accounts SET password = ?, name = ?, company_id = ?, is_deleted = ? WHERE id = ?")
                 .setParameter(passwordHash)
                 .setParameter(name)
                 .setParameter(companyId)
+                .setParameter(false)
+                .setParameter(accountId)
         ;
 
         _databaseConnection.executeSql(query);
@@ -204,7 +197,7 @@ class AccountDatabaseManager {
     }
 
     private long _isAccountUsernameMarkedAsDeleted(final String username) throws DatabaseException {
-        final Query query = new Query("SELECT FROM accounts WHERE username = ?")
+        final Query query = new Query("SELECT * FROM accounts WHERE username = ?")
                 .setParameter(username)
         ;
 

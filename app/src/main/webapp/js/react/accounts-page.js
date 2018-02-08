@@ -355,7 +355,7 @@ class AccountsPage extends React.Component {
         const thisApp = this;
 
         this.setState({
-            deleteAccountButtonState: this.DeleteButtonState.deleting
+            deleteAccountButtonState: thisApp.DeleteButtonState.deleting
         });
 
         const deleteAccountFunction = function() {
@@ -370,17 +370,16 @@ class AccountsPage extends React.Component {
                     thisApp.setState({
                         accounts: accounts,
                         editedAccount: null,
-                        deleteAccountButtonState: this.DeleteButtonState.delete
+                        deleteAccountButtonState: thisApp.DeleteButtonState.delete
                     });
                 }
                 else {
                     app.App.alert("Unable to delete account", data.errorMessage);
 
                     thisApp.setState({
-                        deleteAccountButtonState: this.DeleteButtonState.delete
+                        deleteAccountButtonState: thisApp.DeleteButtonState.delete
                     });
                 }
-
             });
         };
 
@@ -602,7 +601,7 @@ class AccountsPage extends React.Component {
 
             let deleteAccountButton = <button type="delete" id="delete-account-button" className="button" onClick={this.onMarkAccountAsDeleted}>Delete Account</button>;
             if (this.state.deleteAccountButtonState === this.DeleteButtonState.deleting) {
-                <button type="delete" id="delete-account-button" className="button"><i className="fa fa-refresh fa-spin"/></button>;
+                deleteAccountButton = <button type="delete" id="delete-account-button" className="button"><i className="fa fa-refresh fa-spin"/></button>;
             }
 
             return (
@@ -612,7 +611,7 @@ class AccountsPage extends React.Component {
                     <app.InputField type="text" label="Name" name="name" value={editedAccount.getName()} onChange={this.onEditedAccountNameChanged} isRequired={true} />
                     <app.InputField type="select" label="Company" name="company" value={editedAccount.getCompany().getName()} options={companyOptions} onChange={this.onEditedAccountCompanyChanged} isRequired={true}/>
                     {editedAccountSaveButton}
-                    {deleteAccountButton}
+                    <div>{deleteAccountButton}</div>
                     <div className="cancel-button"><button className="button" onClick={this.onCancelUpdateAccount}>Cancel</button></div>
                 </form>
             );

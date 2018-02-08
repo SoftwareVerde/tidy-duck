@@ -21,8 +21,17 @@ public class AccountInflater {
         _databaseConnection = connection;
     }
 
-    public List<Account> inflateAccounts() throws DatabaseException {
-        final Query query = new Query("SELECT id FROM accounts");
+    public List<Account> inflateAccounts(final boolean includeDeletedAccounts) throws DatabaseException {
+        final Query query;
+
+        if (includeDeletedAccounts) {
+            query = new Query("SELECT id FROM accounts");
+        }
+        else {
+            query = new Query("SELECT id FROM accounts WHERE is_deleted = ?")
+                .setParameter(false)
+            ;
+        }
 
         List<Row> rows = _databaseConnection.query(query);
         List<Account> accounts = new ArrayList<>();

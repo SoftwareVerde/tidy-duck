@@ -154,7 +154,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Json _getAccounts(final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final AccountInflater accountInflater = new AccountInflater(databaseConnection);
-            final List<Account> accounts = accountInflater.inflateAccounts();
+            final List<Account> accounts = accountInflater.inflateAccounts(false);
 
             final Json response = new Json(false);
 
