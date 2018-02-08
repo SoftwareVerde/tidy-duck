@@ -2,12 +2,15 @@ class TypesPage extends React.Component {
     constructor(props) {
         super(props);
 
-        this.options = ["Create Type", "Edit Type"];
+        this.modes = {
+            createType: "Create Type",
+            editType: "Edit Type"
+        };
 
         let mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
 
         this.state = {
-            selectedOption: this.options[0],
+            currentMode: props.mode,
             mostType: mostType,
             saveButtonText: 'Save',
         };
@@ -93,7 +96,9 @@ class TypesPage extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-
+        this.setState({
+            currentMode: newProps.mode
+        })
     }
 
     static createNewMostType(primitiveTypes) {
@@ -112,7 +117,7 @@ class TypesPage extends React.Component {
     handleOptionClick(option) {
         const mostType = TypesPage.createNewMostType(this.props.primitiveTypes);
         this.setState({
-            selectedOption: option,
+            currentMode: option,
             selectedType: null,
             mostType: mostType
         });
@@ -229,7 +234,7 @@ class TypesPage extends React.Component {
     getStreamParamTypes() {
         const streamParamTypes = [];
         const mostTypeName = this.state.mostType.getName();
-        const checkForCircularReferences = this.state.selectedOption == this.options[1];
+        const checkForCircularReferences = this.state.currentMode == this.modes.editType;
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
@@ -252,7 +257,7 @@ class TypesPage extends React.Component {
     getArrayTypes() {
         const arrayTypes = [];
         const mostTypeName = this.state.mostType.getName();
-        const checkForCircularReferences = this.state.selectedOption == this.options[1];
+        const checkForCircularReferences = this.state.currentMode == this.modes.editType;
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
@@ -275,7 +280,7 @@ class TypesPage extends React.Component {
     getRecordTypes() {
         const recordTypes = [];
         const mostTypeName = this.state.mostType.getName();
-        const checkForCircularReferences = this.state.selectedOption == this.options[1];
+        const checkForCircularReferences = this.state.currentMode == this.modes.editType;
 
         for (let i in this.props.mostTypes) {
             let type = this.props.mostTypes[i];
@@ -317,7 +322,7 @@ class TypesPage extends React.Component {
         });
 
         // Check if creating a new type or editing and existing one
-        if (this.state.selectedOption === this.options[0]) {
+        if (this.state.currentMode === this.modes.createType) {
             // new type: add
             insertMostType(mostTypeJson, function (data) {
                 let currentMostType = mostType;
@@ -341,7 +346,7 @@ class TypesPage extends React.Component {
                 })
             });
         }
-        else if (this.state.selectedOption === this.options[1]) {
+        else if (this.state.currentMode === this.modes.editType) {
             // existing type: update
             const mostTypeId = this.state.mostType.getId();
             updateMostType(mostTypeId, mostTypeJson, function (data) {
@@ -1158,7 +1163,7 @@ class TypesPage extends React.Component {
         }
 
         let typeSelector = "";
-        if (this.state.selectedOption == "Edit Type") {
+        if (this.state.currentMode == this.modes.editType) {
             // add empty option in selector
             const thisPage = this;
             const mostTypes = [''].concat(this.props.mostTypes.map((type) => type.getName()).sort());
@@ -1466,10 +1471,6 @@ class TypesPage extends React.Component {
     render() {
         return (
             <div id="types-container">
-                <div key="types-options-container" id="types-options-container" className="center">
-                    <app.RoleToggle roleItems={this.options} handleClick={this.handleOptionClick}
-                                    activeRole={this.state.selectedOption}/>
-                </div>
                 {this.renderFormElements()}
             </div>
         );

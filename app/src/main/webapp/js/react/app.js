@@ -2989,7 +2989,7 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage onTypeCreated={this.onTypeCreated} onTypeChanged={this.onTypeChanged} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
+                            <app.TypesPage mode={this.state.activeSubRole} onTypeCreated={this.onTypeCreated} onTypeChanged={this.onTypeChanged} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
                                            isLoadingTypesPage={this.state.isLoadingMostTypes || this.state.isLoadingPrimitiveTypes || this.state.isLoadingUnits} />
                         </div>
                     );
