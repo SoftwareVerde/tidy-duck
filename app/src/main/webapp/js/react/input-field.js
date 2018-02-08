@@ -11,9 +11,11 @@ class InputField extends React.Component {
         };
 
         this.onInputChanged = this.onInputChanged.bind(this);
+        this.onDropdownIconClick = this.onDropdownIconClick.bind(this);
         this.onDropdownKeyPress = this.onDropdownKeyPress.bind(this);
         this.onDropdownFocus = this.onDropdownFocus.bind(this);
         this.onDropdownBlur = this.onDropdownBlur.bind(this);
+        this.onFilterStringChanged = this.onFilterStringChanged.bind(this);
         this.onFilteredResultMouseOver = this.onFilteredResultMouseOver.bind(this);
         this.onFilteredResultsMouseMove = this.onFilteredResultsMouseMove.bind(this);
         this.onFilteredResultClick = this.onFilteredResultClick.bind(this);
@@ -65,7 +67,25 @@ class InputField extends React.Component {
         }
     }
 
-    onDropdownKeyPress(e) {
+    onDropdownIconClick() {
+        if (this.state.showDropdown) {
+            // drop-down is shown, hide it
+            this.setState({
+                showDropdown: false,
+                ignoreMouse: false
+            })
+        }
+        else {
+            // focus input and show dropdown
+            let searchInput = this.searchInput;
+            searchInput.focus();
+            this.setState({
+                showDropdown: true
+            });
+        }
+    }
+
+    onDropdownKeyPress(event) {
         if (! this.props.readOnly) {
             const options = this.getFilteredResults();
             const selectedResult = this.state.selectedResult || options[0];
@@ -73,10 +93,9 @@ class InputField extends React.Component {
             const previousOption = options[Math.max(0, selectedResultIndex-1)];
             const nextOption = options[Math.min(options.length-1, selectedResultIndex+1)];
 
-            switch (e.keyCode) {
-                case 13:
-                case 32:
-                    e.preventDefault();
+            switch (event.key) {
+                case 'Enter':
+                    event.preventDefault();
                     if (typeof this.props.onSelect == "function") {
                         this.props.onSelect(selectedResult, this.props.name)
                     }
@@ -85,12 +104,16 @@ class InputField extends React.Component {
                         filterString: selectedResult,
                         showDropdown: false,
                     });
+
+                    if (this.props.onChange) {
+                        this.props.onChange(selectedResult, this.props.name)
+                    }
                     break;
 
-                case 38:
+                case 'ArrowUp':
                     const previousElement = document.getElementById(previousOption);
-                    if(previousElement) {
-                        e.preventDefault();
+                    if (previousElement) {
+                        event.preventDefault();
 
                         if (navigator.userAgent.indexOf('Firefox') > -1) {
                             previousElement.scrollIntoView(false);
@@ -105,12 +128,17 @@ class InputField extends React.Component {
                             ignoreMouse: true
                         });
                     }
+                    else {
+                        this.setState({
+                            showDropdown: true
+                        });
+                    }
                     break;
 
-                case 40:
+                case 'ArrowDown':
                     const nextElement = document.getElementById(nextOption);
                     if (nextElement) {
-                        e.preventDefault();
+                        event.preventDefault();
 
                         if (navigator.userAgent.indexOf('Firefox') > -1) {
                             nextElement.scrollIntoView(false);
@@ -125,6 +153,11 @@ class InputField extends React.Component {
                             ignoreMouse: true
                         });
                     }
+                    else {
+                        this.setState({
+                            showDropdown: true
+                        });
+                    }
                     break;
 
                 default:
@@ -137,46 +170,31 @@ class InputField extends React.Component {
         }
     }
 
-    onDropdownFocus(clearContents) {
+    onDropdownFocus() {
         if (! this.props.readOnly) {
-            if (clearContents) {
-                // expecting search
-                let value = this.state.value;
-                this.setState({
-                    value: "",
-                    selectedResult: value,
-                    filterString: "",
-                    showDropdown: false
-                });
-            }
-            else {
-                // expecting selection from drop-down
-                if (this.state.showDropdown) {
-                    // drop-down is already shown, hide it
-                    this.setState({
-                        showDropdown: false
-                    });
-
-                }
-                else {
-                    // down-down not shown, display it
-                    let selectedResult = this.state.selectedResult;
-                    if (! selectedResult) {
-                        selectedResult = this.getFilteredResults()[0];
-                    }
-                    this.setState({
-                        showDropdown: true,
-                        filterString: "",
-                        selectedResult: selectedResult,
-                    });
-                }
-            }
+            this.setState({
+                filterString: "",
+                showDropdown: false
+            });
         }
     }
 
     onDropdownBlur() {
         if (! this.props.readOnly) {
-            this.onFilteredResultClick();
+            this.setState({
+                filterString: this.state.value,
+                showDropdown: false
+            });
+        }
+    }
+
+    onFilterStringChanged(event) {
+        if (! this.props.readOnly) {
+            let value = event.target.value;
+            this.setState({
+                filterString: value,
+                showDropdown: true
+            });
         }
     }
 
@@ -195,15 +213,20 @@ class InputField extends React.Component {
     }
 
     onFilteredResultClick() {
+        let selectedResult = this.state.selectedResult;
         if (typeof this.props.onSelect == "function") {
-            this.props.onSelect(this.state.selectedResult, this.props.name)
+            this.props.onSelect(selectedResult, this.props.name)
         }
 
         this.setState({
-            value:          this.state.selectedResult,
-            filterString:   this.state.selectedResult,
+            value:          selectedResult,
+            filterString:   selectedResult,
             showDropdown:   false,
         });
+
+        if (this.props.onChange) {
+            this.props.onChange(selectedResult, this.props.name)
+        }
     }
 
     renderInput() {
@@ -226,10 +249,10 @@ class InputField extends React.Component {
                 );
                 break;
             case 'dropdown':
-                const sortIcon = this.props.readOnly ? "" : <i className="fa fa-sort" onBlur={this.onDropdownBlur} onClick={() => this.onDropdownFocus(false)}/>;
+                const sortIcon = this.props.readOnly ? "" : <i className="fa fa-sort" onClick={this.onDropdownIconClick} onMouseDown={(event) => event.preventDefault() }/>;
                 return (
-                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={() => this.onDropdownFocus(true)}>
-                        <input type="text" id={this.props.id} name={this.props.name} value={this.state.filterString} onChange={this.onInputChanged} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
+                    <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
+                        <input type="text" ref={(input) => { this.searchInput = input; }} id={this.props.id} name={this.props.name} autoComplete="off" onChange={this.onFilterStringChanged} value={this.state.filterString} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                         {sortIcon}
                         {this.renderFilteredResults()}
                     </div>
@@ -261,7 +284,7 @@ class InputField extends React.Component {
             for (let i in options) {
                 const option = options[i];
                 const resultStyle = (option == selectedResult) ? "selected-result" : "filtered-result";
-                reactComponents.push(<div key={"result" + i} id={option} className={resultStyle} onMouseMove={this.onFilteredResultsMouseMove} onMouseOver={() => this.onFilteredResultMouseOver(option)}>{option}</div>)
+                reactComponents.push(<div key={"result" + i} id={option} className={resultStyle} onMouseMove={this.onFilteredResultsMouseMove} onMouseOver={() => this.onFilteredResultMouseOver(option)} onMouseDown={(event) => event.preventDefault() }>{option}</div>)
             }
 
             return(
