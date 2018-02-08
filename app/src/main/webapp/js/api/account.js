@@ -237,3 +237,19 @@ function resetPassword(accountId, callback) {
         }
     );
 }
+
+function markAccountAsDeleted(accountId, callback) {
+    const request = new Request(
+        API_PREFIX + "accounts/" + accountId + "/delete-password",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+    tidyFetch(request, function(data) {
+            if (typeof callback == "function") {
+                callback(data);
+            }
+        }
+    );
+}

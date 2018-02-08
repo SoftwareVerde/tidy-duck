@@ -121,6 +121,21 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("accounts/<accountId>/delete-account", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                final Long providedAccountId = Util.parseLong(parameters.get("accountId"));
+                if (providedAccountId < 1) {
+                    return _generateErrorJson("Invalid account ID provided.");
+                }
+
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                return _markAccountAsDeleted(currentAccount, providedAccountId, environment.getDatabase());
+            }
+        });
+
+
         super._defineEndpoint("companies", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -413,6 +428,21 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         catch (DatabaseException e) {
             _logger.error("Unable to reset password: ", e);
             return _generateErrorJson("Unable to reset password: " + e.getMessage());
+        }
+    }
+
+    protected Json _markAccountAsDeleted(final Account currentAccount, final long accountId, final Database<Connection> database) {
+        final Json response = _generateSuccessJson();
+        try{
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.markAccountAsDeleted(accountId);
+
+            _logger.info("User " + currentAccount.getId() + " marked user " + accountId + " as deleted.");
+            return response;
+        }
+        catch (DatabaseException e) {
+            _logger.error("Unable to mark account as deleted: ", e);
+            return _generateErrorJson("Unable to mark account as deleted: " + e.getMessage());
         }
     }
 

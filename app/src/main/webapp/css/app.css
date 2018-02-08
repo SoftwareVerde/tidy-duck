@@ -12,7 +12,7 @@
     opacity: 0.5;
     top: 0;
     left: 0;
-    z-index: 999;
+    z-index: 2;
 }
 
 #logout {
@@ -69,7 +69,7 @@
     padding-right: 1em;
     padding-bottom: 1em;
 
-    z-index: 2;
+    z-index: 10;
 }
 
 .cancel-button button {
