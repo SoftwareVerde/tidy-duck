@@ -16,5 +16,16 @@ VALUES
         (5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1),
         (6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
--- Add is_deleted column to Accounts table
+-- Add is_deleted column to accounts table
 ALTER TABLE accounts ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER company_id;
+
+-- Add creator_account_id column to function_catalogs, function_blocks, and interfaces
+ALTER TABLE function_catalogs ADD COLUMN creator_account_id INT UNSIGNED NULL AFTER prior_version_id;
+ALTER TABLE function_blocks ADD COLUMN creator_account_id INT UNSIGNED NULL AFTER prior_version_id;
+ALTER TABLE interfaces ADD COLUMN creator_account_id INT UNSIGNED NULL AFTER prior_version_id;
+
+-- Set foreign key constraints for creator_account_id columns. Constrain them to the id column of the accounts table
+ALTER TABLE function_catalogs ADD FOREIGN KEY (creator_account_id) REFERENCES accounts (id);
+ALTER TABLE function_blocks ADD FOREIGN KEY (creator_account_id) REFERENCES accounts (id);
+ALTER TABLE interfaces ADD FOREIGN KEY (creator_account_id) REFERENCES accounts (id);
+

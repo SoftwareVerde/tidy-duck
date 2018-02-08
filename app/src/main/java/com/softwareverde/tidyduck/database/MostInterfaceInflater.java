@@ -137,6 +137,7 @@ public class MostInterfaceInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
+        final Long creatorAccountId = row.getLong("creator_account_id");
 
         MostInterface mostInterface = new MostInterface();
         mostInterface.setId(id);
@@ -149,6 +150,7 @@ public class MostInterfaceInflater {
         mostInterface.setIsReleased(isReleased);
         mostInterface.setBaseVersionId(baseVersionId);
         mostInterface.setPriorVersionId(priorVersionId);
+        mostInterface.setCreatorAccountId(creatorAccountId);
 
         return mostInterface;
     }

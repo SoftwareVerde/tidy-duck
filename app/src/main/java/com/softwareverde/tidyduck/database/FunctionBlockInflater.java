@@ -141,6 +141,7 @@ public class FunctionBlockInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
+        final Long creatorAccountId = row.getLong("creator_account_id");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -164,6 +165,7 @@ public class FunctionBlockInflater {
         functionBlock.setIsReleased(isReleased);
         functionBlock.setBaseVersionId(baseVersionId);
         functionBlock.setPriorVersionId(priorVersionId);
+        functionBlock.setCreatorAccountId(creatorAccountId);
 
         return functionBlock;
     }

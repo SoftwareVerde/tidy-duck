@@ -23,6 +23,7 @@ public class FunctionBlock {
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
+    private Long _creatorAccountId;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
@@ -153,6 +154,10 @@ public class FunctionBlock {
     public void setPriorVersionId(Long priorVersionId) {
         _priorVersionId = priorVersionId;
     }
+
+    public Long getCreatorAccountId() { return _creatorAccountId; }
+
+    public void setCreatorAccountId(final Long creatorAccountId) { _creatorAccountId = creatorAccountId; }
 
     public List<Modification> getModifications() {
         return _modifications;
