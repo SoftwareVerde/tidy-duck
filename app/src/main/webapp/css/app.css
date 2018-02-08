@@ -12,7 +12,7 @@
     opacity: 0.5;
     top: 0;
     left: 0;
-    z-index: 999;
+    z-index: 2;
 }
 
 #logout {
@@ -69,7 +69,21 @@
     padding-right: 1em;
     padding-bottom: 1em;
 
-    z-index: 2;
+    z-index: 10;
+}
+
+.delete-button button {
+    background-color: #A00000;
+    color: #FFFFFF;
+    max-width: 75%;
+}
+
+.delete-button i {
+    color: #FFFFFF;
+}
+
+.delete-button button:hover {
+    background-color: #F00000;
 }
 
 .cancel-button button {
