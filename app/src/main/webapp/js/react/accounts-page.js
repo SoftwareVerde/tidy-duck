@@ -605,7 +605,7 @@ class AccountsPage extends React.Component {
 
             let deleteAccountButton = <button type="delete" id="delete-account-button" className="button" onClick={this.onMarkAccountAsDeleted}>Delete Account</button>;
             if (this.state.deleteAccountButtonState === this.DeleteButtonState.deleting) {
-                deleteAccountButton = <div type="delete" id="delete-account-button" className="button"><i className="fa fa-refresh fa-spin"/></div>;
+                deleteAccountButton = <button type="delete" id="delete-account-button" className="button" disabled={true}><i className="fa fa-refresh fa-spin"/></button>;
             }
 
             return (
@@ -615,8 +615,8 @@ class AccountsPage extends React.Component {
                     <app.InputField type="text" label="Name" name="name" value={editedAccount.getName()} onChange={this.onEditedAccountNameChanged} isRequired={true} />
                     <app.InputField type="select" label="Company" name="company" value={editedAccount.getCompany().getName()} options={companyOptions} onChange={this.onEditedAccountCompanyChanged} isRequired={true}/>
                     {editedAccountSaveButton}
-                    <div>{deleteAccountButton}</div>
                     <div className="cancel-button"><button className="button" onClick={this.onCancelUpdateAccount}>Cancel</button></div>
+                    <div className="delete-button">{deleteAccountButton}</div>
                 </form>
             );
         }

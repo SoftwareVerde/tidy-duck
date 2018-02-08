@@ -72,6 +72,20 @@
     z-index: 10;
 }
 
+.delete-button button {
+    background-color: #A00000;
+    color: #FFFFFF;
+    max-width: 75%;
+}
+
+.delete-button i {
+    color: #FFFFFF;
+}
+
+.delete-button button:hover {
+    background-color: #F00000;
+}
+
 .cancel-button button {
     background-color: #D0D0D0;
     margin: 0.5em;
