@@ -128,10 +128,9 @@
 
 .dropdown .fa-sort {
     position: absolute;
-    top: 15%;
-    right: 2%;
+    right: 0;
     font-size: 2em;
-
+    padding: 5px;
 }
 
 .input-icons {
