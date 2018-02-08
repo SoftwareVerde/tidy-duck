@@ -9,6 +9,12 @@ class AccountsPage extends React.Component {
             saved:  'saved'
         };
 
+        this.DeleteButtonState = {
+            delete: 'delete',
+            deleting: 'deleting',
+            deleted: 'deleted'
+        };
+
         const account = new Account();
         const accountCompany = this.props.companies[0];
         account.setCompany(accountCompany);
@@ -25,6 +31,7 @@ class AccountsPage extends React.Component {
             createAccountButtonState: this.SaveButtonState.submit,
             editedAccountButtonState: this.SaveButtonState.save,
             createCompanyButtonState: this.SaveButtonState.submit,
+            deleteAccountButtonState: this.DeleteButtonState.delete,
             isLoadingAccounts: true,
             editedAccount: null,
             accounts: []
@@ -57,6 +64,7 @@ class AccountsPage extends React.Component {
         this.onEditedAccountUsernameChanged = this.onEditedAccountUsernameChanged.bind(this);
         this.onResetPassword = this.onResetPassword.bind(this);
         this.onUpdateAccountMetadata = this.onUpdateAccountMetadata.bind(this);
+        this.onMarkAccountAsDeleted = this.onMarkAccountAsDeleted.bind(this);
         this.onCancelUpdateAccount = this.onCancelUpdateAccount.bind(this);
         this.renderCreateAccountForm = this.renderCreateAccountForm.bind(this);
         this.renderCreateCompanyForm = this.renderCreateCompanyForm.bind(this);
@@ -339,6 +347,46 @@ class AccountsPage extends React.Component {
         });
     }
 
+    onMarkAccountAsDeleted(event) {
+        event.preventDefault();
+        const editedAccount = this.state.editedAccount;
+        const editedAccountId = editedAccount.getId();
+        const editedAccountName = editedAccount.getName();
+        const thisApp = this;
+
+        this.setState({
+            deleteAccountButtonState: this.DeleteButtonState.deleting
+        });
+
+        const deleteAccountFunction = function() {
+            markAccountAsDeleted(editedAccountId, function(data) {
+                if (data.wasSuccess) {
+                    app.App.alert("Account deleted", editedAccountName + "'s account has been deleted. You may restore the account by recreating a new account with the same username.");
+
+                    const accounts = thisApp.state.accounts.filter(function(value) {
+                        return value.getId() != editedAccountId;
+                    });
+
+                    thisApp.setState({
+                        accounts: accounts,
+                        editedAccount: null,
+                        deleteAccountButtonState: this.DeleteButtonState.delete
+                    });
+                }
+                else {
+                    app.App.alert("Unable to delete account", data.errorMessage);
+
+                    thisApp.setState({
+                        deleteAccountButtonState: this.DeleteButtonState.delete
+                    });
+                }
+
+            });
+        };
+
+        app.App.confirm("Delete Account", "Are you sure you want to delete the account for " + editedAccountName + "?", deleteAccountFunction);
+    }
+
     onEditedAccountNameChanged(value) {
         const account = this.state.editedAccount;
         account.setName(value);
@@ -495,7 +543,7 @@ class AccountsPage extends React.Component {
             <table className="accounts-table">
                 <thead>
                     <tr>
-                        <th key="name">User</th>
+                        <th key="name">User (Click to Edit or Delete)</th>
                         <th key="roles">Roles <i className="fa fa-info-circle" onClick={this.onRolesInfoClicked}/></th>
                         <th key="reset"></th>
                     </tr>
@@ -552,6 +600,11 @@ class AccountsPage extends React.Component {
                 editedAccountSaveButton = <div id="create-account-button" className="button">{this.renderCreateButtonText()}</div>;
             }
 
+            let deleteAccountButton = <button type="delete" id="delete-account-button" className="button" onClick={this.onMarkAccountAsDeleted}>Delete Account</button>;
+            if (this.state.deleteAccountButtonState === this.DeleteButtonState.deleting) {
+                <button type="delete" id="delete-account-button" className="button"><i className="fa fa-refresh fa-spin"/></button>;
+            }
+
             return (
                 <form id="edit-user" className="popup-container" onSubmit={this.onUpdateAccountMetadata}>
                     <h1>Edit Account</h1>
@@ -559,6 +612,7 @@ class AccountsPage extends React.Component {
                     <app.InputField type="text" label="Name" name="name" value={editedAccount.getName()} onChange={this.onEditedAccountNameChanged} isRequired={true} />
                     <app.InputField type="select" label="Company" name="company" value={editedAccount.getCompany().getName()} options={companyOptions} onChange={this.onEditedAccountCompanyChanged} isRequired={true}/>
                     {editedAccountSaveButton}
+                    {deleteAccountButton}
                     <div className="cancel-button"><button className="button" onClick={this.onCancelUpdateAccount}>Cancel</button></div>
                 </form>
             );

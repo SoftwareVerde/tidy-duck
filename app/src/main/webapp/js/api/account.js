@@ -240,7 +240,7 @@ function resetPassword(accountId, callback) {
 
 function markAccountAsDeleted(accountId, callback) {
     const request = new Request(
-        API_PREFIX + "accounts/" + accountId + "/delete-password",
+        API_PREFIX + "accounts/" + accountId + "/delete-account",
         {
             method: "POST",
             credentials: "include"
