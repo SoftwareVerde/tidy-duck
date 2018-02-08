@@ -78,6 +78,11 @@ class App extends React.Component {
             functionBlock:    "Function Block"
         };
 
+        this.typesRoles = {
+            createType: "Create Type",
+            editType:   "Edit Type"
+        };
+
         this.headers = {
           functionCatalog:  "FCAT",
           functionBlock:    "FBLOCK",
@@ -122,6 +127,8 @@ class App extends React.Component {
             createButtonState:          this.CreateButtonState.normal,
             selectedFunctionStereotype: null,
             shouldShowSearchChildForm:  false,
+            shouldShowLoadingIcon:      false,
+            loadingTimeout:             null,
             isLoadingChildren:          true,
             isLoadingSearchResults:     false,
             isLoadingMostTypes:         true,
@@ -211,6 +218,7 @@ class App extends React.Component {
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
+        this.getLoadingIconTimeoutStateChange = this.getLoadingIconTimeoutStateChange.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
@@ -1151,9 +1159,18 @@ class App extends React.Component {
 
         if (searchString.length > 1) {
             const thisApp = this;
-            this.setState({isLoadingSearchResults: true});
+
+            clearTimeout(this.state.loadingTimeout);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, true);
+
+            this.setState({
+                shouldShowLoadingIcon:  true,
+                isLoadingSearchResults: false,
+                loadingTimeout:         loadingTimeout
+            });
 
             getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
+                clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1182,15 +1199,17 @@ class App extends React.Component {
                     thisApp.setState({
                         searchResults: functionBlocks,
                         lastSearchResultTimestamp: requestTime,
-                        isLoadingSearchResults: false
+                        isLoadingSearchResults: false,
+                        shouldShowLoadingIcon: false
                     });
                 }
             });
         } else {
             this.setState({
                 searchResults: [],
-                lastSearchResultTimestamp: requestTime,
-                isLoadingSearchResults: false
+                lastSearchResultTimestamp:  requestTime,
+                shouldShowLoadingIcon:      false,
+                isLoadingSearchResults:     false
             });
         }
     }
@@ -1200,12 +1219,19 @@ class App extends React.Component {
 
         if (filterString.length > 1) {
             const thisApp = this;
+
+            clearTimeout(this.state.loadingTimeout);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, false, true);
+
             this.setState({
-                isLoadingChildren: true,
-                filterString:      filterString
+                filterString:               filterString,
+                shouldShowLoadingIcon:      true,
+                isLoadingChildren:          false,
+                loadingTimeout:             loadingTimeout
             });
 
             getFunctionBlocksMatchingSearchString(filterString, function(functionBlocksJson) {
+                clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1219,7 +1245,7 @@ class App extends React.Component {
                         shouldShowFilteredResults:  true,
                         lastSearchResultTimestamp:  requestTime,
                         isLoadingChildren:          false,
-                        isLoadingSearchResults:     false
+                        shouldShowLoadingIcon:      false
                     });
                 }
             });
@@ -1230,6 +1256,7 @@ class App extends React.Component {
                 lastSearchResultTimestamp:      requestTime,
                 isLoadingChildren:              false,
                 isLoadingSearchResults:         false,
+                shouldShowLoadingIcon:          false,
                 shouldShowFilteredResults:      false,
                 filterString:                   filterString
             });
@@ -1498,9 +1525,18 @@ class App extends React.Component {
 
         if (searchString.length > 1) {
             const thisApp = this;
-            this.setState({isLoadingSearchResults: true});
+
+            clearTimeout(this.state.loadingTimeout);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, true);
+
+            this.setState({
+                shouldShowLoadingIcon:  true,
+                isLoadingSearchResults: false,
+                loadingTimeout:         loadingTimeout
+            });
 
             getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
+                clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1531,7 +1567,8 @@ class App extends React.Component {
                     thisApp.setState({
                         searchResults: mostInterfaces,
                         lastSearchResultTimestamp: requestTime,
-                        isLoadingSearchResults: false
+                        isLoadingSearchResults: false,
+                        shouldShowLoadingIcon: false
                     });
                 }
             });
@@ -1539,6 +1576,7 @@ class App extends React.Component {
             this.setState({
                 searchResults: [],
                 lastSearchResultTimestamp: requestTime,
+                shouldShowLoadingIcon:  false,
                 isLoadingSearchResults: false
             });
         }
@@ -1547,14 +1585,21 @@ class App extends React.Component {
     onFilterMostInterfaces(filterString) {
         const requestTime = (new Date()).getTime();
 
+        clearTimeout(this.state.loadingTimeout);
+        let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, false, true);
+
         if (filterString.length > 1) {
             const thisApp = this;
+
             this.setState({
-                isLoadingChildren: true,
-                filterString:      filterString
+                shouldShowLoadingIcon : true,
+                filterString:           filterString,
+                isLoadingChildren:      false,
+                loadingTimeout:         loadingTimeout
             });
 
             getMostInterfacesMatchingSearchString(filterString, function(mostInterfacesJson) {
+                clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
                         // old results, discard
@@ -1568,7 +1613,7 @@ class App extends React.Component {
                         shouldShowFilteredResults:  true,
                         lastSearchResultTimestamp:  requestTime,
                         isLoadingChildren:          false,
-                        isLoadingSearchResults:     false
+                        shouldShowLoadingIcon:     false
                     });
                 }
             });
@@ -1579,6 +1624,7 @@ class App extends React.Component {
                 lastSearchResultTimestamp:      requestTime,
                 isLoadingChildren:              false,
                 isLoadingSearchResults:         false,
+                shouldShowLoadingIcon:          false,
                 shouldShowFilteredResults:      false,
                 filterString:                   filterString
             });
@@ -2447,6 +2493,8 @@ class App extends React.Component {
                 }
             } break;
             case this.roles.types: {
+                const newActiveSubRole = (subRoleName || this.typesRoles.createType);
+
                 this.setState({
                     navigationItems:            [],
                     searchResults:              [],
@@ -2468,7 +2516,7 @@ class App extends React.Component {
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
-                    activeSubRole:              null,
+                    activeSubRole:              newActiveSubRole,
                     showSettingsPage:           false,
                     currentReview:              null
                 });
@@ -2556,6 +2604,21 @@ class App extends React.Component {
     onDefaultModeChanged(roleName) {
         const account = this.state.account;
         account.getSettings().setDefaultMode(roleName);
+    }
+
+    getLoadingIconTimeoutStateChange(timeoutDelay, displayIconForSearch, displayIconForFilter) {
+        let thisApp = this;
+        let loadingTimeout = setTimeout(() => {
+            if (thisApp.state.shouldShowLoadingIcon) {
+                thisApp.setState({
+                    isLoadingSearchResults: displayIconForSearch,
+                    isLoadingChildren: displayIconForFilter,
+                    shouldShowLoadingIcon: false
+                });
+            }
+        }, timeoutDelay);
+
+        return loadingTimeout;
     }
 
     setTheme(themeName) {
@@ -2982,7 +3045,7 @@ class App extends React.Component {
                     // types role
                     return (
                         <div id="main-content" className="container">
-                            <app.TypesPage onTypeCreated={this.onTypeCreated} onTypeChanged={this.onTypeChanged} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
+                            <app.TypesPage mode={this.state.activeSubRole} onTypeCreated={this.onTypeCreated} onTypeChanged={this.onTypeChanged} mostTypes={this.state.mostTypes} primitiveTypes={this.state.primitiveTypes} mostUnits={this.state.mostUnits}
                                            isLoadingTypesPage={this.state.isLoadingMostTypes || this.state.isLoadingPrimitiveTypes || this.state.isLoadingUnits} />
                         </div>
                     );
@@ -3069,14 +3132,20 @@ class App extends React.Component {
     }
 
     renderSubRoleToggle() {
-        if (this.state.activeRole === this.roles.development) {
-            const roleItems = [];
-            roleItems.push(this.developmentRoles.functionBlock);
-            roleItems.push(this.developmentRoles.mostInterface);
+        let thisApp = this;
+        function buildSubRolesToggle(activeRole, subRoles) {
+            const roleItems = Object.values(subRoles);
 
             return (
-                <app.RoleToggle roleItems={roleItems} handleClick={(subRole, canUseCachedChildren) => this.handleRoleClick(this.roles.development, subRole, canUseCachedChildren)} activeRole={this.state.activeSubRole} />
+                <app.RoleToggle roleItems={roleItems} handleClick={(subRole, canUseCachedChildren) => thisApp.handleRoleClick(activeRole, subRole, canUseCachedChildren)} activeRole={thisApp.state.activeSubRole} />
             );
+        }
+
+        if (this.state.activeRole === this.roles.development) {
+            return buildSubRolesToggle(this.roles.development, this.developmentRoles);
+        }
+        if (this.state.activeRole === this.roles.types) {
+            return buildSubRolesToggle(this.roles.types, this.typesRoles);
         }
     }
 
@@ -3100,7 +3169,6 @@ class App extends React.Component {
                 <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue={defaultText} readOnly={false} onChange={filterFunction}/>
             </div>
         );
-
     }
 
     logout() {
