@@ -1160,6 +1160,7 @@ class App extends React.Component {
 
             this.setState({
                 shouldShowLoadingIcon:  true,
+                isLoadingSearchResults: false,
                 loadingTimeout:         loadingTimeout
             });
 
@@ -1201,8 +1202,9 @@ class App extends React.Component {
         } else {
             this.setState({
                 searchResults: [],
-                lastSearchResultTimestamp: requestTime,
-                isLoadingSearchResults: false
+                lastSearchResultTimestamp:  requestTime,
+                shouldShowLoadingIcon:      false,
+                isLoadingSearchResults:     false
             });
         }
     }
@@ -1219,6 +1221,7 @@ class App extends React.Component {
             this.setState({
                 filterString:               filterString,
                 shouldShowLoadingIcon:      true,
+                isLoadingChildren:          false,
                 loadingTimeout:             loadingTimeout
             });
 
@@ -1248,6 +1251,7 @@ class App extends React.Component {
                 lastSearchResultTimestamp:      requestTime,
                 isLoadingChildren:              false,
                 isLoadingSearchResults:         false,
+                shouldShowLoadingIcon:          false,
                 shouldShowFilteredResults:      false,
                 filterString:                   filterString
             });
@@ -1522,6 +1526,7 @@ class App extends React.Component {
 
             this.setState({
                 shouldShowLoadingIcon:  true,
+                isLoadingSearchResults: false,
                 loadingTimeout:         loadingTimeout
             });
 
@@ -1566,6 +1571,7 @@ class App extends React.Component {
             this.setState({
                 searchResults: [],
                 lastSearchResultTimestamp: requestTime,
+                shouldShowLoadingIcon:  false,
                 isLoadingSearchResults: false
             });
         }
@@ -1583,6 +1589,7 @@ class App extends React.Component {
             this.setState({
                 shouldShowLoadingIcon : true,
                 filterString:           filterString,
+                isLoadingChildren:      false,
                 loadingTimeout:         loadingTimeout
             });
 
@@ -1612,6 +1619,7 @@ class App extends React.Component {
                 lastSearchResultTimestamp:      requestTime,
                 isLoadingChildren:              false,
                 isLoadingSearchResults:         false,
+                shouldShowLoadingIcon:          false,
                 shouldShowFilteredResults:      false,
                 filterString:                   filterString
             });
