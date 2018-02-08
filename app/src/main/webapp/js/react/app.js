@@ -2452,6 +2452,8 @@ class App extends React.Component {
                 }
             } break;
             case this.roles.types: {
+                const newActiveSubRole = (subRoleName || this.typesRoles.createType);
+
                 this.setState({
                     navigationItems:            [],
                     searchResults:              [],
@@ -2473,7 +2475,7 @@ class App extends React.Component {
                     createButtonState:          thisApp.CreateButtonState.normal,
                     currentNavigationLevel:     null,
                     activeRole:                 roleName,
-                    activeSubRole:              thisApp.createType,
+                    activeSubRole:              newActiveSubRole,
                     showSettingsPage:           false,
                     currentReview:              null
                 });
@@ -3111,7 +3113,6 @@ class App extends React.Component {
                 <app.SearchBar id="search-bar" name="search" type="text" label="Search" value={this.state.filterString} defaultValue={defaultText} readOnly={false} onChange={filterFunction}/>
             </div>
         );
-
     }
 
     logout() {
