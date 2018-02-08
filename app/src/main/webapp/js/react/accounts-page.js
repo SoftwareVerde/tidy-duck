@@ -383,7 +383,11 @@ class AccountsPage extends React.Component {
             });
         };
 
-        app.App.confirm("Delete Account", "Are you sure you want to delete the account for " + editedAccountName + "?", deleteAccountFunction);
+        app.App.confirm("Delete Account", "Are you sure you want to delete the account for " + editedAccountName + "?", deleteAccountFunction, () => {
+            thisApp.setState({
+                deleteAccountButtonState: thisApp.DeleteButtonState.delete
+            });
+        });
     }
 
     onEditedAccountNameChanged(value) {
@@ -601,7 +605,7 @@ class AccountsPage extends React.Component {
 
             let deleteAccountButton = <button type="delete" id="delete-account-button" className="button" onClick={this.onMarkAccountAsDeleted}>Delete Account</button>;
             if (this.state.deleteAccountButtonState === this.DeleteButtonState.deleting) {
-                deleteAccountButton = <button type="delete" id="delete-account-button" className="button"><i className="fa fa-refresh fa-spin"/></button>;
+                deleteAccountButton = <div type="delete" id="delete-account-button" className="button"><i className="fa fa-refresh fa-spin"/></div>;
             }
 
             return (
