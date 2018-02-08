@@ -124,10 +124,6 @@
     transition: background-color 0.5s ease;
 }
 
-.parameter-display-area i:hover {
-    color: #FFDD66;
-}
-
 .child-item, .unreleased-child-item {
     border: solid 1px #C0C0C0;
     background-color: #EEEEEE;
