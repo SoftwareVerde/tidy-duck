@@ -55,15 +55,16 @@ public class MostInterfaceInflater {
         return groupedFunctionBlocks;
     }
 
-    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId) throws DatabaseException {
-        return inflateMostInterfacesFromFunctionBlockId(functionBlockId, false);
+    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final Long accountId) throws DatabaseException {
+        return inflateMostInterfacesFromFunctionBlockId(functionBlockId, accountId, false);
     }
 
-    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
+    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final Long accountId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
+            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ? AND WHERE (creator_account_id = ? OR creator_account_id IS NULL)"
         );
         query.setParameter(functionBlockId);
+        query.setParameter(accountId);
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -75,14 +76,15 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
-    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
+    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(final String searchString, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query ("SELECT * FROM interfaces\n" +
                                         "WHERE base_version_id IN (" +
                                             "SELECT DISTINCT interfaces.base_version_id\n" +
                                             "FROM interfaces\n" +
-                                            "WHERE interfaces.name LIKE ?)");
+                                            "WHERE interfaces.name LIKE ?) AND WHERE (creator_account_id = ? OR creator_account_id IS NULL)");
         query.setParameter("%" + searchString + "%");
+        query.setParameter(accountId);
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
         final List<Row> rows = _databaseConnection.query(query);

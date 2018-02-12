@@ -45,7 +45,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id.");
                 }
-                return _listMostInterfaces(functionBlockId, environment.getDatabase());
+                return _listMostInterfaces(functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -54,7 +54,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
 
-                return _insertMostInterface(request, environment.getDatabase());
+                return _insertMostInterface(request, currentAccount, environment.getDatabase());
             }
         });
 
@@ -67,7 +67,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for interface.");
                 }
-                return _listMostInterfacesMatchingSearchString(searchString, environment.getDatabase());
+                return _listMostInterfacesMatchingSearchString(searchString, currentAccount, environment.getDatabase());
             }
         });
 
@@ -93,7 +93,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
                 }
-                return _updateMostInterface(request, mostInterfaceId, environment.getDatabase());
+                return _updateMostInterface(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -106,7 +106,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
                 }
-                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, environment.getDatabase());
+                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -177,7 +177,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _insertMostInterface(final HttpServletRequest request, final Database database) throws Exception {
+    protected Json _insertMostInterface(final HttpServletRequest request, final Account currentAccount, final Database database) throws Exception {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
         final Json mostInterfaceJson = jsonRequest.get("mostInterface");
@@ -194,10 +194,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
-                databaseManager.insertMostInterface(functionBlockId, mostInterface);
+                databaseManager.insertMostInterface(functionBlockId, mostInterface, currentAccount.getId());
             }
             else {
-                databaseManager.insertOrphanedMostInterface(mostInterface);
+                databaseManager.insertOrphanedMostInterface(mostInterface, currentAccount.getId());
             }
 
             response.put("mostInterfaceId", mostInterface.getId());
@@ -210,7 +210,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _updateMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Database<Connection> database) throws Exception {
+    protected Json _updateMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
         final String requestFunctionBlockId = request.getString("functionBlockId");
@@ -218,7 +218,14 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         final Json mostInterfaceJson = request.get("mostInterface");
 
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+
+            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
+                final String errorMessage = "Unable to update interface: current account does not own Interface " + mostInterfaceId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final MostInterface mostInterface = _populateMostInterfaceFromJson(mostInterfaceJson);
             mostInterface.setId(mostInterfaceId);
 
@@ -231,10 +238,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
-                databaseManager.updateMostInterface(functionBlockId, mostInterface);
+                databaseManager.updateMostInterface(functionBlockId, mostInterface, currentAccount.getId());
             }
             else {
-                databaseManager.updateMostInterface(0, mostInterface);
+                databaseManager.updateMostInterface(0, mostInterface, currentAccount.getId());
             }
             response.put("mostInterfaceId", mostInterface.getId());
         }
@@ -332,11 +339,19 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return conflictingMostIds;
     }
 
-    protected Json _deleteMostInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Database<Connection> database) {
+    protected Json _deleteMostInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         final String functionBlockIdString = request.getParameter("functionBlockId");
         final Long functionBlockId = Util.parseLong(functionBlockIdString);
+        final Long currentAccountId = currentAccount.getId();
 
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+
+            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId)) {
+                final String errorMessage = "Unable to delete interface: current account does not own Interface " + mostInterfaceId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // Validate inputs. If null, send blockId of 0, which will disassociate interface from all fblocks.
@@ -361,12 +376,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listMostInterfaces(final long functionBlockId, final Database<Connection> database) {
+    protected Json _listMostInterfaces(final long functionBlockId, final Account currentAcount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId, currentAcount.getId());
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
@@ -415,7 +430,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Database<Connection> database) {
+    protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Account currentAccount, final Database<Connection> database) {
         final String decodedSearchString;
         try{ decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
         catch (UnsupportedEncodingException e) {
@@ -427,7 +442,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(decodedSearchString);
+            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(decodedSearchString, currentAccount.getId());
 
             final Json mostInterfacesJson = new Json(true);
             for (final Long baseVersionId : mostInterfaces.keySet()) {
@@ -547,5 +562,16 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());
         mostInterfaceJson.put("priorVersionId", mostInterface.getPriorVersionId());
         return mostInterfaceJson;
+    }
+
+    private boolean _canCurrentAccountModifyMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+        final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+        if (originalMostInterface.getCreatorAccountId() != null) {
+            return originalMostInterface.getCreatorAccountId().equals(currentAccountId);
+        }
+
+        return true;
     }
 }

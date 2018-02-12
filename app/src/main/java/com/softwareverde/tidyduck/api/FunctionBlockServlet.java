@@ -39,7 +39,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 final String requestFunctionCatalogId = request.getParameter("function_catalog_id");
 
                 if (Util.isBlank(requestFunctionCatalogId)) {
-                    return _listAllFunctionBlocks(environment.getDatabase());
+                    return _listAllFunctionBlocks(currentAccount, environment.getDatabase());
                 }
 
                 final long functionCatalogId = Util.parseLong(Util.coalesce(requestFunctionCatalogId));
@@ -47,7 +47,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function catalog id: " + functionCatalogId);
                 }
 
-                return _listFunctionBlocks(functionCatalogId, environment.getDatabase());
+                return _listFunctionBlocks(functionCatalogId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -69,7 +69,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for function block.");
                 }
-                return _listFunctionBlocksMatchingSearchString(searchString, environment.getDatabase());
+                return _listFunctionBlocksMatchingSearchString(searchString, currentAccount, environment.getDatabase());
             }
         });
 
@@ -82,7 +82,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _getFunctionBlock(functionBlockId, environment.getDatabase());
+                return _getFunctionBlock(functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -161,11 +161,11 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         });
     }
 
-    private Json _getFunctionBlock(final long functionBlockId, final Database<Connection> database) {
+    private Json _getFunctionBlock(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+            final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId, currentAccount.getId());
 
             final Json response = new Json(false);
 
@@ -225,7 +225,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Long currentAccountId = currentAccount.getId();
 
             if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId)) {
-                final String errorMessage = "Unable to update function block: current account does not own this version.";
+                final String errorMessage = "Unable to update function block: current account does not own Function Block " + functionBlockId;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -325,7 +325,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                final String errorMessage = "Unable to delete function block: current account does not own this version.";
+                final String errorMessage = "Unable to delete function block: current account does not own Function block " + functionBlockId;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -354,12 +354,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listFunctionBlocks(final long functionCatalogId, final Database<Connection> database) {
+    protected Json _listFunctionBlocks(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
+            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, currentAccount.getId());
 
             final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {
@@ -377,12 +377,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listAllFunctionBlocks(final Database<Connection> database) {
+    protected Json _listAllFunctionBlocks(final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId();
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId(currentAccount.getId());
 
             final Json functionBlocksJson = new Json(true);
             for (final Long baseVersionId : functionBlocks.keySet()) {
@@ -408,7 +408,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Database<Connection> database) {
+    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Account currentAccount, final Database<Connection> database) {
         final String decodedSearchString;
         try { decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
         catch (UnsupportedEncodingException e) {
@@ -420,7 +420,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(decodedSearchString);
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(decodedSearchString, currentAccount.getId());
 
             final Json functionBlocksJson = new Json(true);
             for (final Long baseVersionId : functionBlocks.keySet()) {
@@ -596,7 +596,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     private boolean _canCurrentAccountModifyFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId, currentAccountId);
 
         if (originalFunctionBlock.getCreatorAccountId() != null) {
             return originalFunctionBlock.getCreatorAccountId().equals(currentAccountId);
