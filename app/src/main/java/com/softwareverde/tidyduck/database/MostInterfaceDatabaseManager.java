@@ -14,19 +14,20 @@ import java.util.List;
 public class MostInterfaceDatabaseManager {
     private final DatabaseConnection _databaseConnection;
 
-    private void _insertMostInterface(final MostInterface mostInterface, final MostInterface priorMostInterface) throws DatabaseException {
+    private void _insertMostInterface(final MostInterface mostInterface, final MostInterface priorMostInterface, final Long accountId) throws DatabaseException {
         final String mostId = mostInterface.getMostId();
         final String name = mostInterface.getName();
         final String description = mostInterface.getDescription();
         final String version = mostInterface.getVersion();
         final Long priorVersionId = priorMostInterface != null ? priorMostInterface.getId() : null;
 
-        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id) VALUES (?, ?, ?, NOW(), ?, ?)")
+        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id) VALUES (?, ?, ?, NOW(), ?, ?, ?)")
             .setParameter(mostId)
             .setParameter(name)
             .setParameter(description)
             .setParameter(version)
             .setParameter(priorVersionId)
+            .setParameter(accountId)
         ;
 
         final long mostInterfaceId = _databaseConnection.executeSql(query);
@@ -40,8 +41,8 @@ public class MostInterfaceDatabaseManager {
         }
     }
 
-    private void _insertMostInterface(final MostInterface mostInterface) throws DatabaseException {
-        _insertMostInterface(mostInterface, null);
+    private void _insertMostInterface(final MostInterface mostInterface, final Long accountId) throws DatabaseException {
+        _insertMostInterface(mostInterface, null, accountId);
     }
 
     private void _setBaseVersionId(long mostInterfaceId, long baseVersionId) throws DatabaseException {
@@ -49,6 +50,15 @@ public class MostInterfaceDatabaseManager {
             .setParameter(baseVersionId)
             .setParameter(mostInterfaceId)
         ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _setCreatorAccountId(long mostInterfaceId, long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET creator_account_id = ? WHERE id = ?")
+                .setParameter(accountId)
+                .setParameter(mostInterfaceId)
+                ;
 
         _databaseConnection.executeSql(query);
     }
@@ -161,17 +171,17 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection = databaseConnection;
     }
 
-    public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+    public void insertMostInterfaceForFunctionBlock(final long functionBlockId, final MostInterface mostInterface, final Long accountId) throws DatabaseException {
         // TODO: check to see whether function block is approved.
-        _insertMostInterface(mostInterface);
+        _insertMostInterface(mostInterface, accountId);
         _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterface.getId());
     }
 
-    public void insertOrphanedMostInterface(final MostInterface mostInterface) throws DatabaseException {
-        _insertMostInterface(mostInterface);
+    public void insertOrphanedMostInterface(final MostInterface mostInterface, final Long accountId) throws DatabaseException {
+        _insertMostInterface(mostInterface, accountId);
     }
 
-    public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
+    public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface, final Long accountId) throws DatabaseException {
         final long inputMostInterfaceId = proposedMostInterface.getId();
 
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
@@ -181,7 +191,7 @@ public class MostInterfaceDatabaseManager {
             _updateUnapprovedMostInterface(proposedMostInterface);
         } else {
             // current block is approved, need to insert a new interface replace this one
-            _insertMostInterface(proposedMostInterface, originalMostInterface);
+            _insertMostInterface(proposedMostInterface, originalMostInterface, accountId);
             final long newMostInterfaceId = proposedMostInterface.getId();
             _copyMostInterfaceMostFunctions(inputMostInterfaceId, newMostInterfaceId);
             // change association with function block if id isn't 0
@@ -247,6 +257,7 @@ public class MostInterfaceDatabaseManager {
             return;
         }
         _submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
+        _setCreatorAccountId(mostInterfaceId, submittingAccountId);
     }
 
     private boolean _mostInterfaceHasReview(final long mostInterfaceId) throws DatabaseException {

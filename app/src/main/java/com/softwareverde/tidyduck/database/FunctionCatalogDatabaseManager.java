@@ -23,19 +23,20 @@ class FunctionCatalogDatabaseManager {
      * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
      * Upon successful insert, the functionCatalog's Id is set to the database's insertId.
      */
-    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog, final FunctionCatalog priorFunctionCatalog) throws DatabaseException {
+    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog, final FunctionCatalog priorFunctionCatalog, final Long creatorAccountId) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
         final Long accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
         final Long priorVersionId = priorFunctionCatalog != null ? priorFunctionCatalog.getId() : null;
 
-        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id) VALUES (?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(release)
             .setParameter(accountId)
             .setParameter(companyId)
             .setParameter(priorVersionId)
+            .setParameter(creatorAccountId)
         ;
 
         final long functionCatalogId = _databaseConnection.executeSql(query);
@@ -48,8 +49,8 @@ class FunctionCatalogDatabaseManager {
         }
     }
 
-    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
-        _insertFunctionCatalog(functionCatalog, null);
+    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
+        _insertFunctionCatalog(functionCatalog, null, accountId);
     }
 
     private void _setBaseVersionId(long functionCatalogId, long baseVersionId) throws DatabaseException {
@@ -57,6 +58,15 @@ class FunctionCatalogDatabaseManager {
             .setParameter(baseVersionId)
             .setParameter(functionCatalogId)
         ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _setCreatorAccountId(long functionCatalogId, long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET creator_account_id = ? WHERE id = ?")
+                .setParameter(accountId)
+                .setParameter(functionCatalogId)
+                ;
 
         _databaseConnection.executeSql(query);
     }
@@ -110,18 +120,18 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
-        _insertFunctionCatalog(functionCatalog);
+    public void insertFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
+        _insertFunctionCatalog(functionCatalog, accountId);
     }
 
-    public void updateFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
         final long inputFunctionCatalogId = functionCatalog.getId();
 
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
         if (originalFunctionCatalog.isApproved()) {
             // need to insert a new function catalog replace this one
-            _insertFunctionCatalog(functionCatalog, originalFunctionCatalog);
+            _insertFunctionCatalog(functionCatalog, originalFunctionCatalog, accountId);
             final long newFunctionCatalogId = functionCatalog.getId();
             _copyFunctionCatalogFunctionBlocksAssociations(inputFunctionCatalogId, newFunctionCatalogId);
         }
@@ -150,6 +160,7 @@ class FunctionCatalogDatabaseManager {
             return;
         }
         _submitFunctionCatalogForReview(functionCatalogId, accountId);
+        _setCreatorAccountId(functionCatalogId, accountId);
     }
 
     private boolean _functionCatalogHasReview(final long functionCatalogId) throws DatabaseException {
