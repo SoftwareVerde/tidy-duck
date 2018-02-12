@@ -112,7 +112,8 @@ public class FunctionBlockInflater {
                                         "WHERE base_version_id IN (" +
                                             "SELECT DISTINCT function_blocks.base_version_id\n" +
                                             "FROM function_blocks\n" +
-                                            "WHERE function_blocks.name LIKE ?) AND WHERE (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
+                                            "WHERE function_blocks.name LIKE ?)\n" + 
+                                            "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
         query.setParameter("%" + searchString + "%");
         query.setParameter(true);
         query.setParameter(accountId);

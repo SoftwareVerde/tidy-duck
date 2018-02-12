@@ -81,7 +81,8 @@ public class MostInterfaceInflater {
                                         "WHERE base_version_id IN (" +
                                             "SELECT DISTINCT interfaces.base_version_id\n" +
                                             "FROM interfaces\n" +
-                                            "WHERE interfaces.name LIKE ?) AND WHERE (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
+                                            "WHERE interfaces.name LIKE ?)\n" +
+                                            "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
         query.setParameter("%" + searchString + "%");
         query.setParameter(true);
         query.setParameter(accountId);

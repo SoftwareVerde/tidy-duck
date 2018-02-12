@@ -391,11 +391,24 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
+                    if (! functionBlock.isApproved()) {
+                        if (functionBlock.getCreatorAccountId() != null) {
+                            if (! functionBlock.getCreatorAccountId().equals(currentAccount.getId())) {
+                                // Skip adding this function block to the JSON because it is not approved, not unowned, and not owned by the current user.
+                                continue;
+                            }
+                        }
+                    }
+
                     final Json functionBlockJson = _toJson(functionBlock);
                     versionsJson.add(functionBlockJson);
                 }
-                versionSeriesJson.put("versions", versionsJson);
-                functionBlocksJson.add(versionSeriesJson);
+
+                // Only add versionSeriesJson if its function blocks have not all been filtered.
+                if (versionSeriesJson.length() > 0) {
+                    versionSeriesJson.put("versions", versionsJson);
+                    functionBlocksJson.add(versionSeriesJson);
+                }
             }
             response.put("functionBlocks", functionBlocksJson);
 

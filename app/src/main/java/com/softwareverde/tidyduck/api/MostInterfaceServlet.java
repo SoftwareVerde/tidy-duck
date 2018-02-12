@@ -38,7 +38,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 final String requestFunctionBlockId = request.getParameter("function_block_id");
 
                 if (Util.isBlank(requestFunctionBlockId)) {
-                    return _listAllMostInterfaces(environment.getDatabase());
+                    return _listAllMostInterfaces(currentAccount, environment.getDatabase());
                 }
 
                 final long functionBlockId = Util.parseLong(Util.coalesce(requestFunctionBlockId));
@@ -399,7 +399,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listAllMostInterfaces(final Database<Connection> database) {
+    protected Json _listAllMostInterfaces(final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
@@ -413,11 +413,24 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
+                    if (! mostInterface.isApproved()) {
+                        if (mostInterface.getCreatorAccountId() != null) {
+                            if (! mostInterface.getCreatorAccountId().equals(currentAccount.getId())) {
+                                // Skip adding this interface to the JSON because it is not approved, not unowned, and not owned by the current user.
+                                continue;
+                            }
+                        }
+                    }
+
                     final Json mostInterfaceJson = _toJson(mostInterface);
                     versionsJson.add(mostInterfaceJson);
                 }
-                versionSeriesJson.put("versions", versionsJson);
-                mostInterfacesJson.add(versionSeriesJson);
+
+                // Only add versionSeriesJson if its interfaces have not all been filtered.
+                if (versionsJson.length() > 0) {
+                    versionSeriesJson.put("versions", versionsJson);
+                    mostInterfacesJson.add(versionSeriesJson);
+                }
             }
             response.put("mostInterfaces", mostInterfacesJson);
 
