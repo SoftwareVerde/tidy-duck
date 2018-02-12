@@ -2727,10 +2727,11 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
+        const isReview = this.state.currentReview != null;
         const selectedItem = this.state.selectedItem;
         const account = this.state.account;
-        const canModify = account ? account.hasRole("Modify") : false;
-        const canRelease = account ? account.hasRole("Release") : false;
+        const canModify = (account && !isReview) ? account.hasRole("Modify") : false;
+        const canRelease = (account && !isReview) ? account.hasRole("Release") : false;
 
         const shouldShowFilterBar = (this.state.activeRole === this.roles.development) && !selectedItem;
         const shouldShowApprovalForm = (this.state.activeRole === this.roles.reviews) && selectedItem;
@@ -2763,7 +2764,9 @@ class App extends React.Component {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
                     shouldShowSearchButton = ! shouldShowFilterBar;
                 }
-                else { shouldShowCreateButton = false; }
+                else {
+                    shouldShowCreateButton = false;
+                }
 
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased && isApproved;
@@ -2817,20 +2820,28 @@ class App extends React.Component {
                         shouldShowNavigationItems = true;
                         shouldShowBackButton = true;
                         shouldShowForkButton = false;
-                        shouldShowEditButton = false;
+                        shouldShowEditButton = true;
                         shouldShowSearchButton = false;
                         shouldShowCreateButton = false;
                         shouldShowSubmitForReviewButton = false;
                         shouldShowReleaseButton = false;
 
                         selectedVote = this.isReviewVoteSelected();
-                        if (navigationItems.length > 1) { backFunction = navigationItems[navigationItems.length-2].getOnClickCallback(); }
+                        if (navigationItems.length > 1) {
+                            backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                        }
                         else {
-                            backFunction = function() { thisApp.handleRoleClick(activeRole, null, false); };
+                            backFunction = function() {
+                                thisApp.handleRoleClick(activeRole, null, false);
+                            };
                         }
                     }
-                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) { backFunction = thisApp.onRootNavigationItemClicked; }
-                    else { backFunction = navigationItems[navigationItems.length-2].getOnClickCallback(); }
+                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
+                        backFunction = thisApp.onRootNavigationItemClicked;
+                    }
+                    else {
+                        backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                    }
                 }
             }
 
