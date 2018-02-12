@@ -108,7 +108,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _deleteFunctionBlockFromCatalog(request, functionBlockId, environment.getDatabase());
+                return _deleteFunctionBlockFromCatalog(request, functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -185,6 +185,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Json response = _generateSuccessJson();
         final Json functionBlockJson = jsonRequest.get("functionBlock");
         final String requestFunctionCatalogId = jsonRequest.getString("functionCatalogId");
+        final Long currentAccountId = currentAccount.getId();
 
         try {
             final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, currentAccount, database);
@@ -197,10 +198,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
-                databaseManager.insertFunctionBlock(functionCatalogId, functionBlock);
+                databaseManager.insertFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
             }
             else {
-                databaseManager.insertOrphanedFunctionBlock(functionBlock);
+                databaseManager.insertOrphanedFunctionBlock(functionBlock, currentAccountId);
             }
 
             response.put("functionBlockId", functionBlock.getId());
@@ -220,7 +221,15 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Json response = new Json(false);
         final Json functionBlockJson = request.get("functionBlock");
 
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Long currentAccountId = currentAccount.getId();
+
+            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId)) {
+                final String errorMessage = "Unable to update function block: current account does not own this version.";
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final FunctionBlock functionBlock = _populateFunctionBlockFromJson(functionBlockJson, currentAccount, database);
             functionBlock.setId(functionBlockId);
 
@@ -233,10 +242,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
-                databaseManager.updateFunctionBlock(functionCatalogId, functionBlock);
+                databaseManager.updateFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
             }
             else {
-                databaseManager.updateFunctionBlock(0, functionBlock);
+                databaseManager.updateFunctionBlock(0, functionBlock, currentAccountId);
             }
             response.put("functionBlockId", functionBlock.getId());
         }
@@ -245,7 +254,6 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
-
 
         super._setJsonSuccessFields(response);
         return response;
@@ -311,11 +319,17 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _deleteFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Database<Connection> database) {
+    protected Json _deleteFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         final String functionCatalogIdString = request.getParameter("functionCatalogId");
         final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                final String errorMessage = "Unable to delete function block: current account does not own this version.";
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             // Validate inputs. If null, send catalogId of 0, which will disassociate function block from all catalogs.
@@ -578,5 +592,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("isSource", functionBlock.isSource());
         blockJson.put("isSink", functionBlock.isSink());
         return blockJson;
+    }
+
+    private boolean _canCurrentAccountModifyFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+        if (originalFunctionBlock.getCreatorAccountId() != null) {
+            return originalFunctionBlock.getCreatorAccountId().equals(currentAccountId);
+        }
+
+        return true;
     }
 }
