@@ -33,8 +33,8 @@ class SettingsPage extends React.Component {
         this.renderPasswordSaveButtonText = this.renderPasswordSaveButtonText.bind(this);
     }
 
-    handleKeyPress(e) {
-        if (e.keyCode == 27) {
+    handleKeyPress(event) {
+        if (event.key == 'Escape') {
             if (typeof this.props.handleSettingsClick == "function") {
                 this.props.handleSettingsClick();
             }

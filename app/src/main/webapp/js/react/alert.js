@@ -95,10 +95,10 @@ class Alert extends React.Component {
         return true;
     }
 
-    onTabPress(e) {
+    onTabPress(event) {
         if (this.props.isConfirmAlert) {
-            if (e.keyCode == 9) {
-                e.preventDefault();
+            if (event.key == 'Tab') {
+                event.preventDefault();
                 const alertButtons = document.querySelectorAll(".alert-button");
 
                 if (document.activeElement.tabIndex == 2) {
