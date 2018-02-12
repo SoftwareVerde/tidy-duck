@@ -245,7 +245,7 @@ class InputField extends React.Component {
                 break;
             case 'checkbox':
                 return (
-                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} tabIndex={this.props.tabIndex} checked={this.props.checked}/>
+                    <input type="checkbox" name={this.props.name} value={this.state.value} onChange={this.onInputChanged} readOnly={this.props.readOnly} disabled={this.props.readOnly} tabIndex={this.props.tabIndex} checked={this.props.checked}/>
                 );
                 break;
             case 'dropdown':

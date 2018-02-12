@@ -163,7 +163,7 @@ public class MostTypeModificationChecker {
     private void _checkStream(final List<String> errors, final MostType mostType, final MostType storedType) {
         _ifNotEqualAppendError(errors, mostType.getStreamLength(), storedType.getStreamLength(), "Stream length cannot be changed on released types.");
 
-        if (!_ifNotEqualAppendError(errors, mostType.getStreamCases().size(), mostType.getStreamCases().size(), "Number of stream cases cannot be changed on released types.")) {
+        if (!_ifNotEqualAppendError(errors, mostType.getStreamCases().size(), storedType.getStreamCases().size(), "Number of stream cases cannot be changed on released types.")) {
             for (int i=0; i<storedType.getStreamCases().size(); i++) {
                 final StreamCase newStreamCase = mostType.getStreamCases().get(i);
                 final StreamCase storedStreamCase = storedType.getStreamCases().get(i);
