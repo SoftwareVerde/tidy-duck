@@ -79,8 +79,8 @@ class AccountsPage extends React.Component {
 
     }
 
-    handleKeyPress(e) {
-        if (e.keyCode == 27) {
+    handleKeyPress(event) {
+        if (event.key == 'Escape') {
             this.setState({
                 editedAccount: null,
             });

@@ -148,6 +148,14 @@
     margin-bottom: auto;
 }
 
+.vote-area i.fa-thumbs-up {
+    color: #00AA00;
+}
+
+.vote-area i.fa-thumbs-down {
+    color: #AA0000;
+}
+
 .comments-area .input-field, .vote-area .input-field {
     width: 100%;
 }

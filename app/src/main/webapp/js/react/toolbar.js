@@ -37,8 +37,8 @@ class Toolbar extends React.Component {
         });
     }
 
-    handleKeyPress(e) {
-        if (e.keyCode == 27) {
+    handleKeyPress(event) {
+        if (event.key == 'Escape') {
             if (typeof this.props.onCancel == "function") {
                 this.props.onCancel();
             }
