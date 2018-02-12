@@ -2396,6 +2396,15 @@ class App extends React.Component {
     handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
+        if (!history.state || (roleName != history.state.roleName || subRoleName != history.state.subRoleName)) {
+            let historyState = {
+                roleName: roleName,
+                subRoleName: subRoleName
+            };
+            console.log("Pushing: " + JSON.stringify(historyState));
+            history.pushState(historyState, null, null);
+        }
+
         switch (roleName) {
             case this.roles.release: {
                 // Release Mode
