@@ -405,7 +405,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 }
 
                 // Only add versionSeriesJson if its function blocks have not all been filtered.
-                if (versionSeriesJson.length() > 0) {
+                if (versionsJson.length() > 0) {
                     versionSeriesJson.put("versions", versionsJson);
                     functionBlocksJson.add(versionSeriesJson);
                 }
