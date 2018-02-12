@@ -165,7 +165,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId, currentAccount.getId());
+            final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
             final Json response = new Json(false);
 
@@ -359,7 +359,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, currentAccount.getId());
+            final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
             final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {
@@ -382,7 +382,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId(currentAccount.getId());
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId();
 
             final Json functionBlocksJson = new Json(true);
             for (final Long baseVersionId : functionBlocks.keySet()) {
@@ -596,7 +596,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     private boolean _canCurrentAccountModifyFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId, currentAccountId);
+        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
         if (originalFunctionBlock.getCreatorAccountId() != null) {
             return originalFunctionBlock.getCreatorAccountId().equals(currentAccountId);

@@ -21,11 +21,10 @@ public class FunctionBlockInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<FunctionBlock> inflateFunctionBlocks(final Long accountId) throws DatabaseException {
+    public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-            "SELECT * FROM function_blocks WHERE (creator_account_id = ? OR creator_account_id IS NULL)"
+            "SELECT * FROM function_blocks"
         );
-        query.setParameter(accountId);
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -37,8 +36,8 @@ public class FunctionBlockInflater {
     }
 
 
-    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksGroupedByBaseVersionId(final Long accountId) throws DatabaseException {
-        List<FunctionBlock> functionBlocks = inflateFunctionBlocks(accountId);
+    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksGroupedByBaseVersionId() throws DatabaseException {
+        List<FunctionBlock> functionBlocks = inflateFunctionBlocks();
         return _groupByBaseVersionId(functionBlocks);
     }
 
@@ -56,32 +55,31 @@ public class FunctionBlockInflater {
         return groupedFunctionBlocks;
     }
 
-    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId, final Long accountId) throws DatabaseException {
-        return inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, accountId,false);
+    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+        return inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId, false);
     }
 
-    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId, final Long accountId, final boolean inflateChildren) throws DatabaseException {
+    public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ? AND WHERE (creator_account_id = ? OR creator_account_id IS NULL)"
+            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?"
         );
         query.setParameter(functionCatalogId);
-        query.setParameter(accountId);
 
         List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long functionBlockId = row.getLong("function_block_id");
-            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId, accountId, inflateChildren);
+            FunctionBlock functionBlock = inflateFunctionBlock(functionBlockId, inflateChildren);
             functionBlocks.add(functionBlock);
         }
         return functionBlocks;
     }
 
-    public FunctionBlock inflateFunctionBlock(final long functionBlockId, final Long accountId) throws DatabaseException {
-        return inflateFunctionBlock(functionBlockId, accountId, false);
+    public FunctionBlock inflateFunctionBlock(final long functionBlockId) throws DatabaseException {
+        return inflateFunctionBlock(functionBlockId, false);
     }
 
-    public FunctionBlock inflateFunctionBlock(final long functionBlockId, final Long accountId, final boolean inflateChildren) throws DatabaseException {
+    public FunctionBlock inflateFunctionBlock(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
             "SELECT * FROM function_blocks WHERE id = ?"
         );
@@ -96,15 +94,15 @@ public class FunctionBlockInflater {
         final FunctionBlock functionBlock = _convertRowToFunctionBlock(row);
 
         if (inflateChildren) {
-            _inflateChildren(functionBlock, accountId);
+            _inflateChildren(functionBlock);
         }
 
         return functionBlock;
     }
 
-    private void _inflateChildren(final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    private void _inflateChildren(final FunctionBlock functionBlock) throws DatabaseException {
         final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId(), accountId, true);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId(),true );
         functionBlock.setMostInterfaces(mostInterfaces);
     }
 
@@ -114,8 +112,9 @@ public class FunctionBlockInflater {
                                         "WHERE base_version_id IN (" +
                                             "SELECT DISTINCT function_blocks.base_version_id\n" +
                                             "FROM function_blocks\n" +
-                                            "WHERE function_blocks.name LIKE ?) AND WHERE (creator_account_id = ? OR creator_account_id IS NULL)");
+                                            "WHERE function_blocks.name LIKE ?) AND WHERE (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
         query.setParameter("%" + searchString + "%");
+        query.setParameter(true);
         query.setParameter(accountId);
 
 

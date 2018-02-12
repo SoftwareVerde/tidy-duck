@@ -381,7 +381,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId, currentAcount.getId());
+            final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {

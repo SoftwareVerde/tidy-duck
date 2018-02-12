@@ -28,15 +28,14 @@ public class FunctionCatalogInflater {
      * @return
      * @throws DatabaseException
      */
-    public List<FunctionCatalog> inflateFunctionCatalogs(final Long accountId) throws DatabaseException {
-        return inflateFunctionCatalogs(accountId, false);
+    public List<FunctionCatalog> inflateFunctionCatalogs() throws DatabaseException {
+        return inflateFunctionCatalogs(false);
     }
 
-    public List<FunctionCatalog> inflateFunctionCatalogs(final Long accountId, final boolean inflateChildren) throws DatabaseException {
+    public List<FunctionCatalog> inflateFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM function_catalogs ORDER BY base_version_id WHERE (creator_account_id = ? OR creator_account_id IS NULL)"
+                "SELECT * FROM function_catalogs ORDER BY base_version_id"
         );
-        query.setParameter(accountId);
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -44,7 +43,7 @@ public class FunctionCatalogInflater {
             FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
 
             if (inflateChildren) {
-                _inflateChildren(functionCatalog, accountId);
+                _inflateChildren(functionCatalog);
                 _inflateClassDefinitions(functionCatalog);
                 _inflatePropertyCommandDefinitions(functionCatalog);
                 _inflateMethodCommandDefinitions(functionCatalog);
@@ -60,8 +59,8 @@ public class FunctionCatalogInflater {
         return functionCatalogs;
     }
 
-    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsGroupedByBaseVersionId(final Long accountId) throws DatabaseException {
-        List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(accountId,false);
+    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
+        List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
         return _groupByBaseVersionId(functionCatalogs);
     }
 
@@ -84,8 +83,8 @@ public class FunctionCatalogInflater {
      *  <p>FunctionCatalog's children are NOT inflated.</p>
      *  <p>Returns null if a FunctionCatalog with the functionCatalogId is not found.</p>
      */
-    public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId, final Long accountId) throws DatabaseException {
-        return inflateFunctionCatalog(functionCatalogId, accountId, false);
+    public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId) throws DatabaseException {
+        return inflateFunctionCatalog(functionCatalogId, false);
     }
 
     /**
@@ -93,7 +92,7 @@ public class FunctionCatalogInflater {
      *  <p>If inflateChildren is true, the FunctionCatalog and all of its children are inflated.</p>
      *  <p>Returns null if a FunctionCatalog with the functionCatalogId is not found.</p>
      */
-    public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId, final Long accountId, final boolean inflateChildren) throws DatabaseException {
+    public FunctionCatalog inflateFunctionCatalog(final long functionCatalogId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
             "SELECT * FROM function_catalogs WHERE id = ?"
         );
@@ -110,7 +109,7 @@ public class FunctionCatalogInflater {
         FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
 
         if (inflateChildren) {
-            _inflateChildren(functionCatalog, accountId);
+            _inflateChildren(functionCatalog);
             _inflateClassDefinitions(functionCatalog);
             _inflatePropertyCommandDefinitions(functionCatalog);
             _inflateMethodCommandDefinitions(functionCatalog);
@@ -157,9 +156,9 @@ public class FunctionCatalogInflater {
         return functionCatalog;
     }
 
-    private void _inflateChildren(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
+    private void _inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), accountId,true);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(),true);
         functionCatalog.setFunctionBlocks(functionBlocks);
     }
 
