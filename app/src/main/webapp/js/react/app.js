@@ -223,6 +223,7 @@ class App extends React.Component {
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
+        this.notCurrentHistoryState = this.notCurrentHistoryState.bind(this);
         this.goToHistoryState = this.goToHistoryState.bind(this);
 
         this.logout = this.logout.bind(this);
@@ -948,6 +949,15 @@ class App extends React.Component {
     }
 
     onFunctionCatalogSelected(functionCatalog, canUseCachedChildren) {
+        if (this.notCurrentHistoryState("FunctionCatalog")) {
+            history.pushState({
+                roleName:       this.state.activeRole,
+                subRoleName:    this.state.activeSubRole,
+                selection:      "FunctionCatalog",
+                selectedItem:   FunctionCatalog.toJson(functionCatalog)
+            }, null, null);
+        }
+
         const thisApp = this;
         const navigationItems = [];
         const parentHistory = [];
@@ -1090,6 +1100,15 @@ class App extends React.Component {
     }
 
     onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
+        if (this.notCurrentHistoryState("FunctionBlock")) {
+            history.pushState({
+                    roleName:       this.state.activeRole,
+                    subRoleName:    this.state.activeSubRole,
+                    selection:      "FunctionBlock",
+                    selectedItem:   FunctionBlock.toJson(functionBlock)
+            }, null, null);
+        }
+
         const thisApp = this;
         const itemId = "functionBlock" + functionBlock.getId();
         let newParentHistory = [];
@@ -1453,6 +1472,15 @@ class App extends React.Component {
     }
 
     onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
+        if (this.notCurrentHistoryState("MostInterface")) {
+            history.pushState({
+                roleName:       this.state.activeRole,
+                subRoleName:    this.state.activeSubRole,
+                selection:      "MostInterface",
+                selectedItem:   MostInterface.toJson(mostInterface)
+            }, null, null);
+        }
+
         const thisApp = this;
         const itemId = "mostInterface" + mostInterface.getId();
         let newParentHistory = [];
@@ -1824,6 +1852,15 @@ class App extends React.Component {
     }
 
     onMostFunctionSelected(mostFunction) {
+        if (this.notCurrentHistoryState("MostFunction")) {
+            history.pushState({
+                roleName:       this.state.activeRole,
+                subRoleName:    this.state.activeSubRole,
+                selection:      "MostFunction",
+                selectedItem:   MostFunction.toJson(mostFunction)
+            }, null, null);
+        }
+
         const thisApp = this;
         const itemId = "mostFunction" + mostFunction.getId();
         let newParentHistory = [];
@@ -2395,16 +2432,44 @@ class App extends React.Component {
         });
     }
 
+    notCurrentHistoryState(selection) {
+        return (
+            !history.state
+            || (this.state.activeRole != history.state.roleName || this.state.activeSubRole != history.state.subRoleName)
+            || (selection != history.state.selection)
+        );
+    }
+
     goToHistoryState(historyState) {
-        if (historyState.roleName != this.state.activeRole || historyState.subRoleName != this.state.activeSubRole) {
-            this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
+        this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
+        if (historyState.selection) {
+            let selection = historyState.selection;
+            let selectedItem = historyState.selectedItem;
+
+            switch (selection) {
+                case "FunctionCatalog": {
+                    this.onFunctionCatalogSelected(FunctionCatalog.fromJson(selectedItem), false);
+                } break;
+                case "FunctionBlock": {
+                    this.onFunctionBlockSelected(FunctionBlock.fromJson(selectedItem), false);
+                } break;
+                case "MostInterface": {
+                    this.onMostInterfaceSelected(MostInterface.fromJson(selectedItem), false);
+                } break;
+                case "MostFunction": {
+                    this.onMostFunctionSelected(MostFunction.fromJson(selectedItem));
+                } break;
+                default: {
+                    console.log("Invalid selection type: " + selection);
+                }
+            }
         }
     }
 
     handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
-        if (!history.state || (roleName != history.state.roleName || subRoleName != history.state.subRoleName)) {
+        if (history.state && (roleName != history.state.roleName || subRoleName != history.state.subRoleName)) {
             let historyState = {
                 roleName: roleName,
                 subRoleName: subRoleName
