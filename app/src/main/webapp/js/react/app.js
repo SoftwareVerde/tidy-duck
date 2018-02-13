@@ -2401,7 +2401,6 @@ class App extends React.Component {
                 roleName: roleName,
                 subRoleName: subRoleName
             };
-            console.log("Pushing: " + JSON.stringify(historyState));
             history.pushState(historyState, null, null);
         }
 
