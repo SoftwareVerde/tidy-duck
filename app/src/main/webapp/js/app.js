@@ -26,6 +26,6 @@ if (typeof history.pushState === "function") {
             history.go(-2); // skip over root state and original state
             return;
         }
-        app.App._instance.handleRoleClick(state.roleName, state.subRoleName, false);
+        app.App._instance.goToHistoryState(state);
     };
 }

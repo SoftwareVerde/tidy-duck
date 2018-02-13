@@ -223,6 +223,8 @@ class App extends React.Component {
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
+        this.goToHistoryState = this.goToHistoryState.bind(this);
+
         this.logout = this.logout.bind(this);
 
         this.onDuckClick = this.onDuckClick.bind(this);
@@ -2392,7 +2394,13 @@ class App extends React.Component {
             });
         });
     }
-    
+
+    goToHistoryState(historyState) {
+        if (historyState.roleName != this.state.activeRole || historyState.subRoleName != this.state.activeSubRole) {
+            this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
+        }
+    }
+
     handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
@@ -2451,28 +2459,28 @@ class App extends React.Component {
                 const newNavigationLevel = (newActiveSubRole === this.developmentRoles.mostInterface) ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
 
                 this.setState({
-                    navigationItems:            [],
-                    parentHistory:              [],
-                    searchResults:              [],
-                    functionCatalogs:           [],
-                    selectedItem:               null,
-                    parentItem:                 null,
-                    proposedItem:               null,
-                    shouldShowCreateChildForm:  false,
-                    shouldShowSearchChildForm:  false,
-                    shouldShowSubmitForReviewForm: false,
-                    shouldShowEditForm:         false,
-                    shouldShowToolbar:          true,
-                    shouldShowFilteredResults:  false,
-                    createButtonState:          thisApp.CreateButtonState.normal,
-                    isLoadingChildren:          !canUseCachedChildren,
-                    isLoadingReviews:           false,
-                    isLoadingAccounts:          false,
-                    currentNavigationLevel:     newNavigationLevel,
-                    activeRole:                 roleName,
-                    activeSubRole:              newActiveSubRole,
-                    showSettingsPage:           false,
-                    currentReview:              null
+                    navigationItems:                [],
+                    parentHistory:                  [],
+                    searchResults:                  [],
+                    functionCatalogs:               [],
+                    selectedItem:                   null,
+                    parentItem:                     null,
+                    proposedItem:                   null,
+                    shouldShowCreateChildForm:      false,
+                    shouldShowSearchChildForm:      false,
+                    shouldShowSubmitForReviewForm:  false,
+                    shouldShowEditForm:             false,
+                    shouldShowToolbar:              true,
+                    shouldShowFilteredResults:      false,
+                    createButtonState:              thisApp.CreateButtonState.normal,
+                    isLoadingChildren:              !canUseCachedChildren,
+                    isLoadingReviews:               false,
+                    isLoadingAccounts:              false,
+                    currentNavigationLevel:         newNavigationLevel,
+                    activeRole:                     roleName,
+                    activeSubRole:                  newActiveSubRole,
+                    showSettingsPage:               false,
+                    currentReview:                  null
                 });
 
                 if (newActiveSubRole === this.developmentRoles.functionBlock) {
@@ -2504,29 +2512,29 @@ class App extends React.Component {
                 const newActiveSubRole = (subRoleName || this.typesRoles.createType);
 
                 this.setState({
-                    navigationItems:            [],
-                    searchResults:              [],
-                    functionCatalogs:           [],
-                    selectedItem:               null,
-                    parentItem:                 null,
-                    proposedItem:               null,
-                    shouldShowCreateChildForm:  false,
-                    shouldShowSearchChildForm:  false,
-                    shouldShowSubmitForReviewForm: false,
-                    shouldShowEditForm:         false,
-                    shouldShowToolbar:          false,
-                    shouldShowFilteredResults:  false,
-                    isLoadingMostTypes:         true,
-                    isLoadingPrimitiveTypes:    true,
-                    isLoadingUnits:             true,
-                    isLoadingReviews:           false,
-                    isLoadingAccounts:          false,
-                    createButtonState:          thisApp.CreateButtonState.normal,
-                    currentNavigationLevel:     null,
-                    activeRole:                 roleName,
-                    activeSubRole:              newActiveSubRole,
-                    showSettingsPage:           false,
-                    currentReview:              null
+                    navigationItems:                [],
+                    searchResults:                  [],
+                    functionCatalogs:               [],
+                    selectedItem:                   null,
+                    parentItem:                     null,
+                    proposedItem:                   null,
+                    shouldShowCreateChildForm:      false,
+                    shouldShowSearchChildForm:      false,
+                    shouldShowSubmitForReviewForm:  false,
+                    shouldShowEditForm:             false,
+                    shouldShowToolbar:              false,
+                    shouldShowFilteredResults:      false,
+                    isLoadingMostTypes:             true,
+                    isLoadingPrimitiveTypes:        true,
+                    isLoadingUnits:                 true,
+                    isLoadingReviews:               false,
+                    isLoadingAccounts:              false,
+                    createButtonState:              thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:         null,
+                    activeRole:                     roleName,
+                    activeSubRole:                  newActiveSubRole,
+                    showSettingsPage:               false,
+                    currentReview:                  null
                 });
                 thisApp.updateMostTypes();
             } break;
