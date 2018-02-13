@@ -74,8 +74,8 @@ class App extends React.Component {
         };
 
         this.developmentRoles = {
-            mostInterface:    "Interface",
-            functionBlock:    "Function Block"
+            functionBlock:    "Function Block",
+            mostInterface:    "Interface"
         };
 
         this.typesRoles = {
