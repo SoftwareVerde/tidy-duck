@@ -260,7 +260,6 @@ public class MostInterfaceDatabaseManager {
             return;
         }
         _submitMostInterfaceForReview(mostInterfaceId, submittingAccountId);
-        _setCreatorAccountId(mostInterfaceId, submittingAccountId);
     }
 
     private boolean _mostInterfaceHasReview(final long mostInterfaceId) throws DatabaseException {

@@ -163,7 +163,6 @@ class FunctionCatalogDatabaseManager {
             return;
         }
         _submitFunctionCatalogForReview(functionCatalogId, accountId);
-        _setCreatorAccountId(functionCatalogId, accountId);
     }
 
     private boolean _functionCatalogHasReview(final long functionCatalogId) throws DatabaseException {

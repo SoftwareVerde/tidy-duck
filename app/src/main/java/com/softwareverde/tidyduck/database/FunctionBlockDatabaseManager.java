@@ -294,7 +294,6 @@ public class FunctionBlockDatabaseManager {
             return;
         }
         _submitFunctionBlockForReview(functionBlockId, accountId);
-        _setCreatorAccountId(functionBlockId, accountId);
     }
 
     private boolean _functionBlockHasReview(final long functionBlockId) throws DatabaseException {
