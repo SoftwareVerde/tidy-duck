@@ -178,12 +178,12 @@ public class DatabaseManager {
         });
     }
 
-    public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.insertOrphanedFunctionBlock(functionBlock, accountId);
+                functionBlockDatabaseManager.insertOrphanedFunctionBlock(functionBlock);
             }
         });
     }

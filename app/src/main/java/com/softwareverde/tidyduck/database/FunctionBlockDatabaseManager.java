@@ -23,15 +23,15 @@ public class FunctionBlockDatabaseManager {
 
     public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
         // TODO: check to see whether function catalog is approved.
-        _insertFunctionBlock(functionBlock, accountId);
+        _insertFunctionBlock(functionBlock);
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
 
-    public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
-        _insertFunctionBlock(functionBlock, accountId);
+    public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
+        _insertFunctionBlock(functionBlock);
     }
 
-    private void _insertFunctionBlock(final FunctionBlock functionBlock, final FunctionBlock priorFunctionBlock, final Long accountId) throws DatabaseException {
+    private void _insertFunctionBlock(final FunctionBlock functionBlock, final FunctionBlock priorFunctionBlock) throws DatabaseException {
         final String mostId = functionBlock.getMostId();
         final String kind = functionBlock.getKind();
         final String name = functionBlock.getName();
@@ -43,7 +43,7 @@ public class FunctionBlockDatabaseManager {
         final boolean isSource = functionBlock.isSource();
         final boolean isSink = functionBlock.isSink();
         final Long priorVersionId = priorFunctionBlock != null ? priorFunctionBlock.getId() : null;
-        final Long creatorAccountId = accountId;
+        final Long creatorAccountId = functionBlock.getCreatorAccountId();
 
         final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, is_source, is_sink, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(mostId)
@@ -71,8 +71,8 @@ public class FunctionBlockDatabaseManager {
         }
     }
 
-    private void _insertFunctionBlock(final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
-        _insertFunctionBlock(functionBlock, null, accountId);
+    private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
+        _insertFunctionBlock(functionBlock, null);
     }
 
     private void _setBaseVersionId(long functionBlockId, long baseVersionId) throws DatabaseException {
@@ -125,8 +125,9 @@ public class FunctionBlockDatabaseManager {
         final long newAuthorId = proposedFunctionBlock.getAuthor().getId();
         final long newCompanyId = proposedFunctionBlock.getCompany().getId();
         final long functionBlockId = proposedFunctionBlock.getId();
+        final Long creatorAccountId = proposedFunctionBlock.getCreatorAccountId();
 
-        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_source = ?, is_sink = ?, is_approved = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_source = ?, is_sink = ?, is_approved = ?, creator_account_id = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newKind)
             .setParameter(newName)
@@ -138,6 +139,7 @@ public class FunctionBlockDatabaseManager {
             .setParameter(isSource)
             .setParameter(isSink)
             .setParameter(false)
+            .setParameter(creatorAccountId)
             .setParameter(functionBlockId)
         ;
 
@@ -229,7 +231,7 @@ public class FunctionBlockDatabaseManager {
 
         if (originalFunctionBlock.isApproved()) {
             // current block is approved, need to insert a new function block replace this one
-            _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock, accountId);
+            _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
             _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);
 

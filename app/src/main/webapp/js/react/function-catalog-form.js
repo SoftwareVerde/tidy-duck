@@ -133,7 +133,7 @@ class FunctionCatalogForm extends React.Component {
 
         const accounts = this.props.accountsForEditForm;
         const accountNames = [];
-        let defaultAccountName = null; //functionCatalog.getId() ? null : this.props.account.getName();
+        let defaultAccountName = null;
 
         for (let i in accounts) {
             let account = accounts[i];

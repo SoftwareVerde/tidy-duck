@@ -201,7 +201,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 databaseManager.insertFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
             }
             else {
-                databaseManager.insertOrphanedFunctionBlock(functionBlock, currentAccountId);
+                databaseManager.insertOrphanedFunctionBlock(functionBlock);
             }
 
             response.put("functionBlockId", functionBlock.getId());
@@ -505,6 +505,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final String release = functionBlockJson.getString("releaseVersion");
         final Long authorId = functionBlockJson.getLong("authorId");
         final Long companyId = functionBlockJson.getLong("companyId");
+        final Long creatorAccountId = functionBlockJson.getLong("creatorAccountId");
         final String access = functionBlockJson.getString("access");
         final Boolean isSource = functionBlockJson.getBoolean("isSource");
         final Boolean isSink = functionBlockJson.getBoolean("isSink");
@@ -577,6 +578,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         functionBlock.setDescription(description);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
+        functionBlock.setCreatorAccountId(creatorAccountId > 0 ? creatorAccountId : null);
         functionBlock.setAccess(access);
         functionBlock.setIsSource(isSource);
         functionBlock.setIsSink(isSink);
@@ -601,6 +603,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("authorName", functionBlock.getAuthor().getName());
         blockJson.put("companyId", functionBlock.getCompany().getId());
         blockJson.put("companyName", functionBlock.getCompany().getName());
+        blockJson.put("creatorAccountId", functionBlock.getCreatorAccountId());
         blockJson.put("access", functionBlock.getAccess());
         blockJson.put("isSource", functionBlock.isSource());
         blockJson.put("isSink", functionBlock.isSink());
