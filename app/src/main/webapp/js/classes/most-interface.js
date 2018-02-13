@@ -12,6 +12,7 @@ class MostInterface {
         mostInterface.setPriorVersionId(json.priorVersionId);
         mostInterface.setIsReleased(json.isReleased);
         mostInterface.setIsApproved(json.isApproved);
+        mostInterface.setCreatorAccountId(json.creatorAccountId);
 
         return mostInterface;
     }
@@ -27,7 +28,8 @@ class MostInterface {
             baseVersionId:      mostInterface.getBaseVersionId(),
             priorVersionId:     mostInterface.getPriorVersionId(),
             isReleased:         mostInterface.isReleased(),
-            isApproved:         mostInterface.isApproved()
+            isApproved:         mostInterface.isApproved(),
+            creatorAccountId:   mostInterface.getCreatorAccountId()
         };
     }
 
@@ -43,6 +45,7 @@ class MostInterface {
         this._isApproved            = null;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
+        this._creatorAccountId      = null;
 
         this._functions             = [];
     };
@@ -137,6 +140,14 @@ class MostInterface {
 
     isApproved() {
         return this._isApproved;
+    }
+
+    setCreatorAccountId(creatorAccountId) {
+        this._creatorAccountId = creatorAccountId;
+    }
+
+    getCreatorAccountId() {
+        return this._creatorAccountId;
     }
 
     getDisplayVersion() {

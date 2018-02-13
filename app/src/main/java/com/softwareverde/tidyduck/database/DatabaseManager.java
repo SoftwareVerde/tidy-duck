@@ -258,22 +258,22 @@ public class DatabaseManager {
 
     // MOST INTERFACE METHODS
 
-    public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface, final Long accountId) throws DatabaseException {
+    public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlockId, mostInterface, accountId);
+                mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
             }
         });
     }
 
-    public void insertOrphanedMostInterface(final MostInterface mostInterface, final Long accountId) throws DatabaseException {
+    public void insertOrphanedMostInterface(final MostInterface mostInterface) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.insertOrphanedMostInterface(mostInterface, accountId);
+                mostInterfaceDatabaseManager.insertOrphanedMostInterface(mostInterface);
             }
         });
     }
@@ -288,12 +288,12 @@ public class DatabaseManager {
         });
     }
 
-    public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface, final Long accountId) throws DatabaseException {
+    public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(functionBlockId, mostInterface, accountId);
+                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
             }
         });
     }

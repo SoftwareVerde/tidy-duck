@@ -4,6 +4,9 @@ class MostInterfaceForm extends React.Component {
 
         const isNewMostInterface = (! this.props.mostInterface);
         const mostInterface = isNewMostInterface ? new MostInterface() : copyMostObject(MostInterface, this.props.mostInterface);
+        if (isNewMostInterface) {
+            mostInterface.setCreatorAccountId(this.props.account.getId());
+        }
 
         this.state = {
             showTitle:                          this.props.showTitle,
@@ -20,6 +23,7 @@ class MostInterfaceForm extends React.Component {
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onDescriptionChange = this.onDescriptionChange.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
+        this.onOwnerChanged = this.onOwnerChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -109,6 +113,26 @@ class MostInterfaceForm extends React.Component {
         }
     }
 
+    onOwnerChanged(newValue) {
+        const mostInterface = this.state.mostInterface;
+        const accounts = this.props.accountsForEditForm;
+
+        for (let i in accounts) {
+            let account = accounts[i];
+            if (account.getName() == newValue) {
+                mostInterface.setCreatorAccountId(account.getId());
+                break;
+            }
+        }
+
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
+    }
+
     onClick(event) {
         event.stopPropagation();
     }
@@ -175,9 +199,23 @@ class MostInterfaceForm extends React.Component {
             duplicateNameElement = <i className="fa fa-files-o" title="Duplicate interface name." style={iconStyle}></i>;
         }
 
+        const accounts = this.props.accountsForEditForm;
+        const accountNames = [];
+        let defaultAccountName = null;
+
+        for (let i in accounts) {
+            let account = accounts[i];
+            accountNames.push(account.getName());
+
+            if (mostInterface.getCreatorAccountId() == account.getId()) {
+                defaultAccountName = account.getName();
+            }
+        }
+
         reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" pattern="I[A-Za-z0-9]+" title="Only alpha-numeric characters, start with 'I'." label="Name" icons={duplicateNameElement} value={mostInterface.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={mostInterface.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
+        reactComponents.push(<app.InputField key="most-interface-owner" id="most-interface-owner" name="mostInterfaceOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={this.props.readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>);
         reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" pattern="[1-9][0-9]*" title="Positive number" label="Version" value={version} readOnly={readOnly} onChange={this.onVersionChanged} isRequired={true} />);
 
         if (! readOnly) {

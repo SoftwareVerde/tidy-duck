@@ -194,10 +194,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
-                databaseManager.insertMostInterface(functionBlockId, mostInterface, currentAccount.getId());
+                databaseManager.insertMostInterface(functionBlockId, mostInterface);
             }
             else {
-                databaseManager.insertOrphanedMostInterface(mostInterface, currentAccount.getId());
+                databaseManager.insertOrphanedMostInterface(mostInterface);
             }
 
             response.put("mostInterfaceId", mostInterface.getId());
@@ -238,10 +238,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
-                databaseManager.updateMostInterface(functionBlockId, mostInterface, currentAccount.getId());
+                databaseManager.updateMostInterface(functionBlockId, mostInterface);
             }
             else {
-                databaseManager.updateMostInterface(0, mostInterface, currentAccount.getId());
+                databaseManager.updateMostInterface(0, mostInterface);
             }
             response.put("mostInterfaceId", mostInterface.getId());
         }
@@ -524,6 +524,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final String name = mostInterfaceJson.getString("name");
         final String description = mostInterfaceJson.getString("description");
         final String releaseVersion = mostInterfaceJson.getString("releaseVersion");
+        final Long creatorAccountId = mostInterfaceJson.getLong("creatorAccountId");
 
         { // Validate Inputs
             if (Util.isBlank(mostId)) {
@@ -558,6 +559,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterface.setName(name);
         mostInterface.setVersion(releaseVersion);
         mostInterface.setDescription(description);
+        mostInterface.setCreatorAccountId(creatorAccountId > 0 ? creatorAccountId : null);
 
         return mostInterface;
     }
@@ -574,6 +576,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterfaceJson.put("isApproved", mostInterface.isApproved());
         mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());
         mostInterfaceJson.put("priorVersionId", mostInterface.getPriorVersionId());
+        mostInterfaceJson.put("creatorAccountId", mostInterface.getCreatorAccountId());
         return mostInterfaceJson;
     }
 
