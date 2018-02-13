@@ -508,8 +508,34 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(wasSuccess, newFunctionCatalogId) {
-            if (wasSuccess) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data, newFunctionCatalogId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to update Function Catalog", data.errorMessage, function() {
+                    //Update form to show changes were not saved.
+                    let navigationItems = thisApp.state.navigationItems;
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setForm(
+                        <app.FunctionCatalogForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={this.onUpdateFunctionCatalog}
+                            functionCatalog={functionCatalog}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal,
+                        navigationItems: navigationItems
+                    });
+                });
+            }
+            else {
                 let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
                 });
@@ -655,8 +681,34 @@ class App extends React.Component {
             createButtonState: createButtonState
         });
 
-        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess, newFunctionBlockId) {
-            if (wasSuccess) {
+        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(data, newFunctionBlockId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to update Function Block", data.errorMessage, function() {
+                    //Update form to show changes were not saved.
+                    let navigationItems = thisApp.state.navigationItems;
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setForm(
+                        <app.FunctionBlockForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={thisApp.onUpdateFunctionBlock}
+                            functionBlock={functionBlock}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal,
+                        navigationItems: navigationItems
+                    });
+                });
+            }
+            else {
                 let functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                     return value.getId() != functionBlockId;
                 });
@@ -787,8 +839,34 @@ class App extends React.Component {
             selectedItem:   mostInterface,
             createButtonState: createButtonState
         });
-        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess, newMostInterfaceId) {
-            if (wasSuccess) {
+        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to update Interface", data.errorMessage, function() {
+                    //Update form to show changes were not saved.
+                    let navigationItems = thisApp.state.navigationItems;
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setForm(
+                        <app.MostInterfaceForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={this.onUpdateMostInterface}
+                            mostInterface={mostInterface}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal,
+                        navigationItems: navigationItems
+                    });
+                });
+            }
+            else {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
                     return value.getId() != mostInterfaceId;
                 });

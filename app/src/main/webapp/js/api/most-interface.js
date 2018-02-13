@@ -179,7 +179,7 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, mostInterfaceId);
+            callbackFunction(data, mostInterfaceId);
         }
     });
 }

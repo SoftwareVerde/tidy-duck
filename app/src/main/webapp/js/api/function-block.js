@@ -179,7 +179,7 @@ function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, 
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, functionBlockId);
+            callbackFunction(data, functionBlockId);
         }
     });
 }
