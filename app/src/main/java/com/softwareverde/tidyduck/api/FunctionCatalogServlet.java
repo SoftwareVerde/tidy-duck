@@ -235,6 +235,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateFunctionCatalog(functionCatalog, currentAccountId);
 
+            _logger.info("User " + currentAccount.getId() + " updated function catalog " + functionCatalog.getId() + ", which is currently owned by User " + functionCatalog.getCreatorAccountId());
             response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
             String errorMessage = "Unable to update function catalog: " + exception.getMessage();

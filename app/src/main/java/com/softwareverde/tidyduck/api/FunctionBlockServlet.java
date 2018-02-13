@@ -247,6 +247,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             else {
                 databaseManager.updateFunctionBlock(0, functionBlock, currentAccountId);
             }
+
+            _logger.info("User " + currentAccount.getId() + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {

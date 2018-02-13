@@ -215,7 +215,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final Json response = new Json(false);
         final String requestFunctionBlockId = request.getString("functionBlockId");
 
-
         final Json mostInterfaceJson = request.get("mostInterface");
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
@@ -243,6 +242,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             else {
                 databaseManager.updateMostInterface(0, mostInterface);
             }
+
+            _logger.info("User " + currentAccount.getId() + " updated interface " + mostInterface.getId() + ", which is currently owned by User " + mostInterface.getCreatorAccountId());
             response.put("mostInterfaceId", mostInterface.getId());
         }
         catch (final Exception exception) {
