@@ -101,6 +101,7 @@ class App extends React.Component {
 
         this.state = {
             account:                    null,
+            accountsForEditForm:       [],
             companies:                  [],
             navigationItems:            [],
             parentHistory:              [],
@@ -162,6 +163,7 @@ class App extends React.Component {
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
         this.onResetPassword = this.onResetPassword.bind(this);
         this.getAllCompanies = this.getAllCompanies.bind(this);
+        this.getAccountsForEditForm = this.getAccountsForEditForm.bind(this);
         this.onCreateCompany = this.onCreateCompany.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
         this.getValidRoleItems = this.getValidRoleItems.bind(this);
@@ -266,7 +268,8 @@ class App extends React.Component {
             }
         });
 
-        this.getAllCompanies()
+        this.getAllCompanies();
+        this.getAccountsForEditForm();
     }
 
     displayAlert(alert) {
@@ -437,6 +440,24 @@ class App extends React.Component {
         });
     }
 
+    getAccountsForEditForm() {
+        const thisApp = this;
+
+        getActiveAccountsWithModifyPermission(function (data) {
+            if (data.wasSuccess) {
+                const accountsJson = data.accounts;
+                const accounts = accountsJson.map(Account.fromJson);
+                const sortedAccounts = accounts.sort(function(a, b) {
+                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                });
+
+                thisApp.setState({
+                    accountsForEditForm: sortedAccounts
+                });
+            }
+        });
+    }
+
     onCreateCompany(newCompany, callbackFunction) {
         const newCompanyJson = Company.toJson(newCompany);
         const thisApp = this;
@@ -477,6 +498,8 @@ class App extends React.Component {
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
         navigationItems.push(navigationItem);
@@ -523,6 +546,8 @@ class App extends React.Component {
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
                         readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -973,11 +998,13 @@ class App extends React.Component {
         navigationItemConfig.setForm(
             <app.FunctionCatalogForm 
                 showTitle={false}
-                onSubmit={this.onUpdateFunctionCatalog}
+                onSubmit={thisApp.onUpdateFunctionCatalog}
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -2577,6 +2604,7 @@ class App extends React.Component {
                     currentReview:              null
                 });
                 this.getAllCompanies();
+                this.getAccountsForEditForm();
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
@@ -2890,6 +2918,8 @@ class App extends React.Component {
                             showTitle={true}
                             onSubmit={this.onCreateFunctionCatalog}
                             defaultButtonTitle="Submit"
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
                         />
                     );
                 }

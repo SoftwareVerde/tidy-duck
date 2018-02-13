@@ -19,6 +19,7 @@ class FunctionCatalog {
         functionCatalog.setIsApproved(json.isApproved);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+        functionCatalog.setCreatorAccountId(json.creatorAccountId);
 
         return functionCatalog;
     }
@@ -32,7 +33,8 @@ class FunctionCatalog {
             baseVersionId:      functionCatalog.getBaseVersionId(),
             priorVersionId:     functionCatalog.getPriorVersionId(),
             isReleased:         functionCatalog.isReleased(),
-            isApproved:         functionCatalog.isApproved()
+            isApproved:         functionCatalog.isApproved(),
+            creatorAccountId:          functionCatalog.getCreatorAccountId()
         };
         const author = (functionCatalog.getAuthor() || new Author());
         const company = (functionCatalog.getCompany() || new Company());
@@ -56,6 +58,7 @@ class FunctionCatalog {
         this._baseVersionId     = null;
         this._author            = null;
         this._company           = null;
+        this._creatorAccountId  = null;
 
         this._functionBlocks    = [];
     };
@@ -142,6 +145,14 @@ class FunctionCatalog {
 
     isApproved() {
         return this._isApproved;
+    }
+
+    setCreatorAccountId(creatorAccountId) {
+        this._creatorAccountId = creatorAccountId;
+    }
+
+    getCreatorAccountId() {
+        return this._creatorAccountId;
     }
 
     getDisplayVersion() {

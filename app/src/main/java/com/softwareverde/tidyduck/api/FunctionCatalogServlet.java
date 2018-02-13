@@ -204,7 +204,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, currentAccount, database);
 
             DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.insertFunctionCatalog(functionCatalog, currentAccount.getId());
+            databaseManager.insertFunctionCatalog(functionCatalog);
             response.put("functionCatalogId", functionCatalog.getId());
         }
         catch (final Exception exception) {
@@ -444,6 +444,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catalogJson.put("isApproved", functionCatalog.isApproved());
         catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
         catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
+        catalogJson.put("creatorAccountId", functionCatalog.getCreatorAccountId());
         return catalogJson;
     }
 
@@ -464,6 +465,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final String release = functionCatalogJson.getString("releaseVersion");
         final Long authorId = functionCatalogJson.getLong("authorId");
         final Long companyId = functionCatalogJson.getLong("companyId");
+        final Long creatorAccountId = functionCatalogJson.getLong("creatorAccountId");
 
         { // Validate Inputs
             if (Util.isBlank(name)) {
@@ -499,6 +501,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+        functionCatalog.setCreatorAccountId(creatorAccountId > 0 ? creatorAccountId : null);
 
         return functionCatalog;
     }

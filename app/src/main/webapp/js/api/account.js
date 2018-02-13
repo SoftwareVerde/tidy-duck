@@ -71,6 +71,23 @@ function getAccounts(callbackFunction) {
     );
 }
 
+function getActiveAccountsWithModifyPermission(callbackFunction) {
+    tidyFetch(
+        new Request(
+            API_PREFIX + "filtered-accounts/active-modify-permission"
+        ),
+        function (data) {
+            if (!data.wasSuccess) {
+                console.log("Unable to get accounts: " + data.errorMessage);
+            }
+
+            if (typeof callbackFunction == "function") {
+                callbackFunction(data);
+            }
+        }
+    );
+}
+
 function updateAccountRoles(accountId, roleNames, callbackFunction) {
     tidyFetch(
         new Request(

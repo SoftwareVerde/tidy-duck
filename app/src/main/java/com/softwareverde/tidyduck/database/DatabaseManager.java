@@ -79,12 +79,12 @@ public class DatabaseManager {
 
     // FUNCTION CATALOG METHODS
 
-    public void insertFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
+    public void insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog, accountId);
+                functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
             }
         });
     }
