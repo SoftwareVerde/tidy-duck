@@ -129,19 +129,23 @@ class FunctionCatalogForm extends React.Component {
         const reactComponents = [];
         const functionCatalog = this.state.functionCatalog;
         const version = functionCatalog.isApproved() ? functionCatalog.getDisplayVersion() : functionCatalog.getReleaseVersion();
-        const readOnly = this.state.readOnly;
+        const creatorAccountId = functionCatalog.getCreatorAccountId();
+        let readOnly = this.state.readOnly;
 
         const accounts = this.props.accountsForEditForm;
         const accountNames = [];
         let defaultAccountName = null;
 
-        for (let i in accounts) {
-            let account = accounts[i];
-            accountNames.push(account.getName());
+        if (creatorAccountId) {
+            for (let i in accounts) {
+                let account = accounts[i];
+                accountNames.push(account.getName());
 
-            if (functionCatalog.getCreatorAccountId() == account.getId()) {
-                defaultAccountName = account.getName();
+                if (creatorAccountId == account.getId()) {
+                    defaultAccountName = account.getName();
+                }
             }
+            readOnly = creatorAccountId != this.props.account.getId();
         }
 
         let duplicateNameElement = '';
@@ -152,7 +156,7 @@ class FunctionCatalogForm extends React.Component {
 
         reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true}/>);
         reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />);
-        reactComponents.push(<app.InputField key="function-catalog-owner" id="function-catalog-owner" name="functionCatalogOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={this.props.readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>);
+        reactComponents.push(<app.InputField key="function-catalog-owner" id="function-catalog-owner" name="functionCatalogOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>);
 
         if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {

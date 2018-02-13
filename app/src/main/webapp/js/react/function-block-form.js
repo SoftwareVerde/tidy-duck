@@ -249,9 +249,10 @@ class FunctionBlockForm extends React.Component {
 
     render() {
         const functionBlock = this.state.functionBlock;
-        const readOnly = this.state.readOnly;
         const version = functionBlock.isApproved() ? functionBlock.getDisplayVersion() : functionBlock.getReleaseVersion();
         const accessOptions = [];
+        const creatorAccountId = functionBlock.getCreatorAccountId();
+        let readOnly = this.state.readOnly;
         accessOptions.push('public');
         accessOptions.push('private');
         accessOptions.push('preliminary');
@@ -272,13 +273,16 @@ class FunctionBlockForm extends React.Component {
         const accountNames = [];
         let defaultAccountName = null;
 
-        for (let i in accounts) {
-            let account = accounts[i];
-            accountNames.push(account.getName());
+        if (creatorAccountId) {
+            for (let i in accounts) {
+                let account = accounts[i];
+                accountNames.push(account.getName());
 
-            if (functionBlock.getCreatorAccountId() == account.getId()) {
-                defaultAccountName = account.getName();
+                if (creatorAccountId == account.getId()) {
+                    defaultAccountName = account.getName();
+                }
             }
+            readOnly = creatorAccountId != this.props.account.getId();
         }
 
         const reactComponents = [];
@@ -288,7 +292,7 @@ class FunctionBlockForm extends React.Component {
                 <app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} isRequired={true} />
                 <app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true} />
                 <app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />
-                <app.InputField key="function-block-owner" id="function-block-owner" name="functionBlockOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={this.props.readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>
+                <app.InputField key="function-block-owner" id="function-block-owner" name="functionBlockOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>
                 <app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={functionBlock.getAccess()} options={accessOptions} readOnly={readOnly} onChange={this.onAccessChanged} isRequired={true} />
             </div>
         );

@@ -185,7 +185,8 @@ class MostInterfaceForm extends React.Component {
         const reactComponents = [];
         const mostInterface = this.state.mostInterface;
         const version = mostInterface.isApproved() ? mostInterface.getDisplayVersion() : mostInterface.getReleaseVersion();
-        const readOnly = this.state.readOnly;
+        const creatorAccountId = mostInterface.getCreatorAccountId();
+        let readOnly = this.state.readOnly;
 
         let duplicateIdElement = '';
         if (this.state.isDuplicateMostInterfaceMostId) {
@@ -203,20 +204,23 @@ class MostInterfaceForm extends React.Component {
         const accountNames = [];
         let defaultAccountName = null;
 
-        for (let i in accounts) {
-            let account = accounts[i];
-            accountNames.push(account.getName());
+        if (creatorAccountId) {
+            for (let i in accounts) {
+                let account = accounts[i];
+                accountNames.push(account.getName());
 
-            if (mostInterface.getCreatorAccountId() == account.getId()) {
-                defaultAccountName = account.getName();
+                if (creatorAccountId == account.getId()) {
+                    defaultAccountName = account.getName();
+                }
             }
+            readOnly = creatorAccountId != this.props.account.getId();
         }
 
         reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" pattern="I[A-Za-z0-9]+" title="Only alpha-numeric characters, start with 'I'." label="Name" icons={duplicateNameElement} value={mostInterface.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={mostInterface.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
         reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" pattern="[1-9][0-9]*" title="Positive number" label="Version" value={version} readOnly={readOnly} onChange={this.onVersionChanged} isRequired={true} />);
-        reactComponents.push(<app.InputField key="most-interface-owner" id="most-interface-owner" name="mostInterfaceOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={this.props.readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>);
+        reactComponents.push(<app.InputField key="most-interface-owner" id="most-interface-owner" name="mostInterfaceOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>);
 
         if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {
