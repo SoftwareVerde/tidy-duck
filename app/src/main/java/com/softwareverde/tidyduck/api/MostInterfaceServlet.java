@@ -8,12 +8,15 @@ import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
+import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
+import jdk.nashorn.internal.objects.annotations.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +135,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
                 }
-                return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, environment.getDatabase());
+                return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -194,6 +197,14 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
+
+                final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+                if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                    final String errorMessage = "Unable to insert interface: current account does not own Function Block " + functionBlockId;
+                    _logger.error(errorMessage);
+                    return super._generateErrorJson(errorMessage);
+                }
+
                 databaseManager.insertMostInterface(functionBlockId, mostInterface);
             }
             else {
@@ -291,7 +302,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _associateInterfaceWithFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Database<Connection> database) throws IOException {
+    private Json _associateInterfaceWithFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws IOException {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
@@ -305,15 +316,22 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
 
-            List<MostFunction> functionBlockFunctions = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
-            List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
-            List<String> conflictingMostIds = getConflictingMostIds(functionBlockFunctions, mostInterfaceFunctions);
+            final List<MostFunction> functionBlockFunctions = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
+            final List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
+            final List<String> conflictingMostIds = getConflictingMostIds(functionBlockFunctions, mostInterfaceFunctions);
             if (conflictingMostIds.size() > 0) {
                 final String errorMessage = "Conflicting function IDs found: " + conflictingMostIds.toString();
                 _logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
+            }
+
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+            if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                final String errorMessage = "Unable to associate interface with function block: current account does not own the parent Function Block " + functionBlockId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
             }
 
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
@@ -363,6 +381,13 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
                 }
+
+                if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccountId)) {
+                    final String errorMessage = "Unable to delete interface: current account does not own its parent Function Block " + functionBlockId;
+                    _logger.error(errorMessage);
+                    return super._generateErrorJson(errorMessage);
+                }
+
                 databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
             }
         }
@@ -587,6 +612,17 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         if (originalMostInterface.getCreatorAccountId() != null) {
             return originalMostInterface.getCreatorAccountId().equals(currentAccountId);
+        }
+
+        return true;
+    }
+
+    private boolean _canCurrentAccountModifyParentFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+        final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+        if (functionBlock.getCreatorAccountId() != null) {
+            return functionBlock.getCreatorAccountId().equals(currentAccountId);
         }
 
         return true;

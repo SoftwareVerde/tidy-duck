@@ -9,10 +9,12 @@ import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionBlockInflater;
+import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
+import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import org.slf4j.Logger;
@@ -134,7 +136,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, environment.getDatabase());
+                return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -198,6 +200,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
+
+                final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
+                    final String errorMessage = "Unable to insert function block: current account does not own Function Catalog " + functionCatalogId;
+                    _logger.error(errorMessage);
+                    return super._generateErrorJson(errorMessage);
+                }
+
                 databaseManager.insertFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
             }
             else {
@@ -296,7 +306,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _associateFunctionBlockWithFunctionCatalog(final HttpServletRequest request, final long functionBlockId, final Database<Connection> database) throws IOException {
+    private Json _associateFunctionBlockWithFunctionCatalog(final HttpServletRequest request, final long functionBlockId, final Account currentAccount, final Database<Connection> database) throws IOException {
         final Json jsonRequest = _getRequestDataAsJson(request);
         final Json response = _generateSuccessJson();
 
@@ -310,7 +320,15 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            DatabaseManager databaseManager = new DatabaseManager(database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+
+            if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                final String errorMessage = "Unable to associate function block with function catalog: current account does not own Function Catalog " + functionCatalogId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             databaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
         }
         catch (final Exception exception) {
@@ -342,6 +360,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionCatalogId < 1) {
                     return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
                 }
+
+                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                    final String errorMessage = "Unable to delete function block: current account does not own its parent Function Catalog " + functionBlockId;
+                    _logger.error(errorMessage);
+                    return super._generateErrorJson(errorMessage);
+                }
+
                 databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
             }
         }
@@ -618,6 +643,17 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         if (originalFunctionBlock.getCreatorAccountId() != null) {
             return originalFunctionBlock.getCreatorAccountId().equals(currentAccountId);
+        }
+
+        return true;
+    }
+
+    private boolean _canCurrentAccountModifyParentFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+        final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+        if (functionCatalog.getCreatorAccountId() != null) {
+            return functionCatalog.getCreatorAccountId().equals(currentAccountId);
         }
 
         return true;
