@@ -224,7 +224,7 @@ function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(data);
         }
     });
 }

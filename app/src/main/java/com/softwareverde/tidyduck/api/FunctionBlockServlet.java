@@ -516,10 +516,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _submitFunctionBlockForReview(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
-            DatabaseManager databaseManager = new DatabaseManager(database);
+            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                final String errorMessage = "Unable to submit function block for review: current account does not own Function Block " + functionBlockId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.submitFunctionBlockForReview(functionBlockId, currentAccount.getId());
 
             super._setJsonSuccessFields(response);

@@ -269,7 +269,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                final String errorMessage = "Unable to submit function catalog for review: current account does not own Function Catalog " + functionCatalogId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.submitFunctionCatalogForReview(functionCatalogId, currentAccount.getId());
 

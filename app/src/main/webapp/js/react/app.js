@@ -2245,12 +2245,12 @@ class App extends React.Component {
                     break;
             }
 
-            submitFunction(selectedItem.getId(), function(wasSuccess) {
-                if (wasSuccess) {
+            submitFunction(selectedItem.getId(), function(data) {
+                if (data.wasSuccess) {
                     app.App.alert("Request Review", "Request to review " + selectedItem.getName() + " was successfully submitted.");
                 }
                 else {
-                    app.App.alert("Request Review", "Unable to submit for review.");
+                    app.App.alert("Request Review", "Unable to submit for review: " + data.errorMessage);
                 }
             });
         };

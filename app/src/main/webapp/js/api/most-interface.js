@@ -224,7 +224,7 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(data);
         }
     });
 }

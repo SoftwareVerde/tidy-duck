@@ -159,7 +159,7 @@ function submitMostFunctionForReview(mostFunctionId, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(data);
         }
     });
 }

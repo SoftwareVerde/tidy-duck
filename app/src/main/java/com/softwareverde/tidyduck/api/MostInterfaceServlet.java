@@ -537,7 +537,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _submitMostInterfaceForReview(final Long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
+                final String errorMessage = "Unable to submit interface for review: current account does not own Interface " + mostInterfaceId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
             final Json response = new Json(false);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
