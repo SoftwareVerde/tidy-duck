@@ -218,8 +218,9 @@ class MostInterfaceForm extends React.Component {
             }
         }
 
-        if (creatorAccountId) {
-            readOnly = creatorAccountId != this.props.account.getId();
+        const creatorAccountIdFromProps = this.props.mostInterface.getCreatorAccountId();
+        if (creatorAccountIdFromProps) {
+            readOnly = creatorAccountIdFromProps != this.props.account.getId();
         }
 
         reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);

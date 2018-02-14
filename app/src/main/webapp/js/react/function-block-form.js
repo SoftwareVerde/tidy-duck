@@ -287,8 +287,9 @@ class FunctionBlockForm extends React.Component {
             }
         }
 
-        if (creatorAccountId) {
-            readOnly = creatorAccountId != this.props.account.getId();
+        const creatorAccountIdFromProps = this.props.functionBlock.getCreatorAccountId();
+        if (creatorAccountIdFromProps) {
+            readOnly = creatorAccountIdFromProps != this.props.account.getId();
         }
 
         const reactComponents = [];
