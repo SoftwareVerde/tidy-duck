@@ -774,11 +774,12 @@ class App extends React.Component {
             proposedItem:       mostInterface
         });
 
-        insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
+        insertMostInterface(functionBlockId, mostInterfaceJson, function(data, mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
-                console.error("Unable to create interface.");
-                thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal,
+                app.App.alert("Unable to Create Function", data.errorMessage, function() {
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal
+                    });
                 });
                 return;
             }

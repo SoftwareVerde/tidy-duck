@@ -122,7 +122,7 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(mostInterfaceId);
+            callbackFunction(data, mostInterfaceId);
         }
     });
 }
