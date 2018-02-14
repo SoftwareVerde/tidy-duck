@@ -26,9 +26,9 @@ class FunctionCatalog {
     // Converts existing function catalog into JSON
     static toJson(functionCatalog) {
         const jsonFunctionCatalog = {
-            id:             functionCatalog.getId(),
-            name:           functionCatalog.getName(),
-            releaseVersion: functionCatalog.getReleaseVersion(),
+            id:                 functionCatalog.getId(),
+            name:               functionCatalog.getName(),
+            releaseVersion:     functionCatalog.getReleaseVersion(),
             baseVersionId:      functionCatalog.getBaseVersionId(),
             priorVersionId:     functionCatalog.getPriorVersionId(),
             isReleased:         functionCatalog.isReleased(),
