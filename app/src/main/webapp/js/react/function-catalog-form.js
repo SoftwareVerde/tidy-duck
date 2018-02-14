@@ -150,9 +150,11 @@ class FunctionCatalogForm extends React.Component {
             }
         }
 
-        const creatorAccountIdFromProps = this.props.functionCatalog.getCreatorAccountId();
-        if (creatorAccountIdFromProps) {
-            readOnly = creatorAccountIdFromProps != this.props.account.getId();
+        if (this.props.functionCatalog) {
+            const creatorAccountIdFromProps = this.props.functionCatalog.getCreatorAccountId();
+            if (creatorAccountIdFromProps) {
+                readOnly = creatorAccountIdFromProps != this.props.account.getId();
+            }
         }
 
         let duplicateNameElement = '';
