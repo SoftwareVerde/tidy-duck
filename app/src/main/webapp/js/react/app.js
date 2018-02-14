@@ -166,6 +166,7 @@ class App extends React.Component {
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
         this.getValidRoleItems = this.getValidRoleItems.bind(this);
 
+        this.addFunctionCatalogNavigationItem = this.addFunctionCatalogNavigationItem.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
@@ -173,6 +174,7 @@ class App extends React.Component {
         this.onReleaseFunctionCatalog = this.onReleaseFunctionCatalog.bind(this);
         this.onFunctionCatalogReleased = this.onFunctionCatalogReleased.bind(this);
 
+        this.addFunctionBlockNavigationItem = this.addFunctionBlockNavigationItem.bind(this);
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
@@ -184,6 +186,7 @@ class App extends React.Component {
         this.disassociateFunctionBlockFromAllFunctionCatalogs = this.disassociateFunctionBlockFromAllFunctionCatalogs.bind(this);
         this.deleteFunctionBlockFromDatabase = this.deleteFunctionBlockFromDatabase.bind(this);
 
+        this.addMostInterfaceNavigationItem = this.addMostInterfaceNavigationItem.bind(this);
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
@@ -195,6 +198,7 @@ class App extends React.Component {
         this.disassociateMostInterfaceFromAllFunctionBlocks = this.disassociateMostInterfaceFromAllFunctionBlocks.bind(this);
         this.deleteMostInterfaceFromDatabase = this.deleteMostInterfaceFromDatabase.bind(this);
 
+        this.addMostFunctionNavigationItem = this.addMostFunctionNavigationItem.bind(this);
         this.onMostFunctionSelected = this.onMostFunctionSelected.bind(this);
         this.onCreateMostFunction = this.onCreateMostFunction.bind(this);
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
@@ -223,7 +227,6 @@ class App extends React.Component {
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
 
-        this.notCurrentHistoryState = this.notCurrentHistoryState.bind(this);
         this.goToHistoryState = this.goToHistoryState.bind(this);
 
         this.logout = this.logout.bind(this);
@@ -948,16 +951,7 @@ class App extends React.Component {
         });
     }
 
-    onFunctionCatalogSelected(functionCatalog, canUseCachedChildren) {
-        if (this.notCurrentHistoryState("FunctionCatalog")) {
-            history.pushState({
-                roleName:       this.state.activeRole,
-                subRoleName:    this.state.activeSubRole,
-                selection:      "FunctionCatalog",
-                selectedItem:   FunctionCatalog.toJson(functionCatalog)
-            }, null, null);
-        }
-
+    addFunctionCatalogNavigationItem(functionCatalog) {
         const thisApp = this;
         const navigationItems = [];
         const parentHistory = [];
@@ -983,7 +977,7 @@ class App extends React.Component {
         });
 
         navigationItemConfig.setForm(
-            <app.FunctionCatalogForm 
+            <app.FunctionCatalogForm
                 showTitle={false}
                 onSubmit={this.onUpdateFunctionCatalog}
                 functionCatalog={functionCatalog}
@@ -1001,24 +995,32 @@ class App extends React.Component {
         };
         parentHistory.push(parentHistoryItem);
 
-        thisApp.setState({
+        this.setState({
             navigationItems:                navigationItems,
             parentHistory:                  parentHistory,
+            parentItem:                     null
+        });
+    }
+
+    onFunctionCatalogSelected(functionCatalog, canUseCachedChildren) {
+        this.addFunctionCatalogNavigationItem(functionCatalog);
+
+        this.setState({
             searchResults:                  [],
             reviewCommentsString:           null,
             selectedItem:                   functionCatalog,
-            parentItem:                     null,
             proposedItem:                   null,
             functionBlocks:                 canUseCachedChildren ? this.state.functionBlocks : [],
             shouldShowCreateChildForm:      false,
             shouldShowSearchChildForm:      false,
             shouldShowEditForm:             false,
             shouldShowSubmitForReviewForm:  false,
-            createButtonState:              thisApp.CreateButtonState.normal,
-            currentNavigationLevel:         thisApp.NavigationLevel.functionCatalogs,
+            createButtonState:              this.CreateButtonState.normal,
+            currentNavigationLevel:         this.NavigationLevel.functionCatalogs,
             isLoadingChildren:              !canUseCachedChildren
         });
 
+        const thisApp = this;
         getFunctionBlocksForFunctionCatalogId(functionCatalog.getId(), function(functionBlocksJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                 // didn't navigate away while downloading children
@@ -1099,16 +1101,7 @@ class App extends React.Component {
         app.App.confirm("Delete Function Catalog", "This action will delete the last reference to this function catalog version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
-    onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
-        if (this.notCurrentHistoryState("FunctionBlock")) {
-            history.pushState({
-                    roleName:       this.state.activeRole,
-                    subRoleName:    this.state.activeSubRole,
-                    selection:      "FunctionBlock",
-                    selectedItem:   FunctionBlock.toJson(functionBlock)
-            }, null, null);
-        }
-
+    addFunctionBlockNavigationItem(functionBlock) {
         const thisApp = this;
         const itemId = "functionBlock" + functionBlock.getId();
         let newParentHistory = [];
@@ -1137,23 +1130,31 @@ class App extends React.Component {
 
         this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
-        thisApp.setState({
+        this.setState({
             navigationItems:                newNavigationItems,
             parentHistory:                  newParentHistory,
+            parentItem:                     parentItem
+        });
+    }
+
+    onFunctionBlockSelected(functionBlock, canUseCachedChildren) {
+        this.addFunctionBlockNavigationItem(functionBlock);
+
+        this.setState({
             searchResults:                  [],
             selectedItem:                   functionBlock,
-            parentItem:                     parentItem,
             proposedItem:                   null,
             mostInterfaces:                 canUseCachedChildren ? this.state.mostInterfaces : [],
             shouldShowCreateChildForm:      false,
             shouldShowSearchChildForm:      false,
             shouldShowEditForm:             false,
             shouldShowSubmitForReviewForm:  false,
-            createButtonState:              thisApp.CreateButtonState.normal,
-            currentNavigationLevel:         thisApp.NavigationLevel.functionBlocks,
+            createButtonState:              this.CreateButtonState.normal,
+            currentNavigationLevel:         this.NavigationLevel.functionBlocks,
             isLoadingChildren:              !canUseCachedChildren,
         });
 
+        const thisApp = this;
         getMostInterfacesForFunctionBlockId(functionBlock.getId(), function(mostInterfacesJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                 // didn't navigate away while downloading children
@@ -1471,16 +1472,7 @@ class App extends React.Component {
         deleteFunction();
     }
 
-    onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
-        if (this.notCurrentHistoryState("MostInterface")) {
-            history.pushState({
-                roleName:       this.state.activeRole,
-                subRoleName:    this.state.activeSubRole,
-                selection:      "MostInterface",
-                selectedItem:   MostInterface.toJson(mostInterface)
-            }, null, null);
-        }
-
+    addMostInterfaceNavigationItem(mostInterface) {
         const thisApp = this;
         const itemId = "mostInterface" + mostInterface.getId();
         let newParentHistory = [];
@@ -1509,26 +1501,34 @@ class App extends React.Component {
 
         this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
-        thisApp.setState({
+        this.setState({
             navigationItems:                newNavigationItems,
             parentHistory:                  newParentHistory,
+            parentItem:                     parentItem
+        });
+    }
+
+    onMostInterfaceSelected(mostInterface, canUseCachedChildren) {
+        this.addMostInterfaceNavigationItem(mostInterface);
+
+        this.setState({
             searchResults:                  [],
             selectedItem:                   mostInterface,
-            parentItem:                     parentItem,
             proposedItem:                   null,
             shouldShowCreateChildForm:      false,
             shouldShowSearchChildForm:      false,
             shouldShowEditForm:             false,
             shouldShowSubmitForReviewForm:  false,
             mostFunctions:                  canUseCachedChildren ? this.state.mostFunctions : [],
-            createButtonState:              thisApp.CreateButtonState.normal,
-            currentNavigationLevel:         thisApp.NavigationLevel.mostInterfaces,
+            createButtonState:              this.CreateButtonState.normal,
+            currentNavigationLevel:         this.NavigationLevel.mostInterfaces,
             isLoadingChildren:              !canUseCachedChildren
         });
 
         this.updateMostTypes();
         this.updateMostFunctionStereotypes();
 
+        const thisApp = this;
         getMostFunctionsForMostInterfaceId(mostInterface.getId(), function(mostFunctionsJson) {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.mostInterfaces) {
                 // didn't navigate away while downloading children
@@ -1851,16 +1851,7 @@ class App extends React.Component {
         deleteFunction();
     }
 
-    onMostFunctionSelected(mostFunction) {
-        if (this.notCurrentHistoryState("MostFunction")) {
-            history.pushState({
-                roleName:       this.state.activeRole,
-                subRoleName:    this.state.activeSubRole,
-                selection:      "MostFunction",
-                selectedItem:   MostFunction.toJson(mostFunction)
-            }, null, null);
-        }
-
+    addMostFunctionNavigationItem(mostFunction) {
         const thisApp = this;
         const itemId = "mostFunction" + mostFunction.getId();
         let newParentHistory = [];
@@ -1880,14 +1871,21 @@ class App extends React.Component {
 
         this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
-        thisApp.setState({
+        this.setState({
             navigationItems:                newNavigationItems,
+            parentItem:                     parentItem
+        });
+    }
+
+    onMostFunctionSelected(mostFunction) {
+        this.addMostFunctionNavigationItem(mostFunction);
+
+        this.setState({
             searchResults:                  [],
             selectedItem:                   mostFunction,
-            parentItem:                     parentItem,
             proposedItem:                   null,
-            createButtonState:              thisApp.CreateButtonState.normal,
-            currentNavigationLevel:         thisApp.NavigationLevel.mostFunctions,
+            createButtonState:              this.CreateButtonState.normal,
+            currentNavigationLevel:         this.NavigationLevel.mostFunctions,
             shouldShowCreateChildForm:      false,
             shouldShowFilteredResults:      false,
             shouldShowEditForm:             false,
@@ -2432,38 +2430,8 @@ class App extends React.Component {
         });
     }
 
-    notCurrentHistoryState(selection) {
-        return (
-            !history.state
-            || (this.state.activeRole != history.state.roleName || this.state.activeSubRole != history.state.subRoleName)
-            || (selection != history.state.selection)
-        );
-    }
-
     goToHistoryState(historyState) {
         this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
-        if (historyState.selection) {
-            let selection = historyState.selection;
-            let selectedItem = historyState.selectedItem;
-
-            switch (selection) {
-                case "FunctionCatalog": {
-                    this.onFunctionCatalogSelected(FunctionCatalog.fromJson(selectedItem), false);
-                } break;
-                case "FunctionBlock": {
-                    this.onFunctionBlockSelected(FunctionBlock.fromJson(selectedItem), false);
-                } break;
-                case "MostInterface": {
-                    this.onMostInterfaceSelected(MostInterface.fromJson(selectedItem), false);
-                } break;
-                case "MostFunction": {
-                    this.onMostFunctionSelected(MostFunction.fromJson(selectedItem));
-                } break;
-                default: {
-                    console.log("Invalid selection type: " + selection);
-                }
-            }
-        }
     }
 
     handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
