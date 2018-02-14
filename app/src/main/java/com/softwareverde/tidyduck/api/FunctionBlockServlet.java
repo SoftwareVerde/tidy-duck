@@ -252,6 +252,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
+
+                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                    final String errorMessage = "Unable to update function block within function catalog: current account does not own its parent Function Catalog " + functionBlockId;
+                    _logger.error(errorMessage);
+                    return super._generateErrorJson(errorMessage);
+                }
+
                 databaseManager.updateFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
             }
             else {

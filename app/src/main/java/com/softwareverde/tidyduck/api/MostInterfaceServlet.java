@@ -248,6 +248,13 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     _logger.error("Unable to parse Function Block ID: " + functionBlockId);
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
+
+                if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                    final String errorMessage = "Unable to update interface within function block: current account does not own the parent Function Block " + functionBlockId;
+                    _logger.error(errorMessage);
+                    return super._generateErrorJson(errorMessage);
+                }
+
                 databaseManager.updateMostInterface(functionBlockId, mostInterface);
             }
             else {
