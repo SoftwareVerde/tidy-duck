@@ -183,11 +183,16 @@ class FunctionBlockForm extends React.Component {
         const functionBlock = this.state.functionBlock;
         const accounts = this.props.accountsForEditForm;
 
-        for (let i in accounts) {
-            let account = accounts[i];
-            if (account.getName() == newValue) {
-                functionBlock.setCreatorAccountId(account.getId());
-                break;
+        if (newValue == "Unowned") {
+            functionBlock.setCreatorAccountId(null);
+        }
+        else {
+            for (let i in accounts) {
+                let account = accounts[i];
+                if (account.getName() == newValue) {
+                    functionBlock.setCreatorAccountId(account.getId());
+                    break;
+                }
             }
         }
 
@@ -270,18 +275,19 @@ class FunctionBlockForm extends React.Component {
         }
 
         const accounts = this.props.accountsForEditForm;
-        const accountNames = [];
+        const accountNames = ["Unowned"];
         let defaultAccountName = null;
 
-        if (creatorAccountId) {
-            for (let i in accounts) {
-                let account = accounts[i];
-                accountNames.push(account.getName());
+        for (let i in accounts) {
+            let account = accounts[i];
+            accountNames.push(account.getName());
 
-                if (creatorAccountId == account.getId()) {
-                    defaultAccountName = account.getName();
-                }
+            if (creatorAccountId == account.getId()) {
+                defaultAccountName = account.getName();
             }
+        }
+
+        if (creatorAccountId) {
             readOnly = creatorAccountId != this.props.account.getId();
         }
 

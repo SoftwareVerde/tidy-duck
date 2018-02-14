@@ -77,11 +77,16 @@ class FunctionCatalogForm extends React.Component {
         const functionCatalog = this.state.functionCatalog;
         const accounts = this.props.accountsForEditForm;
 
-        for (let i in accounts) {
-            let account = accounts[i];
-            if (account.getName() == newValue) {
-                functionCatalog.setCreatorAccountId(account.getId());
-                break;
+        if (newValue == "Unowned") {
+            functionCatalog.setCreatorAccountId(null);
+        }
+        else {
+            for (let i in accounts) {
+                let account = accounts[i];
+                if (account.getName() == newValue) {
+                    functionCatalog.setCreatorAccountId(account.getId());
+                    break;
+                }
             }
         }
 
@@ -133,18 +138,19 @@ class FunctionCatalogForm extends React.Component {
         let readOnly = this.state.readOnly;
 
         const accounts = this.props.accountsForEditForm;
-        const accountNames = [];
+        const accountNames = ["Unowned"];
         let defaultAccountName = null;
 
-        if (creatorAccountId) {
-            for (let i in accounts) {
-                let account = accounts[i];
-                accountNames.push(account.getName());
+        for (let i in accounts) {
+            let account = accounts[i];
+            accountNames.push(account.getName());
 
-                if (creatorAccountId == account.getId()) {
-                    defaultAccountName = account.getName();
-                }
+            if (creatorAccountId == account.getId()) {
+                defaultAccountName = account.getName();
             }
+        }
+
+        if (creatorAccountId) {
             readOnly = creatorAccountId != this.props.account.getId();
         }
 
