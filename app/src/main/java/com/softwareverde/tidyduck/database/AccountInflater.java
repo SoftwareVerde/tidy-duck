@@ -9,6 +9,7 @@ import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,10 @@ public class AccountInflater {
 
     public AccountInflater(DatabaseConnection<Connection> connection) {
         _databaseConnection = connection;
+    }
+
+    public List<Account> inflateAccounts() throws DatabaseException {
+        return inflateAccounts(false);
     }
 
     public List<Account> inflateAccounts(final boolean includeDeletedAccounts) throws DatabaseException {

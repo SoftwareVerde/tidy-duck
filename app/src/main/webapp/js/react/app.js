@@ -101,6 +101,7 @@ class App extends React.Component {
 
         this.state = {
             account:                    null,
+            accountsForEditForm:       [],
             companies:                  [],
             navigationItems:            [],
             parentHistory:              [],
@@ -162,6 +163,7 @@ class App extends React.Component {
         this.getCurrentAccountCompany = this.getCurrentAccountCompany.bind(this);
         this.onResetPassword = this.onResetPassword.bind(this);
         this.getAllCompanies = this.getAllCompanies.bind(this);
+        this.getAccountsForEditForm = this.getAccountsForEditForm.bind(this);
         this.onCreateCompany = this.onCreateCompany.bind(this);
         this.getFunctionCatalogsForCurrentVersion = this.getFunctionCatalogsForCurrentVersion.bind(this);
         this.getValidRoleItems = this.getValidRoleItems.bind(this);
@@ -272,7 +274,8 @@ class App extends React.Component {
             }
         });
 
-        this.getAllCompanies()
+        this.getAllCompanies();
+        this.getAccountsForEditForm();
     }
 
     displayAlert(alert) {
@@ -443,6 +446,24 @@ class App extends React.Component {
         });
     }
 
+    getAccountsForEditForm() {
+        const thisApp = this;
+
+        getActiveAccountsWithModifyPermission(function (data) {
+            if (data.wasSuccess) {
+                const accountsJson = data.accounts;
+                const accounts = accountsJson.map(Account.fromJson);
+                const sortedAccounts = accounts.sort(function(a, b) {
+                    return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                });
+
+                thisApp.setState({
+                    accountsForEditForm: sortedAccounts
+                });
+            }
+        });
+    }
+
     onCreateCompany(newCompany, callbackFunction) {
         const newCompanyJson = Company.toJson(newCompany);
         const thisApp = this;
@@ -483,6 +504,8 @@ class App extends React.Component {
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
         navigationItems.push(navigationItem);
@@ -491,8 +514,34 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(wasSuccess, newFunctionCatalogId) {
-            if (wasSuccess) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data, newFunctionCatalogId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to update Function Catalog", data.errorMessage, function() {
+                    //Update form to show changes were not saved.
+                    let navigationItems = thisApp.state.navigationItems;
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setForm(
+                        <app.FunctionCatalogForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={this.onUpdateFunctionCatalog}
+                            functionCatalog={functionCatalog}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal,
+                        navigationItems: navigationItems
+                    });
+                });
+            }
+            else {
                 let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
                     return value.getId() != functionCatalogId;
                 });
@@ -529,6 +578,8 @@ class App extends React.Component {
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
                         readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -620,6 +671,8 @@ class App extends React.Component {
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
         navigationItems.push(navigationItem);
@@ -634,8 +687,34 @@ class App extends React.Component {
             createButtonState: createButtonState
         });
 
-        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(wasSuccess, newFunctionBlockId) {
-            if (wasSuccess) {
+        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(data, newFunctionBlockId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to update Function Block", data.errorMessage, function() {
+                    //Update form to show changes were not saved.
+                    let navigationItems = thisApp.state.navigationItems;
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setForm(
+                        <app.FunctionBlockForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={thisApp.onUpdateFunctionBlock}
+                            functionBlock={functionBlock}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal,
+                        navigationItems: navigationItems
+                    });
+                });
+            }
+            else {
                 let functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
                     return value.getId() != functionBlockId;
                 });
@@ -672,6 +751,8 @@ class App extends React.Component {
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
                         readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
                     />
                 );
                 navigationItems.push(navigationItem);
@@ -699,11 +780,12 @@ class App extends React.Component {
             proposedItem:       mostInterface
         });
 
-        insertMostInterface(functionBlockId, mostInterfaceJson, function(mostInterfaceId) {
+        insertMostInterface(functionBlockId, mostInterfaceJson, function(data, mostInterfaceId) {
             if (! (mostInterfaceId > 0)) {
-                console.error("Unable to create interface.");
-                thisApp.setState({
-                    createButtonState:  thisApp.CreateButtonState.normal,
+                app.App.alert("Unable to Create Function", data.errorMessage, function() {
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal
+                    });
                 });
                 return;
             }
@@ -749,6 +831,8 @@ class App extends React.Component {
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
         navigationItems.push(navigationItem);
@@ -762,8 +846,34 @@ class App extends React.Component {
             selectedItem:   mostInterface,
             createButtonState: createButtonState
         });
-        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(wasSuccess, newMostInterfaceId) {
-            if (wasSuccess) {
+        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to update Interface", data.errorMessage, function() {
+                    //Update form to show changes were not saved.
+                    let navigationItems = thisApp.state.navigationItems;
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setForm(
+                        <app.MostInterfaceForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={this.onUpdateMostInterface}
+                            mostInterface={mostInterface}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        createButtonState:  thisApp.CreateButtonState.normal,
+                        navigationItems: navigationItems
+                    });
+                });
+            }
+            else {
                 var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
                     return value.getId() != mostInterfaceId;
                 });
@@ -800,6 +910,8 @@ class App extends React.Component {
                         buttonTitle="Changes Saved"
                         defaultButtonTitle="Save"
                         readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
                     />
                 );
 
@@ -979,11 +1091,13 @@ class App extends React.Component {
         navigationItemConfig.setForm(
             <app.FunctionCatalogForm
                 showTitle={false}
-                onSubmit={this.onUpdateFunctionCatalog}
+                onSubmit={thisApp.onUpdateFunctionCatalog}
                 functionCatalog={functionCatalog}
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
         navigationItems.push(navigationItemConfig);
@@ -1125,6 +1239,8 @@ class App extends React.Component {
                 buttonTitle="Save"
                 defaultButtonTitle="Save"
                 readOnly={! thisApp.state.account.hasRole("Modify")}
+                account={thisApp.state.account}
+                accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
 
@@ -1496,6 +1612,8 @@ class App extends React.Component {
                buttonTitle="Save"
                defaultButtonTitle="Save"
                readOnly={! thisApp.state.account.hasRole("Modify")}
+               account={thisApp.state.account}
+               accountsForEditForm={thisApp.state.accountsForEditForm}
             />
         );
 
@@ -2164,12 +2282,12 @@ class App extends React.Component {
                     break;
             }
 
-            submitFunction(selectedItem.getId(), function(wasSuccess) {
-                if (wasSuccess) {
+            submitFunction(selectedItem.getId(), function(data) {
+                if (data.wasSuccess) {
                     app.App.alert("Request Review", "Request to review " + selectedItem.getName() + " was successfully submitted.");
                 }
                 else {
-                    app.App.alert("Request Review", "Unable to submit for review.");
+                    app.App.alert("Request Review", "Unable to submit for review: " + data.errorMessage);
                 }
             });
         };
@@ -2626,6 +2744,7 @@ class App extends React.Component {
                     currentReview:              null
                 });
                 this.getAllCompanies();
+                this.getAccountsForEditForm();
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
@@ -2939,6 +3058,8 @@ class App extends React.Component {
                             showTitle={true}
                             onSubmit={this.onCreateFunctionCatalog}
                             defaultButtonTitle="Submit"
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
                         />
                     );
                 }
@@ -2954,6 +3075,8 @@ class App extends React.Component {
                             showTitle={true}
                             onSubmit={this.onCreateFunctionBlock}
                             defaultButtonTitle="Submit"
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
                         />
                     );
                 }
@@ -2988,6 +3111,8 @@ class App extends React.Component {
                            buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
                            readOnly={! canModify}
+                           account={thisApp.state.account}
+                           accountsForEditForm={thisApp.state.accountsForEditForm}
                         />
                     );
                 }
@@ -3000,6 +3125,8 @@ class App extends React.Component {
                             showTitle={true}
                             onSubmit={this.onCreateMostInterface}
                             defaultButtonTitle="Submit"
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
                         />
                     );
                 }
@@ -3034,6 +3161,8 @@ class App extends React.Component {
                            buttonTitle={developmentButtonTitle}
                            defaultButtonTitle="Save"
                            readOnly={! canModify}
+                           account={thisApp.state.account}
+                           accountsForEditForm={thisApp.state.accountsForEditForm}
                         />
                     );
                 }

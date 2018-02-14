@@ -3,6 +3,10 @@ class FunctionCatalogForm extends React.Component {
         super(props);
 
         const functionCatalog = copyMostObject(FunctionCatalog, this.props.functionCatalog || new FunctionCatalog());
+        if (! functionCatalog.getId()) {
+            functionCatalog.setCreatorAccountId(this.props.account.getId());
+        }
+
         this.state = {
             showTitle:                  this.props.showTitle,
             shouldShowSaveAnimation:    this.props.shouldShowSaveAnimation,
@@ -10,15 +14,16 @@ class FunctionCatalogForm extends React.Component {
             isDuplicateFunctionCatalog: false,
             buttonTitle:                (this.props.buttonTitle || "Submit"),
             defaultButtonTitle:         this.props.defaultButtonTitle,
-            readOnly:                   (this.props.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
+            readOnly:                   (this.props.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased()),
+            isLoadingAccounts:          false
         };
 
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onReleaseVersionChanged = this.onReleaseVersionChanged.bind(this);
+        this.onOwnerChanged = this.onOwnerChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-
         this.renderFormTitle = this.renderFormTitle.bind(this);
     }
 
@@ -31,7 +36,7 @@ class FunctionCatalogForm extends React.Component {
             functionCatalog:            functionCatalog,
             buttonTitle:                (newProperties.buttonTitle || "Submit"),
             defaultButtonTitle:         newProperties.defaultButtonTitle,
-            readOnly:                   (newProperties.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased())
+            readOnly:                   (newProperties.readOnly || functionCatalog.isApproved() || functionCatalog.isReleased()),
         });
     }
 
@@ -59,6 +64,31 @@ class FunctionCatalogForm extends React.Component {
     onReleaseVersionChanged(newValue) {
         const functionCatalog = this.state.functionCatalog;
         functionCatalog.setReleaseVersion(newValue);
+
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
+    }
+
+    onOwnerChanged(newValue) {
+        const functionCatalog = this.state.functionCatalog;
+        const accounts = this.props.accountsForEditForm;
+
+        if (newValue == "Unowned") {
+            functionCatalog.setCreatorAccountId(null);
+        }
+        else {
+            for (let i in accounts) {
+                let account = accounts[i];
+                if (account.getName() == newValue) {
+                    functionCatalog.setCreatorAccountId(account.getId());
+                    break;
+                }
+            }
+        }
 
         const defaultButtonTitle = this.state.defaultButtonTitle;
         this.setState({buttonTitle: defaultButtonTitle});
@@ -104,7 +134,28 @@ class FunctionCatalogForm extends React.Component {
         const reactComponents = [];
         const functionCatalog = this.state.functionCatalog;
         const version = functionCatalog.isApproved() ? functionCatalog.getDisplayVersion() : functionCatalog.getReleaseVersion();
-        const readOnly = this.state.readOnly;
+        const creatorAccountId = functionCatalog.getCreatorAccountId();
+        let readOnly = this.state.readOnly;
+
+        const accounts = this.props.accountsForEditForm;
+        const accountNames = ["Unowned"];
+        let defaultAccountName = null;
+
+        for (let i in accounts) {
+            let account = accounts[i];
+            accountNames.push(account.getName());
+
+            if (creatorAccountId == account.getId()) {
+                defaultAccountName = account.getName();
+            }
+        }
+
+        if (this.props.functionCatalog) {
+            const creatorAccountIdFromProps = this.props.functionCatalog.getCreatorAccountId();
+            if (creatorAccountIdFromProps) {
+                readOnly = creatorAccountIdFromProps != this.props.account.getId();
+            }
+        }
 
         let duplicateNameElement = '';
         if (this.state.isDuplicateFunctionCatalog) {
@@ -114,6 +165,7 @@ class FunctionCatalogForm extends React.Component {
 
         reactComponents.push(<app.InputField key="function-catalog-name" id="function-catalog-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionCatalog.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true}/>);
         reactComponents.push(<app.InputField key="function-catalog-release-version" id="function-catalog-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />);
+        reactComponents.push(<app.InputField key="function-catalog-owner" id="function-catalog-owner" name="functionCatalogOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>);
 
         if (! readOnly) {
             if(this.state.shouldShowSaveAnimation)  {

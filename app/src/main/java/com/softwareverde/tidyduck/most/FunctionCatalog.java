@@ -16,6 +16,7 @@ public class FunctionCatalog {
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
+    private Long _creatorAccountId;
     private final List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private final List<Modification> _modifications = new ArrayList<>();
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
@@ -98,6 +99,10 @@ public class FunctionCatalog {
     public void setPriorVersionId(final Long priorVersionId) {
         _priorVersionId = priorVersionId;
     }
+
+    public Long getCreatorAccountId() { return _creatorAccountId; }
+
+    public void setCreatorAccountId(final Long creatorAccountId) { _creatorAccountId = creatorAccountId; }
 
     public List<FunctionBlock> getFunctionBlocks() {
         return Util.copyList(_functionBlocks);

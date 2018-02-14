@@ -13,6 +13,7 @@ class FunctionBlockForm extends React.Component {
         // Default values for the function block...
         if (isNewFunctionBlock) {
             injectDefaultValues(functionBlock);
+            functionBlock.setCreatorAccountId(this.props.account.getId());
         }
 
         this.state = {
@@ -35,6 +36,7 @@ class FunctionBlockForm extends React.Component {
         this.onAccessChanged = this.onAccessChanged.bind(this);
         this.onIsSourceChanged = this.onIsSourceChanged.bind(this);
         this.onIsSinkChanged = this.onIsSinkChanged.bind(this);
+        this.onOwnerChanged = this.onOwnerChanged.bind(this);
 
         this.onClick = this.onClick.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -49,6 +51,7 @@ class FunctionBlockForm extends React.Component {
         // Default values for the function block...
         if (isNewFunctionBlock) {
             injectDefaultValues(functionBlock);
+            functionBlock.setCreatorAccountId(newProperties.account.getId());
         }
 
         functionBlock.setId((newProperties.functionBlock || functionBlock).getId());
@@ -176,6 +179,31 @@ class FunctionBlockForm extends React.Component {
         }
     }
 
+    onOwnerChanged(newValue) {
+        const functionBlock = this.state.functionBlock;
+        const accounts = this.props.accountsForEditForm;
+
+        if (newValue == "Unowned") {
+            functionBlock.setCreatorAccountId(null);
+        }
+        else {
+            for (let i in accounts) {
+                let account = accounts[i];
+                if (account.getName() == newValue) {
+                    functionBlock.setCreatorAccountId(account.getId());
+                    break;
+                }
+            }
+        }
+
+        const defaultButtonTitle = this.state.defaultButtonTitle;
+        this.setState({buttonTitle: defaultButtonTitle});
+
+        if (typeof this.props.onUpdate == "function") {
+            this.props.onUpdate();
+        }
+    }
+
     onClick(event) {
         event.stopPropagation();
     }
@@ -226,9 +254,10 @@ class FunctionBlockForm extends React.Component {
 
     render() {
         const functionBlock = this.state.functionBlock;
-        const readOnly = this.state.readOnly;
         const version = functionBlock.isApproved() ? functionBlock.getDisplayVersion() : functionBlock.getReleaseVersion();
         const accessOptions = [];
+        const creatorAccountId = functionBlock.getCreatorAccountId();
+        let readOnly = this.state.readOnly;
         accessOptions.push('public');
         accessOptions.push('private');
         accessOptions.push('preliminary');
@@ -245,6 +274,26 @@ class FunctionBlockForm extends React.Component {
             duplicateNameElement = <i className="fa fa-files-o" title="Duplicate function block name." style={iconStyle}></i>;
         }
 
+        const accounts = this.props.accountsForEditForm;
+        const accountNames = ["Unowned"];
+        let defaultAccountName = null;
+
+        for (let i in accounts) {
+            let account = accounts[i];
+            accountNames.push(account.getName());
+
+            if (creatorAccountId == account.getId()) {
+                defaultAccountName = account.getName();
+            }
+        }
+
+        if (this.props.functionBlock) {
+            const creatorAccountIdFromProps = this.props.functionBlock.getCreatorAccountId();
+            if (creatorAccountIdFromProps) {
+                readOnly = creatorAccountIdFromProps != this.props.account.getId();
+            }
+        }
+
         const reactComponents = [];
         reactComponents.push(
             <div key="input-group" className="clearfix">
@@ -252,12 +301,12 @@ class FunctionBlockForm extends React.Component {
                 <app.InputField key="function-block-kind" id="function-block-kind" name="kind" type="text" label="Kind" value={functionBlock.getKind()} readOnly={readOnly} onChange={this.onKindChanged} isRequired={true} />
                 <app.InputField key="function-block-name" id="function-block-name" name="name" type="text" label="Name" icons={duplicateNameElement} value={functionBlock.getName()} readOnly={readOnly} onChange={this.onNameChanged} pattern="[A-Za-z0-9]+" title="Only alpha-numeric characters." isRequired={true} />
                 <app.InputField key="function-block-release-version" id="function-block-release-version" name="releaseVersion" type="text" label="Release" value={version} readOnly={readOnly} onChange={this.onReleaseVersionChanged} pattern="[0-9]+\.[0-9]+(\.[0-9]+)?" title="Major.Minor(.Patch)" isRequired={true} />
+                <app.InputField key="function-block-owner" id="function-block-owner" name="functionBlockOwner" type="dropdown" label="Owner" options={accountNames} defaultValue={defaultAccountName} readOnly={readOnly} onSelect={this.onOwnerChanged} isRequired={false}/>
+                <app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={functionBlock.getAccess()} options={accessOptions} readOnly={readOnly} onChange={this.onAccessChanged} isRequired={true} />
             </div>
         );
+
         reactComponents.push(<app.InputField key="function-block-description" id="function-block-description" name="description" type="textarea" label="Description" value={functionBlock.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
-
-        reactComponents.push(<app.InputField key="function-block-access" id="function-block-access" name="access" type="select" label="Access" value={functionBlock.getAccess()} options={accessOptions} readOnly={readOnly} onChange={this.onAccessChanged} isRequired={true} />);
-
         reactComponents.push(<app.InputField key="function-block-is-source" id="function-block-is-source" name="is-source" type="checkbox" label="Is a Source" checked={functionBlock.isSource()} readOnly={readOnly} onChange={this.onIsSourceChanged} isRequired={false} />);
         reactComponents.push(<app.InputField key="function-block-is-sink" id="function-block-is-sink" name="is-sink" type="checkbox" label="Is a Sink" checked={functionBlock.isSink()} readOnly={readOnly} onChange={this.onIsSinkChanged} isRequired={false} />);
 

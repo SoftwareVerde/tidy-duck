@@ -7,7 +7,9 @@ import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
+import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.database.MostFunctionInflater;
+import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.util.Util;
@@ -81,7 +83,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 if (mostFunctionId < 1) {
                     return _generateErrorJson("Invalid function id.");
                 }
-                return _deleteMostFunctionFromMostInterface(request, mostFunctionId, environment.getDatabase());
+                return _deleteMostFunctionFromMostInterface(request, mostFunctionId, currentAccount, environment.getDatabase());
             }
         });
     }
@@ -128,6 +130,13 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 return errorJson;
             }
 
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
+                final String errorMessage = "Unable to insert Function: current account does not own its parent Interface " + mostInterfaceId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
             response.put("mostFunctionId", mostFunction.getId());
         }
@@ -154,14 +163,21 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
 
         try {
-            MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, currentAccount, database);
+            final MostFunction mostFunction = _populateMostFunctionFromJson(mostFunctionJson, currentAccount, database);
             mostFunction.setId(mostFunctionId);
 
-            DatabaseManager databaseManager = new DatabaseManager(database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
 
             final Json errorJson = _checkForFunctionIdCollisions(databaseManager, mostFunction, mostInterfaceId);
             if (errorJson != null) {
                 return errorJson;
+            }
+
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
+                final String errorMessage = "Unable to update Function: current account does not own its parent Interface " + mostInterfaceId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
             }
 
             databaseManager.updateMostFunction(mostInterfaceId, mostFunction);
@@ -221,7 +237,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return _hasConflictingFunction(functionBlockMostIds, mostFunction);
     }
 
-    protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Database<Connection> database) {
+    protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Account currentAccount, final Database<Connection> database) {
         final String mostInterfaceString = request.getParameter("most_interface_id");
         final Long mostInterfaceId = Util.parseLong(mostInterfaceString);
 
@@ -231,6 +247,13 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
 
         try {
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
+                final String errorMessage = "Unable to delete Function: current account does not own its parent Interface " + mostInterfaceId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.deleteMostFunction(mostInterfaceId, mostFunctionId);
         }
@@ -485,5 +508,16 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("operations", operationsJson);
 
         return mostFunctionJson;
+    }
+
+    private boolean _canCurrentAccountModifyParentMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+        final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+        if (mostInterface.getCreatorAccountId() != null) {
+            return mostInterface.getCreatorAccountId().equals(currentAccountId);
+        }
+
+        return true;
     }
 }

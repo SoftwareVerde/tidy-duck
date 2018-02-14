@@ -133,6 +133,7 @@ public class FunctionCatalogInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
+        final Long creatorAccountId = row.getLong("creator_account_id");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -150,13 +151,14 @@ public class FunctionCatalogInflater {
         functionCatalog.setIsReleased(isReleased);
         functionCatalog.setBaseVersionId(baseVersionId);
         functionCatalog.setPriorVersionId(priorVersionId);
+        functionCatalog.setCreatorAccountId(creatorAccountId);
 
         return functionCatalog;
     }
 
     private void _inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), true);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(),true);
         functionCatalog.setFunctionBlocks(functionBlocks);
     }
 

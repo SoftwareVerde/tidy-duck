@@ -73,6 +73,11 @@
 
     <servlet-mapping>
         <servlet-name>AccountManagement</servlet-name>
+        <url-pattern>/api/v1/filtered-accounts/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>AccountManagement</servlet-name>
         <url-pattern>/api/v1/companies/*</url-pattern>
     </servlet-mapping>
 

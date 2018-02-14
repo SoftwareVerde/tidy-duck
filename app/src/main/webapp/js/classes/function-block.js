@@ -23,6 +23,7 @@ class FunctionBlock {
         functionBlock.setIsApproved(json.isApproved);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
+        functionBlock.setCreatorAccountId(json.creatorAccountId)
         functionBlock.setAccess(json.access);
         functionBlock.setIsSource(json.isSource);
         functionBlock.setIsSink(json.isSink);
@@ -41,6 +42,7 @@ class FunctionBlock {
             releaseVersion:     functionBlock.getReleaseVersion(),
             baseVersionId:      functionBlock.getBaseVersionId(),
             priorVersionId:     functionBlock.getPriorVersionId(),
+            creatorAccountId:   functionBlock.getCreatorAccountId(),
             isReleased:         functionBlock.isReleased(),
             isApproved:         functionBlock.isApproved(),
             access:             functionBlock.getAccess(),
@@ -76,6 +78,7 @@ class FunctionBlock {
         this._isApproved            = null;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
+        this._creatorAccountId      = null;
 
         this._interfaces            = [];
     };
@@ -218,6 +221,14 @@ class FunctionBlock {
 
     isApproved() {
         return this._isApproved;
+    }
+
+    setCreatorAccountId(creatorAccountId) {
+        this._creatorAccountId = creatorAccountId;
+    }
+
+    getCreatorAccountId() {
+        return this._creatorAccountId;
     }
 
     getDisplayVersion() {

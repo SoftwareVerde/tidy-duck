@@ -46,6 +46,15 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("filtered-accounts/active-modify-permission", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
+
+                return _getActiveAccountsWithModifyPermission(environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("accounts/<accountId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -154,7 +163,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
     private Json _getAccounts(final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final AccountInflater accountInflater = new AccountInflater(databaseConnection);
-            final List<Account> accounts = accountInflater.inflateAccounts(false);
+            final List<Account> accounts = accountInflater.inflateAccounts();
 
             final Json response = new Json(false);
 
@@ -162,6 +171,33 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             for (final Account account : accounts) {
                 final Json accountJson = _toJson(account);
                 accountsJson.add(accountJson);
+            }
+            response.put("accounts", accountsJson);
+
+            _setJsonSuccessFields(response);
+            return response;
+
+        } catch (DatabaseException e) {
+            _logger.error("Unable to get accounts.", e);
+            return _generateErrorJson("Unable to get accounts.");
+        }
+    }
+
+    private Json _getActiveAccountsWithModifyPermission(final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final AccountInflater accountInflater = new AccountInflater(databaseConnection);
+            final List<Account> accounts = accountInflater.inflateAccounts();
+
+            final Json response = new Json(false);
+
+            final Json accountsJson = new Json(true);
+            for (final Account account : accounts) {
+                if (account.hasPermission(Permission.LOGIN)) {
+                    if (account.hasPermission(Permission.MOST_COMPONENTS_MODIFY)) {
+                        final Json accountJson = _toJson(account);
+                        accountsJson.add(accountJson);
+                    }
+                }
             }
             response.put("accounts", accountsJson);
 

@@ -100,20 +100,24 @@ public class FunctionBlockInflater {
         return functionBlock;
     }
 
-    private void _inflateChildren(FunctionBlock functionBlock) throws DatabaseException {
-        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId(), true);
+    private void _inflateChildren(final FunctionBlock functionBlock) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId(),true );
         functionBlock.setMostInterfaces(mostInterfaces);
     }
 
-    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(String searchString) throws DatabaseException {
+    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(final String searchString, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query ("SELECT * FROM function_blocks\n" +
                                         "WHERE base_version_id IN (" +
                                             "SELECT DISTINCT function_blocks.base_version_id\n" +
                                             "FROM function_blocks\n" +
-                                            "WHERE function_blocks.name LIKE ?)");
+                                            "WHERE function_blocks.name LIKE ?)\n" +
+                                            "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
         query.setParameter("%" + searchString + "%");
+        query.setParameter(true);
+        query.setParameter(accountId);
+
 
         List<FunctionBlock> functionBlocks = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -141,6 +145,7 @@ public class FunctionBlockInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
+        final Long creatorAccountId = row.getLong("creator_account_id");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -164,6 +169,7 @@ public class FunctionBlockInflater {
         functionBlock.setIsReleased(isReleased);
         functionBlock.setBaseVersionId(baseVersionId);
         functionBlock.setPriorVersionId(priorVersionId);
+        functionBlock.setCreatorAccountId(creatorAccountId);
 
         return functionBlock;
     }

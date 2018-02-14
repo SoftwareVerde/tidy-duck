@@ -75,14 +75,17 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
-    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(String searchString) throws DatabaseException {
+    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(final String searchString, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query ("SELECT * FROM interfaces\n" +
                                         "WHERE base_version_id IN (" +
                                             "SELECT DISTINCT interfaces.base_version_id\n" +
                                             "FROM interfaces\n" +
-                                            "WHERE interfaces.name LIKE ?)");
+                                            "WHERE interfaces.name LIKE ?)\n" +
+                                            "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)");
         query.setParameter("%" + searchString + "%");
+        query.setParameter(true);
+        query.setParameter(accountId);
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -137,6 +140,7 @@ public class MostInterfaceInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
+        final Long creatorAccountId = row.getLong("creator_account_id");
 
         MostInterface mostInterface = new MostInterface();
         mostInterface.setId(id);
@@ -149,6 +153,7 @@ public class MostInterfaceInflater {
         mostInterface.setIsReleased(isReleased);
         mostInterface.setBaseVersionId(baseVersionId);
         mostInterface.setPriorVersionId(priorVersionId);
+        mostInterface.setCreatorAccountId(creatorAccountId);
 
         return mostInterface;
     }

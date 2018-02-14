@@ -20,13 +20,15 @@ public class MostInterfaceDatabaseManager {
         final String description = mostInterface.getDescription();
         final String version = mostInterface.getVersion();
         final Long priorVersionId = priorMostInterface != null ? priorMostInterface.getId() : null;
+        final Long creatorAccountId = mostInterface.getCreatorAccountId();
 
-        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id) VALUES (?, ?, ?, NOW(), ?, ?)")
+        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id) VALUES (?, ?, ?, NOW(), ?, ?, ?)")
             .setParameter(mostId)
             .setParameter(name)
             .setParameter(description)
             .setParameter(version)
             .setParameter(priorVersionId)
+            .setParameter(creatorAccountId)
         ;
 
         final long mostInterfaceId = _databaseConnection.executeSql(query);
@@ -49,6 +51,15 @@ public class MostInterfaceDatabaseManager {
             .setParameter(baseVersionId)
             .setParameter(mostInterfaceId)
         ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _setCreatorAccountId(long mostInterfaceId, long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET creator_account_id = ? WHERE id = ?")
+                .setParameter(accountId)
+                .setParameter(mostInterfaceId)
+                ;
 
         _databaseConnection.executeSql(query);
     }
@@ -79,13 +90,15 @@ public class MostInterfaceDatabaseManager {
         final String newVersion = proposedMostInterface.getVersion();
         final String newDescription = proposedMostInterface.getDescription();
         final long mostInterfaceId = proposedMostInterface.getId();
+        final Long creatorAccountId = proposedMostInterface.getCreatorAccountId();
 
-        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ?, is_approved = ? WHERE id = ?")
+        final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ?, is_approved = ?, creator_account_id = ? WHERE id = ?")
             .setParameter(newMostId)
             .setParameter(newName)
             .setParameter(newDescription)
             .setParameter(newVersion)
             .setParameter(false)
+            .setParameter(creatorAccountId)
             .setParameter(mostInterfaceId)
         ;
 

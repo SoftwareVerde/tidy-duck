@@ -29,13 +29,15 @@ class FunctionCatalogDatabaseManager {
         final Long accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
         final Long priorVersionId = priorFunctionCatalog != null ? priorFunctionCatalog.getId() : null;
+        final Long creatorAccountId = functionCatalog.getCreatorAccountId();
 
-        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id) VALUES (?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, ?, ?)")
             .setParameter(name)
             .setParameter(release)
             .setParameter(accountId)
             .setParameter(companyId)
             .setParameter(priorVersionId)
+            .setParameter(creatorAccountId)
         ;
 
         final long functionCatalogId = _databaseConnection.executeSql(query);
@@ -61,19 +63,30 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _updateUnapprovedFunctionCatalog(FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
+    private void _setCreatorAccountId(long functionCatalogId, long accountId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET creator_account_id = ? WHERE id = ?")
+                .setParameter(accountId)
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _updateUnapprovedFunctionCatalog(final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
         final long functionCatalogId = proposedFunctionCatalog.getId();
+        final Long creatorAccountId = proposedFunctionCatalog.getCreatorAccountId();
 
-        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, account_id = ?, company_id = ?, is_approved = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, account_id = ?, company_id = ?, is_approved = ?, creator_account_id = ? WHERE id = ?")
             .setParameter(newName)
             .setParameter(newReleaseVersion)
             .setParameter(newAuthorId)
             .setParameter(newCompanyId)
             .setParameter(false)
+            .setParameter(creatorAccountId)
             .setParameter(functionCatalogId)
         ;
 
@@ -114,7 +127,7 @@ class FunctionCatalogDatabaseManager {
         _insertFunctionCatalog(functionCatalog);
     }
 
-    public void updateFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
         final long inputFunctionCatalogId = functionCatalog.getId();
 
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);

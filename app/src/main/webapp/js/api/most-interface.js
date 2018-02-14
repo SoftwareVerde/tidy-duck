@@ -122,7 +122,7 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(mostInterfaceId);
+            callbackFunction(data, mostInterfaceId);
         }
     });
 }
@@ -179,7 +179,7 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, mostInterfaceId);
+            callbackFunction(data, mostInterfaceId);
         }
     });
 }
@@ -224,7 +224,7 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(data);
         }
     });
 }

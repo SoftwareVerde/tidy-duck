@@ -32,7 +32,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
-                return _listFunctionCatalogs(environment.getDatabase());
+                return _listFunctionCatalogs(currentAccount, environment.getDatabase());
             }
         });
 
@@ -54,7 +54,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
-                return _getFunctionCatalog(functionCatalogId, environment.getDatabase());
+                return _getFunctionCatalog(functionCatalogId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -80,7 +80,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 if (functionCatalogId < 1) {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
-                return _deleteFunctionCatalog(functionCatalogId, environment.getDatabase());
+                return _deleteFunctionCatalog(functionCatalogId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -133,7 +133,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         });
     }
 
-    private Json _getFunctionCatalog(final Long functionCatalogId, final Database<Connection> database) {
+    private Json _getFunctionCatalog(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
             final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
@@ -151,7 +151,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listFunctionCatalogs(final Database<Connection> database) {
+    protected Json _listFunctionCatalogs(final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
@@ -165,11 +165,24 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
+                    if (! functionCatalog.isApproved()) {
+                        if (functionCatalog.getCreatorAccountId() != null) {
+                            if (! functionCatalog.getCreatorAccountId().equals(currentAccount.getId())) {
+                                // Skip adding this function catalog to the JSON because it is not approved, not unowned, and not owned by the current user.
+                                continue;
+                            }
+                        }
+                    }
+
                     final Json catalogJson = _toJson(functionCatalog);
                     versionsJson.add(catalogJson);
                 }
-                versionSeriesJson.put("versions", versionsJson);
-                catalogsJson.add(versionSeriesJson);
+
+                // Only add versionSeriesJson if its function catalogs have not all been filtered.
+                if (versionsJson.length() > 0) {
+                    versionSeriesJson.put("versions", versionsJson);
+                    catalogsJson.add(versionSeriesJson);
+                }
             }
             response.put("functionCatalogs", catalogsJson);
 
@@ -208,13 +221,21 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final Json response = new Json(false);
         final Json functionCatalogJson = request.get("functionCatalog");
 
-        try {
-            FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, currentAccount, database);
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Long currentAccountId = currentAccount.getId();
+
+            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
+                final String errorMessage = "Unable to update function catalog: current account does not own Function Catalog " + functionCatalogId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final FunctionCatalog functionCatalog = _populateFunctionCatalogFromJson(functionCatalogJson, currentAccount, database);
             functionCatalog.setId(functionCatalogId);
-            DatabaseManager databaseManager = new DatabaseManager(database);
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.updateFunctionCatalog(functionCatalog, currentAccountId);
 
-            databaseManager.updateFunctionCatalog(functionCatalog);
-
+            _logger.info("User " + currentAccount.getId() + " updated function catalog " + functionCatalog.getId() + ", which is currently owned by User " + functionCatalog.getCreatorAccountId());
             response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
             String errorMessage = "Unable to update function catalog: " + exception.getMessage();
@@ -226,8 +247,14 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _deleteFunctionCatalog(final long functionCatalogId, final Database<Connection> database) {
-        try {
+    protected Json _deleteFunctionCatalog(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                final String errorMessage = "Unable to delete function catalog: current account does not own Function Catalog " + functionCatalogId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.deleteFunctionCatalog(functionCatalogId);
 
@@ -242,7 +269,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                final String errorMessage = "Unable to submit function catalog for review: current account does not own Function Catalog " + functionCatalogId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.submitFunctionCatalogForReview(functionCatalogId, currentAccount.getId());
 
@@ -418,6 +451,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catalogJson.put("isApproved", functionCatalog.isApproved());
         catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
         catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
+        catalogJson.put("creatorAccountId", functionCatalog.getCreatorAccountId());
         return catalogJson;
     }
 
@@ -438,6 +472,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final String release = functionCatalogJson.getString("releaseVersion");
         final Long authorId = functionCatalogJson.getLong("authorId");
         final Long companyId = functionCatalogJson.getLong("companyId");
+        final Long creatorAccountId = functionCatalogJson.getLong("creatorAccountId");
 
         { // Validate Inputs
             if (Util.isBlank(name)) {
@@ -473,6 +508,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+        functionCatalog.setCreatorAccountId(creatorAccountId > 0 ? creatorAccountId : null);
 
         return functionCatalog;
     }
@@ -493,5 +529,16 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         releaseItem.setNewVersion(newVersion);
 
         return releaseItem;
+    }
+
+    private boolean _canCurrentAccountModifyFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+        final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+        if (originalFunctionCatalog.getCreatorAccountId() != null) {
+            return originalFunctionCatalog.getCreatorAccountId().equals(currentAccountId);
+        }
+
+        return true;
     }
 }

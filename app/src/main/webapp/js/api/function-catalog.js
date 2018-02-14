@@ -102,7 +102,7 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, functionCatalogId);
+            callbackFunction(data, functionCatalogId);
         }
     });
 }
@@ -147,7 +147,7 @@ function submitFunctionCatalogForReview(functionCatalogId, callbackFunction) {
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess);
+            callbackFunction(data);
         }
     });
 }
