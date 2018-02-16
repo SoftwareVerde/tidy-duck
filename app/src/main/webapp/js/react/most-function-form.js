@@ -61,23 +61,21 @@ class MostFunctionForm extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const isNewMostFunction = (! newProperties.mostFunction);
-        const mostFunction = isNewMostFunction ? new MostFunction() : copyMostObject(MostFunction, newProperties.mostFunction);
+        const isNewMostFunction = (! this.props.mostFunction && ! this.state.mostFunction);
+        const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : this.state.mostFunction || newProperties.mostFunction));
 
         const mostFunctionStereotypes = newProperties.mostFunctionStereotypes;
 
-        if (isNewMostFunction) {
-            // determine stereotype information
-            let stereotypeName = newProperties.selectedFunctionStereotype;
-            for (let i in mostFunctionStereotypes) {
-                const mostFunctionStereotype = mostFunctionStereotypes[i];
-                if (stereotypeName === mostFunctionStereotype.getName()) {
-                    mostFunction.setStereotype(mostFunctionStereotype);
-                    mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
-                    mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
-                    mostFunction.setOperations(mostFunctionStereotype.getOperations());
-                    break;
-                }
+        // determine stereotype information
+        let stereotypeName = newProperties.selectedFunctionStereotype;
+        for (let i in mostFunctionStereotypes) {
+            const mostFunctionStereotype = mostFunctionStereotypes[i];
+            if (stereotypeName === mostFunctionStereotype.getName()) {
+                mostFunction.setStereotype(mostFunctionStereotype);
+                mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
+                mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                mostFunction.setOperations(mostFunctionStereotype.getOperations());
+                break;
             }
         }
 
