@@ -266,6 +266,8 @@ class App extends React.Component {
 
         this.getAllCompanies();
         this.getAccountsForEditForm();
+        this.updateMostTypes();
+        this.updateMostFunctionStereotypes();
     }
 
     displayAlert(alert) {
