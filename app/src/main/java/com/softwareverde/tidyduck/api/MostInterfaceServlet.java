@@ -16,7 +16,6 @@ import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import jdk.nashorn.internal.objects.annotations.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -604,12 +603,20 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     private Json _toJson(final MostInterface mostInterface) {
         final Json mostInterfaceJson = new Json(false);
+
+        String deletedDateString = null;
+        if (mostInterface.getDeletedDate() != null) {
+            deletedDateString = DateUtil.dateToDateString(mostInterface.getDeletedDate());
+        }
+
         mostInterfaceJson.put("id", mostInterface.getId());
         mostInterfaceJson.put("mostId", mostInterface.getMostId());
         mostInterfaceJson.put("name", mostInterface.getName());
         mostInterfaceJson.put("description", mostInterface.getDescription());
         mostInterfaceJson.put("lastModifiedDate", DateUtil.dateToDateString(mostInterface.getLastModifiedDate()));
         mostInterfaceJson.put("releaseVersion", mostInterface.getVersion());
+        mostInterfaceJson.put("isDeleted", mostInterface.isDeleted());
+        mostInterfaceJson.put("deletedDate", deletedDateString);
         mostInterfaceJson.put("isReleased", mostInterface.isReleased());
         mostInterfaceJson.put("isApproved", mostInterface.isApproved());
         mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());

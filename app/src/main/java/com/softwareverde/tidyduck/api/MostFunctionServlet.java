@@ -5,9 +5,9 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
-import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.database.MostFunctionInflater;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -453,10 +453,17 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private Json _toJson(final MostFunction mostFunction) {
         final Json mostFunctionJson = new Json(false);
 
+        String deletedDateString = null;
+        if (mostFunction.getDeletedDate() != null) {
+            deletedDateString = DateUtil.dateToDateString(mostFunction.getDeletedDate());
+        }
+
         mostFunctionJson.put("id", mostFunction.getId());
         mostFunctionJson.put("mostId", mostFunction.getMostId());
         mostFunctionJson.put("name", mostFunction.getName());
         mostFunctionJson.put("releaseVersion", mostFunction.getRelease());
+        mostFunctionJson.put("isDeleted", mostFunction.isDeleted());
+        mostFunctionJson.put("deletedDate", deletedDateString);
         mostFunctionJson.put("isReleased", mostFunction.isReleased());
         mostFunctionJson.put("isApproved", mostFunction.isApproved());
         mostFunctionJson.put("description", mostFunction.getDescription());

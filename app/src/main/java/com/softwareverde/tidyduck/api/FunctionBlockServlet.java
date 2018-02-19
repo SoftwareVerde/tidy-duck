@@ -628,6 +628,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     private Json _toJson(final FunctionBlock functionBlock) {
         final Json blockJson = new Json(false);
+
+        String deletedDateString = null;
+        if (functionBlock.getDeletedDate() != null) {
+            deletedDateString = DateUtil.dateToDateString(functionBlock.getDeletedDate());
+        }
+
         blockJson.put("id", functionBlock.getId());
         blockJson.put("mostId", functionBlock.getMostId());
         blockJson.put("kind", functionBlock.getKind());
@@ -635,6 +641,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("description", functionBlock.getDescription());
         blockJson.put("lastModifiedDate", DateUtil.dateToDateString(functionBlock.getLastModifiedDate()));
         blockJson.put("releaseVersion", functionBlock.getRelease());
+        blockJson.put("isDeleted", functionBlock.isDeleted());
+        blockJson.put("deletedDate", deletedDateString);
         blockJson.put("isReleased", functionBlock.isReleased());
         blockJson.put("isApproved", functionBlock.isApproved());
         blockJson.put("baseVersionId", functionBlock.getBaseVersionId());

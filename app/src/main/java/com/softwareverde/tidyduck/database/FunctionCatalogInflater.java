@@ -6,14 +6,12 @@ import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.logging.slf4j.Slf4jLogger;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.util.Util;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FunctionCatalogInflater {
     protected final Logger _logger = new Slf4jLogger(this.getClass());
@@ -129,6 +127,12 @@ public class FunctionCatalogInflater {
         final String release = row.getString("release_version");
         final Long accountId = row.getLong("account_id");
         final Long companyId = row.getLong("company_id");
+        final boolean isDeleted = row.getBoolean("is_deleted");
+        final String deletedDateString = row.getString("deleted_date");
+        Date deletedDate = null;
+        if (deletedDateString != null) {
+            deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
@@ -147,6 +151,8 @@ public class FunctionCatalogInflater {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+        functionCatalog.setIsDeleted(isDeleted);
+        functionCatalog.setDeletedDate(deletedDate);
         functionCatalog.setIsApproved(isApproved);
         functionCatalog.setIsReleased(isReleased);
         functionCatalog.setBaseVersionId(baseVersionId);

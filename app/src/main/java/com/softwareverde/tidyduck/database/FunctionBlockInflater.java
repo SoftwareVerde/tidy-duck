@@ -141,6 +141,12 @@ public class FunctionBlockInflater {
         final String access = row.getString("access");
         final boolean isSource = row.getBoolean("is_source");
         final boolean isSink = row.getBoolean("is_sink");
+        final boolean isDeleted = row.getBoolean("is_deleted");
+        final String deletedDateString = row.getString("deleted_date");
+        Date deletedDate = null;
+        if (deletedDateString != null) {
+            deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
@@ -165,6 +171,8 @@ public class FunctionBlockInflater {
         functionBlock.setAccess(access);
         functionBlock.setIsSource(isSource);
         functionBlock.setIsSink(isSink);
+        functionBlock.setIsDeleted(isDeleted);
+        functionBlock.setDeletedDate(deletedDate);
         functionBlock.setIsApproved(isApproved);
         functionBlock.setIsReleased(isReleased);
         functionBlock.setBaseVersionId(baseVersionId);

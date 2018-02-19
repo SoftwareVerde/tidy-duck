@@ -13,6 +13,8 @@ public class MostInterface {
     private String _description;
     private String _version;
     private Date _lastModifiedDate;
+    private boolean _isDeleted;
+    private Date _deletedDate;
     private boolean _isApproved;
     private boolean _isReleased;
     private Long _baseVersionId;
@@ -68,6 +70,22 @@ public class MostInterface {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         _lastModifiedDate = lastModifiedDate;
+    }
+
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
     }
 
     public boolean isApproved() {

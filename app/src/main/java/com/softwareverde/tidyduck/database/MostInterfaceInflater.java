@@ -136,6 +136,12 @@ public class MostInterfaceInflater {
         final String description = row.getString("description");
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
         final String version = row.getString("version");
+        final boolean isDeleted = row.getBoolean("is_deleted");
+        final String deletedDateString = row.getString("deleted_date");
+        Date deletedDate = null;
+        if (deletedDateString != null) {
+            deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
@@ -149,6 +155,8 @@ public class MostInterfaceInflater {
         mostInterface.setDescription(description);
         mostInterface.setLastModifiedDate(lastModifiedDate);
         mostInterface.setVersion(version);
+        mostInterface.setIsDeleted(isDeleted);
+        mostInterface.setDeletedDate(deletedDate);
         mostInterface.setIsApproved(isApproved);
         mostInterface.setIsReleased(isReleased);
         mostInterface.setBaseVersionId(baseVersionId);

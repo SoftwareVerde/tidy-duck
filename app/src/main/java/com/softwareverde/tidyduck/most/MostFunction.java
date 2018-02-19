@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck.most;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,6 +19,8 @@ public abstract class MostFunction {
     private String _name;
     private String _description;
     private String _release;
+    private boolean _isDeleted;
+    private Date _deletedDate;
     private boolean _isApproved;
     private boolean _isReleased;
     private MostFunctionStereotype _functionStereotype;
@@ -66,6 +69,22 @@ public abstract class MostFunction {
 
     public void setRelease(String release) {
         _release = release;
+    }
+
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
     }
 
     public boolean isApproved() {

@@ -4,10 +4,12 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MostFunctionInflater {
@@ -52,6 +54,12 @@ public class MostFunctionInflater {
         final String description = row.getString("description");
         final String releaseVersion = row.getString("release_version");
         final String category = row.getString("category");
+        final boolean isDeleted = row.getBoolean("is_deleted");
+        final String deletedDateString = row.getString("deleted_date");
+        Date deletedDate = null;
+        if (deletedDateString != null) {
+            deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
@@ -91,6 +99,7 @@ public class MostFunctionInflater {
         mostFunction.setName(name);
         mostFunction.setDescription(description);
         mostFunction.setRelease(releaseVersion);
+        mostFunction.isDeleted();
         mostFunction.setIsApproved(isApproved);
         mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);

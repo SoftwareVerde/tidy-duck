@@ -4,6 +4,7 @@ import com.softwareverde.mostadapter.Modification;
 import com.softwareverde.util.Util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalog {
@@ -12,6 +13,8 @@ public class FunctionCatalog {
     private String _release;
     private Author _author;
     private Company _company;
+    private boolean _isDeleted;
+    private Date _deletedDate;
     private boolean _isApproved;
     private boolean _isReleased;
     private Long _baseVersionId;
@@ -66,6 +69,22 @@ public class FunctionCatalog {
 
     public void setCompany(final Company company) {
         _company = company;
+    }
+
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
     }
 
     public boolean isApproved() {

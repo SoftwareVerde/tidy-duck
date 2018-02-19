@@ -440,6 +440,12 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _toJson(final FunctionCatalog functionCatalog) {
         final Json catalogJson = new Json();
+
+        String deletedDateString = null;
+        if (functionCatalog.getDeletedDate() != null) {
+            deletedDateString = DateUtil.dateToDateString(functionCatalog.getDeletedDate());
+        }
+
         catalogJson.put("id", functionCatalog.getId());
         catalogJson.put("name", functionCatalog.getName());
         catalogJson.put("releaseVersion", functionCatalog.getRelease());
@@ -447,6 +453,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catalogJson.put("authorName", functionCatalog.getAuthor().getName());
         catalogJson.put("companyId", functionCatalog.getCompany().getId());
         catalogJson.put("companyName", functionCatalog.getCompany().getName());
+        catalogJson.put("isDeleted", functionCatalog.isDeleted());
+        catalogJson.put("deletedDate", deletedDateString);
         catalogJson.put("isReleased", functionCatalog.isReleased());
         catalogJson.put("isApproved", functionCatalog.isApproved());
         catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());

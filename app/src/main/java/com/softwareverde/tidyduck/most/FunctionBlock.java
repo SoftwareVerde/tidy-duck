@@ -19,6 +19,8 @@ public class FunctionBlock {
     private String _access;
     private boolean _isSink;
     private boolean _isSource;
+    private boolean _isDeleted;
+    private Date _deletedDate;
     private boolean _isApproved;
     private boolean _isReleased;
     private Long _baseVersionId;
@@ -121,6 +123,22 @@ public class FunctionBlock {
 
     public void setIsSource(final boolean source) {
         _isSource = source;
+    }
+
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
     }
 
     public boolean isApproved() {
