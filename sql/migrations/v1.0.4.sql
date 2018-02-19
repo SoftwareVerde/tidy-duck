@@ -29,3 +29,19 @@ ALTER TABLE function_catalogs ADD FOREIGN KEY (creator_account_id) REFERENCES ac
 ALTER TABLE function_blocks ADD FOREIGN KEY (creator_account_id) REFERENCES accounts (id);
 ALTER TABLE interfaces ADD FOREIGN KEY (creator_account_id) REFERENCES accounts (id);
 
+-- Add columns for deleting MOST components (Trash Bin)
+ALTER TABLE function_catalogs ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER company_id;
+ALTER TABLE function_catalogs ADD COLUMN deleted_date DATETIME NULL AFTER is_deleted;
+ALTER TABLE function_catalogs_function_blocks ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER id;
+
+ALTER TABLE function_blocks ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER access;
+ALTER TABLE function_blocks ADD COLUMN deleted_date DATETIME NULL AFTER is_deleted;
+ALTER TABLE function_blocks_interfaces ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER id;
+
+ALTER TABLE interfaces ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER version;
+ALTER TABLE interfaces ADD COLUMN deleted_date DATETIME NULL AFTER is_deleted;
+
+ALTER TABLE interfaces_functions ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER id;
+ALTER TABLE functions ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER supports_notification;
+ALTER TABLE functions ADD COLUMN deleted_date DATETIME NULL AFTER is_deleted;
+
