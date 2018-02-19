@@ -11,16 +11,9 @@ class MostFunctionForm extends React.Component {
         const isNewMostFunction = (! this.props.mostFunction);
         const mostFunction = isNewMostFunction ? new MostFunction() : copyMostObject(MostFunction, this.props.mostFunction);
 
-        let stereotypeName = this.props.selectedFunctionStereotype;
-         // If a new function is created, set the Return Type to default. If not, use the name of the existing function's stereotype.
         if (isNewMostFunction) {
-            const sortedMostTypes = this.props.mostTypes.sort(function(a, b) {
-                return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
-            });
-
-            mostFunction.setReturnType(sortedMostTypes[0]);
-
-            // Obtain full stereotype data using the appropriate stereotype name.
+            // determine stereotype information
+            let stereotypeName = this.props.selectedFunctionStereotype;
             for (let i in mostFunctionStereotypes) {
                 const mostFunctionStereotype = mostFunctionStereotypes[i];
                 if (stereotypeName === mostFunctionStereotype.getName()) {
@@ -32,9 +25,6 @@ class MostFunctionForm extends React.Component {
                     break;
                 }
             }
-        }
-        else {
-            stereotypeName = mostFunction.getStereotype().getName();
         }
 
         this.state = {
@@ -71,28 +61,22 @@ class MostFunctionForm extends React.Component {
     }
 
     componentWillReceiveProps(newProperties) {
-        const isNewMostFunction = (! newProperties.mostFunction);
-        const mostFunction = isNewMostFunction ? new MostFunction() : copyMostObject(MostFunction, newProperties.mostFunction);
+        const isNewMostFunction = (! this.props.mostFunction && ! this.state.mostFunction);
+        const mostFunction = MostFunction.fromJson(MostFunction.toJson(isNewMostFunction ? new MostFunction() : this.state.mostFunction || newProperties.mostFunction));
 
         const mostFunctionStereotypes = newProperties.mostFunctionStereotypes;
-        let stereotypeName = newProperties.selectedFunctionStereotype;
-        // If a new function is created, set the Return Type to default. If not, use the name of the existing function's stereotype.
-        if (isNewMostFunction) {
-            mostFunction.setReturnType(newProperties.mostTypes[0]);
 
-            // Obtain full stereotype data using the appropriate stereotype name.
-            for (let i in mostFunctionStereotypes) {
-                const mostFunctionStereotype = mostFunctionStereotypes[i];
-                if (stereotypeName === mostFunctionStereotype.getName()) {
-                    mostFunction.setStereotype(mostFunctionStereotype);
-                    mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
-                    mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
-                    mostFunction.setOperations(mostFunctionStereotype.getOperations());
-                    break;
-                }
+        // determine stereotype information
+        let stereotypeName = newProperties.selectedFunctionStereotype;
+        for (let i in mostFunctionStereotypes) {
+            const mostFunctionStereotype = mostFunctionStereotypes[i];
+            if (stereotypeName === mostFunctionStereotype.getName()) {
+                mostFunction.setStereotype(mostFunctionStereotype);
+                mostFunction.setFunctionType(mostFunctionStereotype.getCategory());
+                mostFunction.setSupportsNotification(mostFunctionStereotype.getSupportsNotification());
+                mostFunction.setOperations(mostFunctionStereotype.getOperations());
+                break;
             }
-        } else {
-            stereotypeName = mostFunction.getStereotype().getName();
         }
 
         this.setState({

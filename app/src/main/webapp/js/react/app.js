@@ -260,22 +260,14 @@ class App extends React.Component {
                     else {
                         thisApp.handleRoleClick(defaultValidRole, null, false);
                     }
-
-                    if (defaultValidRole == thisApp.roles.release) {
-                        thisApp.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-                            thisApp.setState({
-                                functionCatalogs:       functionCatalogs,
-                                currentNavigationLevel: thisApp.NavigationLevel.versions,
-                                isLoadingChildren:      false
-                            });
-                        });
-                    }
                 });
             }
         });
 
         this.getAllCompanies();
         this.getAccountsForEditForm();
+        this.updateMostTypes();
+        this.updateMostFunctionStereotypes();
     }
 
     displayAlert(alert) {
