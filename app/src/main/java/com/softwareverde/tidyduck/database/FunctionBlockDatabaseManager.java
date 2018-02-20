@@ -223,7 +223,7 @@ public class FunctionBlockDatabaseManager {
      *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
      *  If the functionBlock is not approved, then the values are updated within the database.
      */
-    public void updateFunctionBlockForFunctionCatalog(final long functionCatalogId, final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
+    public void updateFunctionBlockForFunctionCatalog(final Long currentAccountId, final long functionCatalogId, final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
 
         final long inputFunctionBlockId = updatedFunctionBlock.getId();
@@ -231,6 +231,7 @@ public class FunctionBlockDatabaseManager {
 
         if (originalFunctionBlock.isApproved()) {
             // current block is approved, need to insert a new function block replace this one
+            updatedFunctionBlock.setCreatorAccountId(currentAccountId);
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
             _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);

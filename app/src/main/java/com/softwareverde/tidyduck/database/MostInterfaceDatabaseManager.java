@@ -184,16 +184,17 @@ public class MostInterfaceDatabaseManager {
         _insertMostInterface(mostInterface);
     }
 
-    public void updateMostInterfaceForFunctionBlock (final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
+    public void updateMostInterfaceForFunctionBlock (final Long currentAccountId, final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
         final long inputMostInterfaceId = proposedMostInterface.getId();
 
-        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
         if (!originalMostInterface.isApproved()) {
             // not approved, can update existing interface
             _updateUnapprovedMostInterface(proposedMostInterface);
         } else {
             // current block is approved, need to insert a new interface replace this one
+            proposedMostInterface.setCreatorAccountId(currentAccountId);
             _insertMostInterface(proposedMostInterface, originalMostInterface);
             final long newMostInterfaceId = proposedMostInterface.getId();
             _copyMostInterfaceMostFunctions(inputMostInterfaceId, newMostInterfaceId);

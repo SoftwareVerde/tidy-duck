@@ -253,19 +253,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
 
-                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
                     final String errorMessage = "Unable to update function block within function catalog: current account does not own its parent Function Catalog " + functionBlockId;
                     _logger.error(errorMessage);
                     return super._generateErrorJson(errorMessage);
                 }
 
-                databaseManager.updateFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
+                databaseManager.updateFunctionBlock(currentAccountId, functionCatalogId, functionBlock, currentAccountId);
             }
             else {
-                databaseManager.updateFunctionBlock(0, functionBlock, currentAccountId);
+                databaseManager.updateFunctionBlock(currentAccountId,0, functionBlock, currentAccountId);
             }
 
-            _logger.info("User " + currentAccount.getId() + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
+            _logger.info("User " + currentAccountId + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
