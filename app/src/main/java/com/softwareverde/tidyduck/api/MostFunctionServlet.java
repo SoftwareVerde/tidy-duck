@@ -74,6 +74,19 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("most-functions/<mostFunctionId>/mark-as-deleted", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final long mostFunctionId = Util.parseLong(parameters.get("mostFunctionId"));
+                if (mostFunctionId < 1) {
+                    return _generateErrorJson("Invalid function id.");
+                }
+                return _markMostFunctionAsDeleted(request, mostFunctionId, currentAccount, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("most-functions/<mostFunctionId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -248,6 +261,38 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
     private boolean _functionBlockHasFunctionId(final DatabaseManager databaseManager, final Long functionBlockId, final MostFunction mostFunction) throws DatabaseException {
         List<MostFunction> functionBlockMostIds = databaseManager.listFunctionsAssociatedWithFunctionBlock(functionBlockId);
         return _hasConflictingFunction(functionBlockMostIds, mostFunction);
+    }
+
+    protected Json _markMostFunctionAsDeleted(final HttpServletRequest request, final long mostFunctionId, final Account currentAccount, final Database<Connection> database) {
+        final String mostInterfaceString = request.getParameter("most_interface_id");
+        final Long mostInterfaceId = Util.parseLong(mostInterfaceString);
+
+        // Validate Inputs
+        if (mostInterfaceId == null || mostInterfaceId < 1) {
+            return super._generateErrorJson(String.format("Invalid interface id: %s", mostInterfaceString));
+        }
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
+                final String errorMessage = "Unable to move function to trash: current account does not own its parent Interface: " + mostFunctionId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.markMostFunctionAsDeleted(mostFunctionId);
+
+            _logger.info("User " + currentAccount.getId() + " marked Function " + mostFunctionId + " as deleted.");
+
+            final Json response = new Json(false);
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to move function %d to trash", mostFunctionId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
     }
 
     protected Json _deleteMostFunctionFromMostInterface(final HttpServletRequest request, final long mostFunctionId, final Account currentAccount, final Database<Connection> database) {

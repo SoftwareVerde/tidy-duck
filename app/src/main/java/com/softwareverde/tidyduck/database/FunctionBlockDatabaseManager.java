@@ -166,6 +166,36 @@ public class FunctionBlockDatabaseManager {
 
     }
 
+    public void markFunctionBlockAsDeleted(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET is_deleted = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(functionBlockId)
+                ;
+
+        _databaseConnection.executeSql(query);
+
+        _nullifyFunctionBlockParentRelationships(functionBlockId);
+        _markFunctionBlockChildAssociationsAsDeleted(functionBlockId);
+    }
+
+    private void _nullifyFunctionBlockParentRelationships(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs_function_blocks SET function_block_id = ? WHERE function_block_id = ?")
+                .setParameter(null)
+                .setParameter(functionBlockId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _markFunctionBlockChildAssociationsAsDeleted(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks_interfaces SET is_deleted = ? WHERE function_block_id = ?")
+                .setParameter(true)
+                .setParameter(functionBlockId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     private void _deleteFunctionBlockIfUnapproved(final long functionBlockId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);

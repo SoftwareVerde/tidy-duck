@@ -1,13 +1,11 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.*;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +86,26 @@ class FunctionCatalogDatabaseManager {
             .setParameter(false)
             .setParameter(creatorAccountId)
             .setParameter(functionCatalogId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    public void markFunctionCatalogAsDeleted(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_deleted = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(functionCatalogId)
+        ;
+
+        _databaseConnection.executeSql(query);
+
+        _markFunctionCatalogChildAssociationsAsDeleted(functionCatalogId);
+    }
+
+    private void _markFunctionCatalogChildAssociationsAsDeleted(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs_function_blocks SET is_deleted = ? WHERE function_catalog_id = ?")
+                .setParameter(true)
+                .setParameter(functionCatalogId)
         ;
 
         _databaseConnection.executeSql(query);

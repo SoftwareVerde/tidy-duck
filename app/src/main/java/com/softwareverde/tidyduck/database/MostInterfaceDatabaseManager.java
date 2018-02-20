@@ -123,6 +123,26 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
+    public void markMostInterfaceAsDeleted(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET is_deleted = ? WHERE id=?")
+                .setParameter(true)
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
+
+        _nullifyMostInterfaceParentRelationships(mostInterfaceId);
+    }
+
+    private void _nullifyMostInterfaceParentRelationships(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks_interfaces SET interface_id = ? WHERE interface_id = ?")
+                .setParameter(null)
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     private void _deleteMostInterfaceIfUnapproved(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);

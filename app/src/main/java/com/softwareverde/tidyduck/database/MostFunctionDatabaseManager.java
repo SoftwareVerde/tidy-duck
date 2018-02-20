@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.database;
 
+import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
@@ -217,6 +218,26 @@ class MostFunctionDatabaseManager {
     public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
         _deleteMostFunctionIfUnapproved(mostFunctionId);
+    }
+
+    public void markMostFunctionAsDeleted(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_deleted = ? WHERE id = ?")
+                .setParameter(true)
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+
+        _markParentInterfaceAssociationAsDeleted(mostFunctionId);
+    }
+
+    private void _markParentInterfaceAssociationAsDeleted(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces_functions SET is_deleted = ? WHERE function_id = ?")
+                .setParameter(true)
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteMostFunctionIfUnapproved(final long mostFunctionId) throws DatabaseException {

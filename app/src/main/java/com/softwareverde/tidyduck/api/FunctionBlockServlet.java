@@ -101,6 +101,20 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("function-blocks/<functionBlockId>/mark-as-deleted", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
+                }
+                return _markFunctionBlockAsDeleted(functionBlockId, currentAccount, environment.getDatabase());
+            }
+        });
+
+
         super._defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -353,6 +367,30 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
 
         return response;
+    }
+
+    protected Json _markFunctionBlockAsDeleted(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                final String errorMessage = "Unable to move function block to trash: current account does not own Function block " + functionBlockId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.markFunctionBlockAsDeleted(functionBlockId);
+
+            _logger.info("User " + currentAccount.getId() + " marked Function Block " + functionBlockId + " as deleted.");
+
+            final Json response = new Json(false);
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to move function block %d to trash", functionBlockId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
     }
 
     protected Json _deleteFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
