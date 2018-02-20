@@ -35,7 +35,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
                 }
-                return _listMostFunctions(mostInterfaceId, environment.getDatabase());
+                return _listMostFunctions(mostInterfaceId, environment.getDatabase(), false);
             }
         });
 
@@ -84,6 +84,19 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function id.");
                 }
                 return _deleteMostFunctionFromMostInterface(request, mostFunctionId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("trashed-most-functions", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                final long mostInterfaceId = Util.parseLong(Util.coalesce(request.getParameter("most_interface_id")));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _listMostFunctions(mostInterfaceId, environment.getDatabase(), true);
             }
         });
     }
@@ -268,12 +281,19 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listMostFunctions(final long mostInterfaceId, final Database<Connection> database) {
+    protected Json _listMostFunctions(final long mostInterfaceId, final Database<Connection> database, final boolean onlyListDeleted) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
-            final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+            final List<MostFunction> mostFunctions;
+            if (onlyListDeleted) {
+                mostFunctions = mostFunctionInflater.inflateTrashedMostFunctionsFromMostInterfaceId(mostInterfaceId);
+            }
+            else {
+                mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
+            }
+
 
             final Json mostFunctionsJson = new Json(true);
             for (final MostFunction mostFunction : mostFunctions) {

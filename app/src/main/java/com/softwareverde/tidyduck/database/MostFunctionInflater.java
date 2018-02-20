@@ -35,6 +35,25 @@ public class MostFunctionInflater {
         return mostFunctions;
     }
 
+    public List<MostFunction> inflateTrashedMostFunctionsFromMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM functions WHERE id IN(" +
+                    "SELECT DISTINCT interfaces_functions.function_id FROM interfaces_functions WHERE interfaces_functions.interface_id = ?)\n" +
+                    "AND is_deleted = ?");
+
+        query.setParameter(mostInterfaceId);
+        query.setParameter(true);
+
+        List<MostFunction> mostFunctions = new ArrayList<MostFunction>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long mostFunctionId = row.getLong("id");
+            final MostFunction mostFunction = inflateMostFunction(mostFunctionId);
+            mostFunctions.add(mostFunction);
+        }
+        return mostFunctions;
+    }
+
     public MostFunction inflateMostFunction(final long mostFunctionId) throws DatabaseException {
         final Query query = new Query(
                 "SELECT * FROM functions WHERE id = ?"

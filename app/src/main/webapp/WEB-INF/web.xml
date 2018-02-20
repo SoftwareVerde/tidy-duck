@@ -154,6 +154,10 @@
         <servlet-name>MostFunction</servlet-name>
         <url-pattern>/api/v1/most-function-duplicate-check</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MostFunction</servlet-name>
+        <url-pattern>/api/v1/trashed-most-functions</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostType</servlet-name>
