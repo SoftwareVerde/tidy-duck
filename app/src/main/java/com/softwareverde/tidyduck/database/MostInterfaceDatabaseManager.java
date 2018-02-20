@@ -132,6 +132,7 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
 
         _nullifyMostInterfaceParentRelationships(mostInterfaceId);
+        // Child object associations are not marked as deleted in this case.
     }
 
     private void _nullifyMostInterfaceParentRelationships(final long mostInterfaceId) throws DatabaseException {
