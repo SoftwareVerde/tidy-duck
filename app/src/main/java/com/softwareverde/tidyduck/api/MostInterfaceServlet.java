@@ -40,7 +40,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 final String requestFunctionBlockId = request.getParameter("function_block_id");
 
                 if (Util.isBlank(requestFunctionBlockId)) {
-                    return _listAllMostInterfaces(currentAccount, environment.getDatabase());
+                    return _listAllMostInterfaces(currentAccount, environment.getDatabase(), false);
                 }
 
                 final long functionBlockId = Util.parseLong(Util.coalesce(requestFunctionBlockId));
@@ -157,6 +157,15 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
                 return _checkForDuplicateMostInterface(request, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("trashed-most-interfaces", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                return _listAllMostInterfaces(currentAccount, environment.getDatabase(), true);
             }
         });
     }
@@ -431,12 +440,19 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listAllMostInterfaces(final Account currentAccount, final Database<Connection> database) {
+    protected Json _listAllMostInterfaces(final Account currentAccount, final Database<Connection> database, final boolean onlyListDeleted) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesGroupedByBaseVersionId();
+            final Map<Long, List<MostInterface>> mostInterfaces;
+
+            if (onlyListDeleted) {
+                mostInterfaces = mostInterfaceInflater.inflateTrashedMostInterfacesGroupedByBaseVersionId();
+            }
+            else {
+                mostInterfaces = mostInterfaceInflater.inflateMostInterfacesGroupedByBaseVersionId();
+            }
 
             final Json mostInterfacesJson = new Json(true);
             for (final Long baseVersionId : mostInterfaces.keySet()) {

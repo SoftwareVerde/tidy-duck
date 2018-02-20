@@ -35,9 +35,27 @@ public class FunctionBlockInflater {
         return functionBlocks;
     }
 
+    public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
+        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = ?")
+                .setParameter(true)
+        ;
+
+        final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final FunctionBlock functionBlock = _convertRowToFunctionBlock(row);
+            functionBlocks.add(functionBlock);
+        }
+        return functionBlocks;
+    }
 
     public Map<Long, List<FunctionBlock>> inflateFunctionBlocksGroupedByBaseVersionId() throws DatabaseException {
         List<FunctionBlock> functionBlocks = inflateFunctionBlocks();
+        return _groupByBaseVersionId(functionBlocks);
+    }
+
+    public Map<Long, List<FunctionBlock>> inflateTrashedFunctionBlocksGroupedByBaseVersionId() throws DatabaseException {
+        List<FunctionBlock> functionBlocks = inflateTrashedFunctionBlocks();
         return _groupByBaseVersionId(functionBlocks);
     }
 

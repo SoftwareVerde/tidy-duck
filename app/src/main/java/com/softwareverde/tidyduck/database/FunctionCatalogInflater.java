@@ -57,8 +57,40 @@ public class FunctionCatalogInflater {
         return functionCatalogs;
     }
 
+    public List<FunctionCatalog> inflateTrashedFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = ?")
+                .setParameter(true)
+        ;
+
+        final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
+
+            if (inflateChildren) {
+                _inflateChildren(functionCatalog);
+                _inflateClassDefinitions(functionCatalog);
+                _inflatePropertyCommandDefinitions(functionCatalog);
+                _inflateMethodCommandDefinitions(functionCatalog);
+                _inflatePropertyReportDefinitions(functionCatalog);
+                _inflateMethodReportDefinitions(functionCatalog);
+                _inflateTypeDefinitions(functionCatalog);
+                _inflateUnitDefinitions(functionCatalog);
+                _inflateErrorDefinitions(functionCatalog);
+            }
+            functionCatalogs.add(functionCatalog);
+        }
+
+        return functionCatalogs;
+    }
+
     public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
-        List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
+        final List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
+        return _groupByBaseVersionId(functionCatalogs);
+    }
+
+    public Map<Long, List<FunctionCatalog>> inflateTrashedFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
+        final List<FunctionCatalog> functionCatalogs = inflateTrashedFunctionCatalogs(false);
         return _groupByBaseVersionId(functionCatalogs);
     }
 

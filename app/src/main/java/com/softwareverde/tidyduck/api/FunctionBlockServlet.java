@@ -41,7 +41,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 final String requestFunctionCatalogId = request.getParameter("function_catalog_id");
 
                 if (Util.isBlank(requestFunctionCatalogId)) {
-                    return _listAllFunctionBlocks(currentAccount, environment.getDatabase());
+                    return _listAllFunctionBlocks(currentAccount, environment.getDatabase(), false);
                 }
 
                 final long functionCatalogId = Util.parseLong(Util.coalesce(requestFunctionCatalogId));
@@ -159,6 +159,15 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
                 return _checkForDuplicateFunctionBlock(request, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("trashed-function-blocks", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                return _listAllFunctionBlocks(currentAccount, environment.getDatabase(), true);
             }
         });
     }
@@ -411,12 +420,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listAllFunctionBlocks(final Account currentAccount, final Database<Connection> database) {
+    protected Json _listAllFunctionBlocks(final Account currentAccount, final Database<Connection> database, final boolean onlyListDeleted) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId();
+            final Map<Long, List<FunctionBlock>> functionBlocks;
+
+            if (onlyListDeleted) {
+                functionBlocks = functionBlockInflater.inflateTrashedFunctionBlocksGroupedByBaseVersionId();
+            }
+            else {
+                functionBlocks = functionBlockInflater.inflateFunctionBlocksGroupedByBaseVersionId();
+            }
 
             final Json functionBlocksJson = new Json(true);
             for (final Long baseVersionId : functionBlocks.keySet()) {

@@ -36,8 +36,27 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
+    public List<MostInterface> inflateTrashedMostInterfaces() throws DatabaseException {
+        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = ?")
+                .setParameter(true)
+        ;
+
+        List<MostInterface> mostInterfaces = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final MostInterface mostInterface = convertRowToMostInterface(row);
+            mostInterfaces.add(mostInterface);
+        }
+        return mostInterfaces;
+    }
+
     public Map<Long, List<MostInterface>> inflateMostInterfacesGroupedByBaseVersionId() throws DatabaseException {
         List<MostInterface> mostInterfaces = inflateMostInterfaces();
+        return groupByBaseVersionId(mostInterfaces);
+    }
+
+    public Map<Long, List<MostInterface>> inflateTrashedMostInterfacesGroupedByBaseVersionId() throws DatabaseException {
+        List<MostInterface> mostInterfaces = inflateTrashedMostInterfaces();
         return groupByBaseVersionId(mostInterfaces);
     }
 

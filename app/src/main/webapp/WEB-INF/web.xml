@@ -103,6 +103,10 @@
         <servlet-name>FunctionCatalog</servlet-name>
         <url-pattern>/api/v1/function-catalog-duplicate-check</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FunctionCatalog</servlet-name>
+        <url-pattern>/api/v1/trashed-function-catalogs</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>FunctionBlock</servlet-name>
@@ -116,6 +120,10 @@
         <servlet-name>FunctionBlock</servlet-name>
         <url-pattern>/api/v1/function-block-duplicate-check</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FunctionBlock</servlet-name>
+        <url-pattern>/api/v1/trashed-function-blocks</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>MostInterface</servlet-name>
@@ -128,6 +136,10 @@
     <servlet-mapping>
         <servlet-name>MostInterface</servlet-name>
         <url-pattern>/api/v1/most-interface-duplicate-check</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MostInterface</servlet-name>
+        <url-pattern>/api/v1/trashed-most-interfaces</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -32,7 +32,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
-                return _listFunctionCatalogs(currentAccount, environment.getDatabase());
+                return _listFunctionCatalogs(currentAccount, environment.getDatabase(), false);
             }
         });
 
@@ -131,6 +131,15 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return _checkForDuplicateFunctionCatalog(request, currentAccount, environment.getDatabase());
             }
         });
+
+        super._defineEndpoint("trashed-function-catalogs", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                return _listFunctionCatalogs(currentAccount, environment.getDatabase(), true);
+            }
+        });
     }
 
     private Json _getFunctionCatalog(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
@@ -151,12 +160,18 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listFunctionCatalogs(final Account currentAccount, final Database<Connection> database) {
+    protected Json _listFunctionCatalogs(final Account currentAccount, final Database<Connection> database, final boolean onlyListDeleted) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
             final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
-            final Map<Long, List<FunctionCatalog>> functionCatalogs = functionCatalogInflater.inflateFunctionCatalogsGroupedByBaseVersionId();
+            final Map<Long, List<FunctionCatalog>> functionCatalogs;
+            if (onlyListDeleted) {
+                functionCatalogs = functionCatalogInflater.inflateTrashedFunctionCatalogsGroupedByBaseVersionId();
+            }
+            else {
+                functionCatalogs = functionCatalogInflater.inflateFunctionCatalogsGroupedByBaseVersionId();
+            }
 
             final Json catalogsJson = new Json();
             for (final Long baseVersionId : functionCatalogs.keySet()) {
