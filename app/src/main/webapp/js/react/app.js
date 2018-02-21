@@ -1299,7 +1299,7 @@ class App extends React.Component {
                 loadingTimeout:         loadingTimeout
             });
 
-            getFunctionBlocksMatchingSearchString(searchString, function (functionBlocksJson) {
+            getFunctionBlocksMatchingSearchString(searchString, false, function (functionBlocksJson) {
                 clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
@@ -1360,7 +1360,7 @@ class App extends React.Component {
                 loadingTimeout:             loadingTimeout
             });
 
-            getFunctionBlocksMatchingSearchString(filterString, function(functionBlocksJson) {
+            getFunctionBlocksMatchingSearchString(filterString, true, function(functionBlocksJson) {
                 clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
@@ -1675,7 +1675,7 @@ class App extends React.Component {
                 loadingTimeout:         loadingTimeout
             });
 
-            getMostInterfacesMatchingSearchString(searchString, function (mostInterfacesJson) {
+            getMostInterfacesMatchingSearchString(searchString, false, function (mostInterfacesJson) {
                 clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {
@@ -1738,7 +1738,7 @@ class App extends React.Component {
                 loadingTimeout:         loadingTimeout
             });
 
-            getMostInterfacesMatchingSearchString(filterString, function(mostInterfacesJson) {
+            getMostInterfacesMatchingSearchString(filterString, true, function(mostInterfacesJson) {
                 clearTimeout(thisApp.state.loadingTimeout);
                 if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.functionBlocks) {
                     if (thisApp.state.lastSearchResultTimestamp > requestTime) {

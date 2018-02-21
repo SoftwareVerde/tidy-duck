@@ -71,7 +71,11 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for function block.");
                 }
-                return _listFunctionBlocksMatchingSearchString(searchString, currentAccount, environment.getDatabase());
+                // include deleted items unless requested not to
+                final String includeDeleteString = request.getParameter("includeDeleted");
+                boolean includeDeleted = !"false".equals(includeDeleteString);
+
+                return _listFunctionBlocksMatchingSearchString(searchString, includeDeleted, currentAccount, environment.getDatabase());
             }
         });
 
@@ -471,9 +475,11 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final Account currentAccount, final Database<Connection> database) {
+    private Json _listFunctionBlocksMatchingSearchString(final String searchString, final boolean includeDeleted, final Account currentAccount, final Database<Connection> database) {
         final String decodedSearchString;
-        try { decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
+        try {
+            decodedSearchString = URLDecoder.decode(searchString, "UTF-8");
+        }
         catch (UnsupportedEncodingException e) {
             _logger.error("Unable to list function blocks from search", e);
             return super._generateErrorJson("Unable to list function blocks from search.");
@@ -483,7 +489,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(decodedSearchString, currentAccount.getId());
+            final Map<Long, List<FunctionBlock>> functionBlocks = functionBlockInflater.inflateFunctionBlocksMatchingSearchString(decodedSearchString, includeDeleted, currentAccount.getId());
 
             final Json functionBlocksJson = new Json(true);
             for (final Long baseVersionId : functionBlocks.keySet()) {

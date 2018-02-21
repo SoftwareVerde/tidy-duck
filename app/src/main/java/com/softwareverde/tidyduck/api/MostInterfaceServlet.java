@@ -69,7 +69,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (searchString.length() < 2) {
                     return _generateErrorJson("Invalid search string for interface.");
                 }
-                return _listMostInterfacesMatchingSearchString(searchString, currentAccount, environment.getDatabase());
+                // include deleted items unless requested not to
+                final String includeDeleteString = request.getParameter("includeDeleted");
+                boolean includeDeleted = !"false".equals(includeDeleteString);
+
+                return _listMostInterfacesMatchingSearchString(searchString, includeDeleted, currentAccount, environment.getDatabase());
             }
         });
 
@@ -491,9 +495,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _listMostInterfacesMatchingSearchString(final String searchString, final Account currentAccount, final Database<Connection> database) {
+    protected Json _listMostInterfacesMatchingSearchString(final String searchString, final boolean includeDeleted, final Account currentAccount, final Database<Connection> database) {
         final String decodedSearchString;
-        try{ decodedSearchString = URLDecoder.decode(searchString, "UTF-8"); }
+        try {
+            decodedSearchString = URLDecoder.decode(searchString, "UTF-8");
+        }
         catch (UnsupportedEncodingException e) {
             _logger.error("Unable to list interfaces from search", e);
             return _generateErrorJson("Unable to list interfaces from search.");
@@ -503,7 +509,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             final Json response = new Json(false);
 
             final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(decodedSearchString, currentAccount.getId());
+            final Map<Long, List<MostInterface>> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesMatchingSearchString(decodedSearchString, includeDeleted, currentAccount.getId());
 
             final Json mostInterfacesJson = new Json(true);
             for (final Long baseVersionId : mostInterfaces.keySet()) {

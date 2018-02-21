@@ -54,9 +54,9 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
 }
 
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
-function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
+function getMostInterfacesMatchingSearchString(searchString, includeDeleted, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/search/" + searchString,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
         {
             method: "GET",
             credentials: "include"
