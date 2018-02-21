@@ -208,12 +208,12 @@ public class DatabaseManager {
         });
     }
 
-    public void updateFunctionBlock(final long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    public void updateFunctionBlock(final Long currentAccountId, final long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock, accountId);
+                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(currentAccountId, functionCatalogId, functionBlock, accountId);
             }
         });
     }
@@ -308,12 +308,12 @@ public class DatabaseManager {
         });
     }
 
-    public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+    public void updateMostInterface(final Long currentAccountID, final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
+                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(currentAccountID, functionBlockId, mostInterface);
             }
         });
     }
