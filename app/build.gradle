@@ -25,7 +25,8 @@ dependencies {
 
     compile group: 'com.github.softwareverde', name: 'json', version: 'v1.+'
     compile group: 'com.github.softwareverde', name: 'java-util', version: 'v0.1.4'
-    compile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.0.2+'
+    compile group: 'com.github.softwareverde', name: 'java-db', version: 'v2.2.1', force: true
+    compile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.0.2', force: true
 
     // Logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.9'
@@ -39,6 +40,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.+'
     testCompile group: 'com.github.softwareverde', name: 'java-db-h2-mysql', version: 'v2+'
+    testCompile group: 'com.github.softwareverde', name: 'java-db', version: 'v2.2.1', force: true
+    testCompile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.0.2', force: true
 }
 
 tasks.withType(Test) {

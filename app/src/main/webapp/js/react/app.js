@@ -713,9 +713,11 @@ class App extends React.Component {
                 });
 
                 // If returned ID is different, a new unreleased version was created.
+                let shouldShowEditForm = thisApp.state.shouldShowEditForm;
                 if (newFunctionBlockId != functionBlockId) {
                     functionBlock.setIsReleased(false);
                     functionBlock.setCreatorAccountId(thisApp.state.account.getId());
+                    shouldShowEditForm = false;
                 }
                 functionBlock.setIsApproved(false);
 
@@ -753,10 +755,10 @@ class App extends React.Component {
 
                 thisApp.setState({
                     functionBlocks:             functionBlocks,
-                    selectedItem:               copyMostObject(FunctionBlock, functionBlock),
+                    selectedItem:               functionBlock,
                     navigationItems:            navigationItems,
                     currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
-                    createButtonState:          thisApp.CreateButtonState.success
+                    createButtonState:          thisApp.CreateButtonState.success,
                 });
             }
         });
