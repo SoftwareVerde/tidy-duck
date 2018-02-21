@@ -196,7 +196,7 @@ public class FunctionCatalogInflater {
 
     private void _inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(),true);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), false, true);
         functionCatalog.setFunctionBlocks(functionBlocks);
     }
 

@@ -75,12 +75,12 @@ public class MostInterfaceInflater {
     }
 
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId) throws DatabaseException {
-        return inflateMostInterfacesFromFunctionBlockId(functionBlockId, false);
+        return inflateMostInterfacesFromFunctionBlockId(functionBlockId, true, false);
     }
 
-    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
+    public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final boolean includeDeleted, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?"
+            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
         );
         query.setParameter(functionBlockId);
 
@@ -144,7 +144,7 @@ public class MostInterfaceInflater {
 
     private void inflateChildren(final MostInterface mostInterface) throws DatabaseException {
         MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
-        List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterface.getId());
+        List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterface.getId(), false);
         mostInterface.setMostFunctions(mostFunctions);
     }
 

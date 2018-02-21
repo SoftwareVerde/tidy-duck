@@ -95,7 +95,7 @@ public class FunctionCatalogDatabaseManagerTests {
         functionCatalog.setRelease("v0.0.1");
 
         // Action
-        _functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog);
+        _functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog, 1L);
         final FunctionCatalog inflatedFunctionCatalog = _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
 
         // Assert
@@ -159,7 +159,7 @@ public class FunctionCatalogDatabaseManagerTests {
         functionBlock.setDescription("Description");
         functionBlock.setRelease("v1.0.0");
         functionBlock.setAccess("public");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
 
         // Action
         final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogs(true);
