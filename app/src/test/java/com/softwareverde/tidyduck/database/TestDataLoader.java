@@ -18,6 +18,7 @@ public class TestDataLoader {
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/init.sql")));
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.4.sql")));
     }
 
     public static void insertFakeCompany(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {

@@ -58,7 +58,7 @@ public class MostInterfaceDatabaseManagerTests {
         functionBlock.setRelease("v1.0.0");
         functionBlock.setAccess("public");
 
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
         return functionBlock;
     }
 

@@ -19,9 +19,9 @@ public class MostFunctionInflater {
         _databaseConnection = databaseConnection;
     }
 
-    public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+    public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId, final boolean includeDeleted) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_id FROM interfaces_functions WHERE interface_id = ?"
+            "SELECT function_id FROM interfaces_functions WHERE interface_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
         );
         query.setParameter(mostInterfaceId);
 
