@@ -753,11 +753,10 @@ class App extends React.Component {
 
                 thisApp.setState({
                     functionBlocks:             functionBlocks,
-                    selectedItem:               functionBlock,
+                    selectedItem:               copyMostObject(FunctionBlock, functionBlock),
                     navigationItems:            navigationItems,
                     currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
                     createButtonState:          thisApp.CreateButtonState.success
-
                 });
             }
         });
