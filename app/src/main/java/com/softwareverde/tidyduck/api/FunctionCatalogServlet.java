@@ -110,6 +110,19 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/restore-from-trash", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _restoreFunctionCatalogFromTrash(functionCatalogId, currentAccount, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("function-catalogs/<functionCatalogId>/release-item-list", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -284,7 +297,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.markFunctionCatalogAsDeleted(functionCatalogId);
+            databaseManager.setIsDeletedForFunctionCatalog(functionCatalogId, true);
 
             _logger.info("User " + currentAccount.getId() + " marked Function Catalog " + functionCatalogId + " as deleted.");
 
@@ -294,6 +307,34 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to move function catalog %d to trash.", functionCatalogId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
+    protected Json _restoreFunctionCatalogFromTrash(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                final String errorMessage = "Unable to restore function catalog from trash: current account does not own Function Catalog " + functionCatalogId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final long numberOfDeletedChildren = databaseManager.restoreFunctionCatalogFromTrash(functionCatalogId);
+
+            _logger.info("User " + currentAccount.getId() + " restored Function Catalog " + functionCatalogId);
+            if (numberOfDeletedChildren > 0) {
+                _logger.info("Restored Function Catalog " + functionCatalogId + " contains " + numberOfDeletedChildren + " deleted Function Block relationships.");
+            }
+
+            final Json response = new Json(false);
+            response.put("haveChildrenBeenDeleted", numberOfDeletedChildren);
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to restore function catalog %d from trash.", functionCatalogId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }

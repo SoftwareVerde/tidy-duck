@@ -99,14 +99,21 @@ public class DatabaseManager {
         });
     }
 
-    public void markFunctionCatalogAsDeleted(final long functionCatalogId) throws DatabaseException {
+    public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.markFunctionCatalogAsDeleted(functionCatalogId);
+                functionCatalogDatabaseManager.setIsDeletedForFunctionCatalog(functionCatalogId, isDeleted);
             }
         });
+    }
+
+    public Long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.restoreFunctionCatalogFromTrash(functionCatalogId);
+        }
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {

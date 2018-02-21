@@ -5,7 +5,6 @@ import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,15 +60,6 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _setCreatorAccountId(long functionCatalogId, long accountId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET creator_account_id = ? WHERE id = ?")
-                .setParameter(accountId)
-                .setParameter(functionCatalogId)
-                ;
-
-        _databaseConnection.executeSql(query);
-    }
-
     private void _updateUnapprovedFunctionCatalog(final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
@@ -91,24 +81,49 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void markFunctionCatalogAsDeleted(final long functionCatalogId) throws DatabaseException {
+    public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE function_catalogs SET is_deleted = ? WHERE id = ?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(functionCatalogId)
         ;
 
         _databaseConnection.executeSql(query);
 
-        _markFunctionCatalogChildAssociationsAsDeleted(functionCatalogId);
+        _setIsDeletedForFunctionCatalogChildAssociations(functionCatalogId, isDeleted);
     }
 
-    private void _markFunctionCatalogChildAssociationsAsDeleted(final long functionCatalogId) throws DatabaseException {
+    private void _setIsDeletedForFunctionCatalogChildAssociations(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE function_catalogs_function_blocks SET is_deleted = ? WHERE function_catalog_id = ?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(functionCatalogId)
         ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
+        setIsDeletedForFunctionCatalog(functionCatalogId, false);
+        final long numberOfDeletedChildren = _getNumberOfDeletedChildren();
+
+        if (numberOfDeletedChildren > 0) {
+            _clearDeletedChildAssociations();
+        }
+
+        return numberOfDeletedChildren;
+    }
+
+    private long _getNumberOfDeletedChildren() throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS deletions FROM function_catalogs_function_blocks WHERE function_block_id IS NULL");
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final Row row = rows.get(0);
+        return row.getLong("deletions");
+    }
+
+    private void _clearDeletedChildAssociations() throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_block_id IS NULL");
+        _databaseConnection.executeSql(query);
+
     }
 
     private void _deleteFunctionCatalogIfUnapproved(final long functionCatalogId) throws DatabaseException {
