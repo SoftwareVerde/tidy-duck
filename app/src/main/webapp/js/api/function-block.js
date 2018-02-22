@@ -53,6 +53,31 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
     });
 }
 
+// calls callbackFunction with an array of function blocks in trash
+function getFunctionBlocksMarkedAsDeleted(callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "trashed-function-blocks",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let functionBlocks = null;
+
+        if (data.wasSuccess) {
+            functionBlocks = data.functionBlocks;
+        } else {
+            console.error("Unable to get function blocks marked as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlocks);
+        }
+    });
+}
+
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
 function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
     const request = new Request(
@@ -203,6 +228,52 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function markFunctionBlockAsDeleted(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/mark-as-deleted",
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to mark function block " + functionBlockId + " as deleted: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function restoreFunctionBlockFromTrash(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/restore-from-trash",
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to restore function block " + functionBlockId + " from trash: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, errorMessage);
         }
     });
 }
