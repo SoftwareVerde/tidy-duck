@@ -85,10 +85,10 @@ class App extends React.Component {
         };
 
         this.headers = {
-          functionCatalog:  "FCAT",
-          functionBlock:    "FBLOCK",
-          mostInterface:    "INTERFACE",
-          mostFunction:     "FUNCTION"
+            functionCatalog:  "FCAT",
+            functionBlock:    "FBLOCK",
+            mostInterface:    "INTERFACE",
+            mostFunction:     "FUNCTION"
         };
 
         this.FunctionStereotypes = {
