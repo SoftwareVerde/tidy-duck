@@ -71,7 +71,7 @@ class App extends React.Component {
             types:          "Types",
             reviews:        "Reviews",
             accounts:       "Accounts",
-            trash:          <span>&nbsp;<i className="fa fa-trash"/>&nbsp;</span>
+            trash:          "Trash"
         };
 
         this.developmentRoles = {
@@ -2739,6 +2739,33 @@ class App extends React.Component {
                 this.getAllCompanies();
                 this.getAccountsForEditForm();
             } break;
+            case this.roles.trash: {
+                this.setState({
+                    navigationItems:            [],
+                    parentHistory:              [],
+                    searchResults:              [],
+                    functionCatalogs:           [],
+                    selectedItem:               null,
+                    parentItem:                 null,
+                    proposedItem:               null,
+                    shouldShowCreateChildForm:  false,
+                    shouldShowSearchChildForm:  false,
+                    shouldShowEditForm:         false,
+                    shouldShowToolbar:          false,
+                    shouldShowFilteredResults:  false,
+                    isLoadingMostTypes:         false,
+                    isLoadingPrimitiveTypes:    false,
+                    isLoadingUnits:             false,
+                    isLoadingReviews:           false,
+                    isLoadingAccounts:          false,
+                    createButtonState:          thisApp.CreateButtonState.normal,
+                    currentNavigationLevel:     null,
+                    activeRole:                 roleName,
+                    activeSubRole:              null,
+                    showSettingsPage:           false,
+                    currentReview:              null
+                });
+            } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
             }
@@ -3241,6 +3268,14 @@ class App extends React.Component {
                         </div>
                     );
                 } break;
+                case this.roles.trash: {
+                    // trash role
+                    return (
+                        <div id="main-content" className="container">
+                            <app.TrashPage/>
+                        </div>
+                    );
+                } break;
                 case this.roles.reviews: {
                     // reviews role
                     const currentReview = this.state.currentReview;
@@ -3313,8 +3348,12 @@ class App extends React.Component {
     renderRoleToggle() {
         const roleItems = this.getValidRoleItems(this.state.account);
 
+        let displayMappings = {
+            "Trash": <span>&nbsp;<i className="fa fa-trash"/>&nbsp;</span>
+        }
+
         return (
-            <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} />
+            <app.RoleToggle roleItems={roleItems} handleClick={(role, canUseCachedChildren) => this.handleRoleClick(role, null, canUseCachedChildren)} activeRole={this.state.activeRole} displayMappings={displayMappings} />
         );
     }
 
