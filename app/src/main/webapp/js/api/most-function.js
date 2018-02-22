@@ -178,14 +178,12 @@ function markMostFunctionAsDeleted(mostFunctionId, callbackFunction) {
 
     tidyFetch(request, function (data) {
         const wasSuccess = data.wasSuccess;
-        let errorMessage = "";
         if (! wasSuccess) {
             console.error("Unable to mark function " + mostFunctionId + " as deleted: " + data.errorMessage);
-            errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(wasSuccess, errorMessage);
+            callbackFunction(data);
         }
     });
 }

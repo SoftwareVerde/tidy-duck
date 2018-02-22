@@ -22,6 +22,7 @@ class Toolbar extends React.Component {
         this.renderForkButton = this.renderForkButton.bind(this);
         this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
+        this.renderTrashButton = this.renderTrashButton.bind(this);
         this.renderMetadataButton = this.renderMetadataButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
@@ -180,6 +181,18 @@ class Toolbar extends React.Component {
         }
     }
 
+    renderTrashButton() {
+        if (this.props.shouldShowTrashButton) {
+            const buttonTitle = "Show or Hide Items in Trash";
+            return (
+                <div className="toolbar-item trash" onClick={this.props.onTrashButtonClicked} >
+                    <i className="fa fa-4 fa-trash" />
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
     renderMetadataButton() {
         if (this.props.shouldShowEditButton) {
             const navigationLevel = this.state.navigationLevel;
@@ -317,6 +330,7 @@ class Toolbar extends React.Component {
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}
                     {this.renderAddFunctionButtons()}
+                    {this.renderTrashButton()}
                 </div>
             );
         }
@@ -326,6 +340,7 @@ class Toolbar extends React.Component {
                 {this.renderSubmitForReviewButton()}
                 {this.renderReleaseButton()}
                 {this.renderMetadataButton()}
+                {this.renderTrashButton()}
             </div>
         );
     }

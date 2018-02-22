@@ -128,7 +128,7 @@ class App extends React.Component {
             createButtonState:          this.CreateButtonState.normal,
             selectedFunctionStereotype: null,
             shouldShowSearchChildForm:  false,
-            shouldShowDeletedChildItems:false,
+            shouldShowDeletedChildItems:true,
             shouldShowLoadingIcon:      false,
             loadingTimeout:             null,
             isLoadingChildren:          true,
@@ -174,6 +174,7 @@ class App extends React.Component {
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
         this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
+        this.onMarkFunctionCatalogAsDeleted = this.onMarkFunctionCatalogAsDeleted.bind(this);
         this.onReleaseFunctionCatalog = this.onReleaseFunctionCatalog.bind(this);
         this.onFunctionCatalogReleased = this.onFunctionCatalogReleased.bind(this);
 
@@ -1212,6 +1213,44 @@ class App extends React.Component {
         app.App.confirm("Delete Function Catalog", "This action will delete the last reference to this function catalog version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
+    onMarkFunctionCatalogAsDeleted(functionCatalog, callbackFunction) {
+        if (functionCatalog.isApproved()) {
+            app.App.alert("Move Function Catalog to Trash Bin", "This Function Catalog is approved for release and cannot be moved to the trash bin.", callbackFunction);
+            return;
+        }
+
+        const thisApp = this;
+        const functionCatalogId = functionCatalog.getId();
+
+        markFunctionCatalogAsDeleted(functionCatalogId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Move Function Catalog to Trash Bin", "Request to move Function Catalog to trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            functionCatalog.setIsDeleted(true);
+            // TODO: set deletedDate. Needed to get that from API or rely on object being re-retrieved from API.
+            functionCatalog.setDeletedDate("Just now");
+            const versionsJson = functionCatalog.getVersionsJson();
+
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.id == functionCatalogId) {
+                    versionJson.isDeleted = true;
+                    // TODO: set deletedDate. Needed to get that from API.
+                    versionsJson.deletedDate = "Just now";
+                    break;
+                }
+            }
+
+            functionCatalog.setVersionsJson(versionsJson);
+
+            thisApp.setState({
+                currentNavigationLevel: thisApp.NavigationLevel.versions
+            });
+        });
+    }
+
     addFunctionBlockNavigationItem(functionBlock) {
         const thisApp = this;
         const itemId = "functionBlock" + functionBlock.getId();
@@ -2095,10 +2134,14 @@ class App extends React.Component {
             // Set default version to be displayed, in case no versions have been released.
             let displayedVersionId = versions[0].id;
             let displayedVersionJson = versions[0];
+            // Need to check if at least one version is NOT deleted for showing/hiding deleted child items.
+            let childContainsOnlyDeletedVersions = true;
 
             // Get highest version object that is released, using IDs.
             for (let j in versions) {
                 const childItemJson = versions[j];
+                childContainsOnlyDeletedVersions = childItemJson.isDeleted ? childContainsOnlyDeletedVersions : false;
+
                 if (childItemJson.isReleased) {
                     if (childItemJson.id > displayedVersionId) {
                         displayedVersionId = childItemJson.id;
@@ -2108,6 +2151,12 @@ class App extends React.Component {
             }
             const childItem = fromJsonFunction(displayedVersionJson);
             childItem.setVersionsJson(versions);
+
+            // Do not push this child item if all of its versions are deleted and the app is hiding deleted objects.
+            if (childContainsOnlyDeletedVersions && ! this.state.shouldShowDeletedChildItems) {
+                continue;
+            }
+
             childItems.push(childItem);
         }
 
@@ -2802,7 +2851,7 @@ class App extends React.Component {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
-        const showDeletedChildItems = this.state.shouldShowDeletedChildItems;
+        const showDeletedVersions = this.state.shouldShowDeletedChildItems;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -2814,14 +2863,7 @@ class App extends React.Component {
         let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
-                if (showDeletedChildItems) {
-                    childItems = this.state.functionCatalogs;
-                }
-                else {
-                    childItems = this.state.functionCatalogs.filter(function(value) {
-                        return ! value.isDeleted();
-                    });
-                }
+                childItems = this.state.functionCatalogs;
                 childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
@@ -2829,22 +2871,22 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
-                    reactComponents.push(<app.FunctionCatalog key={functionCatalogKey} functionCatalog={childItem} onClick={this.onFunctionCatalogSelected} onDelete={this.onDeleteFunctionCatalog} onVersionChanged={this.onChildItemVersionChanged} onExportFunctionCatalog={exportFunctionCatalogToMost}/>);
+                    reactComponents.push(<app.FunctionCatalog
+                        key={functionCatalogKey}
+                        functionCatalog={childItem}
+                        onClick={this.onFunctionCatalogSelected}
+                        onDelete={this.onDeleteFunctionCatalog}
+                        onVersionChanged={this.onChildItemVersionChanged}
+                        onExportFunctionCatalog={exportFunctionCatalogToMost}
+                        onMarkAsDeleted={this.onMarkFunctionCatalogAsDeleted}
+                        showDeletedVersions={showDeletedVersions}
+                        />
+                    );
                 }
             break;
 
             case NavigationLevel.functionCatalogs:
-                if (this.state.shouldShowFilteredResults) {
-                    childItems = this.state.searchResults;
-                }
-                else if (showDeletedChildItems) {
-                    childItems = this.state.functionBlocks;
-                }
-                else {
-                    childItems = this.state.functionBlocks.filter(function(value) {
-                        return ! value.isDeleted();
-                    });
-                }
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
                 childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
@@ -2857,17 +2899,7 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionBlocks:
-                if (this.state.shouldShowFilteredResults) {
-                    childItems = this.state.searchResults;
-                }
-                else if (showDeletedChildItems) {
-                    childItems = this.state.mostInterfaces;
-                }
-                else {
-                    childItems = this.state.mostInterfaces.filter(function(value) {
-                        return ! value.isDeleted();
-                    });
-                }
+                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
                 childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
@@ -2880,14 +2912,7 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.mostInterfaces:
-                if (showDeletedChildItems) {
-                    childItems = this.state.mostFunctions;
-                }
-                else {
-                    childItems = this.state.mostFunctions.filter(function(value) {
-                        return ! value.isDeleted();
-                    });
-                }
+                childItems = this.state.mostFunctions;
                 childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
@@ -2956,6 +2981,7 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
+            let shouldShowTrashButton = (activeRole === this.roles.release) || (activeRole === this.roles.development) || selectedItem;
             let shouldShowNavigationItems = false;
             let backFunction = null;
             let forkFunction = null;
@@ -3060,6 +3086,7 @@ class App extends React.Component {
                     onSubmitForReviewClicked={() => this.onReviewSubmitted(selectedItem)}
                     onForkClicked={() => forkFunction(selectedItem, true)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
+                    onTrashButtonClicked={() => this.setState({shouldShowDeletedChildItems: ! this.state.shouldShowDeletedChildItems})}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
                     navigationItems={navigationItems}
@@ -3073,6 +3100,7 @@ class App extends React.Component {
                     shouldShowViewInfoButton={(isApproved || ! canModify)}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
+                    shouldShowTrashButton={shouldShowTrashButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
                     canModify={canModify}

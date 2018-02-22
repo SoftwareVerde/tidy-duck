@@ -699,6 +699,14 @@
     color: rgba(0, 0, 0, 0.5);
 }
 
+.deleted-tidy-object {
+    background-color: #FFD9D9 !important;
+}
+
+.deleted-tidy-object:hover {
+    background-color: inherit !important;
+}
+
 .svg-icon {
     padding: 10px;
     height: calc(100% - 20px);
