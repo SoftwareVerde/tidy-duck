@@ -424,9 +424,16 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
-                mostFunctionDatabaseManager.markMostFunctionAsDeleted(mostFunctionId);
+                mostFunctionDatabaseManager.setIsDeletedForMostFunction(mostFunctionId, true);
             }
         });
+    }
+
+    public void restoreMostFunctionFromTrash(final long mostFunctionId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
+            mostFunctionDatabaseManager.restoreMostFunctionFromTrash(mostFunctionId);
+        }
     }
 
     public void deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
