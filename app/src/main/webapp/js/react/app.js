@@ -70,7 +70,8 @@ class App extends React.Component {
             development:    "Development",
             types:          "Types",
             reviews:        "Reviews",
-            accounts:       "Accounts"
+            accounts:       "Accounts",
+            trash:          <span>&nbsp;<i className="fa fa-trash"/>&nbsp;</span>
         };
 
         this.developmentRoles = {
@@ -3299,6 +3300,10 @@ class App extends React.Component {
             }
             if (account.hasPermission("ADMIN_MODIFY_USERS")) {
                 roleItems.push(this.roles.accounts);
+            }
+            // should be last
+            if (account.hasPermission("MOST_COMPONENTS_MODIFY")) {
+                roleItems.push(this.roles.trash);
             }
         }
 
