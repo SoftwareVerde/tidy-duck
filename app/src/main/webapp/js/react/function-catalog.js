@@ -113,6 +113,11 @@ class FunctionCatalog extends React.Component {
         const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
         const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
 
+        let displayVersion = <div className="child-function-catalog-property version">{this.props.functionCatalog.getReleaseVersion()}</div>;
+        if (this.props.displayVersionsList) {
+            displayVersion = <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+        }
+
         return (
             <div className={childItemStyle} onClick={this.onClick}>
                 <div className="child-item-title">
@@ -125,7 +130,7 @@ class FunctionCatalog extends React.Component {
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
                     <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Downlad MOST XML" />
                 </div>
-                <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
+                {displayVersion}
                 <div className="description-wrapper">
                     <div className="description" onClick={(event) => event.stopPropagation()}>
                         {(author ? author.getName() : "")}

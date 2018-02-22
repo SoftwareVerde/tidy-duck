@@ -3,7 +3,6 @@ class RoleItem extends React.Component {
          super(props);
 
          this.state = {
-             roleName:         this.props.roleName,
              isActiveRoleItem: this.props.isActiveRoleItem
          };
 
@@ -12,7 +11,6 @@ class RoleItem extends React.Component {
 
      componentWillReceiveProps(newProperties) {
          this.setState({
-             roleName:         newProperties.roleName,
              isActiveRoleItem: newProperties.isActiveRoleItem
          });
      }
@@ -28,7 +26,7 @@ class RoleItem extends React.Component {
      }
 
      render() {
-         const roleName = this.state.roleName;
+         const roleName = this.props.displayName;
 
          if (this.props.isActiveRoleItem) {
              return(<div className="active-role" onClick={this.onClick}>{roleName}</div>);
