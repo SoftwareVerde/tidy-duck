@@ -230,9 +230,16 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.markFunctionBlockAsDeleted(functionBlockId);
+                functionBlockDatabaseManager.setIsDeletedForFunctionBlock(functionBlockId, true);
             }
         });
+    }
+
+    public long restoreFunctionBlockFromTrash(final long functionblockId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+            return functionBlockDatabaseManager.restoreFunctionBlockFromTrash(functionblockId);
+        }
     }
 
     public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {

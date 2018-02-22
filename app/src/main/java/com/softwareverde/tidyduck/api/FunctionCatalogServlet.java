@@ -84,6 +84,19 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/restore-from-trash", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _restoreFunctionCatalogFromTrash(functionCatalogId, currentAccount, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -110,18 +123,6 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super._defineEndpoint("function-catalogs/<functionCatalogId>/restore-from-trash", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
-            @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
-
-                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
-                if (functionCatalogId < 1) {
-                    return _generateErrorJson("Invalid function catalog ID.");
-                }
-                return _restoreFunctionCatalogFromTrash(functionCatalogId, currentAccount, environment.getDatabase());
-            }
-        });
 
         super._defineEndpoint("function-catalogs/<functionCatalogId>/release-item-list", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
