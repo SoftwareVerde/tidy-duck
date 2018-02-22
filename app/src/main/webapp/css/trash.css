@@ -6,3 +6,7 @@
     border-radius: 5px;
     padding: 0 1em;
 }
+
+#trash-container hr {
+    clear: left; /* avoids HR displaying inline with a child item */
+}
