@@ -13,6 +13,8 @@ class MostInterface {
         mostInterface.setIsReleased(json.isReleased);
         mostInterface.setIsApproved(json.isApproved);
         mostInterface.setCreatorAccountId(json.creatorAccountId);
+        mostInterface.setIsDeleted(json.isDeleted);
+        mostInterface.setDeletedDate(json.deletedDate);
 
         return mostInterface;
     }
@@ -46,6 +48,8 @@ class MostInterface {
         this._priorVersionId        = null;
         this._baseVersionId         = null;
         this._creatorAccountId      = null;
+        this._isDeleted             = false;
+        this._deletedDate           = null;
 
         this._functions             = [];
     };
@@ -148,6 +152,22 @@ class MostInterface {
 
     getCreatorAccountId() {
         return this._creatorAccountId;
+    }
+
+    setIsDeleted(isDeleted) {
+        this._isDeleted = isDeleted;
+    }
+
+    isDeleted() {
+        return this._isDeleted;
+    }
+
+    setDeletedDate(deletedDate) {
+        this._deletedDate = deletedDate;
+    }
+
+    getDeletedDate() {
+        return this._deletedDate;
     }
 
     getDisplayVersion() {

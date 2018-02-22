@@ -20,6 +20,8 @@ class FunctionCatalog {
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
         functionCatalog.setCreatorAccountId(json.creatorAccountId);
+        functionCatalog.setIsDeleted(json.isDeleted);
+        functionCatalog.setDeletedDate(json.deletedDate);
 
         return functionCatalog;
     }
@@ -59,6 +61,8 @@ class FunctionCatalog {
         this._author            = null;
         this._company           = null;
         this._creatorAccountId  = null;
+        this._isDeleted         = false;
+        this._deletedDate       = null;
 
         this._functionBlocks    = [];
     };
@@ -153,6 +157,22 @@ class FunctionCatalog {
 
     getCreatorAccountId() {
         return this._creatorAccountId;
+    }
+
+    setIsDeleted(isDeleted) {
+        this._isDeleted = isDeleted;
+    }
+
+    isDeleted() {
+        return this._isDeleted;
+    }
+
+    setDeletedDate(deletedDate) {
+        this._deletedDate = deletedDate;
+    }
+
+    getDeletedDate() {
+        return this._deletedDate;
     }
 
     getDisplayVersion() {

@@ -123,7 +123,7 @@ class FunctionCatalog extends React.Component {
                     {approvedIcon}
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
-                    <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Downlad MOST XML" />
+                    <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Download MOST XML" />
                 </div>
                 <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
                 <div className="description-wrapper">

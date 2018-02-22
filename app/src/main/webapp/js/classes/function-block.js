@@ -27,6 +27,8 @@ class FunctionBlock {
         functionBlock.setAccess(json.access);
         functionBlock.setIsSource(json.isSource);
         functionBlock.setIsSink(json.isSink);
+        functionBlock.setIsDeleted(json.isDeleted);
+        functionBlock.setDeletedDate(json.deletedDate);
 
         return functionBlock;
     }
@@ -47,7 +49,7 @@ class FunctionBlock {
             isApproved:         functionBlock.isApproved(),
             access:             functionBlock.getAccess(),
             isSource:           functionBlock.isSource(),
-            isSink:             functionBlock.isSink()
+            isSink:             functionBlock.isSink(),
         };
         const author = (functionBlock.getAuthor() || new Author());
         const company = (functionBlock.getCompany() || new Company());
@@ -79,6 +81,8 @@ class FunctionBlock {
         this._priorVersionId        = null;
         this._baseVersionId         = null;
         this._creatorAccountId      = null;
+        this._isDeleted             = false;
+        this._deletedDate           = null;
 
         this._interfaces            = [];
     };
@@ -229,6 +233,22 @@ class FunctionBlock {
 
     getCreatorAccountId() {
         return this._creatorAccountId;
+    }
+
+    setIsDeleted(isDeleted) {
+        this._isDeleted = isDeleted;
+    }
+
+    isDeleted() {
+        return this._isDeleted;
+    }
+
+    setDeletedDate(deletedDate) {
+        this._deletedDate = deletedDate;
+    }
+
+    getDeletedDate() {
+        return this._deletedDate;
     }
 
     getDisplayVersion() {

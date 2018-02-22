@@ -128,6 +128,7 @@ class App extends React.Component {
             createButtonState:          this.CreateButtonState.normal,
             selectedFunctionStereotype: null,
             shouldShowSearchChildForm:  false,
+            shouldShowDeletedChildItems:false,
             shouldShowLoadingIcon:      false,
             loadingTimeout:             null,
             isLoadingChildren:          true,
@@ -2801,6 +2802,7 @@ class App extends React.Component {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
+        const showDeletedChildItems = this.state.shouldShowDeletedChildItems;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -2812,9 +2814,18 @@ class App extends React.Component {
         let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
-                childItems = this.state.functionCatalogs.sort(function(a, b) {
+                if (showDeletedChildItems) {
+                    childItems = this.state.functionCatalogs;
+                }
+                else {
+                    childItems = this.state.functionCatalogs.filter(function(value) {
+                        return ! value.isDeleted();
+                    });
+                }
+                childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
+
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionCatalogKey = "FunctionCatalog" + i;
@@ -2823,10 +2834,21 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionCatalogs:
-                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
-                childItems = childItems.sort(function(a, b) {
+                if (this.state.shouldShowFilteredResults) {
+                    childItems = this.state.searchResults;
+                }
+                else if (showDeletedChildItems) {
+                    childItems = this.state.functionBlocks;
+                }
+                else {
+                    childItems = this.state.functionBlocks.filter(function(value) {
+                        return ! value.isDeleted();
+                    });
+                }
+                childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
+
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
@@ -2835,10 +2857,21 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionBlocks:
-                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
-                childItems = childItems.sort(function(a, b) {
+                if (this.state.shouldShowFilteredResults) {
+                    childItems = this.state.searchResults;
+                }
+                else if (showDeletedChildItems) {
+                    childItems = this.state.mostInterfaces;
+                }
+                else {
+                    childItems = this.state.mostInterfaces.filter(function(value) {
+                        return ! value.isDeleted();
+                    });
+                }
+                childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
+
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
@@ -2847,9 +2880,18 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.mostInterfaces:
-                childItems = this.state.mostFunctions.sort(function(a, b) {
+                if (showDeletedChildItems) {
+                    childItems = this.state.mostFunctions;
+                }
+                else {
+                    childItems = this.state.mostFunctions.filter(function(value) {
+                        return ! value.isDeleted();
+                    });
+                }
+                childItems.sort(function(a, b) {
                     return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
                 });
+
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const mostFunctionKey = "mostFunction" + i;
