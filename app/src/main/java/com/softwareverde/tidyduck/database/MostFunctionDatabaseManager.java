@@ -1,11 +1,11 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.most.*;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 
 class MostFunctionDatabaseManager {
@@ -220,20 +220,24 @@ class MostFunctionDatabaseManager {
         _deleteMostFunctionIfUnapproved(mostFunctionId);
     }
 
-    public void markMostFunctionAsDeleted(final long mostFunctionId) throws DatabaseException {
+    public void setIsDeletedForMostFunction(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE functions SET is_deleted = ? WHERE id = ?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(mostFunctionId)
                 ;
 
         _databaseConnection.executeSql(query);
 
-        _markParentInterfaceAssociationAsDeleted(mostFunctionId);
+        _setIsDeletedForMostFunctionParentAssociation(mostFunctionId, isDeleted);
     }
 
-    private void _markParentInterfaceAssociationAsDeleted(final long mostFunctionId) throws DatabaseException {
+    public void restoreMostFunctionFromTrash(final long mostFunctionId) throws DatabaseException {
+        setIsDeletedForMostFunction(mostFunctionId, false);
+    }
+
+    private void _setIsDeletedForMostFunctionParentAssociation(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE interfaces_functions SET is_deleted = ? WHERE function_id = ?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(mostFunctionId)
                 ;
 

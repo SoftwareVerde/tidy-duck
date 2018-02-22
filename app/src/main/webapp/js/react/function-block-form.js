@@ -48,13 +48,14 @@ class FunctionBlockForm extends React.Component {
         const isNewFunctionBlock = (! this.props.functionBlock && ! this.state.functionBlock);
         const functionBlock = FunctionBlock.fromJson(FunctionBlock.toJson(isNewFunctionBlock ? new FunctionBlock() : this.state.functionBlock || newProperties.functionBlock));
 
+        functionBlock.setId((newProperties.functionBlock || functionBlock).getId());
+        functionBlock.setCreatorAccountId((newProperties.functionBlock || functionBlock).getCreatorAccountId());
         // Default values for the function block...
         if (isNewFunctionBlock) {
             injectDefaultValues(functionBlock);
             functionBlock.setCreatorAccountId(newProperties.account.getId());
         }
 
-        functionBlock.setId((newProperties.functionBlock || functionBlock).getId());
         this.setState({
             showTitle:                  newProperties.showTitle,
             shouldShowSaveAnimation:    newProperties.shouldShowSaveAnimation,

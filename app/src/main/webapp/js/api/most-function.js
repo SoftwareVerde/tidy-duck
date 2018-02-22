@@ -48,6 +48,31 @@ function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
     });
 }
 
+// calls callbackFunction with an array of functions in trash
+function getMostFunctionsMarkedAsDeletedForMostInterfaceId(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "trashed-most-functions?most_interface_id=" + mostInterfaceId,
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let mostFunctions = null;
+
+        if (data.wasSuccess) {
+            mostFunctions = data.mostFunctions;
+        } else {
+            console.error("Unable to get functions marked as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostFunctions);
+        }
+    });
+}
+
 // calls callbackFunction with list of function catalog IDs
 function listMostInterfacesContainingMostFunction(mostFunctionId, callbackFunction) {
     const request = new Request(
@@ -138,6 +163,52 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function markMostFunctionAsDeleted(mostFunctionId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/mark-as-deleted",
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to mark function " + mostFunctionId + " as deleted: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function restoreMostFunctionFromTrash(mostFunctionId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/restore-from-trash",
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to restore function " + mostFunctionId + " from trash: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, errorMessage);
         }
     });
 }

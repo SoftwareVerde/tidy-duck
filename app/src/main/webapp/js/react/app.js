@@ -541,6 +541,7 @@ class App extends React.Component {
                 // If returned ID is different, a new unreleased version was created.
                 if (newFunctionCatalogId != functionCatalogId) {
                     functionCatalog.setIsReleased(false);
+                    functionCatalog.setCreatorAccountId(thisApp.state.account.getId());
                 }
                 functionCatalog.setIsApproved(false);
 
@@ -712,8 +713,11 @@ class App extends React.Component {
                 });
 
                 // If returned ID is different, a new unreleased version was created.
+                let shouldShowEditForm = thisApp.state.shouldShowEditForm;
                 if (newFunctionBlockId != functionBlockId) {
                     functionBlock.setIsReleased(false);
+                    functionBlock.setCreatorAccountId(thisApp.state.account.getId());
+                    shouldShowEditForm = false;
                 }
                 functionBlock.setIsApproved(false);
 
@@ -754,8 +758,7 @@ class App extends React.Component {
                     selectedItem:               functionBlock,
                     navigationItems:            navigationItems,
                     currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
-                    createButtonState:          thisApp.CreateButtonState.success
-
+                    createButtonState:          thisApp.CreateButtonState.success,
                 });
             }
         });
@@ -873,6 +876,7 @@ class App extends React.Component {
                 // If returned ID is different, a new unreleased version was created.
                 if (newMostInterfaceId != mostInterfaceId) {
                     mostInterface.setIsReleased(false);
+                    mostInterface.setCreatorAccountId(thisApp.state.account.getId());
                 }
                 mostInterface.setIsApproved(false);
 

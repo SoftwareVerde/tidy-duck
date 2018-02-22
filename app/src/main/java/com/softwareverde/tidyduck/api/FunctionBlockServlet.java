@@ -118,6 +118,18 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("function-blocks/<functionBlockId>/restore-from-trash", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
+                }
+                return _restoreFunctionBlockFromTrash(functionBlockId, currentAccount, environment.getDatabase());
+            }
+        });
 
         super._defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
@@ -280,19 +292,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
 
-                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
+                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
                     final String errorMessage = "Unable to update function block within function catalog: current account does not own its parent Function Catalog " + functionBlockId;
                     _logger.error(errorMessage);
                     return super._generateErrorJson(errorMessage);
                 }
 
-                databaseManager.updateFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
+                databaseManager.updateFunctionBlock(currentAccountId, functionCatalogId, functionBlock, currentAccountId);
             }
             else {
-                databaseManager.updateFunctionBlock(0, functionBlock, currentAccountId);
+                databaseManager.updateFunctionBlock(currentAccountId,0, functionBlock, currentAccountId);
             }
 
-            _logger.info("User " + currentAccount.getId() + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
+            _logger.info("User " + currentAccountId + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
@@ -392,6 +404,34 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to move function block %d to trash", functionBlockId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
+    protected Json _restoreFunctionBlockFromTrash(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
+                final String errorMessage = "Unable to restore function catalog from trash: current account does not own Function Block " + functionBlockId;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final long numberOfDeletedChildren = databaseManager.restoreFunctionBlockFromTrash(functionBlockId);
+
+            _logger.info("User " + currentAccount.getId() + " restored Function Block " + functionBlockId);
+            if (numberOfDeletedChildren > 0) {
+                _logger.info("Restored Function Block " + functionBlockId + " contains " + numberOfDeletedChildren + " deleted Interface relationships.");
+            }
+
+            final Json response = new Json(false);
+            response.put("haveChildrenBeenDeleted", numberOfDeletedChildren);
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to restore function block %d from trash.", functionBlockId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
