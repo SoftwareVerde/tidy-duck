@@ -222,6 +222,8 @@ class App extends React.Component {
         this.onSaveTicketUrlClicked = this.onSaveTicketUrlClicked.bind(this);
         this.onApproveButtonClicked = this.onApproveButtonClicked.bind(this);
 
+        this.onTrashItemSelected = this.onTrashItemSelected.bind(this);
+
         this.handleFunctionStereotypeClick = this.handleFunctionStereotypeClick.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
@@ -2525,6 +2527,28 @@ class App extends React.Component {
         app.App.confirm("Approve Review", "Are you sure you would like to approve this review?", approveReviewFunction);
     }
 
+    onTrashItemSelected(trashItem) {
+        this.setState({
+            shouldShowToolbar:      true,
+            isTrashItemSelected:    true
+        });
+        const className = trashItem.constructor.name;
+        switch (className) {
+            case 'FunctionCatalog': {
+                this.onFunctionCatalogSelected(trashItem);
+            } break;
+            case 'FunctionBlock': {
+                this.onFunctionBlockSelected(trashItem);
+            } break;
+            case 'MostInterface': {
+                this.onMostInterfaceSelected(trashItem);
+            } break;
+            case 'MostFunction': {
+                this.onMostFunctionSelected(trashItem);
+            }
+        }
+    }
+
     updateMostFunctionStereotypes() {
         const thisApp = this;
         // get most types (used cached ones for now but set the new ones in the callback)
@@ -2767,7 +2791,8 @@ class App extends React.Component {
                     activeRole:                 roleName,
                     activeSubRole:              null,
                     showSettingsPage:           false,
-                    currentReview:              null
+                    currentReview:              null,
+                    isTrashItemSelected:        false
                 });
             } break;
             default: {
@@ -2950,9 +2975,10 @@ class App extends React.Component {
             if (selectedItem) {
                 const isReleased = selectedItem.isReleased();
                 isApproved = selectedItem.isApproved();
+                const isTrashItem = this.state.isTrashItemSelected;
                 shouldShowBackButton = true;
 
-                if (! isReleased && ! isApproved) {
+                if (! isReleased && ! isApproved && !isTrashItem) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
                     shouldShowSearchButton = ! shouldShowFilterBar;
                 }
@@ -3008,17 +3034,22 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    if (activeRole == thisApp.roles.reviews) {
+                    const inReview = activeRole == thisApp.roles.reviews;
+                    const inTrash = activeRole == thisApp.roles.trash;
+                    if (inReview || inTrash) {
                         shouldShowNavigationItems = true;
                         shouldShowBackButton = true;
+                        shouldShowEditButton = true; // either edit or view
                         shouldShowForkButton = false;
-                        shouldShowEditButton = true;
                         shouldShowSearchButton = false;
                         shouldShowCreateButton = false;
                         shouldShowSubmitForReviewButton = false;
                         shouldShowReleaseButton = false;
 
-                        selectedVote = this.isReviewVoteSelected();
+                        if (inReview) {
+                            selectedVote = this.isReviewVoteSelected();
+                        }
+
                         if (navigationItems.length > 1) {
                             backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                         }
@@ -3274,12 +3305,14 @@ class App extends React.Component {
                 } break;
                 case this.roles.trash: {
                     // trash role
-                    return (
-                        <div id="main-content" className="container">
-                            <app.TrashPage/>
-                        </div>
-                    );
-                } break;
+                    if (!this.state.isTrashItemSelected) {
+                        return (
+                            <div id="main-content" className="container">
+                                <app.TrashPage onItemSelected={this.onTrashItemSelected}/>
+                            </div>
+                        );
+                    }
+                } break; // continue if an item has been selected
                 case this.roles.reviews: {
                     // reviews role
                     const currentReview = this.state.currentReview;
@@ -3291,35 +3324,33 @@ class App extends React.Component {
                             </div>
                         );
                     }
-                } // fall-though if a review is selected
-                default: {
-                    // other roles
-                    let navigationItems = "";
-                    if (this.state.activeRole === this.roles.release) {
-                        const releasingFunctionCatalog = this.state.releasingFunctionCatalog;
-                        if (releasingFunctionCatalog != null) {
-                            // don't display anything else, go to release page
-                            return (
-                                <div id="main-content" className="container">
-                                    <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} />
-                                </div>
-                            );
-                        }
-                        navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
-                    }
+                } break; // continue if a review is selected
+            }
+            // other roles
+            let navigationItems = "";
+            if (this.state.activeRole === this.roles.release) {
+                const releasingFunctionCatalog = this.state.releasingFunctionCatalog;
+                if (releasingFunctionCatalog != null) {
+                    // don't display anything else, go to release page
                     return (
                         <div id="main-content" className="container">
-                            {navigationItems}
-                            <div className="display-area">
-                                {this.renderForm()}
-                                <div id="child-display-area" className={childDisplayAreaStyle}>
-                                    {this.renderChildItems()}
-                                </div>
-                            </div>
+                            <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} />
                         </div>
                     );
                 }
+                navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
             }
+            return (
+                <div id="main-content" className="container">
+                    {navigationItems}
+                    <div className="display-area">
+                        {this.renderForm()}
+                        <div id="child-display-area" className={childDisplayAreaStyle}>
+                            {this.renderChildItems()}
+                        </div>
+                    </div>
+                </div>
+            );
         }
     }
 

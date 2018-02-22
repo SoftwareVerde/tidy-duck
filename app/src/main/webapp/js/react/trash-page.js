@@ -56,6 +56,7 @@ class TrashPage extends React.Component {
         });
 
         this.getFlattenedObjectList = this.getFlattenedObjectList.bind(this);
+        this.onItemSelected = this.onItemSelected.bind(this);
         this.renderItems = this.renderItems.bind(this);
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.renderFunctionBlocks = this.renderFunctionBlocks.bind(this);
@@ -78,6 +79,12 @@ class TrashPage extends React.Component {
         return objects;
     }
 
+    onItemSelected(item) {
+        if (typeof this.props.onItemSelected == "function") {
+            this.props.onItemSelected(item);
+        }
+    }
+
     renderItems(isLoading, items, renderItemFunction) {
         if (isLoading) {
             return <i className="fa fa-2x fa-spin fa-refresh"/>
@@ -88,27 +95,31 @@ class TrashPage extends React.Component {
             let reactComponents = [];
             for (let index in items) {
                 let item = items[index];
-                reactComponents.push(renderItemFunction(index, item));
+                let reactComponent = renderItemFunction(index, item);
+                reactComponents.push(reactComponent);
             }
             return reactComponents;
         }
     }
 
     renderFunctionCatalogs() {
+        let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionCatalogs, this.state.deletedFunctionCatalogs, function(index, item) {
-            return <app.FunctionCatalog key={index} functionCatalog={item} displayVersionsList={false}/>
+            return <app.FunctionCatalog key={index} functionCatalog={item} displayVersionsList={false} onClick={thisPage.onItemSelected}/>
         });
     }
 
     renderFunctionBlocks() {
+        let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionBlocks, this.state.deletedFunctionBlocks, function(index, item) {
-            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false}/>
+            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected}/>
         });
     }
 
     renderMostInterfaces() {
+        let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedMostInterfaces, this.state.deletedMostInterfaces, function(index, item) {
-            return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false}/>
+            return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false} onClick={thisPage.onItemSelected}/>
         });
     }
 
