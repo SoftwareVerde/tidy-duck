@@ -337,9 +337,16 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.markMostInterfaceAsDeleted(mostInterfaceId);
+                mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterfaceId, true);
             }
         });
+    }
+
+    public void restoreMostInterfaceFromTrash(final long mostInterfaceId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            mostInterfaceDatabaseManager.restoreMostInterfaceFromTrash(mostInterfaceId);
+        }
     }
 
     public void deleteMostInterface(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {

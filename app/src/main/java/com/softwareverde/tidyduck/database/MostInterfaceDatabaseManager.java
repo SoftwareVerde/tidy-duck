@@ -123,16 +123,18 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void markMostInterfaceAsDeleted(final long mostInterfaceId) throws DatabaseException {
+    public void setIsDeletedForMostInterface(final long mostInterfaceId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE interfaces SET is_deleted = ? WHERE id=?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(mostInterfaceId)
                 ;
 
         _databaseConnection.executeSql(query);
-
-        _nullifyMostInterfaceParentRelationships(mostInterfaceId);
         // Child object associations are not marked as deleted in this case.
+    }
+
+    public void restoreMostInterfaceFromTrash(final long mostInterfaceId) throws DatabaseException {
+        setIsDeletedForMostInterface(mostInterfaceId, false);
     }
 
     private void _nullifyMostInterfaceParentRelationships(final long mostInterfaceId) throws DatabaseException {
@@ -168,6 +170,8 @@ public class MostInterfaceDatabaseManager {
     }
 
     private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
+        _nullifyMostInterfaceParentRelationships(mostInterfaceId);
+
         final Query query = new Query("DELETE FROM interfaces WHERE id = ?")
             .setParameter(mostInterfaceId)
         ;

@@ -243,12 +243,13 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _deleteFunctionBlockFromDatabase(final long functionBlockId) throws DatabaseException {
+        _nullifyFunctionBlockParentRelationships(functionBlockId);
+
         final Query query = new Query("DELETE FROM function_blocks WHERE id = ?")
             .setParameter(functionBlockId)
         ;
 
         _databaseConnection.executeSql(query);
-        _nullifyFunctionBlockParentRelationships(functionBlockId);
     }
 
     /**
