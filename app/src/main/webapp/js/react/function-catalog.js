@@ -111,7 +111,7 @@ class FunctionCatalog extends React.Component {
         for (let i in versionsJson) {
             let versionJson = versionsJson[i];
             // Only display versions marked as deleted if the app isn't hiding them.
-            if (! versionJson.isDeleted || showDeletedVersions) {
+            if ((! versionJson.isDeleted) || showDeletedVersions) {
                 let optionName = versionsJson[i].releaseVersion;
                 if (! versionJson.isReleased) {
                     optionName += "-" + versionsJson[i].id;

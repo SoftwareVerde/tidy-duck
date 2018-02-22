@@ -100,48 +100,48 @@ class App extends React.Component {
         };
 
         this.state = {
-            account:                    null,
-            accountsForEditForm:       [],
-            companies:                  [],
-            navigationItems:            [],
-            parentHistory:              [],
-            searchResults:              [],
-            lastSearchResultTimestamp:  0,
-            functionCatalogs:           [],
-            functionBlocks:             [],
-            mostInterfaces:             [],
-            mostFunctions:              [],
-            mostTypes:                  [],
-            primitiveTypes:             [],
-            mostUnits:                  [],
-            mostFunctionStereotypes:    [],
-            reviews:                    [],
-            currentReview:              null,
-            activeRole:                 null,
-            activeSubRole:              null,
-            selectedItem:               null,
-            parentItem:                 null,
-            proposedItem:               null,
-            currentNavigationLevel:     this.NavigationLevel.versions,
-            shouldShowToolbar:          true,
-            shouldShowCreateChildForm:  false,
-            createButtonState:          this.CreateButtonState.normal,
-            selectedFunctionStereotype: null,
-            shouldShowSearchChildForm:  false,
-            shouldShowDeletedChildItems:true,
-            shouldShowLoadingIcon:      false,
-            loadingTimeout:             null,
-            isLoadingChildren:          true,
-            isLoadingSearchResults:     false,
-            isLoadingMostTypes:         true,
-            isLoadingPrimitiveTypes:    true,
-            isLoadingUnits:             true,
-            isLoadingReviews:           true,
-            filterString:               null,
-            reviewCommentString:        null,
-            shouldShowFilteredResults:  false,
-            shouldShowEditForm:         false,
-            releasingFunctionCatalog:   null,
+            account:                        null,
+            accountsForEditForm:            [],
+            companies:                      [],
+            navigationItems:                [],
+            parentHistory:                  [],
+            searchResults:                  [],
+            lastSearchResultTimestamp:      0,
+            functionCatalogs:               [],
+            functionBlocks:                 [],
+            mostInterfaces:                 [],
+            mostFunctions:                  [],
+            mostTypes:                      [],
+            primitiveTypes:                 [],
+            mostUnits:                      [],
+            mostFunctionStereotypes:        [],
+            reviews:                        [],
+            currentReview:                  null,
+            activeRole:                     null,
+            activeSubRole:                  null,
+            selectedItem:                   null,
+            parentItem:                     null,
+            proposedItem:                   null,
+            currentNavigationLevel:         this.NavigationLevel.versions,
+            shouldShowToolbar:              true,
+            shouldShowCreateChildForm:      false,
+            createButtonState:              this.CreateButtonState.normal,
+            selectedFunctionStereotype:     null,
+            shouldShowSearchChildForm:      false,
+            shouldShowDeletedChildItems:    false,
+            shouldShowLoadingIcon:          false,
+            loadingTimeout:                 null,
+            isLoadingChildren:              true,
+            isLoadingSearchResults:         false,
+            isLoadingMostTypes:             true,
+            isLoadingPrimitiveTypes:        true,
+            isLoadingUnits:                 true,
+            isLoadingReviews:               true,
+            filterString:                   null,
+            reviewCommentString:            null,
+            shouldShowFilteredResults:      false,
+            shouldShowEditForm:             false,
+            releasingFunctionCatalog:       null,
             alert: {
                 shouldShow:     false,
                 title:          "",
@@ -227,6 +227,7 @@ class App extends React.Component {
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
         this.handleRoleClick = this.handleRoleClick.bind(this);
         this.getLoadingIconTimeoutStateChange = this.getLoadingIconTimeoutStateChange.bind(this);
+        this.handleTrashButtonClick = this.handleTrashButtonClick.bind(this);
         this.onThemeChange = this.onThemeChange.bind(this);
         this.onDefaultModeChanged = this.onDefaultModeChanged.bind(this);
         this.setTheme = this.setTheme.bind(this);
@@ -1043,11 +1044,12 @@ class App extends React.Component {
             if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.versions) {
                 // didn't navigate away while downloading children
                 thisApp.setState({
-                    functionCatalogs:       functionCatalogs,
-                    functionBlocks:         [],
-                    mostInterfaces:         [],
-                    mostFunctions:          [],
-                    isLoadingChildren:      false
+                    functionCatalogs:               functionCatalogs,
+                    functionBlocks:                 [],
+                    mostInterfaces:                 [],
+                    mostFunctions:                  [],
+                    isLoadingChildren:              false,
+                    shouldShowDeletedChildItems:    false
                 });
             }
         });
@@ -2134,14 +2136,10 @@ class App extends React.Component {
             // Set default version to be displayed, in case no versions have been released.
             let displayedVersionId = versions[0].id;
             let displayedVersionJson = versions[0];
-            // Need to check if at least one version is NOT deleted for showing/hiding deleted child items.
-            let childContainsOnlyDeletedVersions = true;
 
             // Get highest version object that is released, using IDs.
             for (let j in versions) {
                 const childItemJson = versions[j];
-                childContainsOnlyDeletedVersions = childItemJson.isDeleted ? childContainsOnlyDeletedVersions : false;
-
                 if (childItemJson.isReleased) {
                     if (childItemJson.id > displayedVersionId) {
                         displayedVersionId = childItemJson.id;
@@ -2151,12 +2149,6 @@ class App extends React.Component {
             }
             const childItem = fromJsonFunction(displayedVersionJson);
             childItem.setVersionsJson(versions);
-
-            // Do not push this child item if all of its versions are deleted and the app is hiding deleted objects.
-            if (childContainsOnlyDeletedVersions && ! this.state.shouldShowDeletedChildItems) {
-                continue;
-            }
-
             childItems.push(childItem);
         }
 
@@ -2804,6 +2796,17 @@ class App extends React.Component {
         });
     }
 
+    handleTrashButtonClick() {
+        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        this.setState({
+            shouldShowDeletedChildItems: !shouldShowDeletedChildItems,
+            currentNavigationLevel: currentNavigationLevel
+        });
+
+    }
+
     onThemeChange(themeName) {
         this.setTheme(themeName);
 
@@ -2851,7 +2854,7 @@ class App extends React.Component {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
-        const showDeletedVersions = this.state.shouldShowDeletedChildItems;
+        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -2879,7 +2882,7 @@ class App extends React.Component {
                         onVersionChanged={this.onChildItemVersionChanged}
                         onExportFunctionCatalog={exportFunctionCatalogToMost}
                         onMarkAsDeleted={this.onMarkFunctionCatalogAsDeleted}
-                        showDeletedVersions={showDeletedVersions}
+                        showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
                 }
@@ -2958,6 +2961,7 @@ class App extends React.Component {
         const shouldShowCreateChildForm = this.state.shouldShowCreateChildForm;
         const shouldShowSearchChildForm = this.state.shouldShowSearchChildForm;
         const shouldShowEditForm = this.state.shouldShowEditForm;
+        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
         const isReview = this.state.currentReview != null;
         const selectedItem = this.state.selectedItem;
         const account = this.state.account;
@@ -2981,7 +2985,7 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
-            let shouldShowTrashButton = (activeRole === this.roles.release) || (activeRole === this.roles.development) || selectedItem;
+            let shouldShowTrashButton = false;
             let shouldShowNavigationItems = false;
             let backFunction = null;
             let forkFunction = null;
@@ -2991,6 +2995,7 @@ class App extends React.Component {
                 const isReleased = selectedItem.isReleased();
                 isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
+                shouldShowTrashButton = true;
 
                 if (! isReleased && ! isApproved) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
@@ -3086,7 +3091,8 @@ class App extends React.Component {
                     onSubmitForReviewClicked={() => this.onReviewSubmitted(selectedItem)}
                     onForkClicked={() => forkFunction(selectedItem, true)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
-                    onTrashButtonClicked={() => this.setState({shouldShowDeletedChildItems: ! this.state.shouldShowDeletedChildItems})}
+                    onTrashButtonClicked={this.handleTrashButtonClick}
+                    shouldShowDeletedChildItems={shouldShowDeletedChildItems}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
                     navigationItems={navigationItems}
