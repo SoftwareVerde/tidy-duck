@@ -99,14 +99,21 @@ public class DatabaseManager {
         });
     }
 
-    public void markFunctionCatalogAsDeleted(final long functionCatalogId) throws DatabaseException {
+    public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
-                functionCatalogDatabaseManager.markFunctionCatalogAsDeleted(functionCatalogId);
+                functionCatalogDatabaseManager.setIsDeletedForFunctionCatalog(functionCatalogId, isDeleted);
             }
         });
+    }
+
+    public Long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.restoreFunctionCatalogFromTrash(functionCatalogId);
+        }
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
@@ -208,12 +215,12 @@ public class DatabaseManager {
         });
     }
 
-    public void updateFunctionBlock(final long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    public void updateFunctionBlock(final Long currentAccountId, final long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(functionCatalogId, functionBlock, accountId);
+                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(currentAccountId, functionCatalogId, functionBlock, accountId);
             }
         });
     }
@@ -223,9 +230,16 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.markFunctionBlockAsDeleted(functionBlockId);
+                functionBlockDatabaseManager.setIsDeletedForFunctionBlock(functionBlockId, true);
             }
         });
+    }
+
+    public long restoreFunctionBlockFromTrash(final long functionblockId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+            return functionBlockDatabaseManager.restoreFunctionBlockFromTrash(functionblockId);
+        }
     }
 
     public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
@@ -308,12 +322,12 @@ public class DatabaseManager {
         });
     }
 
-    public void updateMostInterface(final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+    public void updateMostInterface(final Long currentAccountID, final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(functionBlockId, mostInterface);
+                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(currentAccountID, functionBlockId, mostInterface);
             }
         });
     }
@@ -323,9 +337,16 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.markMostInterfaceAsDeleted(mostInterfaceId);
+                mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterfaceId, true);
             }
         });
+    }
+
+    public void restoreMostInterfaceFromTrash(final long mostInterfaceId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+            mostInterfaceDatabaseManager.restoreMostInterfaceFromTrash(mostInterfaceId);
+        }
     }
 
     public void deleteMostInterface(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
@@ -403,9 +424,16 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
-                mostFunctionDatabaseManager.markMostFunctionAsDeleted(mostFunctionId);
+                mostFunctionDatabaseManager.setIsDeletedForMostFunction(mostFunctionId, true);
             }
         });
+    }
+
+    public void restoreMostFunctionFromTrash(final long mostFunctionId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
+            mostFunctionDatabaseManager.restoreMostFunctionFromTrash(mostFunctionId);
+        }
     }
 
     public void deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {

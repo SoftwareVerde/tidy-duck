@@ -48,6 +48,31 @@ function getFunctionCatalogs(callbackFunction) {
     });
 }
 
+// calls callbackFunction with an array of function catalogs in trash
+function getFunctionCatalogsMarkedAsDeleted(callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "trashed-function-catalogs",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let functionCatalogs = null;
+
+        if (data.wasSuccess) {
+            functionCatalogs = data.functionCatalogs;
+        } else {
+            console.error("Unable to get function catalogs marked as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogs);
+        }
+    });
+}
+
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(functionCatalog, callbackFunction) {
     const request = new Request(
@@ -126,6 +151,52 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function markFunctionCatalogAsDeleted(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/mark-as-deleted",
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to mark function catalog " + functionCatalogId + " as deleted: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function restoreFunctionCatalogFromTrash(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/restore-from-trash",
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to restore function catalog " + functionCatalogId + " from trash: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, errorMessage);
         }
     });
 }

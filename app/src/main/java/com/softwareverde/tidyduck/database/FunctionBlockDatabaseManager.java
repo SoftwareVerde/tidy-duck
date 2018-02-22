@@ -166,16 +166,15 @@ public class FunctionBlockDatabaseManager {
 
     }
 
-    public void markFunctionBlockAsDeleted(final long functionBlockId) throws DatabaseException {
+    public void setIsDeletedForFunctionBlock(final long functionBlockId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE function_blocks SET is_deleted = ? WHERE id = ?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(functionBlockId)
                 ;
 
         _databaseConnection.executeSql(query);
 
-        _nullifyFunctionBlockParentRelationships(functionBlockId);
-        _markFunctionBlockChildAssociationsAsDeleted(functionBlockId);
+        _setIsDeletedForFunctionBlockChildAssociations(functionBlockId, isDeleted);
     }
 
     private void _nullifyFunctionBlockParentRelationships(final long functionBlockId) throws DatabaseException {
@@ -187,13 +186,38 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _markFunctionBlockChildAssociationsAsDeleted(final long functionBlockId) throws DatabaseException {
+    private void _setIsDeletedForFunctionBlockChildAssociations(final long functionBlockId, final boolean isDeleted) throws DatabaseException {
         final Query query = new Query("UPDATE function_blocks_interfaces SET is_deleted = ? WHERE function_block_id = ?")
-                .setParameter(true)
+                .setParameter(isDeleted)
                 .setParameter(functionBlockId)
                 ;
 
         _databaseConnection.executeSql(query);
+    }
+
+    public long restoreFunctionBlockFromTrash(final long functionBlockId) throws DatabaseException {
+        setIsDeletedForFunctionBlock(functionBlockId, false);
+        final long numberOfDeletedChildren = _getNumberOfDeletedChildren();
+
+        if (numberOfDeletedChildren > 0) {
+            _clearDeletedChildAssociations();
+        }
+
+        return numberOfDeletedChildren;
+    }
+
+    private long _getNumberOfDeletedChildren() throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS deletions FROM function_blocks_interfaces WHERE interface_id IS NULL");
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final Row row = rows.get(0);
+        return row.getLong("deletions");
+    }
+
+    private void _clearDeletedChildAssociations() throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_blocks_interfaces WHERE interface_id IS NULL");
+        _databaseConnection.executeSql(query);
+
     }
 
     private void _deleteFunctionBlockIfUnapproved(final long functionBlockId) throws DatabaseException {
@@ -219,6 +243,8 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _deleteFunctionBlockFromDatabase(final long functionBlockId) throws DatabaseException {
+        _nullifyFunctionBlockParentRelationships(functionBlockId);
+
         final Query query = new Query("DELETE FROM function_blocks WHERE id = ?")
             .setParameter(functionBlockId)
         ;
@@ -253,7 +279,7 @@ public class FunctionBlockDatabaseManager {
      *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
      *  If the functionBlock is not approved, then the values are updated within the database.
      */
-    public void updateFunctionBlockForFunctionCatalog(final long functionCatalogId, final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
+    public void updateFunctionBlockForFunctionCatalog(final Long currentAccountId, final long functionCatalogId, final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
 
         final long inputFunctionBlockId = updatedFunctionBlock.getId();
@@ -261,6 +287,7 @@ public class FunctionBlockDatabaseManager {
 
         if (originalFunctionBlock.isApproved()) {
             // current block is approved, need to insert a new function block replace this one
+            updatedFunctionBlock.setCreatorAccountId(currentAccountId);
             _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
             final long newFunctionBlockId = updatedFunctionBlock.getId();
             _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);
