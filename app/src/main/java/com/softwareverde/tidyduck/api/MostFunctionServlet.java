@@ -9,7 +9,6 @@ import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostFunctionInflater;
-import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.util.Util;
@@ -170,8 +169,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to insert Function: current account does not own its parent Interface " + mostInterfaceId;
+            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to add the function to the interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -213,8 +213,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to update Function: current account does not own its parent Interface " + mostInterfaceId;
+            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to update function: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -286,8 +287,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to move function to trash: current account does not own its parent Interface: " + mostFunctionId;
+            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to move function to trash: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -318,8 +320,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to restore function from trash: current account does not own its parent Interface: " + mostFunctionId;
+            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to restore function from trash: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -327,7 +330,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.restoreMostFunctionFromTrash(mostFunctionId);
 
-            _logger.info("User " + currentAccount.getId() + " restored Function " + mostFunctionId);
+            _logger.info("User " + currentAccount.getId() + " restored function " + mostFunctionId);
 
             final Json response = new Json(false);
             super._setJsonSuccessFields(response);
@@ -351,8 +354,9 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         try {
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            if (! _canCurrentAccountModifyParentMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to delete Function: current account does not own its parent Interface " + mostInterfaceId;
+            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to delete function: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -625,16 +629,5 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("operations", operationsJson);
 
         return mostFunctionJson;
-    }
-
-    private boolean _canCurrentAccountModifyParentMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
-        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
-        final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
-
-        if (mostInterface.getCreatorAccountId() != null) {
-            return mostInterface.getCreatorAccountId().equals(currentAccountId);
-        }
-
-        return true;
     }
 }

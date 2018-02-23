@@ -8,10 +8,8 @@ import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
-import com.softwareverde.tidyduck.database.FunctionBlockInflater;
 import com.softwareverde.tidyduck.database.MostInterfaceInflater;
 import com.softwareverde.tidyduck.environment.Environment;
-import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
@@ -237,8 +235,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 }
 
                 final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-                if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                    final String errorMessage = "Unable to insert interface: current account does not own Function Block " + functionBlockId;
+                String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+                if (errorMessage != null) {
+                    errorMessage = "Unable to insert interface: " + errorMessage;
                     _logger.error(errorMessage);
                     return super._generateErrorJson(errorMessage);
                 }
@@ -269,8 +268,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Long currentAccountId = currentAccount.getId();
 
-            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId)) {
-                final String errorMessage = "Unable to update interface: current account does not own Interface " + mostInterfaceId;
+            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
+            if (errorMessage != null) {
+                errorMessage = "Unable to update interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -288,10 +288,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
                 }
 
-                if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccountId)) {
-                    final String errorMessage = "Unable to update interface within function block: current account does not own the parent Function Block " + functionBlockId;
-                    _logger.error(errorMessage);
-                    return super._generateErrorJson(errorMessage);
+                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
+                if (parentErrorMessage != null) {
+                    parentErrorMessage = "Unable to update interface within function block: " + parentErrorMessage;
+                    _logger.error(parentErrorMessage);
+                    return super._generateErrorJson(parentErrorMessage);
                 }
 
                 databaseManager.updateMostInterface(currentAccountId, functionBlockId, mostInterface);
@@ -374,8 +375,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                final String errorMessage = "Unable to associate interface with function block: current account does not own the parent Function Block " + functionBlockId;
+            String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to associate interface with function block: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -406,8 +408,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _markMostInterfaceAsDeleted(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to move interface to trash: current account does not own Interface " + mostInterfaceId;
+            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to move interface to trash: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -430,8 +433,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreMostInterfaceFromTrash(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to restore interface from trash: current account does not own Interface " + mostInterfaceId;
+            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to restore interface from trash: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -459,8 +463,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
 
-            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId)) {
-                final String errorMessage = "Unable to delete interface: current account does not own Interface " + mostInterfaceId;
+            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
+            if (errorMessage != null) {
+                errorMessage = "Unable to remove interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -476,10 +481,11 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
                 }
 
-                if (! _canCurrentAccountModifyParentFunctionBlock(databaseConnection, functionBlockId, currentAccountId)) {
-                    final String errorMessage = "Unable to delete interface: current account does not own its parent Function Block " + functionBlockId;
-                    _logger.error(errorMessage);
-                    return super._generateErrorJson(errorMessage);
+                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
+                if (parentErrorMessage != null) {
+                    parentErrorMessage = "Unable to remove interface from parent function block: " + parentErrorMessage;
+                    _logger.error(parentErrorMessage);
+                    return super._generateErrorJson(parentErrorMessage);
                 }
 
                 databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
@@ -634,8 +640,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _submitMostInterfaceForReview(final Long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId())) {
-                final String errorMessage = "Unable to submit interface for review: current account does not own Interface " + mostInterfaceId;
+            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to submit interface for review: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -722,25 +729,24 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return mostInterfaceJson;
     }
 
-    private boolean _canCurrentAccountModifyMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
+    public static String canAccountModifyMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
         final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
         final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
         if (originalMostInterface.getCreatorAccountId() != null) {
-            return originalMostInterface.getCreatorAccountId().equals(currentAccountId);
+            if (!originalMostInterface.getCreatorAccountId().equals(currentAccountId)) {
+                return "The interface is owned by another account and cannot be modified.";
+            }
         }
 
-        return true;
-    }
-
-    private boolean _canCurrentAccountModifyParentFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
-        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
-        final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
-
-        if (functionBlock.getCreatorAccountId() != null) {
-            return functionBlock.getCreatorAccountId().equals(currentAccountId);
+        if (!originalMostInterface.isReleased()) {
+            return "Released interfaces cannot be modified.";
+        }
+        if (!originalMostInterface.isApproved()) {
+            return "Approved interfaces cannot be modified.";
         }
 
-        return true;
+        // good to go
+        return null;
     }
 }

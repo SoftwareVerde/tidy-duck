@@ -138,10 +138,9 @@ public class MostInterfaceDatabaseManager {
     }
 
     private void _nullifyMostInterfaceParentRelationships(final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks_interfaces SET interface_id = ? WHERE interface_id = ?")
-                .setParameter(null)
-                .setParameter(mostInterfaceId)
-                ;
+        final Query query = new Query("UPDATE function_blocks_interfaces SET interface_id = NULL WHERE interface_id = ?")
+            .setParameter(mostInterfaceId)
+        ;
 
         _databaseConnection.executeSql(query);
     }

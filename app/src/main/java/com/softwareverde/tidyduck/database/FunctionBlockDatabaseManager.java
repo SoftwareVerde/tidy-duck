@@ -178,9 +178,8 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _nullifyFunctionBlockParentRelationships(final long functionBlockId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs_function_blocks SET function_block_id = ? WHERE function_block_id = ?")
-                .setParameter(null)
-                .setParameter(functionBlockId)
+        final Query query = new Query("UPDATE function_catalogs_function_blocks SET function_block_id = NULL WHERE function_block_id = ?")
+            .setParameter(functionBlockId)
         ;
 
         _databaseConnection.executeSql(query);

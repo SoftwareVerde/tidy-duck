@@ -266,7 +266,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Long currentAccountId = currentAccount.getId();
 
-            final String errorMessage = _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -291,7 +291,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _markFunctionCatalogAsDeleted(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -315,7 +315,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreFunctionCatalogFromTrash(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -343,7 +343,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _deleteFunctionCatalog(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -364,7 +364,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -633,7 +633,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return releaseItem;
     }
 
-    private String _canCurrentAccountModifyFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
+    public static String canAccountModifyFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
