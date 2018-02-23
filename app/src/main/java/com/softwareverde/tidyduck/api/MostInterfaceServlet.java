@@ -739,10 +739,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         }
 
-        if (!originalMostInterface.isReleased()) {
+        if (originalMostInterface.isReleased()) {
             return "Released interfaces cannot be modified.";
         }
-        if (!originalMostInterface.isApproved()) {
+        if (originalMostInterface.isApproved()) {
             return "Approved interfaces cannot be modified.";
         }
 

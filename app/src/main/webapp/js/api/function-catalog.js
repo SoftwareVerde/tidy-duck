@@ -101,7 +101,6 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
     });
 }
 
-//calls callbackFunction with modified function catalog ID
 function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
@@ -117,17 +116,40 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease
 
     tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        let functionCatalogId = null;
 
-        if (wasSuccess) {
-            functionCatalogId = data.functionCatalogId;
-        }
-        else {
+        if (!wasSuccess) {
             console.error("Unable to modify function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(data, functionCatalogId);
+            callbackFunction(data);
+        }
+    });
+}
+
+// calls callbackFunction with new function catalog ID
+function forkFunctionCatalog(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/fork",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        let newFunctionCatalogId = null;
+
+        if (wasSuccess) {
+            newFunctionCatalogId = data.functionCatalogId;
+        }
+        else {
+            console.error("Unable to fork function catalog " + functionCatalogId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, newFunctionCatalogId);
         }
     });
 }

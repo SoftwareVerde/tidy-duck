@@ -775,10 +775,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         }
 
-        if (!originalFunctionBlock.isReleased()) {
+        if (originalFunctionBlock.isReleased()) {
             return "Released function blocks cannot be modified.";
         }
-        if (!originalFunctionBlock.isApproved()) {
+        if (originalFunctionBlock.isApproved()) {
             return "Approved function blocks cannot be modified.";
         }
 

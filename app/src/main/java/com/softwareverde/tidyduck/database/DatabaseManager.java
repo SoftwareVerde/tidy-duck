@@ -99,6 +99,13 @@ public class DatabaseManager {
         });
     }
 
+    public long forkFunctionCatalog(final long functionCatalogId, final Long accountId) throws DatabaseException {
+        try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
+            final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+            return functionCatalogDatabaseManager.forkFunctionCatalog(functionCatalogId, accountId);
+        }
+    }
+
     public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
@@ -109,7 +116,7 @@ public class DatabaseManager {
         });
     }
 
-    public Long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
+    public long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
         try (DatabaseConnection<Connection> databaseConnection = _database.newConnection()) {
             final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
             return functionCatalogDatabaseManager.restoreFunctionCatalogFromTrash(functionCatalogId);

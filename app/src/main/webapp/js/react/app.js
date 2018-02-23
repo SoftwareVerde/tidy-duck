@@ -173,6 +173,7 @@ class App extends React.Component {
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
+        this.onForkFunctionCatalog = this.onForkFunctionCatalog.bind(this);
         this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
         this.onReleaseFunctionCatalog = this.onReleaseFunctionCatalog.bind(this);
         this.onFunctionCatalogReleased = this.onFunctionCatalogReleased.bind(this);
@@ -509,10 +510,10 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data, newFunctionCatalogId) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Function Catalog", data.errorMessage, function() {
-                    //Update form to show changes were not saved.
+                    // Update form to show changes were not saved.
                     let navigationItems = thisApp.state.navigationItems;
                     let navigationItem = navigationItems.pop();
                     navigationItem.setForm(
@@ -537,25 +538,11 @@ class App extends React.Component {
                 });
             }
             else {
-                let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
-                    return value.getId() != functionCatalogId;
-                });
-
-                // If returned ID is different, a new unreleased version was created.
-                if (newFunctionCatalogId != functionCatalogId) {
-                    functionCatalog.setIsReleased(false);
-                    functionCatalog.setCreatorAccountId(thisApp.state.account.getId());
-                }
-                functionCatalog.setIsApproved(false);
-
-                functionCatalog.setId(newFunctionCatalogId);
-                functionCatalogs.push(functionCatalog);
-
                 //Update final navigation item to reflect any name changes.
                 let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 let navigationItem = navigationItems.pop();
-                navigationItem.setId("functionCatalog" + newFunctionCatalogId);
+                navigationItem.setId("functionCatalog" + functionCatalogId);
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setIsReleased(functionCatalog.isReleased());
                 navigationItem.setIsApproved(functionCatalog.isApproved());
@@ -581,8 +568,66 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionCatalogs:       functionCatalogs,
                     selectedItem:           functionCatalog,
+                    navigationItems:        navigationItems,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                });
+            }
+        });
+    }
+
+    onForkFunctionCatalog(functionCatalog) {
+        const thisApp = this;
+
+        forkFunctionCatalog(functionCatalog.getId(), function(data, newFunctionCatalogId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to fork Function Catalog", data.errorMessage, function() {
+                    // nothing to do
+                });
+            }
+            else {
+                let functionCatalogs = thisApp.state.functionCatalogs;
+
+                let newFunctionCatalog = copyMostObject(FunctionCatalog, functionCatalog);
+                newFunctionCatalog.setId(newFunctionCatalogId);
+
+                // new catalog is not released or approved and was created by the current user
+                newFunctionCatalog.setIsReleased(false);
+                newFunctionCatalog.setIsApproved(false);
+                newFunctionCatalog.setCreatorAccountId(thisApp.state.account.getId());
+
+                functionCatalogs.push(newFunctionCatalog);
+
+                //Update final navigation item to reflect any changes.
+                let navigationItems = [];
+                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                let navigationItem = navigationItems.pop();
+                navigationItem.setId("functionCatalog" + newFunctionCatalogId);
+                navigationItem.setTitle(newFunctionCatalog.getName());
+                navigationItem.setIsReleased(newFunctionCatalog.isReleased());
+                navigationItem.setIsApproved(newFunctionCatalog.isApproved());
+                navigationItem.setHeader(thisApp.headers.functionCatalog);
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onFunctionCatalogSelected(newFunctionCatalog, true, false);
+                });
+                navigationItem.setForm(
+                    <app.FunctionCatalogForm
+                        showTitle={false}
+                        shouldShowSaveAnimation={false}
+                        onSubmit={thisApp.onUpdateFunctionCatalog}
+                        functionCatalog={newFunctionCatalog}
+                        buttonTitle="Save"
+                        defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
+                    />
+                );
+                navigationItems.push(navigationItem);
+
+                thisApp.setState({
+                    functionCatalogs:       functionCatalogs,
+                    selectedItem:           newFunctionCatalog,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
@@ -2989,7 +3034,7 @@ class App extends React.Component {
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased && isApproved;
                     shouldShowForkButton = isApproved;
-                    forkFunction = this.onUpdateFunctionCatalog;
+                    forkFunction = this.onForkFunctionCatalog;
                 }
 
                 if (activeRole === this.roles.development) {
