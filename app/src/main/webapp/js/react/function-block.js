@@ -94,7 +94,6 @@ class FunctionBlock extends React.Component {
         }
     }
 
-
     renderVersionOptions() {
         const versionOptions = [];
         const versionsJson = this.props.functionBlock.getVersionsJson();
@@ -104,9 +103,9 @@ class FunctionBlock extends React.Component {
             let versionJson = versionsJson[i];
             // Only display versions marked as deleted if the app isn't hiding them.
             if ((! versionJson.isDeleted) || showDeletedVersions) {
-                let optionName = versionsJson[i].releaseVersion;
+                let optionName = versionJson.releaseVersion;
                 if (! versionJson.isReleased) {
-                    optionName += "-" + versionsJson[i].id;
+                    optionName += "-" + versionJson.id;
                 }
                 versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
             }

@@ -1242,7 +1242,7 @@ class App extends React.Component {
                 if (versionJson.id == functionCatalogId) {
                     versionJson.isDeleted = true;
                     // TODO: set deletedDate. Need to get that from API.
-                    versionsJson.deletedDate = "Just now";
+                    versionJson.deletedDate = "Just now";
                     break;
                 }
             }
@@ -1517,10 +1517,10 @@ class App extends React.Component {
 
             for (let i in versionsJson) {
                 const versionJson = versionsJson[i];
-                if (versionJson.id == functionBlockId) {
+                if (versionJson.id === functionBlockId) {
                     versionJson.isDeleted = true;
                     // TODO: set deletedDate. Need to get that from API.
-                    versionsJson.deletedDate = "Just now";
+                    versionJson.deletedDate = "Just now";
                     break;
                 }
             }
@@ -1935,7 +1935,7 @@ class App extends React.Component {
                 if (versionJson.id == mostInterfaceId) {
                     versionJson.isDeleted = true;
                     // TODO: set deletedDate. Need to get that from API.
-                    versionsJson.deletedDate = "Just now";
+                    versionJson.deletedDate = "Just now";
                     break;
                 }
             }
@@ -3045,6 +3045,7 @@ class App extends React.Component {
                         isInterfaceApproved={this.state.selectedItem.isApproved()}
                         isInterfaceReleased={this.state.selectedItem.isReleased()}
                         onMarkAsDeleted={this.onMarkMostFunctionAsDeleted}
+                        showDeletedMostFunctions={shouldShowDeletedChildItems}
                         />
                     );
                 }

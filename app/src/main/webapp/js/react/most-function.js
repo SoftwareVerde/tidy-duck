@@ -66,7 +66,7 @@ class MostFunction extends React.Component {
     }
 
     render() {
-        if (this.props.mostFunction.isDeleted() && ! this.props.showDeletedVersions) {
+        if (this.props.mostFunction.isDeleted() && (! this.props.showDeletedMostFunctions)) {
             // If no version options are available to be displayed, return nothing.
             return(<div></div>);
         }

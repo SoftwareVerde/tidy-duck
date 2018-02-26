@@ -19,6 +19,10 @@ public class MostFunctionInflater {
         _databaseConnection = databaseConnection;
     }
 
+    public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+        return inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, true);
+    }
+
     public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId, final boolean includeDeleted) throws DatabaseException {
         final Query query = new Query(
             "SELECT function_id FROM interfaces_functions WHERE interface_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
@@ -75,6 +79,7 @@ public class MostFunctionInflater {
         final String category = row.getString("category");
         final boolean isDeleted = row.getBoolean("is_deleted");
         final String deletedDateString = row.getString("deleted_date");
+        
         Date deletedDate = null;
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
@@ -118,7 +123,8 @@ public class MostFunctionInflater {
         mostFunction.setName(name);
         mostFunction.setDescription(description);
         mostFunction.setRelease(releaseVersion);
-        mostFunction.isDeleted();
+        mostFunction.setIsDeleted(isDeleted);
+        mostFunction.setDeletedDate(deletedDate);
         mostFunction.setIsApproved(isApproved);
         mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
