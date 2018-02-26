@@ -704,7 +704,7 @@
 }
 
 .deleted-tidy-object:hover {
-    background-color: inherit !important;
+    background-color: #FFA0A0 !important;
 }
 
 .svg-icon {
