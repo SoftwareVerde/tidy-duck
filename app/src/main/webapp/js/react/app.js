@@ -3109,7 +3109,7 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
-            let shouldShowTrashButton = false;
+            let shouldShowToggleItemsInTrashButton = false;
             let shouldShowNavigationItems = false;
             let backFunction = null;
             let forkFunction = null;
@@ -3119,7 +3119,7 @@ class App extends React.Component {
                 const isReleased = selectedItem.isReleased();
                 isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
-                shouldShowTrashButton = currentNavigationLevel != NavigationLevel.mostFunctions;
+                shouldShowToggleItemsInTrashButton = currentNavigationLevel != NavigationLevel.mostFunctions;
 
                 if (! isReleased && ! isApproved) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
@@ -3215,7 +3215,7 @@ class App extends React.Component {
                     onSubmitForReviewClicked={() => this.onReviewSubmitted(selectedItem)}
                     onForkClicked={() => forkFunction(selectedItem, true)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
-                    onTrashButtonClicked={this.handleTrashButtonClick}
+                    onToggleItemsInTrashClicked={this.handleTrashButtonClick}
                     shouldShowDeletedChildItems={shouldShowDeletedChildItems}
                     navigationLevel={this.NavigationLevel}
                     currentNavigationLevel={this.state.currentNavigationLevel}
@@ -3230,7 +3230,7 @@ class App extends React.Component {
                     shouldShowViewInfoButton={(isApproved || ! canModify)}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
-                    shouldShowTrashButton={shouldShowTrashButton}
+                    shouldShowToggleItemsInTrashButton={shouldShowToggleItemsInTrashButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
                     canModify={canModify}

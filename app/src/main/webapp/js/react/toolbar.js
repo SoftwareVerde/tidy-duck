@@ -22,7 +22,7 @@ class Toolbar extends React.Component {
         this.renderForkButton = this.renderForkButton.bind(this);
         this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
-        this.renderTrashButton = this.renderTrashButton.bind(this);
+        this.renderShowItemsInTrashButton = this.renderShowItemsInTrashButton.bind(this);
         this.renderMetadataButton = this.renderMetadataButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
@@ -181,12 +181,12 @@ class Toolbar extends React.Component {
         }
     }
 
-    renderTrashButton() {
-        if (this.props.shouldShowTrashButton) {
+    renderShowItemsInTrashButton() {
+        if (this.props.shouldShowToggleItemsInTrashButton) {
             const buttonTitle = "Show or Hide Items in Trash";
-            const trashIcon = this.props.shouldShowDeletedChildItems ? <i className="fa fa-4 fa-trash" /> : <i className="fa fa-4 fa-trash-o" />;
+            const trashIcon = this.props.shouldShowDeletedChildItems ? <i className="fa fa-4 fa-eye" /> : <i className="fa fa-4 fa-eye-slash" />;
             return (
-                <div className="toolbar-item trash" onClick={this.props.onTrashButtonClicked} >
+                <div className="toolbar-item trash" onClick={this.props.onToggleItemsInTrashClicked} >
                     {trashIcon}
                     <div className="tooltip">{buttonTitle}</div>
                 </div>
@@ -331,7 +331,7 @@ class Toolbar extends React.Component {
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}
                     {this.renderAddFunctionButtons()}
-                    {this.renderTrashButton()}
+                    {this.renderShowItemsInTrashButton()}
                 </div>
             );
         }
@@ -341,7 +341,7 @@ class Toolbar extends React.Component {
                 {this.renderSubmitForReviewButton()}
                 {this.renderReleaseButton()}
                 {this.renderMetadataButton()}
-                {this.renderTrashButton()}
+                {this.renderShowItemsInTrashButton()}
             </div>
         );
     }
