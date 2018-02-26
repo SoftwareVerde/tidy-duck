@@ -12,6 +12,7 @@ class MostInterface extends React.Component {
         this.onClick = this.onClick.bind(this);
         this.deleteMostInterface = this.deleteMostInterface.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
+        this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -89,6 +90,20 @@ class MostInterface extends React.Component {
         });
     }
 
+    onRestoreFromTrashClicked(event) {
+        event.stopPropagation();
+        this.setState({
+            showWorkingIcon: true
+        });
+
+        const thisMostInterface = this;
+        this.props.onRestoreFromTrash(this.props.mostInterface, function() {
+            thisMostInterface.setState({
+                showWorkingIcon: false
+            });
+        });
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.mostInterface, false);
@@ -141,6 +156,7 @@ class MostInterface extends React.Component {
         const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book icon" title="This Interface has been released." /> : "");
         const approvedIcon = (this.props.mostInterface.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Interface has been approved." /> : "");
         const trashIcon =isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -153,6 +169,7 @@ class MostInterface extends React.Component {
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Remove"/>
                     {trashIcon}
+                    {restoreIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">

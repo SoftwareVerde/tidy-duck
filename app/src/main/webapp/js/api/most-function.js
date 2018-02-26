@@ -191,12 +191,15 @@ function markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, callbackFunc
     });
 }
 
-function restoreMostFunctionFromTrash(mostFunctionId, callbackFunction) {
+function restoreMostFunctionFromTrash(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/restore-from-trash",
         {
             method: "POST",
-            credentials: "include"
+            credentials: "include",
+            body: JSON.stringify({
+                "mostInterfaceId": mostInterfaceId,
+            })
         }
     );
 

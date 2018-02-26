@@ -9,7 +9,7 @@ class TrashPage extends React.Component {
             isLoadingDeletedFunctionCatalogs: true,
             isLoadingDeletedFunctionBlocks: true,
             isLoadingDeletedMostInterfaces: true
-        }
+        };
 
         let thisPage = this;
         getFunctionCatalogsMarkedAsDeleted(function (functionCatalogs) {
@@ -58,6 +58,8 @@ class TrashPage extends React.Component {
         this.getFlattenedObjectList = this.getFlattenedObjectList.bind(this);
         this.onItemSelected = this.onItemSelected.bind(this);
         this.onRestoreFunctionCatalogFromTrash = this.onRestoreFunctionCatalogFromTrash.bind(this);
+        this.onRestoreFunctionBlockFromTrash = this.onRestoreFunctionBlockFromTrash.bind(this);
+        this.onRestoreMostInterfaceFromTrash = this.onRestoreMostInterfaceFromTrash.bind(this);
         this.renderItems = this.renderItems.bind(this);
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.renderFunctionBlocks = this.renderFunctionBlocks.bind(this);
@@ -100,6 +102,34 @@ class TrashPage extends React.Component {
         });
     }
 
+    onRestoreFunctionBlockFromTrash(functionBlock) {
+        const thisPage = this;
+        this.props.onRestoreFunctionBlock(functionBlock, function() {
+            const functionBlockId = functionBlock.getId();
+            const deletedFunctionBlocks = thisPage.state.deletedFunctionBlocks.filter(function(item) {
+                return item.getId() != functionBlockId;
+            });
+
+            thisPage.setState({
+                deletedFunctionBlocks: deletedFunctionBlocks
+            });
+        });
+    }
+
+    onRestoreMostInterfaceFromTrash(mostInterface) {
+        const thisPage = this;
+        this.props.onRestoreMostInterface(mostInterface, function() {
+            const mostInterfaceId = mostInterface.getId();
+            const deletedMostInterfaces = thisPage.state.deletedMostInterfaces.filter(function(item) {
+                return item.getId() != mostInterfaceId;
+            });
+
+            thisPage.setState({
+                deletedMostInterfaces: deletedMostInterfaces
+            });
+        });
+    }
+
     renderItems(isLoading, items, renderItemFunction) {
         if (isLoading) {
             return <i className="fa fa-2x fa-spin fa-refresh"/>
@@ -127,14 +157,14 @@ class TrashPage extends React.Component {
     renderFunctionBlocks() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionBlocks, this.state.deletedFunctionBlocks, function(index, item) {
-            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true}/>
+            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionBlockFromTrash(item)}/>
         });
     }
 
     renderMostInterfaces() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedMostInterfaces, this.state.deletedMostInterfaces, function(index, item) {
-            return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true}/>
+            return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreMostInterfaceFromTrash(item)}/>
         });
     }
 

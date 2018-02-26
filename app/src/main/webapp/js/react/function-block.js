@@ -12,6 +12,7 @@ class FunctionBlock extends React.Component {
         this.onClick = this.onClick.bind(this);
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
+        this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -88,6 +89,20 @@ class FunctionBlock extends React.Component {
         });
     }
 
+    onRestoreFromTrashClicked(event) {
+        event.stopPropagation();
+        this.setState({
+            showWorkingIcon: true
+        });
+
+        const thisFunctionBlock = this;
+        this.props.onRestoreFromTrash(this.props.functionBlock, function() {
+            thisFunctionBlock.setState({
+                showWorkingIcon: false
+            });
+        });
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.functionBlock, false);
@@ -140,6 +155,7 @@ class FunctionBlock extends React.Component {
         const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Block has been released." /> : "");
         const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Block has been approved." /> : "");
         const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -152,6 +168,7 @@ class FunctionBlock extends React.Component {
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
                     {trashIcon}
+                    {restoreIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">

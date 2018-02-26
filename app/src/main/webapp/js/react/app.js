@@ -189,6 +189,7 @@ class App extends React.Component {
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
         this.onMarkFunctionBlockAsDeleted = this.onMarkFunctionBlockAsDeleted.bind(this);
+        this.onRestoreFunctionBlockFromTrash = this.onRestoreFunctionBlockFromTrash.bind(this);
         this.disassociateFunctionBlockFromFunctionCatalog = this.disassociateFunctionBlockFromFunctionCatalog.bind(this);
         this.disassociateFunctionBlockFromAllFunctionCatalogs = this.disassociateFunctionBlockFromAllFunctionCatalogs.bind(this);
         this.deleteFunctionBlockFromDatabase = this.deleteFunctionBlockFromDatabase.bind(this);
@@ -202,6 +203,7 @@ class App extends React.Component {
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
         this.onMarkMostInterfaceAsDeleted = this.onMarkMostInterfaceAsDeleted.bind(this);
+        this.onRestoreMostInterfaceFromTrash = this.onRestoreMostInterfaceFromTrash.bind(this);
         this.disassociateMostInterfaceFromFunctionBlock = this.disassociateMostInterfaceFromFunctionBlock.bind(this);
         this.disassociateMostInterfaceFromAllFunctionBlocks = this.disassociateMostInterfaceFromAllFunctionBlocks.bind(this);
         this.deleteMostInterfaceFromDatabase = this.deleteMostInterfaceFromDatabase.bind(this);
@@ -212,6 +214,7 @@ class App extends React.Component {
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
         this.onMarkMostFunctionAsDeleted = this.onMarkMostFunctionAsDeleted.bind(this);
+        this.onRestoreMostFunctionFromTrash = this.onRestoreMostFunctionFromTrash.bind(this);
 
         this.updateNavigationItems = this.updateNavigationItems.bind(this);
         this.updateParentHistory = this.updateParentHistory.bind(this);
@@ -1258,7 +1261,7 @@ class App extends React.Component {
         const functionCatalogId = functionCatalog.getId();
         restoreFunctionCatalogFromTrash(functionCatalogId, function(data) {
             if (! data.wasSuccess) {
-                app.App.alert("Restore Function Catalog to Trash Bin", "Request to restore Function Catalog from trash bin failed: " + data.errorMessage, callbackFunction);
+                app.App.alert("Restore Function Catalog from Trash Bin", "Request to restore Function Catalog from trash bin failed: " + data.errorMessage, callbackFunction);
                 return;
             }
 
@@ -1269,8 +1272,6 @@ class App extends React.Component {
                 const versionJson = versionsJson[i];
                 if (versionJson.id == functionCatalogId) {
                     versionJson.isDeleted = false;
-                    // TODO: set deletedDate. Need to get that from API.
-                    versionJson.deletedDate = "Just now";
                     break;
                 }
             }
@@ -1549,6 +1550,30 @@ class App extends React.Component {
                     versionJson.isDeleted = true;
                     // TODO: set deletedDate. Need to get that from API.
                     versionJson.deletedDate = "Just now";
+                    break;
+                }
+            }
+
+            functionBlock.setVersionsJson(versionsJson);
+            callbackFunction();
+        });
+    }
+
+    onRestoreFunctionBlockFromTrash(functionBlock, callbackFunction) {
+        const functionBlockId = functionBlock.getId();
+        restoreFunctionBlockFromTrash(functionBlockId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Restore Function Block from Trash Bin", "Request to restore Function Block from trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            functionBlock.setIsDeleted(false);
+            const versionsJson = functionBlock.getVersionsJson();
+
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.id == functionBlockId) {
+                    versionJson.isDeleted = false;
                     break;
                 }
             }
@@ -1973,6 +1998,30 @@ class App extends React.Component {
         });
     }
 
+    onRestoreMostInterfaceFromTrash(mostInterface, callbackFunction) {
+        const mostInterfaceId = mostInterface.getId();
+        restoreMostInterfaceFromTrash(mostInterfaceId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Restore Interface from Trash Bin", "Request to restore Interface from trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            mostInterface.setIsDeleted(false);
+            const versionsJson = mostInterface.getVersionsJson();
+
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.id == mostInterfaceId) {
+                    versionJson.isDeleted = false;
+                    break;
+                }
+            }
+
+            mostInterface.setVersionsJson(versionsJson);
+            callbackFunction();
+        });
+    }
+
     disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction) {
         const thisApp = this;
         const functionBlockId = this.state.selectedItem.getId();
@@ -2211,6 +2260,20 @@ class App extends React.Component {
             // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
             mostFunction.setDeletedDate("Just now");
 
+            callbackFunction();
+        });
+    }
+
+    onRestoreMostFunctionFromTrash(mostFunction, callbackFunction) {
+        const mostFunctionId = mostFunction.getId();
+        const mostInterfaceId = this.state.selectedItem.getId();
+        restoreMostFunctionFromTrash(mostInterfaceId, mostFunctionId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Restore Function from Trash Bin", "Request to restore Function from trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            mostFunction.setIsDeleted(false);
             callbackFunction();
         });
     }
@@ -3079,6 +3142,7 @@ class App extends React.Component {
                         onDelete={this.onDeleteFunctionBlock}
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkFunctionBlockAsDeleted}
+                        onRestoreFromTrash={this.onRestoreFunctionBlockFromTrash}
                         showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3102,6 +3166,7 @@ class App extends React.Component {
                         onDelete={this.onDeleteMostInterface}
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkMostInterfaceAsDeleted}
+                        onRestoreFromTrash={this.onRestoreMostInterfaceFromTrash}
                         showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3125,6 +3190,7 @@ class App extends React.Component {
                         isInterfaceApproved={this.state.selectedItem.isApproved()}
                         isInterfaceReleased={this.state.selectedItem.isReleased()}
                         onMarkAsDeleted={this.onMarkMostFunctionAsDeleted}
+                        onRestoreFromTrash={this.onRestoreMostFunctionFromTrash}
                         showDeletedMostFunctions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3535,7 +3601,13 @@ class App extends React.Component {
                     if (!this.state.isTrashItemSelected) {
                         return (
                             <div id="main-content" className="container">
-                                <app.TrashPage onItemSelected={this.onTrashItemSelected} onRestoreFunctionCatalog={this.onRestoreFunctionCatalogFromTrash}/>
+                                <app.TrashPage
+                                    onItemSelected={this.onTrashItemSelected}
+                                    onRestoreFunctionCatalog={this.onRestoreFunctionCatalogFromTrash}
+                                    onRestoreFunctionBlock={this.onRestoreFunctionBlockFromTrash}
+                                    onRestoreMostInterface={this.onRestoreMostInterfaceFromTrash}
+                                    onRestoreMostFunction={this.onRestoreMostFunctionFromTrash}
+                                />
                             </div>
                         );
                     }

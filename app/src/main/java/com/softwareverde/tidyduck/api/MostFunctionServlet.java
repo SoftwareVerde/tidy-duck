@@ -309,13 +309,13 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _restoreMostFunctionFromTrash(final HttpServletRequest request, final long mostFunctionId, final Account currentAccount, final Database<Connection> database) {
-        final String mostInterfaceString = request.getParameter("most_interface_id");
-        final Long mostInterfaceId = Util.parseLong(mostInterfaceString);
+    protected Json _restoreMostFunctionFromTrash(final HttpServletRequest httpRequest, final long mostFunctionId, final Account currentAccount, final Database<Connection> database) throws IOException {
+        final Json request = _getRequestDataAsJson(httpRequest);
+        final Long mostInterfaceId = Util.parseLong(request.getString("mostInterfaceId"));
 
         // Validate Inputs
         if (mostInterfaceId == null || mostInterfaceId < 1) {
-            return super._generateErrorJson(String.format("Invalid interface id: %s", mostInterfaceString));
+            return super._generateErrorJson(String.format("Invalid interface id: %s", mostInterfaceId));
         }
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
