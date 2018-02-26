@@ -119,7 +119,7 @@ class FunctionBlock extends React.Component {
         const showDeletedVersions = this.props.showDeletedVersions;
 
         let displayVersion = <div className="child-function-catalog-property version">{this.props.functionBlock.getReleaseVersion()}</div>;
-        if (! this.props.displayVersionsList) {
+        if (this.props.displayVersionsList) {
             if (versionOptions.length < 1) {
                 // If no version options are available to be displayed, return nothing.
                 return(<div></div>);
@@ -139,6 +139,7 @@ class FunctionBlock extends React.Component {
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Block has been released." /> : "");
         const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Block has been approved." /> : "");
+        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -150,7 +151,7 @@ class FunctionBlock extends React.Component {
                     {approvedIcon}
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
-                    <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>
+                    {trashIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">

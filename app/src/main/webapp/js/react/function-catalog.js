@@ -124,6 +124,18 @@ class FunctionCatalog extends React.Component {
     }
 
     render() {
+        const versionOptions = this.renderVersionOptions();
+
+        let displayVersion = <div className="child-function-catalog-property version">{this.props.functionCatalog.getReleaseVersion()}</div>;
+        if (this.props.displayVersionsList) {
+            if (versionOptions.length < 1) {
+                // If no version options are available to be displayed, return nothing.
+                return(<div></div>);
+            }
+            
+            displayVersion = <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{versionOptions}</select>;
+        }
+
         const author = this.props.functionCatalog.getAuthor();
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
@@ -133,12 +145,9 @@ class FunctionCatalog extends React.Component {
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
         const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
-        const versionOptions = this.renderVersionOptions();
+        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
 
-        if (versionOptions.length < 1) {
-            // If no version options are available to be displayed, return nothing.
-            return(<div></div>);
-        }
+
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -150,10 +159,10 @@ class FunctionCatalog extends React.Component {
                     {approvedIcon}
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
-                    <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>
+                    {trashIcon}
                     <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Download MOST XML" />
                 </div>
-                <select name="Version" title="Version" value={this.props.functionCatalog.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{versionOptions}</select>
+                {displayVersion}
                 <div className="description-wrapper">
                     <div className="description" onClick={(event) => event.stopPropagation()}>
                         {(author ? author.getName() : "")}

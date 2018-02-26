@@ -120,7 +120,7 @@ class MostInterface extends React.Component {
         const showDeletedVersions = this.props.showDeletedVersions;
 
         let displayVersion = <div className="child-function-catalog-property version">{this.props.mostInterface.getReleaseVersion()}</div>;
-        if (! this.props.displayVersionsList) {
+        if (this.props.displayVersionsList) {
             if (versionOptions.length < 1) {
                 // If no version options are available to be displayed, return an empty div..
                 return(<div></div>);
@@ -139,8 +139,8 @@ class MostInterface extends React.Component {
         const childItemStyle = (this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book icon" title="This Interface has been released." /> : "");
-
         const approvedIcon = (this.props.mostInterface.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Interface has been approved." /> : "");
+        const trashIcon =isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -152,7 +152,7 @@ class MostInterface extends React.Component {
                     {approvedIcon}
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Remove"/>
-                    <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>
+                    {trashIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
