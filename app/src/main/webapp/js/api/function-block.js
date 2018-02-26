@@ -257,7 +257,7 @@ function restoreFunctionBlockFromTrash(functionBlockId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/restore-from-trash",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );

@@ -176,6 +176,7 @@ class App extends React.Component {
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
         this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
         this.onMarkFunctionCatalogAsDeleted = this.onMarkFunctionCatalogAsDeleted.bind(this);
+        this.onRestoreFunctionCatalogFromTrash = this.onRestoreFunctionCatalogFromTrash.bind(this);
         this.onReleaseFunctionCatalog = this.onReleaseFunctionCatalog.bind(this);
         this.onFunctionCatalogReleased = this.onFunctionCatalogReleased.bind(this);
 
@@ -1242,6 +1243,32 @@ class App extends React.Component {
                 const versionJson = versionsJson[i];
                 if (versionJson.id == functionCatalogId) {
                     versionJson.isDeleted = true;
+                    // TODO: set deletedDate. Need to get that from API.
+                    versionJson.deletedDate = "Just now";
+                    break;
+                }
+            }
+
+            functionCatalog.setVersionsJson(versionsJson);
+            callbackFunction();
+        });
+    }
+
+    onRestoreFunctionCatalogFromTrash(functionCatalog, callbackFunction) {
+        const functionCatalogId = functionCatalog.getId();
+        restoreFunctionCatalogFromTrash(functionCatalogId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Restore Function Catalog to Trash Bin", "Request to restore Function Catalog from trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            functionCatalog.setIsDeleted(false);
+            const versionsJson = functionCatalog.getVersionsJson();
+
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.id == functionCatalogId) {
+                    versionJson.isDeleted = false;
                     // TODO: set deletedDate. Need to get that from API.
                     versionJson.deletedDate = "Just now";
                     break;
@@ -3028,6 +3055,7 @@ class App extends React.Component {
                         onVersionChanged={this.onChildItemVersionChanged}
                         onExportFunctionCatalog={exportFunctionCatalogToMost}
                         onMarkAsDeleted={this.onMarkFunctionCatalogAsDeleted}
+                        onRestoreFromTrash={this.onRestoreFunctionCatalogFromTrash}
                         showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3507,7 +3535,7 @@ class App extends React.Component {
                     if (!this.state.isTrashItemSelected) {
                         return (
                             <div id="main-content" className="container">
-                                <app.TrashPage onItemSelected={this.onTrashItemSelected}/>
+                                <app.TrashPage onItemSelected={this.onTrashItemSelected} onRestoreFunctionCatalog={this.onRestoreFunctionCatalogFromTrash}/>
                             </div>
                         );
                     }

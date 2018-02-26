@@ -57,6 +57,7 @@ class TrashPage extends React.Component {
 
         this.getFlattenedObjectList = this.getFlattenedObjectList.bind(this);
         this.onItemSelected = this.onItemSelected.bind(this);
+        this.onRestoreFunctionCatalogFromTrash = this.onRestoreFunctionCatalogFromTrash.bind(this);
         this.renderItems = this.renderItems.bind(this);
         this.renderFunctionCatalogs = this.renderFunctionCatalogs.bind(this);
         this.renderFunctionBlocks = this.renderFunctionBlocks.bind(this);
@@ -85,6 +86,20 @@ class TrashPage extends React.Component {
         }
     }
 
+    onRestoreFunctionCatalogFromTrash(functionCatalog) {
+        const thisPage = this;
+        this.props.onRestoreFunctionCatalog(functionCatalog, function() {
+            const functionCatalogId = functionCatalog.getId();
+            const deletedFunctionCatalogs = thisPage.state.deletedFunctionCatalogs.filter(function(item) {
+               return item.getId() != functionCatalogId;
+            });
+
+            thisPage.setState({
+                deletedFunctionCatalogs: deletedFunctionCatalogs
+            });
+        });
+    }
+
     renderItems(isLoading, items, renderItemFunction) {
         if (isLoading) {
             return <i className="fa fa-2x fa-spin fa-refresh"/>
@@ -105,7 +120,7 @@ class TrashPage extends React.Component {
     renderFunctionCatalogs() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionCatalogs, this.state.deletedFunctionCatalogs, function(index, item) {
-            return <app.FunctionCatalog key={index} functionCatalog={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true}/>
+            return <app.FunctionCatalog key={index} functionCatalog={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionCatalogFromTrash(item)}/>
         });
     }
 

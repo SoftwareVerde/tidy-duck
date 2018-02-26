@@ -257,7 +257,7 @@ function restoreMostInterfaceFromTrash(mostInterfaceId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/restore-from-trash",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );

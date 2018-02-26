@@ -180,7 +180,7 @@ function restoreFunctionCatalogFromTrash(functionCatalogId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/restore-from-trash",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );

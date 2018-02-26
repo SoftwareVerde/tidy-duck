@@ -195,7 +195,7 @@ function restoreMostFunctionFromTrash(mostFunctionId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/restore-from-trash",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );
