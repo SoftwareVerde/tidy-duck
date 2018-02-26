@@ -178,15 +178,13 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
     });
 }
 
-// calls callbackFunction with modified MOST interface ID
-function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, callbackFunction) {
+function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                "functionBlockId":    functionBlockId,
                 "mostInterface":      mostInterface
             })
         }
@@ -194,17 +192,43 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
 
     tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        let mostInterfaceId = null;
+
+        if (!wasSuccess) {
+            console.error("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+// calls callbackFunction with new MOST interface ID
+function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterface + "/fork",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlockId":    functionBlockId
+            })
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        let newMostInterfaceId = null;
 
         if (wasSuccess) {
-            mostInterfaceId = data.mostInterfaceId;
+            newMostInterfaceId = data.mostInterfaceId;
         }
         else {
             console.error("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(data, mostInterfaceId);
+            callbackFunction(data, newMostInterfaceId);
         }
     });
 }

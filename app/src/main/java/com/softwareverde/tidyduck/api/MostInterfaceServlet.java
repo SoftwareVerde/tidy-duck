@@ -101,6 +101,19 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/fork", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _forkMostInterface(request, mostInterfaceId, currentAccount, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("most-interfaces/<mostInterfaceId>/mark-as-deleted", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -261,7 +274,6 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     protected Json _updateMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json request = _getRequestDataAsJson(httpRequest);
         final Json response = new Json(false);
-        final String requestFunctionBlockId = request.getString("functionBlockId");
 
         final Json mostInterfaceJson = request.get("mostInterface");
 
@@ -279,30 +291,43 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             mostInterface.setId(mostInterfaceId);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-
-            if (! Util.isBlank(requestFunctionBlockId)) {
-                // Validate Inputs
-                final Long functionBlockId = Util.parseLong(requestFunctionBlockId);
-                if (functionBlockId < 1) {
-                    _logger.error("Unable to parse Function Block ID: " + functionBlockId);
-                    return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
-                }
-
-                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
-                if (parentErrorMessage != null) {
-                    parentErrorMessage = "Unable to update interface within function block: " + parentErrorMessage;
-                    _logger.error(parentErrorMessage);
-                    return super._generateErrorJson(parentErrorMessage);
-                }
-
-                databaseManager.updateMostInterface(currentAccountId, functionBlockId, mostInterface);
-            }
-            else {
-                databaseManager.updateMostInterface(currentAccountId, 0, mostInterface);
-            }
+            databaseManager.updateMostInterface(mostInterface, currentAccountId);
 
             _logger.info("User " + currentAccountId + " updated interface " + mostInterface.getId() + ", which is currently owned by User " + mostInterface.getCreatorAccountId());
             response.put("mostInterfaceId", mostInterface.getId());
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to update interface: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return _generateErrorJson(errorMessage);
+        }
+
+        _setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _forkMostInterface(final HttpServletRequest httpRequest, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws Exception {
+        final Json request = _getRequestDataAsJson(httpRequest);
+        final Json response = new Json(false);
+        final String parentFunctionBlockIdString = request.getString("functionBlockId");
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Long currentAccountId = currentAccount.getId();
+
+            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
+            if (errorMessage != null) {
+                errorMessage = "Unable to update interface: " + errorMessage;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final Long parentFunctionBlockId = Util.parseLong(parentFunctionBlockIdString);
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final long newMostInterfaceId = databaseManager.forkMostInterface(mostInterfaceId, parentFunctionBlockId, currentAccountId);
+
+            _logger.info("User " + currentAccountId + " updated interface " + mostInterfaceId + " (new ID: " + newMostInterfaceId + ")");
+            response.put("mostInterfaceId", newMostInterfaceId);
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update interface: " + exception.getMessage();

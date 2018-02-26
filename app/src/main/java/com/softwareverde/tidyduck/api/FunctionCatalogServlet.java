@@ -74,7 +74,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         super._defineEndpoint("function-catalogs/<functionCatalogId>/fork", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
 
                 final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
                 if (functionCatalogId < 1) {

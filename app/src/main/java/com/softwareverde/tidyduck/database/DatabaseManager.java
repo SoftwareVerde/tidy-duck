@@ -267,12 +267,22 @@ public class DatabaseManager {
         });
     }
 
-    public void updateFunctionBlock(final Long currentAccountId, final long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    public void updateFunctionBlock(final FunctionBlock functionBlock, final Long currentAccountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.updateFunctionBlockForFunctionCatalog(currentAccountId, functionCatalogId, functionBlock, accountId);
+                functionBlockDatabaseManager.updateFunctionBlock(functionBlock, currentAccountId);
+            }
+        });
+    }
+
+    public long forkFunctionBlock(final long functionBlockId, final Long parentFunctionCatalogId, final Long currentAccountId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Long, Connection>() {
+            @Override
+            public Long call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                return functionBlockDatabaseManager.forkFunctionBlock(functionBlockId, parentFunctionCatalogId, currentAccountId);
             }
         });
     }
@@ -389,12 +399,22 @@ public class DatabaseManager {
         });
     }
 
-    public void updateMostInterface(final Long currentAccountID, final long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
+    public void updateMostInterface(final MostInterface mostInterface, final long currentAccountID) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.updateMostInterfaceForFunctionBlock(currentAccountID, functionBlockId, mostInterface);
+                mostInterfaceDatabaseManager.updateMostInterface(mostInterface, currentAccountID);
+            }
+        });
+    }
+
+    public long forkMostInterface(final long mostInterfaceId, final Long parentFunctionBlockId, final long currentAccountId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Long, Connection>() {
+            @Override
+            public Long call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                return mostInterfaceDatabaseManager.forkMostInterface(mostInterfaceId, parentFunctionBlockId, currentAccountId);
             }
         });
     }

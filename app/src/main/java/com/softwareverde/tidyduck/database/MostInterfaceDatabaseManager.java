@@ -46,6 +46,30 @@ public class MostInterfaceDatabaseManager {
         _insertMostInterface(mostInterface, null);
     }
 
+    private long _forkMostInterface(final MostInterface mostInterface) throws DatabaseException {
+        final String mostId = mostInterface.getMostId();
+        final String name = mostInterface.getName();
+        final String description = mostInterface.getDescription();
+        final String version = mostInterface.getVersion();
+        final Long priorVersionId = mostInterface.getId();
+        final Long creatorAccountId = mostInterface.getCreatorAccountId();
+        final Long baseVersionId = mostInterface.getBaseVersionId();
+
+        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id, baseVersionId) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)")
+                .setParameter(mostId)
+                .setParameter(name)
+                .setParameter(description)
+                .setParameter(version)
+                .setParameter(priorVersionId)
+                .setParameter(creatorAccountId)
+                .setParameter(baseVersionId);
+                ;
+
+        final long newMostInterfaceId = _databaseConnection.executeSql(query);
+        return newMostInterfaceId;
+
+    }
+
     private void _setBaseVersionId(long mostInterfaceId, long baseVersionId) throws DatabaseException {
         final Query query = new Query("UPDATE interfaces SET base_version_id = ? WHERE id = ?")
             .setParameter(baseVersionId)
@@ -208,27 +232,20 @@ public class MostInterfaceDatabaseManager {
         _insertMostInterface(mostInterface);
     }
 
-    public void updateMostInterfaceForFunctionBlock (final Long currentAccountId, final long functionBlockId, final MostInterface proposedMostInterface) throws DatabaseException {
-        final long inputMostInterfaceId = proposedMostInterface.getId();
+    public long forkMostInterface(final long mostInterfaceId, final Long parentFunctionBlockId, final long currentAccountId) throws DatabaseException {
+        MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
+        MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
-        final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(inputMostInterfaceId);
-        if (!originalMostInterface.isApproved()) {
-            // not approved, can update existing interface
-            _updateUnapprovedMostInterface(proposedMostInterface);
-        } else {
-            // current block is approved, need to insert a new interface replace this one
-            proposedMostInterface.setCreatorAccountId(currentAccountId);
-            _insertMostInterface(proposedMostInterface, originalMostInterface);
-            final long newMostInterfaceId = proposedMostInterface.getId();
-            _copyMostInterfaceMostFunctions(inputMostInterfaceId, newMostInterfaceId);
-            // change association with function block if id isn't 0
-            if (functionBlockId != 0) {
-                // TODO: check if function block is approved?
-                _disassociateMostInterfaceWithFunctionBlock(functionBlockId, inputMostInterfaceId);
-                _associateMostInterfaceWithFunctionBlock(functionBlockId, newMostInterfaceId);
-            }
+        final long newMostInterfaceId = _forkMostInterface(mostInterface);
+        _copyMostInterfaceMostFunctions(mostInterfaceId, newMostInterfaceId);
+        if (parentFunctionBlockId != null) {
+            _associateMostInterfaceWithFunctionBlock(parentFunctionBlockId, newMostInterfaceId);
         }
+        return newMostInterfaceId;
+    }
+
+    public void updateMostInterface(final MostInterface proposedMostInterface, final Long currentAccountId) throws DatabaseException {
+        _updateUnapprovedMostInterface(proposedMostInterface);
     }
 
     private void _copyMostInterfaceMostFunctions(final long originalMostInterfaceId, final long newMostInterfaceId) throws DatabaseException {

@@ -178,15 +178,13 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
     });
 }
 
-// calls callbackFunction with modified function block ID
-function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, callbackFunction) {
+function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                "functionCatalogId":    functionCatalogId,
                 "functionBlock":    functionBlock
             })
         }
@@ -194,17 +192,43 @@ function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, 
 
     tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        let functionBlockId = null;
 
-        if (wasSuccess) {
-            functionBlockId = data.functionBlockId;
-        }
-        else {
+        if (!wasSuccess) {
             console.error("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(data, functionBlockId);
+            callbackFunction(data);
+        }
+    });
+}
+
+// calls callbackFunction with new function block ID
+function forkFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/fork",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionCatalogId":    functionCatalogId
+            })
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        let newFunctionBlockId = null;
+
+        if (wasSuccess) {
+            newFunctionBlockId = data.functionBlockId;
+        }
+        else {
+            console.error("Unable to fork function block " + functionBlockId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, newFunctionBlockId);
         }
     });
 }
