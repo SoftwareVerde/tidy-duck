@@ -167,12 +167,15 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
     });
 }
 
-function markMostFunctionAsDeleted(mostFunctionId, callbackFunction) {
+function markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/mark-as-deleted",
         {
             method: "DELETE",
-            credentials: "include"
+            credentials: "include",
+            body: JSON.stringify({
+                "mostInterfaceId": mostInterfaceId,
+            })
         }
     );
 

@@ -10,6 +10,7 @@ class MostFunction extends React.Component {
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteMostFunction = this.deleteMostFunction.bind(this);
+        this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
 
         window.app.navigation = this;
     }
@@ -44,6 +45,20 @@ class MostFunction extends React.Component {
         }
     }
 
+    onMarkAsDeletedClicked(event) {
+        event.stopPropagation();
+        this.setState({
+            showWorkingIcon: true
+        });
+
+        const thisMostFunction = this;
+        this.props.onMarkAsDeleted(this.props.mostFunction, function() {
+            thisMostFunction.setState({
+                showWorkingIcon: false
+            });
+        });
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.mostFunction);
@@ -51,10 +66,16 @@ class MostFunction extends React.Component {
     }
 
     render() {
+        if (this.props.mostFunction.isDeleted() && ! this.props.showDeletedVersions) {
+            // If no version options are available to be displayed, return nothing.
+            return(<div></div>);
+        }
+
         const author = this.props.mostFunction.getAuthor();
         const company = this.props.mostFunction.getCompany();
         const name = this.props.mostFunction.getName();
-        const childItemStyle = ((this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item") + " tidy-object";
+        const isDeleted = this.props.mostFunction.isDeleted();
+        const childItemStyle = ((this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
 
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function has been released." /> : "");
@@ -70,6 +91,7 @@ class MostFunction extends React.Component {
                     {approvedIcon}
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteMostFunction} title="Remove"/>
+                    <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>
                 </div>
                 <div className="child-function-catalog-property version">{this.props.mostFunction.getReleaseVersion()}</div>
                 <div className="description-wrapper">

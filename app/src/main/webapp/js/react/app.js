@@ -186,6 +186,7 @@ class App extends React.Component {
         this.onFilterFunctionBlocks = this.onFilterFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
         this.onDeleteFunctionBlock = this.onDeleteFunctionBlock.bind(this);
+        this.onMarkFunctionBlockAsDeleted = this.onMarkFunctionBlockAsDeleted.bind(this);
         this.disassociateFunctionBlockFromFunctionCatalog = this.disassociateFunctionBlockFromFunctionCatalog.bind(this);
         this.disassociateFunctionBlockFromAllFunctionCatalogs = this.disassociateFunctionBlockFromAllFunctionCatalogs.bind(this);
         this.deleteFunctionBlockFromDatabase = this.deleteFunctionBlockFromDatabase.bind(this);
@@ -198,6 +199,7 @@ class App extends React.Component {
         this.onFilterMostInterfaces = this.onFilterMostInterfaces.bind(this);
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
         this.onDeleteMostInterface = this.onDeleteMostInterface.bind(this);
+        this.onMarkMostInterfaceAsDeleted = this.onMarkMostInterfaceAsDeleted.bind(this);
         this.disassociateMostInterfaceFromFunctionBlock = this.disassociateMostInterfaceFromFunctionBlock.bind(this);
         this.disassociateMostInterfaceFromAllFunctionBlocks = this.disassociateMostInterfaceFromAllFunctionBlocks.bind(this);
         this.deleteMostInterfaceFromDatabase = this.deleteMostInterfaceFromDatabase.bind(this);
@@ -207,6 +209,7 @@ class App extends React.Component {
         this.onCreateMostFunction = this.onCreateMostFunction.bind(this);
         this.onUpdateMostFunction = this.onUpdateMostFunction.bind(this);
         this.onDeleteMostFunction = this.onDeleteMostFunction.bind(this);
+        this.onMarkMostFunctionAsDeleted = this.onMarkMostFunctionAsDeleted.bind(this);
 
         this.updateNavigationItems = this.updateNavigationItems.bind(this);
         this.updateParentHistory = this.updateParentHistory.bind(this);
@@ -1221,7 +1224,6 @@ class App extends React.Component {
             return;
         }
 
-        const thisApp = this;
         const functionCatalogId = functionCatalog.getId();
 
         markFunctionCatalogAsDeleted(functionCatalogId, function(data) {
@@ -1231,7 +1233,7 @@ class App extends React.Component {
             }
 
             functionCatalog.setIsDeleted(true);
-            // TODO: set deletedDate. Needed to get that from API or rely on object being re-retrieved from API.
+            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
             functionCatalog.setDeletedDate("Just now");
             const versionsJson = functionCatalog.getVersionsJson();
 
@@ -1239,17 +1241,14 @@ class App extends React.Component {
                 const versionJson = versionsJson[i];
                 if (versionJson.id == functionCatalogId) {
                     versionJson.isDeleted = true;
-                    // TODO: set deletedDate. Needed to get that from API.
+                    // TODO: set deletedDate. Need to get that from API.
                     versionsJson.deletedDate = "Just now";
                     break;
                 }
             }
 
             functionCatalog.setVersionsJson(versionsJson);
-
-            thisApp.setState({
-                currentNavigationLevel: thisApp.NavigationLevel.versions
-            });
+            callbackFunction();
         });
     }
 
@@ -1494,6 +1493,41 @@ class App extends React.Component {
                }
             });
         }
+    }
+
+    onMarkFunctionBlockAsDeleted(functionBlock, callbackFunction) {
+        if (functionBlock.isApproved()) {
+            app.App.alert("Move Function Block to Trash Bin", "This Function Block is approved for release and cannot be moved to the trash bin.", callbackFunction);
+            return;
+        }
+
+        const thisApp = this;
+        const functionBlockId = functionBlock.getId();
+
+        markFunctionBlockAsDeleted(functionBlockId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Move Function Block to Trash Bin", "Request to move Function Block to trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            functionBlock.setIsDeleted(true);
+            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+            functionBlock.setDeletedDate("Just now");
+            const versionsJson = functionBlock.getVersionsJson();
+
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.id == functionBlockId) {
+                    versionJson.isDeleted = true;
+                    // TODO: set deletedDate. Need to get that from API.
+                    versionsJson.deletedDate = "Just now";
+                    break;
+                }
+            }
+
+            functionBlock.setVersionsJson(versionsJson);
+            callbackFunction();
+        });
     }
 
     disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction) {
@@ -1876,6 +1910,41 @@ class App extends React.Component {
         }
     }
 
+    onMarkMostInterfaceAsDeleted(mostInterface, callbackFunction) {
+        if (mostInterface.isApproved()) {
+            app.App.alert("Move Interface to Trash Bin", "This Interface is approved for release and cannot be moved to the trash bin.", callbackFunction);
+            return;
+        }
+
+        const thisApp = this;
+        const mostInterfaceId = mostInterface.getId();
+
+        markMostInterfaceAsDeleted(mostInterfaceId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Move Interface to Trash Bin", "Request to move Interface to trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            mostInterface.setIsDeleted(true);
+            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+            mostInterface.setDeletedDate("Just now");
+            const versionsJson = mostInterface.getVersionsJson();
+
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.id == mostInterfaceId) {
+                    versionJson.isDeleted = true;
+                    // TODO: set deletedDate. Need to get that from API.
+                    versionsJson.deletedDate = "Just now";
+                    break;
+                }
+            }
+
+            mostInterface.setVersionsJson(versionsJson);
+            callbackFunction();
+        });
+    }
+
     disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction) {
         const thisApp = this;
         const functionBlockId = this.state.selectedItem.getId();
@@ -2091,6 +2160,31 @@ class App extends React.Component {
         };
 
         app.App.confirm("Delete Function", "This action will delete the only reference to this function. Are you sure you want to delete it?", deleteFunction, callbackFunction);
+    }
+
+    onMarkMostFunctionAsDeleted(mostFunction, callbackFunction) {
+        const selectedItem = this.state.selectedItem;
+
+        if (selectedItem.isApproved()) {
+            app.App.alert("Move Function to Trash Bin", "This currently selected Interface is approved for release and cannot be modified.", callbackFunction);
+            return;
+        }
+
+        const mostFunctionId = mostFunction.getId();
+        const mostInterfaceId = selectedItem.getId();
+
+        markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Move Function to Trash Bin", "Request to move Function to trash bin failed: " + data.errorMessage, callbackFunction);
+                return;
+            }
+
+            mostFunction.setIsDeleted(true);
+            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+            mostFunction.setDeletedDate("Just now");
+
+            callbackFunction();
+        });
     }
 
     updateNavigationItems(itemId, navigationItemConfig, newNavigationItems) {
@@ -2854,7 +2948,7 @@ class App extends React.Component {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
-        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
+        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems && this.state.selectedItem;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -2897,7 +2991,17 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const functionBlockKey = "FunctionBlock" + i;
-                    reactComponents.push(<app.FunctionBlock key={functionBlockKey} functionBlock={childItem} onClick={this.onFunctionBlockSelected} displayVersionsList={this.state.selectedItem} onDelete={this.onDeleteFunctionBlock} onVersionChanged={this.onChildItemVersionChanged} />);
+                    reactComponents.push(<app.FunctionBlock
+                        key={functionBlockKey}
+                        functionBlock={childItem}
+                        onClick={this.onFunctionBlockSelected}
+                        displayVersionsList={this.state.selectedItem}
+                        onDelete={this.onDeleteFunctionBlock}
+                        onVersionChanged={this.onChildItemVersionChanged}
+                        onMarkAsDeleted={this.onMarkFunctionBlockAsDeleted}
+                        showDeletedVersions={shouldShowDeletedChildItems}
+                        />
+                    );
                 }
             break;
 
@@ -2910,7 +3014,17 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const interfaceKey = "Interface" + i;
-                    reactComponents.push(<app.MostInterface key={interfaceKey} mostInterface={childItem} onClick={this.onMostInterfaceSelected} displayVersionsList={this.state.selectedItem} onDelete={this.onDeleteMostInterface} onVersionChanged={this.onChildItemVersionChanged} />);
+                    reactComponents.push(<app.MostInterface
+                        key={interfaceKey}
+                        mostInterface={childItem}
+                        onClick={this.onMostInterfaceSelected}
+                        displayVersionsList={this.state.selectedItem}
+                        onDelete={this.onDeleteMostInterface}
+                        onVersionChanged={this.onChildItemVersionChanged}
+                        onMarkAsDeleted={this.onMarkMostInterfaceAsDeleted}
+                        showDeletedVersions={shouldShowDeletedChildItems}
+                        />
+                    );
                 }
             break;
 
@@ -2923,7 +3037,16 @@ class App extends React.Component {
                 for (let i in childItems) {
                     const childItem = childItems[i];
                     const mostFunctionKey = "mostFunction" + i;
-                    reactComponents.push(<app.MostFunction key={mostFunctionKey} mostFunction={childItem} onClick={this.onMostFunctionSelected} onDelete={this.onDeleteMostFunction} isInterfaceApproved={this.state.selectedItem.isApproved()} isInterfaceReleased={this.state.selectedItem.isReleased()} />);
+                    reactComponents.push(<app.MostFunction
+                        key={mostFunctionKey}
+                        mostFunction={childItem}
+                        onClick={this.onMostFunctionSelected}
+                        onDelete={this.onDeleteMostFunction}
+                        isInterfaceApproved={this.state.selectedItem.isApproved()}
+                        isInterfaceReleased={this.state.selectedItem.isReleased()}
+                        onMarkAsDeleted={this.onMarkMostFunctionAsDeleted}
+                        />
+                    );
                 }
             break;
 
@@ -2995,7 +3118,7 @@ class App extends React.Component {
                 const isReleased = selectedItem.isReleased();
                 isApproved = selectedItem.isApproved();
                 shouldShowBackButton = true;
-                shouldShowTrashButton = true;
+                shouldShowTrashButton = currentNavigationLevel != NavigationLevel.mostFunctions;
 
                 if (! isReleased && ! isApproved) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;

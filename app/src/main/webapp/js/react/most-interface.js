@@ -11,6 +11,7 @@ class MostInterface extends React.Component {
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
         this.deleteMostInterface = this.deleteMostInterface.bind(this);
+        this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -74,6 +75,20 @@ class MostInterface extends React.Component {
         }
     }
 
+    onMarkAsDeletedClicked(event) {
+        event.stopPropagation();
+        this.setState({
+            showWorkingIcon: true
+        });
+
+        const thisMostInterface = this;
+        this.props.onMarkAsDeleted(this.props.mostInterface, function() {
+            thisMostInterface.setState({
+                showWorkingIcon: false
+            });
+        });
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.mostInterface, false);
@@ -83,30 +98,49 @@ class MostInterface extends React.Component {
     renderVersionOptions() {
         const versionOptions = [];
         const versionsJson = this.props.mostInterface.getVersionsJson();
+        const showDeletedVersions = this.props.showDeletedVersions;
 
         for (let i in versionsJson) {
-            let optionName = versionsJson[i].releaseVersion;
-            if (!versionsJson[i].isReleased) {
-                optionName += "-" + versionsJson[i].id;
+            let versionJson = versionsJson[i];
+            // Only display versions marked as deleted if the app isn't hiding them.
+            if ((! versionJson.isDeleted) || showDeletedVersions) {
+                let optionName = versionsJson[i].releaseVersion;
+                if (! versionJson.isReleased) {
+                    optionName += "-" + versionsJson[i].id;
+                }
+                versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
             }
-            versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
         }
 
         return versionOptions;
     }
 
     render() {
-        const name = this.props.mostInterface.getName();
-        const childItemStyle = (this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object";
-
-        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
-        const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book icon" title="This Interface has been released." /> : "");
-        const approvedIcon = (this.props.mostInterface.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Interface has been approved." /> : "");
+        const versionOptions = this.renderVersionOptions();
+        const showDeletedVersions = this.props.showDeletedVersions;
 
         let displayVersion = <div className="child-function-catalog-property version">{this.props.mostInterface.getReleaseVersion()}</div>;
         if (! this.props.displayVersionsList) {
-            displayVersion = <select name="Version" title="Version" value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+            if (versionOptions.length < 1) {
+                // If no version options are available to be displayed, return an empty div..
+                return(<div></div>);
+            }
+
+            displayVersion = <select name="Version" title="Version" value={this.props.mostInterface.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{versionOptions}</select>;
         }
+        else if (this.props.mostInterface.isDeleted() && ! showDeletedVersions) {
+            // Return an empty div if deleted child objects should be hidden.
+            return(<div></div>);
+        }
+
+        const name = this.props.mostInterface.getName();
+        const isDeleted = this.props.mostInterface.isDeleted();
+
+        const childItemStyle = (this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
+        const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
+        const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book icon" title="This Interface has been released." /> : "");
+
+        const approvedIcon = (this.props.mostInterface.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Interface has been approved." /> : "");
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -118,6 +152,7 @@ class MostInterface extends React.Component {
                     {approvedIcon}
                     {releasedIcon}
                     <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Remove"/>
+                    <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
