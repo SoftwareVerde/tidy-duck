@@ -252,7 +252,7 @@ class InputField extends React.Component {
                 const sortIcon = this.props.readOnly ? "" : <i className="fa fa-sort" onClick={this.onDropdownIconClick} onMouseDown={(event) => event.preventDefault() }/>;
                 return (
                     <div className="dropdown" onKeyDown={this.onDropdownKeyPress} onBlur={this.onDropdownBlur} onFocus={this.onDropdownFocus}>
-                        <input type="text" ref={(input) => { this.searchInput = input; }} id={this.props.id} name={this.props.name} autoComplete="off" onChange={this.onFilterStringChanged} value={this.state.filterString} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
+                        <input type="text" ref={(input) => { this.searchInput = input; }} id={this.props.id} name={this.props.name} autoComplete="off" onChange={this.onFilterStringChanged} value={this.state.filterString} placeholder={this.state.value} readOnly={this.props.readOnly} pattern={this.props.pattern} title={this.props.title} required={this.props.isRequired} step={this.props.step} min={this.props.min} max={this.props.max}/>
                         {sortIcon}
                         {this.renderFilteredResults()}
                     </div>
