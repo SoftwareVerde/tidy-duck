@@ -20,7 +20,8 @@ public class ReviewInflater {
     private final DatabaseConnection<Connection> _databaseConnection;
 
     private static final String LIST_REVIEWS_QUERY = "SELECT * FROM (" +
-                                                        "SELECT reviews.id, function_catalog_id, function_block_id, interface_id, function_id, reviews.account_id, ticket_url, created_date, COALESCE(function_catalogs.is_approved, function_blocks.is_approved, interfaces.is_approved, functions.is_approved) = 1 is_approved\n" +
+                                                        "SELECT reviews.id, function_catalog_id, function_block_id, interface_id, function_id, reviews.account_id, ticket_url, created_date, COALESCE(function_catalogs.is_approved, function_blocks.is_approved, interfaces.is_approved, functions.is_approved) = 1 is_approved,\n" +
+                                                        "COALESCE(function_catalogs.is_deleted, function_blocks.is_deleted, interfaces.is_deleted, functions.is_deleted) = 1 is_deleted\n" +
                                                         "FROM reviews\n" +
                                                         "LEFT OUTER JOIN function_catalogs ON function_catalogs.id = reviews.function_catalog_id\n" +
                                                         "LEFT OUTER JOIN function_blocks ON function_blocks.id = reviews.function_block_id\n" +
@@ -29,6 +30,7 @@ public class ReviewInflater {
 
     private static final String OPEN_REVIEWS_WHERE_CLAUSE = "\nWHERE is_approved = 0";
     private static final String CLOSED_REVIEWS_WHERE_CLAUSE = "\nWHERE is_approved = 1";
+    private static final String IS_DELETED_REVIEW_AND_CLAUSE = "\nAND is_deleted = 0";
 
     public ReviewInflater(final DatabaseConnection<Connection> databaseConnection) {
         _databaseConnection = databaseConnection;
@@ -51,6 +53,8 @@ public class ReviewInflater {
         if (includeClosedReviews && !includeOpenReviews) {
             reviewsQuery += CLOSED_REVIEWS_WHERE_CLAUSE;
         }
+
+        reviewsQuery += IS_DELETED_REVIEW_AND_CLAUSE;
 
         final ArrayList<Review> reviews = new ArrayList<>();
 
