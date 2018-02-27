@@ -71,6 +71,19 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/fork", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                final Long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionCatalogId < 1) {
+                    return _generateErrorJson("Invalid function catalog ID.");
+                }
+                return _forkFunctionCatalog(functionCatalogId, currentAccount, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("function-catalogs/<functionCatalogId>/mark-as-deleted", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -266,8 +279,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Long currentAccountId = currentAccount.getId();
 
-            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
-                final String errorMessage = "Unable to update function catalog: current account does not own Function Catalog " + functionCatalogId;
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
+            if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -280,7 +293,34 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             _logger.info("User " + currentAccount.getId() + " updated function catalog " + functionCatalog.getId() + ", which is currently owned by User " + functionCatalog.getCreatorAccountId());
             response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
-            String errorMessage = "Unable to update function catalog: " + exception.getMessage();
+            final String errorMessage = "Unable to update function catalog: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    protected Json _forkFunctionCatalog(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
+        final Json response = new Json(false);
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Long currentAccountId = currentAccount.getId();
+
+            final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
+            if (errorMessage != null) {
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final long newFunctionCatalogId = databaseManager.forkFunctionCatalog(functionCatalogId, currentAccountId);
+
+            _logger.info("User " + currentAccount.getId() + " forked function catalog " + functionCatalogId + " (new ID: " + newFunctionCatalogId + ").");
+            response.put("functionCatalogId", newFunctionCatalogId);
+        } catch (final Exception exception) {
+            final String errorMessage = "Unable to fork function catalog: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
@@ -291,8 +331,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _markFunctionCatalogAsDeleted(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
-                final String errorMessage = "Unable to move function catalog to trash: current account does not own Function Catalog " + functionCatalogId;
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -315,8 +355,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreFunctionCatalogFromTrash(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
-                final String errorMessage = "Unable to restore function catalog from trash: current account does not own Function Catalog " + functionCatalogId;
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -343,8 +383,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _deleteFunctionCatalog(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
-                final String errorMessage = "Unable to delete function catalog: current account does not own Function Catalog " + functionCatalogId;
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -364,8 +404,8 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _submitFunctionCatalogForReview(final Long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
-                final String errorMessage = "Unable to submit function catalog for review: current account does not own Function Catalog " + functionCatalogId;
+            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -633,14 +673,45 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         return releaseItem;
     }
 
-    private boolean _canCurrentAccountModifyFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
+    public static String canAccountViewFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (originalFunctionCatalog.getCreatorAccountId() != null) {
-            return originalFunctionCatalog.getCreatorAccountId().equals(currentAccountId);
+        final String ownerCheckResult = ownerCheck(originalFunctionCatalog, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
-        return true;
+        return null;
+    }
+
+    public static String canAccountModifyFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+        final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+
+        final String ownerCheckResult = ownerCheck(originalFunctionCatalog, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
+        }
+
+        if (originalFunctionCatalog.isReleased()) {
+            return "Released function catalogs cannot be modified.";
+        }
+        if (originalFunctionCatalog.isApproved()) {
+            return "Approved function catalogs cannot be modified.";
+        }
+
+        // good to go
+        return null;
+    }
+
+    private static String ownerCheck(final FunctionCatalog functionCatalog, final Long currentAccountId) {
+        if (functionCatalog.getCreatorAccountId() != null) {
+            if (!functionCatalog.getCreatorAccountId().equals(currentAccountId)) {
+                return "The function catalog is owned by another account and cannot be modified.";
+            }
+        }
+
+        return null;
     }
 }

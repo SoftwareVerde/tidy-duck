@@ -9,12 +9,10 @@ import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionBlockInflater;
-import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
-import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import org.slf4j.Logger;
@@ -95,13 +93,26 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         super._defineEndpoint("function-blocks/<functionBlockId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
-                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
                 final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _updateFunctionBlock(request, functionBlockId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("function-blocks/<functionBlockId>/fork", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_CREATE);
+
+                final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
+                }
+                return _forkFunctionBlock(request, functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -241,8 +252,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 }
 
                 final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
-                    final String errorMessage = "Unable to insert function block: current account does not own Function Catalog " + functionCatalogId;
+                String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
+                if (errorMessage != null) {
+                    errorMessage = "Unable to create function block under function catalog: " + errorMessage;
                     _logger.error(errorMessage);
                     return super._generateErrorJson(errorMessage);
                 }
@@ -265,16 +277,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
 
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final Account currentAccount, final Database<Connection> database) throws Exception {
-        final Json request = _getRequestDataAsJson(httpRequest);
-        final String requestFunctionCatalogId = request.getString("functionCatalogId");
         final Json response = new Json(false);
+        final Json request = _getRequestDataAsJson(httpRequest);
         final Json functionBlockJson = request.get("functionBlock");
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Long currentAccountId = currentAccount.getId();
 
-            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId)) {
-                final String errorMessage = "Unable to update function block: current account does not own Function Block " + functionBlockId;
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
+            if (errorMessage != null) {
+                errorMessage = "Unable to update function block: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -283,32 +295,49 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             functionBlock.setId(functionBlockId);
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-
-            if (! Util.isBlank(requestFunctionCatalogId)) {
-                // Validate Inputs
-                final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
-                if (functionCatalogId < 1) {
-                    _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
-                    return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
-                }
-
-                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId)) {
-                    final String errorMessage = "Unable to update function block within function catalog: current account does not own its parent Function Catalog " + functionBlockId;
-                    _logger.error(errorMessage);
-                    return super._generateErrorJson(errorMessage);
-                }
-
-                databaseManager.updateFunctionBlock(currentAccountId, functionCatalogId, functionBlock, currentAccountId);
-            }
-            else {
-                databaseManager.updateFunctionBlock(currentAccountId,0, functionBlock, currentAccountId);
-            }
+            databaseManager.updateFunctionBlock(functionBlock, currentAccountId);
 
             _logger.info("User " + currentAccountId + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function block: " + exception.getMessage();
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
+    private Json _forkFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final Account currentAccount, final Database<Connection> database) throws IOException {
+        final Json response = new Json(false);
+        final Json request = _getRequestDataAsJson(httpRequest);
+        final String parentFunctionCatalogIdString = request.getString("functionCatalogId");
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Long currentAccountId = currentAccount.getId();
+
+            String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
+            if (errorMessage != null) {
+                errorMessage = "Unable to fork function block: " + errorMessage;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            Long parentFunctionCatalogId = Util.parseLong(parentFunctionCatalogIdString);
+            if (parentFunctionCatalogId < 1) {
+                parentFunctionCatalogId = null;
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            final long newFunctionBlockId = databaseManager.forkFunctionBlock(functionBlockId, parentFunctionCatalogId, currentAccountId);
+
+            _logger.info("User " + currentAccountId + " forked function block " + functionBlockId + " (new ID: " + newFunctionBlockId + ").");
+            response.put("functionBlockId", newFunctionBlockId);
+        }
+        catch (final Exception exception) {
+            final String errorMessage = "Unable to fork function block: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
@@ -369,8 +398,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
 
-            if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
-                final String errorMessage = "Unable to associate function block with function catalog: current account does not own Function Catalog " + functionCatalogId;
+            String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to add function block to function catalog: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -387,8 +417,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _markFunctionBlockAsDeleted(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                final String errorMessage = "Unable to move function block to trash: current account does not own Function block " + functionBlockId;
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to move function block to trash: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -411,8 +442,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreFunctionBlockFromTrash(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                final String errorMessage = "Unable to restore function catalog from trash: current account does not own Function Block " + functionBlockId;
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to restore function block: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -442,8 +474,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                final String errorMessage = "Unable to delete function block: current account does not own Function block " + functionBlockId;
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to remove function block: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -459,10 +492,11 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
                 }
 
-                if (! _canCurrentAccountModifyParentFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId())) {
-                    final String errorMessage = "Unable to delete function block: current account does not own its parent Function Catalog " + functionBlockId;
-                    _logger.error(errorMessage);
-                    return super._generateErrorJson(errorMessage);
+                String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+                if (parentErrorMessage != null) {
+                    parentErrorMessage = "Unable to remove function block from parent function catalog: " + parentErrorMessage;
+                    _logger.error(parentErrorMessage);
+                    return super._generateErrorJson(parentErrorMessage);
                 }
 
                 databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
@@ -619,8 +653,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
-            if (! _canCurrentAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId())) {
-                final String errorMessage = "Unable to submit function block for review: current account does not own Function Block " + functionBlockId;
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to submit function block for review: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
@@ -758,25 +793,45 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return blockJson;
     }
 
-    private boolean _canCurrentAccountModifyFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
+    public static String canAccountViewFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final long functionBlockId, final Long currentAccountId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (originalFunctionBlock.getCreatorAccountId() != null) {
-            return originalFunctionBlock.getCreatorAccountId().equals(currentAccountId);
+        final String ownerCheckResult = ownerCheck(originalFunctionBlock, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
-        return true;
+        return null;
     }
 
-    private boolean _canCurrentAccountModifyParentFunctionCatalog(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long currentAccountId) throws DatabaseException {
-        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
-        final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+    public static String canAccountModifyFunctionBlock(final DatabaseConnection<Connection> databaseConnection, final Long functionBlockId, final Long currentAccountId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (functionCatalog.getCreatorAccountId() != null) {
-            return functionCatalog.getCreatorAccountId().equals(currentAccountId);
+        final String ownerCheckResult = ownerCheck(originalFunctionBlock, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
-        return true;
+        if (originalFunctionBlock.isReleased()) {
+            return "Released function blocks cannot be modified.";
+        }
+        if (originalFunctionBlock.isApproved()) {
+            return "Approved function blocks cannot be modified.";
+        }
+
+        // good to go
+        return null;
+    }
+
+    private static String ownerCheck(final FunctionBlock functionBlock, final Long currentAccountId) {
+        if (functionBlock.getCreatorAccountId() != null) {
+            if (!functionBlock.getCreatorAccountId().equals(currentAccountId)) {
+                return "The function block is owned by another account and cannot be modified.";
+            }
+        }
+
+        return null;
     }
 }

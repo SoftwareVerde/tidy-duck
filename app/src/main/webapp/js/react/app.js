@@ -174,6 +174,7 @@ class App extends React.Component {
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
+        this.onForkFunctionCatalog = this.onForkFunctionCatalog.bind(this);
         this.onDeleteFunctionCatalog = this.onDeleteFunctionCatalog.bind(this);
         this.onMarkFunctionCatalogAsDeleted = this.onMarkFunctionCatalogAsDeleted.bind(this);
         this.onRestoreFunctionCatalogFromTrash = this.onRestoreFunctionCatalogFromTrash.bind(this);
@@ -184,6 +185,7 @@ class App extends React.Component {
         this.onFunctionBlockSelected = this.onFunctionBlockSelected.bind(this);
         this.onCreateFunctionBlock = this.onCreateFunctionBlock.bind(this);
         this.onUpdateFunctionBlock = this.onUpdateFunctionBlock.bind(this);
+        this.onForkFunctionBlock = this.onForkFunctionBlock.bind(this);
         this.onSearchFunctionBlocks = this.onSearchFunctionBlocks.bind(this);
         this.onFilterFunctionBlocks = this.onFilterFunctionBlocks.bind(this);
         this.onAssociateFunctionBlockWithFunctionCatalog = this.onAssociateFunctionBlockWithFunctionCatalog.bind(this);
@@ -198,6 +200,7 @@ class App extends React.Component {
         this.onMostInterfaceSelected = this.onMostInterfaceSelected.bind(this);
         this.onCreateMostInterface = this.onCreateMostInterface.bind(this);
         this.onUpdateMostInterface = this.onUpdateMostInterface.bind(this);
+        this.onForkMostInterface = this.onForkMostInterface.bind(this);
         this.onSearchMostInterfaces = this.onSearchMostInterfaces.bind(this);
         this.onFilterMostInterfaces = this.onFilterMostInterfaces.bind(this);
         this.onAssociateMostInterfaceWithFunctionBlock = this.onAssociateMostInterfaceWithFunctionBlock.bind(this);
@@ -519,10 +522,10 @@ class App extends React.Component {
            navigationItems: navigationItems
         });
 
-        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data, newFunctionCatalogId) {
+        updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Function Catalog", data.errorMessage, function() {
-                    //Update form to show changes were not saved.
+                    // Update form to show changes were not saved.
                     let navigationItems = thisApp.state.navigationItems;
                     let navigationItem = navigationItems.pop();
                     navigationItem.setForm(
@@ -547,25 +550,11 @@ class App extends React.Component {
                 });
             }
             else {
-                let functionCatalogs = thisApp.state.functionCatalogs.filter(function(value) {
-                    return value.getId() != functionCatalogId;
-                });
-
-                // If returned ID is different, a new unreleased version was created.
-                if (newFunctionCatalogId != functionCatalogId) {
-                    functionCatalog.setIsReleased(false);
-                    functionCatalog.setCreatorAccountId(thisApp.state.account.getId());
-                }
-                functionCatalog.setIsApproved(false);
-
-                functionCatalog.setId(newFunctionCatalogId);
-                functionCatalogs.push(functionCatalog);
-
                 //Update final navigation item to reflect any name changes.
                 let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
                 let navigationItem = navigationItems.pop();
-                navigationItem.setId("functionCatalog" + newFunctionCatalogId);
+                navigationItem.setId("functionCatalog" + functionCatalogId);
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setIsReleased(functionCatalog.isReleased());
                 navigationItem.setIsApproved(functionCatalog.isApproved());
@@ -591,8 +580,66 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionCatalogs:       functionCatalogs,
                     selectedItem:           functionCatalog,
+                    navigationItems:        navigationItems,
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                });
+            }
+        });
+    }
+
+    onForkFunctionCatalog(functionCatalog) {
+        const thisApp = this;
+
+        forkFunctionCatalog(functionCatalog.getId(), function(data, newFunctionCatalogId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to fork Function Catalog", data.errorMessage, function() {
+                    // nothing to do
+                });
+            }
+            else {
+                let functionCatalogs = thisApp.state.functionCatalogs;
+
+                let newFunctionCatalog = copyMostObject(FunctionCatalog, functionCatalog);
+                newFunctionCatalog.setId(newFunctionCatalogId);
+
+                // new catalog is not released or approved and was created by the current user
+                newFunctionCatalog.setIsReleased(false);
+                newFunctionCatalog.setIsApproved(false);
+                newFunctionCatalog.setCreatorAccountId(thisApp.state.account.getId());
+
+                functionCatalogs.push(newFunctionCatalog);
+
+                //Update final navigation item to reflect any changes.
+                let navigationItems = [];
+                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                let navigationItem = navigationItems.pop();
+                navigationItem.setId("functionCatalog" + newFunctionCatalogId);
+                navigationItem.setTitle(newFunctionCatalog.getName());
+                navigationItem.setIsReleased(newFunctionCatalog.isReleased());
+                navigationItem.setIsApproved(newFunctionCatalog.isApproved());
+                navigationItem.setHeader(thisApp.headers.functionCatalog);
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onFunctionCatalogSelected(newFunctionCatalog, true, false);
+                });
+                navigationItem.setForm(
+                    <app.FunctionCatalogForm
+                        showTitle={false}
+                        shouldShowSaveAnimation={false}
+                        onSubmit={thisApp.onUpdateFunctionCatalog}
+                        functionCatalog={newFunctionCatalog}
+                        buttonTitle="Save"
+                        defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
+                    />
+                );
+                navigationItems.push(navigationItem);
+
+                thisApp.setState({
+                    functionCatalogs:       functionCatalogs,
+                    selectedItem:           newFunctionCatalog,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
@@ -693,7 +740,7 @@ class App extends React.Component {
             createButtonState: createButtonState
         });
 
-        updateFunctionBlock(functionCatalogId, functionBlockId, functionBlockJson, function(data, newFunctionBlockId) {
+        updateFunctionBlock(functionBlockId, functionBlockJson, function(data, newFunctionBlockId) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Function Block", data.errorMessage, function() {
                     //Update form to show changes were not saved.
@@ -721,20 +768,6 @@ class App extends React.Component {
                 });
             }
             else {
-                let functionBlocks = thisApp.state.functionBlocks.filter(function(value) {
-                    return value.getId() != functionBlockId;
-                });
-
-                // If returned ID is different, a new unreleased version was created.
-                if (newFunctionBlockId != functionBlockId) {
-                    functionBlock.setIsReleased(false);
-                    functionBlock.setCreatorAccountId(thisApp.state.account.getId());
-                }
-                functionBlock.setIsApproved(false);
-
-                functionBlock.setId(newFunctionBlockId);
-                functionBlocks.push(functionBlock);
-
                 //Update final navigation item to reflect any name changes.
                 let navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
@@ -765,7 +798,6 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionBlocks:             functionBlocks,
                     selectedItem:               functionBlock,
                     navigationItems:            navigationItems,
                     currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
@@ -774,6 +806,75 @@ class App extends React.Component {
             }
         });
     }
+
+    onForkFunctionBlock(functionBlock) {
+            const thisApp = this;
+
+            // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
+            let functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
+            if (functionCatalogId) {
+                if (this.state.activeSubRole == this.developmentRoles.functionBlock) {
+                    functionCatalogId = null;
+                }
+            }
+
+            const functionBlockId = functionBlock.getId();
+
+            forkFunctionBlock(functionCatalogId, functionBlockId, function(data, newFunctionBlockId) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Unable to fork Function Block", data.errorMessage, function() {
+                        // nothing to do
+                    });
+                }
+                else {
+                    let functionBlocks = thisApp.state.functionBlocks;
+
+                    let newFunctionBlock = copyMostObject(FunctionBlock, functionBlock);
+                    newFunctionBlock.setId(newFunctionBlockId);
+
+                    newFunctionBlock.setIsReleased(false);
+                    newFunctionBlock.setIsApproved(false);
+                    newFunctionBlock.setCreatorAccountId(thisApp.state.account.getId());
+                    functionBlocks.push(newFunctionBlock);
+
+                    //Update final navigation item to reflect any name changes.
+                    let navigationItems = [];
+                    navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                    let navigationItem = navigationItems.pop();
+                    navigationItem.setId("functionBlock" + newFunctionBlockId);
+                    navigationItem.setTitle(newFunctionBlock.getName());
+                    navigationItem.setIsReleased(newFunctionBlock.isReleased());
+                    navigationItem.setIsApproved(newFunctionBlock.isApproved());
+                    navigationItem.setHeader(thisApp.headers.functionBlock);
+                    navigationItem.setOnClickCallback(function() {
+                        thisApp.onFunctionBlockSelected(newFunctionBlock, true, false);
+                    });
+
+                    //Update form to show changes were saved.
+                    navigationItem.setForm(
+                        <app.FunctionBlockForm
+                            showTitle={false}
+                            shouldShowSaveAnimation={false}
+                            onSubmit={thisApp.onUpdateFunctionBlock}
+                            functionBlock={newFunctionBlock}
+                            buttonTitle="Save"
+                            defaultButtonTitle="Save"
+                            readOnly={! thisApp.state.account.hasRole("Modify")}
+                            account={thisApp.state.account}
+                            accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                    navigationItems.push(navigationItem);
+
+                    thisApp.setState({
+                        functionBlocks:             functionBlocks,
+                        selectedItem:               newFunctionBlock,
+                        navigationItems:            navigationItems,
+                        currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks
+                    });
+                }
+            });
+        }
 
     onCreateMostInterface(mostInterface) {
         const thisApp = this;
@@ -813,7 +914,7 @@ class App extends React.Component {
         });
     }
 
-    onUpdateMostInterface(mostInterface, getNewFunctions) {
+    onUpdateMostInterface(mostInterface) {
         const thisApp = this;
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
         let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
@@ -852,7 +953,8 @@ class App extends React.Component {
             selectedItem:   mostInterface,
             createButtonState: createButtonState
         });
-        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
+
+        updateMostInterface(mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Interface", data.errorMessage, function() {
                     //Update form to show changes were not saved.
@@ -880,20 +982,6 @@ class App extends React.Component {
                 });
             }
             else {
-                var mostInterfaces = thisApp.state.mostInterfaces.filter(function(value) {
-                    return value.getId() != mostInterfaceId;
-                });
-
-                // If returned ID is different, a new unreleased version was created.
-                if (newMostInterfaceId != mostInterfaceId) {
-                    mostInterface.setIsReleased(false);
-                    mostInterface.setCreatorAccountId(thisApp.state.account.getId());
-                }
-                mostInterface.setIsApproved(false);
-
-                mostInterface.setId(newMostInterfaceId);
-                mostInterfaces.push(mostInterface);
-
                 //Update final navigation item to reflect any name changes.
                 var navigationItems = [];
                 navigationItems = navigationItems.concat(thisApp.state.navigationItems);
@@ -925,16 +1013,81 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    mostInterfaces:         mostInterfaces,
                     selectedItem:           mostInterface,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
                     createButtonState:      thisApp.CreateButtonState.success
                 });
-                // Need to get new functions if forking a released interface.
-                if (getNewFunctions) {
-                    thisApp.onMostInterfaceSelected(mostInterface);
-                }
+            }
+        });
+    }
+
+    onForkMostInterface(mostInterface, getNewFunctions) {
+        const thisApp = this;
+
+        // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
+        let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
+        if (functionBlockId) {
+            if (this.state.activeSubRole == this.developmentRoles.mostInterface) {
+                functionBlockId = null;
+            }
+        }
+        const mostInterfaceId = mostInterface.getId();
+
+        forkMostInterface(functionBlockId, mostInterfaceId, function(data, newMostInterfaceId) {
+            if (! data.wasSuccess) {
+                app.App.alert("Unable to fork interface", data.errorMessage, function() {
+                    // nothing to do
+                });
+            }
+            else {
+                var mostInterfaces = thisApp.state.mostInterfaces;
+
+                let newMostInterface = copyMostObject(MostInterface, mostInterface);
+                newMostInterface.setId(newMostInterfaceId);
+                newMostInterface.setIsReleased(false);
+                newMostInterface.setIsApproved(false);
+                newMostInterface.setCreatorAccountId(thisApp.state.account.getId());
+                mostInterfaces.push(newMostInterface);
+
+                //Update final navigation item to reflect any name changes.
+                var navigationItems = [];
+                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
+                var navigationItem = navigationItems.pop();
+                navigationItem.setId("mostInterface" + newMostInterfaceId);
+                navigationItem.setTitle(newMostInterface.getName());
+                navigationItem.setIsReleased(newMostInterface.isReleased());
+                navigationItem.setIsApproved(newMostInterface.isApproved());
+                navigationItem.setHeader(thisApp.headers.mostInterface);
+                navigationItem.setOnClickCallback(function() {
+                    thisApp.onMostInterfaceSelected(newMostInterface, true, false);
+                });
+
+                //Update form to show changes were saved.
+                navigationItem.setForm(
+                    <app.MostInterfaceForm
+                        showTitle={false}
+                        shouldShowSaveAnimation={false}
+                        onSubmit={thisApp.onUpdateMostInterface}
+                        mostInterface={newMostInterface}
+                        buttonTitle="Save"
+                        defaultButtonTitle="Save"
+                        readOnly={! thisApp.state.account.hasRole("Modify")}
+                        account={thisApp.state.account}
+                        accountsForEditForm={thisApp.state.accountsForEditForm}
+                    />
+                );
+
+                navigationItems.push(navigationItem);
+
+                thisApp.setState({
+                    mostInterfaces:         mostInterfaces,
+                    selectedItem:           newMostInterface,
+                    navigationItems:        navigationItems,
+                    currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces
+                });
+                // Need to get new functions if forking an interface.
+                thisApp.onMostInterfaceSelected(newMostInterface);
             }
         });
     }
@@ -3307,7 +3460,7 @@ class App extends React.Component {
                 if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
                     shouldShowReleaseButton = ! isReleased && isApproved;
                     shouldShowForkButton = isApproved;
-                    forkFunction = this.onUpdateFunctionCatalog;
+                    forkFunction = this.onForkFunctionCatalog;
                 }
 
                 if (activeRole === this.roles.development) {
@@ -3324,10 +3477,10 @@ class App extends React.Component {
                         if (shouldShowForkButton) {
                             switch (currentNavigationLevel) {
                                 case this.NavigationLevel.functionBlocks:
-                                    forkFunction = this.onUpdateFunctionBlock;
+                                    forkFunction = this.onForkFunctionBlock;
                                     break;
                                 case this.NavigationLevel.mostInterfaces:
-                                    forkFunction = this.onUpdateMostInterface;
+                                    forkFunction = this.onForkMostInterface;
                                     break;
                             }
                         }
