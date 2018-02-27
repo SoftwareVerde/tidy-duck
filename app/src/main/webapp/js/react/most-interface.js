@@ -39,7 +39,6 @@ class MostInterface extends React.Component {
         const mostInterface = this.props.mostInterface;
         const versionsJson = mostInterface.getVersionsJson();
 
-
         for (let i in versionsJson) {
             const newMostInterfaceJson = versionsJson[i];
             let newVersion = newMostInterfaceJson.releaseVersion;

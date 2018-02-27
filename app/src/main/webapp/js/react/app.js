@@ -1306,6 +1306,10 @@ class App extends React.Component {
                     functionBlocks.push(functionBlock);
                 }
 
+                functionBlocks.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
+
                 thisApp.setState({
                     functionBlocks:     functionBlocks,
                     mostInterfaces:     [],
@@ -1506,6 +1510,10 @@ class App extends React.Component {
                     const mostInterface = MostInterface.fromJson(mostInterfaceJson);
                     mostInterfaces.push(mostInterface);
                 }
+
+                mostInterfaces.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     mostInterfaces:             mostInterfaces,
@@ -2518,6 +2526,10 @@ class App extends React.Component {
             childItems.push(childItem);
         }
 
+        childItems.sort(function(a, b) {
+            return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+        });
+
         return childItems;
     }
 
@@ -3283,9 +3295,6 @@ class App extends React.Component {
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
                 childItems = this.state.functionCatalogs;
-                childItems.sort(function(a, b) {
-                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
-                });
 
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -3307,10 +3316,15 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionCatalogs:
-                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.functionBlocks;
-                childItems.sort(function(a, b) {
-                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
-                });
+                if (this.state.shouldShowFilteredResults) {
+                    childItems = this.state.searchResults;
+                    childItems.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
+                }
+                else {
+                    childItems = this.state.functionBlocks;
+                }
 
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -3331,10 +3345,15 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionBlocks:
-                childItems = this.state.shouldShowFilteredResults ? this.state.searchResults : this.state.mostInterfaces;
-                childItems.sort(function(a, b) {
-                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
-                });
+                if (this.state.shouldShowFilteredResults) {
+                    childItems = this.state.searchResults;
+                    childItems.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
+                }
+                else {
+                    childItems = this.state.mostInterfaces;
+                }
 
                 for (let i in childItems) {
                     const childItem = childItems[i];
