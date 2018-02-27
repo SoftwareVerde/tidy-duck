@@ -22,13 +22,24 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
-        // TODO: check to see whether function catalog is approved.
         _insertFunctionBlock(functionBlock);
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
 
     public void insertOrphanedFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
         _insertFunctionBlock(functionBlock);
+    }
+
+    public long forkFunctionBlock(final long functionBlockId, final Long parentFunctionCatalogId, final long currentAccountId) throws DatabaseException {
+        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
+        final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+
+        final long newFunctionBlockId = _forkFunctionBlock(functionBlock, currentAccountId);
+        _copyFunctionBlockInterfacesAssociations(functionBlockId, newFunctionBlockId);
+        if (parentFunctionCatalogId != null) {
+            _associateFunctionBlockWithFunctionCatalog(parentFunctionCatalogId, functionBlockId);
+        }
+        return newFunctionBlockId;
     }
 
     private void _insertFunctionBlock(final FunctionBlock functionBlock, final FunctionBlock priorFunctionBlock) throws DatabaseException {
@@ -62,17 +73,46 @@ public class FunctionBlockDatabaseManager {
 
         final long functionBlockId = _databaseConnection.executeSql(query);
         functionBlock.setId(functionBlockId);
-
-        if (priorFunctionBlock == null) {
-            _setBaseVersionId(functionBlockId, functionBlockId);
-        }
-        else {
-            _setBaseVersionId(functionBlockId, priorFunctionBlock.getBaseVersionId());
-        }
+        _setBaseVersionId(functionBlockId, functionBlockId);
     }
 
     private void _insertFunctionBlock(final FunctionBlock functionBlock) throws DatabaseException {
         _insertFunctionBlock(functionBlock, null);
+    }
+
+    private long _forkFunctionBlock(final FunctionBlock functionBlock, final Long currentAccountId) throws DatabaseException {
+        final String mostId = functionBlock.getMostId();
+        final String kind = functionBlock.getKind();
+        final String name = functionBlock.getName();
+        final String description = functionBlock.getDescription();
+        final String release = functionBlock.getRelease();
+        final Long authorId = functionBlock.getAuthor().getId();
+        final Long companyId = functionBlock.getCompany().getId();
+        final String access = functionBlock.getAccess();
+        final boolean isSource = functionBlock.isSource();
+        final boolean isSink = functionBlock.isSink();
+        final Long priorVersionId = functionBlock.getId();
+        final Long creatorAccountId = currentAccountId;
+        final Long baseVersionId = functionBlock.getBaseVersionId();
+
+        final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, is_source, is_sink, prior_version_id, creator_account_id, base_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .setParameter(mostId)
+                .setParameter(kind)
+                .setParameter(name)
+                .setParameter(description)
+                .setParameter(release)
+                .setParameter(authorId)
+                .setParameter(companyId)
+                .setParameter(access)
+                .setParameter(isSource)
+                .setParameter(isSink)
+                .setParameter(priorVersionId)
+                .setParameter(creatorAccountId)
+                .setParameter(baseVersionId)
+                ;
+
+        final long functionBlockId = _databaseConnection.executeSql(query);
+        return functionBlockId;
     }
 
     private void _setBaseVersionId(long functionBlockId, long baseVersionId) throws DatabaseException {
@@ -272,35 +312,8 @@ public class FunctionBlockDatabaseManager {
         }
     }
 
-    /**
-     * If the functionBlock already exists and is approved, a new one is inserted and associated with the functionCatalogId.
-     *  If a new functionBlock is inserted, the updatedFunctionBlock will have its Id updated.
-     *  If the functionBlock is not approved, then the values are updated within the database.
-     */
-    public void updateFunctionBlockForFunctionCatalog(final Long currentAccountId, final long functionCatalogId, final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
-        final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-
-        final long inputFunctionBlockId = updatedFunctionBlock.getId();
-        final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(inputFunctionBlockId);
-
-        if (originalFunctionBlock.isApproved()) {
-            // current block is approved, need to insert a new function block replace this one
-            updatedFunctionBlock.setCreatorAccountId(currentAccountId);
-            _insertFunctionBlock(updatedFunctionBlock, originalFunctionBlock);
-            final long newFunctionBlockId = updatedFunctionBlock.getId();
-            _copyFunctionBlockInterfacesAssociations(inputFunctionBlockId, newFunctionBlockId);
-
-            // change association with function catalog if provided id isn't 0
-            if (functionCatalogId != 0) {
-                // TODO: Check if functionCatalog is also approved...?
-                _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, inputFunctionBlockId);
-                _associateFunctionBlockWithFunctionCatalog(functionCatalogId, newFunctionBlockId);
-            }
-        }
-        else {
-            // not approve, can update existing function block
-            _updateUnapprovedFunctionBlock(updatedFunctionBlock);
-        }
+    public void updateFunctionBlock(final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
+        _updateUnapprovedFunctionBlock(updatedFunctionBlock);
     }
 
     private void _copyFunctionBlockInterfacesAssociations(final long originalFunctionBlockId, final long newFunctionBlockId) throws DatabaseException {
