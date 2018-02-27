@@ -90,43 +90,49 @@ class TrashPage extends React.Component {
 
     onRestoreFunctionCatalogFromTrash(functionCatalog) {
         const thisPage = this;
-        this.props.onRestoreFunctionCatalog(functionCatalog, function() {
-            const functionCatalogId = functionCatalog.getId();
-            const deletedFunctionCatalogs = thisPage.state.deletedFunctionCatalogs.filter(function(item) {
-               return item.getId() != functionCatalogId;
-            });
+        this.props.onRestoreFunctionCatalog(functionCatalog, function(confirmedRestore) {
+            if (confirmedRestore) {
+                const functionCatalogId = functionCatalog.getId();
+                const deletedFunctionCatalogs = thisPage.state.deletedFunctionCatalogs.filter(function(item) {
+                    return item.getId() != functionCatalogId;
+                });
 
-            thisPage.setState({
-                deletedFunctionCatalogs: deletedFunctionCatalogs
-            });
+                thisPage.setState({
+                    deletedFunctionCatalogs: deletedFunctionCatalogs
+                });
+            }
         });
     }
 
     onRestoreFunctionBlockFromTrash(functionBlock) {
         const thisPage = this;
-        this.props.onRestoreFunctionBlock(functionBlock, function() {
-            const functionBlockId = functionBlock.getId();
-            const deletedFunctionBlocks = thisPage.state.deletedFunctionBlocks.filter(function(item) {
-                return item.getId() != functionBlockId;
-            });
+        this.props.onRestoreFunctionBlock(functionBlock, function(confirmedRestore) {
+            if (confirmedRestore) {
+                const functionBlockId = functionBlock.getId();
+                const deletedFunctionBlocks = thisPage.state.deletedFunctionBlocks.filter(function(item) {
+                    return item.getId() != functionBlockId;
+                });
 
-            thisPage.setState({
-                deletedFunctionBlocks: deletedFunctionBlocks
-            });
+                thisPage.setState({
+                    deletedFunctionBlocks: deletedFunctionBlocks
+                });
+            }
         });
     }
 
     onRestoreMostInterfaceFromTrash(mostInterface) {
         const thisPage = this;
-        this.props.onRestoreMostInterface(mostInterface, function() {
-            const mostInterfaceId = mostInterface.getId();
-            const deletedMostInterfaces = thisPage.state.deletedMostInterfaces.filter(function(item) {
-                return item.getId() != mostInterfaceId;
-            });
+        this.props.onRestoreMostInterface(mostInterface, function(confirmedRestore) {
+            if (confirmedRestore) {
+                const mostInterfaceId = mostInterface.getId();
+                const deletedMostInterfaces = thisPage.state.deletedMostInterfaces.filter(function(item) {
+                    return item.getId() != mostInterfaceId;
+                });
 
-            thisPage.setState({
-                deletedMostInterfaces: deletedMostInterfaces
-            });
+                thisPage.setState({
+                    deletedMostInterfaces: deletedMostInterfaces
+                });
+            }
         });
     }
 

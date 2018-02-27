@@ -1438,7 +1438,7 @@ class App extends React.Component {
                 }
 
                 functionCatalog.setVersionsJson(versionsJson);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
@@ -1750,7 +1750,7 @@ class App extends React.Component {
                 }
 
                 functionBlock.setVersionsJson(versionsJson);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
@@ -2195,7 +2195,7 @@ class App extends React.Component {
                 }
 
                 mostInterface.setVersionsJson(versionsJson);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
