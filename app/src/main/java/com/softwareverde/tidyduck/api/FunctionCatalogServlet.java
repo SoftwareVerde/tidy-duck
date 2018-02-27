@@ -389,6 +389,19 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson(errorMessage);
             }
 
+            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+            final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+            if (!functionCatalog.isReleased()) {
+                final String error = "Released function catalogs cannot be deleted.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
+            }
+            if (!functionCatalog.isDeleted()) {
+                final String error = "Function catalog must be moved to trash before deleting.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.deleteFunctionCatalog(functionCatalogId);
 

@@ -126,12 +126,24 @@ class FunctionCatalogDatabaseManager {
 
     }
 
-    private void _deleteFunctionCatalogIfUnapproved(final long functionCatalogId) throws DatabaseException {
+    private void _deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (! functionCatalog.isReleased()) {
-            // function catalog isn't approved, we can delete it
+        if (functionCatalog.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!functionCatalog.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (functionCatalog.isApproved()) {
+            // approved, be careful
+            // TODO: implement
+        }
+        else {
+            // not approved, delete
             _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
             _deleteReviewForFunctionCatalog(functionCatalogId);
             _deleteFunctionCatalogFromDatabase(functionCatalogId);
@@ -174,7 +186,7 @@ class FunctionCatalogDatabaseManager {
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        _deleteFunctionCatalogIfUnapproved(functionCatalogId);
+        _deleteFunctionCatalog(functionCatalogId);
     }
 
     private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, final long newFunctionCatalogId) throws DatabaseException {
