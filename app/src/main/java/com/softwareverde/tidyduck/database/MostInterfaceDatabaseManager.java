@@ -55,14 +55,14 @@ public class MostInterfaceDatabaseManager {
         final Long creatorAccountId = mostInterface.getCreatorAccountId();
         final Long baseVersionId = mostInterface.getBaseVersionId();
 
-        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id, baseVersionId) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id, base_version_id) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)")
                 .setParameter(mostId)
                 .setParameter(name)
                 .setParameter(description)
                 .setParameter(version)
                 .setParameter(priorVersionId)
                 .setParameter(creatorAccountId)
-                .setParameter(baseVersionId);
+                .setParameter(baseVersionId)
                 ;
 
         final long newMostInterfaceId = _databaseConnection.executeSql(query);

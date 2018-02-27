@@ -206,7 +206,7 @@ function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
 // calls callbackFunction with new MOST interface ID
 function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterface + "/fork",
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/fork",
         {
             method: "POST",
             credentials: "include",

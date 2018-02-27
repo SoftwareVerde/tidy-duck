@@ -325,7 +325,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson(errorMessage);
             }
 
-            final Long parentFunctionCatalogId = Util.parseLong(parentFunctionCatalogIdString);
+            Long parentFunctionCatalogId = Util.parseLong(parentFunctionCatalogIdString);
+            if (parentFunctionCatalogId < 1) {
+                parentFunctionCatalogId = null;
+            }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long newFunctionBlockId = databaseManager.forkFunctionBlock(functionBlockId, parentFunctionCatalogId, currentAccountId);
@@ -794,10 +797,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (originalFunctionBlock.getCreatorAccountId() != null) {
-            if (!originalFunctionBlock.getCreatorAccountId().equals(currentAccountId)) {
-                return "The function block is owned by another account and cannot be modified.";
-            }
+        final String ownerCheckResult = ownerCheck(originalFunctionBlock, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
         return null;
@@ -807,10 +809,9 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (originalFunctionBlock.getCreatorAccountId() != null) {
-            if (!originalFunctionBlock.getCreatorAccountId().equals(currentAccountId)) {
-                return "The function block is owned by another account and cannot be modified.";
-            }
+        final String ownerCheckResult = ownerCheck(originalFunctionBlock, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
         if (originalFunctionBlock.isReleased()) {
@@ -821,6 +822,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
 
         // good to go
+        return null;
+    }
+
+    private static String ownerCheck(final FunctionBlock functionBlock, final Long currentAccountId) {
+        if (functionBlock.getCreatorAccountId() != null) {
+            if (!functionBlock.getCreatorAccountId().equals(currentAccountId)) {
+                return "The function block is owned by another account and cannot be modified.";
+            }
+        }
+
         return null;
     }
 }

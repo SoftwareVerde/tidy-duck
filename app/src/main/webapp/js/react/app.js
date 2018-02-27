@@ -788,7 +788,6 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    functionBlocks:             functionBlocks,
                     selectedItem:               functionBlock,
                     navigationItems:            navigationItems,
                     currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
@@ -944,7 +943,8 @@ class App extends React.Component {
             selectedItem:   mostInterface,
             createButtonState: createButtonState
         });
-        updateMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
+
+        updateMostInterface(mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Interface", data.errorMessage, function() {
                     //Update form to show changes were not saved.
@@ -1003,7 +1003,6 @@ class App extends React.Component {
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
-                    mostInterfaces:         mostInterfaces,
                     selectedItem:           mostInterface,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
@@ -1015,6 +1014,7 @@ class App extends React.Component {
 
     onForkMostInterface(mostInterface, getNewFunctions) {
         const thisApp = this;
+
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
         let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
         if (functionBlockId) {
@@ -1024,7 +1024,7 @@ class App extends React.Component {
         }
         const mostInterfaceId = mostInterface.getId();
 
-        forkMostInterface(functionBlockId, mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
+        forkMostInterface(functionBlockId, mostInterfaceId, function(data, newMostInterfaceId) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to fork interface", data.errorMessage, function() {
                     // nothing to do
@@ -1034,7 +1034,7 @@ class App extends React.Component {
                 var mostInterfaces = thisApp.state.mostInterfaces;
 
                 let newMostInterface = copyMostObject(MostInterface, mostInterface);
-
+                newMostInterface.setId(newMostInterfaceId);
                 newMostInterface.setIsReleased(false);
                 newMostInterface.setIsApproved(false);
                 newMostInterface.setCreatorAccountId(thisApp.state.account.getId());

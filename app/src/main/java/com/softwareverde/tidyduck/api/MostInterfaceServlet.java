@@ -314,23 +314,26 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Long currentAccountId = currentAccount.getId();
 
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
             if (errorMessage != null) {
-                errorMessage = "Unable to update interface: " + errorMessage;
+                errorMessage = "Unable to fork interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
-            final Long parentFunctionBlockId = Util.parseLong(parentFunctionBlockIdString);
+            Long parentFunctionBlockId = Util.parseLong(parentFunctionBlockIdString);
+            if (parentFunctionBlockId < 1) {
+                parentFunctionBlockId = null;
+            }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long newMostInterfaceId = databaseManager.forkMostInterface(mostInterfaceId, parentFunctionBlockId, currentAccountId);
 
-            _logger.info("User " + currentAccountId + " updated interface " + mostInterfaceId + " (new ID: " + newMostInterfaceId + ")");
+            _logger.info("User " + currentAccountId + " forked interface " + mostInterfaceId + " (new ID: " + newMostInterfaceId + ")");
             response.put("mostInterfaceId", newMostInterfaceId);
         }
         catch (final Exception exception) {
-            final String errorMessage = "Unable to update interface: " + exception.getMessage();
+            final String errorMessage = "Unable to fork interface: " + exception.getMessage();
             _logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
@@ -754,14 +757,26 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return mostInterfaceJson;
     }
 
+    public static String canAccountViewMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
+        final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+        final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+
+        final String ownerCheckResult = ownerCheck(originalMostInterface, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
+        }
+
+        // good to go
+        return null;
+    }
+
     public static String canAccountModifyMostInterface(final DatabaseConnection<Connection> databaseConnection, final Long mostInterfaceId, final Long currentAccountId) throws DatabaseException {
         final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
         final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (originalMostInterface.getCreatorAccountId() != null) {
-            if (!originalMostInterface.getCreatorAccountId().equals(currentAccountId)) {
-                return "The interface is owned by another account and cannot be modified.";
-            }
+        final String ownerCheckResult = ownerCheck(originalMostInterface, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
         if (originalMostInterface.isReleased()) {
@@ -772,6 +787,15 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
 
         // good to go
+        return null;
+    }
+
+    private static String ownerCheck(final MostInterface mostInterface, final Long currentAccountId) {
+        if (mostInterface.getCreatorAccountId() != null) {
+            if (!mostInterface.getCreatorAccountId().equals(currentAccountId)) {
+                return "The interface is owned by another account and cannot be modified.";
+            }
+        }
         return null;
     }
 }

@@ -677,10 +677,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (originalFunctionCatalog.getCreatorAccountId() != null) {
-            if (!originalFunctionCatalog.getCreatorAccountId().equals(currentAccountId)) {
-                return "The function catalog is owned by another account and cannot be modified.";
-            }
+        final String ownerCheckResult = ownerCheck(originalFunctionCatalog, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
         return null;
@@ -690,10 +689,9 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (originalFunctionCatalog.getCreatorAccountId() != null) {
-            if (!originalFunctionCatalog.getCreatorAccountId().equals(currentAccountId)) {
-                return "The function catalog is owned by another account and cannot be modified.";
-            }
+        final String ownerCheckResult = ownerCheck(originalFunctionCatalog, currentAccountId);
+        if (ownerCheckResult != null) {
+            return ownerCheckResult;
         }
 
         if (originalFunctionCatalog.isReleased()) {
@@ -704,6 +702,16 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
 
         // good to go
+        return null;
+    }
+
+    private static String ownerCheck(final FunctionCatalog functionCatalog, final Long currentAccountId) {
+        if (functionCatalog.getCreatorAccountId() != null) {
+            if (!functionCatalog.getCreatorAccountId().equals(currentAccountId)) {
+                return "The function catalog is owned by another account and cannot be modified.";
+            }
+        }
+
         return null;
     }
 }
