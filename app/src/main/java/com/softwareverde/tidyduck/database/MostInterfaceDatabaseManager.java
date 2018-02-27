@@ -130,7 +130,17 @@ public class MostInterfaceDatabaseManager {
                 ;
 
         _databaseConnection.executeSql(query);
-        // Child object associations are not marked as deleted in this case.
+
+        _setIsDeletedForMostInterfaceParentAssociations(mostInterfaceId, isDeleted);
+    }
+
+    private void _setIsDeletedForMostInterfaceParentAssociations(final long mostInterfaceId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks_interfaces SET is_deleted = ? WHERE interface_id = ?")
+                .setParameter(isDeleted)
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     public void restoreMostInterfaceFromTrash(final long mostInterfaceId) throws DatabaseException {
@@ -170,8 +180,6 @@ public class MostInterfaceDatabaseManager {
     }
 
     private void _deleteMostInterfaceFromDatabase(final long mostInterfaceId) throws DatabaseException {
-        _nullifyMostInterfaceParentRelationships(mostInterfaceId);
-
         final Query query = new Query("DELETE FROM interfaces WHERE id = ?")
             .setParameter(mostInterfaceId)
         ;

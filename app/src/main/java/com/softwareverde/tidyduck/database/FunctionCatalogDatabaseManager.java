@@ -88,19 +88,8 @@ class FunctionCatalogDatabaseManager {
         ;
 
         _databaseConnection.executeSql(query);
-
-        _setIsDeletedForFunctionCatalogChildAssociations(functionCatalogId, isDeleted);
     }
-
-    private void _setIsDeletedForFunctionCatalogChildAssociations(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs_function_blocks SET is_deleted = ? WHERE function_catalog_id = ?")
-                .setParameter(isDeleted)
-                .setParameter(functionCatalogId)
-        ;
-
-        _databaseConnection.executeSql(query);
-    }
-
+    
     public long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
         setIsDeletedForFunctionCatalog(functionCatalogId, false);
         final long numberOfDeletedChildren = _getNumberOfDeletedChildren();

@@ -174,20 +174,11 @@ public class FunctionBlockDatabaseManager {
 
         _databaseConnection.executeSql(query);
 
-        _setIsDeletedForFunctionBlockChildAssociations(functionBlockId, isDeleted);
+        _setIsDeletedForFunctionBlockParentAssociations(functionBlockId, isDeleted);
     }
 
-    private void _nullifyFunctionBlockParentRelationships(final long functionBlockId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs_function_blocks SET function_block_id = ? WHERE function_block_id = ?")
-                .setParameter(null)
-                .setParameter(functionBlockId)
-        ;
-
-        _databaseConnection.executeSql(query);
-    }
-
-    private void _setIsDeletedForFunctionBlockChildAssociations(final long functionBlockId, final boolean isDeleted) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks_interfaces SET is_deleted = ? WHERE function_block_id = ?")
+    private void _setIsDeletedForFunctionBlockParentAssociations(final long functionBlockId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs_function_blocks SET is_deleted = ? WHERE function_block_id = ?")
                 .setParameter(isDeleted)
                 .setParameter(functionBlockId)
                 ;
@@ -204,6 +195,15 @@ public class FunctionBlockDatabaseManager {
         }
 
         return numberOfDeletedChildren;
+    }
+
+    private void _nullifyFunctionBlockParentRelationships(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs_function_blocks SET function_block_id = ? WHERE function_block_id = ?")
+                .setParameter(null)
+                .setParameter(functionBlockId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private long _getNumberOfDeletedChildren() throws DatabaseException {
@@ -243,8 +243,6 @@ public class FunctionBlockDatabaseManager {
     }
 
     private void _deleteFunctionBlockFromDatabase(final long functionBlockId) throws DatabaseException {
-        _nullifyFunctionBlockParentRelationships(functionBlockId);
-
         final Query query = new Query("DELETE FROM function_blocks WHERE id = ?")
             .setParameter(functionBlockId)
         ;
