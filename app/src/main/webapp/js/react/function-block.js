@@ -39,7 +39,6 @@ class FunctionBlock extends React.Component {
         const functionBlock = this.props.functionBlock;
         const versionsJson = functionBlock.getVersionsJson();
 
-
         for (let i in versionsJson) {
             const newFunctionBlockJson = versionsJson[i];
             let newVersion = newFunctionBlockJson.releaseVersion;
@@ -81,9 +80,22 @@ class FunctionBlock extends React.Component {
             showWorkingIcon: true
         });
 
-        const thisFunctionblock = this;
-        this.props.onMarkAsDeleted(this.props.functionBlock, function() {
-            thisFunctionblock.setState({
+        const thisFunctionBlock = this;
+        const functionBlock = this.props.functionBlock;
+        const versionsJson = functionBlock.getVersionsJson();
+
+        this.props.onMarkAsDeleted(functionBlock, function() {
+            let newVersionJson = versionsJson[0];
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.isApproved) {
+                    if (versionJson.id > newVersionJson.id)
+                    newVersionJson = versionJson;
+                }
+            }
+
+            thisFunctionBlock.props.onVersionChanged(functionBlock, newVersionJson, versionsJson);
+            thisFunctionBlock.setState({
                 showWorkingIcon: false
             });
         });

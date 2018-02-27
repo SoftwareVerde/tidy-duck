@@ -91,7 +91,20 @@ class FunctionCatalog extends React.Component {
         });
 
         const thisFunctionCatalog = this;
+        const functionCatalog = this.props.functionCatalog;
+        const versionsJson = functionCatalog.getVersionsJson();
+
         this.props.onMarkAsDeleted(this.props.functionCatalog, function() {
+            let newVersionJson = versionsJson[0];
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.isApproved) {
+                    if (versionJson.id > newVersionJson.id)
+                        newVersionJson = versionJson;
+                }
+            }
+
+            thisFunctionCatalog.props.onVersionChanged(functionCatalog, newVersionJson, versionsJson);
             thisFunctionCatalog.setState({
                 showWorkingIcon: false
             });

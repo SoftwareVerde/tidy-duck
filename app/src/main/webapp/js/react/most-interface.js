@@ -83,7 +83,20 @@ class MostInterface extends React.Component {
         });
 
         const thisMostInterface = this;
+        const mostInterface = this.props.mostInterface;
+        const versionsJson = mostInterface.getVersionsJson();
+
         this.props.onMarkAsDeleted(this.props.mostInterface, function() {
+            let newVersionJson = versionsJson[0];
+            for (let i in versionsJson) {
+                const versionJson = versionsJson[i];
+                if (versionJson.isApproved) {
+                    if (versionJson.id > newVersionJson.id)
+                        newVersionJson = versionJson;
+                }
+            }
+
+            thisMostInterface.props.onVersionChanged(mostInterface, newVersionJson, versionsJson);
             thisMostInterface.setState({
                 showWorkingIcon: false
             });
