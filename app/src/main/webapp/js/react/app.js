@@ -2255,7 +2255,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Delete Function", "This action will delete the only reference to this function. Are you sure you want to delete it?", deleteFunction, callbackFunction);
+        app.App.confirm("Delete Function", "This action will permanently delete this function. Are you sure you want to delete it?", deleteFunction, callbackFunction);
     }
 
     onMarkMostFunctionAsDeleted(mostFunction, callbackFunction) {
