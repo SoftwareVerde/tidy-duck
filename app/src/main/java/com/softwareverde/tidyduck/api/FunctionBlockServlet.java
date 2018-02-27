@@ -29,7 +29,6 @@ import java.util.Map;
 public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
 
-
     public FunctionBlockServlet() {
         super._defineEndpoint("function-blocks", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
             @Override
@@ -151,7 +150,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _deleteFunctionBlockFromCatalog(request, functionBlockId, currentAccount, environment.getDatabase());
+                return _deleteFunctionBlock(functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -178,6 +177,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
                 return _associateFunctionBlockWithFunctionCatalog(request, functionBlockId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block id: " + functionBlockId);
+                }
+                return _disassociateFunctionBlockFromCatalog(request, functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -274,7 +286,6 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         return response;
     }
-
 
     protected Json _updateFunctionBlock(final HttpServletRequest httpRequest, final long functionBlockId, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json response = new Json(false);
@@ -415,6 +426,43 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
+    protected Json _disassociateFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
+        final String functionCatalogIdString = request.getParameter("functionCatalogId");
+        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to remove function block: " + errorMessage;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (functionCatalogId < 1) {
+                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
+            }
+
+            String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            if (parentErrorMessage != null) {
+                parentErrorMessage = "Unable to remove function block from parent function catalog: " + parentErrorMessage;
+                _logger.error(parentErrorMessage);
+                return super._generateErrorJson(parentErrorMessage);
+            }
+
+            databaseManager.disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
+        }
+        catch (final DatabaseException exception) {
+            final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);
+            _logger.error(errorMessage, exception);
+            return super._generateErrorJson(errorMessage);
+        }
+
+        final Json response = new Json(false);
+        super._setJsonSuccessFields(response);
+        return response;
+    }
+
     protected Json _markFunctionBlockAsDeleted(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
@@ -469,41 +517,29 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _deleteFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
-        final String functionCatalogIdString = request.getParameter("functionCatalogId");
-        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
-
+    protected Json _deleteFunctionBlock(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            final Long currentAccountId = currentAccount.getId();
+            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
             if (errorMessage != null) {
                 errorMessage = "Unable to remove function block: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
+            final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
+            final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
+            if (!functionBlock.isDeleted()) {
+                final String error = "Function block must be moved to trash before deleting.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
-
-            // Validate inputs. If null, send catalogId of 0, which will disassociate function block from all catalogs.
-            if (Util.isBlank(functionCatalogIdString)) {
-                databaseManager.deleteFunctionBlock(0, functionBlockId);
-            }
-            else {
-                if (functionCatalogId < 1) {
-                    return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
-                }
-
-                String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
-                if (parentErrorMessage != null) {
-                    parentErrorMessage = "Unable to remove function block from parent function catalog: " + parentErrorMessage;
-                    _logger.error(parentErrorMessage);
-                    return super._generateErrorJson(parentErrorMessage);
-                }
-
-                databaseManager.deleteFunctionBlock(functionCatalogId, functionBlockId);
-            }
+            databaseManager.deleteFunctionBlock(currentAccountId);
         }
         catch (final DatabaseException exception) {
-            final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);
+            final String errorMessage = String.format("Unable to delete function block %d.", functionBlockId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }

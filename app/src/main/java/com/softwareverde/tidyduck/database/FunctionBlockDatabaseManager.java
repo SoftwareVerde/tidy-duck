@@ -260,7 +260,7 @@ public class FunctionBlockDatabaseManager {
 
     }
 
-    private void _deleteFunctionBlockIfUnapproved(final long functionBlockId) throws DatabaseException {
+    private void _deleteFunctionBlock(final long functionBlockId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
@@ -312,6 +312,10 @@ public class FunctionBlockDatabaseManager {
         }
     }
 
+    public void disassociateFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
+    }
+
     public void updateFunctionBlock(final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
         _updateUnapprovedFunctionBlock(updatedFunctionBlock);
     }
@@ -326,18 +330,8 @@ public class FunctionBlockDatabaseManager {
         }
     }
 
-    public void deleteFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
-        if (functionCatalogId > 0) {
-            _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
-        }
-        else {
-            if (!_isOrphaned(functionBlockId)) {
-                _disassociateFunctionBlockFromAllUnapprovedFunctionCatalogs(functionBlockId);
-            }
-            else {
-                _deleteFunctionBlockIfUnapproved(functionBlockId);
-            }
-        }
+    public void deleteFunctionBlock(final long functionBlockId) throws DatabaseException {
+        _deleteFunctionBlock(functionBlockId);
     }
 
     public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {

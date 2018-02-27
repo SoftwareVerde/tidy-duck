@@ -140,7 +140,7 @@ class FunctionCatalogDatabaseManager {
 
         if (functionCatalog.isApproved()) {
             // approved, be careful
-            // TODO: implement
+            _markAsPermanentlyDeleted(functionCatalogId);
         }
         else {
             // not approved, delete
@@ -150,13 +150,21 @@ class FunctionCatalogDatabaseManager {
         }
     }
 
+    private void _markAsPermanentlyDeleted(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_permanently_deleted = 1 WHERE id = ?")
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     private void _deleteFunctionBlocksFromFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
         final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         for (final FunctionBlock functionBlock : functionBlocks) {
-            functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
+            functionBlockDatabaseManager.disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
         }
     }
 

@@ -267,6 +267,16 @@ public class DatabaseManager {
         });
     }
 
+    public void disassociateFunctionBlockFromFunctionCatalog(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                functionBlockDatabaseManager.disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
+            }
+        });
+    }
+
     public void updateFunctionBlock(final FunctionBlock functionBlock, final Long currentAccountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
@@ -307,12 +317,12 @@ public class DatabaseManager {
         });
     }
 
-    public void deleteFunctionBlock(final long functionCatalogId, final long functionBlockId) throws DatabaseException {
+    public void deleteFunctionBlock(final long functionBlockId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
-                functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
+                functionBlockDatabaseManager.deleteFunctionBlock(functionBlockId);
             }
         });
     }
