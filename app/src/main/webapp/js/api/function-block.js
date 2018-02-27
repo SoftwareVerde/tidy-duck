@@ -260,7 +260,7 @@ function markFunctionBlockAsDeleted(functionBlockId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/mark-as-deleted",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );

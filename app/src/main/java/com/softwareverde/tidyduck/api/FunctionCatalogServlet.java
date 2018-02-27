@@ -84,7 +84,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super._defineEndpoint("function-catalogs/<functionCatalogId>/mark-as-deleted", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("function-catalogs/<functionCatalogId>/mark-as-deleted", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);

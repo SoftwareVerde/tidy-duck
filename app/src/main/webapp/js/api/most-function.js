@@ -171,7 +171,7 @@ function markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, callbackFunc
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/mark-as-deleted",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include",
             body: JSON.stringify({
                 "mostInterfaceId": mostInterfaceId,

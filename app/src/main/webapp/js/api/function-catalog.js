@@ -181,7 +181,7 @@ function markFunctionCatalogAsDeleted(functionCatalogId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/mark-as-deleted",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );

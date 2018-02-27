@@ -260,7 +260,7 @@ function markMostInterfaceAsDeleted(mostInterfaceId, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/mark-as-deleted",
         {
-            method: "DELETE",
+            method: "POST",
             credentials: "include"
         }
     );
