@@ -1229,56 +1229,63 @@ class App extends React.Component {
             return;
         }
 
-        const functionCatalogId = functionCatalog.getId();
-
-        markFunctionCatalogAsDeleted(functionCatalogId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Move Function Catalog to Trash Bin", "Request to move Function Catalog to trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
-
-            functionCatalog.setIsDeleted(true);
-            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
-            functionCatalog.setDeletedDate("Just now");
-            const versionsJson = functionCatalog.getVersionsJson();
-
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.id == functionCatalogId) {
-                    versionJson.isDeleted = true;
-                    // TODO: set deletedDate. Need to get that from API.
-                    versionJson.deletedDate = "Just now";
-                    break;
+        const moveToTrashFunction = function() {
+            const functionCatalogId = functionCatalog.getId();
+            markFunctionCatalogAsDeleted(functionCatalogId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Move Function Catalog to Trash Bin", "Request to move Function Catalog to trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
                 }
-            }
 
-            functionCatalog.setVersionsJson(versionsJson);
-            callbackFunction();
-        });
+                functionCatalog.setIsDeleted(true);
+                // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+                functionCatalog.setDeletedDate("Just now");
+                const versionsJson = functionCatalog.getVersionsJson();
+
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.id == functionCatalogId) {
+                        versionJson.isDeleted = true;
+                        // TODO: set deletedDate. Need to get that from API.
+                        versionJson.deletedDate = "Just now";
+                        break;
+                    }
+                }
+
+                functionCatalog.setVersionsJson(versionsJson);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Move Function Catalog to Trash", "Are you sure you want to move this Function Catalog to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreFunctionCatalogFromTrash(functionCatalog, callbackFunction) {
-        const functionCatalogId = functionCatalog.getId();
-        restoreFunctionCatalogFromTrash(functionCatalogId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Restore Function Catalog from Trash Bin", "Request to restore Function Catalog from trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
-
-            functionCatalog.setIsDeleted(false);
-            const versionsJson = functionCatalog.getVersionsJson();
-
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.id == functionCatalogId) {
-                    versionJson.isDeleted = false;
-                    break;
+        const restoreFunction = function() {
+            const functionCatalogId = functionCatalog.getId();
+            restoreFunctionCatalogFromTrash(functionCatalogId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Restore Function Catalog from Trash Bin", "Request to restore Function Catalog from trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
                 }
-            }
 
-            functionCatalog.setVersionsJson(versionsJson);
-            callbackFunction();
-        });
+                functionCatalog.setIsDeleted(false);
+                const versionsJson = functionCatalog.getVersionsJson();
+
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.id == functionCatalogId) {
+                        versionJson.isDeleted = false;
+                        break;
+                    }
+                }
+
+                functionCatalog.setVersionsJson(versionsJson);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Restore Function Catalog from Trash", "Are you sure you want to restore this Function Catalog?", restoreFunction, callbackFunction);
     }
 
     addFunctionBlockNavigationItem(functionBlock) {
@@ -1530,57 +1537,63 @@ class App extends React.Component {
             return;
         }
 
-        const thisApp = this;
-        const functionBlockId = functionBlock.getId();
-
-        markFunctionBlockAsDeleted(functionBlockId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Move Function Block to Trash Bin", "Request to move Function Block to trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
-
-            functionBlock.setIsDeleted(true);
-            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
-            functionBlock.setDeletedDate("Just now");
-            const versionsJson = functionBlock.getVersionsJson();
-
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.id === functionBlockId) {
-                    versionJson.isDeleted = true;
-                    // TODO: set deletedDate. Need to get that from API.
-                    versionJson.deletedDate = "Just now";
-                    break;
+        const moveToTrashFunction = function() {
+            const functionBlockId = functionBlock.getId();
+            markFunctionBlockAsDeleted(functionBlockId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Move Function Block to Trash Bin", "Request to move Function Block to trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
                 }
-            }
 
-            functionBlock.setVersionsJson(versionsJson);
-            callbackFunction();
-        });
+                functionBlock.setIsDeleted(true);
+                // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+                functionBlock.setDeletedDate("Just now");
+                const versionsJson = functionBlock.getVersionsJson();
+
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.id === functionBlockId) {
+                        versionJson.isDeleted = true;
+                        // TODO: set deletedDate. Need to get that from API.
+                        versionJson.deletedDate = "Just now";
+                        break;
+                    }
+                }
+
+                functionBlock.setVersionsJson(versionsJson);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Move Function Block to Trash", "Are you sure you want to move this Function Block to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreFunctionBlockFromTrash(functionBlock, callbackFunction) {
-        const functionBlockId = functionBlock.getId();
-        restoreFunctionBlockFromTrash(functionBlockId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Restore Function Block from Trash Bin", "Request to restore Function Block from trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
-
-            functionBlock.setIsDeleted(false);
-            const versionsJson = functionBlock.getVersionsJson();
-
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.id == functionBlockId) {
-                    versionJson.isDeleted = false;
-                    break;
+        const restoreFunction = function() {
+            const functionBlockId = functionBlock.getId();
+            restoreFunctionBlockFromTrash(functionBlockId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Restore Function Block from Trash Bin", "Request to restore Function Block from trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
                 }
-            }
 
-            functionBlock.setVersionsJson(versionsJson);
-            callbackFunction();
-        });
+                functionBlock.setIsDeleted(false);
+                const versionsJson = functionBlock.getVersionsJson();
+
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.id == functionBlockId) {
+                        versionJson.isDeleted = false;
+                        break;
+                    }
+                }
+
+                functionBlock.setVersionsJson(versionsJson);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Restore Function Block from Trash", "Are you sure you want to restore this Function Block?", restoreFunction, callbackFunction);
     }
 
     disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction) {
@@ -1969,57 +1982,63 @@ class App extends React.Component {
             return;
         }
 
-        const thisApp = this;
-        const mostInterfaceId = mostInterface.getId();
-
-        markMostInterfaceAsDeleted(mostInterfaceId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Move Interface to Trash Bin", "Request to move Interface to trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
-
-            mostInterface.setIsDeleted(true);
-            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
-            mostInterface.setDeletedDate("Just now");
-            const versionsJson = mostInterface.getVersionsJson();
-
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.id == mostInterfaceId) {
-                    versionJson.isDeleted = true;
-                    // TODO: set deletedDate. Need to get that from API.
-                    versionJson.deletedDate = "Just now";
-                    break;
+        const moveToTrashFunction = function() {
+            const mostInterfaceId = mostInterface.getId();
+            markMostInterfaceAsDeleted(mostInterfaceId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Move Interface to Trash Bin", "Request to move Interface to trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
                 }
-            }
 
-            mostInterface.setVersionsJson(versionsJson);
-            callbackFunction();
-        });
+                mostInterface.setIsDeleted(true);
+                // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+                mostInterface.setDeletedDate("Just now");
+                const versionsJson = mostInterface.getVersionsJson();
+
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.id == mostInterfaceId) {
+                        versionJson.isDeleted = true;
+                        // TODO: set deletedDate. Need to get that from API.
+                        versionJson.deletedDate = "Just now";
+                        break;
+                    }
+                }
+
+                mostInterface.setVersionsJson(versionsJson);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Move Interface to Trash", "Are you sure you want to move this Interface to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreMostInterfaceFromTrash(mostInterface, callbackFunction) {
-        const mostInterfaceId = mostInterface.getId();
-        restoreMostInterfaceFromTrash(mostInterfaceId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Restore Interface from Trash Bin", "Request to restore Interface from trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
-
-            mostInterface.setIsDeleted(false);
-            const versionsJson = mostInterface.getVersionsJson();
-
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.id == mostInterfaceId) {
-                    versionJson.isDeleted = false;
-                    break;
+        const restoreFunction = function() {
+            const mostInterfaceId = mostInterface.getId();
+            restoreMostInterfaceFromTrash(mostInterfaceId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Restore Interface from Trash Bin", "Request to restore Interface from trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
                 }
-            }
 
-            mostInterface.setVersionsJson(versionsJson);
-            callbackFunction();
-        });
+                mostInterface.setIsDeleted(false);
+                const versionsJson = mostInterface.getVersionsJson();
+
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.id == mostInterfaceId) {
+                        versionJson.isDeleted = false;
+                        break;
+                    }
+                }
+
+                mostInterface.setVersionsJson(versionsJson);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Restore Interface from Trash", "Are you sure you want to restore this Interface?", restoreFunction, callbackFunction);
     }
 
     disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction) {
@@ -2242,40 +2261,49 @@ class App extends React.Component {
     onMarkMostFunctionAsDeleted(mostFunction, callbackFunction) {
         const selectedItem = this.state.selectedItem;
 
-        if (selectedItem.isApproved()) {
-            app.App.alert("Move Function to Trash Bin", "This currently selected Interface is approved for release and cannot be modified.", callbackFunction);
-            return;
-        }
-
-        const mostFunctionId = mostFunction.getId();
-        const mostInterfaceId = selectedItem.getId();
-
-        markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Move Function to Trash Bin", "Request to move Function to trash bin failed: " + data.errorMessage, callbackFunction);
+        const moveToTrashFunction = function() {
+            if (selectedItem.isApproved()) {
+                app.App.alert("Move Function to Trash Bin", "This currently selected Interface is approved for release and cannot be modified.", callbackFunction);
                 return;
             }
 
-            mostFunction.setIsDeleted(true);
-            // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
-            mostFunction.setDeletedDate("Just now");
+            const mostFunctionId = mostFunction.getId();
+            const mostInterfaceId = selectedItem.getId();
 
-            callbackFunction();
-        });
+            markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Move Function to Trash Bin", "Request to move Function to trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
+                }
+
+                mostFunction.setIsDeleted(true);
+                // TODO: set deletedDate. Need to get that from API or rely on object being re-retrieved from API.
+                mostFunction.setDeletedDate("Just now");
+
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Move Function to Trash", "Are you sure you want to move this Function to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreMostFunctionFromTrash(mostFunction, callbackFunction) {
-        const mostFunctionId = mostFunction.getId();
         const mostInterfaceId = this.state.selectedItem.getId();
-        restoreMostFunctionFromTrash(mostInterfaceId, mostFunctionId, function(data) {
-            if (! data.wasSuccess) {
-                app.App.alert("Restore Function from Trash Bin", "Request to restore Function from trash bin failed: " + data.errorMessage, callbackFunction);
-                return;
-            }
 
-            mostFunction.setIsDeleted(false);
-            callbackFunction();
-        });
+        const restoreFunction = function() {
+            const mostFunctionId = mostFunction.getId();
+            restoreMostFunctionFromTrash(mostInterfaceId, mostFunctionId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Restore Function from Trash Bin", "Request to restore Function from trash bin failed: " + data.errorMessage, callbackFunction);
+                    return;
+                }
+
+                mostFunction.setIsDeleted(false);
+                callbackFunction();
+            });
+        };
+
+        app.App.confirm("Restore Function from Trash", "Are you sure you want to restore this Function?", restoreFunction, callbackFunction);
     }
 
     updateNavigationItems(itemId, navigationItemConfig, newNavigationItems) {
