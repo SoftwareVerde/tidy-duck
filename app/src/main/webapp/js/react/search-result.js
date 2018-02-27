@@ -75,7 +75,7 @@ class SearchResult extends React.Component {
     renderIcon() {
         if (this.state.showWorkingIcon) {
             return (
-                <i className="assign-button fa fa-refresh fa-spin fa-3x" onClick={this.onPlusButtonClick}/>
+                <i className="assign-button fa fa-refresh fa-spin fa-3x"/>
             );
         } else {
             return (
