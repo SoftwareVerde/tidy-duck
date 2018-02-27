@@ -85,16 +85,19 @@ class FunctionBlock extends React.Component {
         const versionsJson = functionBlock.getVersionsJson();
 
         this.props.onMarkAsDeleted(functionBlock, function() {
-            let newVersionJson = versionsJson[0];
-            for (let i in versionsJson) {
-                const versionJson = versionsJson[i];
-                if (versionJson.isApproved) {
-                    if (versionJson.id > newVersionJson.id)
-                    newVersionJson = versionJson;
+            if (thisFunctionBlock.props.displayVersionsList) {
+                let newVersionJson = versionsJson[0];
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.isApproved) {
+                        if (versionJson.id > newVersionJson.id)
+                            newVersionJson = versionJson;
+                    }
                 }
+
+                thisFunctionBlock.props.onVersionChanged(functionBlock, newVersionJson, versionsJson);
             }
 
-            thisFunctionBlock.props.onVersionChanged(functionBlock, newVersionJson, versionsJson);
             thisFunctionBlock.setState({
                 showWorkingIcon: false
             });
