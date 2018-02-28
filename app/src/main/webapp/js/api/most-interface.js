@@ -178,6 +178,29 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
     });
 }
 
+// calls callbackFunction with wasSuccess
+function disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks/" + functionBlockId,
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to disassociate interface " + mostInterfaceId + " from function block: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
 function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,

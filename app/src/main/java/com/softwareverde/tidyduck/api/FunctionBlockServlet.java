@@ -180,7 +180,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
         });
 
-        super._defineEndpoint("function-blocks/<functionBlockId>/function-catalogs", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("function-blocks/<functionBlockId>/function-catalogs/<functionCatalogId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -189,7 +189,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 if (functionBlockId < 1) {
                     return _generateErrorJson("Invalid function block id: " + functionBlockId);
                 }
-                return _disassociateFunctionBlockFromCatalog(request, functionBlockId, currentAccount, environment.getDatabase());
+
+                final long functionCatalogId = Util.parseLong(parameters.get("functionCatalogId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function catalog id: " + functionCatalogId);
+                }
+
+                return _disassociateFunctionBlockFromCatalog(functionCatalogId, functionBlockId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -426,21 +432,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _disassociateFunctionBlockFromCatalog(final HttpServletRequest request, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
-        final String functionCatalogIdString = request.getParameter("functionCatalogId");
-        final Long functionCatalogId = Util.parseLong(functionCatalogIdString);
-
+    protected Json _disassociateFunctionBlockFromCatalog(final long functionCatalogId, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to remove function block: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
-            }
-
-            final DatabaseManager databaseManager = new DatabaseManager(database);
-            if (functionCatalogId < 1) {
-                return super._generateErrorJson(String.format("Invalid function catalog id: %s", functionCatalogIdString));
             }
 
             String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
@@ -450,6 +448,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson(parentErrorMessage);
             }
 
+            final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId);
         }
         catch (final DatabaseException exception) {

@@ -1755,7 +1755,7 @@ class App extends React.Component {
         const functionBlockId = functionBlock.getId();
 
         const deleteFunction = function() {
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
                     const newFunctionBlocks = [];
                     const existingFunctionBlocks = thisApp.state.functionBlocks;
@@ -2200,7 +2200,7 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
 
         const deleteFunction = function() {
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+            disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, function (success, errorMessage) {
                 if (success) {
                     const newMostInterfaces = [];
                     const existingMostInterfaces = thisApp.state.mostInterfaces;

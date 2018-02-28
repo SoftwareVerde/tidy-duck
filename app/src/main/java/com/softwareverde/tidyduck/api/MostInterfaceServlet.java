@@ -82,7 +82,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _getMostInterface(mostInterfaceId, environment.getDatabase());
             }
@@ -95,7 +95,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _updateMostInterface(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -108,7 +108,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _forkMostInterface(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -121,7 +121,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _markMostInterfaceAsDeleted(mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -134,7 +134,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _restoreMostInterfaceFromTrash(mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -147,7 +147,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _deleteMostInterface(mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -160,7 +160,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _listFunctionBlocksContainingMostInterface(mostInterfaceId, environment.getDatabase());
             }
@@ -173,22 +173,28 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
-        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
-                return _disassociateInterfaceFromFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
+
+                final Long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block ID.");
+                }
+
+                return _disassociateInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -433,19 +439,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    private Json _disassociateInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws IOException {
-        final Json jsonRequest = _getRequestDataAsJson(request);
+    private Json _disassociateInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws IOException {
         final Json response = _generateSuccessJson();
-
-        final Long functionBlockId = Util.parseLong(jsonRequest.getString("functionBlockId"));
-
-        { // Validate Inputs
-            if (functionBlockId < 1) {
-                _logger.error("Unable to parse Function Block ID: " + functionBlockId);
-                return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
-            }
-        }
-
         try {
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
             String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
