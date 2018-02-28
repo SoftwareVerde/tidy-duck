@@ -3845,6 +3845,7 @@ class App extends React.Component {
                                   selectedVote={selectedVote}
                                   onSaveTicketUrlClicked={this.onSaveTicketUrlClicked}
                                   onApproveButtonClicked={this.onApproveButtonClicked}
+                                  readOnly={selectedItem.isApproved()}
                 />
             );
         }

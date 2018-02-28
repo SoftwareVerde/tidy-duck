@@ -18,6 +18,7 @@ public class Review {
     private Account _account;
     private String ticketUrl;
     private Date _createdDate;
+    private Date _approvalDate;
     private List<ReviewVote> _reviewVotes = new ArrayList<>();
     private List<ReviewComment> _reviewComments = new ArrayList<>();
 
@@ -77,12 +78,16 @@ public class Review {
         this.ticketUrl = ticketUrl;
     }
 
-    public Date getCreatedDate() {
-        return _createdDate;
+    public Date getCreatedDate() { return _createdDate; }
+
+    public void setCreatedDate(final Date createdDate) { _createdDate = createdDate; }
+
+    public Date getApprovalDate() {
+        return _approvalDate;
     }
 
-    public void setCreatedDate(final Date createdDate) {
-        _createdDate = createdDate;
+    public void setApprovalDate(final Date approvalDate) {
+        _approvalDate = approvalDate;
     }
 
     public List<ReviewVote> getReviewVotes() {

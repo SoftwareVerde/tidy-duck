@@ -51,6 +51,7 @@ class Review {
         review.setMostInterface(mostInterface);
         review.setMostFunction(mostFunction);
         review.setCreatedDate(json.createdDate);
+        review.setApprovalDate(json.approvalDate);
         review.setAccount(account);
         review.setTicketUrl(ticketUrl);
         review.setReviewVotes(reviewVotes);
@@ -90,6 +91,7 @@ class Review {
         this._account = null;
         this._ticketUrl = null;
         this._createdDate = null;
+        this._approvalDate = null;
         this._reviewVotes = [];
         this._reviewComments = [];
     }
@@ -167,6 +169,13 @@ class Review {
         return this._createdDate;
     }
 
+    setApprovalDate(approvalDate) {
+        this._approvalDate = approvalDate;
+    }
+
+    getApprovalDate() {
+        return this._approvalDate;
+    }
     setReviewVotes(reviewVotes) {
         this._reviewVotes = reviewVotes;
     }

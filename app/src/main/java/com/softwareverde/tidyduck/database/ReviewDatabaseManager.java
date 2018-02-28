@@ -140,6 +140,11 @@ class ReviewDatabaseManager {
             MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
             mostFunctionDatabaseManager.approveMostFunction(mostFunctionId, reviewId);
         }
+
+        final Query query = new Query("UPDATE reviews SET approval_date = NOW() WHERE id = ?")
+                .setParameter(reviewId);
+
+        _databaseConnection.executeSql(query);
     }
 
     public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {

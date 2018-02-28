@@ -225,7 +225,7 @@ class ApprovalForm extends React.Component{
         let contents = [];
 
         const ticketUrl = this.state.ticketUrl;
-        if (review.getAccount().getId() == account.getId()) {
+        if ((review.getAccount().getId() == account.getId()) && ! this.props.readOnly) {
             // allow editing
             contents.push(<app.InputField name="ticket-url" key="ticket-url-input" type="text" label="Ticket URL" value={ticketUrl} readOnly={this.props.readOnly} onChange={this.onTicketUrlChanged} />);
             contents.push(<button className="button" key="ticket-url-button" id="ticket-url-save-button" onClick={this.onSaveTicketUrlClicked}>{this.state.ticketUrlSaveButtonText}</button>);
@@ -284,9 +284,22 @@ class ApprovalForm extends React.Component{
     }
 
     render() {
-        let submitCommentButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmitComment}>Submit Comment</button>;
-        if (this.state.shouldShowSaveCommentAnimation) {
-            submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+        let upVoteButton = <div></div>;
+        let downVoteButton = <div></div>;
+        let commentField = <div></div>;
+        let submitCommentButton = <div></div>;
+
+        if (! this.props.readOnly) {
+            if (this.state.shouldShowSaveCommentAnimation) {
+                submitCommentButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+            }
+            else {
+                submitCommentButton = <button className="button submit-button" id="function-block-submit" onClick={this.onSubmitComment}>Submit Comment</button>;
+            }
+
+            upVoteButton = this.renderUpvoteButton();
+            downVoteButton = this.renderDownvoteButton();
+            commentField = <app.InputField name="comment" key="comment-input" type="textarea" label="Comment" value={this.state.reviewComment.getCommentText()} readOnly={this.props.readOnly} onChange={this.onReviewCommentChanged} />
         }
 
         return(
@@ -297,12 +310,12 @@ class ApprovalForm extends React.Component{
                     <div key="vote-area" className="vote-area">
                         {this.renderTicketUrlArea()}
                         <div className="submit-comment-form" key="submit-comment-form">
-                            <app.InputField name="comment" key="comment-input" type="textarea" label="Comment" value={this.state.reviewComment.getCommentText()} readOnly={this.props.readOnly} onChange={this.onReviewCommentChanged} />
+                            {commentField}
                             {submitCommentButton}
                         </div>
                         <div className="toolbar" key="toolbar">
-                            {this.renderUpvoteButton()}
-                            {this.renderDownvoteButton()}
+                            {upVoteButton}
+                            {downVoteButton}
                         </div>
                         {this.renderVoteList()}
                         {this.renderSubmitButton()}

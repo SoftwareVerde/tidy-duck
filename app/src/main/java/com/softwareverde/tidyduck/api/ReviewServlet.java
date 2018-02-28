@@ -488,6 +488,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         final Long accountId = review.getAccount().getId();
         final String ticketUrl = review.getTicketUrl();
         final String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
+        String approvalDateString = null;
+        final Date approvalDate = review.getApprovalDate();
+
+        if (approvalDate != null) {
+            approvalDateString = DateUtil.dateToDateString(approvalDate);
+        }
+
         final List<ReviewVote> reviewVotes = review.getReviewVotes();
         final List<ReviewComment> reviewComments = review.getReviewComments();
 
@@ -511,6 +518,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         json.put("accountId", accountId);
         json.put("ticketUrl", ticketUrl);
         json.put("createdDate", createdDate);
+        json.put("approvalDate", approvalDateString);
         json.put("reviewVotes", reviewVotesJson);
         json.put("reviewComments", reviewCommentsJson);
 
