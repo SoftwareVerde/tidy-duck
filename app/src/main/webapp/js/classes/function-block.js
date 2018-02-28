@@ -21,6 +21,7 @@ class FunctionBlock {
         functionBlock.setPriorVersionId(json.priorVersionId);
         functionBlock.setIsReleased(json.isReleased);
         functionBlock.setIsApproved(json.isApproved);
+        functionBlock.setApprovalReviewId(json.approvalReviewId);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
         functionBlock.setCreatorAccountId(json.creatorAccountId)
@@ -78,6 +79,7 @@ class FunctionBlock {
         this._versionsJson          = null;
         this._isReleased            = null;
         this._isApproved            = null;
+        this._approvalReviewId      = null;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
         this._creatorAccountId      = null;
@@ -225,6 +227,14 @@ class FunctionBlock {
 
     isApproved() {
         return this._isApproved;
+    }
+
+    setApprovalReviewId(approvalReviewId) {
+        this._approvalReviewId = approvalReviewId;
+    }
+
+    getApprovalReviewId() {
+        return this._approvalReviewId;
     }
 
     setCreatorAccountId(creatorAccountId) {

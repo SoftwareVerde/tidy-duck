@@ -85,6 +85,7 @@ public class MostFunctionInflater {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
         final boolean isApproved = row.getBoolean("is_approved");
+        final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
         final long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
         final String returnParameterName = row.getString("return_parameter_name");
@@ -126,6 +127,7 @@ public class MostFunctionInflater {
         mostFunction.setIsDeleted(isDeleted);
         mostFunction.setDeletedDate(deletedDate);
         mostFunction.setIsApproved(isApproved);
+        mostFunction.setApprovalReviewId(approvalReviewId);
         mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
         mostFunction.setReturnParameterName(returnParameterName);

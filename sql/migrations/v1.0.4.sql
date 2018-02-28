@@ -45,3 +45,9 @@ ALTER TABLE interfaces_functions ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT 
 ALTER TABLE functions ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER supports_notification;
 ALTER TABLE functions ADD COLUMN deleted_date DATETIME NULL AFTER is_deleted;
 
+-- Add approval_review_id
+
+ALTER TABLE function_catalogs ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_approved;
+ALTER TABLE function_blocks ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_approved;
+ALTER TABLE interfaces ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_approved;
+ALTER TABLE functions ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_approved;

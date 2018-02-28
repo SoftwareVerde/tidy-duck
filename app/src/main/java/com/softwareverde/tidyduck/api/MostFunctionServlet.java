@@ -581,6 +581,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         mostFunctionJson.put("deletedDate", deletedDateString);
         mostFunctionJson.put("isReleased", mostFunction.isReleased());
         mostFunctionJson.put("isApproved", mostFunction.isApproved());
+        mostFunctionJson.put("approvalReviewId", mostFunction.getApprovalReviewId());
         mostFunctionJson.put("description", mostFunction.getDescription());
         mostFunctionJson.put("functionType", mostFunction.getFunctionType());
         mostFunctionJson.put("returnParameterName", mostFunction.getReturnParameterName());

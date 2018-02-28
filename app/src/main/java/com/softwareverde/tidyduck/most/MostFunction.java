@@ -23,6 +23,7 @@ public abstract class MostFunction {
     private Date _deletedDate;
     private boolean _isApproved;
     private boolean _isReleased;
+    private Long _approvalReviewId;
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
     private Company _company;
@@ -94,6 +95,10 @@ public abstract class MostFunction {
     public void setIsApproved(final boolean approved) {
         _isApproved = approved;
     }
+
+    public Long getApprovalReviewId() { return _approvalReviewId; }
+
+    public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
 
     public boolean isReleased() {
         return _isReleased;

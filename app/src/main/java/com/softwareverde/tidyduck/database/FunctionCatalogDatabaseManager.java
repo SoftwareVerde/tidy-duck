@@ -211,23 +211,24 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void approveFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_approved = ? WHERE id = ?")
+    public void approveFunctionCatalog(final long functionCatalogId, final long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
+                .setParameter(reviewId)
                 .setParameter(functionCatalogId);
 
         _databaseConnection.executeSql(query);
 
-        _approveFunctionBlocksForFunctionCatalogId(functionCatalogId);
+        _approveFunctionBlocksForFunctionCatalogId(functionCatalogId, reviewId);
     }
 
-    private void _approveFunctionBlocksForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+    private void _approveFunctionBlocksForFunctionCatalogId(final long functionCatalogId, final long reviewId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
         final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         for (final FunctionBlock functionBlock : functionBlocks) {
-            functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId());
+            functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId(), reviewId);
         }
     }
 

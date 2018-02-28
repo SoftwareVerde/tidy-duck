@@ -51,6 +51,19 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("reviews/<reviewId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final long reviewId = Util.parseLong(parameters.get("reviewId"));
+                if (reviewId < 1) {
+                    return _generateErrorJson("Invalid review id: " + reviewId);
+                }
+                return _getReview(reviewId, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("reviews/<reviewId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -157,6 +170,25 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         } catch (DatabaseException e) {
             String errorMessage = "Unable to inflate reviews.";
             _logger.error(errorMessage, e);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
+    private Json _getReview(final long reviewId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final ReviewInflater reviewInflater = new ReviewInflater(databaseConnection);
+            final Review review = reviewInflater.inflateReview(reviewId);
+
+            final Json response = new Json(false);
+            final Json reviewJson = _toJson(review);
+            response.put("review", reviewJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException databaseException) {
+            final String errorMessage = "Unable to inflate review ID: " + reviewId;
+            _logger.error(errorMessage, databaseException);
             return super._generateErrorJson(errorMessage);
         }
     }

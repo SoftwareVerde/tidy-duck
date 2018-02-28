@@ -17,6 +17,7 @@ class FunctionCatalog {
         functionCatalog.setPriorVersionId(json.priorVersionId);
         functionCatalog.setIsReleased(json.isReleased);
         functionCatalog.setIsApproved(json.isApproved);
+        functionCatalog.setApprovalReviewId(json.approvalReviewId);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
         functionCatalog.setCreatorAccountId(json.creatorAccountId);
@@ -61,6 +62,7 @@ class FunctionCatalog {
         this._author            = null;
         this._company           = null;
         this._creatorAccountId  = null;
+        this._approvalReviewId  = null;
         this._isDeleted         = false;
         this._deletedDate       = null;
 
@@ -157,6 +159,14 @@ class FunctionCatalog {
 
     getCreatorAccountId() {
         return this._creatorAccountId;
+    }
+
+    setApprovalReviewId(approvalReviewId) {
+        this._approvalReviewId = approvalReviewId;
+    }
+
+    getApprovalReviewId() {
+        return this._approvalReviewId;
     }
 
     setIsDeleted(isDeleted) {

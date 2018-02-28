@@ -380,23 +380,24 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void approveFunctionBlock(final long functionBlockId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks SET is_approved = ? WHERE id = ?")
+    public void approveFunctionBlock(final long functionBlockId, final long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
+                .setParameter(reviewId)
                 .setParameter(functionBlockId);
 
         _databaseConnection.executeSql(query);
 
-        _approveMostInterfacesForFunctionBlockId(functionBlockId);
+        _approveMostInterfacesForFunctionBlockId(functionBlockId, reviewId);
     }
 
-    private void _approveMostInterfacesForFunctionBlockId(final long functionBlockId) throws DatabaseException {
+    private void _approveMostInterfacesForFunctionBlockId(final long functionBlockId, final long reviewId) throws DatabaseException {
         final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         final List<MostInterface> mostInterfaces = mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlockId);
 
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
-            mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId());
+            mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId(), reviewId);
         }
     }
 

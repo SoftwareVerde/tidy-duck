@@ -166,6 +166,7 @@ public class FunctionCatalogInflater {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
         final boolean isApproved = row.getBoolean("is_approved");
+        final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
@@ -186,6 +187,7 @@ public class FunctionCatalogInflater {
         functionCatalog.setIsDeleted(isDeleted);
         functionCatalog.setDeletedDate(deletedDate);
         functionCatalog.setIsApproved(isApproved);
+        functionCatalog.setApprovalReviewId(approvalReviewId);
         functionCatalog.setIsReleased(isReleased);
         functionCatalog.setBaseVersionId(baseVersionId);
         functionCatalog.setPriorVersionId(priorVersionId);

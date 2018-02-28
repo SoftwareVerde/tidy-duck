@@ -328,23 +328,24 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void approveMostInterface(final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("UPDATE interfaces SET is_approved = ? WHERE id = ?")
+    public void approveMostInterface(final long mostInterfaceId, final long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
+                .setParameter(reviewId)
                 .setParameter(mostInterfaceId);
 
         _databaseConnection.executeSql(query);
 
-        _approveMostFunctionsForMostInterfaceId(mostInterfaceId);
+        _approveMostFunctionsForMostInterfaceId(mostInterfaceId, reviewId);
     }
 
-    private void _approveMostFunctionsForMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+    private void _approveMostFunctionsForMostInterfaceId(final long mostInterfaceId, final long reviewId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, false);
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
-            mostFunctionDatabaseManager.approveMostFunction(mostFunction.getId());
+            mostFunctionDatabaseManager.approveMostFunction(mostFunction.getId(), reviewId);
         }
     }
 

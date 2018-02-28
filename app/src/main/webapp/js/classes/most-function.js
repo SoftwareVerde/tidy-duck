@@ -37,6 +37,7 @@ class MostFunction {
         mostFunction.setReleaseVersion(json.releaseVersion);
         mostFunction.setIsReleased(json.isReleased);
         mostFunction.setIsApproved(json.isApproved);
+        mostFunction.setApprovalReviewId(json.approvalReviewId);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
         mostFunction.setStereotype(mostFunctionStereotype);
@@ -128,6 +129,7 @@ class MostFunction {
       this._company               = null;
       this._isReleased            = null;
       this._isApproved            = null;
+      this._approvalReviewId      = null;
       this._isDeleted             = false;
       this._deletedDate           = null;
 
@@ -275,6 +277,14 @@ class MostFunction {
 
     isApproved() {
         return this._isApproved;
+    }
+
+    setApprovalReviewId(approvalReviewId) {
+        this._approvalReviewId = approvalReviewId;
+    }
+
+    getApprovalReviewId() {
+        return this._approvalReviewId;
     }
 
     setIsDeleted(isDeleted) {

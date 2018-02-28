@@ -16,6 +16,7 @@ public class MostInterface {
     private boolean _isDeleted;
     private Date _deletedDate;
     private boolean _isApproved;
+    private Long _approvalReviewId;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
@@ -95,6 +96,10 @@ public class MostInterface {
     public void setIsApproved(final boolean approved) {
         _isApproved = approved;
     }
+
+    public Long getApprovalReviewId() { return _approvalReviewId; }
+
+    public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
 
     public boolean isReleased() {
         return _isReleased;

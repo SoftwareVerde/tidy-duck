@@ -591,6 +591,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catalogJson.put("deletedDate", deletedDateString);
         catalogJson.put("isReleased", functionCatalog.isReleased());
         catalogJson.put("isApproved", functionCatalog.isApproved());
+        catalogJson.put("approvalReviewId", functionCatalog.getApprovalReviewId());
         catalogJson.put("baseVersionId", functionCatalog.getBaseVersionId());
         catalogJson.put("priorVersionId", functionCatalog.getPriorVersionId());
         catalogJson.put("creatorAccountId", functionCatalog.getCreatorAccountId());

@@ -164,6 +164,7 @@ public class MostInterfaceInflater {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
         final boolean isApproved = row.getBoolean("is_approved");
+        final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
@@ -179,6 +180,7 @@ public class MostInterfaceInflater {
         mostInterface.setIsDeleted(isDeleted);
         mostInterface.setDeletedDate(deletedDate);
         mostInterface.setIsApproved(isApproved);
+        mostInterface.setApprovalReviewId(approvalReviewId);
         mostInterface.setIsReleased(isReleased);
         mostInterface.setBaseVersionId(baseVersionId);
         mostInterface.setPriorVersionId(priorVersionId);
