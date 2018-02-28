@@ -2820,74 +2820,72 @@ class App extends React.Component {
         const thisApp = this;
         const approvalReviewId = childItem.getApprovalReviewId();
 
-        const getReviewFunction = function() {
-            getReview(approvalReviewId, function(data) {
-                if (! data.wasSuccess) {
-                    app.App.alert("Approval Review", "Unable to get approval review: " + data.errorMessage);
-                    return;
-                }
+        getReview(approvalReviewId, function(data) {
+            if (! data.wasSuccess) {
+                app.App.alert("Approval Review", "Unable to get approval review: " + data.errorMessage);
+                return;
+            }
 
-                const review = Review.fromJson(data.review);
-                const NavigationLevel = thisApp.NavigationLevel;
+            thisApp.handleRoleClick(thisApp.roles.reviews, null, false);
 
-                const reviewSelectedFunction = function(currentNavigationLevel) {
-                    thisApp.setState({
-                        currentNavigationLevel: currentNavigationLevel
-                    });
+            const review = Review.fromJson(data.review);
+            const NavigationLevel = thisApp.NavigationLevel;
 
-                    thisApp.onReviewSelected(review);
-                };
+            const reviewSelectedFunction = function(currentNavigationLevel) {
+                thisApp.setState({
+                    currentNavigationLevel: currentNavigationLevel
+                });
 
-                if (review.getFunctionCatalog()) {
-                    getFunctionCatalog(review.getFunctionCatalog().getId(), function (functionCatalogJson) {
-                        const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
-                        review.setFunctionCatalog(functionCatalog);
-                        reviewSelectedFunction(NavigationLevel.versions);
-                    });
-                }
-                if (review.getFunctionBlock()) {
-                    getFunctionBlock(review.getFunctionBlock().getId(), function (functionBlockJson) {
-                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
-                        review.setFunctionBlock(functionBlock);
-                        reviewSelectedFunction(NavigationLevel.functionCatalogs);
-                    });
-                }
-                if (review.getMostInterface()) {
-                    getMostInterface(review.getMostInterface().getId(), function (mostInterfaceJson) {
-                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
-                        review.setMostInterface(mostInterface);
-                        reviewSelectedFunction(NavigationLevel.functionBlocks);
-                    });
-                }
-                if (review.getMostFunction()) {
+                thisApp.onReviewSelected(review);
+            };
 
-                    getMostFunction(review.getMostFunction().getId(), function (mostFunctionJson) {
-                        const mostFunction = MostFunction.fromJson(mostFunctionJson);
-                        review.setMostFunction(mostFunction);
-                        reviewSelectedFunction(NavigationLevel.mostInterfaces);
-                    });
-                }
+            if (review.getFunctionCatalog()) {
+                getFunctionCatalog(review.getFunctionCatalog().getId(), function (functionCatalogJson) {
+                    const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
+                    review.setFunctionCatalog(functionCatalog);
+                    reviewSelectedFunction(NavigationLevel.versions);
+                });
+            }
+            if (review.getFunctionBlock()) {
+                getFunctionBlock(review.getFunctionBlock().getId(), function (functionBlockJson) {
+                    const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                    review.setFunctionBlock(functionBlock);
+                    reviewSelectedFunction(NavigationLevel.functionCatalogs);
+                });
+            }
+            if (review.getMostInterface()) {
+                getMostInterface(review.getMostInterface().getId(), function (mostInterfaceJson) {
+                    const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                    review.setMostInterface(mostInterface);
+                    reviewSelectedFunction(NavigationLevel.functionBlocks);
+                });
+            }
+            if (review.getMostFunction()) {
 
-                const reviewVotes = review.getReviewVotes();
-                for (let i in reviewVotes) {
-                    const reviewVote = reviewVotes[i];
-                    getAccount(reviewVote.getAccount().getId(), function (accountJson) {
-                        const account = Account.fromJson(accountJson);
-                        reviewVote.setAccount(account);
-                    });
-                }
-                const reviewComments = review.getReviewComments();
-                for (let i in reviewComments) {
-                    const reviewComment = reviewComments[i];
-                    getAccount(reviewComment.getAccount().getId(), function (accountJson) {
-                        const account = Account.fromJson(accountJson);
-                        reviewComment.setAccount(account);
-                    });
-                }
-            });
-        };
+                getMostFunction(review.getMostFunction().getId(), function (mostFunctionJson) {
+                    const mostFunction = MostFunction.fromJson(mostFunctionJson);
+                    review.setMostFunction(mostFunction);
+                    reviewSelectedFunction(NavigationLevel.mostInterfaces);
+                });
+            }
 
-        this.handleRoleClick(thisApp.roles.reviews, null, false, getReviewFunction);
+            const reviewVotes = review.getReviewVotes();
+            for (let i in reviewVotes) {
+                const reviewVote = reviewVotes[i];
+                getAccount(reviewVote.getAccount().getId(), function (accountJson) {
+                    const account = Account.fromJson(accountJson);
+                    reviewVote.setAccount(account);
+                });
+            }
+            const reviewComments = review.getReviewComments();
+            for (let i in reviewComments) {
+                const reviewComment = reviewComments[i];
+                getAccount(reviewComment.getAccount().getId(), function (accountJson) {
+                    const account = Account.fromJson(accountJson);
+                    reviewComment.setAccount(account);
+                });
+            }
+        });
     }
 
     onReviewVoteClicked(isUpvote) {
