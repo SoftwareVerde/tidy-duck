@@ -150,21 +150,34 @@ class TrashPage extends React.Component {
     renderFunctionCatalogs() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionCatalogs, this.state.deletedFunctionCatalogs, function(index, item) {
-            return <app.FunctionCatalog key={index} functionCatalog={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionCatalogFromTrash(item)}/>
+            function onDelete(functionCatalog, callbackFunction) {
+                thisPage.props.onDeleteFunctionCatalog(functionCatalog, function() {
+                    callbackFunction();
+
+                    let deletedFunctionCatalogs = thisPage.state.deletedFunctionCatalogs;
+                    deletedFunctionCatalogs = deletedFunctionCatalogs.filter(
+                        (catalog) => catalog.getId() != item.getId()
+                    );
+                    thisPage.setState({
+                        deletedFunctionCatalogs: deletedFunctionCatalogs
+                    });
+                });
+            }
+            return <app.FunctionCatalog key={index} functionCatalog={item} displayVersionsList={false} onClick={thisPage.onItemSelected} onDelete={onDelete} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionCatalogFromTrash(item)}/>
         });
     }
 
     renderFunctionBlocks() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionBlocks, this.state.deletedFunctionBlocks, function(index, item) {
-            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionBlockFromTrash(item)}/>
+            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected} onDelete={thisPage.props.onDeleteFunctionBlock} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionBlockFromTrash(item)}/>
         });
     }
 
     renderMostInterfaces() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedMostInterfaces, this.state.deletedMostInterfaces, function(index, item) {
-            return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false} onClick={thisPage.onItemSelected} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreMostInterfaceFromTrash(item)}/>
+            return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false} onClick={thisPage.onItemSelected} onDelete={thisPage.props.onDeleteMostInterface} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreMostInterfaceFromTrash(item)}/>
         });
     }
 

@@ -1370,6 +1370,7 @@ class App extends React.Component {
                     functionCatalogs: newFunctionCatalogs,
                     currentNavigationLevel: thisApp.NavigationLevel.versions
                 });
+                callbackFunction();
             });
         };
 
@@ -3788,6 +3789,10 @@ class App extends React.Component {
                                     onRestoreFunctionBlock={this.onRestoreFunctionBlockFromTrash}
                                     onRestoreMostInterface={this.onRestoreMostInterfaceFromTrash}
                                     onRestoreMostFunction={this.onRestoreMostFunctionFromTrash}
+                                    onDeleteFunctionCatalog={this.onDeleteFunctionCatalog}
+                                    onDeleteFunctionBlock={this.onDeleteFunctionBlock}
+                                    onDeleteMostInterface={this.onDeleteMostInterface}
+                                    onDeleteMostFunction={this.onDeleteMostFunction}
                                 />
                             </div>
                         );
