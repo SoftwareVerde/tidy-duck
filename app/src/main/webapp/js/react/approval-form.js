@@ -241,12 +241,16 @@ class ApprovalForm extends React.Component{
             }
 
             if (review.getReviewObject().isApproved()) {
-                const review = this.props.review;
                 const reviewUpvotesCount = review.getReviewVotes().filter(function(vote) {
                     return vote.isUpvote();
                 }).length;
 
-                approvalDate = <div className="approval-date">Approved on {review.getApprovalDate()} with {reviewUpvotesCount} upvotes.</div>
+                let approvalDateString = review.getApprovalDate();
+                if (approvalDateString) {
+                    approvalDateString = "on " + approvalDateString;
+                }
+
+                approvalDate = <div className="approval-date">Approved {approvalDateString} with {reviewUpvotesCount} upvotes.</div>
             }
         }
         return (

@@ -42,16 +42,12 @@ function getReview(reviewId, callbackFunction) {
     );
 
     tidyFetch(request, function(data) {
-        let review = null;
-
-        if (data.wasSuccess) {
-            review = data.review;
-        } else {
-            console.error("Unable to get review: " + data.errorMessage);
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
         }
 
-        if (typeof callbackFunction == "function") {
-            callbackFunction(review);
+        if (! data.wasSuccess) {
+            console.error("Unable to get review: " + data.errorMessage);
         }
     });
 }

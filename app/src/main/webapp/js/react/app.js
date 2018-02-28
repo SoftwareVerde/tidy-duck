@@ -2821,9 +2821,13 @@ class App extends React.Component {
         const approvalReviewId = reviewObject.getApprovalReviewId();
 
         const getReviewFunction = function() {
-            getReview(approvalReviewId, function(reviewJson) {
-                const review = Review.fromJson(reviewJson);
+            getReview(approvalReviewId, function(data) {
+                if (! data.wasSuccess) {
+                    app.App.alert("Approval Review", "Unable to get approval review: " + data.errorMessage);
+                    return;
+                }
 
+                const review = Review.fromJson(data.review);
                 const reviewObjectClassName = reviewObject.constructor.name;
                 const NavigationLevel = thisApp.NavigationLevel;
                 let currentNavigationLevel = null;
