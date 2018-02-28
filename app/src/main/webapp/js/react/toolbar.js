@@ -366,6 +366,10 @@ class Toolbar extends React.Component {
                         header = "UNRELEASED ".concat(header);
                     }
 
+                    if (navigationItem.isDeleted()) {
+                        navigationItemStyle += " trashed-navigation-indicator"
+                    }
+
                     const onClickCallback = navigationItem.getOnClickCallback();
                     const navKey = "navigation-item" + i;
                     reactComponents.push(<div key={navKey}

@@ -5,6 +5,7 @@ class NavigationItemConfig {
         this._header = null;
         this._isReleased = null;
         this._isApproved = null;
+        this._isDeleted = null;
         this._onClickCallback = null;
         this._menuItemConfigs = [];
         this._iconName = "";
@@ -50,6 +51,14 @@ class NavigationItemConfig {
 
     isApproved() {
         return this._isApproved;
+    }
+
+    setIsDeleted(isDeleted) {
+        this._isDeleted = isDeleted;
+    }
+
+    isDeleted() {
+        return this._isDeleted;
     }
 
     setOnClickCallback(callback) {

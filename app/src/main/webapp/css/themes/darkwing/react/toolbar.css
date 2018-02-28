@@ -69,6 +69,14 @@
     border: 2px dashed #FFFFFF;
 }
 
+.trashed-navigation-indicator {
+    background-color: #FFD9D9 !important;
+}
+
+.trashed-navigation-indicator:hover {
+    background-color: #FFA0A0 !important;
+}
+
 .toolbar .navigation-indicator i {
     margin: 5px;
 }

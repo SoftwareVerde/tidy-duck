@@ -1235,6 +1235,7 @@ class App extends React.Component {
         navigationItemConfig.setTitle(functionCatalog.getName());
         navigationItemConfig.setIsReleased(functionCatalog.isReleased());
         navigationItemConfig.setIsApproved(functionCatalog.isApproved());
+        navigationItemConfig.setIsDeleted(functionCatalog.isDeleted());
         navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
         navigationItemConfig.setIconName("fa-bars");
 
@@ -1458,6 +1459,7 @@ class App extends React.Component {
         navigationItemConfig.setTitle(functionBlock.getName());
         navigationItemConfig.setIsReleased(functionBlock.isReleased());
         navigationItemConfig.setIsApproved(functionBlock.isApproved());
+        navigationItemConfig.setIsDeleted(functionBlock.isDeleted());
         navigationItemConfig.setHeader(thisApp.headers.functionBlock);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock, true);
@@ -1900,6 +1902,7 @@ class App extends React.Component {
         navigationItemConfig.setTitle(mostInterface.getName());
         navigationItemConfig.setIsReleased(mostInterface.isReleased());
         navigationItemConfig.setIsApproved(mostInterface.isApproved());
+        navigationItemConfig.setIsDeleted(mostInterface.isDeleted());
         navigationItemConfig.setHeader(thisApp.headers.mostInterface);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostInterfaceSelected(mostInterface, true);
@@ -2347,6 +2350,7 @@ class App extends React.Component {
         navigationItemConfig.setHeader(thisApp.headers.mostFunction);
         navigationItemConfig.setIsReleased(mostFunction.isReleased());
         navigationItemConfig.setIsApproved(mostFunction.isApproved());
+        navigationItemConfig.setIsDeleted(mostFunction.isDeleted());
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
