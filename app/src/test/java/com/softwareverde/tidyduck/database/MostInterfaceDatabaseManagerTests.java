@@ -205,32 +205,23 @@ public class MostInterfaceDatabaseManagerTests {
     @Test
     public void should_completely_delete_most_interface_if_not_committed() throws Exception {
         // Setup
-        final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
-        final FunctionBlock functionBlock = _createSavedTestFunctionBlock(functionCatalog, "Function Block");
-
         final MostInterface mostInterface = _createUnsavedTestMostInterface("Most Interface");
-        _mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlock.getId(), mostInterface);
+        _mostInterfaceDatabaseManager.insertOrphanedMostInterface(mostInterface);
 
         final Integer beforeDeleteMostInterfaceCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
         Assert.assertEquals(1, beforeDeleteMostInterfaceCount.intValue());
 
         // Action
-        // First call of delete method will disassociate Interface from Function block.
-        _mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlock.getId(), mostInterface.getId());
-        // Second call of delete method checks if Interface is orphaned, then deletes it from database.
-        // The app provides a Function Block ID of 0 for orphaned Interfaces
-        _mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(0, mostInterface.getId());
+        _mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterface.getId(), true);
+        _mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
 
         // Assert
-        final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId());
-        Assert.assertEquals(0, inflatedMostInterfaces.size());
-
         final Integer mostInterfaceCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
         Assert.assertEquals(0, mostInterfaceCount.intValue());
     }
 
     @Test
-    public void should_not_completely_delete_most_interface_if_associated_with_another_function_block() throws Exception {
+    public void should_trash_function_block_before_deleting() throws Exception {
         // Setup
         final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
         final FunctionBlock functionBlock = _createSavedTestFunctionBlock(functionCatalog, "Function Block");
@@ -244,14 +235,70 @@ public class MostInterfaceDatabaseManagerTests {
         Assert.assertEquals(1, beforeDeleteMostInterfaceCount.intValue());
 
         // Action
-        _mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlock.getId(), mostInterface.getId());
+        try {
+            _mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
+            Assert.fail("Improperly deleted interface.");
+        } catch (Exception e) {
+            // expected, do nothing
+        }
+
+        // Assert
+        final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId());
+        Assert.assertEquals(1, inflatedMostInterfaces.size());
+
+        final List<MostInterface> inflatedMostInterfacesForFunctionBlock2 = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock2.getId());
+        Assert.assertEquals(1, inflatedMostInterfacesForFunctionBlock2.size());
+
+        final Integer functionBlockCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
+        Assert.assertEquals(1, functionBlockCount.intValue());
+    }
+
+    @Test
+    public void deleting_most_interface_should_delete_parent_references() throws Exception {
+        // Setup
+        final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
+        final FunctionBlock functionBlock = _createSavedTestFunctionBlock(functionCatalog, "Function Block");
+
+        final MostInterface mostInterface = _createUnsavedTestMostInterface("Most Interface");
+        _mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlock.getId(), mostInterface);
+
+        final Integer beforeDeleteMostInterfaceCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
+        Assert.assertEquals(1, beforeDeleteMostInterfaceCount.intValue());
+
+        // Action
+        _mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterface.getId(), true);
+        _mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
 
         // Assert
         final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId());
         Assert.assertEquals(0, inflatedMostInterfaces.size());
 
-        final List<MostInterface> inflatedMostInterfacesForFunctionBlock2 = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock2.getId());
-        Assert.assertEquals(1, inflatedMostInterfacesForFunctionBlock2.size());
+        final Integer functionBlockCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
+        Assert.assertEquals(0, functionBlockCount.intValue());
+    }
+
+    @Test
+    public void deleting_approved_interface_should_use_permanently_deleted_flag() throws Exception {
+        // Setup
+        final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
+        final FunctionBlock functionBlock = _createSavedTestFunctionBlock(functionCatalog, "Function Block");
+
+        final MostInterface mostInterface = _createUnsavedTestMostInterface("Most Interface");
+        _mostInterfaceDatabaseManager.insertMostInterfaceForFunctionBlock(functionBlock.getId(), mostInterface);
+
+        final Integer beforeDeleteMostInterfaceCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
+        Assert.assertEquals(1, beforeDeleteMostInterfaceCount.intValue());
+
+        // Action
+        _mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId());
+        _mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterface.getId(), true);
+        _mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
+
+        // Assert
+        final List<MostInterface> inflatedMostInterfaces = _mostInterfaceInflater.inflateMostInterfacesFromFunctionBlockId(functionBlock.getId());
+        Assert.assertEquals(1, inflatedMostInterfaces.size());
+        Assert.assertEquals(true, inflatedMostInterfaces.get(0).isDeleted());
+        Assert.assertEquals(true, inflatedMostInterfaces.get(0).isPermanentlyDeleted());
 
         final Integer functionBlockCount = _getTotalMostInterfacesCountInDatabase("Most Interface");
         Assert.assertEquals(1, functionBlockCount.intValue());

@@ -1,12 +1,17 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.*;
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
@@ -93,8 +98,9 @@ class FunctionCatalogDatabaseManager {
     }
 
     public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_deleted = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET is_deleted = ?, deleted_date = ? WHERE id = ?")
                 .setParameter(isDeleted)
+                .setParameter(isDeleted ? DateUtil.dateToDateString(new Date()) : null)
                 .setParameter(functionCatalogId)
         ;
 
@@ -151,7 +157,7 @@ class FunctionCatalogDatabaseManager {
     }
 
     private void _markAsPermanentlyDeleted(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_permanently_deleted = 1 WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
                 .setParameter(functionCatalogId)
                 ;
 

@@ -46,7 +46,15 @@ ALTER TABLE functions ADD COLUMN is_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER
 ALTER TABLE functions ADD COLUMN deleted_date DATETIME NULL AFTER is_deleted;
 
 -- Add permanently deleted columns
-ALTER TABLE function_catalogs ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER is_deleted;
-ALTER TABLE function_blocks ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER is_deleted;
-ALTER TABLE interfaces ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER is_deleted;
-ALTER TABLE functions ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER is_deleted;
+ALTER TABLE function_catalogs ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE function_catalogs ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE function_blocks ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE function_blocks ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE interfaces ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE interfaces ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE functions ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE functions ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+

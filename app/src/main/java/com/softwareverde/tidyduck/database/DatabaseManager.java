@@ -409,6 +409,16 @@ public class DatabaseManager {
         });
     }
 
+    public void disassociateMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                mostInterfaceDatabaseManager.disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
+            }
+        });
+    }
+
     public void updateMostInterface(final MostInterface mostInterface, final long currentAccountID) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
@@ -449,12 +459,12 @@ public class DatabaseManager {
         });
     }
 
-    public void deleteMostInterface(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+    public void deleteMostInterface(final long mostInterfaceId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
-                mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
+                mostInterfaceDatabaseManager.deleteMostInterface(mostInterfaceId);
             }
         });
     }

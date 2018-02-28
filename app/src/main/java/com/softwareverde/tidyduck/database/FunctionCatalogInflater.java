@@ -165,6 +165,12 @@ public class FunctionCatalogInflater {
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
@@ -185,6 +191,8 @@ public class FunctionCatalogInflater {
         functionCatalog.setCompany(company);
         functionCatalog.setIsDeleted(isDeleted);
         functionCatalog.setDeletedDate(deletedDate);
+        functionCatalog.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        functionCatalog.setPermanentlyDeletedDate(permanentlyDeletedDate);
         functionCatalog.setIsApproved(isApproved);
         functionCatalog.setIsReleased(isReleased);
         functionCatalog.setBaseVersionId(baseVersionId);

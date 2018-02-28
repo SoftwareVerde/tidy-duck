@@ -4,13 +4,15 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
-import com.softwareverde.tidyduck.Review;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FunctionBlockDatabaseManager {
@@ -207,8 +209,9 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void setIsDeletedForFunctionBlock(final long functionBlockId, final boolean isDeleted) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks SET is_deleted = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET is_deleted = ?, deleted_date = ? WHERE id = ?")
                 .setParameter(isDeleted)
+                .setParameter(isDeleted ? DateUtil.dateToDateString(new Date()) : null)
                 .setParameter(functionBlockId)
                 ;
 
@@ -264,11 +267,33 @@ public class FunctionBlockDatabaseManager {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
-        if (! functionBlock.isReleased()) {
+        if (functionBlock.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!functionBlock.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (functionBlock.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(functionBlockId);
+        }
+        else {
+            // not approved, fully delete
             _deleteInterfacesFromFunctionBlock(functionBlockId);
+            _disassociateFunctionBlockFromAllUnapprovedFunctionCatalogs(functionBlockId);
             _deleteReviewForFunctionBlock(functionBlockId);
             _deleteFunctionBlockFromDatabase(functionBlockId);
         }
+    }
+
+    private void _markAsPermanentlyDeleted(final long functionBlockId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(functionBlockId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteInterfacesFromFunctionBlock(final long functionBlockId) throws DatabaseException {
@@ -278,7 +303,7 @@ public class FunctionBlockDatabaseManager {
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
             // function block isn't approved, we can delete it
-            mostInterfaceDatabaseManager.deleteMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
+            mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
         }
     }
 

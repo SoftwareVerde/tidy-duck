@@ -149,7 +149,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 if (mostInterfaceId < 1) {
                     return _generateErrorJson("Invalid interface id.");
                 }
-                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
+                return _deleteMostInterface(mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -176,6 +176,19 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid interface id.");
                 }
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface id.");
+                }
+                return _disassociateInterfaceFromFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -413,6 +426,39 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         catch (final Exception exception) {
+            _logger.error("Unable to associate interface with function block", exception);
+            return _generateErrorJson("Unable to associate interface with function block: " + exception.getMessage());
+        }
+
+        return response;
+    }
+
+    private Json _disassociateInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws IOException {
+        final Json jsonRequest = _getRequestDataAsJson(request);
+        final Json response = _generateSuccessJson();
+
+        final Long functionBlockId = Util.parseLong(jsonRequest.getString("functionBlockId"));
+
+        { // Validate Inputs
+            if (functionBlockId < 1) {
+                _logger.error("Unable to parse Function Block ID: " + functionBlockId);
+                return _generateErrorJson("Invalid Function Block ID: " + functionBlockId);
+            }
+        }
+
+        try {
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+            String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to disassociate interface from function block: " + errorMessage;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        catch (final Exception exception) {
             _logger.error("Unable to insert Interface.", exception);
             return _generateErrorJson("Unable to insert Interface: " + exception.getMessage());
         }
@@ -484,43 +530,22 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _deleteMostInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
-        final String functionBlockIdString = request.getParameter("functionBlockId");
-        final Long functionBlockId = Util.parseLong(functionBlockIdString);
+    protected Json _deleteMostInterface(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         final Long currentAccountId = currentAccount.getId();
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-
             String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
             if (errorMessage != null) {
-                errorMessage = "Unable to remove interface: " + errorMessage;
+                errorMessage = "Unable to delete interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-
-            // Validate inputs. If null, send blockId of 0, which will disassociate interface from all fblocks.
-            if (Util.isBlank(functionBlockIdString)) {
-                databaseManager.deleteMostInterface(0, mostInterfaceId);
-            }
-            else {
-                if (functionBlockId < 1) {
-                    return _generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
-                }
-
-                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
-                if (parentErrorMessage != null) {
-                    parentErrorMessage = "Unable to remove interface from parent function block: " + parentErrorMessage;
-                    _logger.error(parentErrorMessage);
-                    return super._generateErrorJson(parentErrorMessage);
-                }
-
-                databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
-            }
+            databaseManager.deleteMostInterface(mostInterfaceId);
         }
         catch (final DatabaseException exception) {
-            final String errorMessage = String.format("Unable to delete interface %d from function block %d.", mostInterfaceId, functionBlockId);
+            final String errorMessage = String.format("Unable to delete interface %d", mostInterfaceId);
             _logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
