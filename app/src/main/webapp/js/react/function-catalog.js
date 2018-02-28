@@ -13,6 +13,7 @@ class FunctionCatalog extends React.Component {
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
+        this.onApprovalReviewClicked = this.onApprovalReviewClicked.bind(this);
         this.onExportFunctionCatalogClicked = this.onExportFunctionCatalogClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
@@ -128,6 +129,11 @@ class FunctionCatalog extends React.Component {
         });
     }
 
+    onApprovalReviewClicked(event) {
+        event.stopPropagation();
+        this.props.onApprovalReviewClicked(this.props.functionCatalog);
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.functionCatalog, false);
@@ -171,13 +177,15 @@ class FunctionCatalog extends React.Component {
         const company = this.props.functionCatalog.getCompany();
         const name = this.props.functionCatalog.getName();
         const isDeleted = this.props.functionCatalog.isDeleted();
-        const childItemStyle = (this.props.functionCatalog.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
+        const isApproved = this.props.functionCatalog.isApproved();
+        const childItemStyle = (isApproved ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
 
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
         const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
         const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
+        const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -191,6 +199,7 @@ class FunctionCatalog extends React.Component {
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
                     {trashIcon}
                     {restoreIcon}
+                    {approvalReviewIcon}
                     <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Download MOST XML" />
                 </div>
                 {displayVersion}

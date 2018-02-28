@@ -686,7 +686,6 @@
     font-weight: bold;
     color: rgba(0, 0, 0, 0.5);
     font-size: 85%;
-    z-index: 5;
 }
 
 .tidy-object .version:before {

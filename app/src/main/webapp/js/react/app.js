@@ -229,6 +229,7 @@ class App extends React.Component {
         this.updateMostFunctionStereotypes = this.updateMostFunctionStereotypes.bind(this);
         this.updateReviews = this.updateReviews.bind(this);
 
+        this.onApprovalReviewClicked = this.onApprovalReviewClicked.bind(this);
         this.onReviewSelected = this.onReviewSelected.bind(this);
         this.onReviewVoteClicked = this.onReviewVoteClicked.bind(this);
         this.onSaveTicketUrlClicked = this.onSaveTicketUrlClicked.bind(this);
@@ -2815,6 +2816,69 @@ class App extends React.Component {
         }
     }
 
+    onApprovalReviewClicked(reviewObject) {
+        const thisApp = this;
+        const approvalReviewId = reviewObject.getApprovalReviewId();
+
+        const getReviewFunction = function() {
+            getReview(approvalReviewId, function(reviewJson) {
+                const review = Review.fromJson(reviewJson);
+
+                const reviewObjectClassName = reviewObject.constructor.name;
+                const NavigationLevel = thisApp.NavigationLevel;
+                let currentNavigationLevel = null;
+
+                switch (reviewObjectClassName) {
+                    case 'FunctionCatalog': {
+                        review.setFunctionCatalog(reviewObject);
+                        currentNavigationLevel = NavigationLevel.versions;
+                    } break;
+                    case 'FunctionBlock': {
+                        review.setFunctionBlock(reviewObject);
+                        currentNavigationLevel = NavigationLevel.functionCatalogs;
+                    } break;
+                    case 'MostInterface': {
+                        review.setMostInterface(reviewObject);
+                        currentNavigationLevel = NavigationLevel.functionBlocks;
+                    } break;
+                    case 'MostFunction': {
+                        review.setMostFunction(reviewObject);
+                        currentNavigationLevel = NavigationLevel.mostInterfaces;
+                    }
+                    default: {
+                        console.error("onApprovalReviewClicked: Invalid review object class: " + reviewObjectClassName);
+                        return;
+                    }
+                }
+
+                const reviewVotes = review.getReviewVotes();
+                for (let i in reviewVotes) {
+                    const reviewVote = reviewVotes[i];
+                    getAccount(reviewVote.getAccount().getId(), function (accountJson) {
+                        const account = Account.fromJson(accountJson);
+                        reviewVote.setAccount(account);
+                    });
+                }
+                const reviewComments = review.getReviewComments();
+                for (let i in reviewComments) {
+                    const reviewComment = reviewComments[i];
+                    getAccount(reviewComment.getAccount().getId(), function (accountJson) {
+                        const account = Account.fromJson(accountJson);
+                        reviewComment.setAccount(account);
+                    });
+                }
+
+                thisApp.setState({
+                    currentNavigationLevel: currentNavigationLevel
+                });
+
+                thisApp.onReviewSelected(review);
+            });
+        };
+
+        this.handleRoleClick(thisApp.roles.reviews, null, false, getReviewFunction);
+    }
+
     onReviewVoteClicked(isUpvote) {
         const thisApp = this;
         const currentReview = this.state.currentReview;
@@ -2990,7 +3054,7 @@ class App extends React.Component {
         this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
     }
 
-    handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
+    handleRoleClick(roleName, subRoleName, canUseCachedChildren, callbackFunction) {
         const thisApp = this;
 
         if (history.state && (roleName != history.state.roleName || subRoleName != history.state.subRoleName)) {
@@ -3214,7 +3278,12 @@ class App extends React.Component {
             } break;
             default: {
                 console.error("Invalid role " + roleName + " selected.");
+                return;
             }
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction();
         }
     }
 
@@ -3309,6 +3378,7 @@ class App extends React.Component {
                         onExportFunctionCatalog={exportFunctionCatalogToMost}
                         onMarkAsDeleted={this.onMarkFunctionCatalogAsDeleted}
                         onRestoreFromTrash={this.onRestoreFunctionCatalogFromTrash}
+                        onApprovalReviewClicked={this.onApprovalReviewClicked}
                         showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3338,6 +3408,7 @@ class App extends React.Component {
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkFunctionBlockAsDeleted}
                         onRestoreFromTrash={this.onRestoreFunctionBlockFromTrash}
+                        onApprovalReviewClicked={this.onApprovalReviewClicked}
                         showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3367,6 +3438,7 @@ class App extends React.Component {
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkMostInterfaceAsDeleted}
                         onRestoreFromTrash={this.onRestoreMostInterfaceFromTrash}
+                        onApprovalReviewClicked={this.onApprovalReviewClicked}
                         showDeletedVersions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3391,6 +3463,7 @@ class App extends React.Component {
                         isInterfaceReleased={this.state.selectedItem.isReleased()}
                         onMarkAsDeleted={this.onMarkMostFunctionAsDeleted}
                         onRestoreFromTrash={this.onRestoreMostFunctionFromTrash}
+                        onApprovalReviewClicked={this.onApprovalReviewClicked}
                         showDeletedMostFunctions={shouldShowDeletedChildItems}
                         />
                     );
@@ -3614,6 +3687,23 @@ class App extends React.Component {
             break;
 
             case NavigationLevel.functionCatalogs:
+                if (shouldShowEditForm) {
+                    reactComponents.push(
+                        <app.FunctionCatalogForm key="FunctionCatalogForm"
+                           shouldShowSaveAnimation={shouldAnimateCreateButton}
+                           showTitle={true}
+                           showCustomTitle={true}
+                           formTitle={selectedItem.getName()}
+                           onSubmit={this.onUpdateFunctionCatalog}
+                           functionCatalog={selectedItem}
+                           buttonTitle={developmentButtonTitle}
+                           defaultButtonTitle="Save"
+                           readOnly={! canModify}
+                           account={thisApp.state.account}
+                           accountsForEditForm={thisApp.state.accountsForEditForm}
+                        />
+                    );
+                }
                 if (shouldShowCreateChildForm) {
                     reactComponents.push(
                         <app.FunctionBlockForm key="FunctionBlockForm"
