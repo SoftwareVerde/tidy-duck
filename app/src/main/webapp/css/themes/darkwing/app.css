@@ -195,8 +195,21 @@
     border-color: #FFDD66;
 }
 
+.deleted-tidy-object {
+    background-color: #d97441 !important;
+}
+
+.deleted-tidy-object:hover {
+    background-color: #FE6903 !important;
+}
+
 .tidy-object .description-wrapper:before {
     background-color: rgba(157, 161, 174, 0.5);
+    transition: background-color 0.5s ease;
+}
+
+.deleted-tidy-object .description-wrapper:before {
+    background-color: rgba(255, 255, 255, 0.0) !important;
     transition: background-color 0.5s ease;
 }
 

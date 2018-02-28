@@ -70,11 +70,11 @@
 }
 
 .trashed-navigation-indicator {
-    background-color: #FFD9D9 !important;
+    background-color: #BF4F04 !important;
 }
 
 .trashed-navigation-indicator:hover {
-    background-color: #FFA0A0 !important;
+    background-color: #FE6903 !important;
 }
 
 .toolbar .navigation-indicator i {
