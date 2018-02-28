@@ -93,6 +93,23 @@
     overflow-y: auto;
 }
 
+.approval-form .approval-date {
+    font-size: 2em;
+    text-align: center;
+    padding: 2em 0.25em;
+}
+
+.approval-form .approval-date:before {content: "\f087";
+    font-family: FontAwesome, sans-serif;
+    font-size: 6em;
+    color: #dfdfdf;
+    z-index: -1;
+    position: absolute;
+    text-align: center;
+    top: 20%;
+    left: 58%;
+}
+
 @media only screen and (max-width: 940px) {
     .approval-form .comments-area, .approval-form .vote-area {
         height: 300px;
