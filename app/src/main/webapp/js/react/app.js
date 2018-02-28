@@ -2816,9 +2816,9 @@ class App extends React.Component {
         }
     }
 
-    onApprovalReviewClicked(reviewObject) {
+    onApprovalReviewClicked(childItem) {
         const thisApp = this;
-        const approvalReviewId = reviewObject.getApprovalReviewId();
+        const approvalReviewId = childItem.getApprovalReviewId();
 
         const getReviewFunction = function() {
             getReview(approvalReviewId, function(data) {
@@ -2828,31 +2828,44 @@ class App extends React.Component {
                 }
 
                 const review = Review.fromJson(data.review);
-                const reviewObjectClassName = reviewObject.constructor.name;
                 const NavigationLevel = thisApp.NavigationLevel;
-                let currentNavigationLevel = null;
 
-                switch (reviewObjectClassName) {
-                    case 'FunctionCatalog': {
-                        review.setFunctionCatalog(reviewObject);
-                        currentNavigationLevel = NavigationLevel.versions;
-                    } break;
-                    case 'FunctionBlock': {
-                        review.setFunctionBlock(reviewObject);
-                        currentNavigationLevel = NavigationLevel.functionCatalogs;
-                    } break;
-                    case 'MostInterface': {
-                        review.setMostInterface(reviewObject);
-                        currentNavigationLevel = NavigationLevel.functionBlocks;
-                    } break;
-                    case 'MostFunction': {
-                        review.setMostFunction(reviewObject);
-                        currentNavigationLevel = NavigationLevel.mostInterfaces;
-                    }
-                    default: {
-                        console.error("onApprovalReviewClicked: Invalid review object class: " + reviewObjectClassName);
-                        return;
-                    }
+                const reviewSelectedFunction = function(currentNavigationLevel) {
+                    thisApp.setState({
+                        currentNavigationLevel: currentNavigationLevel
+                    });
+
+                    thisApp.onReviewSelected(review);
+                };
+
+                if (review.getFunctionCatalog()) {
+                    getFunctionCatalog(review.getFunctionCatalog().getId(), function (functionCatalogJson) {
+                        const functionCatalog = FunctionCatalog.fromJson(functionCatalogJson);
+                        review.setFunctionCatalog(functionCatalog);
+                        reviewSelectedFunction(NavigationLevel.versions);
+                    });
+                }
+                if (review.getFunctionBlock()) {
+                    getFunctionBlock(review.getFunctionBlock().getId(), function (functionBlockJson) {
+                        const functionBlock = FunctionBlock.fromJson(functionBlockJson);
+                        review.setFunctionBlock(functionBlock);
+                        reviewSelectedFunction(NavigationLevel.functionCatalogs);
+                    });
+                }
+                if (review.getMostInterface()) {
+                    getMostInterface(review.getMostInterface().getId(), function (mostInterfaceJson) {
+                        const mostInterface = MostInterface.fromJson(mostInterfaceJson);
+                        review.setMostInterface(mostInterface);
+                        reviewSelectedFunction(NavigationLevel.functionBlocks);
+                    });
+                }
+                if (review.getMostFunction()) {
+
+                    getMostFunction(review.getMostFunction().getId(), function (mostFunctionJson) {
+                        const mostFunction = MostFunction.fromJson(mostFunctionJson);
+                        review.setMostFunction(mostFunction);
+                        reviewSelectedFunction(NavigationLevel.mostInterfaces);
+                    });
                 }
 
                 const reviewVotes = review.getReviewVotes();
@@ -2871,12 +2884,6 @@ class App extends React.Component {
                         reviewComment.setAccount(account);
                     });
                 }
-
-                thisApp.setState({
-                    currentNavigationLevel: currentNavigationLevel
-                });
-
-                thisApp.onReviewSelected(review);
             });
         };
 

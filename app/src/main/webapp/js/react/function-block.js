@@ -13,6 +13,7 @@ class FunctionBlock extends React.Component {
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
+        this.onApprovalReviewClicked = this.onApprovalReviewClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -118,6 +119,11 @@ class FunctionBlock extends React.Component {
         });
     }
 
+    onApprovalReviewClicked(event) {
+        event.stopPropagation();
+        this.props.onApprovalReviewClicked(this.props.functionBlock);
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.functionBlock, false);
@@ -164,13 +170,15 @@ class FunctionBlock extends React.Component {
 
         const name = this.props.functionBlock.getName();
         const isDeleted = this.props.functionBlock.isDeleted();
+        const isApproved = this.props.functionBlock.isApproved();
 
-        const childItemStyle = (this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
+        const childItemStyle = (isApproved ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Block has been released." /> : "");
         const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Block has been approved." /> : "");
         const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
+        const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -184,6 +192,7 @@ class FunctionBlock extends React.Component {
                     <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
                     {trashIcon}
                     {restoreIcon}
+                    {approvalReviewIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
