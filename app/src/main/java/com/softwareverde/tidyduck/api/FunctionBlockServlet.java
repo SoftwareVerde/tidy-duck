@@ -861,7 +861,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     }
 
     private static String ownerCheck(final FunctionBlock functionBlock, final Long currentAccountId) {
-        if (functionBlock.getCreatorAccountId() != null) {
+        if (functionBlock.getCreatorAccountId() != null && !functionBlock.isApproved()) {
             if (!functionBlock.getCreatorAccountId().equals(currentAccountId)) {
                 return "The function block is owned by another account and cannot be modified.";
             }

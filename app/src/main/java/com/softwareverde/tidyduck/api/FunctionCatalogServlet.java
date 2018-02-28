@@ -714,7 +714,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     private static String ownerCheck(final FunctionCatalog functionCatalog, final Long currentAccountId) {
-        if (functionCatalog.getCreatorAccountId() != null) {
+        if (functionCatalog.getCreatorAccountId() != null && !functionCatalog.isApproved()) {
             if (!functionCatalog.getCreatorAccountId().equals(currentAccountId)) {
                 return "The function catalog is owned by another account and cannot be modified.";
             }

@@ -811,7 +811,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     }
 
     private static String ownerCheck(final MostInterface mostInterface, final Long currentAccountId) {
-        if (mostInterface.getCreatorAccountId() != null) {
+        if (mostInterface.getCreatorAccountId() != null && !mostInterface.isApproved()) {
             if (!mostInterface.getCreatorAccountId().equals(currentAccountId)) {
                 return "The interface is owned by another account and cannot be modified.";
             }
