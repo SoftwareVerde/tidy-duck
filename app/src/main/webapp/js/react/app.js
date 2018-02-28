@@ -1316,8 +1316,8 @@ class App extends React.Component {
     }
 
     onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
-        if (functionCatalog.isApproved()) {
-            app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
+        if (functionCatalog.isReleased()) {
+            app.App.alert("Delete Function Catalog", "This Function Catalog released and cannot be deleted.", callbackFunction);
             return;
         }
 
@@ -1377,8 +1377,8 @@ class App extends React.Component {
     }
 
     onMarkFunctionCatalogAsDeleted(functionCatalog, callbackFunction) {
-        if (functionCatalog.isApproved()) {
-            app.App.alert("Move Function Catalog to Trash Bin", "This Function Catalog is approved for release and cannot be moved to the trash bin.", callbackFunction);
+        if (functionCatalog.isReleased()) {
+            app.App.alert("Move Function Catalog to Trash Bin", "This Function Catalog released and cannot be moved to the trash bin.", callbackFunction);
             return;
         }
 
