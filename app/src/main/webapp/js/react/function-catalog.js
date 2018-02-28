@@ -160,8 +160,9 @@ class FunctionCatalog extends React.Component {
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
         const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
-        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
-        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
+        const deleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Delete"/> : "";
+        const trashOrRestoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/>
+                                             : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -170,18 +171,17 @@ class FunctionCatalog extends React.Component {
                 </div>
                 <div className="action-bar">
                     {workingIcon}
+                    {deleteIcon}
+                    {trashOrRestoreIcon}
                     {approvedIcon}
                     {releasedIcon}
-                    <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
-                    {trashIcon}
-                    {restoreIcon}
                     <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Download MOST XML" />
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
                     <div className="description" onClick={(event) => event.stopPropagation()}>
                         {(author ? author.getName() : "")}
-                        {((author && company) ? "-" : "")}
+                        {((author && company) ? ", " : "")}
                         {(company ? company.getName() : "")}
                     </div>
                 </div>
