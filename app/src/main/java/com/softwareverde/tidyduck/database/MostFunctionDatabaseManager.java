@@ -5,7 +5,6 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.tidyduck.most.*;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 
 class MostFunctionDatabaseManager {
@@ -215,9 +214,8 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
-        _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
-        _deleteMostFunctionIfUnapproved(mostFunctionId);
+    public void deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        _deleteMostFunction(mostInterfaceId, mostFunctionId);
     }
 
     public void setIsDeletedForMostFunction(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
@@ -244,14 +242,36 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteMostFunctionIfUnapproved(final long mostFunctionId) throws DatabaseException {
+    private void _deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 
-        if (! mostFunction.isReleased()) {
+        if (mostFunction.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!mostFunction.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (mostFunction.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(mostFunctionId);
+        }
+        else {
+            // not approved, delete
+            _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
             _deleteMostFunctionFromDatabase(mostFunctionId);
         }
 
+    }
+
+    private void _markAsPermanentlyDeleted(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteMostFunctionFromDatabase(final long mostFunctionId) throws DatabaseException {

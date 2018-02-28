@@ -197,6 +197,7 @@ public class MostInterfaceDatabaseManager {
         if (mostInterface.isApproved()) {
             // approved, be careful
             _markAsPermanentlyDeleted(mostInterfaceId);
+            _deleteMostFunctionsFromMostInterface(mostInterfaceId);
         }
         else {
             // not approved, delete
@@ -221,8 +222,10 @@ public class MostInterfaceDatabaseManager {
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
-            // function is not approved, we can delete it.
-            mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
+            // trash function so it can be deleted
+            mostFunctionDatabaseManager.setIsDeletedForMostFunction(mostFunction.getId(), true);
+            // perform normal deletion logic (including approved check, etc.)
+            mostFunctionDatabaseManager.deleteMostFunction(mostInterfaceId, mostFunction.getId());
         }
     }
 

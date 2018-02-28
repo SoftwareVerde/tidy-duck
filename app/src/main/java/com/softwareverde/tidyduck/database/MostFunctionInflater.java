@@ -79,10 +79,15 @@ public class MostFunctionInflater {
         final String category = row.getString("category");
         final boolean isDeleted = row.getBoolean("is_deleted");
         final String deletedDateString = row.getString("deleted_date");
-        
         Date deletedDate = null;
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
         }
         final boolean isApproved = row.getBoolean("is_approved");
         final boolean isReleased = row.getBoolean("is_released");
@@ -125,6 +130,8 @@ public class MostFunctionInflater {
         mostFunction.setRelease(releaseVersion);
         mostFunction.setIsDeleted(isDeleted);
         mostFunction.setDeletedDate(deletedDate);
+        mostFunction.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        mostFunction.setPermanentlyDeletedDate(permanentlyDeletedDate);
         mostFunction.setIsApproved(isApproved);
         mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);

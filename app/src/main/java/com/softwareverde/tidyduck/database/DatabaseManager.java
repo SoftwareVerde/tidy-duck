@@ -566,7 +566,7 @@ public class DatabaseManager {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(databaseConnection);
-                mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunctionId);
+                mostFunctionDatabaseManager.deleteMostFunction(mostInterfaceId, mostFunctionId);
             }
         });
     }
