@@ -36,9 +36,7 @@ public class FunctionBlockInflater {
     }
 
     public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = 1 and is_permanently_deleted = 0");
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -166,6 +164,12 @@ public class FunctionBlockInflater {
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
@@ -193,6 +197,8 @@ public class FunctionBlockInflater {
         functionBlock.setIsSink(isSink);
         functionBlock.setIsDeleted(isDeleted);
         functionBlock.setDeletedDate(deletedDate);
+        functionBlock.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        functionBlock.setPermanentlyDeletedDate(permanentlyDeletedDate);
         functionBlock.setIsApproved(isApproved);
         functionBlock.setApprovalReviewId(approvalReviewId);
         functionBlock.setIsReleased(isReleased);

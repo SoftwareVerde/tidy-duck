@@ -15,6 +15,8 @@ public class MostInterface {
     private Date _lastModifiedDate;
     private boolean _isDeleted;
     private Date _deletedDate;
+    private boolean _isPermanentlyDeleted;
+    private Date _permanentlyDeletedDate;
     private boolean _isApproved;
     private Long _approvalReviewId;
     private boolean _isReleased;
@@ -87,6 +89,22 @@ public class MostInterface {
 
     public void setDeletedDate(final Date deletedDate) {
         _deletedDate = deletedDate;
+    }
+
+    public boolean isPermanentlyDeleted() {
+        return _isPermanentlyDeleted;
+    }
+
+    public void setIsPermanentlyDeleted(final boolean permanentlyDeleted) {
+        _isPermanentlyDeleted = permanentlyDeleted;
+    }
+
+    public Date getPermanentlyDeletedDate() {
+        return _permanentlyDeletedDate;
+    }
+
+    public void setPermanentlyDeletedDate(final Date permanentlyDeletedDate) {
+        _permanentlyDeletedDate = permanentlyDeletedDate;
     }
 
     public boolean isApproved() {

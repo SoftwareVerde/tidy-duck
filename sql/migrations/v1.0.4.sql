@@ -55,3 +55,16 @@ ALTER TABLE functions ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_a
 -- Add approval_date column to reviews
 
 ALTER TABLE reviews ADD COLUMN approval_date DATETIME NULL AFTER created_date;
+
+-- Add permanently deleted columns
+ALTER TABLE function_catalogs ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE function_catalogs ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE function_blocks ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE function_blocks ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE interfaces ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE interfaces ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE functions ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE functions ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;

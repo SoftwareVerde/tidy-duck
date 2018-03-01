@@ -9,7 +9,6 @@ import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +32,7 @@ public class AccountInflater {
             query = new Query("SELECT id FROM accounts");
         }
         else {
-            query = new Query("SELECT id FROM accounts WHERE is_deleted = ?")
-                .setParameter(false)
-            ;
+            query = new Query("SELECT id FROM accounts WHERE is_deleted = 0");
         }
 
         List<Row> rows = _databaseConnection.query(query);

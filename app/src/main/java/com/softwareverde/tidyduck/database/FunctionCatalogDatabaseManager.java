@@ -1,12 +1,17 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.*;
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.Query;
+import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
@@ -93,8 +98,9 @@ class FunctionCatalogDatabaseManager {
     }
 
     public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_deleted = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET is_deleted = ?, deleted_date = ? WHERE id = ?")
                 .setParameter(isDeleted)
+                .setParameter(isDeleted ? DateUtil.dateToDateString(new Date()) : null)
                 .setParameter(functionCatalogId)
         ;
 
@@ -126,16 +132,36 @@ class FunctionCatalogDatabaseManager {
 
     }
 
-    private void _deleteFunctionCatalogIfUnapproved(final long functionCatalogId) throws DatabaseException {
+    private void _deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (! functionCatalog.isReleased()) {
-            // function catalog isn't approved, we can delete it
+        if (functionCatalog.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!functionCatalog.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (functionCatalog.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(functionCatalogId);
+        }
+        else {
+            // not approved, delete
             _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
             _deleteReviewForFunctionCatalog(functionCatalogId);
             _deleteFunctionCatalogFromDatabase(functionCatalogId);
         }
+    }
+
+    private void _markAsPermanentlyDeleted(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteFunctionBlocksFromFunctionCatalog(final long functionCatalogId) throws DatabaseException {
@@ -144,7 +170,7 @@ class FunctionCatalogDatabaseManager {
 
         final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         for (final FunctionBlock functionBlock : functionBlocks) {
-            functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
+            functionBlockDatabaseManager.disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
         }
     }
 
@@ -174,7 +200,7 @@ class FunctionCatalogDatabaseManager {
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        _deleteFunctionCatalogIfUnapproved(functionCatalogId);
+        _deleteFunctionCatalog(functionCatalogId);
     }
 
     private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, final long newFunctionCatalogId) throws DatabaseException {

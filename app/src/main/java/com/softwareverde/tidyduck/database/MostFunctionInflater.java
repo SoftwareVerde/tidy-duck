@@ -43,10 +43,8 @@ public class MostFunctionInflater {
         final Query query = new Query(
                 "SELECT * FROM functions WHERE id IN(" +
                     "SELECT DISTINCT interfaces_functions.function_id FROM interfaces_functions WHERE interfaces_functions.interface_id = ?)\n" +
-                    "AND is_deleted = ?");
-
+                    "AND is_deleted = 1 and is_permanently_deleted = 0");
         query.setParameter(mostInterfaceId);
-        query.setParameter(true);
 
         List<MostFunction> mostFunctions = new ArrayList<MostFunction>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -79,10 +77,15 @@ public class MostFunctionInflater {
         final String category = row.getString("category");
         final boolean isDeleted = row.getBoolean("is_deleted");
         final String deletedDateString = row.getString("deleted_date");
-        
         Date deletedDate = null;
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
         }
         final boolean isApproved = row.getBoolean("is_approved");
         final Long approvalReviewId = row.getLong("approval_review_id");
@@ -126,6 +129,8 @@ public class MostFunctionInflater {
         mostFunction.setRelease(releaseVersion);
         mostFunction.setIsDeleted(isDeleted);
         mostFunction.setDeletedDate(deletedDate);
+        mostFunction.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        mostFunction.setPermanentlyDeletedDate(permanentlyDeletedDate);
         mostFunction.setIsApproved(isApproved);
         mostFunction.setApprovalReviewId(approvalReviewId);
         mostFunction.setIsReleased(isReleased);

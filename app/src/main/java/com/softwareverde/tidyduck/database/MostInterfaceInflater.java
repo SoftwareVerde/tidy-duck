@@ -37,9 +37,7 @@ public class MostInterfaceInflater {
     }
 
     public List<MostInterface> inflateTrashedMostInterfaces() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = 1 and is_permanently_deleted = 0");
 
         List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -163,6 +161,12 @@ public class MostInterfaceInflater {
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
@@ -179,6 +183,8 @@ public class MostInterfaceInflater {
         mostInterface.setVersion(version);
         mostInterface.setIsDeleted(isDeleted);
         mostInterface.setDeletedDate(deletedDate);
+        mostInterface.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        mostInterface.setPermanentlyDeletedDate(permanentlyDeletedDate);
         mostInterface.setIsApproved(isApproved);
         mostInterface.setApprovalReviewId(approvalReviewId);
         mostInterface.setIsReleased(isReleased);
