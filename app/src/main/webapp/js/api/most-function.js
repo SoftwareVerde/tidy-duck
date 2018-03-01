@@ -157,7 +157,7 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.error("Unable to delete function " + mostFunctionId + " from interface " + mostInterfaceId + ": " + data.errorMessage);
+            console.error("Unable to delete function " + mostFunctionId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

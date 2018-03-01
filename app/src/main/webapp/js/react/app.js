@@ -1789,7 +1789,7 @@ class App extends React.Component {
         const functionBlockId = functionBlock.getId();
 
         const disassociateFunction = function() {
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            deleteFunctionBlock(functionBlockId, function (success, errorMessage) {
                 if (success) {
                     if (! functionBlock.isApproved()) {
                         const deleteFunction = function() {
@@ -1815,10 +1815,9 @@ class App extends React.Component {
 
         const thisApp = this;
         const deleteFunction = function() {
-            const functionCatalogId = "";
             const functionBlockId = functionBlock.getId();
 
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            deleteFunctionBlock(functionBlockId, function (success, errorMessage) {
                 if (success) {
                     const newFunctionBlocks = [];
                     const existingFunctionBlocks = thisApp.state.functionBlocks;
@@ -2234,7 +2233,7 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
 
         const disassociateFunction = function() {
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+            deleteMostInterface(mostInterfaceId, function (success, errorMessage) {
                 if (! success) {
                     app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
                     return;
@@ -2261,10 +2260,9 @@ class App extends React.Component {
 
         const thisApp = this;
         const deleteFunction = function() {
-            const functionBlockId = "";
             const mostInterfaceId = mostInterface.getId();
 
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+            deleteMostInterface(mostInterfaceId, function (success, errorMessage) {
                 if (! success) {
                     app.App.alert("Delete Interface", "Request to delete Interface failed: " + errorMessage, callbackFunction);
                     return;

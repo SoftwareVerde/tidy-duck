@@ -176,7 +176,7 @@ class TrashPage extends React.Component {
 
                 let deletedFunctionBlocks = thisPage.state.deletedFunctionBlocks;
                 deletedFunctionBlocks = deletedFunctionBlocks.filter(
-                    (catalog) => catalog.getId() != item.getId()
+                    (block) => block.getId() != item.getId()
                 );
                 thisPage.setState({
                     deletedFunctionBlocks: deletedFunctionBlocks
@@ -196,7 +196,7 @@ class TrashPage extends React.Component {
 
                     let deletedMostInterfaces = thisPage.state.deletedMostInterfaces;
                     deletedMostInterfaces = deletedMostInterfaces.filter(
-                        (catalog) => catalog.getId() != item.getId()
+                        (mostInterface) => mostInterface.getId() != item.getId()
                     );
                     thisPage.setState({
                         deletedMostInterfaces: deletedMostInterfaces

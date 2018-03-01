@@ -175,7 +175,7 @@ class MostInterface extends React.Component {
         let removeIcon = "";
         let trashOrDeleteIcon = "";
         if (parent == null || !parent.isApproved()) {
-            removeIcon = (!isDeleted && parentSelected) ? <i className="fa fa-minus action-button" onClick={this.disassociateMostInterfaceFromParent} title="Remove"/> : "";
+            removeIcon = (!isDeleted && parent != null) ? <i className="fa fa-minus action-button" onClick={this.disassociateMostInterfaceFromParent} title="Remove"/> : "";
             trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Delete"/>
                                                 : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         }

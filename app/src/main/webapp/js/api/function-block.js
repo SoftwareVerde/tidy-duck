@@ -269,7 +269,7 @@ function deleteFunctionBlock(functionBlockId, callbackFunction) {
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.error("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
+            console.error("Unable to delete function block " + functionBlockId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

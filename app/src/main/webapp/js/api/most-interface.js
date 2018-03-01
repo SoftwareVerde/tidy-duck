@@ -269,7 +269,7 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.error("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+            console.error("Unable to delete interface " + mostInterfaceId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 
