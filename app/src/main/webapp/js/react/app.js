@@ -221,6 +221,7 @@ class App extends React.Component {
 
         this.updateNavigationItems = this.updateNavigationItems.bind(this);
         this.updateParentHistory = this.updateParentHistory.bind(this);
+        this.updateChildItemDisplayInformation = this.updateChildItemDisplayInformation.bind(this);
         this.getChildItemsFromVersions = this.getChildItemsFromVersions.bind(this);
         this.onChildItemVersionChanged = this.onChildItemVersionChanged.bind(this);
         this.updateMostTypes = this.updateMostTypes.bind(this);
@@ -580,8 +581,11 @@ class App extends React.Component {
                 );
                 navigationItems.push(navigationItem);
 
+                const functionCatalogs = thisApp.updateChildItemDisplayInformation(FunctionCatalog, functionCatalog, thisApp.state.functionCatalogs);
+
                 thisApp.setState({
                     selectedItem:           functionCatalog,
+                    functionCatalogs:       functionCatalogs,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
                 });
@@ -798,8 +802,11 @@ class App extends React.Component {
                 );
                 navigationItems.push(navigationItem);
 
+                const functionBlocks = thisApp.updateChildItemDisplayInformation(FunctionBlock, functionBlock, thisApp.state.functionBlocks);
+
                 thisApp.setState({
                     selectedItem:               functionBlock,
+                    functionBlocks:             functionBlocks,
                     navigationItems:            navigationItems,
                     currentNavigationLevel:     thisApp.NavigationLevel.functionBlocks,
                     createButtonState:          thisApp.CreateButtonState.success,
@@ -1013,8 +1020,11 @@ class App extends React.Component {
 
                 navigationItems.push(navigationItem);
 
+                const mostInterfaces = thisApp.updateChildItemDisplayInformation(MostInterface, mostInterface, thisApp.state.mostInterfaces);
+
                 thisApp.setState({
                     selectedItem:           mostInterface,
+                    mostInterfaces:         mostInterfaces,
                     navigationItems:        navigationItems,
                     currentNavigationLevel: thisApp.NavigationLevel.mostInterfaces,
                     createButtonState:      thisApp.CreateButtonState.success
@@ -2503,6 +2513,31 @@ class App extends React.Component {
         newParentHistory.push(parentHistoryItem);
 
         return parentItem;
+    }
+
+    updateChildItemDisplayInformation(clazz, mostObject, childItems) {
+        const mostObjectId = mostObject.getId();
+        for (let i in childItems) {
+            const childItem = childItems[i];
+            if (childItem.getId() == mostObjectId) {
+                const childItemVersionsJson = childItem.getVersionsJson();
+                for (let i in childItemVersionsJson) {
+                    if (childItemVersionsJson[i].id == mostObjectId) {
+                        childItemVersionsJson[i] = clazz.toJson(mostObject);
+                    }
+                }
+
+                mostObject.setVersionsJson(childItemVersionsJson);
+                if (typeof childItem.getAuthor == "function") {
+                    mostObject.setAuthor(childItem.getAuthor());
+                }
+                if (typeof childItem.getCompany == "function") {
+                    mostObject.setCompany(childItem.getCompany());
+                }
+                childItems[i] = mostObject;
+                return childItems;
+            }
+        }
     }
 
     getChildItemsFromVersions(childItemsJson, fromJsonFunction) {
