@@ -699,8 +699,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             if (Util.isBlank(mostId)) {
                 throw new Exception("Invalid Most ID");
             }
-            if (!Util.isLong(mostId)) {
-                throw new Exception("Interface MOST ID must be an integer.");
+            if (!mostId.matches("0x[0-9A-F]{2}")) {
+                throw new Exception("Interface MOST ID must be between '0x00' and '0xFF'.");
             }
 
             if (Util.isBlank(name)) {
