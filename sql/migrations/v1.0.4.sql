@@ -55,3 +55,6 @@ ALTER TABLE functions ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_a
 -- Add approval_date column to reviews
 
 ALTER TABLE reviews ADD COLUMN approval_date DATETIME NULL AFTER created_date;
+
+-- Convert Interface most_id entries to hex string with 4 nibbles.
+UPDATE interfaces SET most_id = CONCAT('0x', LPAD(CONV(most_id, 10, 16), 4, '0'));
