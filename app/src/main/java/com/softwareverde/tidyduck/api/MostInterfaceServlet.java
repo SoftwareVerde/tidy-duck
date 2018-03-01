@@ -442,6 +442,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     private Json _disassociateInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws IOException {
         final Json response = _generateSuccessJson();
         try {
+            // only need to check parent
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
             String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {

@@ -434,13 +434,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _disassociateFunctionBlockFromCatalog(final long functionCatalogId, final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
-            if (errorMessage != null) {
-                errorMessage = "Unable to remove function block: " + errorMessage;
-                _logger.error(errorMessage);
-                return super._generateErrorJson(errorMessage);
-            }
-
+            // only need to check parent
             String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (parentErrorMessage != null) {
                 parentErrorMessage = "Unable to remove function block from parent function catalog: " + parentErrorMessage;

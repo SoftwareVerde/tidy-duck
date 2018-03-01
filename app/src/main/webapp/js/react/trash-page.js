@@ -170,13 +170,39 @@ class TrashPage extends React.Component {
     renderFunctionBlocks() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedFunctionBlocks, this.state.deletedFunctionBlocks, function(index, item) {
-            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected} onDelete={thisPage.props.onDeleteFunctionBlock} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionBlockFromTrash(item)}/>
+            function onDelete(functionBlock, callbackFunction) {
+            thisPage.props.onDeleteFunctionBlock(functionBlock, function() {
+                callbackFunction();
+
+                let deletedFunctionBlocks = thisPage.state.deletedFunctionBlocks;
+                deletedFunctionBlocks = deletedFunctionBlocks.filter(
+                    (catalog) => catalog.getId() != item.getId()
+                );
+                thisPage.setState({
+                    deletedFunctionBlocks: deletedFunctionBlocks
+                });
+            });
+        }
+            return <app.FunctionBlock key={index} functionBlock={item} displayVersionsList={false} onClick={thisPage.onItemSelected} onDelete={onDelete} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreFunctionBlockFromTrash(item)}/>
         });
     }
 
     renderMostInterfaces() {
         let thisPage = this;
         return this.renderItems(this.state.isLoadingDeletedMostInterfaces, this.state.deletedMostInterfaces, function(index, item) {
+            function onDelete(mostInterface, callbackFunction) {
+                thisPage.props.onDeleteMostInterface(mostInterface, function() {
+                    callbackFunction();
+
+                    let deletedMostInterfaces = thisPage.state.deletedMostInterfaces;
+                    deletedMostInterfaces = deletedMostInterfaces.filter(
+                        (catalog) => catalog.getId() != item.getId()
+                    );
+                    thisPage.setState({
+                        deletedMostInterfaces: deletedMostInterfaces
+                    });
+                });
+            }
             return <app.MostInterface key={index} mostInterface={item} displayVersionsList={false} onClick={thisPage.onItemSelected} onDelete={thisPage.props.onDeleteMostInterface} showDeletedVersions={true} onRestoreFromTrash={() => thisPage.onRestoreMostInterfaceFromTrash(item)}/>
         });
     }

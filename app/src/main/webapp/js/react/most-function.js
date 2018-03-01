@@ -95,7 +95,11 @@ class MostFunction extends React.Component {
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function has been released." /> : "");
         const approvedIcon = (this.props.mostFunction.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function has been approved." /> : "");
-        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        let trashOrDeleteIcon = "";
+        if (!this.props.isInterfaceApproved) {
+            trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteMostFunction} title="Remove"/>
+                                          : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        }
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
 
         return (
@@ -105,11 +109,10 @@ class MostFunction extends React.Component {
                 </div>
                 <div className="action-bar">
                     {workingIcon}
+                    {trashOrDeleteIcon}
+                    {restoreIcon}
                     {approvedIcon}
                     {releasedIcon}
-                    <i className="fa fa-remove action-button" onClick={this.deleteMostFunction} title="Remove"/>
-                    {trashIcon}
-                    {restoreIcon}
                 </div>
                 <div className="child-function-catalog-property version">{this.props.mostFunction.getReleaseVersion()}</div>
                 <div className="description-wrapper">

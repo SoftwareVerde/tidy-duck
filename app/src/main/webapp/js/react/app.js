@@ -3321,6 +3321,8 @@ class App extends React.Component {
                         functionBlock={childItem}
                         onClick={this.onFunctionBlockSelected}
                         displayVersionsList={!this.state.selectedItem}
+                        parent={this.state.selectedItem}
+                        onDisassociate={this.disassociateFunctionBlockFromFunctionCatalog}
                         onDelete={this.onDeleteFunctionBlock}
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkFunctionBlockAsDeleted}
@@ -3345,6 +3347,8 @@ class App extends React.Component {
                         mostInterface={childItem}
                         onClick={this.onMostInterfaceSelected}
                         displayVersionsList={!this.state.selectedItem}
+                        parent={this.state.selectedItem}
+                        onDisassociate={this.disassociateMostInterfaceFromFunctionBlock}
                         onDelete={this.onDeleteMostInterface}
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkMostInterfaceAsDeleted}
