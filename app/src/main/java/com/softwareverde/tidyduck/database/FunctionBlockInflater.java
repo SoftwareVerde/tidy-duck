@@ -36,9 +36,7 @@ public class FunctionBlockInflater {
     }
 
     public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = 1 and is_permanently_deleted = 0");
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);

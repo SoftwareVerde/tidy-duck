@@ -37,9 +37,7 @@ public class MostInterfaceInflater {
     }
 
     public List<MostInterface> inflateTrashedMostInterfaces() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = 1 and is_permanently_deleted = 0");
 
         List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);

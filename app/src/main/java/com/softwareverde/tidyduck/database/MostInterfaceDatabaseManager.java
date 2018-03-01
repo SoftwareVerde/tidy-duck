@@ -218,7 +218,7 @@ public class MostInterfaceDatabaseManager {
 
     private void _deleteMostFunctionsFromMostInterface(final long mostInterfaceId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
-        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, false);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, true);
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
@@ -460,5 +460,19 @@ public class MostInterfaceDatabaseManager {
         }
 
         return functions;
+    }
+
+    public boolean hasApprovedParents(final long mostInterfaceId) throws DatabaseException {
+        return _hasApprovedParent(mostInterfaceId);
+    }
+
+    private boolean _hasApprovedParent(final long mostInterfaceId) throws DatabaseException {
+        // general check for all parents, even those owned by other users
+        final Query query = new Query("SELECT 1 FROM function_blocks INNER JOIN function_blocks_interfaces ON function_blocks.id = function_blocks_interfaces.function_block_id WHERE interface_id = ? and is_approved = 1")
+                .setParameter(mostInterfaceId)
+                ;
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
     }
 }

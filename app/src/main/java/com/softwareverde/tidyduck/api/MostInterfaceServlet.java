@@ -478,7 +478,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _markMostInterfaceAsDeleted(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to move interface to trash: " + errorMessage;
                 _logger.error(errorMessage);
@@ -486,6 +486,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (databaseManager.mostInterfaceHasApprovedParents(mostInterfaceId)) {
+                errorMessage = "Unable to move interface to trash: the interface is associated with approved function blocks.";
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             databaseManager.markMostInterfaceAsDeleted(mostInterfaceId);
 
             _logger.info("User " + currentAccount.getId() + " marked Interface " + mostInterfaceId + " as deleted.");
@@ -530,11 +536,19 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final Long currentAccountId = currentAccount.getId();
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
             if (errorMessage != null) {
                 errorMessage = "Unable to delete interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
+            }
+
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+            if (!mostInterface.isDeleted()) {
+                final String error = "Interface must be moved to trash before deleting.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);

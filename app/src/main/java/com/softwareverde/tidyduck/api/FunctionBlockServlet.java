@@ -458,7 +458,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _markFunctionBlockAsDeleted(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to move function block to trash: " + errorMessage;
                 _logger.error(errorMessage);
@@ -466,6 +466,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (databaseManager.functionBlockHasApprovedParents(functionBlockId)) {
+                errorMessage = "Unable to move function block to trash: the function block is associated with approved function catalogs.";
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             databaseManager.markFunctionBlockAsDeleted(functionBlockId);
 
             _logger.info("User " + currentAccount.getId() + " marked Function Block " + functionBlockId + " as deleted.");
@@ -513,7 +519,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
     protected Json _deleteFunctionBlock(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Long currentAccountId = currentAccount.getId();
-            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
+            String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
             if (errorMessage != null) {
                 errorMessage = "Unable to remove function block: " + errorMessage;
                 _logger.error(errorMessage);
@@ -529,10 +535,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
-            databaseManager.deleteFunctionBlock(currentAccountId);
+            databaseManager.deleteFunctionBlock(functionBlockId);
         }
         catch (final DatabaseException exception) {
-            final String errorMessage = String.format("Unable to delete function block %d.", functionBlockId);
+            final String errorMessage = String.format("Unable to delete function block %d: " + exception.getMessage(), functionBlockId);
             _logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }

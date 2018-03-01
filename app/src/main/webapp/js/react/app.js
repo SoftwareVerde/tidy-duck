@@ -193,7 +193,6 @@ class App extends React.Component {
         this.onMarkFunctionBlockAsDeleted = this.onMarkFunctionBlockAsDeleted.bind(this);
         this.onRestoreFunctionBlockFromTrash = this.onRestoreFunctionBlockFromTrash.bind(this);
         this.disassociateFunctionBlockFromFunctionCatalog = this.disassociateFunctionBlockFromFunctionCatalog.bind(this);
-        this.disassociateFunctionBlockFromAllFunctionCatalogs = this.disassociateFunctionBlockFromAllFunctionCatalogs.bind(this);
         this.deleteFunctionBlockFromDatabase = this.deleteFunctionBlockFromDatabase.bind(this);
 
         this.addMostInterfaceNavigationItem = this.addMostInterfaceNavigationItem.bind(this);
@@ -208,7 +207,6 @@ class App extends React.Component {
         this.onMarkMostInterfaceAsDeleted = this.onMarkMostInterfaceAsDeleted.bind(this);
         this.onRestoreMostInterfaceFromTrash = this.onRestoreMostInterfaceFromTrash.bind(this);
         this.disassociateMostInterfaceFromFunctionBlock = this.disassociateMostInterfaceFromFunctionBlock.bind(this);
-        this.disassociateMostInterfaceFromAllFunctionBlocks = this.disassociateMostInterfaceFromAllFunctionBlocks.bind(this);
         this.deleteMostInterfaceFromDatabase = this.deleteMostInterfaceFromDatabase.bind(this);
 
         this.addMostFunctionNavigationItem = this.addMostFunctionNavigationItem.bind(this);
@@ -956,7 +954,7 @@ class App extends React.Component {
 
         updateMostInterface(mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
             if (! data.wasSuccess) {
-                app.App.alert("Unable to update Interface", data.errorMessage, function() {
+                app.App.alert("Unable to update interface", data.errorMessage, function() {
                     //Update form to show changes were not saved.
                     let navigationItems = thisApp.state.navigationItems;
                     let navigationItem = navigationItems.pop();
@@ -1370,7 +1368,9 @@ class App extends React.Component {
                     functionCatalogs: newFunctionCatalogs,
                     currentNavigationLevel: thisApp.NavigationLevel.versions
                 });
-                callbackFunction();
+                if (typeof callbackFunction == "function") {
+                    callbackFunction(true);
+                }
             });
         };
 
@@ -1435,7 +1435,7 @@ class App extends React.Component {
                 }
 
                 functionCatalog.setVersionsJson(versionsJson);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
@@ -1652,50 +1652,48 @@ class App extends React.Component {
                 });
             }
             else {
-                app.App.alert("Associate Function Block", "Request to associate Function Block failed: " + errorMessage);
+                app.App.alert("Associate Function Block", "Request to associate function block failed: " + errorMessage);
             }
         });
     }
 
     onDeleteFunctionBlock(functionBlock, callbackFunction) {
-        const thisApp = this;
         const selectedItem = this.state.selectedItem;
+
+        if (selectedItem && selectedItem.isReleased()) {
+            app.App.alert("Delete Function Block", "Unable to delete function block. Currently selected Function Catalog is released.", callbackFunction);
+            return;
+        }
+
+        if (!functionBlock.isDeleted()) {
+            app.App.alert("Delete Function Block", "Unable to delete function block.  Function blocks must be moved to trash before it can be deleted.", callbackFunction);
+            return;
+        }
+
+        this.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction);
+    }
+
+    onMarkFunctionBlockAsDeleted(functionBlock, callbackFunction) {
+        const selectedItem = this.state.selectedItem;
+
+        if (functionBlock.isReleased()) {
+            app.App.alert("Delete Function Block", "Unable to delete function block. Currently selected Function Catalog is released.", callbackFunction);
+            return;
+        }
 
         // If this item has a containing parent, simply disassociate it.
         if (selectedItem) {
             if (selectedItem.isApproved()) {
-                app.App.alert("Delete Function Block", "Unable to delete Function Block. Currently selected Function Catalog is approved for release.", callbackFunction);
+                app.App.alert("Delete Function Block", "Unable to delete function block. Currently selected Function Catalog is approved for release.", callbackFunction);
+                return;
             }
-            else {thisApp.disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction);}
-        }
-        else {
-            listFunctionCatalogsContainingFunctionBlock(functionBlock.getId(), function (data) {
-               if (data.wasSuccess) {
-                   if (data.functionCatalogIds.length > 0) {
-                       thisApp.disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction);
-                   }
-                   else if (functionBlock.isApproved()) {
-                       app.App.alert("Delete Function Block", "This Function Block is approved for release and cannot be deleted.", callbackFunction);
-                   }
-                   else {
-                       thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction);
-                   }
-               }
-            });
-        }
-    }
-
-    onMarkFunctionBlockAsDeleted(functionBlock, callbackFunction) {
-        if (functionBlock.isApproved()) {
-            app.App.alert("Move Function Block to Trash Bin", "This Function Block is approved for release and cannot be moved to the trash bin.", callbackFunction);
-            return;
         }
 
         const moveToTrashFunction = function() {
             const functionBlockId = functionBlock.getId();
             markFunctionBlockAsDeleted(functionBlockId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Move Function Block to Trash Bin", "Request to move Function Block to trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Move Function Block to Trash Bin", "Request to move function block to trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -1719,7 +1717,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Move Function Block to Trash", "Are you sure you want to move this Function Block to the trash?", moveToTrashFunction, callbackFunction);
+        app.App.confirm("Move Function Block to Trash", "Are you sure you want to move this function block to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreFunctionBlockFromTrash(functionBlock, callbackFunction) {
@@ -1727,7 +1725,7 @@ class App extends React.Component {
             const functionBlockId = functionBlock.getId();
             restoreFunctionBlockFromTrash(functionBlockId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Restore Function Block from Trash Bin", "Request to restore Function Block from trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Restore Function Block from Trash Bin", "Request to restore function block from trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -1743,11 +1741,11 @@ class App extends React.Component {
                 }
 
                 functionBlock.setVersionsJson(versionsJson);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
-        app.App.confirm("Restore Function Block from Trash", "Are you sure you want to restore this Function Block?", restoreFunction, callbackFunction);
+        app.App.confirm("Restore Function Block from Trash", "Are you sure you want to restore this function block?", restoreFunction, callbackFunction);
     }
 
     disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction) {
@@ -1776,43 +1774,14 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Disassociate Function Block", "Request to disassociate function block failed: " + errorMessage, callbackFunction);
                 }
             });
         };
-        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Function Block and the currently selected Function Catalog?", deleteFunction, callbackFunction);
-    }
-
-    disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
-        const thisApp = this;
-        const functionCatalogId = "";
-        const functionBlockId = functionBlock.getId();
-
-        const disassociateFunction = function() {
-            deleteFunctionBlock(functionBlockId, function (success, errorMessage) {
-                if (success) {
-                    if (! functionBlock.isApproved()) {
-                        const deleteFunction = function() {
-                            thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
-                        };
-                        app.App.confirm("Delete Function Block", "Would you also like to delete this function block version from the database?", deleteFunction, callbackFunction);
-                    }
-                }
-                else {
-                    app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
-                }
-            });
-        };
-
-        app.App.confirm("Disassociate Function Block", "Are you sure you want to disassociate this function block version from all unapproved function catalogs?", disassociateFunction, callbackFunction);
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this function block and the currently selected Function Catalog?", deleteFunction, callbackFunction);
     }
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
-        if (functionBlock.isApproved()) {
-            app.App.alert("Delete Function Block", "The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.", callbackFunction);
-            return;
-        }
-
         const thisApp = this;
         const deleteFunction = function() {
             const functionBlockId = functionBlock.getId();
@@ -1862,17 +1831,17 @@ class App extends React.Component {
                     });
 
                     if (typeof callbackFunction == "function") {
-                        callbackFunction();
+                        callbackFunction(true);
                     }
                 }
                 else {
-                    app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Delete Function Block", "Request to delete function block failed: " + errorMessage, callbackFunction);
                 }
             });
         };
 
         if (! shouldSkipConfirmation) {
-            app.App.confirm("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, callbackFunction);
+            app.App.confirm("Delete Function Block", "This action will permanently delete this function block.  Are you sure you want to delete it?", deleteFunction, callbackFunction);
             return;
         }
 
@@ -2094,52 +2063,52 @@ class App extends React.Component {
                 });
             }
             else {
-                app.App.alert("Associate Interface", "Request to associate Interface failed: " + errorMessage);
+                app.App.alert("Associate Interface", "Request to associate interface failed: " + errorMessage);
             }
         });
     }
 
     onDeleteMostInterface(mostInterface, callbackFunction) {
-        const thisApp = this;
         const selectedItem = this.state.selectedItem;
 
-        // If this item has a containing parent, simply disassociate it.
+        if (selectedItem && selectedItem.isReleased()) {
+            app.App.alert("Delete Interface", "Unable to delete interface. Currently selected function block is approved for release.", callbackFunction);
+        }
+
+        if (!mostInterface.isDeleted()) {
+            app.App.alert("Delete Most Interface", "Unable to delete interface.  Interfaces must be moved to trash before it can be deleted.", callbackFunction);
+            return;
+        }
+
         if (selectedItem) {
             if (selectedItem.isApproved()) {
-                app.App.alert("Delete Interface", "Unable to delete Interface. Currently selected Function Block is approved for release.", callbackFunction);
-            }
-            else {
-                thisApp.disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction);
+                app.App.alert("Delete Interface", "Unable to delete interface.  The parent function block is approved for release and cannot be modified.", callbackFunction);
+                return;
             }
         }
-        else {
-            listFunctionBlocksContainingMostInterface(mostInterface.getId(), function (data) {
-                if (data.wasSuccess) {
-                    if (data.functionBlockIds.length > 0) {
-                        thisApp.disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction);
-                    }
-                    else if (mostInterface.isApproved()) {
-                        app.App.alert("Delete Interface", "This Interface is approved for release and cannot be deleted.", callbackFunction);
-                    }
-                    else {
-                        thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
-                    }
-                }
-            });
-        }
+
+        this.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
     }
 
     onMarkMostInterfaceAsDeleted(mostInterface, callbackFunction) {
-        if (mostInterface.isApproved()) {
-            app.App.alert("Move Interface to Trash Bin", "This Interface is approved for release and cannot be moved to the trash bin.", callbackFunction);
-            return;
+        const selectedItem = this.state.selectedItem;
+
+        if (mostInterface.isReleased()) {
+            app.App.alert("Delete Interface", "Unable to delete interface. This interface is released and cannot be deleted.", callbackFunction);
+        }
+
+        if (selectedItem) {
+            if (selectedItem.isApproved()) {
+                app.App.alert("Delete Interface", "Unable to delete interface.  The parent function block is approved for release and cannot be modified.", callbackFunction);
+                return;
+            }
         }
 
         const moveToTrashFunction = function() {
             const mostInterfaceId = mostInterface.getId();
             markMostInterfaceAsDeleted(mostInterfaceId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Move Interface to Trash Bin", "Request to move Interface to trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Move Interface to Trash Bin", "Request to move interface to trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -2163,7 +2132,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Move Interface to Trash", "Are you sure you want to move this Interface to the trash?", moveToTrashFunction, callbackFunction);
+        app.App.confirm("Move Interface to Trash", "Are you sure you want to move this interface to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreMostInterfaceFromTrash(mostInterface, callbackFunction) {
@@ -2171,7 +2140,7 @@ class App extends React.Component {
             const mostInterfaceId = mostInterface.getId();
             restoreMostInterfaceFromTrash(mostInterfaceId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Restore Interface from Trash Bin", "Request to restore Interface from trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Restore Interface from Trash Bin", "Request to restore interface from trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -2187,11 +2156,11 @@ class App extends React.Component {
                 }
 
                 mostInterface.setVersionsJson(versionsJson);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
-        app.App.confirm("Restore Interface from Trash", "Are you sure you want to restore this Interface?", restoreFunction, callbackFunction);
+        app.App.confirm("Restore Interface from Trash", "Are you sure you want to restore this interface?", restoreFunction, callbackFunction);
     }
 
     disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction) {
@@ -2220,51 +2189,21 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Disassociate Interface", "Request to disassociate interface failed: " + errorMessage, callbackFunction);
                 }
             });
         };
-        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Interface and the currently selected Function Block?", deleteFunction, callbackFunction);
-    }
-
-    disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction) {
-        const thisApp = this;
-        const functionBlockId = "";
-        const mostInterfaceId = mostInterface.getId();
-
-        const disassociateFunction = function() {
-            deleteMostInterface(mostInterfaceId, function (success, errorMessage) {
-                if (! success) {
-                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
-                    return;
-                }
-
-                if (! mostInterface.isApproved()) {
-                    const deleteFunction = function() {
-                        thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
-                    };
-
-                    app.App.confirm("Delete Interface", "Would you like to delete this interface version from the database?", deleteFunction, callbackFunction);
-                }
-            });
-        };
-
-        app.App.confirm("Disassociate Interface", "Are you sure you want to disassociate this interface version from all unapproved function blocks?", disassociateFunction, callbackFunction);
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this interface and the currently selected function block?", deleteFunction, callbackFunction);
     }
 
     deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, shouldSkipConfirmation) {
-        if (mostInterface.isApproved()) {
-            app.App.alert("Delete Interface", "The currently selected interface version is approved for release. Approved interfaces cannot be deleted.", callbackFunction);
-            return;
-        }
-
         const thisApp = this;
         const deleteFunction = function() {
             const mostInterfaceId = mostInterface.getId();
 
             deleteMostInterface(mostInterfaceId, function (success, errorMessage) {
                 if (! success) {
-                    app.App.alert("Delete Interface", "Request to delete Interface failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Delete Interface", "Request to delete interface failed: " + errorMessage, callbackFunction);
                     return;
                 }
 
@@ -2311,13 +2250,13 @@ class App extends React.Component {
                 });
 
                 if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                    callbackFunction(true);
                 }
             });
         };
 
         if (! shouldSkipConfirmation) {
-            app.App.confirm("Delete Interface", "This action will delete the last reference to this Interface version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
+            app.App.confirm("Delete Interface", "Are you sure you want to delete this interface?", deleteFunction, callbackFunction);
             return;
         }
 
@@ -2372,8 +2311,13 @@ class App extends React.Component {
         const thisApp = this;
         const selectedItem = this.state.selectedItem;
 
-        if (selectedItem.isApproved()) {
-            app.App.alert("Delete Function", "Unable to delete Function. Currently selected Interface is approved for release.", callbackFunction);
+        if (selectedItem && selectedItem.isApproved()) {
+            app.App.alert("Delete Function", "Unable to delete Function. Currently selected interface is approved for release.", callbackFunction);
+            return;
+        }
+
+        if (!mostFunction.isDeleted()) {
+            app.App.alert("Delete Function", "Unable to delete function.  Functions must be moved to trash before it can be deleted.", callbackFunction);
             return;
         }
 
@@ -2402,7 +2346,7 @@ class App extends React.Component {
                 });
 
                 if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                    callbackFunction(true);
                 }
             });
         };
@@ -2415,7 +2359,7 @@ class App extends React.Component {
 
         const moveToTrashFunction = function() {
             if (selectedItem.isApproved()) {
-                app.App.alert("Move Function to Trash Bin", "This currently selected Interface is approved for release and cannot be modified.", callbackFunction);
+                app.App.alert("Move Function to Trash Bin", "This currently selected interface is approved for release and cannot be modified.", callbackFunction);
                 return;
             }
 
@@ -2451,7 +2395,7 @@ class App extends React.Component {
                 }
 
                 mostFunction.setIsDeleted(false);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
@@ -3903,7 +3847,7 @@ class App extends React.Component {
         const defaultText = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? "Filter Function Blocks" : "Filter Interfaces";
 
         if (currentNavigationLevel === this.NavigationLevel.functionBlocks && this.state.selectedItem) {
-            // Don't show filter bar when viewing interfaces in a selected Function Block.
+            // Don't show filter bar when viewing interfaces in a selected function block.
             return;
         }
 

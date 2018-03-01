@@ -58,9 +58,7 @@ public class FunctionCatalogInflater {
     }
 
     public List<FunctionCatalog> inflateTrashedFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = 1 and is_permanently_deleted = 0");
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);

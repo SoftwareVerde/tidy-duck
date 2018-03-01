@@ -268,7 +268,7 @@ public class FunctionBlockDatabaseManager {
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
         if (functionBlock.isReleased()) {
-            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+            throw new IllegalStateException("Released function blocks cannot be deleted.");
         }
 
         if (!functionBlock.isDeleted()) {
@@ -302,8 +302,8 @@ public class FunctionBlockDatabaseManager {
 
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
-            // function block isn't approved, we can delete it
-            mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
+            // disassociate from function block
+            mostInterfaceDatabaseManager.disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterface.getId());
         }
     }
 
@@ -509,4 +509,19 @@ public class FunctionBlockDatabaseManager {
 
         return functions;
     }
+
+    public boolean hasApprovedParents(final long functionBlockId) throws DatabaseException {
+        return _hasApprovedParents(functionBlockId);
+    }
+
+    private boolean _hasApprovedParents(final long functionBlockId) throws DatabaseException {
+        // general check for all parents, even those owned by other users
+        final Query query = new Query("SELECT 1 FROM function_catalogs INNER JOIN function_catalogs_function_blocks ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id WHERE function_block_id = ? and is_approved = 1")
+                .setParameter(functionBlockId)
+                ;
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
+    }
+
 }

@@ -297,6 +297,16 @@ public class DatabaseManager {
         });
     }
 
+    public boolean functionBlockHasApprovedParents(final long functionBlockId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
+            @Override
+            public Boolean call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                return functionBlockDatabaseManager.hasApprovedParents(functionBlockId);
+            }
+        });
+    }
+
     public void markFunctionBlockAsDeleted(final long functionBlockId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
@@ -435,6 +445,16 @@ public class DatabaseManager {
             public Long call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 return mostInterfaceDatabaseManager.forkMostInterface(mostInterfaceId, parentFunctionBlockId, currentAccountId);
+            }
+        });
+    }
+
+    public boolean mostInterfaceHasApprovedParents(final long mostInterfaceId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
+            @Override
+            public Boolean call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                return mostInterfaceDatabaseManager.hasApprovedParents(mostInterfaceId);
             }
         });
     }

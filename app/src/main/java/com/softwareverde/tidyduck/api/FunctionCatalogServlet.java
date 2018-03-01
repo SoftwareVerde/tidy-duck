@@ -331,7 +331,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _markFunctionCatalogAsDeleted(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);

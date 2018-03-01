@@ -43,10 +43,8 @@ public class MostFunctionInflater {
         final Query query = new Query(
                 "SELECT * FROM functions WHERE id IN(" +
                     "SELECT DISTINCT interfaces_functions.function_id FROM interfaces_functions WHERE interfaces_functions.interface_id = ?)\n" +
-                    "AND is_deleted = ?");
-
+                    "AND is_deleted = 1 and is_permanently_deleted = 0");
         query.setParameter(mostInterfaceId);
-        query.setParameter(true);
 
         List<MostFunction> mostFunctions = new ArrayList<MostFunction>();
         final List<Row> rows = _databaseConnection.query(query);

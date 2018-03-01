@@ -183,7 +183,7 @@ function disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfa
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks/" + functionBlockId,
         {
-            method: "POST",
+            method: "DELETE",
             credentials: "include"
         }
     );
@@ -256,9 +256,9 @@ function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
     });
 }
 
-function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+function deleteMostInterface(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"
