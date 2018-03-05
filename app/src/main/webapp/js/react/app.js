@@ -3314,25 +3314,25 @@ class App extends React.Component {
                     shouldShowCreateButton = false;
                 }
 
-                if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
-                    shouldShowReleaseButton = ! isReleased && isApproved;
-                    shouldShowForkButton = isApproved;
-                    forkFunction = this.onForkFunctionCatalog;
-                }
-
                 if (activeRole === this.roles.development) {
+                    if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
+                        shouldShowReleaseButton = ! isReleased && isApproved;
+                    }
+
                     const activeSubRole = this.state.activeSubRole;
                     shouldShowEditButton = true;
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
                     if (isApproved) {
-                        shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
-                            (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
+                        shouldShowForkButton = (currentNavigationLevel != NavigationLevel.mostFunctions);
 
                         // Determine fork button functionality
                         if (shouldShowForkButton) {
                             switch (currentNavigationLevel) {
+                                case NavigationLevel.functionCatalogs:
+                                    forkFunction = this.onForkFunctionCatalog;
+                                    break;
                                 case this.NavigationLevel.functionBlocks:
                                     forkFunction = this.onForkFunctionBlock;
                                     break;
