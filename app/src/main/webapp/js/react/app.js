@@ -3272,6 +3272,7 @@ class App extends React.Component {
         const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
         const isReview = this.state.currentReview != null;
         const selectedItem = this.state.selectedItem;
+        const parentItem = this.state.parentItem;
         const account = this.state.account;
         const canModify = (account && !isReview) ? account.hasRole("Modify") : false;
         const canRelease = (account && !isReview) ? account.hasRole("Release") : false;
@@ -3326,6 +3327,12 @@ class App extends React.Component {
                     // Determine if fork button should be shown.
                     if (isApproved) {
                         shouldShowForkButton = (currentNavigationLevel != NavigationLevel.mostFunctions);
+
+                        if (parentItem) {
+                            if (parentItem.isApproved()) {
+                                shouldShowForkButton = false;
+                            }
+                        }
 
                         // Determine fork button functionality
                         if (shouldShowForkButton) {
