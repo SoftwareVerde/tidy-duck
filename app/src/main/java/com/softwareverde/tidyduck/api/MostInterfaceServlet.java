@@ -345,6 +345,15 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 parentFunctionBlockId = null;
             }
 
+            if (parentFunctionBlockId != null) {
+                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, parentFunctionBlockId, currentAccountId);
+                if (parentErrorMessage != null) {
+                    parentErrorMessage = "Unable to fork interface: " + parentErrorMessage;
+                    _logger.error(parentErrorMessage);
+                    return super._generateErrorJson(parentErrorMessage);
+                }
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long newMostInterfaceId = databaseManager.forkMostInterface(mostInterfaceId, parentFunctionBlockId, currentAccountId);
 

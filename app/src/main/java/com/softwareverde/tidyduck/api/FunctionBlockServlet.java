@@ -342,9 +342,19 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 return super._generateErrorJson(errorMessage);
             }
 
+
             Long parentFunctionCatalogId = Util.parseLong(parentFunctionCatalogIdString);
             if (parentFunctionCatalogId < 1) {
                 parentFunctionCatalogId = null;
+            }
+
+            if (parentFunctionCatalogId != null) {
+                String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, parentFunctionCatalogId, currentAccountId);
+                if (parentErrorMessage != null) {
+                    parentErrorMessage = "Unable to fork function block: " + parentErrorMessage;
+                    _logger.error(parentErrorMessage);
+                    return super._generateErrorJson(parentErrorMessage);
+                }
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
