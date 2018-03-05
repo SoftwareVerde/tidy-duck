@@ -73,6 +73,31 @@ function getFunctionCatalogsMarkedAsDeleted(callbackFunction) {
     });
 }
 
+///Calls callbackFunction with an array of Function Blocks filtered by search string.
+function getFunctionCatalogsMatchingSearchString(searchString, includeDeleted, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let functionCatalogs = null;
+
+        if (data.wasSuccess) {
+            functionCatalogs = data.functionCatalogs;
+        } else {
+            console.error("Unable to get Function Catalogs for search string " + searchString + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogs);
+        }
+    });
+}
+
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(functionCatalog, callbackFunction) {
     const request = new Request(

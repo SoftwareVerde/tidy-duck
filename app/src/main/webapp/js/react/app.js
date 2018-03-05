@@ -172,6 +172,7 @@ class App extends React.Component {
 
         this.addFunctionCatalogNavigationItem = this.addFunctionCatalogNavigationItem.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
+        this.onFilterFunctionCatalogs = this.onFilterFunctionCatalogs.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
         this.onForkFunctionCatalog = this.onForkFunctionCatalog.bind(this);
@@ -1322,6 +1323,56 @@ class App extends React.Component {
                 });
             }
         })
+    }
+
+    onFilterFunctionCatalogs(filterString) {
+        const requestTime = (new Date()).getTime();
+
+        if (filterString.length > 1) {
+            const thisApp = this;
+
+            clearTimeout(this.state.loadingTimeout);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, false, true);
+
+            this.setState({
+                filterString:               filterString,
+                shouldShowLoadingIcon:      true,
+                isLoadingChildren:          false,
+                loadingTimeout:             loadingTimeout
+            });
+
+            getFunctionCatalogsMatchingSearchString(filterString, true, function(functionCatalogsJson) {
+                clearTimeout(thisApp.state.loadingTimeout);
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.versions) {
+                    if (thisApp.state.lastSearchResultTimestamp > requestTime) {
+                        // old results, discard
+                        return;
+                    }
+
+                    const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
+                    
+                    thisApp.setState({
+                        searchResults:              functionCatalogs,
+                        shouldShowFilteredResults:  true,
+                        lastSearchResultTimestamp:  requestTime,
+                        isLoadingChildren:          false,
+                        shouldShowLoadingIcon:      false
+                    });
+                }
+            });
+        } else {
+            // TODO: remove isLoadingChildren change and indicate that no results were found in child display area.
+            this.setState({
+                searchResults:                  [],
+                lastSearchResultTimestamp:      requestTime,
+                isLoadingChildren:              false,
+                isLoadingSearchResults:         false,
+                shouldShowLoadingIcon:          false,
+                shouldShowFilteredResults:      false,
+                filterString:                   filterString
+            });
+        }
+
     }
 
     onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
@@ -3062,11 +3113,11 @@ class App extends React.Component {
             case this.roles.development: {
                 // Development Mode
                 // set navigation level similar to onItemSelected() methods. Default to displaying functionBlocks if subRoleName is null.
-                const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
+                const newActiveSubRole = (subRoleName || this.developmentRoles.functionCatalog);
 
-                let newNavigationLevel = this.NavigationLevel.functionCatalogs;
-                if (newActiveSubRole === this.developmentRoles.functionCatalog) {
-                    newNavigationLevel = this.NavigationLevel.versions;
+                let newNavigationLevel = this.NavigationLevel.versions;
+                if (newActiveSubRole === this.developmentRoles.functionBlock) {
+                    newNavigationLevel = this.NavigationLevel.functionCatalogs;
                 }
                 else if (newActiveSubRole === this.developmentRoles.mostInterface) {
                     newNavigationLevel = this.NavigationLevel.functionBlocks;
@@ -3333,7 +3384,15 @@ class App extends React.Component {
         let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
-                childItems = this.state.functionCatalogs;
+                if (this.state.shouldShowFilteredResults) {
+                    childItems = this.state.searchResults;
+                    childItems.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
+                }
+                else {
+                    childItems = this.state.functionCatalogs;
+                }
 
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -3983,18 +4042,27 @@ class App extends React.Component {
     }
 
     renderFilterBar() {
-        const currentNavigationLevel = this.state.currentNavigationLevel;
-        const filterFunction = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? this.onFilterFunctionBlocks : this.onFilterMostInterfaces;
-        const defaultText = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? "Filter Function Blocks" : "Filter Interfaces";
-
-        if (currentNavigationLevel === this.NavigationLevel.functionBlocks && this.state.selectedItem) {
-            // Don't show filter bar when viewing interfaces in a selected function block.
+        if (this.state.selectedItem) {
+            // Don't show filter bar when viewing a selected item.
             return;
         }
 
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        // Don't show filter bar when viewing most functions in a selected interface.
         if(currentNavigationLevel === this.NavigationLevel.mostInterfaces) {
-            // Don't show filter bar when viewing most functions in a selected interface.
             return;
+        }
+
+        let filterFunction = this.onFilterFunctionCatalogs;
+        let defaultText = "Filter Function Catalogs";
+        if (currentNavigationLevel === this.NavigationLevel.functionCatalogs) {
+            filterFunction = this.onFilterFunctionBlocks;
+            defaultText = "Filter Function Blocks";
+        }
+        else if (currentNavigationLevel === this.NavigationLevel.functionBlocks) {
+            filterFunction = this.onFilterMostInterfaces;
+            defaultText = "Filter Interfaces";
         }
 
         return (
