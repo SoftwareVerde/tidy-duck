@@ -170,7 +170,7 @@ public class FunctionCatalogDatabaseManagerTests {
     }
 
     @Test
-    public void deleting_approved_function_block_should_use_permanently_deleted_flag() throws Exception {
+    public void deleting_approved_function_catalog_should_use_permanently_deleted_flag() throws Exception {
         // Setup
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(1L);
