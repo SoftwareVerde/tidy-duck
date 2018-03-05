@@ -2870,6 +2870,7 @@ class App extends React.Component {
                     shouldShowEditForm:             false,
                     shouldShowToolbar:              true,
                     shouldShowFilteredResults:      false,
+                    filterString:                   "",
                     createButtonState:              thisApp.CreateButtonState.normal,
                     loadingTimeout:                 null,
                     isLoadingChildren:              !canUseCachedChildren,
