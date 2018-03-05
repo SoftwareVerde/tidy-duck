@@ -592,7 +592,6 @@ class App extends React.Component {
         this.setState({
             releasingFunctionCatalog: functionCatalog
         });
-
     }
 
     onFunctionCatalogReleased() {
@@ -3699,7 +3698,7 @@ class App extends React.Component {
                     // don't display anything else, go to release page
                     return (
                         <div id="main-content" className="container">
-                            <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} />
+                            <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} onCancel={() => this.setState({releasingFunctionCatalog: null})} />
                         </div>
                     );
                 }
