@@ -220,17 +220,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
-                    if (! functionCatalog.isApproved()) {
-                        if (functionCatalog.getCreatorAccountId() != null) {
-                            if (! functionCatalog.getCreatorAccountId().equals(currentAccount.getId())) {
-                                // Skip adding this function catalog to the JSON because it is not approved, not unowned, and not owned by the current user.
-                                continue;
-                            }
+                    if (!functionCatalog.isPermanentlyDeleted()) {
+                        if (canAccountViewFunctionCatalog(databaseConnection, functionCatalog.getId(), currentAccount.getId()) == null) {
+                            // can view this function catalog, add it to the results
+                            final Json catalogJson = _toJson(functionCatalog);
+                            versionsJson.add(catalogJson);
                         }
                     }
-
-                    final Json catalogJson = _toJson(functionCatalog);
-                    versionsJson.add(catalogJson);
                 }
 
                 // Only add versionSeriesJson if its function catalogs have not all been filtered.
@@ -355,7 +351,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreFunctionCatalogFromTrash(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);

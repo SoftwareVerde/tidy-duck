@@ -299,9 +299,11 @@ public class MostInterfaceDatabaseManager {
     }
 
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("SELECT DISTINCT function_blocks_interfaces.function_block_id\n" +
+        final Query query = new Query("SELECT id FROM interfaces WHERE id IN (" +
+                                        "SELECT DISTINCT function_blocks_interfaces.function_block_id\n" +
                                         "FROM function_blocks_interfaces\n" +
-                                        "WHERE function_blocks_interfaces.interface_id = ?"
+                                        "WHERE function_blocks_interfaces.interface_id = ? AND is_deleted = 0" +
+                                      ") AND is_permanently_deleted = 0"
         );
         query.setParameter(mostInterfaceId);
 

@@ -24,7 +24,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfaces() throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM interfaces"
+                "SELECT * FROM interfaces WHERE is_permanently_deleted = 0"
         );
 
         List<MostInterface> mostInterfaces = new ArrayList<>();
@@ -78,7 +78,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final boolean includeDeleted, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
+            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?" + (includeDeleted ? "" : " AND is_deleted = 0")
         );
         query.setParameter(functionBlockId);
 
@@ -101,7 +101,8 @@ public class MostInterfaceInflater {
                                             "WHERE interfaces.name LIKE ?" +
                                         ")\n" +
                                         "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND is_deleted = 0"));
+                                        (includeDeleted ? "" : "AND is_deleted = 0") +
+                                        " AND is_permanently_deleted = 0");
         query.setParameter("%" + searchString + "%");
         query.setParameter(true);
         query.setParameter(accountId);
@@ -109,8 +110,7 @@ public class MostInterfaceInflater {
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long mostInterfaceId = row.getLong("id");
-            MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
+            MostInterface mostInterface = convertRowToMostInterface(row);
             mostInterfaces.add(mostInterface);
         }
         return groupByBaseVersionId(mostInterfaces);

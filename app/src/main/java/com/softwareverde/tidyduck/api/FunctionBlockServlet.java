@@ -489,7 +489,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreFunctionBlockFromTrash(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to restore function block: " + errorMessage;
                 _logger.error(errorMessage);
@@ -557,8 +557,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
             final Json functionBlocksJson = new Json(true);
             for (final FunctionBlock functionBlock : functionBlocks) {
-                final Json functionBlockJson = _toJson(functionBlock);
-                functionBlocksJson.add(functionBlockJson);
+                if (!functionBlock.isPermanentlyDeleted()) {
+                    final Json functionBlockJson = _toJson(functionBlock);
+                    functionBlocksJson.add(functionBlockJson);
+                }
             }
             response.put("functionBlocks", functionBlocksJson);
 
@@ -592,17 +594,13 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
-                    if (! functionBlock.isApproved()) {
-                        if (functionBlock.getCreatorAccountId() != null) {
-                            if (! functionBlock.getCreatorAccountId().equals(currentAccount.getId())) {
-                                // Skip adding this function block to the JSON because it is not approved, not unowned, and not owned by the current user.
-                                continue;
-                            }
+                    if (!functionBlock.isPermanentlyDeleted()) {
+                        if (canAccountViewFunctionBlock(databaseConnection, functionBlock.getId(), currentAccount.getId()) == null) {
+                            // can view this function block, add it to the results
+                            final Json functionBlockJson = _toJson(functionBlock);
+                            versionsJson.add(functionBlockJson);
                         }
                     }
-
-                    final Json functionBlockJson = _toJson(functionBlock);
-                    versionsJson.add(functionBlockJson);
                 }
 
                 // Only add versionSeriesJson if its function blocks have not all been filtered.
@@ -645,8 +643,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
-                    final Json functionBlockJson = _toJson(functionBlock);
-                    versionsJson.add(functionBlockJson);
+                    if (!functionBlock.isPermanentlyDeleted()) {
+                        final Json functionBlockJson = _toJson(functionBlock);
+                        versionsJson.add(functionBlockJson);
+                    }
                 }
                 versionSeriesJson.put("versions", versionsJson);
                 functionBlocksJson.add(versionSeriesJson);
