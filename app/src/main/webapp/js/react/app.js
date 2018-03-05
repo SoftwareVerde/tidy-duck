@@ -1724,6 +1724,9 @@ class App extends React.Component {
 
                 // add function block to children
                 const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+                functionBlocks.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     searchResults: newSearchResults,
@@ -2136,6 +2139,9 @@ class App extends React.Component {
 
                 // add most interface to children
                 const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+                mostInterfaces.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     searchResults: newSearchResults,
