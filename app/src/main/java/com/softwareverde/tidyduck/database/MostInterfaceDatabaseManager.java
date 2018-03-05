@@ -275,6 +275,7 @@ public class MostInterfaceDatabaseManager {
         _copyMostInterfaceMostFunctions(mostInterfaceId, newMostInterfaceId);
         if (parentFunctionBlockId != null) {
             _associateMostInterfaceWithFunctionBlock(parentFunctionBlockId, newMostInterfaceId);
+            _disassociateMostInterfaceWithFunctionBlock(parentFunctionBlockId, mostInterfaceId);
         }
         return newMostInterfaceId;
     }

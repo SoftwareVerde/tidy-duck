@@ -39,7 +39,8 @@ public class FunctionBlockDatabaseManager {
         final long newFunctionBlockId = _forkFunctionBlock(functionBlock, currentAccountId);
         _copyFunctionBlockInterfacesAssociations(functionBlockId, newFunctionBlockId);
         if (parentFunctionCatalogId != null) {
-            _associateFunctionBlockWithFunctionCatalog(parentFunctionCatalogId, functionBlockId);
+            _associateFunctionBlockWithFunctionCatalog(parentFunctionCatalogId, newFunctionBlockId);
+            _disassociateFunctionBlockWithFunctionCatalog(parentFunctionCatalogId, functionBlockId);
         }
         return newFunctionBlockId;
     }
