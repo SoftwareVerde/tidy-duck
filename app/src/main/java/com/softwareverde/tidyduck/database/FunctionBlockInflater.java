@@ -23,7 +23,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-            "SELECT * FROM function_blocks"
+            "SELECT * FROM function_blocks WHERE is_permanently_deleted = 0"
         );
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
@@ -36,7 +36,7 @@ public class FunctionBlockInflater {
     }
 
     public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = 1 and is_permanently_deleted = 0");
+        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = 1 AND is_permanently_deleted = 0");
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -77,7 +77,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId, final boolean includeDeleted, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
+            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?" + (includeDeleted ? "" : " AND is_deleted = 0")
         );
         query.setParameter(functionCatalogId);
 
@@ -131,7 +131,8 @@ public class FunctionBlockInflater {
                                             "WHERE function_blocks.name LIKE ?" +
                                         ")\n" +
                                         "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND is_deleted = 0"));
+                                        (includeDeleted ? "" : "AND is_deleted = 0") +
+                                        " and is_permanently_deleted = 0");
         query.setParameter("%" + searchString + "%");
         query.setParameter(true);
         query.setParameter(accountId);

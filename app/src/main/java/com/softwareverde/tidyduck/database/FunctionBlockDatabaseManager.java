@@ -360,9 +360,11 @@ public class FunctionBlockDatabaseManager {
     }
 
     public List<Long> listFunctionCatalogIdsContainingFunctionBlock(final long functionBlockId) throws DatabaseException {
-        final Query query = new Query("SELECT DISTINCT function_catalogs_function_blocks.function_catalog_id\n" +
+        final Query query = new Query("SELECT id FROM function_catalogs WHERE id IN (" +
+                                        "SELECT DISTINCT function_catalogs_function_blocks.function_catalog_id\n" +
                                         "FROM function_catalogs_function_blocks\n" +
-                                        "WHERE function_catalogs_function_blocks.function_block_id = ?"
+                                        "WHERE function_catalogs_function_blocks.function_block_id = ? and is_deleted = 0" +
+                                      ") AND is_permanently_deleted = 0"
         );
         query.setParameter(functionBlockId);
 

@@ -509,7 +509,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreMostInterfaceFromTrash(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to restore interface from trash: " + errorMessage;
                 _logger.error(errorMessage);
@@ -574,8 +574,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = _toJson(mostInterface);
-                mostInterfacesJson.add(mostInterfaceJson);
+                if (!mostInterface.isPermanentlyDeleted()) {
+                    final Json mostInterfaceJson = _toJson(mostInterface);
+                    mostInterfacesJson.add(mostInterfaceJson);
+                }
             }
             response.put("mostInterfaces", mostInterfacesJson);
 
@@ -609,17 +611,13 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
-                    if (! mostInterface.isApproved()) {
-                        if (mostInterface.getCreatorAccountId() != null) {
-                            if (! mostInterface.getCreatorAccountId().equals(currentAccount.getId())) {
-                                // Skip adding this interface to the JSON because it is not approved, not unowned, and not owned by the current user.
-                                continue;
-                            }
+                    if (!mostInterface.isPermanentlyDeleted()) {
+                        if (canAccountViewMostInterface(databaseConnection, mostInterface.getId(), currentAccount.getId()) == null) {
+                            // can view this function block, add it to the results
+                            final Json mostInterfaceJson = _toJson(mostInterface);
+                            versionsJson.add(mostInterfaceJson);
                         }
                     }
-
-                    final Json mostInterfaceJson = _toJson(mostInterface);
-                    versionsJson.add(mostInterfaceJson);
                 }
 
                 // Only add versionSeriesJson if its interfaces have not all been filtered.
@@ -662,8 +660,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
-                    final Json mostInterfaceJson = _toJson(mostInterface);
-                    versionsJson.add(mostInterfaceJson);
+                    if (!mostInterface.isPermanentlyDeleted()) {
+                        final Json mostInterfaceJson = _toJson(mostInterface);
+                        versionsJson.add(mostInterfaceJson);
+                    }
                 }
                 versionSeriesJson.put("versions", versionsJson);
                 mostInterfacesJson.add(versionSeriesJson);

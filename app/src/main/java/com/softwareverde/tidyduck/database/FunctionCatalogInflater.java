@@ -32,7 +32,7 @@ public class FunctionCatalogInflater {
 
     public List<FunctionCatalog> inflateFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM function_catalogs ORDER BY base_version_id"
+                "SELECT * FROM function_catalogs WHERE is_permanently_deleted = 0 ORDER BY base_version_id"
         );
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
@@ -81,7 +81,7 @@ public class FunctionCatalogInflater {
     }
 
     public List<FunctionCatalog> inflateTrashedFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = 1 and is_permanently_deleted = 0");
+        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = 1 AND is_permanently_deleted = 0");
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);

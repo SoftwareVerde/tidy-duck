@@ -397,7 +397,6 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
                 mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
             }
 
-
             final Json mostFunctionsJson = new Json(true);
             for (final MostFunction mostFunction : mostFunctions) {
                 final Json mostFunctionJson = _toJson(mostFunction);

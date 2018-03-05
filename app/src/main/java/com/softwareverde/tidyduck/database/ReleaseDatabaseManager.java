@@ -39,16 +39,16 @@ public class ReleaseDatabaseManager {
         String queryString;
         switch (itemType) {
             case "FUNCTION CATALOG": {
-                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_catalogs WHERE release_version = ? AND is_released = ? AND base_version_id IN (" +
-                                    "SELECT function_catalogs.base_version_id FROM function_catalogs WHERE function_catalogs.id = ?)";
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_catalogs WHERE release_version = ? AND is_released = ? AND is_deleted = 0 AND base_version_id IN (" +
+                                    "SELECT function_catalogs.base_version_id FROM function_catalogs WHERE function_catalogs.id = ? AND is_deleted = 0)";
             } break;
             case "FUNCTION BLOCK": {
-                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_blocks WHERE release_version = ? AND is_released = ? AND base_version_id IN (" +
-                                    "SELECT function_blocks.base_version_id FROM function_blocks WHERE function_blocks.id = ?)";
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM function_blocks WHERE release_version = ? AND is_released = ? AND is_deleted = 0 AND base_version_id IN (" +
+                                    "SELECT function_blocks.base_version_id FROM function_blocks WHERE function_blocks.id = ? AND is_deleted = 0)";
             } break;
             case "INTERFACE": {
-                queryString = "SELECT COUNT(*) AS duplicate_count FROM interfaces WHERE version = ? AND is_released = ? AND base_version_id IN (" +
-                                    "SELECT interfaces.base_version_id FROM interfaces WHERE interfaces.id = ?)";
+                queryString = "SELECT COUNT(*) AS duplicate_count FROM interfaces WHERE version = ? AND is_released = ? AND is_deleted = 0 AND base_version_id IN (" +
+                                    "SELECT interfaces.base_version_id FROM interfaces WHERE interfaces.id = ? AND is_deleted = 0)";
             } break;
             case "FUNCTION": {
                 return true;
@@ -74,7 +74,7 @@ public class ReleaseDatabaseManager {
     private List<ReleaseItem> _getFunctionCatalogReleaseItem(final long functionCatalogId) throws DatabaseException {
         final Query query = new Query("SELECT 'FUNCTION CATALOG' AS type, id, name, release_version AS version " +
                 "FROM function_catalogs " +
-                "WHERE id = ?");
+                "WHERE id = ? AND is_deleted = 0");
         query.setParameter(functionCatalogId);
 
         return _executeReleaseItemQuery(query);
@@ -84,7 +84,8 @@ public class ReleaseDatabaseManager {
         final Query query = new Query("SELECT 'FUNCTION BLOCK' AS type, function_blocks.id, name, release_version AS version " +
                 "FROM function_catalogs_function_blocks " +
                 "INNER JOIN function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks.id " +
-                "WHERE function_catalog_id = ? and is_released = 0");
+                "WHERE function_catalog_id = ? and is_released = 0 " +
+                " AND function_catalogs_function_blocks.is_deleted = 0 AND function_blocks.is_deleted = 0");
         query.setParameter(functionCatalogId);
 
         return _executeReleaseItemQuery(query);
@@ -95,7 +96,8 @@ public class ReleaseDatabaseManager {
                 "FROM function_catalogs_function_blocks " +
                 "INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.function_block_id = function_catalogs_function_blocks.function_block_id " +
                 "INNER JOIN interfaces ON function_blocks_interfaces.interface_id = interfaces.id " +
-                "WHERE function_catalog_id = ? and interfaces.is_released = 0");
+                "WHERE function_catalog_id = ? and interfaces.is_released = 0 " +
+                " AND function_catalogs_function_blocks.is_deleted = 0 AND function_blocks_interfaces.is_deleted = 0 AND interfaces.is_deleted = 0");
         query.setParameter(functionCatalogId);
 
         return _executeReleaseItemQuery(query);
@@ -107,7 +109,8 @@ public class ReleaseDatabaseManager {
                 "INNER JOIN function_blocks_interfaces ON function_blocks_interfaces.function_block_id = function_catalogs_function_blocks.function_block_id " +
                 "INNER JOIN interfaces_functions ON interfaces_functions.interface_id = function_blocks_interfaces.interface_id " +
                 "INNER JOIN functions ON interfaces_functions.function_id = functions.id " +
-                "WHERE function_catalog_id = ? and functions.is_released = 0");
+                "WHERE function_catalog_id = ? and functions.is_released = 0 " +
+                " AND function_catalogs_function_blocks.is_deleted = 0 AND function_blocks_interfaces.is_deleted = 0 AND interfaces_functions.is_deleted = 0 AND functions.is_deleted = 0");
         query.setParameter(functionCatalogId);
 
         return _executeReleaseItemQuery(query);
