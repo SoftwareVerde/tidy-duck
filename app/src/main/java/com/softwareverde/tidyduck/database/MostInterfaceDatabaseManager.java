@@ -299,7 +299,7 @@ public class MostInterfaceDatabaseManager {
     }
 
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("SELECT id FROM interfaces WHERE id IN (" +
+        final Query query = new Query("SELECT id FROM function_blocks WHERE id IN (" +
                                         "SELECT DISTINCT function_blocks_interfaces.function_block_id\n" +
                                         "FROM function_blocks_interfaces\n" +
                                         "WHERE function_blocks_interfaces.interface_id = ? AND is_deleted = 0" +
@@ -310,7 +310,7 @@ public class MostInterfaceDatabaseManager {
         List<Row> rows =_databaseConnection.query(query);
         final ArrayList<Long> functionBlockIds = new ArrayList<Long>();
         for (Row row : rows) {
-            Long functionBlockId = row.getLong("function_block_id");
+            Long functionBlockId = row.getLong("id");
             functionBlockIds.add(functionBlockId);
         }
         return functionBlockIds;

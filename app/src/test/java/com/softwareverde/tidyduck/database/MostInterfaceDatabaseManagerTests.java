@@ -350,7 +350,7 @@ public class MostInterfaceDatabaseManagerTests {
         Assert.assertEquals(1, beforeDeleteMostInterfaceCount.intValue());
 
         // Action
-        _mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId());
+        _mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId(), 1L);
         _mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterface.getId(), true);
         _mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
 
@@ -374,7 +374,7 @@ public class MostInterfaceDatabaseManagerTests {
         _mostFunctionDatabaseManager.insertMostFunctionForMostInterface(mostInterface.getId(), mostFunction);
 
         // Action
-        _mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId());
+        _mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId(), 1L);
         _mostInterfaceDatabaseManager.setIsDeletedForMostInterface(mostInterface.getId(), true);
         _mostInterfaceDatabaseManager.deleteMostInterface(mostInterface.getId());
 
