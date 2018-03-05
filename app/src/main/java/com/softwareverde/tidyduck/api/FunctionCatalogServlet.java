@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,23 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
                 return _getFunctionCatalog(functionCatalogId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("function-catalogs/search/<name>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                final String searchString = Util.coalesce(parameters.get("name"));
+                if (searchString.length() < 2) {
+                    return _generateErrorJson("Invalid search string for function catalog.");
+                }
+                // include deleted items unless requested not to
+                final String includeDeleteString = request.getParameter("includeDeleted");
+                boolean includeDeleted = !"false".equals(includeDeleteString);
+
+                return _listFunctionCatalogsMatchingSearchString(searchString, includeDeleted, currentAccount, environment.getDatabase());
             }
         });
 
@@ -243,6 +262,46 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catch (final DatabaseException exception) {
             _logger.error("Unable to list function catalogs.", exception);
             return super._generateErrorJson("Unable to list function catalogs.");
+        }
+    }
+
+    private Json _listFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final Account currentAccount, final Database<Connection> database) {
+        final String decodedSearchString;
+        try {
+            decodedSearchString = URLDecoder.decode(searchString, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            _logger.error("Unable to list function catalogs from search", e);
+            return super._generateErrorJson("Unable to list function catalogs from search.");
+        }
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Json response = new Json(false);
+
+            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+            final Map<Long, List<FunctionCatalog>> functionCatalogs = functionCatalogInflater.inflateFunctionCatalogsMatchingSearchString(decodedSearchString, includeDeleted, currentAccount.getId());
+
+            final Json functionCatalogsJson = new Json(true);
+            for (final Long baseVersionId : functionCatalogs.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
+                    final Json functionCatalogJson = _toJson(functionCatalog);
+                    versionsJson.add(functionCatalogJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                functionCatalogsJson.add(versionSeriesJson);
+            }
+            response.put("functionCatalogs", functionCatalogsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list function catalogs from search", exception);
+            return super._generateErrorJson("Unable to list function catalogs from search.");
         }
     }
 
