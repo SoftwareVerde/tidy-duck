@@ -185,17 +185,21 @@ public class FunctionCatalogDatabaseManagerTests {
         functionCatalog.setCompany(company);
 
         _functionCatalogDatabaseManager.insertFunctionCatalog(functionCatalog);
+        final long storedId = functionCatalog.getId();
 
         // Action
-        _functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalog.getId());
+        _functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalog.getId(), 1L);
         _functionCatalogDatabaseManager.setIsDeletedForFunctionCatalog(functionCatalog.getId(), true);
         _functionCatalogDatabaseManager.deleteFunctionCatalog(functionCatalog.getId());
 
         // Assert
         final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogs();
-        Assert.assertEquals(1, inflatedFunctionCatalogs.size());
-        Assert.assertEquals(true, inflatedFunctionCatalogs.get(0).isDeleted());
-        Assert.assertEquals(true, inflatedFunctionCatalogs.get(0).isPermanentlyDeleted());
+        Assert.assertEquals(0, inflatedFunctionCatalogs.size());
+
+        final FunctionCatalog directlyInflatedCatalog = _functionCatalogInflater.inflateFunctionCatalog(storedId);
+        Assert.assertNotNull(directlyInflatedCatalog);
+        Assert.assertEquals(true, directlyInflatedCatalog.isDeleted());
+        Assert.assertEquals(true, directlyInflatedCatalog.isPermanentlyDeleted());
     }
 
     @Test

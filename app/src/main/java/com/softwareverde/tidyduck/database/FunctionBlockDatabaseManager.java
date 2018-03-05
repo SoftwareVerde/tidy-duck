@@ -371,7 +371,7 @@ public class FunctionBlockDatabaseManager {
         final List<Row> rows =_databaseConnection.query(query);
         final ArrayList<Long> functionCatalogIds = new ArrayList<>();
         for (final Row row : rows) {
-            final Long functionCatalogId = row.getLong("function_catalog_id");
+            final Long functionCatalogId = row.getLong("id");
             functionCatalogIds.add(functionCatalogId);
         }
         return functionCatalogIds;

@@ -269,7 +269,7 @@ public class FunctionBlockDatabaseManagerTests {
         Assert.assertEquals(1, beforeDeleteFunctionBlockCount.intValue());
 
         // Action
-        _functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId());
+        _functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId(), 1L);
         _functionBlockDatabaseManager.setIsDeletedForFunctionBlock(functionBlock.getId(), true);
         _functionBlockDatabaseManager.deleteFunctionBlock(functionBlock.getId());
 
