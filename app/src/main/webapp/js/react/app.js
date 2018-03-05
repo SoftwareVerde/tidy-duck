@@ -394,6 +394,9 @@ class App extends React.Component {
             functionCatalog.setBaseVersionId(functionCatalogId);
 
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
+            functionCatalogs.sort(function(a, b) {
+                return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+            });
 
             thisApp.setState({
                 createButtonState:          thisApp.CreateButtonState.success,
@@ -691,6 +694,9 @@ class App extends React.Component {
             functionBlock.setBaseVersionId(functionBlockId);
 
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+            functionBlocks.sort(function(a, b) {
+                return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+            });
 
             thisApp.setState({
                 createButtonState:          thisApp.CreateButtonState.normal,
@@ -903,6 +909,9 @@ class App extends React.Component {
 
             mostInterface.setId(mostInterfaceId);
             const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+            mostInterfaces.sort(function(a, b) {
+                return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+            });
 
             const versions = [ MostInterface.toJson(mostInterface) ];
             mostInterface.setVersionsJson(versions);
@@ -1117,6 +1126,9 @@ class App extends React.Component {
                 mostFunction.setCompany(thisApp.getCurrentAccountCompany());
 
                 const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
+                mostFunctions.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     createButtonState:          thisApp.CreateButtonState.success,
@@ -1350,7 +1362,7 @@ class App extends React.Component {
                     }
 
                     const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
-                    
+
                     thisApp.setState({
                         searchResults:              functionCatalogs,
                         shouldShowFilteredResults:  true,
