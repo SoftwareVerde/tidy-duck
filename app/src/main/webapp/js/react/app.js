@@ -66,7 +66,6 @@ class App extends React.Component {
         };
 
         this.roles = {
-            release:        "Release",
             development:    "Development",
             types:          "Types",
             reviews:        "Reviews",
@@ -75,6 +74,7 @@ class App extends React.Component {
         };
 
         this.developmentRoles = {
+            functionCatalog:  "Function Catalog",
             functionBlock:    "Function Block",
             mostInterface:    "Interface"
         };
@@ -268,9 +268,8 @@ class App extends React.Component {
                     
                     const validRoles = thisApp.getValidRoleItems(account);
                     const defaultMode = account.getSettings().getDefaultMode();
-                    let defaultValidRole = validRoles[0];
+                    const defaultValidRole = validRoles[0];
                     if (validRoles.includes(defaultMode)) {
-                        defaultValidRole = defaultMode;
                         thisApp.handleRoleClick(defaultMode, null, false);
                     }
                     else {
@@ -659,7 +658,7 @@ class App extends React.Component {
 
     onFunctionCatalogReleased() {
         // return to main release page
-        this.handleRoleClick(this.roles.release, null, false);
+        this.handleRoleClick(this.roles.development, this.developmentRoles.functionCatalog, false);
     }
 
     onCreateFunctionBlock(functionBlock) {
@@ -733,9 +732,7 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
-        // If not in release mode, show save animation on metadata form.
-        const createButtonState = this.state.activeRole !== this.roles.release ?
-            this.CreateButtonState.animate : this.CreateButtonState.normal;
+        const createButtonState = this.CreateButtonState.animate;
 
         this.setState({
             navigationItems: navigationItems,
@@ -950,9 +947,7 @@ class App extends React.Component {
         );
         navigationItems.push(navigationItem);
 
-        // If not in release mode, show save animation on metadata form.
-        const createButtonState = this.state.activeRole !== this.roles.release ?
-            this.CreateButtonState.animate : this.CreateButtonState.normal;
+        const createButtonState = this.CreateButtonState.animate;
 
         this.setState({
             navigationItems: navigationItems,
@@ -3052,7 +3047,7 @@ class App extends React.Component {
         this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
     }
 
-    handleRoleClick(roleName, subRoleName, canUseCachedChildren, callbackFunction) {
+    handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
         if (history.state && (roleName != history.state.roleName || subRoleName != history.state.subRoleName)) {
@@ -3064,59 +3059,27 @@ class App extends React.Component {
         }
 
         switch (roleName) {
-            case this.roles.release: {
-                // Release Mode
-                // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
-                this.setState({
-                    currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                    parentHistory:                  [],
-                    activeRole:                     roleName,
-                    activeSubRole:                  null,
-                    selectedItem:                   null,
-                    parentItem:                     null,
-                    proposedItem:                   null,
-                    shouldShowToolbar:              true,
-                    shouldShowCreateChildForm:      false,
-                    shouldShowSearchChildForm:      false,
-                    shouldShowSubmitForReviewForm:  false,
-                    shouldShowEditForm:             false,
-                    createButtonState:              this.CreateButtonState.normal,
-                    selectedFunctionStereotype:     null,
-                    isLoadingChildren:              true,
-                    isLoadingSearchResults:         false,
-                    isLoadingReviews:               false,
-                    isLoadingAccounts:              false,
-                    shouldShowFilteredResults:      false,
-                    searchResults:                  [],
-                    functionBlocks:                 [],
-                    mostInterfaces:                 [],
-                    navigationItems:                [],
-                    showSettingsPage:               false,
-                    currentReview:                  null,
-                    releasingFunctionCatalog:       null
-                });
-
-                this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-                    thisApp.setState({
-                        functionCatalogs:       functionCatalogs,
-                        isLoadingChildren:      false
-                    });
-                });
-            } break;
             case this.roles.development: {
                 // Development Mode
-                // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
+                // set navigation level similar to onItemSelected() methods. Default to displaying functionBlocks if subRoleName is null.
                 const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
-                const newNavigationLevel = (newActiveSubRole === this.developmentRoles.mostInterface) ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
+
+                let newNavigationLevel = this.NavigationLevel.functionCatalogs;
+                if (newActiveSubRole === this.developmentRoles.functionCatalog) {
+                    newNavigationLevel = this.NavigationLevel.versions;
+                }
+                else if (newActiveSubRole === this.developmentRoles.mostInterface) {
+                    newNavigationLevel = this.NavigationLevel.functionBlocks;
+                }
 
                 this.setState({
                     navigationItems:                [],
                     parentHistory:                  [],
                     searchResults:                  [],
-                    functionCatalogs:               [],
                     selectedItem:                   null,
                     parentItem:                     null,
                     proposedItem:                   null,
+                    releasingFunctionCatalog:       null,
                     shouldShowCreateChildForm:      false,
                     shouldShowSearchChildForm:      false,
                     shouldShowSubmitForReviewForm:  false,
@@ -3124,6 +3087,7 @@ class App extends React.Component {
                     shouldShowToolbar:              true,
                     shouldShowFilteredResults:      false,
                     createButtonState:              thisApp.CreateButtonState.normal,
+                    loadingTimeout:                 null,
                     isLoadingChildren:              !canUseCachedChildren,
                     isLoadingReviews:               false,
                     isLoadingAccounts:              false,
@@ -3134,7 +3098,19 @@ class App extends React.Component {
                     currentReview:                  null
                 });
 
-                if (newActiveSubRole === this.developmentRoles.functionBlock) {
+                if (newActiveSubRole === this.developmentRoles.functionCatalog) {
+                    getFunctionCatalogs(function(functionCatalogsJson) {
+                        if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                            // didn't navigate away while downloading children
+                            const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
+                            thisApp.setState({
+                                functionCatalogs:   functionCatalogs,
+                                isLoadingChildren:  false
+                            });
+                        }
+                    });
+                }
+                else if (newActiveSubRole === this.developmentRoles.functionBlock) {
                     getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
                         if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                             // didn't navigate away while downloading children
@@ -3278,10 +3254,6 @@ class App extends React.Component {
                 console.error("Invalid role " + roleName + " selected.");
                 return;
             }
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction();
         }
     }
 
@@ -3582,11 +3554,19 @@ class App extends React.Component {
 
                     // Determine back button functionality.
                     switch (currentNavigationLevel) {
-                        case this.NavigationLevel.functionBlocks:
+                        case this.NavigationLevel.functionCatalogs:
                             backFunction = function() { thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true); };
                             break;
+                        case this.NavigationLevel.functionBlocks:
+                            if (activeSubRole === thisApp.developmentRoles.functionCatalog) {
+                                backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                            }
+                            else {
+                                backFunction = function() { thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true); };
+                            }
+                            break;
                         case this.NavigationLevel.mostInterfaces:
-                            if (activeSubRole === thisApp.developmentRoles.functionBlock) {
+                            if ((activeSubRole === thisApp.developmentRoles.functionCatalog) || (activeSubRole === thisApp.developmentRoles.functionBlock)) {
                                 backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
@@ -3859,7 +3839,7 @@ class App extends React.Component {
         if (this.state.showSettingsPage) {
             const account = this.state.account;
             const theme = account ? account.getSettings().getTheme() : "Tidy";
-            const defaultMode = account ? account.getSettings().getDefaultMode() : "Release";
+            const defaultMode = account ? account.getSettings().getDefaultMode() : this.roles.development;
             const accountId = account.getId();
             const validRoles = this.getValidRoleItems(account);
 
@@ -3923,8 +3903,7 @@ class App extends React.Component {
                 } break; // continue if a review is selected
             }
             // other roles
-            let navigationItems = "";
-            if (this.state.activeRole === this.roles.release) {
+            if (this.state.activeSubRole === this.developmentRoles.functionCatalog) {
                 const releasingFunctionCatalog = this.state.releasingFunctionCatalog;
                 if (releasingFunctionCatalog != null) {
                     // don't display anything else, go to release page
@@ -3934,11 +3913,9 @@ class App extends React.Component {
                         </div>
                     );
                 }
-                navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
             }
             return (
                 <div id="main-content" className="container">
-                    {navigationItems}
                     <div className="display-area">
                         {this.renderForm()}
                         <div id="child-display-area" className={childDisplayAreaStyle}>
@@ -3955,7 +3932,6 @@ class App extends React.Component {
 
         if (account) {
             if (account.hasPermission("MOST_COMPONENTS_VIEW")) {
-                roleItems.push(this.roles.release);
                 roleItems.push(this.roles.development);
             }
             if (account.hasPermission("TYPES_CREATE") || account.hasPermission("TYPES_MODIFY")) {
