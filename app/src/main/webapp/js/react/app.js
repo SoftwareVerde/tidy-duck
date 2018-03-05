@@ -2263,7 +2263,6 @@ class App extends React.Component {
 
     getChildItemsFromVersions(childItemsJson, fromJsonFunction) {
         const childItems = [];
-        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
 
         for (let i in childItemsJson) {
             const versionSeriesJson = childItemsJson[i];
@@ -2276,7 +2275,7 @@ class App extends React.Component {
             // Get highest version object that is released, using IDs.
             for (let j in versions) {
                 const childItemJson = versions[j];
-                if (displayedVersionJson.isDeleted && ! shouldShowDeletedChildItems) {
+                if (displayedVersionJson.isDeleted) {
                     if (! childItemJson.isDeleted) {
                         displayedVersionId = childItemJson.id;
                         displayedVersionJson = childItemJson;
@@ -3105,7 +3104,7 @@ class App extends React.Component {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
-        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems && (this.state.selectedItem != null);
+        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -3294,7 +3293,7 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
-            let shouldShowToggleItemsInTrashButton = false;
+            let shouldShowToggleItemsInTrashButton = true;
             let shouldShowNavigationItems = false;
             let backFunction = null;
             let forkFunction = null;
