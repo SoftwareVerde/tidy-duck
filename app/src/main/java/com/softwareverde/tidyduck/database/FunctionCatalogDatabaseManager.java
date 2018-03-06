@@ -335,4 +335,16 @@ class FunctionCatalogDatabaseManager {
 
         return functionIds;
     }
+
+    public boolean hasDeletedChildren(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("SELECT 1 " +
+                                      "FROM function_catalogs_function_blocks " +
+                                      "LEFT OUTER JOIN function_blocks_interfaces ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id " +
+                                      "LEFT OUTER JOIN interfaces_functions ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id " +
+                                      "WHERE function_catalog_id = ? AND (function_catalogs_function_blocks.is_deleted = 1 OR function_blocks_interfaces.is_deleted = 1 OR interfaces_functions.is_deleted = 1)")
+                .setParameter(functionCatalogId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() != 0;
+    }
 }

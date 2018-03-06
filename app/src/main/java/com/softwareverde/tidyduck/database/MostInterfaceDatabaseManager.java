@@ -479,4 +479,14 @@ public class MostInterfaceDatabaseManager {
         List<Row> rows = _databaseConnection.query(query);
         return rows.size() > 0;
     }
+
+    public boolean hasDeletedChildren(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("SELECT 1 " +
+                                      "FROM interfaces_functions " +
+                                      "WHERE interface_id = ? AND interfaces_functions.is_deleted = 1")
+                .setParameter(mostInterfaceId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() != 0;
+    }
 }
