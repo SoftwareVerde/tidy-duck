@@ -571,7 +571,11 @@ public class MostTypeConverter {
             case "CommandWithAck": {
                 if (method.getInputParameters().size() == 0) {
                     // CommandWithAck with no parameters -> Trigger
-                    convertedMethod = new TriggerMethod();
+
+                    // trigger methods being changed to unclassified methods
+                    // due to potential bug in Integra/CETITEC software
+                    //convertedMethod = new TriggerMethod();
+                    convertedMethod = new UnclassifiedMethod();
                 }
                 else {
                     if (_isSequenceMethod(method)) {
