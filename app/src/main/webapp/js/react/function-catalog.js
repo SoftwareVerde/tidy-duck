@@ -41,7 +41,6 @@ class FunctionCatalog extends React.Component {
         const functionCatalog = this.props.functionCatalog;
         const versionsJson = functionCatalog.getVersionsJson();
 
-
         for (let i in versionsJson) {
             const newFunctionCatalogJson = versionsJson[i];
             let newVersion = newFunctionCatalogJson.releaseVersion;

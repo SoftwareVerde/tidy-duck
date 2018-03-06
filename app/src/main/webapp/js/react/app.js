@@ -554,6 +554,7 @@ class App extends React.Component {
             }
             else {
                 const functionCatalogs = thisApp.state.functionCatalogs;
+                const functionCatalogVersionsJson = functionCatalog.getVersionsJson();
                 const newFunctionCatalog = copyMostObject(FunctionCatalog, functionCatalog);
                 newFunctionCatalog.setId(newFunctionCatalogId);
 
@@ -561,8 +562,8 @@ class App extends React.Component {
                 newFunctionCatalog.setIsReleased(false);
                 newFunctionCatalog.setIsApproved(false);
                 newFunctionCatalog.setCreatorAccountId(thisApp.state.account.getId());
-
-                functionCatalogs.push(newFunctionCatalog);
+                functionCatalogVersionsJson.push(FunctionCatalog.toJson(newFunctionCatalog));
+                functionCatalog.setVersionsJson(functionCatalogVersionsJson);
 
                 //Update final navigation item to reflect any changes.
                 const navigationItems = thisApp.state.navigationItems;
@@ -718,13 +719,17 @@ class App extends React.Component {
                 }
                 else {
                     const functionBlocks = thisApp.state.functionBlocks;
+                    const functionBlockVersionsJson = functionBlock.getVersionsJson();
                     const newFunctionBlock = copyMostObject(FunctionBlock, functionBlock);
                     newFunctionBlock.setId(newFunctionBlockId);
-
                     newFunctionBlock.setIsReleased(false);
                     newFunctionBlock.setIsApproved(false);
                     newFunctionBlock.setCreatorAccountId(thisApp.state.account.getId());
-                    functionBlocks.push(newFunctionBlock);
+                    // Update versions json, if it exists.
+                    if (functionBlockVersionsJson) {
+                        functionBlockVersionsJson.push(FunctionBlock.toJson(newFunctionBlock));
+                        newFunctionBlock.setVersionsJson(functionBlockVersionsJson);
+                    }
 
                     //Update final navigation item to reflect any name changes.
                     const navigationItems = thisApp.state.navigationItems;
@@ -867,12 +872,17 @@ class App extends React.Component {
             }
             else {
                 const mostInterfaces = thisApp.state.mostInterfaces;
+                const mostInterfaceVersionsJson = mostInterface.getVersionsJson();
                 const newMostInterface = copyMostObject(MostInterface, mostInterface);
                 newMostInterface.setId(newMostInterfaceId);
                 newMostInterface.setIsReleased(false);
                 newMostInterface.setIsApproved(false);
                 newMostInterface.setCreatorAccountId(thisApp.state.account.getId());
-                mostInterfaces.push(newMostInterface);
+                // Update versions json, if it exists.
+                if (mostInterfaceVersionsJson) {
+                    mostInterfaceVersionsJson.push(MostInterface.toJson(newMostInterface));
+                    newMostInterface.setVersionsJson(mostInterfaceVersionsJson);
+                }
 
                 //Update final navigation item to reflect any name changes.
                 const navigationItems = thisApp.state.navigationItems;
