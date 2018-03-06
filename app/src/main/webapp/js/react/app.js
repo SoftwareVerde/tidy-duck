@@ -2596,6 +2596,11 @@ class App extends React.Component {
         const thisApp = this;
         const approvalReviewId = childItem.getApprovalReviewId();
 
+        if (approvalReviewId < 1) {
+            app.App.alert("Approval Review", "A valid review does not exist for this object. The review ID for an object must be greater than 0.");
+            return;
+        }
+
         getReview(approvalReviewId, function(data) {
             if (! data.wasSuccess) {
                 app.App.alert("Approval Review", "Unable to get approval review: " + data.errorMessage);
