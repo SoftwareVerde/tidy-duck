@@ -78,6 +78,13 @@ class MostInterfaceForm extends React.Component {
             const newValueNibbles = mostId.slice(2, mostId.length);
             newMostId = "0x" + newValueNibbles.padStart(8, "0").toUpperCase();
         }
+        /*
+        // Auto-format integer values. Commenting out for now.
+        else if(mostId.match("^[0-9]+$")) {
+            const newMostIdNumber = new Number(mostId);
+            newMostId = "0x" + newMostIdNumber.toString(16).padStart(8, "0");
+        }
+        */
 
         this.onMostIdChanged(newMostId);
     }
