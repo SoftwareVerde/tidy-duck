@@ -238,7 +238,7 @@ class FunctionCatalogDatabaseManager {
     }
 
     public void approveFunctionCatalog(final long functionCatalogId, final long reviewId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_approved = ?, approval_review_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_catalogs SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
                 .setParameter(true)
                 .setParameter(reviewId)
                 .setParameter(functionCatalogId);

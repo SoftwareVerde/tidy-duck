@@ -355,7 +355,7 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void approveMostInterface(final long mostInterfaceId, final long reviewId) throws DatabaseException {
-        final Query query = new Query("UPDATE interfaces SET is_approved = ?, approval_review_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE interfaces SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
                 .setParameter(true)
                 .setParameter(reviewId)
                 .setParameter(mostInterfaceId);

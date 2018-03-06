@@ -287,7 +287,7 @@ class MostFunctionDatabaseManager {
     }
 
     public void approveMostFunction(final long mostFunctionId, final long reviewId) throws DatabaseException {
-        final Query query = new Query("UPDATE functions SET is_approved = ?, approval_review_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE functions SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
                 .setParameter(true)
                 .setParameter(reviewId)
                 .setParameter(mostFunctionId);

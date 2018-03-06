@@ -403,7 +403,7 @@ public class FunctionBlockDatabaseManager {
     }
 
     public void approveFunctionBlock(final long functionBlockId, final long reviewId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks SET is_approved = ?, approval_review_id = ? WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
                 .setParameter(true)
                 .setParameter(reviewId)
                 .setParameter(functionBlockId);
