@@ -53,10 +53,35 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
     });
 }
 
-///Calls callbackFunction with an array of Function Blocks filtered by search string.
-function getFunctionBlocksMatchingSearchString(searchString, callbackFunction) {
+// calls callbackFunction with an array of function blocks in trash
+function getFunctionBlocksMarkedAsDeleted(callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/search/" + searchString,
+        API_PREFIX + "trashed-function-blocks",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let functionBlocks = null;
+
+        if (data.wasSuccess) {
+            functionBlocks = data.functionBlocks;
+        } else {
+            console.error("Unable to get function blocks marked as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionBlocks);
+        }
+    });
+}
+
+///Calls callbackFunction with an array of Function Blocks filtered by search string.
+function getFunctionBlocksMatchingSearchString(searchString, includeDeleted, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
         {
             method: "GET",
             credentials: "include"
@@ -153,40 +178,9 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
     });
 }
 
-// calls callbackFunction with modified function block ID
-function updateFunctionBlock(functionCatalogId, functionBlockId, functionBlock, callbackFunction) {
+function disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
-        {
-            method: "POST",
-            credentials: "include",
-            body: JSON.stringify({
-                "functionCatalogId":    functionCatalogId,
-                "functionBlock":    functionBlock
-            })
-        }
-    );
-
-    tidyFetch(request, function(data) {
-        const wasSuccess = data.wasSuccess;
-        let functionBlockId = null;
-
-        if (wasSuccess) {
-            functionBlockId = data.functionBlockId;
-        }
-        else {
-            console.error("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
-        }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction(data, functionBlockId);
-        }
-    });
-}
-
-function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
-    const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "?functionCatalogId=" + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/function-catalogs/" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"
@@ -203,6 +197,128 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlock":    functionBlock
+            })
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+
+        if (!wasSuccess) {
+            console.error("Unable to modify function block " + functionBlockId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+// calls callbackFunction with new function block ID
+function forkFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/fork",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionCatalogId":    functionCatalogId
+            })
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        let newFunctionBlockId = null;
+
+        if (wasSuccess) {
+            newFunctionBlockId = data.functionBlockId;
+        }
+        else {
+            console.error("Unable to fork function block " + functionBlockId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, newFunctionBlockId);
+        }
+    });
+}
+
+function deleteFunctionBlock(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
+        if (!wasSuccess) {
+            console.error("Unable to delete function block " + functionBlockId + ": " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function markFunctionBlockAsDeleted(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/mark-as-deleted",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.error("Unable to mark function block " + functionBlockId + " as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+function restoreFunctionBlockFromTrash(functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/restore-from-trash",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to restore function block " + functionBlockId + " from trash: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, errorMessage);
         }
     });
 }

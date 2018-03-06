@@ -51,6 +51,19 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         });
 
+        super._defineEndpoint("reviews/<reviewId>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final long reviewId = Util.parseLong(parameters.get("reviewId"));
+                if (reviewId < 1) {
+                    return _generateErrorJson("Invalid review id: " + reviewId);
+                }
+                return _getReview(reviewId, environment.getDatabase());
+            }
+        });
+
         super._defineEndpoint("reviews/<reviewId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
             @Override
             public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
@@ -161,6 +174,25 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
     }
 
+    private Json _getReview(final long reviewId, final Database<Connection> database) {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final ReviewInflater reviewInflater = new ReviewInflater(databaseConnection);
+            final Review review = reviewInflater.inflateReview(reviewId);
+
+            final Json response = new Json(false);
+            final Json reviewJson = _toJson(review);
+            response.put("review", reviewJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException databaseException) {
+            final String errorMessage = "Unable to inflate review ID: " + reviewId;
+            _logger.error(errorMessage, databaseException);
+            return super._generateErrorJson(errorMessage);
+        }
+    }
+
     private Json _insertReview(final HttpServletRequest request, final Database<Connection> database) {
         try {
             final Json jsonRequest = _getRequestDataAsJson(request);
@@ -212,6 +244,14 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 return _generateErrorJson(errorMessage);
             }
 
+            // Check review object for any deleted children (they must be restored/disassociated/deleted)
+            String deletedChildrenErrorMessage = _checkReviewObjectForDeletedChildren(database, review);
+            if (deletedChildrenErrorMessage != null) {
+                deletedChildrenErrorMessage = "Unable approve review: " + deletedChildrenErrorMessage;
+                _logger.error(deletedChildrenErrorMessage);
+                return _generateErrorJson(deletedChildrenErrorMessage);
+            }
+
             // Check review votes for at least one upvote from someone other than the review's creator.
             final List<ReviewVote> reviewVotes = review.getReviewVotes();
             long voteCounter = 0;
@@ -242,6 +282,36 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         super._setJsonSuccessFields(response);
         return response;
+    }
+
+    protected String _checkReviewObjectForDeletedChildren(final Database<Connection> database, final Review review) {
+        final FunctionCatalog functionCatalog = review.getFunctionCatalog();
+        final FunctionBlock functionBlock = review.getFunctionBlock();
+        final MostInterface mostInterface = review.getMostInterface();
+        final MostFunction mostFunction = review.getMostFunction();
+
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            boolean hasDeletedChildren = false;
+            if (functionCatalog != null) {
+                hasDeletedChildren = databaseManager.functionCatalogHasDeletedChildren(functionCatalog.getId());
+            } else if (functionBlock != null) {
+                hasDeletedChildren = databaseManager.functionBlockHasDeletedChildren(functionBlock.getId());
+            } else if (mostInterface != null) {
+                hasDeletedChildren = databaseManager.mostInterfaceHasDeletedChildren(mostInterface.getId());
+            } else if (mostFunction != null) {
+                // most functions have no children, nothing to check
+            } else {
+                return "Invalid review - no associated object.";
+            }
+            if (hasDeletedChildren) {
+                return "Component under review has deleted children, these must be removed or restored before merging.";
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return "Failed check for deleted children: " + e.getMessage();
+        }
     }
 
     private Json _insertReviewVote(final HttpServletRequest request, final long reviewId, final Account currentAccount, final Database<Connection> database) throws Exception {
@@ -456,6 +526,13 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         final Long accountId = review.getAccount().getId();
         final String ticketUrl = review.getTicketUrl();
         final String createdDate = DateUtil.dateToDateString(review.getCreatedDate());
+        String approvalDateString = null;
+        final Date approvalDate = review.getApprovalDate();
+
+        if (approvalDate != null) {
+            approvalDateString = DateUtil.dateToDateString(approvalDate);
+        }
+
         final List<ReviewVote> reviewVotes = review.getReviewVotes();
         final List<ReviewComment> reviewComments = review.getReviewComments();
 
@@ -479,6 +556,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         json.put("accountId", accountId);
         json.put("ticketUrl", ticketUrl);
         json.put("createdDate", createdDate);
+        json.put("approvalDate", approvalDateString);
         json.put("reviewVotes", reviewVotesJson);
         json.put("reviewComments", reviewCommentsJson);
 

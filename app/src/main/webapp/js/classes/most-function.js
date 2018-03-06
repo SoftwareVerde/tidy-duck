@@ -37,6 +37,7 @@ class MostFunction {
         mostFunction.setReleaseVersion(json.releaseVersion);
         mostFunction.setIsReleased(json.isReleased);
         mostFunction.setIsApproved(json.isApproved);
+        mostFunction.setApprovalReviewId(json.approvalReviewId);
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
         mostFunction.setStereotype(mostFunctionStereotype);
@@ -44,6 +45,8 @@ class MostFunction {
         mostFunction.setReturnParameterDescription(json.returnParameterDescription);
         mostFunction.setReturnType(returnType);
         mostFunction.setOperations(operations);
+        mostFunction.setIsDeleted(json.isDeleted);
+        mostFunction.setDeletedDate(json.deletedDate);
 
         if (functionType === "Property") {
             mostFunction.setSupportsNotification(json.supportsNotification);
@@ -126,6 +129,9 @@ class MostFunction {
       this._company               = null;
       this._isReleased            = null;
       this._isApproved            = null;
+      this._approvalReviewId      = null;
+      this._isDeleted             = false;
+      this._deletedDate           = null;
 
       this._stereotype                  = null;
       this._returnParameterName         = null;
@@ -272,4 +278,29 @@ class MostFunction {
     isApproved() {
         return this._isApproved;
     }
+
+    setApprovalReviewId(approvalReviewId) {
+        this._approvalReviewId = approvalReviewId;
+    }
+
+    getApprovalReviewId() {
+        return this._approvalReviewId;
+    }
+
+    setIsDeleted(isDeleted) {
+        this._isDeleted = isDeleted;
+    }
+
+    isDeleted() {
+        return this._isDeleted;
+    }
+
+    setDeletedDate(deletedDate) {
+        this._deletedDate = deletedDate;
+    }
+
+    getDeletedDate() {
+        return this._deletedDate;
+    }
+
 }

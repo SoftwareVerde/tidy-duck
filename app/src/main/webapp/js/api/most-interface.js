@@ -53,10 +53,35 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
     });
 }
 
-///Calls callbackFunction with an array of MOST interfaces filtered by search string.
-function getMostInterfacesMatchingSearchString(searchString, callbackFunction) {
+// calls callbackFunction with an array of interfaces in trash
+function getMostInterfacesMarkedAsDeleted(callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/search/" + searchString,
+        API_PREFIX + "trashed-most-interfaces",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let mostInterfaces = null;
+
+        if (data.wasSuccess) {
+            mostInterfaces = data.mostInterfaces;
+        } else {
+            console.error("Unable to get interfaces marked as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(mostInterfaces);
+        }
+    });
+}
+
+///Calls callbackFunction with an array of MOST interfaces filtered by search string.
+function getMostInterfacesMatchingSearchString(searchString, includeDeleted, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
         {
             method: "GET",
             credentials: "include"
@@ -153,15 +178,36 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
     });
 }
 
-// calls callbackFunction with modified MOST interface ID
-function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, callbackFunction) {
+// calls callbackFunction with wasSuccess
+function disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks/" + functionBlockId,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to disassociate interface " + mostInterfaceId + " from function block: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
         {
             method: "POST",
             credentials: "include",
             body: JSON.stringify({
-                "functionBlockId":    functionBlockId,
                 "mostInterface":      mostInterface
             })
         }
@@ -169,24 +215,50 @@ function updateMostInterface(functionBlockId, mostInterfaceId, mostInterface, ca
 
     tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        let mostInterfaceId = null;
+
+        if (!wasSuccess) {
+            console.error("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+// calls callbackFunction with new MOST interface ID
+function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/fork",
+        {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify({
+                "functionBlockId":    functionBlockId
+            })
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        let newMostInterfaceId = null;
 
         if (wasSuccess) {
-            mostInterfaceId = data.mostInterfaceId;
+            newMostInterfaceId = data.mostInterfaceId;
         }
         else {
             console.error("Unable to modify interface " + mostInterfaceId + " : " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(data, mostInterfaceId);
+            callbackFunction(data, newMostInterfaceId);
         }
     });
 }
 
-function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+function deleteMostInterface(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"
@@ -197,12 +269,56 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.error("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+            console.error("Unable to delete interface " + mostInterfaceId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function markMostInterfaceAsDeleted(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/mark-as-deleted",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.error("Unable to mark interface " + mostInterfaceId + " as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+function restoreMostInterfaceFromTrash(mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/restore-from-trash",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to restore interface " + mostInterfaceId + " from trash: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, errorMessage);
         }
     });
 }

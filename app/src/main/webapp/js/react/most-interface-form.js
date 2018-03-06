@@ -20,6 +20,7 @@ class MostInterfaceForm extends React.Component {
         };
 
         this.onMostIdChanged = this.onMostIdChanged.bind(this);
+        this.onMostIdInputFieldBlurred = this.onMostIdInputFieldBlurred.bind(this);
         this.onNameChanged = this.onNameChanged.bind(this);
         this.onDescriptionChange = this.onDescriptionChange.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
@@ -66,6 +67,26 @@ class MostInterfaceForm extends React.Component {
         if (typeof this.props.onUpdate == "function") {
             this.props.onUpdate();
         }
+    }
+
+    onMostIdInputFieldBlurred() {
+        const mostInterface = this.state.mostInterface;
+        const mostId = mostInterface.getMostId();
+        let newMostId = mostId;
+
+        if (mostId.startsWith("0x")) {
+            const newValueNibbles = mostId.slice(2, mostId.length);
+            newMostId = "0x" + newValueNibbles.padStart(8, "0").toUpperCase();
+        }
+        /*
+        // Auto-format integer values. Commenting out for now.
+        else if(mostId.match("^[0-9]+$")) {
+            const newMostIdNumber = new Number(mostId);
+            newMostId = "0x" + newMostIdNumber.toString(16).padStart(8, "0");
+        }
+        */
+
+        this.onMostIdChanged(newMostId);
     }
 
     onNameChanged(newValue) {
@@ -225,7 +246,7 @@ class MostInterfaceForm extends React.Component {
             }
         }
 
-        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" pattern="(?:0|[1-9][0-9]*)" title="Positive number" label="ID" icons={duplicateIdElement} value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} isRequired={true} />);
+        reactComponents.push(<app.InputField key="most-interface-most-id" id="most-interface-most-id" name="id" type="text" label="ID (0x0 - 0xFFFFFFFF)" icons={duplicateIdElement} pattern="0[xX][0-9A-Fa-f]{8}" title="0x0 through 0xFFFFFFFF" value={mostInterface.getMostId()} readOnly={readOnly} onChange={this.onMostIdChanged} onBlur={this.onMostIdInputFieldBlurred} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-name" id="most-interface-name" name="name" type="text" pattern="I[A-Za-z0-9]+" title="Only alpha-numeric characters, start with 'I'." label="Name" icons={duplicateNameElement} value={mostInterface.getName()} readOnly={readOnly} onChange={this.onNameChanged} isRequired={true} />);
         reactComponents.push(<app.InputField key="most-interface-description" id="most-interface-description" name="description" type="textarea" label="Description" value={mostInterface.getDescription()} readOnly={readOnly} onChange={this.onDescriptionChange} />);
         reactComponents.push(<app.InputField key="most-interface-version" id="most-interface-version" name="version" type="text" pattern="[1-9][0-9]*" title="Positive number" label="Version" value={version} readOnly={readOnly} onChange={this.onVersionChanged} isRequired={true} />);

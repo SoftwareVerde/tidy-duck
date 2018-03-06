@@ -22,6 +22,7 @@ class Toolbar extends React.Component {
         this.renderForkButton = this.renderForkButton.bind(this);
         this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
+        this.renderShowItemsInTrashButton = this.renderShowItemsInTrashButton.bind(this);
         this.renderMetadataButton = this.renderMetadataButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
         this.renderSearchButton = this.renderSearchButton.bind(this);
@@ -180,6 +181,20 @@ class Toolbar extends React.Component {
         }
     }
 
+    renderShowItemsInTrashButton() {
+        if (this.props.shouldShowToggleItemsInTrashButton) {
+            const deletedItemsVisibleText = this.props.shouldShowDeletedChildItems ? "Visible" : "Hidden";
+            const buttonTitle = "Deleted Items are " + deletedItemsVisibleText;
+            const trashIcon = this.props.shouldShowDeletedChildItems ? <i className="fa fa-4 fa-eye" /> : <i className="fa fa-4 fa-eye-slash" />;
+            return (
+                <div className="toolbar-item trash" onClick={this.props.onToggleItemsInTrashClicked} >
+                    {trashIcon}
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
     renderMetadataButton() {
         if (this.props.shouldShowEditButton) {
             const navigationLevel = this.state.navigationLevel;
@@ -317,6 +332,7 @@ class Toolbar extends React.Component {
                     {this.renderItemCreateButton()}
                     {this.renderSearchButton()}
                     {this.renderAddFunctionButtons()}
+                    {this.renderShowItemsInTrashButton()}
                 </div>
             );
         }
@@ -326,6 +342,7 @@ class Toolbar extends React.Component {
                 {this.renderSubmitForReviewButton()}
                 {this.renderReleaseButton()}
                 {this.renderMetadataButton()}
+                {this.renderShowItemsInTrashButton()}
             </div>
         );
     }
@@ -348,6 +365,10 @@ class Toolbar extends React.Component {
                     }
                     else if(! navigationItem.isReleased()) {
                         header = "UNRELEASED ".concat(header);
+                    }
+
+                    if (navigationItem.isDeleted()) {
+                        navigationItemStyle += " trashed-navigation-indicator"
                     }
 
                     const onClickCallback = navigationItem.getOnClickCallback();

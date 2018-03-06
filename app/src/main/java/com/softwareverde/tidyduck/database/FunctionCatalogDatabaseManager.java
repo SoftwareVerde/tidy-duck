@@ -4,12 +4,14 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 class FunctionCatalogDatabaseManager {
@@ -23,35 +25,46 @@ class FunctionCatalogDatabaseManager {
      * Stores the functionCatalog's release, releaseDate, accountId, and companyId via the databaseConnection.
      * Upon successful insert, the functionCatalog's Id is set to the database's insertId.
      */
-    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog, final FunctionCatalog priorFunctionCatalog) throws DatabaseException {
+    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
         final Long accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
-        final Long priorVersionId = priorFunctionCatalog != null ? priorFunctionCatalog.getId() : null;
         final Long creatorAccountId = functionCatalog.getCreatorAccountId();
 
-        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, ?, ?)")
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, NULL, ?)")
             .setParameter(name)
             .setParameter(release)
             .setParameter(accountId)
             .setParameter(companyId)
-            .setParameter(priorVersionId)
             .setParameter(creatorAccountId)
         ;
 
         final long functionCatalogId = _databaseConnection.executeSql(query);
         functionCatalog.setId(functionCatalogId);
-
-        if (priorFunctionCatalog == null) {
-            _setBaseVersionId(functionCatalogId, functionCatalogId);
-        } else {
-            _setBaseVersionId(functionCatalogId, priorFunctionCatalog.getBaseVersionId());
-        }
+        _setBaseVersionId(functionCatalogId, functionCatalogId);
     }
 
-    private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
-        _insertFunctionCatalog(functionCatalog, null);
+    private long _forkFunctionCatalog(final FunctionCatalog functionCatalog, final long creatorAccountId) throws DatabaseException {
+        final String name = functionCatalog.getName();
+        final String release = functionCatalog.getRelease();
+        final Long accountId = functionCatalog.getAuthor().getId();
+        final Long companyId = functionCatalog.getCompany().getId();
+        final Long priorVersionId = functionCatalog.getId();
+        final Long baseVersionId = functionCatalog.getBaseVersionId();
+
+        final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id, creator_account_id, base_version_id) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                .setParameter(name)
+                .setParameter(release)
+                .setParameter(accountId)
+                .setParameter(companyId)
+                .setParameter(priorVersionId)
+                .setParameter(creatorAccountId)
+                .setParameter(baseVersionId)
+                ;
+
+        final long newFunctionCatalogId = _databaseConnection.executeSql(query);
+        return newFunctionCatalogId;
     }
 
     private void _setBaseVersionId(long functionCatalogId, long baseVersionId) throws DatabaseException {
@@ -63,16 +76,7 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _setCreatorAccountId(long functionCatalogId, long accountId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET creator_account_id = ? WHERE id = ?")
-                .setParameter(accountId)
-                .setParameter(functionCatalogId)
-                ;
-
-        _databaseConnection.executeSql(query);
-    }
-
-    private void _updateUnapprovedFunctionCatalog(final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
+    private void _updateFunctionCatalog(final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
         final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
@@ -93,16 +97,71 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteFunctionCatalogIfUnapproved(final long functionCatalogId) throws DatabaseException {
+    public void setIsDeletedForFunctionCatalog(final long functionCatalogId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_deleted = ?, deleted_date = ? WHERE id = ?")
+                .setParameter(isDeleted)
+                .setParameter(isDeleted ? DateUtil.dateToDateString(new Date()) : null)
+                .setParameter(functionCatalogId)
+        ;
+
+        _databaseConnection.executeSql(query);
+    }
+    
+    public long restoreFunctionCatalogFromTrash(final long functionCatalogId) throws DatabaseException {
+        setIsDeletedForFunctionCatalog(functionCatalogId, false);
+        final long numberOfDeletedChildren = _getNumberOfDeletedChildren();
+
+        if (numberOfDeletedChildren > 0) {
+            _clearDeletedChildAssociations();
+        }
+
+        return numberOfDeletedChildren;
+    }
+
+    private long _getNumberOfDeletedChildren() throws DatabaseException {
+        final Query query = new Query("SELECT COUNT(*) AS deletions FROM function_catalogs_function_blocks WHERE function_block_id IS NULL");
+
+        final List<Row> rows = _databaseConnection.query(query);
+        final Row row = rows.get(0);
+        return row.getLong("deletions");
+    }
+
+    private void _clearDeletedChildAssociations() throws DatabaseException {
+        final Query query = new Query("DELETE FROM function_catalogs_function_blocks WHERE function_block_id IS NULL");
+        _databaseConnection.executeSql(query);
+
+    }
+
+    private void _deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
-        if (! functionCatalog.isReleased()) {
-            // function catalog isn't approved, we can delete it
+        if (functionCatalog.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!functionCatalog.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (functionCatalog.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(functionCatalogId);
+        }
+        else {
+            // not approved, delete
             _deleteFunctionBlocksFromFunctionCatalog(functionCatalogId);
             _deleteReviewForFunctionCatalog(functionCatalogId);
             _deleteFunctionCatalogFromDatabase(functionCatalogId);
         }
+    }
+
+    private void _markAsPermanentlyDeleted(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(functionCatalogId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteFunctionBlocksFromFunctionCatalog(final long functionCatalogId) throws DatabaseException {
@@ -111,7 +170,7 @@ class FunctionCatalogDatabaseManager {
 
         final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         for (final FunctionBlock functionBlock : functionBlocks) {
-            functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
+            functionBlockDatabaseManager.disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlock.getId());
         }
     }
 
@@ -128,24 +187,20 @@ class FunctionCatalogDatabaseManager {
     }
 
     public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
-        final long inputFunctionCatalogId = functionCatalog.getId();
+        _updateFunctionCatalog(functionCatalog);
+    }
 
+    public long forkFunctionCatalog(final long functionCatalogId, final Long accountId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
-        final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(inputFunctionCatalogId);
-        if (originalFunctionCatalog.isApproved()) {
-            // need to insert a new function catalog replace this one
-            functionCatalog.setCreatorAccountId(accountId);
-            _insertFunctionCatalog(functionCatalog, originalFunctionCatalog);
-            final long newFunctionCatalogId = functionCatalog.getId();
-            _copyFunctionCatalogFunctionBlocksAssociations(inputFunctionCatalogId, newFunctionCatalogId);
-        }
-        else {
-            _updateUnapprovedFunctionCatalog(functionCatalog);
-        }
+        final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+        // need to insert a new function catalog replace this one
+        final long newFunctionCatalogId = _forkFunctionCatalog(functionCatalog, accountId);
+        _copyFunctionCatalogFunctionBlocksAssociations(functionCatalogId, newFunctionCatalogId);
+        return newFunctionCatalogId;
     }
 
     public void deleteFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        _deleteFunctionCatalogIfUnapproved(functionCatalogId);
+        _deleteFunctionCatalog(functionCatalogId);
     }
 
     private void _copyFunctionCatalogFunctionBlocksAssociations(final long originalFunctionCatalogId, final long newFunctionCatalogId) throws DatabaseException {
@@ -182,23 +237,24 @@ class FunctionCatalogDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void approveFunctionCatalog(final long functionCatalogId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_catalogs SET is_approved = ? WHERE id = ?")
+    public void approveFunctionCatalog(final long functionCatalogId, final long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
+                .setParameter(reviewId)
                 .setParameter(functionCatalogId);
 
         _databaseConnection.executeSql(query);
 
-        _approveFunctionBlocksForFunctionCatalogId(functionCatalogId);
+        _approveFunctionBlocksForFunctionCatalogId(functionCatalogId, reviewId);
     }
 
-    private void _approveFunctionBlocksForFunctionCatalogId(final long functionCatalogId) throws DatabaseException {
+    private void _approveFunctionBlocksForFunctionCatalogId(final long functionCatalogId, final long reviewId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalogId);
 
         final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         for (final FunctionBlock functionBlock : functionBlocks) {
-            functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId());
+            functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId(), reviewId);
         }
     }
 
@@ -278,5 +334,17 @@ class FunctionCatalogDatabaseManager {
         }
 
         return functionIds;
+    }
+
+    public boolean hasDeletedChildren(final long functionCatalogId) throws DatabaseException {
+        final Query query = new Query("SELECT 1 " +
+                                      "FROM function_catalogs_function_blocks " +
+                                      "LEFT OUTER JOIN function_blocks_interfaces ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id " +
+                                      "LEFT OUTER JOIN interfaces_functions ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id " +
+                                      "WHERE function_catalog_id = ? AND (function_catalogs_function_blocks.is_deleted = 1 OR function_blocks_interfaces.is_deleted = 1 OR interfaces_functions.is_deleted = 1)")
+                .setParameter(functionCatalogId);
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() != 0;
     }
 }

@@ -4,10 +4,12 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MostFunctionInflater {
@@ -18,8 +20,12 @@ public class MostFunctionInflater {
     }
 
     public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+        return inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, true);
+    }
+
+    public List<MostFunction> inflateMostFunctionsFromMostInterfaceId(final long mostInterfaceId, final boolean includeDeleted) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_id FROM interfaces_functions WHERE interface_id = ?"
+            "SELECT function_id FROM interfaces_functions WHERE interface_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
         );
         query.setParameter(mostInterfaceId);
 
@@ -27,6 +33,23 @@ public class MostFunctionInflater {
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long mostFunctionId = row.getLong("function_id");
+            final MostFunction mostFunction = inflateMostFunction(mostFunctionId);
+            mostFunctions.add(mostFunction);
+        }
+        return mostFunctions;
+    }
+
+    public List<MostFunction> inflateTrashedMostFunctionsFromMostInterfaceId(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query(
+                "SELECT * FROM functions WHERE id IN(" +
+                    "SELECT DISTINCT interfaces_functions.function_id FROM interfaces_functions WHERE interfaces_functions.interface_id = ?)\n" +
+                    "AND is_deleted = 1 and is_permanently_deleted = 0");
+        query.setParameter(mostInterfaceId);
+
+        List<MostFunction> mostFunctions = new ArrayList<MostFunction>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            final long mostFunctionId = row.getLong("id");
             final MostFunction mostFunction = inflateMostFunction(mostFunctionId);
             mostFunctions.add(mostFunction);
         }
@@ -52,7 +75,20 @@ public class MostFunctionInflater {
         final String description = row.getString("description");
         final String releaseVersion = row.getString("release_version");
         final String category = row.getString("category");
+        final boolean isDeleted = row.getBoolean("is_deleted");
+        final String deletedDateString = row.getString("deleted_date");
+        Date deletedDate = null;
+        if (deletedDateString != null) {
+            deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
+        final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
         final long mostFunctionStereotypeId = row.getLong("function_stereotype_id");
         final String returnParameterName = row.getString("return_parameter_name");
@@ -91,7 +127,12 @@ public class MostFunctionInflater {
         mostFunction.setName(name);
         mostFunction.setDescription(description);
         mostFunction.setRelease(releaseVersion);
+        mostFunction.setIsDeleted(isDeleted);
+        mostFunction.setDeletedDate(deletedDate);
+        mostFunction.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        mostFunction.setPermanentlyDeletedDate(permanentlyDeletedDate);
         mostFunction.setIsApproved(isApproved);
+        mostFunction.setApprovalReviewId(approvalReviewId);
         mostFunction.setIsReleased(isReleased);
         mostFunction.setFunctionStereotype(mostFunctionStereotype);
         mostFunction.setReturnParameterName(returnParameterName);

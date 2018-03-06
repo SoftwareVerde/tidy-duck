@@ -18,6 +18,7 @@ public class TestDataLoader {
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/init.sql")));
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
         databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
+        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.4.sql")));
     }
 
     public static void insertFakeCompany(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -78,7 +79,7 @@ public class TestDataLoader {
         return functionCatalogId;
     }
 
-    private static long insertFakeFunctionBlock(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+    public static long insertFakeFunctionBlock(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         final long functionBlockId = databaseConnection.executeSql(new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, base_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)")
                 .setParameter("0xFF")
                 .setParameter("Proprietary")
@@ -100,7 +101,7 @@ public class TestDataLoader {
         return functionBlockId;
     }
 
-    private static long insertFakeMostInterface(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+    public static long insertFakeMostInterface(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         final long mostInterfaceId = databaseConnection.executeSql(new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, base_version_id) VALUES (?, ?, ?, NOW(), ?, ?)")
                 .setParameter("1")
                 .setParameter("TestInterface")
@@ -112,12 +113,44 @@ public class TestDataLoader {
         return mostInterfaceId;
     }
 
-    /// TODO: Insert Function and Return Type for Function
+    public static long insertFakeMostType(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+        final Query query = new Query("INSERT INTO most_types (name, primitive_type_id, is_primary_type, bitfield_length, enum_max, " +
+                "number_base_type_id, number_exponent, number_range_min, number_range_max, number_step, " +
+                "number_unit_id, string_max_size, stream_length, stream_max_length, stream_media_type, " +
+                "array_name, array_description, array_element_type_id, array_size, record_name, " +
+                "record_description, record_size) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .setParameter("TestFunction") // name)
+                .setParameter(1L) // primitiveTypeId)
+                .setParameter(true) // isPrimaryType)
+                .setParameter(null) // bitfieldLength)
+                .setParameter(null) // enumMax)
+                .setParameter(null) // numberBaseTypeId)
+                .setParameter(null) // numberExponent)
+                .setParameter(null) // numberRangeMin)
+                .setParameter(null) // numberRangeMax)
+                .setParameter(null) // numberStep)
+                .setParameter(null) // numberUnitId)
+                .setParameter(null) // stringMaxSize)
+                .setParameter(null) // streamLength)
+                .setParameter(null) // streamMaxLength)
+                .setParameter(null) // streamMediaType)
+                .setParameter(null) // arrayName)
+                .setParameter(null) // arrayDescription)
+                .setParameter(null) // arrayElementTypeId)
+                .setParameter(null) // arraySize)
+                .setParameter(null) // recordName)
+                .setParameter(null) // recordDescription)
+                .setParameter(null) // recordSize)
+                ;
+
+        final long mostTypeId = databaseConnection.executeSql(query);
+        return mostTypeId;
+    }
+
+    /// TODO: Insert Fake Function
     /*
     private static long insertFakeMostFunction(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
 
-    }
-
-    private static long insertFakeMostType(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-    */
+    }*/
 }

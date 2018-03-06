@@ -48,6 +48,56 @@ function getFunctionCatalogs(callbackFunction) {
     });
 }
 
+// calls callbackFunction with an array of function catalogs in trash
+function getFunctionCatalogsMarkedAsDeleted(callbackFunction) {
+    const request = new Request(
+        API_PREFIX + "trashed-function-catalogs",
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let functionCatalogs = null;
+
+        if (data.wasSuccess) {
+            functionCatalogs = data.functionCatalogs;
+        } else {
+            console.error("Unable to get function catalogs marked as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogs);
+        }
+    });
+}
+
+///Calls callbackFunction with an array of Function Blocks filtered by search string.
+function getFunctionCatalogsMatchingSearchString(searchString, includeDeleted, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
+        {
+            method: "GET",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        let functionCatalogs = null;
+
+        if (data.wasSuccess) {
+            functionCatalogs = data.functionCatalogs;
+        } else {
+            console.error("Unable to get Function Catalogs for search string " + searchString + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(functionCatalogs);
+        }
+    });
+}
+
 // calls callbackFunction with new function catalog ID
 function insertFunctionCatalog(functionCatalog, callbackFunction) {
     const request = new Request(
@@ -76,7 +126,6 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
     });
 }
 
-//calls callbackFunction with modified function catalog ID
 function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
@@ -92,17 +141,40 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease
 
     tidyFetch(request, function(data) {
         const wasSuccess = data.wasSuccess;
-        let functionCatalogId = null;
 
-        if (wasSuccess) {
-            functionCatalogId = data.functionCatalogId;
-        }
-        else {
+        if (!wasSuccess) {
             console.error("Unable to modify function catalog " + functionCatalogId + ": " + data.errorMessage);
         }
 
         if (typeof callbackFunction == "function") {
-            callbackFunction(data, functionCatalogId);
+            callbackFunction(data);
+        }
+    });
+}
+
+// calls callbackFunction with new function catalog ID
+function forkFunctionCatalog(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/fork",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        const wasSuccess = data.wasSuccess;
+        let newFunctionCatalogId = null;
+
+        if (wasSuccess) {
+            newFunctionCatalogId = data.functionCatalogId;
+        }
+        else {
+            console.error("Unable to fork function catalog " + functionCatalogId + ": " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, newFunctionCatalogId);
         }
     });
 }
@@ -126,6 +198,50 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
 
         if (typeof callbackFunction == "function") {
             callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
+function markFunctionCatalogAsDeleted(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/mark-as-deleted",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        if (! wasSuccess) {
+            console.error("Unable to mark function catalog " + functionCatalogId + " as deleted: " + data.errorMessage);
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+    });
+}
+
+function restoreFunctionCatalogFromTrash(functionCatalogId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/restore-from-trash",
+        {
+            method: "POST",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        let errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to restore function catalog " + functionCatalogId + " from trash: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data, errorMessage);
         }
     });
 }

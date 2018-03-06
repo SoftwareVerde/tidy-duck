@@ -15,6 +15,7 @@ class ReleasePage extends React.Component {
         this.renderSaveButton = this.renderSaveButton.bind(this);
 
         this.onNewVersionChanged = this.onNewVersionChanged.bind(this);
+        this.onCancel = this.onCancel.bind(this);
 
         this.populateReleaseItems();
     }
@@ -92,6 +93,15 @@ class ReleasePage extends React.Component {
         releaseItem.setNewVersion(value);
     }
 
+
+    onCancel(event) {
+        event.preventDefault();
+
+        if (typeof this.props.onCancel == "function") {
+            this.props.onCancel();
+        }
+    }
+
     renderReleaseItems() {
         if (this.state.showLoadingReleaseItemsIcon) {
             return (
@@ -147,7 +157,12 @@ class ReleasePage extends React.Component {
         if (this.state.shouldShowSaveAnimation)  {
             return(<div className="center"><div className="button submit-button" id="most-function-submit"><i className="fa fa-refresh fa-spin"></i></div></div>);
         }
-        return(<div className="center"><button className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.saveButtonTitle}</button></div>);
+        return(
+            <div className="center">
+                <button className="button submit-button" id="most-function-submit" onClick={this.onSubmit}>{this.state.saveButtonTitle}</button>
+                <div className="cancel-button"><button className="button" onClick={this.onCancel}>Cancel</button></div>
+            </div>
+        );
     }
 
     render() {

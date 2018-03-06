@@ -113,6 +113,7 @@ class ReviewDatabaseManager {
         final FunctionBlock functionBlock = review.getFunctionBlock();
         final MostInterface mostInterface = review.getMostInterface();
         final MostFunction mostFunction = review.getMostFunction();
+        final long reviewId = review.getId();
 
         Long functionCatalogId = null;
         Long functionBlockId = null;
@@ -122,23 +123,28 @@ class ReviewDatabaseManager {
         if (functionCatalog != null) {
             functionCatalogId = functionCatalog.getId();
             FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(_databaseConnection);
-            functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalogId);
+            functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalogId, reviewId);
         }
         else if (functionBlock != null) {
             functionBlockId = functionBlock.getId();
             FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
-            functionBlockDatabaseManager.approveFunctionBlock(functionBlockId);
+            functionBlockDatabaseManager.approveFunctionBlock(functionBlockId, reviewId);
         }
         else if (mostInterface != null) {
             mostInterfaceId = mostInterface.getId();
             MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
-            mostInterfaceDatabaseManager.approveMostInterface(mostInterfaceId);
+            mostInterfaceDatabaseManager.approveMostInterface(mostInterfaceId, reviewId);
         }
         else if (mostFunction != null) {
             mostFunctionId = mostFunction.getId();
             MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
-            mostFunctionDatabaseManager.approveMostFunction(mostFunctionId);
+            mostFunctionDatabaseManager.approveMostFunction(mostFunctionId, reviewId);
         }
+
+        final Query query = new Query("UPDATE reviews SET approval_date = NOW() WHERE id = ?")
+                .setParameter(reviewId);
+
+        _databaseConnection.executeSql(query);
     }
 
     public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {

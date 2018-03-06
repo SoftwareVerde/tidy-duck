@@ -214,19 +214,64 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
-        _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
-        _deleteMostFunctionIfUnapproved(mostFunctionId);
+    public void deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        _deleteMostFunction(mostInterfaceId, mostFunctionId);
     }
 
-    private void _deleteMostFunctionIfUnapproved(final long mostFunctionId) throws DatabaseException {
+    public void setIsDeletedForMostFunction(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_deleted = ? WHERE id = ?")
+                .setParameter(isDeleted)
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+
+        _setIsDeletedForMostFunctionParentAssociation(mostFunctionId, isDeleted);
+    }
+
+    public void restoreMostFunctionFromTrash(final long mostFunctionId) throws DatabaseException {
+        setIsDeletedForMostFunction(mostFunctionId, false);
+    }
+
+    private void _setIsDeletedForMostFunctionParentAssociation(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces_functions SET is_deleted = ? WHERE function_id = ?")
+                .setParameter(isDeleted)
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 
-        if (! mostFunction.isReleased()) {
+        if (mostFunction.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!mostFunction.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (mostFunction.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(mostFunctionId);
+        }
+        else {
+            // not approved, delete
+            _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
             _deleteMostFunctionFromDatabase(mostFunctionId);
         }
 
+    }
+
+    private void _markAsPermanentlyDeleted(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteMostFunctionFromDatabase(final long mostFunctionId) throws DatabaseException {
@@ -241,9 +286,10 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void approveMostFunction(final long mostFunctionId) throws DatabaseException {
-        final Query query = new Query("UPDATE functions SET is_approved = ? WHERE id = ?")
+    public void approveMostFunction(final long mostFunctionId, final long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
+                .setParameter(reviewId)
                 .setParameter(mostFunctionId);
 
         _databaseConnection.executeSql(query);

@@ -31,6 +31,27 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
     });
 }
 
+// calls callbackFunction with requested review
+function getReview(reviewId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId,
+        {
+            method: "GET",
+            credentials: "include",
+        }
+    );
+
+    tidyFetch(request, function(data) {
+        if (typeof callbackFunction == "function") {
+            callbackFunction(data);
+        }
+
+        if (! data.wasSuccess) {
+            console.error("Unable to get review: " + data.errorMessage);
+        }
+    });
+}
+
 // calls callbackFunction with new review ID
 function insertReview(review, callbackFunction) {
     const request = new Request(

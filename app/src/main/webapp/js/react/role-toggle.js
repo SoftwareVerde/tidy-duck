@@ -36,7 +36,13 @@ class RoleToggle extends React.Component{
         for (let i in roleItems) {
             const roleKey = "roleItem" + i;
             const isActiveRole = roleItems[i] === activeRole;
-            reactElements.push(<app.RoleItem key={roleKey} roleName={roleItems[i]} isActiveRoleItem={isActiveRole} onClick={this.onRoleClicked}/>);
+
+            let roleName = roleItems[i];
+            var displayName = roleName;
+            if (this.props.displayMappings && this.props.displayMappings[roleName]) {
+                displayName = this.props.displayMappings[roleName];
+            }
+            reactElements.push(<app.RoleItem key={roleKey} roleName={roleName} displayName={displayName} isActiveRoleItem={isActiveRole} onClick={this.onRoleClicked}/>);
         }
 
         return (

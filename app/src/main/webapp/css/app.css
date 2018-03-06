@@ -201,7 +201,9 @@
 }
 
 #header .role-toggle {
-    margin-left: 2em;
+    margin-left: 1em;
+    position: relative;
+    z-index: 5;
 }
 
 .role-toggle, .role {
@@ -686,7 +688,6 @@
     font-weight: bold;
     color: rgba(0, 0, 0, 0.5);
     font-size: 85%;
-    z-index: 5;
 }
 
 .tidy-object .version:before {
@@ -697,6 +698,14 @@
     left: -0.25rem;
     font-weight: bold;
     color: rgba(0, 0, 0, 0.5);
+}
+
+.deleted-tidy-object {
+    background-color: #FFD9D9 !important;
+}
+
+.deleted-tidy-object:hover {
+    background-color: #FFA0A0 !important;
 }
 
 .svg-icon {

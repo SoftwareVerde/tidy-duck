@@ -4,6 +4,7 @@ import com.softwareverde.mostadapter.Modification;
 import com.softwareverde.util.Util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalog {
@@ -12,7 +13,12 @@ public class FunctionCatalog {
     private String _release;
     private Author _author;
     private Company _company;
+    private boolean _isDeleted;
+    private Date _deletedDate;
+    private boolean _isPermanentlyDeleted;
+    private Date _permanentlyDeletedDate;
     private boolean _isApproved;
+    private Long _approvalReviewId;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
@@ -68,6 +74,38 @@ public class FunctionCatalog {
         _company = company;
     }
 
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
+    }
+
+    public boolean isPermanentlyDeleted() {
+        return _isPermanentlyDeleted;
+    }
+
+    public void setIsPermanentlyDeleted(final boolean permanentlyDeleted) {
+        _isPermanentlyDeleted = permanentlyDeleted;
+    }
+
+    public Date isPermanentlyDeletedDate() {
+        return _permanentlyDeletedDate;
+    }
+
+    public void setPermanentlyDeletedDate(final Date permanentlyDeletedDate) {
+        _permanentlyDeletedDate = permanentlyDeletedDate;
+    }
+
     public boolean isApproved() {
         return _isApproved;
     }
@@ -75,6 +113,10 @@ public class FunctionCatalog {
     public void setIsApproved(final boolean approved) {
         _isApproved = approved;
     }
+
+    public Long getApprovalReviewId() { return _approvalReviewId; }
+
+    public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
 
     public boolean isReleased() {
         return _isReleased;

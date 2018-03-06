@@ -12,7 +12,10 @@ class MostInterface {
         mostInterface.setPriorVersionId(json.priorVersionId);
         mostInterface.setIsReleased(json.isReleased);
         mostInterface.setIsApproved(json.isApproved);
+        mostInterface.setApprovalReviewId(json.approvalReviewId);
         mostInterface.setCreatorAccountId(json.creatorAccountId);
+        mostInterface.setIsDeleted(json.isDeleted);
+        mostInterface.setDeletedDate(json.deletedDate);
 
         return mostInterface;
     }
@@ -43,9 +46,12 @@ class MostInterface {
         this._versionsJson          = null;
         this._isReleased            = null;
         this._isApproved            = null;
+        this._approvalReviewId      = null;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
         this._creatorAccountId      = null;
+        this._isDeleted             = false;
+        this._deletedDate           = null;
 
         this._functions             = [];
     };
@@ -142,12 +148,36 @@ class MostInterface {
         return this._isApproved;
     }
 
+    setApprovalReviewId(approvalReviewId) {
+        this._approvalReviewId = approvalReviewId;
+    }
+
+    getApprovalReviewId() {
+        return this._approvalReviewId;
+    }
+
     setCreatorAccountId(creatorAccountId) {
         this._creatorAccountId = creatorAccountId;
     }
 
     getCreatorAccountId() {
         return this._creatorAccountId;
+    }
+
+    setIsDeleted(isDeleted) {
+        this._isDeleted = isDeleted;
+    }
+
+    isDeleted() {
+        return this._isDeleted;
+    }
+
+    setDeletedDate(deletedDate) {
+        this._deletedDate = deletedDate;
+    }
+
+    getDeletedDate() {
+        return this._deletedDate;
     }
 
     getDisplayVersion() {

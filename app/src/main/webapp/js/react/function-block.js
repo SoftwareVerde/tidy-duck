@@ -10,7 +10,11 @@ class FunctionBlock extends React.Component {
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.disassociateFunctionBlockFromParent = this.disassociateFunctionBlockFromParent.bind(this);
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
+        this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
+        this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
+        this.onApprovalReviewClicked = this.onApprovalReviewClicked.bind(this);
         this.onVersionChanged = this.onVersionChanged.bind(this);
         this.onVersionClicked = this.onVersionClicked.bind(this);
 
@@ -36,7 +40,6 @@ class FunctionBlock extends React.Component {
         const newValue = event.target.value;
         const functionBlock = this.props.functionBlock;
         const versionsJson = functionBlock.getVersionsJson();
-
 
         for (let i in versionsJson) {
             const newFunctionBlockJson = versionsJson[i];
@@ -73,42 +76,132 @@ class FunctionBlock extends React.Component {
         }
     }
 
+    disassociateFunctionBlockFromParent(event) {
+        event.stopPropagation();
+        if (typeof this.props.onDisassociate == "function") {
+            this.setState({
+                showWorkingIcon: true
+            });
+            const thisFunctionBlock = this;
+            this.props.onDisassociate(this.props.functionBlock, function() {
+                thisFunctionBlock.setState({
+                    showWorkingIcon: false
+                });
+            });
+        }
+    }
+
+    onMarkAsDeletedClicked(event) {
+        event.stopPropagation();
+        this.setState({
+            showWorkingIcon: true
+        });
+
+        const thisFunctionBlock = this;
+        const functionBlock = this.props.functionBlock;
+        const versionsJson = functionBlock.getVersionsJson();
+
+        this.props.onMarkAsDeleted(functionBlock, function() {
+            if (thisFunctionBlock.props.displayVersionsList) {
+                let newVersionJson = versionsJson[0];
+                for (let i in versionsJson) {
+                    const versionJson = versionsJson[i];
+                    if (versionJson.isApproved) {
+                        if (versionJson.id > newVersionJson.id)
+                            newVersionJson = versionJson;
+                    }
+                }
+
+                thisFunctionBlock.props.onVersionChanged(functionBlock, newVersionJson, versionsJson);
+            }
+
+            thisFunctionBlock.setState({
+                showWorkingIcon: false
+            });
+        });
+    }
+
+    onRestoreFromTrashClicked(event) {
+        event.stopPropagation();
+        this.setState({
+            showWorkingIcon: true
+        });
+
+        const thisFunctionBlock = this;
+        this.props.onRestoreFromTrash(this.props.functionBlock, function() {
+            thisFunctionBlock.setState({
+                showWorkingIcon: false
+            });
+        });
+    }
+
+    onApprovalReviewClicked(event) {
+        event.stopPropagation();
+        this.props.onApprovalReviewClicked(this.props.functionBlock);
+    }
+
     onClick() {
         if (typeof this.props.onClick == "function") {
             this.props.onClick(this.props.functionBlock, false);
         }
     }
 
-
     renderVersionOptions() {
         const versionOptions = [];
         const versionsJson = this.props.functionBlock.getVersionsJson();
+        const showDeletedVersions = this.props.showDeletedVersions;
 
         for (let i in versionsJson) {
-            let optionName = versionsJson[i].releaseVersion;
-            if (!versionsJson[i].isReleased) {
-                optionName += "-" + versionsJson[i].id;
+            let versionJson = versionsJson[i];
+            // Only display versions marked as deleted if the app isn't hiding them.
+            if ((! versionJson.isDeleted) || showDeletedVersions) {
+                let optionName = versionJson.releaseVersion;
+                if (! versionJson.isReleased) {
+                    optionName += "-" + versionJson.id;
+                }
+                versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
             }
-            versionOptions.push(<option key={optionName + i} value={optionName}>{optionName}</option>);
         }
 
         return versionOptions;
     }
 
     render() {
-        const author = this.props.functionBlock.getAuthor();
-        const company = this.props.functionBlock.getCompany();
-        const name = this.props.functionBlock.getName();
+        const versionOptions = this.renderVersionOptions();
+        const showDeletedVersions = this.props.showDeletedVersions;
 
-        const childItemStyle = (this.props.functionBlock.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object";
+        let displayVersion = <div className="child-function-catalog-property version">{this.props.functionBlock.getReleaseVersion()}</div>;
+        if (this.props.displayVersionsList) {
+            if (versionOptions.length < 1) {
+                // If no version options are available to be displayed, return nothing.
+                return(<div></div>);
+            }
+
+            displayVersion = <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{versionOptions}</select>;
+        }
+        else if (this.props.functionBlock.isDeleted() && ! showDeletedVersions) {
+            // Return an empty div if deleted child objects should be hidden.
+            return(<div></div>);
+        }
+
+        const name = this.props.functionBlock.getName();
+        const isDeleted = this.props.functionBlock.isDeleted();
+        const isApproved = this.props.functionBlock.isApproved();
+        const parent = this.props.parent;
+
+        const childItemStyle = (isApproved ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Block has been released." /> : "");
         const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Block has been approved." /> : "");
-
-        let displayVersion = <div className="child-function-catalog-property version">{this.props.functionBlock.getReleaseVersion()}</div>;
-        if (! this.props.displayVersionsList) {
-            displayVersion = <select name="Version" title="Version" value={this.props.functionBlock.getDisplayVersion()} onClick={this.onVersionClicked} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>;
+        let removeIcon = "";
+        let trashOrDeleteIcon = "";
+        if (parent == null || !parent.isApproved()) {
+            removeIcon = (!isDeleted && parent != null) ? <i className="fa fa-minus action-button" onClick={this.disassociateFunctionBlockFromParent} title="Remove"/> : "";
+            trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Delete"/>
+                                          : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         }
+        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
+        const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -117,9 +210,12 @@ class FunctionBlock extends React.Component {
                 </div>
                 <div className="action-bar">
                     {workingIcon}
+                    {removeIcon}
+                    {trashOrDeleteIcon}
+                    {restoreIcon}
+                    {approvalReviewIcon}
                     {approvedIcon}
                     {releasedIcon}
-                    <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
