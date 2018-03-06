@@ -89,8 +89,11 @@ class SearchResult extends React.Component {
         const searchResult = this.state.searchResult;
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
-        const resultStyle = searchResult.isApproved() ? "search-result" : "unapproved-search-result";
+        const isApproved = searchResult.isApproved();
+        const resultStyle = isApproved ? "search-result" : "unapproved-search-result";
+        const approvedIcon = isApproved ? <i title="This item has been reviewed and approved for release." className="fa fa-thumbs-o-up"/> : "";
         const releasedIcon = searchResult.isReleased() ? <i title="This item has been released as part of an existing Function Catalog." className="fa fa-book"/> : "";
+        const iconWrapper = approvedIcon === releasedIcon ? "" : <div className="icon-wrapper">{approvedIcon}{releasedIcon}</div>;
         const resultName = searchResult.getName();
         const resultDescription = searchResult.getDescription();
         const shortName = shortenString(resultName, 25, false);
@@ -104,8 +107,8 @@ class SearchResult extends React.Component {
                         <div className="search-result-property-short">{searchResult.getMostId()}</div>
                         <div className="search-result-property-short">{searchResult.getKind()}</div>
                         <div className="search-result-property" title={resultDescription}>{shortDescription}</div>
+                        {iconWrapper}
                         <div className="search-result-property-short">
-                            {releasedIcon}
                             <select name={"Version"} value={searchResult.getDisplayVersion()} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
                         </div>
                         <div className="search-result-property-short">{searchResult.getAccess()}</div>
@@ -119,8 +122,8 @@ class SearchResult extends React.Component {
                         <div className="search-result-property" title={resultName}>{shortName}</div>
                         <div className="search-result-property-short">{searchResult.getMostId()}</div>
                         <div className="search-result-property" title={resultDescription}>{shortDescription}</div>
+                        {iconWrapper}
                         <div className="search-result-property-short">
-                            {releasedIcon}
                             <select name={"Version"} value={searchResult.getDisplayVersion()} onChange={this.onVersionChanged}>{this.renderVersionOptions()}</select>
                         </div>
                         {this.renderIcon()}

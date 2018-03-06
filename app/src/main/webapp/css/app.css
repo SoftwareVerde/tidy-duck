@@ -375,8 +375,9 @@
     width: 10%;
 }
 
-.search-result-property-short i {
-    margin: 0 10px 0 -23px;
+.search-result .icon-wrapper {
+    margin: 5px 5px 0px -18px;
+    display: grid;
 }
 
 .parameter {

@@ -88,9 +88,7 @@ class SearchForm extends React.Component {
         const reactComponents = [];
         const navigationLevel = this.state.navigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
-        const searchResults = this.state.searchResults.sort(function(a, b) {
-            return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
-        });
+        const searchResults = this.state.searchResults;
         const selectedItem = this.state.selectedItem;
 
         //Populate search results as React components.
