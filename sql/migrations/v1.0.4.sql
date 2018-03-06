@@ -71,3 +71,60 @@ ALTER TABLE interfaces ADD COLUMN permanently_deleted_date DATETIME NULL AFTER i
 
 ALTER TABLE functions ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
 ALTER TABLE functions ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+-- Set approval review ID for historical components (if review exists for that component, use it)
+UPDATE function_catalogs
+INNER JOIN reviews ON reviews.function_catalog_id = function_catalogs.id
+SET approval_review_id = reviews.id;
+
+UPDATE function_blocks
+INNER JOIN reviews ON reviews.function_block_id = function_blocks.id
+SET approval_review_id = reviews.id;
+
+UPDATE interfaces
+INNER JOIN reviews ON reviews.interface_id = interfaces.id
+SET approval_review_id = reviews.id;
+
+UPDATE functions
+INNER JOIN reviews ON reviews.function_id = functions.id
+SET approval_review_id = reviews.id;
+
+-- Set approval review ID for historical components (get all parent objects and find the oldest review)
+UPDATE function_blocks
+INNER JOIN (
+        SELECT function_blocks.id AS function_block_id, reviews.id AS review_id
+        FROM function_blocks
+        LEFT OUTER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks.id
+        INNER JOIN reviews ON reviews.function_catalog_id = function_catalogs_function_blocks.function_catalog_id
+        GROUP BY function_blocks.id
+        HAVING MIN(reviews.created_date)
+     ) A
+ON A.function_block_id = function_blocks.id AND function_blocks.approval_review_id is NULL
+SET approval_review_id = A.review_id;
+
+UPDATE interfaces
+INNER JOIN (
+        SELECT interfaces.id AS interface_id, reviews.id AS review_id
+        FROM interfaces
+        LEFT OUTER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces.id
+        LEFT OUTER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id
+        INNER JOIN reviews ON reviews.function_block_id = function_blocks_interfaces.function_block_id OR reviews.function_catalog_id = function_catalogs_function_blocks.function_catalog_id
+        GROUP BY interfaces.id
+        HAVING MIN(reviews.created_date)
+     ) A
+ON A.interface_id = interfaces.id AND interfaces.approval_review_id is NULL
+SET approval_review_id = A.review_id;
+
+UPDATE functions
+INNER JOIN (
+        SELECT functions.id AS function_id, reviews.id AS review_id
+        FROM functions
+        LEFT OUTER JOIN interfaces_functions ON interfaces_functions.function_id = functions.id
+        LEFT OUTER JOIN function_blocks_interfaces ON function_blocks_interfaces.interface_id = interfaces_functions.interface_id
+        LEFT OUTER JOIN function_catalogs_function_blocks ON function_catalogs_function_blocks.function_block_id = function_blocks_interfaces.function_block_id
+        INNER JOIN reviews ON reviews.function_block_id = function_blocks_interfaces.function_block_id OR reviews.function_catalog_id = function_catalogs_function_blocks.function_catalog_id
+        GROUP BY functions.id
+        HAVING MIN(reviews.created_date)
+     ) A
+ON A.function_id = functions.id AND functions.approval_review_id is NULL
+SET approval_review_id = A.review_id;
