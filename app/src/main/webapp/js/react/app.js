@@ -1112,6 +1112,9 @@ class App extends React.Component {
                     }
 
                     const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
+                    functionCatalogs.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
 
                     thisApp.setState({
                         searchResults:              functionCatalogs,
@@ -1421,6 +1424,9 @@ class App extends React.Component {
                     }
 
                     const functionBlocks = thisApp.getChildItemsFromVersions(functionBlocksJson, FunctionBlock.fromJson);
+                    functionBlocks.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
 
                     thisApp.setState({
                         searchResults:              functionBlocks,
@@ -1824,6 +1830,9 @@ class App extends React.Component {
                     }
 
                     const mostInterfaces = thisApp.getChildItemsFromVersions(mostInterfacesJson, MostInterface.fromJson);
+                    mostInterfaces.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
 
                     thisApp.setState({
                         searchResults:              mostInterfaces,
@@ -3134,9 +3143,6 @@ class App extends React.Component {
             case NavigationLevel.versions:
                 if (this.state.shouldShowFilteredResults) {
                     childItems = this.state.searchResults;
-                    childItems.sort(function(a, b) {
-                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
-                    });
                 }
                 else {
                     childItems = this.state.functionCatalogs;
@@ -3165,9 +3171,6 @@ class App extends React.Component {
             case NavigationLevel.functionCatalogs:
                 if (this.state.shouldShowFilteredResults) {
                     childItems = this.state.searchResults;
-                    childItems.sort(function(a, b) {
-                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
-                    });
                 }
                 else {
                     childItems = this.state.functionBlocks;
@@ -3197,9 +3200,6 @@ class App extends React.Component {
             case NavigationLevel.functionBlocks:
                 if (this.state.shouldShowFilteredResults) {
                     childItems = this.state.searchResults;
-                    childItems.sort(function(a, b) {
-                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
-                    });
                 }
                 else {
                     childItems = this.state.mostInterfaces;
