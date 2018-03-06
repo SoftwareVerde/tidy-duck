@@ -244,6 +244,14 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
                 return _generateErrorJson(errorMessage);
             }
 
+            // Check review object for any deleted children (they must be restored/disassociated/deleted)
+            String deletedChildrenErrorMessage = _checkReviewObjectForDeletedChildren(database, review);
+            if (deletedChildrenErrorMessage != null) {
+                deletedChildrenErrorMessage = "Unable approve review: " + deletedChildrenErrorMessage;
+                _logger.error(deletedChildrenErrorMessage);
+                return _generateErrorJson(deletedChildrenErrorMessage);
+            }
+
             // Check review votes for at least one upvote from someone other than the review's creator.
             final List<ReviewVote> reviewVotes = review.getReviewVotes();
             long voteCounter = 0;
@@ -274,6 +282,36 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         super._setJsonSuccessFields(response);
         return response;
+    }
+
+    protected String _checkReviewObjectForDeletedChildren(final Database<Connection> database, final Review review) {
+        final FunctionCatalog functionCatalog = review.getFunctionCatalog();
+        final FunctionBlock functionBlock = review.getFunctionBlock();
+        final MostInterface mostInterface = review.getMostInterface();
+        final MostFunction mostFunction = review.getMostFunction();
+
+        try {
+            DatabaseManager databaseManager = new DatabaseManager(database);
+            boolean hasDeletedChildren = false;
+            if (functionCatalog != null) {
+                hasDeletedChildren = databaseManager.functionCatalogHasDeletedChildren(functionCatalog.getId());
+            } else if (functionBlock != null) {
+                hasDeletedChildren = databaseManager.functionBlockHasDeletedChildren(functionBlock.getId());
+            } else if (mostInterface != null) {
+                hasDeletedChildren = databaseManager.mostInterfaceHasDeletedChildren(mostInterface.getId());
+            } else if (mostFunction != null) {
+                // most functions have no children, nothing to check
+            } else {
+                return "Invalid review - no associated object.";
+            }
+            if (hasDeletedChildren) {
+                return "Component under review has deleted children, these must be removed or restored before merging.";
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return "Failed check for deleted children: " + e.getMessage();
+        }
     }
 
     private Json _insertReviewVote(final HttpServletRequest request, final long reviewId, final Account currentAccount, final Database<Connection> database) throws Exception {
