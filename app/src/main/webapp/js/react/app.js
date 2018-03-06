@@ -3628,17 +3628,18 @@ class App extends React.Component {
         }
 
         if (shouldShowApprovalForm) {
+            const currentReview = this.state.currentReview;
             reactComponents.push(
                 <app.ApprovalForm key="approvalForm"
                                   account={this.state.account}
-                                  review={this.state.currentReview}
+                                  review={currentReview}
                                   shouldShowVoteButtons={true}
                                   shouldShowSaveAnimation={shouldAnimateCreateButton}
                                   onVoteClicked={this.onReviewVoteClicked}
                                   selectedVote={selectedVote}
                                   onSaveTicketUrlClicked={this.onSaveTicketUrlClicked}
                                   onApproveButtonClicked={this.onApproveButtonClicked}
-                                  readOnly={selectedItem.isApproved()}
+                                  readOnly={currentReview.getReviewObject().isApproved()}
                 />
             );
         }
