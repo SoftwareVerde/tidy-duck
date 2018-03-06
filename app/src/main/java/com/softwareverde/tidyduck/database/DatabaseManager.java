@@ -193,6 +193,16 @@ public class DatabaseManager {
         });
     }
 
+    public boolean functionCatalogHasDeletedChildren(final long functionCatalogId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
+            @Override
+            public Boolean call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(databaseConnection);
+                return functionCatalogDatabaseManager.hasDeletedChildren(functionCatalogId);
+            }
+        });
+    }
+
     // RELEASE
 
     public List<ReleaseItem> getReleaseItemList(final long functionCatalogId) throws DatabaseException {
@@ -387,6 +397,16 @@ public class DatabaseManager {
         });
     }
 
+    public boolean functionBlockHasDeletedChildren(final long functionBlockId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
+            @Override
+            public Boolean call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(databaseConnection);
+                return functionBlockDatabaseManager.hasDeletedChildren(functionBlockId);
+            }
+        });
+    }
+
     // MOST INTERFACE METHODS
 
     public void insertMostInterface(final Long functionBlockId, final MostInterface mostInterface) throws DatabaseException {
@@ -535,6 +555,16 @@ public class DatabaseManager {
             public List<MostFunction> call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
                 final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
                 return mostInterfaceDatabaseManager.listAssociatedFunctions(mostInterfaceId);
+            }
+        });
+    }
+
+    public boolean mostInterfaceHasDeletedChildren(final long mostInterfaceId) throws DatabaseException {
+        return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
+            @Override
+            public Boolean call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(databaseConnection);
+                return mostInterfaceDatabaseManager.hasDeletedChildren(mostInterfaceId);
             }
         });
     }
