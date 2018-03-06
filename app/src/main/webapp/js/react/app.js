@@ -2972,6 +2972,7 @@ class App extends React.Component {
                     shouldShowEditForm:         false,
                     shouldShowToolbar:          false,
                     shouldShowFilteredResults:  false,
+                    shouldShowDeletedChildItems:true,
                     isLoadingMostTypes:         false,
                     isLoadingPrimitiveTypes:    false,
                     isLoadingUnits:             false,
@@ -3315,7 +3316,7 @@ class App extends React.Component {
                 isApproved = selectedItem.isApproved();
                 const isTrashItem = this.state.isTrashItemSelected;
                 shouldShowBackButton = true;
-                shouldShowToggleItemsInTrashButton = currentNavigationLevel != NavigationLevel.mostFunctions;
+                shouldShowToggleItemsInTrashButton = (currentNavigationLevel != NavigationLevel.mostFunctions) && (activeRole != thisApp.roles.reviews);
 
                 if (! isReleased && ! isApproved && !isTrashItem) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
