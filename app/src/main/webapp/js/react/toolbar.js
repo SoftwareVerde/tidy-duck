@@ -22,6 +22,7 @@ class Toolbar extends React.Component {
         this.renderForkButton = this.renderForkButton.bind(this);
         this.renderSubmitForReviewButton = this.renderSubmitForReviewButton.bind(this);
         this.renderReleaseButton = this.renderReleaseButton.bind(this);
+        this.renderDownloadXMLButton = this.renderDownloadXMLButton.bind(this);
         this.renderShowItemsInTrashButton = this.renderShowItemsInTrashButton.bind(this);
         this.renderMetadataButton = this.renderMetadataButton.bind(this);
         this.renderItemCreateButton = this.renderItemCreateButton.bind(this);
@@ -181,6 +182,18 @@ class Toolbar extends React.Component {
         }
     }
 
+    renderDownloadXMLButton() {
+        if (this.props.shouldShowDownloadXMLButton) {
+            const buttonTitle = "Download MOST XML";
+            return (
+                <div className="toolbar-item download" onClick={this.props.onDownloadXMLClicked} >
+                    <i className="fa fa-4 fa-download" />
+                    <div className="tooltip">{buttonTitle}</div>
+                </div>
+            );
+        }
+    }
+
     renderShowItemsInTrashButton() {
         if (this.props.shouldShowToggleItemsInTrashButton) {
             const deletedItemsVisibleText = this.props.shouldShowDeletedChildItems ? "Visible" : "Hidden";
@@ -325,6 +338,7 @@ class Toolbar extends React.Component {
         if (this.props.canModify) {
             return (
                 <div>
+                    {this.renderDownloadXMLButton()}
                     {this.renderSubmitForReviewButton()}
                     {this.renderForkButton()}
                     {this.renderReleaseButton()}
@@ -339,6 +353,7 @@ class Toolbar extends React.Component {
 
         return (
             <div>
+                {this.renderDownloadXMLButton()}
                 {this.renderSubmitForReviewButton()}
                 {this.renderReleaseButton()}
                 {this.renderMetadataButton()}

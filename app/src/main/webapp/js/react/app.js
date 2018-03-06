@@ -3318,6 +3318,7 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
+            let shouldShowDownloadXMLButton = false;
             let shouldShowToggleItemsInTrashButton = true;
             let shouldShowNavigationItems = false;
             let backFunction = null;
@@ -3329,6 +3330,7 @@ class App extends React.Component {
                 isApproved = selectedItem.isApproved();
                 const isTrashItem = this.state.isTrashItemSelected;
                 shouldShowBackButton = true;
+                shouldShowDownloadXMLButton = currentNavigationLevel == NavigationLevel.functionCatalogs;
                 shouldShowToggleItemsInTrashButton = (currentNavigationLevel != NavigationLevel.mostFunctions) && (activeRole != thisApp.roles.reviews);
 
                 if (! isReleased && ! isApproved && !isTrashItem) {
@@ -3441,6 +3443,7 @@ class App extends React.Component {
                     onSubmitForReviewClicked={() => this.onReviewSubmitted(selectedItem)}
                     onForkClicked={() => forkFunction(selectedItem, true)}
                     onReleaseClicked={() => this.onReleaseFunctionCatalog(selectedItem)}
+                    onDownloadXMLClicked={() => exportFunctionCatalogToMost(selectedItem.getId())}
                     onToggleItemsInTrashClicked={this.handleTrashButtonClick}
                     shouldShowDeletedChildItems={shouldShowDeletedChildItems}
                     navigationLevel={this.NavigationLevel}
@@ -3456,6 +3459,7 @@ class App extends React.Component {
                     shouldShowViewInfoButton={(isApproved || ! canModify)}
                     shouldShowSubmitForReviewButton={shouldShowSubmitForReviewButton}
                     shouldShowReleaseButton={shouldShowReleaseButton}
+                    shouldShowDownloadXMLButton={shouldShowDownloadXMLButton}
                     shouldShowToggleItemsInTrashButton={shouldShowToggleItemsInTrashButton}
                     shouldShowNavigationItems={shouldShowNavigationItems}
                     onBackButtonClicked={backFunction}
