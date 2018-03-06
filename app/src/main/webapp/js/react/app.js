@@ -1381,6 +1381,10 @@ class App extends React.Component {
                         }
                     }
 
+                    functionBlocks.sort(function(a, b) {
+                        return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    });
+
                     thisApp.setState({
                         searchResults: functionBlocks,
                         lastSearchResultTimestamp: requestTime,
@@ -1786,6 +1790,10 @@ class App extends React.Component {
                             mostInterfaces.push(mostInterface);
                         }
                     }
+
+                    mostInterfaces.sort(function(a, b) {
+                        return a.getName().localeCompare(b.getName(), undefined, {numeric : true, sensitivity: 'base'});
+                    });
 
                     thisApp.setState({
                         searchResults: mostInterfaces,
