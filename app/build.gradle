@@ -27,7 +27,7 @@ dependencies {
     compile group: 'com.github.softwareverde', name: 'java-util', version: 'v0.1.4'
 
     compile group: 'com.github.softwareverde', name: 'java-db', version: 'v2.3.0+'
-    compile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.1.0+'
+    compile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.1.1+'
 
     // Logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.9'

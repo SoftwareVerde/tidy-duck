@@ -10,6 +10,7 @@ class MostInterface extends React.Component {
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.disassociateMostInterfaceFromParent = this.disassociateMostInterfaceFromParent.bind(this);
         this.deleteMostInterface = this.deleteMostInterface.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
@@ -69,6 +70,21 @@ class MostInterface extends React.Component {
             });
             const thisMostInterface = this;
             this.props.onDelete(this.props.mostInterface, function() {
+                thisMostInterface.setState({
+                    showWorkingIcon: false
+                });
+            });
+        }
+    }
+
+    disassociateMostInterfaceFromParent(event) {
+        event.stopPropagation();
+        if (typeof this.props.onDisassociate == "function") {
+            this.setState({
+                showWorkingIcon: true
+            });
+            const thisMostInterface = this;
+            this.props.onDisassociate(this.props.mostInterface, function() {
                 thisMostInterface.setState({
                     showWorkingIcon: false
                 });
@@ -172,14 +188,22 @@ class MostInterface extends React.Component {
         const name = this.props.mostInterface.getName();
         const isDeleted = this.props.mostInterface.isDeleted();
         const isApproved = this.props.mostInterface.isApproved();
+        const parent = this.props.parent;
 
         const childItemStyle = (this.props.mostInterface.isApproved() ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.mostInterface.isReleased() ? <i className="release-icon fa fa-book icon" title="This Interface has been released." /> : "");
         const approvedIcon = (isApproved ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Interface has been approved." /> : "");
-        const trashIcon =isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        let removeIcon = "";
+        let trashOrDeleteIcon = "";
+        if (parent == null || !parent.isApproved()) {
+            removeIcon = (!isDeleted && parent != null) ? <i className="fa fa-minus action-button" onClick={this.disassociateMostInterfaceFromParent} title="Remove"/> : "";
+            trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Delete"/>
+                                                : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        }
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
         const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
+
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -188,12 +212,12 @@ class MostInterface extends React.Component {
                 </div>
                 <div className="action-bar">
                     {workingIcon}
-                    {approvedIcon}
-                    {releasedIcon}
-                    <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Remove"/>
-                    {trashIcon}
+                    {removeIcon}
+                    {trashOrDeleteIcon}
                     {restoreIcon}
                     {approvalReviewIcon}
+                    {approvedIcon}
+                    {releasedIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">

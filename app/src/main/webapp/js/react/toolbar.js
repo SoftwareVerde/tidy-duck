@@ -183,7 +183,8 @@ class Toolbar extends React.Component {
 
     renderShowItemsInTrashButton() {
         if (this.props.shouldShowToggleItemsInTrashButton) {
-            const buttonTitle = "Show or Hide Items in Trash";
+            const deletedItemsVisibleText = this.props.shouldShowDeletedChildItems ? "Visible" : "Hidden";
+            const buttonTitle = "Deleted Items are " + deletedItemsVisibleText;
             const trashIcon = this.props.shouldShowDeletedChildItems ? <i className="fa fa-4 fa-eye" /> : <i className="fa fa-4 fa-eye-slash" />;
             return (
                 <div className="toolbar-item trash" onClick={this.props.onToggleItemsInTrashClicked} >

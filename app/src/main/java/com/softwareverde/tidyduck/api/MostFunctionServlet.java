@@ -355,11 +355,19 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         try {
             final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            String errorMessage = MostInterfaceServlet.canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to delete function: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
+            }
+
+            final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
+            final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostInterfaceId);
+            if (!mostFunction.isDeleted()) {
+                final String error = "Function must be moved to trash before deleting.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -388,7 +396,6 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             else {
                 mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId);
             }
-
 
             final Json mostFunctionsJson = new Json(true);
             for (final MostFunction mostFunction : mostFunctions) {

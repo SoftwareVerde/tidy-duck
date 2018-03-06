@@ -178,6 +178,29 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
     });
 }
 
+// calls callbackFunction with wasSuccess
+function disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks/" + functionBlockId,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
+        if (! wasSuccess) {
+            console.error("Unable to disassociate interface " + mostInterfaceId + " from function block: " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
 function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
@@ -233,9 +256,9 @@ function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
     });
 }
 
-function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
+function deleteMostInterface(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "?functionBlockId=" + functionBlockId,
+        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"
@@ -246,7 +269,7 @@ function deleteMostInterface(functionBlockId, mostInterfaceId, callbackFunction)
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.error("Unable to delete interface " + mostInterfaceId + " from function block " + functionBlockId + ": " + data.errorMessage);
+            console.error("Unable to delete interface " + mostInterfaceId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

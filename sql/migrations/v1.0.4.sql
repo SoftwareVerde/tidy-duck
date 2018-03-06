@@ -57,4 +57,17 @@ ALTER TABLE functions ADD COLUMN approval_review_id INT UNSIGNED NULL AFTER is_a
 ALTER TABLE reviews ADD COLUMN approval_date DATETIME NULL AFTER created_date;
 
 -- Convert Interface most_id entries to hex string with 4 nibbles.
-UPDATE interfaces SET most_id = CONCAT('0x', LPAD(CONV(most_id, 10, 16), 4, '0'));
+UPDATE interfaces SET most_id = CONCAT('0x', LPAD(CONV(most_id, 10, 16), 8, '0'));
+
+-- Add permanently deleted columns
+ALTER TABLE function_catalogs ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE function_catalogs ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE function_blocks ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE function_blocks ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE interfaces ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE interfaces ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;
+
+ALTER TABLE functions ADD COLUMN is_permanently_deleted BOOLEAN NOT NULL DEFAULT FALSE AFTER deleted_date;
+ALTER TABLE functions ADD COLUMN permanently_deleted_date DATETIME NULL AFTER is_permanently_deleted;

@@ -43,9 +43,11 @@ class FunctionCatalog {
         const company = (functionCatalog.getCompany() || new Company());
         if (author.getId() > 0) {
             jsonFunctionCatalog.authorId = author.getId();
+            jsonFunctionCatalog.authorName = author.getName();
         }
         if (company.getId() > 0) {
             jsonFunctionCatalog.companyId = company.getId();
+            jsonFunctionCatalog.companyName = company.getName();
         }
         return jsonFunctionCatalog;
     }

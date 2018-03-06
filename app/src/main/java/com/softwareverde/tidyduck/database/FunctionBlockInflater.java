@@ -23,7 +23,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-            "SELECT * FROM function_blocks"
+            "SELECT * FROM function_blocks WHERE is_permanently_deleted = 0"
         );
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
@@ -36,9 +36,7 @@ public class FunctionBlockInflater {
     }
 
     public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = 1 AND is_permanently_deleted = 0");
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -79,7 +77,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocksFromFunctionCatalogId(final long functionCatalogId, final boolean includeDeleted, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
+            "SELECT function_block_id FROM function_catalogs_function_blocks WHERE function_catalog_id = ?" + (includeDeleted ? "" : " AND is_deleted = 0")
         );
         query.setParameter(functionCatalogId);
 
@@ -133,7 +131,8 @@ public class FunctionBlockInflater {
                                             "WHERE function_blocks.name LIKE ?" +
                                         ")\n" +
                                         "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND is_deleted = 0"));
+                                        (includeDeleted ? "" : "AND is_deleted = 0") +
+                                        " and is_permanently_deleted = 0");
         query.setParameter("%" + searchString + "%");
         query.setParameter(true);
         query.setParameter(accountId);
@@ -166,6 +165,12 @@ public class FunctionBlockInflater {
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
@@ -193,6 +198,8 @@ public class FunctionBlockInflater {
         functionBlock.setIsSink(isSink);
         functionBlock.setIsDeleted(isDeleted);
         functionBlock.setDeletedDate(deletedDate);
+        functionBlock.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        functionBlock.setPermanentlyDeletedDate(permanentlyDeletedDate);
         functionBlock.setIsApproved(isApproved);
         functionBlock.setApprovalReviewId(approvalReviewId);
         functionBlock.setIsReleased(isReleased);

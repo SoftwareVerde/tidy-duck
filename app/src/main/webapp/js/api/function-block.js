@@ -178,6 +178,29 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
     });
 }
 
+function disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
+    const request = new Request(
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/function-catalogs/" + functionCatalogId,
+        {
+            method: "DELETE",
+            credentials: "include"
+        }
+    );
+
+    tidyFetch(request, function (data) {
+        const wasSuccess = data.wasSuccess;
+        var errorMessage = "";
+        if (!wasSuccess) {
+            console.error("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
+            errorMessage = data.errorMessage;
+        }
+
+        if (typeof callbackFunction == "function") {
+            callbackFunction(wasSuccess, errorMessage);
+        }
+    });
+}
+
 function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
         ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
@@ -233,9 +256,9 @@ function forkFunctionBlock(functionCatalogId, functionBlockId, callbackFunction)
     });
 }
 
-function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
+function deleteFunctionBlock(functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "?functionCatalogId=" + functionCatalogId,
+        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
         {
             method: "DELETE",
             credentials: "include"
@@ -246,7 +269,7 @@ function deleteFunctionBlock(functionCatalogId, functionBlockId, callbackFunctio
         const wasSuccess = data.wasSuccess;
         var errorMessage = "";
         if (!wasSuccess) {
-            console.error("Unable to delete function block " + functionBlockId + " from function catalog " + functionCatalogId + ": " + data.errorMessage);
+            console.error("Unable to delete function block " + functionBlockId + ": " + data.errorMessage);
             errorMessage = data.errorMessage;
         }
 

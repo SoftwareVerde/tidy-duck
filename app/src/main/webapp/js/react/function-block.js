@@ -10,6 +10,7 @@ class FunctionBlock extends React.Component {
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.disassociateFunctionBlockFromParent = this.disassociateFunctionBlockFromParent.bind(this);
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
@@ -68,6 +69,21 @@ class FunctionBlock extends React.Component {
             });
             const thisFunctionBlock = this;
             this.props.onDelete(this.props.functionBlock, function() {
+                thisFunctionBlock.setState({
+                    showWorkingIcon: false
+                });
+            });
+        }
+    }
+
+    disassociateFunctionBlockFromParent(event) {
+        event.stopPropagation();
+        if (typeof this.props.onDisassociate == "function") {
+            this.setState({
+                showWorkingIcon: true
+            });
+            const thisFunctionBlock = this;
+            this.props.onDisassociate(this.props.functionBlock, function() {
                 thisFunctionBlock.setState({
                     showWorkingIcon: false
                 });
@@ -171,12 +187,19 @@ class FunctionBlock extends React.Component {
         const name = this.props.functionBlock.getName();
         const isDeleted = this.props.functionBlock.isDeleted();
         const isApproved = this.props.functionBlock.isApproved();
+        const parent = this.props.parent;
 
         const childItemStyle = (isApproved ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionBlock.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Block has been released." /> : "");
         const approvedIcon = (this.props.functionBlock.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Block has been approved." /> : "");
-        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        let removeIcon = "";
+        let trashOrDeleteIcon = "";
+        if (parent == null || !parent.isApproved()) {
+            removeIcon = (!isDeleted && parent != null) ? <i className="fa fa-minus action-button" onClick={this.disassociateFunctionBlockFromParent} title="Remove"/> : "";
+            trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Delete"/>
+                                          : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        }
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
         const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
         
@@ -187,12 +210,12 @@ class FunctionBlock extends React.Component {
                 </div>
                 <div className="action-bar">
                     {workingIcon}
-                    {approvedIcon}
-                    {releasedIcon}
-                    <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Remove"/>
-                    {trashIcon}
+                    {removeIcon}
+                    {trashOrDeleteIcon}
                     {restoreIcon}
                     {approvalReviewIcon}
+                    {approvedIcon}
+                    {releasedIcon}
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">

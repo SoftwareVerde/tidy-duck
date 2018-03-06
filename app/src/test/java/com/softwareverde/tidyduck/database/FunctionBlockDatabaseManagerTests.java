@@ -179,30 +179,24 @@ public class FunctionBlockDatabaseManagerTests {
     @Test
     public void should_completely_delete_function_block_if_not_committed() throws Exception {
         // Setup
-        final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
-
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertOrphanedFunctionBlock(functionBlock);
         final Integer beforeDeleteFunctionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
         Assert.assertEquals(1, beforeDeleteFunctionBlockCount.intValue());
 
         // Action
-        // First call of delete method will disassociate from Function Catalog.
-        _functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalog.getId(), functionBlock.getId());
-        // Second call of delete method checks if Function Block is orphaned, then deletes it from database.
-        // The app provides a Function Catalog ID of 0 for orphaned Function Blocks.
-        _functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(0, functionBlock.getId());
+        // trash function catalog
+        _functionBlockDatabaseManager.setIsDeletedForFunctionBlock(functionBlock.getId(), true);
+        // delete the function block
+        _functionBlockDatabaseManager.deleteFunctionBlock(functionBlock.getId());
 
         // Assert
-        final List<FunctionBlock> inflatedFunctionBlocks = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId());
-        Assert.assertEquals(0, inflatedFunctionBlocks.size());
-
         final Integer functionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
         Assert.assertEquals(0, functionBlockCount.intValue());
     }
 
     @Test
-    public void should_not_completely_delete_function_block_if_associated_with_another_function_catalog() throws Exception {
+    public void should_trash_function_block_before_deleting() throws Exception {
         // Setup
         final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
         final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
@@ -215,14 +209,80 @@ public class FunctionBlockDatabaseManagerTests {
         Assert.assertEquals(1, beforeDeleteFunctionBlockCount.intValue());
 
         // Action
-        _functionBlockDatabaseManager.deleteFunctionBlockFromFunctionCatalog(functionCatalog.getId(), functionBlock.getId());
+        try {
+            _functionBlockDatabaseManager.deleteFunctionBlock(functionBlock.getId());
+            Assert.fail("Function block improperly deleted.");
+        } catch (Exception e) {
+            // expected, do nothing
+        }
+
+        // Assert
+        final List<FunctionBlock> inflatedFunctionBlocks = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId());
+        Assert.assertEquals(1, inflatedFunctionBlocks.size());
+
+        final List<FunctionBlock> inflatedFunctionBlocksForFunctionCatalog2 = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog2.getId());
+        Assert.assertEquals(1, inflatedFunctionBlocksForFunctionCatalog2.size());
+
+        final Integer functionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
+        Assert.assertEquals(1, functionBlockCount.intValue());
+    }
+
+    @Test
+    public void deleting_function_block_should_delete_parent_references() throws Exception {
+        // Setup
+        final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
+        final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
+
+        final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
+
+        final Integer beforeDeleteFunctionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
+        Assert.assertEquals(1, beforeDeleteFunctionBlockCount.intValue());
+
+        // Action
+        _functionBlockDatabaseManager.setIsDeletedForFunctionBlock(functionBlock.getId(), true);
+        _functionBlockDatabaseManager.deleteFunctionBlock(functionBlock.getId());
 
         // Assert
         final List<FunctionBlock> inflatedFunctionBlocks = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId());
         Assert.assertEquals(0, inflatedFunctionBlocks.size());
 
         final List<FunctionBlock> inflatedFunctionBlocksForFunctionCatalog2 = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog2.getId());
+        Assert.assertEquals(0, inflatedFunctionBlocksForFunctionCatalog2.size());
+
+        final Integer functionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
+        Assert.assertEquals(0, functionBlockCount.intValue());
+    }
+
+    @Test
+    public void deleting_approved_function_block_should_use_permanently_deleted_flag() throws Exception {
+        // Setup
+        final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
+        final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
+
+        final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
+
+        final Integer beforeDeleteFunctionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
+        Assert.assertEquals(1, beforeDeleteFunctionBlockCount.intValue());
+
+        // Action
+        _functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId(), 1L);
+        _functionBlockDatabaseManager.setIsDeletedForFunctionBlock(functionBlock.getId(), true);
+        _functionBlockDatabaseManager.deleteFunctionBlock(functionBlock.getId());
+
+        // Assert
+        final List<FunctionBlock> inflatedFunctionBlocks = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId());
+        Assert.assertEquals(1, inflatedFunctionBlocks.size());
+        Assert.assertEquals(true, inflatedFunctionBlocks.get(0).isDeleted());
+        Assert.assertEquals(true, inflatedFunctionBlocks.get(0).isPermanentlyDeleted());
+
+        final List<FunctionBlock> inflatedFunctionBlocksForFunctionCatalog2 = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog2.getId());
         Assert.assertEquals(1, inflatedFunctionBlocksForFunctionCatalog2.size());
+        Assert.assertEquals(true, inflatedFunctionBlocksForFunctionCatalog2.get(0).isDeleted());
+        Assert.assertEquals(true, inflatedFunctionBlocksForFunctionCatalog2.get(0).isPermanentlyDeleted());
 
         final Integer functionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
         Assert.assertEquals(1, functionBlockCount.intValue());

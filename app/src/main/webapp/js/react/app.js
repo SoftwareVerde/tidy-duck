@@ -66,7 +66,6 @@ class App extends React.Component {
         };
 
         this.roles = {
-            release:        "Release",
             development:    "Development",
             types:          "Types",
             reviews:        "Reviews",
@@ -75,6 +74,7 @@ class App extends React.Component {
         };
 
         this.developmentRoles = {
+            functionCatalog:  "Function Catalog",
             functionBlock:    "Function Block",
             mostInterface:    "Interface"
         };
@@ -154,7 +154,6 @@ class App extends React.Component {
             alertQueue:                 []
         };
 
-        this.onRootNavigationItemClicked = this.onRootNavigationItemClicked.bind(this);
         this.renderChildItems = this.renderChildItems.bind(this);
         this.renderMainContent = this.renderMainContent.bind(this);
         this.renderRoleToggle = this.renderRoleToggle.bind(this);
@@ -172,6 +171,7 @@ class App extends React.Component {
 
         this.addFunctionCatalogNavigationItem = this.addFunctionCatalogNavigationItem.bind(this);
         this.onFunctionCatalogSelected = this.onFunctionCatalogSelected.bind(this);
+        this.onFilterFunctionCatalogs = this.onFilterFunctionCatalogs.bind(this);
         this.onCreateFunctionCatalog = this.onCreateFunctionCatalog.bind(this);
         this.onUpdateFunctionCatalog = this.onUpdateFunctionCatalog.bind(this);
         this.onForkFunctionCatalog = this.onForkFunctionCatalog.bind(this);
@@ -193,7 +193,6 @@ class App extends React.Component {
         this.onMarkFunctionBlockAsDeleted = this.onMarkFunctionBlockAsDeleted.bind(this);
         this.onRestoreFunctionBlockFromTrash = this.onRestoreFunctionBlockFromTrash.bind(this);
         this.disassociateFunctionBlockFromFunctionCatalog = this.disassociateFunctionBlockFromFunctionCatalog.bind(this);
-        this.disassociateFunctionBlockFromAllFunctionCatalogs = this.disassociateFunctionBlockFromAllFunctionCatalogs.bind(this);
         this.deleteFunctionBlockFromDatabase = this.deleteFunctionBlockFromDatabase.bind(this);
 
         this.addMostInterfaceNavigationItem = this.addMostInterfaceNavigationItem.bind(this);
@@ -208,7 +207,6 @@ class App extends React.Component {
         this.onMarkMostInterfaceAsDeleted = this.onMarkMostInterfaceAsDeleted.bind(this);
         this.onRestoreMostInterfaceFromTrash = this.onRestoreMostInterfaceFromTrash.bind(this);
         this.disassociateMostInterfaceFromFunctionBlock = this.disassociateMostInterfaceFromFunctionBlock.bind(this);
-        this.disassociateMostInterfaceFromAllFunctionBlocks = this.disassociateMostInterfaceFromAllFunctionBlocks.bind(this);
         this.deleteMostInterfaceFromDatabase = this.deleteMostInterfaceFromDatabase.bind(this);
 
         this.addMostFunctionNavigationItem = this.addMostFunctionNavigationItem.bind(this);
@@ -270,9 +268,8 @@ class App extends React.Component {
                     
                     const validRoles = thisApp.getValidRoleItems(account);
                     const defaultMode = account.getSettings().getDefaultMode();
-                    let defaultValidRole = validRoles[0];
+                    const defaultValidRole = validRoles[0];
                     if (validRoles.includes(defaultMode)) {
-                        defaultValidRole = defaultMode;
                         thisApp.handleRoleClick(defaultMode, null, false);
                     }
                     else {
@@ -396,6 +393,9 @@ class App extends React.Component {
             functionCatalog.setBaseVersionId(functionCatalogId);
 
             const functionCatalogs = thisApp.state.functionCatalogs.concat(functionCatalog);
+            functionCatalogs.sort(function(a, b) {
+                return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+            });
 
             thisApp.setState({
                 createButtonState:          thisApp.CreateButtonState.success,
@@ -497,65 +497,28 @@ class App extends React.Component {
 
     onUpdateFunctionCatalog(functionCatalog) {
         const thisApp = this;
-
         const functionCatalogJson = FunctionCatalog.toJson(functionCatalog);
         const functionCatalogId = functionCatalog.getId();
-
-        //Update function catalog form to display saving animation.
-        let navigationItems = [];
-        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        let navigationItem = navigationItems.pop();
-        navigationItem.setForm(
-            <app.FunctionCatalogForm
-                showTitle={false}
-                shouldShowSaveAnimation={true}
-                onSubmit={this.onUpdateFunctionCatalog}
-                functionCatalog={functionCatalog}
-                buttonTitle="Save"
-                defaultButtonTitle="Save"
-                readOnly={! thisApp.state.account.hasRole("Modify")}
-                account={thisApp.state.account}
-                accountsForEditForm={thisApp.state.accountsForEditForm}
-            />
-        );
-        navigationItems.push(navigationItem);
+        const createButtonState = this.CreateButtonState.animate;
 
         this.setState({
-           navigationItems: navigationItems
+            selectedItem:   functionCatalog,
+            createButtonState: createButtonState
         });
 
         updateFunctionCatalog(functionCatalogId, functionCatalogJson, false, function(data) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Function Catalog", data.errorMessage, function() {
                     // Update form to show changes were not saved.
-                    let navigationItems = thisApp.state.navigationItems;
-                    let navigationItem = navigationItems.pop();
-                    navigationItem.setForm(
-                        <app.FunctionCatalogForm
-                            showTitle={false}
-                            shouldShowSaveAnimation={false}
-                            onSubmit={this.onUpdateFunctionCatalog}
-                            functionCatalog={functionCatalog}
-                            buttonTitle="Save"
-                            defaultButtonTitle="Save"
-                            readOnly={! thisApp.state.account.hasRole("Modify")}
-                            account={thisApp.state.account}
-                            accountsForEditForm={thisApp.state.accountsForEditForm}
-                        />
-                    );
-                    navigationItems.push(navigationItem);
-
                     thisApp.setState({
                         createButtonState:  thisApp.CreateButtonState.normal,
-                        navigationItems: navigationItems
                     });
                 });
             }
             else {
                 //Update final navigation item to reflect any name changes.
-                let navigationItems = [];
-                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                let navigationItem = navigationItems.pop();
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
                 navigationItem.setId("functionCatalog" + functionCatalogId);
                 navigationItem.setTitle(functionCatalog.getName());
                 navigationItem.setIsReleased(functionCatalog.isReleased());
@@ -565,20 +528,6 @@ class App extends React.Component {
                     thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
                 });
 
-                //Update form to show changes were saved.
-                navigationItem.setForm(
-                    <app.FunctionCatalogForm
-                        showTitle={false}
-                        shouldShowSaveAnimation={false}
-                        onSubmit={thisApp.onUpdateFunctionCatalog}
-                        functionCatalog={functionCatalog}
-                        buttonTitle="Changes Saved"
-                        defaultButtonTitle="Save"
-                        readOnly={! thisApp.state.account.hasRole("Modify")}
-                        account={thisApp.state.account}
-                        accountsForEditForm={thisApp.state.accountsForEditForm}
-                    />
-                );
                 navigationItems.push(navigationItem);
 
                 const functionCatalogs = thisApp.updateChildItemDisplayInformation(FunctionCatalog, functionCatalog, thisApp.state.functionCatalogs);
@@ -587,7 +536,8 @@ class App extends React.Component {
                     selectedItem:           functionCatalog,
                     functionCatalogs:       functionCatalogs,
                     navigationItems:        navigationItems,
-                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs
+                    currentNavigationLevel: thisApp.NavigationLevel.functionCatalogs,
+                    createButtonState:      thisApp.CreateButtonState.success
                 });
             }
         });
@@ -603,22 +553,21 @@ class App extends React.Component {
                 });
             }
             else {
-                let functionCatalogs = thisApp.state.functionCatalogs;
-
-                let newFunctionCatalog = copyMostObject(FunctionCatalog, functionCatalog);
+                const functionCatalogs = thisApp.state.functionCatalogs;
+                const functionCatalogVersionsJson = functionCatalog.getVersionsJson();
+                const newFunctionCatalog = copyMostObject(FunctionCatalog, functionCatalog);
                 newFunctionCatalog.setId(newFunctionCatalogId);
 
                 // new catalog is not released or approved and was created by the current user
                 newFunctionCatalog.setIsReleased(false);
                 newFunctionCatalog.setIsApproved(false);
                 newFunctionCatalog.setCreatorAccountId(thisApp.state.account.getId());
-
-                functionCatalogs.push(newFunctionCatalog);
+                functionCatalogVersionsJson.push(FunctionCatalog.toJson(newFunctionCatalog));
+                functionCatalog.setVersionsJson(functionCatalogVersionsJson);
 
                 //Update final navigation item to reflect any changes.
-                let navigationItems = [];
-                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                let navigationItem = navigationItems.pop();
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
                 navigationItem.setId("functionCatalog" + newFunctionCatalogId);
                 navigationItem.setTitle(newFunctionCatalog.getName());
                 navigationItem.setIsReleased(newFunctionCatalog.isReleased());
@@ -627,19 +576,7 @@ class App extends React.Component {
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onFunctionCatalogSelected(newFunctionCatalog, true, false);
                 });
-                navigationItem.setForm(
-                    <app.FunctionCatalogForm
-                        showTitle={false}
-                        shouldShowSaveAnimation={false}
-                        onSubmit={thisApp.onUpdateFunctionCatalog}
-                        functionCatalog={newFunctionCatalog}
-                        buttonTitle="Save"
-                        defaultButtonTitle="Save"
-                        readOnly={! thisApp.state.account.hasRole("Modify")}
-                        account={thisApp.state.account}
-                        accountsForEditForm={thisApp.state.accountsForEditForm}
-                    />
-                );
+
                 navigationItems.push(navigationItem);
 
                 thisApp.setState({
@@ -656,12 +593,11 @@ class App extends React.Component {
         this.setState({
             releasingFunctionCatalog: functionCatalog
         });
-
     }
 
     onFunctionCatalogReleased() {
         // return to main release page
-        this.handleRoleClick(this.roles.release, null, false);
+        this.handleRoleClick(this.roles.development, this.developmentRoles.functionCatalog, false);
     }
 
     onCreateFunctionBlock(functionBlock) {
@@ -693,6 +629,9 @@ class App extends React.Component {
             functionBlock.setBaseVersionId(functionBlockId);
 
             const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+            functionBlocks.sort(function(a, b) {
+                return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+            });
 
             thisApp.setState({
                 createButtonState:          thisApp.CreateButtonState.normal,
@@ -706,6 +645,10 @@ class App extends React.Component {
 
     onUpdateFunctionBlock(functionBlock) {
         const thisApp = this;
+        const functionBlockJson = FunctionBlock.toJson(functionBlock);
+        const functionBlockId = functionBlock.getId();
+        const createButtonState = this.CreateButtonState.animate;
+
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
         let functionCatalogId = this.state.parentItem ? this.state.parentItem.getId() : null;
         if (functionCatalogId) {
@@ -713,71 +656,25 @@ class App extends React.Component {
                 functionCatalogId = null;
             }
         }
-        const functionBlockJson = FunctionBlock.toJson(functionBlock);
-        const functionBlockId = functionBlock.getId();
-
-        //Update function block form to display saving animation.
-        let navigationItems = [];
-        navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-        let navigationItem = navigationItems.pop();
-        navigationItem.setForm(
-            <app.FunctionBlockForm
-                showTitle={false}
-                shouldShowSaveAnimation={true}
-                onSubmit={this.onUpdateFunctionBlock}
-                functionBlock={functionBlock}
-                buttonTitle="Save"
-                defaultButtonTitle="Save"
-                readOnly={! thisApp.state.account.hasRole("Modify")}
-                account={thisApp.state.account}
-                accountsForEditForm={thisApp.state.accountsForEditForm}
-            />
-        );
-        navigationItems.push(navigationItem);
-
-        // If not in release mode, show save animation on metadata form.
-        const createButtonState = this.state.activeRole !== this.roles.release ?
-            this.CreateButtonState.animate : this.CreateButtonState.normal;
 
         this.setState({
-            navigationItems: navigationItems,
             selectedItem:   functionBlock,
             createButtonState: createButtonState
         });
 
-        updateFunctionBlock(functionBlockId, functionBlockJson, function(data, newFunctionBlockId) {
+        updateFunctionBlock(functionBlockId, functionBlockJson, function(data) {
             if (! data.wasSuccess) {
                 app.App.alert("Unable to update Function Block", data.errorMessage, function() {
-                    //Update form to show changes were not saved.
-                    let navigationItems = thisApp.state.navigationItems;
-                    let navigationItem = navigationItems.pop();
-                    navigationItem.setForm(
-                        <app.FunctionBlockForm
-                            showTitle={false}
-                            shouldShowSaveAnimation={false}
-                            onSubmit={thisApp.onUpdateFunctionBlock}
-                            functionBlock={functionBlock}
-                            buttonTitle="Save"
-                            defaultButtonTitle="Save"
-                            readOnly={! thisApp.state.account.hasRole("Modify")}
-                            account={thisApp.state.account}
-                            accountsForEditForm={thisApp.state.accountsForEditForm}
-                        />
-                    );
-                    navigationItems.push(navigationItem);
-
                     thisApp.setState({
                         createButtonState:  thisApp.CreateButtonState.normal,
-                        navigationItems: navigationItems
                     });
                 });
             }
             else {
                 //Update final navigation item to reflect any name changes.
-                let navigationItems = [];
-                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                let navigationItem = navigationItems.pop();
-                navigationItem.setId("functionBlock" + newFunctionBlockId);
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
+                navigationItem.setId("functionBlock" + functionBlockId);
                 navigationItem.setTitle(functionBlock.getName());
                 navigationItem.setIsReleased(functionBlock.isReleased());
                 navigationItem.setIsApproved(functionBlock.isApproved());
@@ -786,20 +683,6 @@ class App extends React.Component {
                     thisApp.onFunctionBlockSelected(functionBlock, true, false);
                 });
 
-                //Update form to show changes were saved.
-                navigationItem.setForm(
-                    <app.FunctionBlockForm
-                        showTitle={false}
-                        shouldShowSaveAnimation={false}
-                        onSubmit={thisApp.onUpdateFunctionBlock}
-                        functionBlock={functionBlock}
-                        buttonTitle="Changes Saved"
-                        defaultButtonTitle="Save"
-                        readOnly={! thisApp.state.account.hasRole("Modify")}
-                        account={thisApp.state.account}
-                        accountsForEditForm={thisApp.state.accountsForEditForm}
-                    />
-                );
                 navigationItems.push(navigationItem);
 
                 const functionBlocks = thisApp.updateChildItemDisplayInformation(FunctionBlock, functionBlock, thisApp.state.functionBlocks);
@@ -835,20 +718,22 @@ class App extends React.Component {
                     });
                 }
                 else {
-                    let functionBlocks = thisApp.state.functionBlocks;
-
-                    let newFunctionBlock = copyMostObject(FunctionBlock, functionBlock);
+                    const functionBlocks = thisApp.state.functionBlocks;
+                    const functionBlockVersionsJson = functionBlock.getVersionsJson();
+                    const newFunctionBlock = copyMostObject(FunctionBlock, functionBlock);
                     newFunctionBlock.setId(newFunctionBlockId);
-
                     newFunctionBlock.setIsReleased(false);
                     newFunctionBlock.setIsApproved(false);
                     newFunctionBlock.setCreatorAccountId(thisApp.state.account.getId());
-                    functionBlocks.push(newFunctionBlock);
+                    // Update versions json, if it exists.
+                    if (functionBlockVersionsJson) {
+                        functionBlockVersionsJson.push(FunctionBlock.toJson(newFunctionBlock));
+                        newFunctionBlock.setVersionsJson(functionBlockVersionsJson);
+                    }
 
                     //Update final navigation item to reflect any name changes.
-                    let navigationItems = [];
-                    navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                    let navigationItem = navigationItems.pop();
+                    const navigationItems = thisApp.state.navigationItems;
+                    const navigationItem = navigationItems.pop();
                     navigationItem.setId("functionBlock" + newFunctionBlockId);
                     navigationItem.setTitle(newFunctionBlock.getName());
                     navigationItem.setIsReleased(newFunctionBlock.isReleased());
@@ -858,20 +743,6 @@ class App extends React.Component {
                         thisApp.onFunctionBlockSelected(newFunctionBlock, true, false);
                     });
 
-                    //Update form to show changes were saved.
-                    navigationItem.setForm(
-                        <app.FunctionBlockForm
-                            showTitle={false}
-                            shouldShowSaveAnimation={false}
-                            onSubmit={thisApp.onUpdateFunctionBlock}
-                            functionBlock={newFunctionBlock}
-                            buttonTitle="Save"
-                            defaultButtonTitle="Save"
-                            readOnly={! thisApp.state.account.hasRole("Modify")}
-                            account={thisApp.state.account}
-                            accountsForEditForm={thisApp.state.accountsForEditForm}
-                        />
-                    );
                     navigationItems.push(navigationItem);
 
                     thisApp.setState({
@@ -907,6 +778,9 @@ class App extends React.Component {
 
             mostInterface.setId(mostInterfaceId);
             const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+            mostInterfaces.sort(function(a, b) {
+                return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+            });
 
             const versions = [ MostInterface.toJson(mostInterface) ];
             mostInterface.setVersionsJson(versions);
@@ -924,6 +798,10 @@ class App extends React.Component {
 
     onUpdateMostInterface(mostInterface) {
         const thisApp = this;
+        const mostInterfaceJson = MostInterface.toJson(mostInterface);
+        const mostInterfaceId = mostInterface.getId();
+        const createButtonState = this.CreateButtonState.animate;
+
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
         let functionBlockId = this.state.parentItem ? this.state.parentItem.getId() : null;
         if (functionBlockId) {
@@ -931,70 +809,26 @@ class App extends React.Component {
                 functionBlockId = null;
             }
         }
-        const mostInterfaceJson = MostInterface.toJson(mostInterface);
-        const mostInterfaceId = mostInterface.getId();
-
-        //Update function block form to display saving animation.
-        const navigationItems = thisApp.state.navigationItems;
-        const navigationItem = navigationItems.pop();
-        navigationItem.setForm(
-            <app.MostInterfaceForm
-                showTitle={false}
-                shouldShowSaveAnimation={true}
-                onSubmit={this.onUpdateMostInterface}
-                mostInterface={mostInterface}
-                buttonTitle="Save"
-                defaultButtonTitle="Save"
-                readOnly={! thisApp.state.account.hasRole("Modify")}
-                account={thisApp.state.account}
-                accountsForEditForm={thisApp.state.accountsForEditForm}
-            />
-        );
-        navigationItems.push(navigationItem);
-
-        // If not in release mode, show save animation on metadata form.
-        const createButtonState = this.state.activeRole !== this.roles.release ?
-            this.CreateButtonState.animate : this.CreateButtonState.normal;
 
         this.setState({
-            navigationItems: navigationItems,
             selectedItem:   mostInterface,
             createButtonState: createButtonState
         });
 
-        updateMostInterface(mostInterfaceId, mostInterfaceJson, function(data, newMostInterfaceId) {
+        updateMostInterface(mostInterfaceId, mostInterfaceJson, function(data) {
             if (! data.wasSuccess) {
-                app.App.alert("Unable to update Interface", data.errorMessage, function() {
-                    //Update form to show changes were not saved.
-                    let navigationItems = thisApp.state.navigationItems;
-                    let navigationItem = navigationItems.pop();
-                    navigationItem.setForm(
-                        <app.MostInterfaceForm
-                            showTitle={false}
-                            shouldShowSaveAnimation={false}
-                            onSubmit={this.onUpdateMostInterface}
-                            mostInterface={mostInterface}
-                            buttonTitle="Save"
-                            defaultButtonTitle="Save"
-                            readOnly={! thisApp.state.account.hasRole("Modify")}
-                            account={thisApp.state.account}
-                            accountsForEditForm={thisApp.state.accountsForEditForm}
-                        />
-                    );
-                    navigationItems.push(navigationItem);
-
+                app.App.alert("Unable to update interface", data.errorMessage, function() {
+                    // Update form to show changes were not saved.
                     thisApp.setState({
                         createButtonState:  thisApp.CreateButtonState.normal,
-                        navigationItems: navigationItems
                     });
                 });
             }
             else {
                 //Update final navigation item to reflect any name changes.
-                var navigationItems = [];
-                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                var navigationItem = navigationItems.pop();
-                navigationItem.setId("mostInterface" + newMostInterfaceId);
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
+                navigationItem.setId("mostInterface" + mostInterfaceId);
                 navigationItem.setTitle(mostInterface.getName());
                 navigationItem.setIsReleased(mostInterface.isReleased());
                 navigationItem.setIsApproved(mostInterface.isApproved());
@@ -1002,21 +836,6 @@ class App extends React.Component {
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostInterfaceSelected(mostInterface, true, false);
                 });
-
-                //Update form to show changes were saved.
-                navigationItem.setForm(
-                    <app.MostInterfaceForm
-                        showTitle={false}
-                        shouldShowSaveAnimation={false}
-                        onSubmit={thisApp.onUpdateMostInterface}
-                        mostInterface={mostInterface}
-                        buttonTitle="Changes Saved"
-                        defaultButtonTitle="Save"
-                        readOnly={! thisApp.state.account.hasRole("Modify")}
-                        account={thisApp.state.account}
-                        accountsForEditForm={thisApp.state.accountsForEditForm}
-                    />
-                );
 
                 navigationItems.push(navigationItem);
 
@@ -1033,7 +852,7 @@ class App extends React.Component {
         });
     }
 
-    onForkMostInterface(mostInterface, getNewFunctions) {
+    onForkMostInterface(mostInterface) {
         const thisApp = this;
 
         // Need to disregard parentItem id if in development mode and navigation level corresponds with development role.
@@ -1052,19 +871,22 @@ class App extends React.Component {
                 });
             }
             else {
-                var mostInterfaces = thisApp.state.mostInterfaces;
-
-                let newMostInterface = copyMostObject(MostInterface, mostInterface);
+                const mostInterfaces = thisApp.state.mostInterfaces;
+                const mostInterfaceVersionsJson = mostInterface.getVersionsJson();
+                const newMostInterface = copyMostObject(MostInterface, mostInterface);
                 newMostInterface.setId(newMostInterfaceId);
                 newMostInterface.setIsReleased(false);
                 newMostInterface.setIsApproved(false);
                 newMostInterface.setCreatorAccountId(thisApp.state.account.getId());
-                mostInterfaces.push(newMostInterface);
+                // Update versions json, if it exists.
+                if (mostInterfaceVersionsJson) {
+                    mostInterfaceVersionsJson.push(MostInterface.toJson(newMostInterface));
+                    newMostInterface.setVersionsJson(mostInterfaceVersionsJson);
+                }
 
                 //Update final navigation item to reflect any name changes.
-                var navigationItems = [];
-                navigationItems = navigationItems.concat(thisApp.state.navigationItems);
-                var navigationItem = navigationItems.pop();
+                const navigationItems = thisApp.state.navigationItems;
+                const navigationItem = navigationItems.pop();
                 navigationItem.setId("mostInterface" + newMostInterfaceId);
                 navigationItem.setTitle(newMostInterface.getName());
                 navigationItem.setIsReleased(newMostInterface.isReleased());
@@ -1073,21 +895,6 @@ class App extends React.Component {
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostInterfaceSelected(newMostInterface, true, false);
                 });
-
-                //Update form to show changes were saved.
-                navigationItem.setForm(
-                    <app.MostInterfaceForm
-                        showTitle={false}
-                        shouldShowSaveAnimation={false}
-                        onSubmit={thisApp.onUpdateMostInterface}
-                        mostInterface={newMostInterface}
-                        buttonTitle="Save"
-                        defaultButtonTitle="Save"
-                        readOnly={! thisApp.state.account.hasRole("Modify")}
-                        account={thisApp.state.account}
-                        accountsForEditForm={thisApp.state.accountsForEditForm}
-                    />
-                );
 
                 navigationItems.push(navigationItem);
 
@@ -1123,6 +930,9 @@ class App extends React.Component {
                 mostFunction.setCompany(thisApp.getCurrentAccountCompany());
 
                 const mostFunctions = thisApp.state.mostFunctions.concat(mostFunction);
+                mostFunctions.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     createButtonState:          thisApp.CreateButtonState.success,
@@ -1170,9 +980,6 @@ class App extends React.Component {
                 navigationItem.setIsReleased(mostFunction.isReleased());
                 navigationItem.setIsApproved(mostFunction.isApproved());
                 navigationItem.setHeader(thisApp.headers.mostFunction);
-
-                //Update form to show changes were saved.
-                navigationItem.setForm(null);
                 navigationItem.setOnClickCallback(function() {
                     thisApp.onMostFunctionSelected(mostFunction, true);
                 });
@@ -1190,38 +997,6 @@ class App extends React.Component {
                     thisApp.setState({
                         createButtonState:  thisApp.CreateButtonState.normal
                     });
-                });
-            }
-        });
-    }
-
-    onRootNavigationItemClicked() {
-        const thisApp = this;
-        const navigationItems = [];
-
-        this.setState({
-            navigationItems:            navigationItems,
-            searchResults:              [],
-            selectedItem:               null,
-            parentItem:                 null,
-            shouldShowToolbar:          true,
-            shouldShowCreateChildForm:  false,
-            shouldShowSearchChildForm:  false,
-            createButtonState:          thisApp.CreateButtonState.normal,
-            currentNavigationLevel:     thisApp.NavigationLevel.versions,
-            isLoadingChildren:          false // can default on what we already have
-        });
-
-        this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-            if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.versions) {
-                // didn't navigate away while downloading children
-                thisApp.setState({
-                    functionCatalogs:               functionCatalogs,
-                    functionBlocks:                 [],
-                    mostInterfaces:                 [],
-                    mostFunctions:                  [],
-                    isLoadingChildren:              false,
-                    shouldShowDeletedChildItems:    false
                 });
             }
         });
@@ -1247,32 +1022,11 @@ class App extends React.Component {
         navigationItemConfig.setIsApproved(functionCatalog.isApproved());
         navigationItemConfig.setIsDeleted(functionCatalog.isDeleted());
         navigationItemConfig.setHeader(thisApp.headers.functionCatalog);
-        navigationItemConfig.setIconName("fa-bars");
 
-        const navigationMenuItemConfig = new NavigationItemConfig();
-        navigationMenuItemConfig.setTitle("Download MOST XML");
-        navigationMenuItemConfig.setIconName("fa-download");
-        navigationMenuItemConfig.setOnClickCallback(function() {
-            const functionCatalogId = functionCatalog.getId();
-            exportFunctionCatalogToMost(functionCatalogId);
-        });
-        navigationItemConfig.addMenuItemConfig(navigationMenuItemConfig);
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionCatalogSelected(functionCatalog, true, false);
         });
 
-        navigationItemConfig.setForm(
-            <app.FunctionCatalogForm
-                showTitle={false}
-                onSubmit={thisApp.onUpdateFunctionCatalog}
-                functionCatalog={functionCatalog}
-                buttonTitle="Save"
-                defaultButtonTitle="Save"
-                readOnly={! thisApp.state.account.hasRole("Modify")}
-                account={thisApp.state.account}
-                accountsForEditForm={thisApp.state.accountsForEditForm}
-            />
-        );
         navigationItems.push(navigationItemConfig);
 
         // Preserve this selected function catalog as a parent.
@@ -1325,15 +1079,67 @@ class App extends React.Component {
                 thisApp.setState({
                     functionBlocks:     functionBlocks,
                     mostInterfaces:     [],
-                    isLoadingChildren:  false
+                    isLoadingChildren:  false,
+                    shouldShowFilteredResults:  false,
+                    filterString:       "",
                 });
             }
         })
     }
 
+    onFilterFunctionCatalogs(filterString) {
+        const requestTime = (new Date()).getTime();
+
+        if (filterString.length > 1) {
+            const thisApp = this;
+
+            clearTimeout(this.state.loadingTimeout);
+            let loadingTimeout = this.getLoadingIconTimeoutStateChange(750, false, true);
+
+            this.setState({
+                filterString:               filterString,
+                shouldShowLoadingIcon:      true,
+                isLoadingChildren:          false,
+                loadingTimeout:             loadingTimeout
+            });
+
+            getFunctionCatalogsMatchingSearchString(filterString, true, function(functionCatalogsJson) {
+                clearTimeout(thisApp.state.loadingTimeout);
+                if (thisApp.state.currentNavigationLevel == thisApp.NavigationLevel.versions) {
+                    if (thisApp.state.lastSearchResultTimestamp > requestTime) {
+                        // old results, discard
+                        return;
+                    }
+
+                    const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
+
+                    thisApp.setState({
+                        searchResults:              functionCatalogs,
+                        shouldShowFilteredResults:  true,
+                        lastSearchResultTimestamp:  requestTime,
+                        isLoadingChildren:          false,
+                        shouldShowLoadingIcon:      false
+                    });
+                }
+            });
+        } else {
+            // TODO: remove isLoadingChildren change and indicate that no results were found in child display area.
+            this.setState({
+                searchResults:                  [],
+                lastSearchResultTimestamp:      requestTime,
+                isLoadingChildren:              false,
+                isLoadingSearchResults:         false,
+                shouldShowLoadingIcon:          false,
+                shouldShowFilteredResults:      false,
+                filterString:                   filterString
+            });
+        }
+
+    }
+
     onDeleteFunctionCatalog(functionCatalog, callbackFunction) {
-        if (functionCatalog.isApproved()) {
-            app.App.alert("Delete Function Catalog", "This Function Catalog is approved for release and cannot be deleted.", callbackFunction);
+        if (functionCatalog.isReleased()) {
+            app.App.alert("Delete Function Catalog", "This Function Catalog released and cannot be deleted.", callbackFunction);
             return;
         }
 
@@ -1386,6 +1192,9 @@ class App extends React.Component {
                     functionCatalogs: newFunctionCatalogs,
                     currentNavigationLevel: thisApp.NavigationLevel.versions
                 });
+                if (typeof callbackFunction == "function") {
+                    callbackFunction(true);
+                }
             });
         };
 
@@ -1393,8 +1202,8 @@ class App extends React.Component {
     }
 
     onMarkFunctionCatalogAsDeleted(functionCatalog, callbackFunction) {
-        if (functionCatalog.isApproved()) {
-            app.App.alert("Move Function Catalog to Trash Bin", "This Function Catalog is approved for release and cannot be moved to the trash bin.", callbackFunction);
+        if (functionCatalog.isReleased()) {
+            app.App.alert("Move Function Catalog to Trash Bin", "This Function Catalog released and cannot be moved to the trash bin.", callbackFunction);
             return;
         }
 
@@ -1474,18 +1283,6 @@ class App extends React.Component {
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onFunctionBlockSelected(functionBlock, true);
         });
-        navigationItemConfig.setForm(
-            <app.FunctionBlockForm key="FunctionBlockForm"
-                showTitle={false}
-                onSubmit={this.onUpdateFunctionBlock}
-                functionBlock={functionBlock}
-                buttonTitle="Save"
-                defaultButtonTitle="Save"
-                readOnly={! thisApp.state.account.hasRole("Modify")}
-                account={thisApp.state.account}
-                accountsForEditForm={thisApp.state.accountsForEditForm}
-            />
-        );
 
         this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
@@ -1665,6 +1462,9 @@ class App extends React.Component {
 
                 // add function block to children
                 const functionBlocks = thisApp.state.functionBlocks.concat(functionBlock);
+                functionBlocks.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     searchResults: newSearchResults,
@@ -1672,50 +1472,48 @@ class App extends React.Component {
                 });
             }
             else {
-                app.App.alert("Associate Function Block", "Request to associate Function Block failed: " + errorMessage);
+                app.App.alert("Associate Function Block", "Request to associate function block failed: " + errorMessage);
             }
         });
     }
 
     onDeleteFunctionBlock(functionBlock, callbackFunction) {
-        const thisApp = this;
         const selectedItem = this.state.selectedItem;
+
+        if (selectedItem && selectedItem.isReleased()) {
+            app.App.alert("Delete Function Block", "Unable to delete function block. Currently selected Function Catalog is released.", callbackFunction);
+            return;
+        }
+
+        if (!functionBlock.isDeleted()) {
+            app.App.alert("Delete Function Block", "Unable to delete function block.  Function blocks must be moved to trash before it can be deleted.", callbackFunction);
+            return;
+        }
+
+        this.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction);
+    }
+
+    onMarkFunctionBlockAsDeleted(functionBlock, callbackFunction) {
+        const selectedItem = this.state.selectedItem;
+
+        if (functionBlock.isReleased()) {
+            app.App.alert("Delete Function Block", "Unable to delete function block. Currently selected Function Catalog is released.", callbackFunction);
+            return;
+        }
 
         // If this item has a containing parent, simply disassociate it.
         if (selectedItem) {
             if (selectedItem.isApproved()) {
-                app.App.alert("Delete Function Block", "Unable to delete Function Block. Currently selected Function Catalog is approved for release.", callbackFunction);
+                app.App.alert("Delete Function Block", "Unable to delete function block. Currently selected Function Catalog is approved for release.", callbackFunction);
+                return;
             }
-            else {thisApp.disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction);}
-        }
-        else {
-            listFunctionCatalogsContainingFunctionBlock(functionBlock.getId(), function (data) {
-               if (data.wasSuccess) {
-                   if (data.functionCatalogIds.length > 0) {
-                       thisApp.disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction);
-                   }
-                   else if (functionBlock.isApproved()) {
-                       app.App.alert("Delete Function Block", "This Function Block is approved for release and cannot be deleted.", callbackFunction);
-                   }
-                   else {
-                       thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction);
-                   }
-               }
-            });
-        }
-    }
-
-    onMarkFunctionBlockAsDeleted(functionBlock, callbackFunction) {
-        if (functionBlock.isApproved()) {
-            app.App.alert("Move Function Block to Trash Bin", "This Function Block is approved for release and cannot be moved to the trash bin.", callbackFunction);
-            return;
         }
 
         const moveToTrashFunction = function() {
             const functionBlockId = functionBlock.getId();
             markFunctionBlockAsDeleted(functionBlockId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Move Function Block to Trash Bin", "Request to move Function Block to trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Move Function Block to Trash Bin", "Request to move function block to trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -1739,7 +1537,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Move Function Block to Trash", "Are you sure you want to move this Function Block to the trash?", moveToTrashFunction, callbackFunction);
+        app.App.confirm("Move Function Block to Trash", "Are you sure you want to move this function block to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreFunctionBlockFromTrash(functionBlock, callbackFunction) {
@@ -1747,7 +1545,7 @@ class App extends React.Component {
             const functionBlockId = functionBlock.getId();
             restoreFunctionBlockFromTrash(functionBlockId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Restore Function Block from Trash Bin", "Request to restore Function Block from trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Restore Function Block from Trash Bin", "Request to restore function block from trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -1767,7 +1565,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Restore Function Block from Trash", "Are you sure you want to restore this Function Block?", restoreFunction, callbackFunction);
+        app.App.confirm("Restore Function Block from Trash", "Are you sure you want to restore this function block?", restoreFunction, callbackFunction);
     }
 
     disassociateFunctionBlockFromFunctionCatalog(functionBlock, callbackFunction) {
@@ -1776,7 +1574,7 @@ class App extends React.Component {
         const functionBlockId = functionBlock.getId();
 
         const deleteFunction = function() {
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId, function (success, errorMessage) {
                 if (success) {
                     const newFunctionBlocks = [];
                     const existingFunctionBlocks = thisApp.state.functionBlocks;
@@ -1796,49 +1594,19 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Disassociate Function Block", "Request to disassociate function block failed: " + errorMessage, callbackFunction);
                 }
             });
         };
-        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Function Block and the currently selected Function Catalog?", deleteFunction, callbackFunction);
-    }
-
-    disassociateFunctionBlockFromAllFunctionCatalogs(functionBlock, callbackFunction) {
-        const thisApp = this;
-        const functionCatalogId = "";
-        const functionBlockId = functionBlock.getId();
-
-        const disassociateFunction = function() {
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
-                if (success) {
-                    if (! functionBlock.isApproved()) {
-                        const deleteFunction = function() {
-                            thisApp.deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, true);
-                        };
-                        app.App.confirm("Delete Function Block", "Would you also like to delete this function block version from the database?", deleteFunction, callbackFunction);
-                    }
-                }
-                else {
-                    app.App.alert("Disassociate Function Block", "Request to disassociate Function Block failed: " + errorMessage, callbackFunction);
-                }
-            });
-        };
-
-        app.App.confirm("Disassociate Function Block", "Are you sure you want to disassociate this function block version from all unapproved function catalogs?", disassociateFunction, callbackFunction);
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this function block and the currently selected Function Catalog?", deleteFunction, callbackFunction);
     }
 
     deleteFunctionBlockFromDatabase(functionBlock, callbackFunction, shouldSkipConfirmation) {
-        if (functionBlock.isApproved()) {
-            app.App.alert("Delete Function Block", "The currently selected Function Block version is approved for release. Approved function blocks cannot be deleted.", callbackFunction);
-            return;
-        }
-
         const thisApp = this;
         const deleteFunction = function() {
-            const functionCatalogId = "";
             const functionBlockId = functionBlock.getId();
 
-            deleteFunctionBlock(functionCatalogId, functionBlockId, function (success, errorMessage) {
+            deleteFunctionBlock(functionBlockId, function (success, errorMessage) {
                 if (success) {
                     const newFunctionBlocks = [];
                     const existingFunctionBlocks = thisApp.state.functionBlocks;
@@ -1883,17 +1651,17 @@ class App extends React.Component {
                     });
 
                     if (typeof callbackFunction == "function") {
-                        callbackFunction();
+                        callbackFunction(true);
                     }
                 }
                 else {
-                    app.App.alert("Delete Function Block", "Request to delete Function Block failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Delete Function Block", "Request to delete function block failed: " + errorMessage, callbackFunction);
                 }
             });
         };
 
         if (! shouldSkipConfirmation) {
-            app.App.confirm("Delete Function Block", "This action will delete the last reference to this function block version.  Are you sure you want to delete it?", deleteFunction, callbackFunction);
+            app.App.confirm("Delete Function Block", "This action will permanently delete this function block.  Are you sure you want to delete it?", deleteFunction, callbackFunction);
             return;
         }
 
@@ -1917,18 +1685,6 @@ class App extends React.Component {
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostInterfaceSelected(mostInterface, true);
         });
-        navigationItemConfig.setForm(
-            <app.MostInterfaceForm key="MostInterfaceForm"
-               showTitle={false}
-               onSubmit={this.onUpdateMostInterface}
-               mostInterface={mostInterface}
-               buttonTitle="Save"
-               defaultButtonTitle="Save"
-               readOnly={! thisApp.state.account.hasRole("Modify")}
-               account={thisApp.state.account}
-               accountsForEditForm={thisApp.state.accountsForEditForm}
-            />
-        );
 
         this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
@@ -2109,6 +1865,9 @@ class App extends React.Component {
 
                 // add most interface to children
                 const mostInterfaces = thisApp.state.mostInterfaces.concat(mostInterface);
+                mostInterfaces.sort(function(a, b) {
+                    return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                });
 
                 thisApp.setState({
                     searchResults: newSearchResults,
@@ -2116,52 +1875,52 @@ class App extends React.Component {
                 });
             }
             else {
-                app.App.alert("Associate Interface", "Request to associate Interface failed: " + errorMessage);
+                app.App.alert("Associate Interface", "Request to associate interface failed: " + errorMessage);
             }
         });
     }
 
     onDeleteMostInterface(mostInterface, callbackFunction) {
-        const thisApp = this;
         const selectedItem = this.state.selectedItem;
 
-        // If this item has a containing parent, simply disassociate it.
+        if (selectedItem && selectedItem.isReleased()) {
+            app.App.alert("Delete Interface", "Unable to delete interface. Currently selected function block is approved for release.", callbackFunction);
+        }
+
+        if (!mostInterface.isDeleted()) {
+            app.App.alert("Delete Most Interface", "Unable to delete interface.  Interfaces must be moved to trash before it can be deleted.", callbackFunction);
+            return;
+        }
+
         if (selectedItem) {
             if (selectedItem.isApproved()) {
-                app.App.alert("Delete Interface", "Unable to delete Interface. Currently selected Function Block is approved for release.", callbackFunction);
-            }
-            else {
-                thisApp.disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction);
+                app.App.alert("Delete Interface", "Unable to delete interface.  The parent function block is approved for release and cannot be modified.", callbackFunction);
+                return;
             }
         }
-        else {
-            listFunctionBlocksContainingMostInterface(mostInterface.getId(), function (data) {
-                if (data.wasSuccess) {
-                    if (data.functionBlockIds.length > 0) {
-                        thisApp.disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction);
-                    }
-                    else if (mostInterface.isApproved()) {
-                        app.App.alert("Delete Interface", "This Interface is approved for release and cannot be deleted.", callbackFunction);
-                    }
-                    else {
-                        thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
-                    }
-                }
-            });
-        }
+
+        this.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction);
     }
 
     onMarkMostInterfaceAsDeleted(mostInterface, callbackFunction) {
-        if (mostInterface.isApproved()) {
-            app.App.alert("Move Interface to Trash Bin", "This Interface is approved for release and cannot be moved to the trash bin.", callbackFunction);
-            return;
+        const selectedItem = this.state.selectedItem;
+
+        if (mostInterface.isReleased()) {
+            app.App.alert("Delete Interface", "Unable to delete interface. This interface is released and cannot be deleted.", callbackFunction);
+        }
+
+        if (selectedItem) {
+            if (selectedItem.isApproved()) {
+                app.App.alert("Delete Interface", "Unable to delete interface.  The parent function block is approved for release and cannot be modified.", callbackFunction);
+                return;
+            }
         }
 
         const moveToTrashFunction = function() {
             const mostInterfaceId = mostInterface.getId();
             markMostInterfaceAsDeleted(mostInterfaceId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Move Interface to Trash Bin", "Request to move Interface to trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Move Interface to Trash Bin", "Request to move interface to trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -2185,7 +1944,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Move Interface to Trash", "Are you sure you want to move this Interface to the trash?", moveToTrashFunction, callbackFunction);
+        app.App.confirm("Move Interface to Trash", "Are you sure you want to move this interface to the trash?", moveToTrashFunction, callbackFunction);
     }
 
     onRestoreMostInterfaceFromTrash(mostInterface, callbackFunction) {
@@ -2193,7 +1952,7 @@ class App extends React.Component {
             const mostInterfaceId = mostInterface.getId();
             restoreMostInterfaceFromTrash(mostInterfaceId, function(data) {
                 if (! data.wasSuccess) {
-                    app.App.alert("Restore Interface from Trash Bin", "Request to restore Interface from trash bin failed: " + data.errorMessage, callbackFunction);
+                    app.App.alert("Restore Interface from Trash Bin", "Request to restore interface from trash bin failed: " + data.errorMessage, callbackFunction);
                     return;
                 }
 
@@ -2213,7 +1972,7 @@ class App extends React.Component {
             });
         };
 
-        app.App.confirm("Restore Interface from Trash", "Are you sure you want to restore this Interface?", restoreFunction, callbackFunction);
+        app.App.confirm("Restore Interface from Trash", "Are you sure you want to restore this interface?", restoreFunction, callbackFunction);
     }
 
     disassociateMostInterfaceFromFunctionBlock(mostInterface, callbackFunction) {
@@ -2222,7 +1981,7 @@ class App extends React.Component {
         const mostInterfaceId = mostInterface.getId();
 
         const deleteFunction = function() {
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+            disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, function (success, errorMessage) {
                 if (success) {
                     const newMostInterfaces = [];
                     const existingMostInterfaces = thisApp.state.mostInterfaces;
@@ -2242,52 +2001,21 @@ class App extends React.Component {
                     }
                 }
                 else {
-                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Disassociate Interface", "Request to disassociate interface failed: " + errorMessage, callbackFunction);
                 }
             });
         };
-        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this Interface and the currently selected Function Block?", deleteFunction, callbackFunction);
-    }
-
-    disassociateMostInterfaceFromAllFunctionBlocks(mostInterface, callbackFunction) {
-        const thisApp = this;
-        const functionBlockId = "";
-        const mostInterfaceId = mostInterface.getId();
-
-        const disassociateFunction = function() {
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
-                if (! success) {
-                    app.App.alert("Disassociate Interface", "Request to disassociate Interface failed: " + errorMessage, callbackFunction);
-                    return;
-                }
-
-                if (! mostInterface.isApproved()) {
-                    const deleteFunction = function() {
-                        thisApp.deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, true);
-                    };
-
-                    app.App.confirm("Delete Interface", "Would you like to delete this interface version from the database?", deleteFunction, callbackFunction);
-                }
-            });
-        };
-
-        app.App.confirm("Disassociate Interface", "Are you sure you want to disassociate this interface version from all unapproved function blocks?", disassociateFunction, callbackFunction);
+        app.App.confirm("Remove Function Block", "Are you sure want to remove the association between this interface and the currently selected function block?", deleteFunction, callbackFunction);
     }
 
     deleteMostInterfaceFromDatabase(mostInterface, callbackFunction, shouldSkipConfirmation) {
-        if (mostInterface.isApproved()) {
-            app.App.alert("Delete Interface", "The currently selected interface version is approved for release. Approved interfaces cannot be deleted.", callbackFunction);
-            return;
-        }
-
         const thisApp = this;
         const deleteFunction = function() {
-            const functionBlockId = "";
             const mostInterfaceId = mostInterface.getId();
 
-            deleteMostInterface(functionBlockId, mostInterfaceId, function (success, errorMessage) {
+            deleteMostInterface(mostInterfaceId, function (success, errorMessage) {
                 if (! success) {
-                    app.App.alert("Delete Interface", "Request to delete Interface failed: " + errorMessage, callbackFunction);
+                    app.App.alert("Delete Interface", "Request to delete interface failed: " + errorMessage, callbackFunction);
                     return;
                 }
 
@@ -2334,13 +2062,13 @@ class App extends React.Component {
                 });
 
                 if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                    callbackFunction(true);
                 }
             });
         };
 
         if (! shouldSkipConfirmation) {
-            app.App.confirm("Delete Interface", "This action will delete the last reference to this Interface version. Are you sure you want to delete it?", deleteFunction, callbackFunction);
+            app.App.confirm("Delete Interface", "Are you sure you want to delete this interface?", deleteFunction, callbackFunction);
             return;
         }
 
@@ -2364,7 +2092,6 @@ class App extends React.Component {
         navigationItemConfig.setOnClickCallback(function() {
             thisApp.onMostFunctionSelected(mostFunction, true);
         });
-        navigationItemConfig.setForm(null);
 
         this.updateNavigationItems(itemId, navigationItemConfig, newNavigationItems);
 
@@ -2396,8 +2123,13 @@ class App extends React.Component {
         const thisApp = this;
         const selectedItem = this.state.selectedItem;
 
-        if (selectedItem.isApproved()) {
-            app.App.alert("Delete Function", "Unable to delete Function. Currently selected Interface is approved for release.", callbackFunction);
+        if (selectedItem && selectedItem.isApproved()) {
+            app.App.alert("Delete Function", "Unable to delete Function. Currently selected interface is approved for release.", callbackFunction);
+            return;
+        }
+
+        if (!mostFunction.isDeleted()) {
+            app.App.alert("Delete Function", "Unable to delete function.  Functions must be moved to trash before it can be deleted.", callbackFunction);
             return;
         }
 
@@ -2426,7 +2158,7 @@ class App extends React.Component {
                 });
 
                 if (typeof callbackFunction == "function") {
-                    callbackFunction();
+                    callbackFunction(true);
                 }
             });
         };
@@ -2439,7 +2171,7 @@ class App extends React.Component {
 
         const moveToTrashFunction = function() {
             if (selectedItem.isApproved()) {
-                app.App.alert("Move Function to Trash Bin", "This currently selected Interface is approved for release and cannot be modified.", callbackFunction);
+                app.App.alert("Move Function to Trash Bin", "This currently selected interface is approved for release and cannot be modified.", callbackFunction);
                 return;
             }
 
@@ -2475,7 +2207,7 @@ class App extends React.Component {
                 }
 
                 mostFunction.setIsDeleted(false);
-                callbackFunction();
+                callbackFunction(true);
             });
         };
 
@@ -2489,7 +2221,6 @@ class App extends React.Component {
             if (existingNavigationItem.getId() === itemId) {
                 break;
             }
-            existingNavigationItem.setForm(null);
             newNavigationItems.push(existingNavigationItem);
         }
         newNavigationItems.push(navigationItemConfig);
@@ -2554,7 +2285,13 @@ class App extends React.Component {
             // Get highest version object that is released, using IDs.
             for (let j in versions) {
                 const childItemJson = versions[j];
-                if (childItemJson.isReleased) {
+                if (displayedVersionJson.isDeleted) {
+                    if (! childItemJson.isDeleted) {
+                        displayedVersionId = childItemJson.id;
+                        displayedVersionJson = childItemJson;
+                    }
+                }
+                else if (childItemJson.isReleased) {
                     if (childItemJson.id > displayedVersionId) {
                         displayedVersionId = childItemJson.id;
                         displayedVersionJson = childItemJson;
@@ -2859,6 +2596,11 @@ class App extends React.Component {
         const thisApp = this;
         const approvalReviewId = childItem.getApprovalReviewId();
 
+        if (approvalReviewId < 1) {
+            app.App.alert("Approval Review", "A valid review does not exist for this object. The review ID for an object must be greater than 0.");
+            return;
+        }
+
         getReview(approvalReviewId, function(data) {
             if (! data.wasSuccess) {
                 app.App.alert("Approval Review", "Unable to get approval review: " + data.errorMessage);
@@ -3102,7 +2844,7 @@ class App extends React.Component {
         this.handleRoleClick(historyState.roleName, historyState.subRoleName, false);
     }
 
-    handleRoleClick(roleName, subRoleName, canUseCachedChildren, callbackFunction) {
+    handleRoleClick(roleName, subRoleName, canUseCachedChildren) {
         const thisApp = this;
 
         if (history.state && (roleName != history.state.roleName || subRoleName != history.state.subRoleName)) {
@@ -3114,66 +2856,36 @@ class App extends React.Component {
         }
 
         switch (roleName) {
-            case this.roles.release: {
-                // Release Mode
-                // TODO: could try saving a user's position (ie Function Catalog 1's Function Blocks) and reverting to it at this step.
-                this.setState({
-                    currentNavigationLevel:         thisApp.NavigationLevel.versions,
-                    parentHistory:                  [],
-                    activeRole:                     roleName,
-                    activeSubRole:                  null,
-                    selectedItem:                   null,
-                    parentItem:                     null,
-                    proposedItem:                   null,
-                    shouldShowToolbar:              true,
-                    shouldShowCreateChildForm:      false,
-                    shouldShowSearchChildForm:      false,
-                    shouldShowSubmitForReviewForm:  false,
-                    shouldShowEditForm:             false,
-                    createButtonState:              this.CreateButtonState.normal,
-                    selectedFunctionStereotype:     null,
-                    isLoadingChildren:              true,
-                    isLoadingSearchResults:         false,
-                    isLoadingReviews:               false,
-                    isLoadingAccounts:              false,
-                    shouldShowFilteredResults:      false,
-                    searchResults:                  [],
-                    functionBlocks:                 [],
-                    mostInterfaces:                 [],
-                    navigationItems:                [],
-                    showSettingsPage:               false,
-                    currentReview:                  null,
-                    releasingFunctionCatalog:       null
-                });
-
-                this.getFunctionCatalogsForCurrentVersion(function (functionCatalogs) {
-                    thisApp.setState({
-                        functionCatalogs:       functionCatalogs,
-                        isLoadingChildren:      false
-                    });
-                });
-            } break;
             case this.roles.development: {
                 // Development Mode
-                // set navigation level similar to onItemSelected() methods. If the rolename isn't mostInterface and the activeSubRole is null, default to displaying functionBlocks.
-                const newActiveSubRole = (subRoleName || this.developmentRoles.functionBlock);
-                const newNavigationLevel = (newActiveSubRole === this.developmentRoles.mostInterface) ? this.NavigationLevel.functionBlocks : this.NavigationLevel.functionCatalogs;
+                // set navigation level similar to onItemSelected() methods. Default to displaying functionBlocks if subRoleName is null.
+                const newActiveSubRole = (subRoleName || this.developmentRoles.functionCatalog);
+
+                let newNavigationLevel = this.NavigationLevel.versions;
+                if (newActiveSubRole === this.developmentRoles.functionBlock) {
+                    newNavigationLevel = this.NavigationLevel.functionCatalogs;
+                }
+                else if (newActiveSubRole === this.developmentRoles.mostInterface) {
+                    newNavigationLevel = this.NavigationLevel.functionBlocks;
+                }
 
                 this.setState({
                     navigationItems:                [],
                     parentHistory:                  [],
                     searchResults:                  [],
-                    functionCatalogs:               [],
                     selectedItem:                   null,
                     parentItem:                     null,
                     proposedItem:                   null,
+                    releasingFunctionCatalog:       null,
                     shouldShowCreateChildForm:      false,
                     shouldShowSearchChildForm:      false,
                     shouldShowSubmitForReviewForm:  false,
                     shouldShowEditForm:             false,
                     shouldShowToolbar:              true,
                     shouldShowFilteredResults:      false,
+                    filterString:                   "",
                     createButtonState:              thisApp.CreateButtonState.normal,
+                    loadingTimeout:                 null,
                     isLoadingChildren:              !canUseCachedChildren,
                     isLoadingReviews:               false,
                     isLoadingAccounts:              false,
@@ -3184,7 +2896,19 @@ class App extends React.Component {
                     currentReview:                  null
                 });
 
-                if (newActiveSubRole === this.developmentRoles.functionBlock) {
+                if (newActiveSubRole === this.developmentRoles.functionCatalog) {
+                    getFunctionCatalogs(function(functionCatalogsJson) {
+                        if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
+                            // didn't navigate away while downloading children
+                            const functionCatalogs = thisApp.getChildItemsFromVersions(functionCatalogsJson, FunctionCatalog.fromJson);
+                            thisApp.setState({
+                                functionCatalogs:   functionCatalogs,
+                                isLoadingChildren:  false
+                            });
+                        }
+                    });
+                }
+                else if (newActiveSubRole === this.developmentRoles.functionBlock) {
                     getFunctionBlocksForFunctionCatalogId(null, function(functionBlocksJson) {
                         if (thisApp.state.currentNavigationLevel == newNavigationLevel) {
                             // didn't navigate away while downloading children
@@ -3253,6 +2977,7 @@ class App extends React.Component {
                     shouldShowEditForm:         false,
                     shouldShowToolbar:          false,
                     shouldShowFilteredResults:  false,
+                    shouldShowDeletedChildItems:true,
                     isLoadingMostTypes:         false,
                     isLoadingPrimitiveTypes:    false,
                     isLoadingUnits:             false,
@@ -3329,10 +3054,6 @@ class App extends React.Component {
                 return;
             }
         }
-
-        if (typeof callbackFunction == "function") {
-            callbackFunction();
-        }
     }
 
     handleSettingsClick() {
@@ -3399,7 +3120,7 @@ class App extends React.Component {
         const NavigationLevel = this.NavigationLevel;
         const currentNavigationLevel = this.state.currentNavigationLevel;
         const canModify = this.state.account ? this.state.account.hasRole("Modify") : false;
-        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems && this.state.selectedItem;
+        const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
 
         if (this.state.isLoadingChildren) {
             // return loading icon
@@ -3411,7 +3132,15 @@ class App extends React.Component {
         let childItems = [];
         switch (currentNavigationLevel) {
             case NavigationLevel.versions:
-                childItems = this.state.functionCatalogs;
+                if (this.state.shouldShowFilteredResults) {
+                    childItems = this.state.searchResults;
+                    childItems.sort(function(a, b) {
+                        return (a.getName().concat("_" + a.getId())).localeCompare((b.getName().concat("_" + b.getId())), undefined, {numeric : true, sensitivity: 'base'});
+                    });
+                }
+                else {
+                    childItems = this.state.functionCatalogs;
+                }
 
                 for (let i in childItems) {
                     const childItem = childItems[i];
@@ -3452,6 +3181,8 @@ class App extends React.Component {
                         functionBlock={childItem}
                         onClick={this.onFunctionBlockSelected}
                         displayVersionsList={!this.state.selectedItem}
+                        parent={this.state.selectedItem}
+                        onDisassociate={this.disassociateFunctionBlockFromFunctionCatalog}
                         onDelete={this.onDeleteFunctionBlock}
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkFunctionBlockAsDeleted}
@@ -3482,6 +3213,8 @@ class App extends React.Component {
                         mostInterface={childItem}
                         onClick={this.onMostInterfaceSelected}
                         displayVersionsList={!this.state.selectedItem}
+                        parent={this.state.selectedItem}
+                        onDisassociate={this.disassociateMostInterfaceFromFunctionBlock}
                         onDelete={this.onDeleteMostInterface}
                         onVersionChanged={this.onChildItemVersionChanged}
                         onMarkAsDeleted={this.onMarkMostInterfaceAsDeleted}
@@ -3555,6 +3288,7 @@ class App extends React.Component {
         const shouldShowDeletedChildItems = this.state.shouldShowDeletedChildItems;
         const isReview = this.state.currentReview != null;
         const selectedItem = this.state.selectedItem;
+        const parentItem = this.state.parentItem;
         const account = this.state.account;
         const canModify = (account && !isReview) ? account.hasRole("Modify") : false;
         const canRelease = (account && !isReview) ? account.hasRole("Release") : false;
@@ -3576,7 +3310,7 @@ class App extends React.Component {
             let shouldShowSearchButton = false;
             let shouldShowSubmitForReviewButton = false;
             let shouldShowReleaseButton = false;
-            let shouldShowToggleItemsInTrashButton = false;
+            let shouldShowToggleItemsInTrashButton = true;
             let shouldShowNavigationItems = false;
             let backFunction = null;
             let forkFunction = null;
@@ -3587,7 +3321,7 @@ class App extends React.Component {
                 isApproved = selectedItem.isApproved();
                 const isTrashItem = this.state.isTrashItemSelected;
                 shouldShowBackButton = true;
-                shouldShowToggleItemsInTrashButton = currentNavigationLevel != NavigationLevel.mostFunctions;
+                shouldShowToggleItemsInTrashButton = (currentNavigationLevel != NavigationLevel.mostFunctions) && (activeRole != thisApp.roles.reviews);
 
                 if (! isReleased && ! isApproved && !isTrashItem) {
                     shouldShowSubmitForReviewButton = currentNavigationLevel != NavigationLevel.mostFunctions;
@@ -3597,25 +3331,31 @@ class App extends React.Component {
                     shouldShowCreateButton = false;
                 }
 
-                if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
-                    shouldShowReleaseButton = ! isReleased && isApproved;
-                    shouldShowForkButton = isApproved;
-                    forkFunction = this.onForkFunctionCatalog;
-                }
-
                 if (activeRole === this.roles.development) {
+                    if (currentNavigationLevel == NavigationLevel.functionCatalogs) {
+                        shouldShowReleaseButton = ! isReleased && isApproved;
+                    }
+
                     const activeSubRole = this.state.activeSubRole;
                     shouldShowEditButton = true;
                     shouldShowNavigationItems = true;
 
                     // Determine if fork button should be shown.
                     if (isApproved) {
-                        shouldShowForkButton = (currentNavigationLevel == NavigationLevel.functionBlocks && activeSubRole == this.developmentRoles.functionBlock) ||
-                            (currentNavigationLevel == NavigationLevel.mostInterfaces && activeSubRole == this.developmentRoles.mostInterface);
+                        shouldShowForkButton = (currentNavigationLevel != NavigationLevel.mostFunctions);
+
+                        if (parentItem) {
+                            if (parentItem.isApproved()) {
+                                shouldShowForkButton = false;
+                            }
+                        }
 
                         // Determine fork button functionality
                         if (shouldShowForkButton) {
                             switch (currentNavigationLevel) {
+                                case NavigationLevel.functionCatalogs:
+                                    forkFunction = this.onForkFunctionCatalog;
+                                    break;
                                 case this.NavigationLevel.functionBlocks:
                                     forkFunction = this.onForkFunctionBlock;
                                     break;
@@ -3628,11 +3368,19 @@ class App extends React.Component {
 
                     // Determine back button functionality.
                     switch (currentNavigationLevel) {
-                        case this.NavigationLevel.functionBlocks:
+                        case this.NavigationLevel.functionCatalogs:
                             backFunction = function() { thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true); };
                             break;
+                        case this.NavigationLevel.functionBlocks:
+                            if (activeSubRole === thisApp.developmentRoles.functionCatalog) {
+                                backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
+                            }
+                            else {
+                                backFunction = function() { thisApp.handleRoleClick(thisApp.state.activeRole, thisApp.state.activeSubRole, true); };
+                            }
+                            break;
                         case this.NavigationLevel.mostInterfaces:
-                            if (activeSubRole === thisApp.developmentRoles.functionBlock) {
+                            if ((activeSubRole === thisApp.developmentRoles.functionCatalog) || (activeSubRole === thisApp.developmentRoles.functionBlock)) {
                                 backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
                             }
                             else {
@@ -3669,9 +3417,6 @@ class App extends React.Component {
                                 thisApp.handleRoleClick(activeRole, null, false);
                             };
                         }
-                    }
-                    else if (currentNavigationLevel == thisApp.NavigationLevel.functionCatalogs) {
-                        backFunction = thisApp.onRootNavigationItemClicked;
                     }
                     else {
                         backFunction = navigationItems[navigationItems.length-2].getOnClickCallback();
@@ -3905,7 +3650,7 @@ class App extends React.Component {
         if (this.state.showSettingsPage) {
             const account = this.state.account;
             const theme = account ? account.getSettings().getTheme() : "Tidy";
-            const defaultMode = account ? account.getSettings().getDefaultMode() : "Release";
+            const defaultMode = account ? account.getSettings().getDefaultMode() : this.roles.development;
             const accountId = account.getId();
             const validRoles = this.getValidRoleItems(account);
 
@@ -3946,6 +3691,10 @@ class App extends React.Component {
                                     onRestoreFunctionBlock={this.onRestoreFunctionBlockFromTrash}
                                     onRestoreMostInterface={this.onRestoreMostInterfaceFromTrash}
                                     onRestoreMostFunction={this.onRestoreMostFunctionFromTrash}
+                                    onDeleteFunctionCatalog={this.onDeleteFunctionCatalog}
+                                    onDeleteFunctionBlock={this.onDeleteFunctionBlock}
+                                    onDeleteMostInterface={this.onDeleteMostInterface}
+                                    onDeleteMostFunction={this.onDeleteMostFunction}
                                 />
                             </div>
                         );
@@ -3965,22 +3714,19 @@ class App extends React.Component {
                 } break; // continue if a review is selected
             }
             // other roles
-            let navigationItems = "";
-            if (this.state.activeRole === this.roles.release) {
+            if (this.state.activeSubRole === this.developmentRoles.functionCatalog) {
                 const releasingFunctionCatalog = this.state.releasingFunctionCatalog;
                 if (releasingFunctionCatalog != null) {
                     // don't display anything else, go to release page
                     return (
                         <div id="main-content" className="container">
-                            <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} />
+                            <app.ReleasePage functionCatalog={releasingFunctionCatalog} onRelease={this.onFunctionCatalogReleased} onCancel={() => this.setState({releasingFunctionCatalog: null})} />
                         </div>
                     );
                 }
-                navigationItems = <app.Navigation navigationItems={this.state.navigationItems} onRootItemClicked={this.onRootNavigationItemClicked} />;
             }
             return (
                 <div id="main-content" className="container">
-                    {navigationItems}
                     <div className="display-area">
                         {this.renderForm()}
                         <div id="child-display-area" className={childDisplayAreaStyle}>
@@ -3997,7 +3743,6 @@ class App extends React.Component {
 
         if (account) {
             if (account.hasPermission("MOST_COMPONENTS_VIEW")) {
-                roleItems.push(this.roles.release);
                 roleItems.push(this.roles.development);
             }
             if (account.hasPermission("TYPES_CREATE") || account.hasPermission("TYPES_MODIFY")) {
@@ -4049,18 +3794,27 @@ class App extends React.Component {
     }
 
     renderFilterBar() {
-        const currentNavigationLevel = this.state.currentNavigationLevel;
-        const filterFunction = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? this.onFilterFunctionBlocks : this.onFilterMostInterfaces;
-        const defaultText = this.state.currentNavigationLevel === this.NavigationLevel.functionCatalogs ? "Filter Function Blocks" : "Filter Interfaces";
-
-        if (currentNavigationLevel === this.NavigationLevel.functionBlocks && this.state.selectedItem) {
-            // Don't show filter bar when viewing interfaces in a selected Function Block.
+        if (this.state.selectedItem) {
+            // Don't show filter bar when viewing a selected item.
             return;
         }
 
+        const currentNavigationLevel = this.state.currentNavigationLevel;
+
+        // Don't show filter bar when viewing most functions in a selected interface.
         if(currentNavigationLevel === this.NavigationLevel.mostInterfaces) {
-            // Don't show filter bar when viewing most functions in a selected interface.
             return;
+        }
+
+        let filterFunction = this.onFilterFunctionCatalogs;
+        let defaultText = "Filter Function Catalogs";
+        if (currentNavigationLevel === this.NavigationLevel.functionCatalogs) {
+            filterFunction = this.onFilterFunctionBlocks;
+            defaultText = "Filter Function Blocks";
+        }
+        else if (currentNavigationLevel === this.NavigationLevel.functionBlocks) {
+            filterFunction = this.onFilterMostInterfaces;
+            defaultText = "Filter Interfaces";
         }
 
         return (

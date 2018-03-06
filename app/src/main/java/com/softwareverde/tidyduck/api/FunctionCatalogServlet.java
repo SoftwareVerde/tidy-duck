@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,23 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                     return _generateErrorJson("Invalid function catalog ID.");
                 }
                 return _getFunctionCatalog(functionCatalogId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("function-catalogs/search/<name>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
+
+                final String searchString = Util.coalesce(parameters.get("name"));
+                if (searchString.length() < 2) {
+                    return _generateErrorJson("Invalid search string for function catalog.");
+                }
+                // include deleted items unless requested not to
+                final String includeDeleteString = request.getParameter("includeDeleted");
+                boolean includeDeleted = !"false".equals(includeDeleteString);
+
+                return _listFunctionCatalogsMatchingSearchString(searchString, includeDeleted, currentAccount, environment.getDatabase());
             }
         });
 
@@ -220,17 +239,13 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
-                    if (! functionCatalog.isApproved()) {
-                        if (functionCatalog.getCreatorAccountId() != null) {
-                            if (! functionCatalog.getCreatorAccountId().equals(currentAccount.getId())) {
-                                // Skip adding this function catalog to the JSON because it is not approved, not unowned, and not owned by the current user.
-                                continue;
-                            }
+                    if (!functionCatalog.isPermanentlyDeleted()) {
+                        if (canAccountViewFunctionCatalog(databaseConnection, functionCatalog.getId(), currentAccount.getId()) == null) {
+                            // can view this function catalog, add it to the results
+                            final Json catalogJson = _toJson(functionCatalog);
+                            versionsJson.add(catalogJson);
                         }
                     }
-
-                    final Json catalogJson = _toJson(functionCatalog);
-                    versionsJson.add(catalogJson);
                 }
 
                 // Only add versionSeriesJson if its function catalogs have not all been filtered.
@@ -247,6 +262,46 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         catch (final DatabaseException exception) {
             _logger.error("Unable to list function catalogs.", exception);
             return super._generateErrorJson("Unable to list function catalogs.");
+        }
+    }
+
+    private Json _listFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final Account currentAccount, final Database<Connection> database) {
+        final String decodedSearchString;
+        try {
+            decodedSearchString = URLDecoder.decode(searchString, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            _logger.error("Unable to list function catalogs from search", e);
+            return super._generateErrorJson("Unable to list function catalogs from search.");
+        }
+
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+            final Json response = new Json(false);
+
+            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+            final Map<Long, List<FunctionCatalog>> functionCatalogs = functionCatalogInflater.inflateFunctionCatalogsMatchingSearchString(decodedSearchString, includeDeleted, currentAccount.getId());
+
+            final Json functionCatalogsJson = new Json(true);
+            for (final Long baseVersionId : functionCatalogs.keySet()) {
+                final Json versionSeriesJson = new Json();
+                versionSeriesJson.put("baseVersionId", baseVersionId);
+
+                final Json versionsJson = new Json();
+                for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
+                    final Json functionCatalogJson = _toJson(functionCatalog);
+                    versionsJson.add(functionCatalogJson);
+                }
+                versionSeriesJson.put("versions", versionsJson);
+                functionCatalogsJson.add(versionSeriesJson);
+            }
+            response.put("functionCatalogs", functionCatalogsJson);
+
+            super._setJsonSuccessFields(response);
+            return response;
+        }
+        catch (final DatabaseException exception) {
+            _logger.error("Unable to list function catalogs from search", exception);
+            return super._generateErrorJson("Unable to list function catalogs from search.");
         }
     }
 
@@ -331,7 +386,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _markFunctionCatalogAsDeleted(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -355,7 +410,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreFunctionCatalogFromTrash(final long functionCatalogId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
+            final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
@@ -387,6 +442,14 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             if (errorMessage != null) {
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
+            }
+
+            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+            final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
+            if (!functionCatalog.isDeleted()) {
+                final String error = "Function catalog must be moved to trash before deleting.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -707,7 +770,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
     }
 
     private static String ownerCheck(final FunctionCatalog functionCatalog, final Long currentAccountId) {
-        if (functionCatalog.getCreatorAccountId() != null) {
+        if (functionCatalog.getCreatorAccountId() != null && !functionCatalog.isApproved()) {
             if (!functionCatalog.getCreatorAccountId().equals(currentAccountId)) {
                 return "The function catalog is owned by another account and cannot be modified.";
             }

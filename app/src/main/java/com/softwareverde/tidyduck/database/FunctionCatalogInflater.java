@@ -32,7 +32,7 @@ public class FunctionCatalogInflater {
 
     public List<FunctionCatalog> inflateFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM function_catalogs ORDER BY base_version_id"
+                "SELECT * FROM function_catalogs WHERE is_permanently_deleted = 0 ORDER BY base_version_id"
         );
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
@@ -57,10 +57,31 @@ public class FunctionCatalogInflater {
         return functionCatalogs;
     }
 
+    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
+        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
+        final Query query = new Query ("SELECT * FROM function_catalogs\n" +
+                "WHERE base_version_id IN (" +
+                "SELECT DISTINCT function_catalogs.base_version_id\n" +
+                "FROM function_catalogs\n" +
+                "WHERE function_catalogs.name LIKE ?" +
+                ")\n" +
+                "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                (includeDeleted ? "" : "AND is_deleted = 0"));
+        query.setParameter("%" + searchString + "%");
+        query.setParameter(true);
+        query.setParameter(accountId);
+
+        List<FunctionCatalog> functionCatalogs = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
+            functionCatalogs.add(functionCatalog);
+        }
+        return _groupByBaseVersionId(functionCatalogs);
+    }
+
     public List<FunctionCatalog> inflateTrashedFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = 1 AND is_permanently_deleted = 0");
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -165,6 +186,12 @@ public class FunctionCatalogInflater {
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
@@ -186,6 +213,8 @@ public class FunctionCatalogInflater {
         functionCatalog.setCompany(company);
         functionCatalog.setIsDeleted(isDeleted);
         functionCatalog.setDeletedDate(deletedDate);
+        functionCatalog.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        functionCatalog.setPermanentlyDeletedDate(permanentlyDeletedDate);
         functionCatalog.setIsApproved(isApproved);
         functionCatalog.setApprovalReviewId(approvalReviewId);
         functionCatalog.setIsReleased(isReleased);

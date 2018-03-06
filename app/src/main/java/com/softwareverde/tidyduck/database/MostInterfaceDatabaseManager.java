@@ -4,11 +4,13 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
 import com.softwareverde.database.Row;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.most.MostFunction;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MostInterfaceDatabaseManager {
@@ -148,8 +150,9 @@ public class MostInterfaceDatabaseManager {
     }
 
     public void setIsDeletedForMostInterface(final long mostInterfaceId, final boolean isDeleted) throws DatabaseException {
-        final Query query = new Query("UPDATE interfaces SET is_deleted = ? WHERE id=?")
+        final Query query = new Query("UPDATE interfaces SET is_deleted = ?, deleted_date = ? WHERE id=?")
                 .setParameter(isDeleted)
+                .setParameter(isDeleted ? DateUtil.dateToDateString(new Date()) : null)
                 .setParameter(mostInterfaceId)
                 ;
 
@@ -179,26 +182,50 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _deleteMostInterfaceIfUnapproved(final long mostInterfaceId) throws DatabaseException {
+    private void _deleteMostInterface(final long mostInterfaceId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
-        if (! mostInterface.isApproved()) {
-            // interface isn't approved and isn't associated with any function blocks, we can delete it
+        if (mostInterface.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!mostInterface.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (mostInterface.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(mostInterfaceId);
             _deleteMostFunctionsFromMostInterface(mostInterfaceId);
+        }
+        else {
+            // not approved, delete
+            _deleteMostFunctionsFromMostInterface(mostInterfaceId);
+            _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(mostInterfaceId);
             _deleteReviewForMostInterface(mostInterfaceId);
             _deleteMostInterfaceFromDatabase(mostInterfaceId);
         }
     }
 
+    private void _markAsPermanentlyDeleted(final long mostInterfaceId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(mostInterfaceId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
     private void _deleteMostFunctionsFromMostInterface(final long mostInterfaceId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
-        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, false);
+        final List<MostFunction> mostFunctions = mostFunctionInflater.inflateMostFunctionsFromMostInterfaceId(mostInterfaceId, true);
 
         final MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         for (final MostFunction mostFunction : mostFunctions) {
-            // function is not approved, we can delete it.
-            mostFunctionDatabaseManager.deleteMostFunctionFromMostInterface(mostInterfaceId, mostFunction.getId());
+            // trash function so it can be deleted
+            mostFunctionDatabaseManager.setIsDeletedForMostFunction(mostFunction.getId(), true);
+            // perform normal deletion logic (including approved check, etc.)
+            mostFunctionDatabaseManager.deleteMostFunction(mostInterfaceId, mostFunction.getId());
         }
     }
 
@@ -248,6 +275,7 @@ public class MostInterfaceDatabaseManager {
         _copyMostInterfaceMostFunctions(mostInterfaceId, newMostInterfaceId);
         if (parentFunctionBlockId != null) {
             _associateMostInterfaceWithFunctionBlock(parentFunctionBlockId, newMostInterfaceId);
+            _disassociateMostInterfaceWithFunctionBlock(parentFunctionBlockId, mostInterfaceId);
         }
         return newMostInterfaceId;
     }
@@ -267,31 +295,23 @@ public class MostInterfaceDatabaseManager {
         }
     }
 
-    public void deleteMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
-        if (functionBlockId > 0) {
-            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
-        }
-        else {
-            if (!isOrphaned(mostInterfaceId)) {
-                _disassociateMostInterfaceFromAllUnReleasedFunctionBlocks(mostInterfaceId);
-            }
-            else {
-                _deleteMostInterfaceIfUnapproved(mostInterfaceId);
-            }
-        }
+    public void deleteMostInterface(final long mostInterfaceId) throws DatabaseException {
+        _deleteMostInterface(mostInterfaceId);
     }
 
     public List<Long> listFunctionBlocksContainingMostInterface(final long mostInterfaceId) throws DatabaseException {
-        final Query query = new Query("SELECT DISTINCT function_blocks_interfaces.function_block_id\n" +
+        final Query query = new Query("SELECT id FROM function_blocks WHERE id IN (" +
+                                        "SELECT DISTINCT function_blocks_interfaces.function_block_id\n" +
                                         "FROM function_blocks_interfaces\n" +
-                                        "WHERE function_blocks_interfaces.interface_id = ?"
+                                        "WHERE function_blocks_interfaces.interface_id = ? AND is_deleted = 0" +
+                                      ") AND is_permanently_deleted = 0"
         );
         query.setParameter(mostInterfaceId);
 
         List<Row> rows =_databaseConnection.query(query);
         final ArrayList<Long> functionBlockIds = new ArrayList<Long>();
         for (Row row : rows) {
-            Long functionBlockId = row.getLong("function_block_id");
+            Long functionBlockId = row.getLong("id");
             functionBlockIds.add(functionBlockId);
         }
         return functionBlockIds;
@@ -302,6 +322,12 @@ public class MostInterfaceDatabaseManager {
             return _associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         return null;
+    }
+
+    public void disassociateMostInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId) throws DatabaseException {
+        if (_isAssociatedWithFunctionBlock(functionBlockId, mostInterfaceId)) {
+            _disassociateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
+        }
     }
 
     public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
@@ -438,5 +464,19 @@ public class MostInterfaceDatabaseManager {
         }
 
         return functions;
+    }
+
+    public boolean hasApprovedParents(final long mostInterfaceId) throws DatabaseException {
+        return _hasApprovedParent(mostInterfaceId);
+    }
+
+    private boolean _hasApprovedParent(final long mostInterfaceId) throws DatabaseException {
+        // general check for all parents, even those owned by other users
+        final Query query = new Query("SELECT 1 FROM function_blocks INNER JOIN function_blocks_interfaces ON function_blocks.id = function_blocks_interfaces.function_block_id WHERE interface_id = ? and is_approved = 1")
+                .setParameter(mostInterfaceId)
+                ;
+
+        List<Row> rows = _databaseConnection.query(query);
+        return rows.size() > 0;
     }
 }

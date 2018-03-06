@@ -41,7 +41,6 @@ class FunctionCatalog extends React.Component {
         const functionCatalog = this.props.functionCatalog;
         const versionsJson = functionCatalog.getVersionsJson();
 
-
         for (let i in versionsJson) {
             const newFunctionCatalogJson = versionsJson[i];
             let newVersion = newFunctionCatalogJson.releaseVersion;
@@ -183,9 +182,10 @@ class FunctionCatalog extends React.Component {
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
         const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
-        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
-        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
         const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
+        const deleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Delete"/> : "";
+        const trashOrRestoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/>
+                                             : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
@@ -194,19 +194,18 @@ class FunctionCatalog extends React.Component {
                 </div>
                 <div className="action-bar">
                     {workingIcon}
+                    {deleteIcon}
+                    {trashOrRestoreIcon}
+                    {approvalReviewIcon}
                     {approvedIcon}
                     {releasedIcon}
-                    <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Remove"/>
-                    {trashIcon}
-                    {restoreIcon}
-                    {approvalReviewIcon}
                     <i className="fa fa-download action-button" onClick={this.onExportFunctionCatalogClicked} title="Download MOST XML" />
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
                     <div className="description" onClick={(event) => event.stopPropagation()}>
                         {(author ? author.getName() : "")}
-                        {((author && company) ? "-" : "")}
+                        {((author && company) ? ", " : "")}
                         {(company ? company.getName() : "")}
                     </div>
                 </div>

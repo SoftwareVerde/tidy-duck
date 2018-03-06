@@ -201,7 +201,9 @@
 }
 
 #header .role-toggle {
-    margin-left: 2em;
+    margin-left: 1em;
+    position: relative;
+    z-index: 5;
 }
 
 .role-toggle, .role {

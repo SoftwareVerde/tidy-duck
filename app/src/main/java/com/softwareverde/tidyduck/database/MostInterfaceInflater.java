@@ -24,7 +24,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfaces() throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM interfaces"
+                "SELECT * FROM interfaces WHERE is_permanently_deleted = 0"
         );
 
         List<MostInterface> mostInterfaces = new ArrayList<>();
@@ -37,9 +37,7 @@ public class MostInterfaceInflater {
     }
 
     public List<MostInterface> inflateTrashedMostInterfaces() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = ?")
-                .setParameter(true)
-        ;
+        final Query query = new Query("SELECT * FROM interfaces WHERE is_deleted = 1 and is_permanently_deleted = 0");
 
         List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -80,7 +78,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfacesFromFunctionBlockId(final long functionBlockId, final boolean includeDeleted, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?" + (includeDeleted ? "" : " and is_deleted = 0")
+            "SELECT interface_id FROM function_blocks_interfaces WHERE function_block_id = ?" + (includeDeleted ? "" : " AND is_deleted = 0")
         );
         query.setParameter(functionBlockId);
 
@@ -103,7 +101,8 @@ public class MostInterfaceInflater {
                                             "WHERE interfaces.name LIKE ?" +
                                         ")\n" +
                                         "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND is_deleted = 0"));
+                                        (includeDeleted ? "" : "AND is_deleted = 0") +
+                                        " AND is_permanently_deleted = 0");
         query.setParameter("%" + searchString + "%");
         query.setParameter(true);
         query.setParameter(accountId);
@@ -111,8 +110,7 @@ public class MostInterfaceInflater {
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            final long mostInterfaceId = row.getLong("id");
-            MostInterface mostInterface = inflateMostInterface(mostInterfaceId);
+            MostInterface mostInterface = convertRowToMostInterface(row);
             mostInterfaces.add(mostInterface);
         }
         return groupByBaseVersionId(mostInterfaces);
@@ -163,6 +161,12 @@ public class MostInterfaceInflater {
         if (deletedDateString != null) {
             deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
         }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
         final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
@@ -179,6 +183,8 @@ public class MostInterfaceInflater {
         mostInterface.setVersion(version);
         mostInterface.setIsDeleted(isDeleted);
         mostInterface.setDeletedDate(deletedDate);
+        mostInterface.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        mostInterface.setPermanentlyDeletedDate(permanentlyDeletedDate);
         mostInterface.setIsApproved(isApproved);
         mostInterface.setApprovalReviewId(approvalReviewId);
         mostInterface.setIsReleased(isReleased);

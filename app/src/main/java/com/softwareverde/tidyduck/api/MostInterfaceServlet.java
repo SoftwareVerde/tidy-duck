@@ -82,7 +82,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _getMostInterface(mostInterfaceId, environment.getDatabase());
             }
@@ -95,7 +95,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _updateMostInterface(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -108,7 +108,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _forkMostInterface(request, mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -121,7 +121,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _markMostInterfaceAsDeleted(mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -134,7 +134,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _restoreMostInterfaceFromTrash(mostInterfaceId, currentAccount, environment.getDatabase());
             }
@@ -147,9 +147,9 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
-                return _deleteMostInterfaceFromFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
+                return _deleteMostInterface(mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -160,7 +160,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _listFunctionBlocksContainingMostInterface(mostInterfaceId, environment.getDatabase());
             }
@@ -173,9 +173,28 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
                 if (mostInterfaceId < 1) {
-                    return _generateErrorJson("Invalid interface id.");
+                    return _generateErrorJson("Invalid interface ID.");
                 }
                 return _associateInterfaceWithFunctionBlock(request, mostInterfaceId, currentAccount, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("most-interfaces/<mostInterfaceId>/function-blocks/<functionBlockId>", HttpMethod.DELETE, new AuthenticatedJsonRequestHandler() {
+            @Override
+            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+                currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
+
+                final Long mostInterfaceId = Util.parseLong(parameters.get("mostInterfaceId"));
+                if (mostInterfaceId < 1) {
+                    return _generateErrorJson("Invalid interface ID.");
+                }
+
+                final Long functionBlockId = Util.parseLong(parameters.get("functionBlockId"));
+                if (functionBlockId < 1) {
+                    return _generateErrorJson("Invalid function block ID.");
+                }
+
+                return _disassociateInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, currentAccount, environment.getDatabase());
             }
         });
 
@@ -326,6 +345,15 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 parentFunctionBlockId = null;
             }
 
+            if (parentFunctionBlockId != null) {
+                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, parentFunctionBlockId, currentAccountId);
+                if (parentErrorMessage != null) {
+                    parentErrorMessage = "Unable to fork interface: " + parentErrorMessage;
+                    _logger.error(parentErrorMessage);
+                    return super._generateErrorJson(parentErrorMessage);
+                }
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long newMostInterfaceId = databaseManager.forkMostInterface(mostInterfaceId, parentFunctionBlockId, currentAccountId);
 
@@ -413,6 +441,29 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
         }
         catch (final Exception exception) {
+            _logger.error("Unable to associate interface with function block", exception);
+            return _generateErrorJson("Unable to associate interface with function block: " + exception.getMessage());
+        }
+
+        return response;
+    }
+
+    private Json _disassociateInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws IOException {
+        final Json response = _generateSuccessJson();
+        try {
+            // only need to check parent
+            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+            String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+            if (errorMessage != null) {
+                errorMessage = "Unable to disassociate interface from function block: " + errorMessage;
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
+            final DatabaseManager databaseManager = new DatabaseManager(database);
+            databaseManager.disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId);
+        }
+        catch (final Exception exception) {
             _logger.error("Unable to insert Interface.", exception);
             return _generateErrorJson("Unable to insert Interface: " + exception.getMessage());
         }
@@ -436,7 +487,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _markMostInterfaceAsDeleted(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to move interface to trash: " + errorMessage;
                 _logger.error(errorMessage);
@@ -444,6 +495,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
+            if (databaseManager.mostInterfaceHasApprovedParents(mostInterfaceId)) {
+                errorMessage = "Unable to move interface to trash: the interface is associated with approved function blocks.";
+                _logger.error(errorMessage);
+                return super._generateErrorJson(errorMessage);
+            }
+
             databaseManager.markMostInterfaceAsDeleted(mostInterfaceId);
 
             _logger.info("User " + currentAccount.getId() + " marked Interface " + mostInterfaceId + " as deleted.");
@@ -461,7 +518,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
     protected Json _restoreMostInterfaceFromTrash(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to restore interface from trash: " + errorMessage;
                 _logger.error(errorMessage);
@@ -484,43 +541,30 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         }
     }
 
-    protected Json _deleteMostInterfaceFromFunctionBlock(final HttpServletRequest request, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
-        final String functionBlockIdString = request.getParameter("functionBlockId");
-        final Long functionBlockId = Util.parseLong(functionBlockIdString);
+    protected Json _deleteMostInterface(final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) {
         final Long currentAccountId = currentAccount.getId();
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-
-            String errorMessage = canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
+            String errorMessage = canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccountId);
             if (errorMessage != null) {
-                errorMessage = "Unable to remove interface: " + errorMessage;
+                errorMessage = "Unable to delete interface: " + errorMessage;
                 _logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
+            final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
+            final MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
+            if (!mostInterface.isDeleted()) {
+                final String error = "Interface must be moved to trash before deleting.";
+                _logger.error(error);
+                return super._generateErrorJson(error);
+            }
+
             final DatabaseManager databaseManager = new DatabaseManager(database);
-
-            // Validate inputs. If null, send blockId of 0, which will disassociate interface from all fblocks.
-            if (Util.isBlank(functionBlockIdString)) {
-                databaseManager.deleteMostInterface(0, mostInterfaceId);
-            }
-            else {
-                if (functionBlockId < 1) {
-                    return _generateErrorJson(String.format("Invalid function block id: %s", functionBlockIdString));
-                }
-
-                String parentErrorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
-                if (parentErrorMessage != null) {
-                    parentErrorMessage = "Unable to remove interface from parent function block: " + parentErrorMessage;
-                    _logger.error(parentErrorMessage);
-                    return super._generateErrorJson(parentErrorMessage);
-                }
-
-                databaseManager.deleteMostInterface(functionBlockId, mostInterfaceId);
-            }
+            databaseManager.deleteMostInterface(mostInterfaceId);
         }
         catch (final DatabaseException exception) {
-            final String errorMessage = String.format("Unable to delete interface %d from function block %d.", mostInterfaceId, functionBlockId);
+            final String errorMessage = String.format("Unable to delete interface %d", mostInterfaceId);
             _logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
@@ -530,7 +574,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         return response;
     }
 
-    protected Json _listMostInterfaces(final long functionBlockId, final Account currentAcount, final Database<Connection> database) {
+    protected Json _listMostInterfaces(final long functionBlockId, final Account currentAccount, final Database<Connection> database) {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final Json response = new Json(false);
 
@@ -539,8 +583,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
             final Json mostInterfacesJson = new Json(true);
             for (final MostInterface mostInterface : mostInterfaces) {
-                final Json mostInterfaceJson = _toJson(mostInterface);
-                mostInterfacesJson.add(mostInterfaceJson);
+                if (!mostInterface.isPermanentlyDeleted()) {
+                    final Json mostInterfaceJson = _toJson(mostInterface);
+                    mostInterfacesJson.add(mostInterfaceJson);
+                }
             }
             response.put("mostInterfaces", mostInterfacesJson);
 
@@ -574,17 +620,13 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
-                    if (! mostInterface.isApproved()) {
-                        if (mostInterface.getCreatorAccountId() != null) {
-                            if (! mostInterface.getCreatorAccountId().equals(currentAccount.getId())) {
-                                // Skip adding this interface to the JSON because it is not approved, not unowned, and not owned by the current user.
-                                continue;
-                            }
+                    if (!mostInterface.isPermanentlyDeleted()) {
+                        if (canAccountViewMostInterface(databaseConnection, mostInterface.getId(), currentAccount.getId()) == null) {
+                            // can view this function block, add it to the results
+                            final Json mostInterfaceJson = _toJson(mostInterface);
+                            versionsJson.add(mostInterfaceJson);
                         }
                     }
-
-                    final Json mostInterfaceJson = _toJson(mostInterface);
-                    versionsJson.add(mostInterfaceJson);
                 }
 
                 // Only add versionSeriesJson if its interfaces have not all been filtered.
@@ -627,8 +669,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
 
                 final Json versionsJson = new Json();
                 for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
-                    final Json mostInterfaceJson = _toJson(mostInterface);
-                    versionsJson.add(mostInterfaceJson);
+                    if (!mostInterface.isPermanentlyDeleted()) {
+                        final Json mostInterfaceJson = _toJson(mostInterface);
+                        versionsJson.add(mostInterfaceJson);
+                    }
                 }
                 versionSeriesJson.put("versions", versionsJson);
                 mostInterfacesJson.add(versionSeriesJson);
@@ -792,7 +836,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
     }
 
     private static String ownerCheck(final MostInterface mostInterface, final Long currentAccountId) {
-        if (mostInterface.getCreatorAccountId() != null) {
+        if (mostInterface.getCreatorAccountId() != null && !mostInterface.isApproved()) {
             if (!mostInterface.getCreatorAccountId().equals(currentAccountId)) {
                 return "The interface is owned by another account and cannot be modified.";
             }
