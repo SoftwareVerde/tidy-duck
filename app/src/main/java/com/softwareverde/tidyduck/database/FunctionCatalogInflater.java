@@ -60,15 +60,17 @@ public class FunctionCatalogInflater {
     public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query ("SELECT * FROM function_catalogs\n" +
-                "WHERE base_version_id IN (" +
-                "SELECT DISTINCT function_catalogs.base_version_id\n" +
-                "FROM function_catalogs\n" +
-                "WHERE function_catalogs.name LIKE ?" +
-                ")\n" +
-                "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                (includeDeleted ? "" : "AND is_deleted = 0"));
+                                       "WHERE base_version_id IN (" +
+                                            "SELECT DISTINCT function_catalogs.base_version_id\n" +
+                                            "FROM function_catalogs\n" +
+                                            "WHERE function_catalogs.name LIKE ?" +
+                                            " AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                                       ")\n" +
+                                       "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                                       (includeDeleted ? "" : "AND is_deleted = 0") +
+                                       " AND is_permanently_deleted = 0");
         query.setParameter("%" + searchString + "%");
-        query.setParameter(true);
+        query.setParameter(accountId);
         query.setParameter(accountId);
 
         List<FunctionCatalog> functionCatalogs = new ArrayList<>();

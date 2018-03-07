@@ -99,12 +99,13 @@ public class MostInterfaceInflater {
                                             "SELECT DISTINCT interfaces.base_version_id\n" +
                                             "FROM interfaces\n" +
                                             "WHERE interfaces.name LIKE ?" +
+                                            " AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
                                         ")\n" +
-                                        "AND (is_approved = ? OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                                        "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
                                         (includeDeleted ? "" : "AND is_deleted = 0") +
                                         " AND is_permanently_deleted = 0");
         query.setParameter("%" + searchString + "%");
-        query.setParameter(true);
+        query.setParameter(accountId);
         query.setParameter(accountId);
 
         List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
