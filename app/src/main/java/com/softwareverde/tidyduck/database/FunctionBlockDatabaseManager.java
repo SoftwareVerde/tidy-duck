@@ -399,11 +399,21 @@ public class FunctionBlockDatabaseManager {
         query.setParameter(functionBlockId);
         query.setParameter(accountId);
 
+        final long newReviewId = _databaseConnection.executeSql(query);
+        _setReviewIdForFunctionBlockId(functionBlockId, newReviewId);
+    }
+
+    private void _setReviewIdForFunctionBlockId(final Long functionBlockId, final Long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_blocks SET approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
+                .setParameter(reviewId)
+                .setParameter(functionBlockId)
+                ;
+
         _databaseConnection.executeSql(query);
     }
 
     public void approveFunctionBlock(final long functionBlockId, final long reviewId) throws DatabaseException {
-        final Query query = new Query("UPDATE function_blocks SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
+        final Query query = new Query("UPDATE function_blocks SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
                 .setParameter(reviewId)
                 .setParameter(functionBlockId);
@@ -419,7 +429,9 @@ public class FunctionBlockDatabaseManager {
 
         final MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
         for (final MostInterface mostInterface : mostInterfaces) {
-            mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId(), reviewId);
+            if (! mostInterface.isApproved()) {
+                mostInterfaceDatabaseManager.approveMostInterface(mostInterface.getId(), reviewId);
+            }
         }
     }
 

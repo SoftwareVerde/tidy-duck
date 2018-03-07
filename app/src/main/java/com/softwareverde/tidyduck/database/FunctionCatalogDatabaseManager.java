@@ -234,6 +234,16 @@ class FunctionCatalogDatabaseManager {
         query.setParameter(functionCatalogId);
         query.setParameter(accountId);
 
+        final long newReviewId = _databaseConnection.executeSql(query);
+        _setReviewIdForFunctionCatalogId(functionCatalogId, newReviewId);
+    }
+
+    private void _setReviewIdForFunctionCatalogId(final Long functionCatalogId, final Long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE function_catalogs SET approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
+                .setParameter(reviewId)
+                .setParameter(functionCatalogId)
+        ;
+
         _databaseConnection.executeSql(query);
     }
 
@@ -254,7 +264,9 @@ class FunctionCatalogDatabaseManager {
 
         final FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         for (final FunctionBlock functionBlock : functionBlocks) {
-            functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId(), reviewId);
+            if (! functionBlock.isApproved()) {
+                functionBlockDatabaseManager.approveFunctionBlock(functionBlock.getId(), reviewId);
+            }
         }
     }
 

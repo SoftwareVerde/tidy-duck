@@ -351,11 +351,21 @@ public class MostInterfaceDatabaseManager {
         query.setParameter(mostInterfaceId);
         query.setParameter(submittingAccountId);
 
+        final long newReviewId = _databaseConnection.executeSql(query);
+        _setReviewIdForMostInterfaceId(mostInterfaceId, newReviewId);
+    }
+
+    private void _setReviewIdForMostInterfaceId(final Long mostInterfaceId, final Long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces SET approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
+                .setParameter(reviewId)
+                .setParameter(mostInterfaceId)
+                ;
+
         _databaseConnection.executeSql(query);
     }
 
     public void approveMostInterface(final long mostInterfaceId, final long reviewId) throws DatabaseException {
-        final Query query = new Query("UPDATE interfaces SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
+        final Query query = new Query("UPDATE interfaces SET is_approved = ?, approval_review_id = ? WHERE id = ?")
                 .setParameter(true)
                 .setParameter(reviewId)
                 .setParameter(mostInterfaceId);
