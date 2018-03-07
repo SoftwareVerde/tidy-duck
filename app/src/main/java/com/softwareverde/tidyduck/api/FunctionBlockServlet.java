@@ -15,10 +15,12 @@ import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
+import jdk.nashorn.internal.objects.annotations.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -605,7 +607,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 final Json versionsJson = new Json();
                 for (final FunctionBlock functionBlock : functionBlocks.get(baseVersionId)) {
                     if (!functionBlock.isPermanentlyDeleted()) {
-                        if (canAccountViewFunctionBlock(databaseConnection, functionBlock.getId(), currentAccount.getId()) == null) {
+                        if (canAccountViewFunctionBlock(functionBlock, currentAccount.getId()) == null) {
                             // can view this function block, add it to the results
                             final Json functionBlockJson = _toJson(functionBlock);
                             versionsJson.add(functionBlockJson);
@@ -843,6 +845,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
+        return canAccountViewFunctionBlock(originalFunctionBlock, currentAccountId);
+    }
+
+    public static String canAccountViewFunctionBlock(final FunctionBlock originalFunctionBlock, final Long currentAccountId) {
         final String ownerCheckResult = ownerCheck(originalFunctionBlock, currentAccountId);
         if (ownerCheckResult != null) {
             return ownerCheckResult;
@@ -855,6 +861,10 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(databaseConnection);
         final FunctionBlock originalFunctionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
+        return canAccountModifyFunctionBlock(originalFunctionBlock, currentAccountId);
+    }
+
+    public static String canAccountModifyFunctionBlock(final FunctionBlock originalFunctionBlock, final Long currentAccountId) {
         final String ownerCheckResult = ownerCheck(originalFunctionBlock, currentAccountId);
         if (ownerCheckResult != null) {
             return ownerCheckResult;

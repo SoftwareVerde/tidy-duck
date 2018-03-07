@@ -240,7 +240,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
                 final Json versionsJson = new Json();
                 for (final FunctionCatalog functionCatalog : functionCatalogs.get(baseVersionId)) {
                     if (!functionCatalog.isPermanentlyDeleted()) {
-                        if (canAccountViewFunctionCatalog(databaseConnection, functionCatalog.getId(), currentAccount.getId()) == null) {
+                        if (canAccountViewFunctionCatalog(functionCatalog, currentAccount.getId()) == null) {
                             // can view this function catalog, add it to the results
                             final Json catalogJson = _toJson(functionCatalog);
                             versionsJson.add(catalogJson);
@@ -741,6 +741,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
+        return canAccountViewFunctionCatalog(originalFunctionCatalog, currentAccountId);
+    }
+
+    public static String canAccountViewFunctionCatalog(final FunctionCatalog originalFunctionCatalog, final Long currentAccountId) {
         final String ownerCheckResult = ownerCheck(originalFunctionCatalog, currentAccountId);
         if (ownerCheckResult != null) {
             return ownerCheckResult;
@@ -753,6 +757,10 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
         final FunctionCatalog originalFunctionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
 
+        return canAccountModifyFunctionCatalog(originalFunctionCatalog, currentAccountId);
+    }
+
+    public static String canAccountModifyFunctionCatalog(final FunctionCatalog originalFunctionCatalog, final Long currentAccountId) {
         final String ownerCheckResult = ownerCheck(originalFunctionCatalog, currentAccountId);
         if (ownerCheckResult != null) {
             return ownerCheckResult;

@@ -621,7 +621,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
                 final Json versionsJson = new Json();
                 for (final MostInterface mostInterface : mostInterfaces.get(baseVersionId)) {
                     if (!mostInterface.isPermanentlyDeleted()) {
-                        if (canAccountViewMostInterface(databaseConnection, mostInterface.getId(), currentAccount.getId()) == null) {
+                        if (canAccountViewMostInterface(mostInterface, currentAccount.getId()) == null) {
                             // can view this function block, add it to the results
                             final Json mostInterfaceJson = _toJson(mostInterface);
                             versionsJson.add(mostInterfaceJson);
@@ -806,6 +806,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
         final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
+        return  canAccountViewMostInterface(originalMostInterface, currentAccountId);
+    }
+
+    public static String canAccountViewMostInterface(final MostInterface originalMostInterface, final Long currentAccountId) {
         final String ownerCheckResult = ownerCheck(originalMostInterface, currentAccountId);
         if (ownerCheckResult != null) {
             return ownerCheckResult;
@@ -819,6 +823,10 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         final MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(databaseConnection);
         final MostInterface originalMostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
+        return  canAccountModifyMostInterface(originalMostInterface, currentAccountId);
+    }
+
+    public static String canAccountModifyMostInterface(final MostInterface originalMostInterface, final Long currentAccountId) {
         final String ownerCheckResult = ownerCheck(originalMostInterface, currentAccountId);
         if (ownerCheckResult != null) {
             return ownerCheckResult;
