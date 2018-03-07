@@ -1,27 +1,22 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.mysql.MysqlMemoryDatabase;
-import com.softwareverde.tidyduck.most.*;
-import org.junit.Assert;
+import com.softwareverde.database.mysql.MysqlTestDatabase;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.sql.Connection;
-import java.util.List;
 
 public class ReleaseDatabaseManagerTests {
-    protected final Database<Connection> _inMemoryDatabase = new MysqlMemoryDatabase();
+    protected final MysqlTestDatabase _database = new MysqlTestDatabase();
     protected DatabaseConnection<Connection> _databaseConnection;
     protected ReleaseDatabaseManager _releaseDatabaseManager;
 
     @Before
     public void setup() throws Exception {
-        _databaseConnection = _inMemoryDatabase.newConnection();
+        _databaseConnection = _database.newConnection();
         _releaseDatabaseManager = new ReleaseDatabaseManager(_databaseConnection);
 
-        TestDataLoader.initDatabase(_databaseConnection);
+        TestDataLoader.initDatabase(_database);
         TestDataLoader.insertFakeCompany(_databaseConnection);
         TestDataLoader.insertFakeAccount(_databaseConnection);
     }

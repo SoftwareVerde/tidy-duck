@@ -1,11 +1,10 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
-import com.softwareverde.database.mysql.MysqlMemoryDatabase;
 import com.softwareverde.tidyduck.DateUtil;
+import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.most.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,8 +14,7 @@ import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
-public class MostInterfaceDatabaseManagerTests {
-    protected final Database<Connection> _inMemoryDatabase = new MysqlMemoryDatabase();
+public class MostInterfaceDatabaseManagerTests extends TestBase {
     protected DatabaseConnection<Connection> _databaseConnection;
     protected FunctionCatalogDatabaseManager _functionCatalogDatabaseManager;
     protected FunctionBlockDatabaseManager _functionBlockDatabaseManager;
@@ -58,6 +56,7 @@ public class MostInterfaceDatabaseManagerTests {
         functionBlock.setName(functionBlockName);
         functionBlock.setDescription("Description");
         functionBlock.setRelease("v1.0.0");
+        functionBlock.setMostId("0xAB");
         functionBlock.setAccess("public");
 
         _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
@@ -70,6 +69,7 @@ public class MostInterfaceDatabaseManagerTests {
         mostInterface.setDescription("Description");
         mostInterface.setLastModifiedDate(DateUtil.dateFromDateString("2000-01-01 00:00:00"));
         mostInterface.setMostId("0x10");
+        mostInterface.setVersion("1.0");
         mostInterface.setVersion("v1.0.0");
 
         return mostInterface;
@@ -85,6 +85,8 @@ public class MostInterfaceDatabaseManagerTests {
         final MostTypeInflater mostTypeInflater = new MostTypeInflater(_databaseConnection);
         final MostType mostType = mostTypeInflater.inflateMostType(1L);
 
+
+
         final MostFunction mostFunction = new Property();
         mostFunction.setName(mostFunctionName);
         mostFunction.setDescription("Description");
@@ -93,6 +95,8 @@ public class MostInterfaceDatabaseManagerTests {
         stereotype.setName("Event");
         mostFunction.setFunctionStereotype(stereotype);
         mostFunction.setMostId("0x10");
+        mostFunction.setRelease("1.0");
+        mostFunction.setReturnParameterName("RPN");
         mostFunction.setAuthor(author);
         mostFunction.setCompany(company);
         mostFunction.setReturnType(mostType);
@@ -115,28 +119,28 @@ public class MostInterfaceDatabaseManagerTests {
 
     protected void _randomizeNextFunctionCatalogInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        // _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs AUTO_INCREMENT = "+ autoIncrement));
-        _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs AUTO_INCREMENT="+ autoIncrement));
     }
 
     protected void _randomizeNextFunctionBlockInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        _databaseConnection.executeDdl(new Query("ALTER TABLE function_blocks ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE function_blocks AUTO_INCREMENT="+ autoIncrement));
     }
 
     protected void _randomizeNextMostInterfaceInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        _databaseConnection.executeDdl(new Query("ALTER TABLE interfaces ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE interfaces AUTO_INCREMENT="+ autoIncrement));
     }
 
     protected void _randomizeNextMostFunctionInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        _databaseConnection.executeDdl(new Query("ALTER TABLE functions ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE functions AUTO_INCREMENT="+ autoIncrement));
     }
 
     @Before
     public void setup() throws Exception {
-        _databaseConnection = _inMemoryDatabase.newConnection();
+        super.setup();
+        _databaseConnection = TestBase._database.newConnection();
         _functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(_databaseConnection);
         _functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         _functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
@@ -144,11 +148,6 @@ public class MostInterfaceDatabaseManagerTests {
         _mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         _mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
         _mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
-
-        TestDataLoader.initDatabase(_databaseConnection);
-        TestDataLoader.insertFakeCompany(_databaseConnection);
-        TestDataLoader.insertFakeAccount(_databaseConnection);
-        TestDataLoader.insertFakeMostType(_databaseConnection);
 
         _randomizeNextFunctionCatalogInsertId();
         _randomizeNextFunctionBlockInsertId();

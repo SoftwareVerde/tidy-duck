@@ -4,21 +4,26 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
-import com.softwareverde.util.IoUtil;
+import com.softwareverde.database.mysql.MysqlTestDatabase;
 
 import java.sql.Connection;
 
 public class TestDataLoader {
+
     public static int generateRandomAutoIncrementId() {
         // generate random ID but make sure it's greater than zero
         return (int) (((Math.random() * 7777) % 1000) + 1);
     }
 
-    public static void initDatabase(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/init.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.4.sql")));
+    public static void initDatabase(final MysqlTestDatabase database) throws DatabaseException {
+        try {
+            database.getDatabaseInstance().source("sql/init.sql", "root", "", "tidy_duck");
+            database.getDatabaseInstance().source("sql/migrations/v1.0.0.sql", "root", "", "tidy_duck");
+            database.getDatabaseInstance().source("sql/migrations/v1.0.3.sql", "root", "", "tidy_duck");
+            database.getDatabaseInstance().source("sql/migrations/v1.0.4.sql", "root", "", "tidy_duck");
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 
     public static void insertFakeCompany(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -26,7 +31,7 @@ public class TestDataLoader {
     }
 
     public static void insertFakeAccount(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, company_id) VALUES ('Josh Green', 1)"));
+        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, username, password, company_id) VALUES ('Josh Green', 'test@example.com', 'test', 1)"));
         databaseConnection.executeSql(new Query("INSERT INTO accounts_roles VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5)"));
     }
 
@@ -35,7 +40,7 @@ public class TestDataLoader {
     }
 
     public static void insertFakeAccount(final DatabaseConnection<Connection> databaseConnection, final String accountName, final Long companyId) throws DatabaseException {
-        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, company_id) VALUES (?, ?)").setParameter(accountName).setParameter(companyId));
+        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, username, password, company_id) VALUES (?, 'test@example.com', 'test', ?)").setParameter(accountName).setParameter(companyId));
     }
 
     /**

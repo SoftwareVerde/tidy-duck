@@ -2,8 +2,8 @@ package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.mysql.MysqlMemoryDatabase;
 import com.softwareverde.json.Json;
+import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.database.TestDataLoader;
 import com.softwareverde.tidyduck.environment.Environment;
 import org.junit.Assert;
@@ -20,19 +20,15 @@ import java.io.*;
 import java.sql.Connection;
 import java.util.Arrays;
 
-public class ReviewServletTests {
-    private final Database<Connection> _inMemoryDatabase = new MysqlMemoryDatabase();
+public class ReviewServletTests extends TestBase {
     private DatabaseConnection<Connection> _databaseConnection;
     private long reviewId;
     private long functionCatalogId;
 
     @Before
     public void setup() throws Exception {
-        _databaseConnection = _inMemoryDatabase.newConnection();
-
-        TestDataLoader.initDatabase(_databaseConnection);
-        TestDataLoader.insertFakeCompany(_databaseConnection);
-        TestDataLoader.insertFakeAccount(_databaseConnection);
+        super.setup();
+        _databaseConnection = TestBase._database.newConnection();
 
         functionCatalogId = TestDataLoader.insertFakeCompleteFunctionCatalog(_databaseConnection);
         reviewId = TestDataLoader.insertFakeReview(_databaseConnection, functionCatalogId, null, null, 1L);

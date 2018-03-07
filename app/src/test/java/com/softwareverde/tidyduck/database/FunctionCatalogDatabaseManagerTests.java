@@ -1,8 +1,7 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
-import com.softwareverde.database.mysql.MysqlMemoryDatabase;
+import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
@@ -14,8 +13,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.util.List;
 
-public class FunctionCatalogDatabaseManagerTests {
-    protected final Database<Connection> _inMemoryDatabase = new MysqlMemoryDatabase();
+public class FunctionCatalogDatabaseManagerTests extends TestBase {
     protected DatabaseConnection<Connection> _databaseConnection;
     protected FunctionCatalogDatabaseManager _functionCatalogDatabaseManager;
     protected FunctionBlockDatabaseManager _functionBlockDatabaseManager;
@@ -23,14 +21,11 @@ public class FunctionCatalogDatabaseManagerTests {
 
     @Before
     public void setup() throws Exception {
-        _databaseConnection = _inMemoryDatabase.newConnection();
+        super.setup();
+        _databaseConnection = TestBase._database.newConnection();
         _functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(_databaseConnection);
         _functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         _functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
-
-        TestDataLoader.initDatabase(_databaseConnection);
-        TestDataLoader.insertFakeCompany(_databaseConnection);
-        TestDataLoader.insertFakeAccount(_databaseConnection);
     }
 
     @Test
@@ -223,6 +218,7 @@ public class FunctionCatalogDatabaseManagerTests {
         functionBlock.setCompany(company);
         functionBlock.setKind("Proprietary");
         functionBlock.setName("Function Block");
+        functionBlock.setMostId("0xAB");
         functionBlock.setDescription("Description");
         functionBlock.setRelease("v1.0.0");
         functionBlock.setAccess("public");

@@ -1,10 +1,9 @@
 package com.softwareverde.tidyduck.database;
 
-import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.Query;
-import com.softwareverde.database.mysql.MysqlMemoryDatabase;
+import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionBlock;
@@ -16,8 +15,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.util.List;
 
-public class FunctionBlockDatabaseManagerTests {
-    protected final Database<Connection> _inMemoryDatabase = new MysqlMemoryDatabase();
+public class FunctionBlockDatabaseManagerTests extends TestBase {
     protected DatabaseConnection<Connection> _databaseConnection;
     protected FunctionCatalogDatabaseManager _functionCatalogDatabaseManager;
     protected FunctionBlockDatabaseManager _functionBlockDatabaseManager;
@@ -52,6 +50,7 @@ public class FunctionBlockDatabaseManagerTests {
         functionBlock.setCompany(company);
         functionBlock.setKind("Proprietary");
         functionBlock.setName(functionBlockName);
+        functionBlock.setMostId("0xAB");
         functionBlock.setDescription("Description");
         functionBlock.setRelease("v1.0.0");
         functionBlock.setAccess("public");
@@ -64,30 +63,26 @@ public class FunctionBlockDatabaseManagerTests {
 
     protected void _randomizeNextFunctionCatalogInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        // _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs AUTO_INCREMENT = "+ autoIncrement));
-        _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE function_catalogs AUTO_INCREMENT="+ autoIncrement));
     }
 
     protected void _randomizeNextFunctionBlockInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        _databaseConnection.executeDdl(new Query("ALTER TABLE function_blocks ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE function_blocks AUTO_INCREMENT="+ autoIncrement));
     }
 
     protected void _randomizeNextMostInterfaceInsertId() throws DatabaseException {
         final Integer autoIncrement = TestDataLoader.generateRandomAutoIncrementId();
-        _databaseConnection.executeDdl(new Query("ALTER TABLE interfaces ALTER COLUMN id RESTART WITH "+ autoIncrement));
+        _databaseConnection.executeDdl(new Query("ALTER TABLE interfaces AUTO_INCREMENT="+ autoIncrement));
     }
 
     @Before
     public void setup() throws Exception {
-        _databaseConnection = _inMemoryDatabase.newConnection();
+        super.setup();
+        _databaseConnection = TestBase._database.newConnection();
         _functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(_databaseConnection);
         _functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
         _functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-
-        TestDataLoader.initDatabase(_databaseConnection);
-        TestDataLoader.insertFakeCompany(_databaseConnection);
-        TestDataLoader.insertFakeAccount(_databaseConnection);
 
         _randomizeNextFunctionCatalogInsertId();
         _randomizeNextFunctionBlockInsertId();
