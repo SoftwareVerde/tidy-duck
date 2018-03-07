@@ -202,7 +202,7 @@ class MostInterface extends React.Component {
                                                 : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         }
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
-        const approvalReviewIcon = isApproved ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
+        const approvalReviewIcon = this.props.mostInterface.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
 
 
         return (
