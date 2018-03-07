@@ -25,8 +25,21 @@ Installing the update
      Database Changes
     ------------------
 
-        Check for any new migrations in "sql/migrations/".  If new ones are present
-        login into MySQL to execute them.
+        Check for any new migrations in "sql/migrations/".  Migrations will be
+        named for the version they're associated with so if version 1.0.2 is
+        installed and the available files are:
+
+            sql/migrations/v1.0.0.sql
+            sql/migrations/v1.0.1.sql
+            sql/migrations/v1.0.2.sql
+            sql/migrations/v1.0.3.sql
+            sql/migrations/v1.0.4.sql
+            sql/migrations/v1.1.0.sql
+
+        In this case only the files "v1.0.3.sql", "1.0.4.sql", and "v1.1.0.sql"
+        should be run.
+
+        If new migrations are present login into MySQL to execute them.
 
             mysql -u root -p
 
