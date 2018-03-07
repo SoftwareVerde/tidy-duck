@@ -192,7 +192,7 @@
 
 
     <session-config>
-        <session-timeout>43200</session-timeout>    <!-- 30*24*60 = 30 days -->
+        <session-timeout>300</session-timeout>    <!-- 5*60 = 5 hours -->
     </session-config>
 
     <welcome-file-list>
