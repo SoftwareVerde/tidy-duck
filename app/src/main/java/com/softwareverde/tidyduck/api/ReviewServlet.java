@@ -265,8 +265,16 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
             }
 
-            if (voteCounter == 0) {
-                final String errorMessage = "Unable approve review: a review must be upvoted by at least one person other than the review's creator.";
+            final ApplicationSettingsInflater applicationSettingsInflater = new ApplicationSettingsInflater(databaseConnection);
+            final String minimumRequiredUpvotesString = applicationSettingsInflater.inflateSetting(ApplicationSetting.REVIEW_APPROVAL_MINIMUM_UPVOTES);
+            final Long minimumRequiredUpvotes = Util.parseLong(minimumRequiredUpvotesString);
+            if (minimumRequiredUpvotes == null) {
+                final String errorMessage = "Unable to determine minimum required upvotes.";
+                _logger.error(errorMessage);
+                return _generateErrorJson(errorMessage);
+            }
+            if (voteCounter < minimumRequiredUpvotes) {
+                final String errorMessage = "Unable approve review: a review must be upvoted by at least " + minimumRequiredUpvotesString + " people other than the review's creator.";
                 _logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
             }
@@ -275,7 +283,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             databaseManager.approveReview(review);
         }
         catch (DatabaseException e) {
-            String errorMessage = "Unable approve review.";
+            String errorMessage = "Unable approve review: " + e.getMessage();
             _logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }

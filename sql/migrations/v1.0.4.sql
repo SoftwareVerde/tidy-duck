@@ -128,3 +128,15 @@ INNER JOIN (
      ) A
 ON A.function_id = functions.id AND functions.approval_review_id is NULL
 SET approval_review_id = A.review_id;
+
+-- Global setting for review approval upvote minimum
+DROP TABLE IF EXISTS application_settings;
+
+CREATE TABLE application_settings (
+    name VARCHAR(255) NOT NULL,
+    value VARCHAR(255) NULL,
+    CONSTRAINT uc_application_settings_name UNIQUE (name)
+) ENGINE=INNODB;
+
+INSERT INTO application_settings (name, value)
+VALUES ('REVIEW_APPROVAL_MINIMUM_UPVOTES', '3');
