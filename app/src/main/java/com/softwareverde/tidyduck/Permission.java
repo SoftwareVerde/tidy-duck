@@ -6,6 +6,7 @@ public enum Permission {
     ADMIN_MODIFY_USERS, // Ability to assign permissions to other users
     ADMIN_DELETE_USERS, // Ability to delete users
     ADMIN_RESET_PASSWORD, // Ability to reset other user's passwords
+    ADMIN_MODIFY_APPLICATION_SETTINGS, // Ability to modify application-wide settings
     MOST_COMPONENTS_RELEASE, // Ability to release a new version of a function catalog
     MOST_COMPONENTS_CREATE, // Ability to create/fork MOST components
     MOST_COMPONENTS_MODIFY, // Ability to alter a MOST component (change metadata, add children)

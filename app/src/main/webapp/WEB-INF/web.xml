@@ -13,6 +13,10 @@
         <servlet-class>com.softwareverde.tidyduck.api.AccountManagementServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ApplicationSettings</servlet-name>
+        <servlet-class>com.softwareverde.tidyduck.api.ApplicationSettingsServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Settings</servlet-name>
         <servlet-class>com.softwareverde.tidyduck.api.SettingsServlet</servlet-class>
     </servlet>
@@ -79,6 +83,15 @@
     <servlet-mapping>
         <servlet-name>AccountManagement</servlet-name>
         <url-pattern>/api/v1/companies/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Application Settings</servlet-name>
+        <url-pattern>/api/v1/application-settings</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Application Settings</servlet-name>
+        <url-pattern>/api/v1/application-settings/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

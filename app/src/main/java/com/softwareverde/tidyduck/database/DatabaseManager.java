@@ -30,6 +30,18 @@ public class DatabaseManager {
         return callableDatabaseTransaction.call(databaseCallable);
     }
 
+    // APPLICATION SETTINGS
+
+    public void updateSetting(final ApplicationSetting applicationSetting, final String value) throws DatabaseException {
+        this._executeTransaction(new DatabaseRunnable<Connection>() {
+            @Override
+            public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+                final ApplicationSettingsDatabaseManager applicationSettingsDatabaseManager = new ApplicationSettingsDatabaseManager(databaseConnection);
+                applicationSettingsDatabaseManager.updateSetting(applicationSetting, value);
+            }
+        });
+    }
+
     // ACCOUNT METHODS
     public boolean insertAccount(final Account account) throws DatabaseException {
         return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
