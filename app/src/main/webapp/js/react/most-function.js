@@ -7,8 +7,15 @@ class MostFunction extends React.Component {
             showWorkingIcon:  false
         };
 
+        this.lastMouseDown = {
+            description: "Description",
+            parent:      "Parent"
+        };
+
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.onDescriptionMouseDown = this.onDescriptionMouseDown.bind(this);
+        this.onParentMouseDown = this.onParentMouseDown.bind(this);
         this.deleteMostFunction = this.deleteMostFunction.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
@@ -81,9 +88,24 @@ class MostFunction extends React.Component {
     }
 
     onClick() {
-        if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.mostFunction);
+        if (this.state.lastMouseDown == this.lastMouseDown.parent) {
+            if (typeof this.props.onClick == "function") {
+                this.props.onClick(this.props.mostFunction);
+            }
         }
+    }
+
+    onDescriptionMouseDown(event) {
+        event.stopPropagation();
+        this.setState({
+            lastMouseDown : this.lastMouseDown.description
+        });
+    }
+
+    onParentMouseDown() {
+        this.setState({
+            lastMouseDown : this.lastMouseDown.parent
+        });
     }
 
     render() {
@@ -110,7 +132,7 @@ class MostFunction extends React.Component {
         }
 
         return (
-            <div className={childItemStyle} onClick={this.onClick}>
+            <div className={childItemStyle} onMouseDown={this.onParentMouseDown} onClick={this.onClick}>
                 <div className="child-item-title">
                     <span className="child-item-title-name" title={name}>{name}</span>
                 </div>
@@ -124,7 +146,7 @@ class MostFunction extends React.Component {
                 </div>
                 <div className="child-function-catalog-property version">{this.props.mostFunction.getReleaseVersion()}</div>
                 <div className="description-wrapper">
-                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                    <div className="description" onMouseDown={this.onDescriptionMouseDown} onClick={(event) => event.stopPropagation()}>
                         {this.props.mostFunction.getMostId()}
                         {(this.props.mostFunction.getDescription() ? " - " : "")}
                         {this.props.mostFunction.getDescription()}

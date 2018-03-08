@@ -7,9 +7,16 @@ class FunctionBlock extends React.Component {
             showWorkingIcon:    false
         };
 
+        this.lastMouseDown = {
+            description: "Description",
+            parent:      "Parent"
+        };
+
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.onDescriptionMouseDown = this.onDescriptionMouseDown.bind(this);
+        this.onParentMouseDown = this.onParentMouseDown.bind(this);
         this.disassociateFunctionBlockFromParent = this.disassociateFunctionBlockFromParent.bind(this);
         this.deleteFunctionBlock = this.deleteFunctionBlock.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
@@ -141,9 +148,24 @@ class FunctionBlock extends React.Component {
     }
 
     onClick() {
-        if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionBlock, false);
+        if (this.state.lastMouseDown == this.lastMouseDown.parent) {
+            if (typeof this.props.onClick == "function") {
+                this.props.onClick(this.props.functionBlock, false);
+            }
         }
+    }
+
+    onDescriptionMouseDown(event) {
+        event.stopPropagation();
+        this.setState({
+            lastMouseDown : this.lastMouseDown.description
+        });
+    }
+
+    onParentMouseDown() {
+        this.setState({
+            lastMouseDown : this.lastMouseDown.parent
+        });
     }
 
     renderVersionOptions() {
@@ -210,7 +232,7 @@ class FunctionBlock extends React.Component {
         const approvalReviewIcon = this.props.functionBlock.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="Go to the pending or approved Review for this Function Block."/> : "";
         
         return (
-            <div className={childItemStyle} onClick={this.onClick}>
+            <div className={childItemStyle} onMouseDown={this.onParentMouseDown} onClick={this.onClick}>
                 <div className="child-item-title">
                     <span className="child-item-title-name" title={name}>{name}</span>
                 </div>
@@ -225,7 +247,7 @@ class FunctionBlock extends React.Component {
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
-                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                    <div className="description" onMouseDown={this.onDescriptionMouseDown} onClick={(event) => event.stopPropagation()}>
                         {this.props.functionBlock.getMostId()}
                         {(this.props.functionBlock.getDescription() ? " - " : "")}
                         {this.props.functionBlock.getDescription()}

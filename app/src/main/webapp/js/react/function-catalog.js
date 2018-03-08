@@ -4,12 +4,20 @@ class FunctionCatalog extends React.Component {
 
         this.state = {
             showMenu:           false,
-            showWorkingIcon:    false
+            showWorkingIcon:    false,
+            lastMouseDown:      null
+        };
+
+        this.lastMouseDown = {
+            description: "Description",
+            parent:      "Parent"
         };
 
         this.onMenuButtonClick = this.onMenuButtonClick.bind(this);
         this.renderVersionOptions = this.renderVersionOptions.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.onDescriptionMouseDown = this.onDescriptionMouseDown.bind(this);
+        this.onParentMouseDown = this.onParentMouseDown.bind(this);
         this.deleteFunctionCatalog = this.deleteFunctionCatalog.bind(this);
         this.onMarkAsDeletedClicked = this.onMarkAsDeletedClicked.bind(this);
         this.onRestoreFromTrashClicked = this.onRestoreFromTrashClicked.bind(this);
@@ -134,9 +142,24 @@ class FunctionCatalog extends React.Component {
     }
 
     onClick() {
-        if (typeof this.props.onClick == "function") {
-            this.props.onClick(this.props.functionCatalog, false);
+        if (this.state.lastMouseDown == this.lastMouseDown.parent) {
+            if (typeof this.props.onClick == "function") {
+                this.props.onClick(this.props.functionCatalog, false);
+            }
         }
+    }
+
+    onDescriptionMouseDown(event) {
+        event.stopPropagation();
+        this.setState({
+            lastMouseDown : this.lastMouseDown.description
+        });
+    }
+
+    onParentMouseDown() {
+        this.setState({
+            lastMouseDown : this.lastMouseDown.parent
+        });
     }
 
     renderVersionOptions() {
@@ -196,7 +219,7 @@ class FunctionCatalog extends React.Component {
         }
 
         return (
-            <div className={childItemStyle} onClick={this.onClick}>
+            <div className={childItemStyle} onMouseDown={this.onParentMouseDown} onClick={this.onClick}>
                 <div className="child-item-title">
                     <span className="child-item-title-name" title={name}>{name}</span>
                 </div>
@@ -211,7 +234,7 @@ class FunctionCatalog extends React.Component {
                 </div>
                 {displayVersion}
                 <div className="description-wrapper">
-                    <div className="description" onClick={(event) => event.stopPropagation()}>
+                    <div className="description" onMouseDown={this.onDescriptionMouseDown} onClick={(event) => event.stopPropagation()}>
                         {(author ? author.getName() : "")}
                         {((author && company) ? ", " : "")}
                         {(company ? company.getName() : "")}
