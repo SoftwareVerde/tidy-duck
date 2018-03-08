@@ -142,7 +142,7 @@ INSERT INTO application_settings (name, value)
 VALUES ('REVIEW_APPROVAL_MINIMUM_UPVOTES', '3');
 
 -- Add admin permission to modify application settings
-ALTER TABLE role_permission
+ALTER TABLE role_permissions
 ADD COLUMN admin_modify_application_settings BOOLEAN NOT NULL DEFAULT FALSE
 AFTER admin_reset_password;
 

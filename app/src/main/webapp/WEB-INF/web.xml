@@ -86,11 +86,11 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>Application Settings</servlet-name>
+        <servlet-name>ApplicationSettings</servlet-name>
         <url-pattern>/api/v1/application-settings</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Application Settings</servlet-name>
+        <servlet-name>ApplicationSettings</servlet-name>
         <url-pattern>/api/v1/application-settings/*</url-pattern>
     </servlet-mapping>
 
