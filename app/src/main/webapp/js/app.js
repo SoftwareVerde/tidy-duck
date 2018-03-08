@@ -2,7 +2,6 @@ function redirectToLogin() {
     window.location.replace("/");
 }
 
-
 (function() {
     checkAccount(function(data) {
         if (! data.wasSuccess) {
