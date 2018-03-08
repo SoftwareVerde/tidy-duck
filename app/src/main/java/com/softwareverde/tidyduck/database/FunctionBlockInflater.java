@@ -192,9 +192,6 @@ public class FunctionBlockInflater {
         final Long priorVersionId = row.getLong("prior_version_id");
         final Long creatorAccountId = row.getLong("creator_account_id");
         final boolean hasApprovedParent = row.getBoolean("has_approved_parent");
-        if (id == 90) {
-            System.out.print("Function block " + name + " has an approved parent? " + hasApprovedParent);
-        }
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);

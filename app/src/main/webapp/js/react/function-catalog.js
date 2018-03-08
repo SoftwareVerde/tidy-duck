@@ -177,15 +177,23 @@ class FunctionCatalog extends React.Component {
         const name = this.props.functionCatalog.getName();
         const isDeleted = this.props.functionCatalog.isDeleted();
         const isApproved = this.props.functionCatalog.isApproved();
+        const isReleased = this.props.functionCatalog.isReleased();
         const childItemStyle = (isApproved ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
 
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.functionCatalog.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function Catalog has been released." /> : "");
         const approvedIcon = (this.props.functionCatalog.isApproved() ? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function Catalog has been approved." /> : "");
         const approvalReviewIcon = this.props.functionCatalog.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
-        const deleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Delete"/> : "";
-        const trashOrRestoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/>
-                                             : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+
+        let deleteIcon = "";
+        let trashOrRestoreIcon = <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+        if (isDeleted) {
+            deleteIcon = <i className="fa fa-remove action-button" onClick={this.deleteFunctionCatalog} title="Delete"/>;
+            trashOrRestoreIcon = <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/>;
+        }
+        else if (isReleased) {
+            trashOrRestoreIcon = <i className="fa fa-trash action-button disabled-action-button" onClick={(event) => event.stopPropagation()} title="This Function Catalog cannot be moved to trash; it is released."/>;
+        }
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
