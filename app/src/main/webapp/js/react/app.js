@@ -3664,12 +3664,11 @@ class App extends React.Component {
             const account = this.state.account;
             const theme = account ? account.getSettings().getTheme() : "Tidy";
             const defaultMode = account ? account.getSettings().getDefaultMode() : this.roles.development;
-            const accountId = account.getId();
             const validRoles = this.getValidRoleItems(account);
 
             return (
                 <div id="main-content" className="container">
-                    <app.SettingsPage theme={theme} defaultMode={defaultMode} accountId={accountId} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged} handleSettingsClick={this.handleSettingsClick}/>
+                    <app.SettingsPage theme={theme} defaultMode={defaultMode} account={account} roles={validRoles} onThemeChange={this.onThemeChange} onDefaultModeChanged={this.onDefaultModeChanged} handleSettingsClick={this.handleSettingsClick}/>
                 </div>
             );
         }
