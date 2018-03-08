@@ -9,8 +9,19 @@ class ApprovalForm extends React.Component{
             ticketUrl:                      review.getTicketUrl(),
             shouldShowSaveCommentAnimation: false,
             ticketUrlSaveButtonText:        'Save',
-            reviewComment:                  reviewComment
+            reviewComment:                  reviewComment,
+            reviewApprovalMinimumUpvotes:   1
         };
+
+        const thisForm = this;
+        getApplicationSettingValue("REVIEW_APPROVAL_MINIMUM_UPVOTES", function(value) {
+            if (value != null) {
+                const reviewApprovalMinimumUpvotes = Number(value);
+                thisForm.setState({
+                    reviewApprovalMinimumUpvotes: reviewApprovalMinimumUpvotes
+                });
+            }
+        });
 
         this.onReviewCommentChanged = this.onReviewCommentChanged.bind(this);
         this.onSubmitComment = this.onSubmitComment.bind(this);
@@ -270,28 +281,29 @@ class ApprovalForm extends React.Component{
             const reviewAccountId = this.props.review.getAccount().getId();
             const reviewVotes = this.props.review.getReviewVotes();
 
-            // Render button if at least one upvote from a different account exists, and the current account is different.
             if (accountId != reviewAccountId) {
-                let upvoteCounter = 0;
+                let upvoteCount = 0;
                 for (let i in reviewVotes) {
                     const reviewVote = reviewVotes[i];
                     if (reviewVote.isUpvote()) {
                         const reviewVoteAccountId = reviewVote.getAccount().getId();
                         if (reviewVoteAccountId != reviewAccountId) {
-                            upvoteCounter++;
-                            // TODO: verify if we only need one upvote that isn't from the review's creator.
-                            break;
+                            upvoteCount++;
                         }
                     }
                 }
 
-                if (upvoteCounter == 0) {
+                if (upvoteCount == 0) {
                     return;
                 }
 
-                let submitApprovalButton = <button className="button submit-button" id="function-block-submit" onClick={this.onApproveButtonClicked}>Merge</button>;
+                let submitApprovalButton = <button className="button submit-button" onClick={this.onApproveButtonClicked}>Merge</button>;
+                const minimumUpvotes = this.state.reviewApprovalMinimumUpvotes;
+                if (upvoteCount < minimumUpvotes) {
+                    submitApprovalButton = <button disabled="disabled" className="button disabled-button" title={"There must be at least " + minimumUpvotes + " non-submitter up-votes before these changes can be merged."}>Merge</button>;
+                }
                 if (this.props.shouldShowSaveAnimation) {
-                    submitApprovalButton = <div className="button submit-button" id="function-block-submit"><i className="fa fa-refresh fa-spin"></i></div>;
+                    submitApprovalButton = <div className="button submit-button"><i className="fa fa-refresh fa-spin"></i></div>;
                 }
 
                 return submitApprovalButton;
