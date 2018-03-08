@@ -190,6 +190,11 @@
     border-color: #032334;
 }
 
+.tidy-object .disabled-action-button {
+    color: #335566;
+    border-color: #335566;
+}
+
 .tidy-object .action-button:hover {
     color: #FFDD66;
     border-color: #FFDD66;

@@ -661,6 +661,10 @@
     transition: all 0.5s ease;
 }
 
+.tidy-object .disabled-action-button{
+    cursor: default !important;
+}
+
 .tidy-object .description {
     border: solid 1px;
     border-radius: 0.25rem;

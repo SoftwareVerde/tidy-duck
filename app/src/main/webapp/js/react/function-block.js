@@ -197,7 +197,11 @@ class FunctionBlock extends React.Component {
         let trashOrDeleteIcon = "";
         if (parent == null || !parent.isApproved()) {
             removeIcon = (!isDeleted && parent != null) ? <i className="fa fa-minus action-button" onClick={this.disassociateFunctionBlockFromParent} title="Remove"/> : "";
-            if (! this.props.functionBlock.hasApprovedParent()) {
+
+            if (this.props.functionBlock.hasApprovedParent()) {
+                trashOrDeleteIcon =  <i className="fa fa-trash action-button disabled-action-button" onClick={(event) => event.stopPropagation()} title="This object cannot be moved to trash; it is the child of an approved parent object."/>;
+            }
+            else {
                 trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteFunctionBlock} title="Delete"/>
                     : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
             }
