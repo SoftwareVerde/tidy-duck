@@ -796,6 +796,7 @@ public class MostInterfaceServlet extends AuthenticatedJsonServlet {
         mostInterfaceJson.put("isReleased", mostInterface.isReleased());
         mostInterfaceJson.put("isApproved", mostInterface.isApproved());
         mostInterfaceJson.put("approvalReviewId", mostInterface.getApprovalReviewId());
+        mostInterfaceJson.put("hasApprovedParent", mostInterface.hasApprovedParent());
         mostInterfaceJson.put("baseVersionId", mostInterface.getBaseVersionId());
         mostInterfaceJson.put("priorVersionId", mostInterface.getPriorVersionId());
         mostInterfaceJson.put("creatorAccountId", mostInterface.getCreatorAccountId());

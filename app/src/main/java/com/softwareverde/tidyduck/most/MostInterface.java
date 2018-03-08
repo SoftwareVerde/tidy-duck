@@ -120,7 +120,7 @@ public class MostInterface {
 
     public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
 
-    public boolean getHasApprovedParent() { return _hasApprovedParent; }
+    public boolean hasApprovedParent() { return _hasApprovedParent; }
 
     public void setHasApprovedParent(final boolean hasApprovedParent) { _hasApprovedParent = hasApprovedParent; }
 

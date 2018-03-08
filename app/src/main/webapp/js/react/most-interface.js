@@ -198,12 +198,17 @@ class MostInterface extends React.Component {
         let trashOrDeleteIcon = "";
         if (parent == null || !parent.isApproved()) {
             removeIcon = (!isDeleted && parent != null) ? <i className="fa fa-minus action-button" onClick={this.disassociateMostInterfaceFromParent} title="Remove"/> : "";
-            trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Delete"/>
-                                                : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+
+            if (this.props.mostInterface.hasApprovedParent()) {
+                trashOrDeleteIcon =  <i className="fa fa-trash action-button disabled-action-button" onClick={(event) => event.stopPropagation()} title="This object cannot be moved to trash; it is the child of an approved parent object."/>;
+            }
+            else {
+                trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteMostInterface} title="Delete"/>
+                    : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
+            }
         }
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
         const approvalReviewIcon = this.props.mostInterface.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
-
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>

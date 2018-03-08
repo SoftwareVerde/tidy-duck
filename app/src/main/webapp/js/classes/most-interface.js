@@ -13,6 +13,7 @@ class MostInterface {
         mostInterface.setIsReleased(json.isReleased);
         mostInterface.setIsApproved(json.isApproved);
         mostInterface.setApprovalReviewId(json.approvalReviewId);
+        mostInterface.setHasApprovedParent(json.hasApprovedParent);
         mostInterface.setCreatorAccountId(json.creatorAccountId);
         mostInterface.setIsDeleted(json.isDeleted);
         mostInterface.setDeletedDate(json.deletedDate);
@@ -47,6 +48,7 @@ class MostInterface {
         this._isReleased            = null;
         this._isApproved            = null;
         this._approvalReviewId      = null;
+        this._hasApprovedParent     = false;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
         this._creatorAccountId      = null;
@@ -154,6 +156,14 @@ class MostInterface {
 
     getApprovalReviewId() {
         return this._approvalReviewId;
+    }
+
+    setHasApprovedParent(hasApprovedParent) {
+        this._hasApprovedParent = hasApprovedParent;
+    }
+
+    hasApprovedParent() {
+        return this._hasApprovedParent;
     }
 
     setCreatorAccountId(creatorAccountId) {
