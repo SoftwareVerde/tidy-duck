@@ -23,7 +23,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved AND NOT function_catalogs.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
                     "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
                     "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
                     "WHERE function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id"
@@ -40,7 +40,7 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-                "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+                "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved AND NOT function_catalogs.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
                         "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
                         "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
                         "WHERE function_blocks.is_deleted = 1 AND function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id"
@@ -105,7 +105,7 @@ public class FunctionBlockInflater {
 
     public FunctionBlock inflateFunctionBlock(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved AND NOT function_catalogs.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
                     "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
                     "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
                     "WHERE function_blocks.id = ? GROUP BY function_blocks.id;"
@@ -135,18 +135,20 @@ public class FunctionBlockInflater {
 
     public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query ("SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
-                                            "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
-                                            "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
-                                        "WHERE function_blocks.base_version_id IN (" +
-                                            "SELECT DISTINCT function_blocks.base_version_id\n" +
-                                            "FROM function_blocks\n" +
+        final Query query = new Query (
+            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved AND NOT function_catalogs.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+                    "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
+                    "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
+                        "WHERE function_blocks.base_version_id IN (" +
+                                "SELECT DISTINCT function_blocks.base_version_id\n" +
+                                        "FROM function_blocks\n" +
                                             "WHERE function_blocks.name LIKE ?\n" +
                                             "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        ")\n" +
-                                        "AND (function_blocks.is_approved = 1 OR function_blocks.creator_account_id = ? OR function_blocks.creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND function_blocks.is_deleted = 0\n") +
-                                        "AND function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id");
+                        ")\n" +
+                    "AND (function_blocks.is_approved = 1 OR function_blocks.creator_account_id = ? OR function_blocks.creator_account_id IS NULL)\n" +
+                    (includeDeleted ? "" : "AND function_blocks.is_deleted = 0\n") +
+                    "AND function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id"
+                );
         query.setParameter("%" + searchString + "%");
         query.setParameter(accountId);
         query.setParameter(accountId);

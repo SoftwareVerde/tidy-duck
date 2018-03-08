@@ -24,7 +24,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateMostInterfaces() throws DatabaseException {
         final Query query = new Query(
-                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved) > 0, 0) AS has_approved_parent FROM interfaces\n" +
+                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved AND NOT function_blocks.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM interfaces\n" +
                         "LEFT JOIN function_blocks_interfaces ON interfaces.id = function_blocks_interfaces.interface_id\n" +
                         "LEFT JOIN function_blocks ON function_blocks.id = function_blocks_interfaces.function_block_id\n" +
                         "WHERE interfaces.is_permanently_deleted = 0 GROUP BY interfaces.id"
@@ -41,7 +41,7 @@ public class MostInterfaceInflater {
 
     public List<MostInterface> inflateTrashedMostInterfaces() throws DatabaseException {
         final Query query = new Query(
-                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved) > 0, 0) AS has_approved_parent FROM interfaces\n" +
+                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved AND NOT function_blocks.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM interfaces\n" +
                         "LEFT JOIN function_blocks_interfaces ON interfaces.id = function_blocks_interfaces.interface_id\n" +
                         "LEFT JOIN function_blocks ON function_blocks.id = function_blocks_interfaces.function_block_id\n" +
                         "WHERE interfaces.is_deleted = 1 AND interfaces.is_permanently_deleted = 0 GROUP BY interfaces.id"
@@ -102,18 +102,19 @@ public class MostInterfaceInflater {
 
     public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query ("SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved) > 0, 0) AS has_approved_parent FROM interfaces\n" +
-                                            "LEFT JOIN function_blocks_interfaces ON interfaces.id = function_blocks_interfaces.interface_id\n" +
-                                            "LEFT JOIN function_blocks ON function_blocks.id = function_blocks_interfaces.function_block_id\n" +
-                                        "WHERE interfaces.base_version_id IN (" +
-                                            "SELECT DISTINCT interfaces.base_version_id\n" +
-                                            "FROM interfaces\n" +
-                                            "WHERE interfaces.name LIKE ?\n" +
-                                            "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        ")\n" +
-                                        "AND (interfaces.is_approved = 1 OR interfaces.creator_account_id = ? OR interfaces.creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND interfaces.is_deleted = 0\n") +
-                                        "AND interfaces.is_permanently_deleted = 0 GROUP BY interfaces.id");
+        final Query query = new Query (
+                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved AND NOT function_blocks.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM interfaces\n" +
+                        "LEFT JOIN function_blocks_interfaces ON interfaces.id = function_blocks_interfaces.interface_id\n" +
+                        "LEFT JOIN function_blocks ON function_blocks.id = function_blocks_interfaces.function_block_id\n" +
+                            "WHERE interfaces.base_version_id IN (" +
+                                    "SELECT DISTINCT interfaces.base_version_id\n" +
+                                    "FROM interfaces\n" +
+                                        "WHERE interfaces.name LIKE ?\n" +
+                                        "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                            ")\n" +
+                        "AND (interfaces.is_approved = 1 OR interfaces.creator_account_id = ? OR interfaces.creator_account_id IS NULL)\n" +
+                        (includeDeleted ? "" : "AND interfaces.is_deleted = 0\n") +
+                        "AND interfaces.is_permanently_deleted = 0 GROUP BY interfaces.id");
         query.setParameter("%" + searchString + "%");
         query.setParameter(accountId);
         query.setParameter(accountId);
@@ -133,7 +134,7 @@ public class MostInterfaceInflater {
 
     public MostInterface inflateMostInterface(final long mostInterfaceId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved) > 0, 0) AS has_approved_parent FROM interfaces\n" +
+                "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved AND NOT function_blocks.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM interfaces\n" +
                         "LEFT JOIN function_blocks_interfaces ON interfaces.id = function_blocks_interfaces.interface_id\n" +
                         "LEFT JOIN function_blocks ON function_blocks.id = function_blocks_interfaces.function_block_id\n" +
                         "WHERE interfaces.id = ? GROUP BY interfaces.id"
