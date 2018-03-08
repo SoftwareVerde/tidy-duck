@@ -828,6 +828,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         blockJson.put("isReleased", functionBlock.isReleased());
         blockJson.put("isApproved", functionBlock.isApproved());
         blockJson.put("approvalReviewId", functionBlock.getApprovalReviewId());
+        blockJson.put("hasApprovedParent", functionBlock.getHasApprovedParent());
         blockJson.put("baseVersionId", functionBlock.getBaseVersionId());
         blockJson.put("priorVersionId", functionBlock.getPriorVersionId());
         blockJson.put("authorId", functionBlock.getAuthor().getId());

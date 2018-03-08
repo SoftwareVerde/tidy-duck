@@ -25,6 +25,7 @@ public class FunctionBlock {
     private Date _permanentlyDeletedDate;
     private boolean _isApproved;
     private Long _approvalReviewId;
+    private boolean _hasApprovedParent;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
@@ -171,6 +172,10 @@ public class FunctionBlock {
     public Long getApprovalReviewId() { return _approvalReviewId; }
 
     public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
+
+    public boolean getHasApprovedParent() { return _hasApprovedParent; }
+
+    public void setHasApprovedParent(final boolean hasApprovedParent) { _hasApprovedParent = hasApprovedParent; }
 
     public boolean isReleased() {
         return _isReleased;

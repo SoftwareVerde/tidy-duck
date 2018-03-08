@@ -22,9 +22,10 @@ class FunctionBlock {
         functionBlock.setIsReleased(json.isReleased);
         functionBlock.setIsApproved(json.isApproved);
         functionBlock.setApprovalReviewId(json.approvalReviewId);
+        functionBlock.setHasApprovedParent(json.hasApprovedParent);
         functionBlock.setAuthor(author);
         functionBlock.setCompany(company);
-        functionBlock.setCreatorAccountId(json.creatorAccountId)
+        functionBlock.setCreatorAccountId(json.creatorAccountId);
         functionBlock.setAccess(json.access);
         functionBlock.setIsSource(json.isSource);
         functionBlock.setIsSink(json.isSink);
@@ -80,6 +81,7 @@ class FunctionBlock {
         this._isReleased            = null;
         this._isApproved            = null;
         this._approvalReviewId      = null;
+        this._hasApprovedParent     = false;
         this._priorVersionId        = null;
         this._baseVersionId         = null;
         this._creatorAccountId      = null;
@@ -235,6 +237,14 @@ class FunctionBlock {
 
     getApprovalReviewId() {
         return this._approvalReviewId;
+    }
+
+    setHasApprovedParent(hasApprovedParent) {
+        this._hasApprovedParent = hasApprovedParent;
+    }
+
+    hasApprovedParent() {
+        return this._hasApprovedParent;
     }
 
     setCreatorAccountId(creatorAccountId) {

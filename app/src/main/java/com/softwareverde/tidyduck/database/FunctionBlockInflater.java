@@ -23,7 +23,10 @@ public class FunctionBlockInflater {
 
     public List<FunctionBlock> inflateFunctionBlocks() throws DatabaseException {
         final Query query = new Query(
-            "SELECT * FROM function_blocks WHERE is_permanently_deleted = 0"
+            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+                    "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
+                    "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
+                    "WHERE function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id"
         );
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
@@ -36,7 +39,12 @@ public class FunctionBlockInflater {
     }
 
     public List<FunctionBlock> inflateTrashedFunctionBlocks() throws DatabaseException {
-        final Query query = new Query("SELECT * FROM function_blocks WHERE is_deleted = 1 AND is_permanently_deleted = 0");
+        final Query query = new Query(
+                "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+                        "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
+                        "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
+                        "WHERE function_blocks.is_deleted = 1 AND function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id"
+        );
 
         final List<FunctionBlock> functionBlocks = new ArrayList<FunctionBlock>();
         final List<Row> rows = _databaseConnection.query(query);
@@ -97,7 +105,10 @@ public class FunctionBlockInflater {
 
     public FunctionBlock inflateFunctionBlock(final long functionBlockId, final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-            "SELECT * FROM function_blocks WHERE id = ?"
+            "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+                    "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
+                    "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
+                    "WHERE function_blocks.id = ? GROUP BY function_blocks.id;"
         );
         query.setParameter(functionBlockId);
 
@@ -124,16 +135,18 @@ public class FunctionBlockInflater {
 
     public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
-        final Query query = new Query ("SELECT * FROM function_blocks\n" +
-                                        "WHERE base_version_id IN (" +
+        final Query query = new Query ("SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
+                                            "LEFT JOIN function_catalogs_function_blocks ON function_blocks.id = function_catalogs_function_blocks.function_block_id\n" +
+                                            "LEFT JOIN function_catalogs ON function_catalogs.id = function_catalogs_function_blocks.function_catalog_id\n" +
+                                        "WHERE function_blocks.base_version_id IN (" +
                                             "SELECT DISTINCT function_blocks.base_version_id\n" +
                                             "FROM function_blocks\n" +
-                                            "WHERE function_blocks.name LIKE ?" +
-                                            " AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                                            "WHERE function_blocks.name LIKE ?\n" +
+                                            "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
                                         ")\n" +
-                                        "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
-                                        (includeDeleted ? "" : "AND is_deleted = 0") +
-                                        " AND is_permanently_deleted = 0");
+                                        "AND (function_blocks.is_approved = 1 OR function_blocks.creator_account_id = ? OR function_blocks.creator_account_id IS NULL)\n" +
+                                        (includeDeleted ? "" : "AND function_blocks.is_deleted = 0\n") +
+                                        "AND function_blocks.is_permanently_deleted = 0 GROUP BY function_blocks.id");
         query.setParameter("%" + searchString + "%");
         query.setParameter(accountId);
         query.setParameter(accountId);
@@ -178,6 +191,10 @@ public class FunctionBlockInflater {
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
         final Long creatorAccountId = row.getLong("creator_account_id");
+        final boolean hasApprovedParent = row.getBoolean("has_approved_parent");
+        if (id == 90) {
+            System.out.print("Function block " + name + " has an approved parent? " + hasApprovedParent);
+        }
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -203,6 +220,7 @@ public class FunctionBlockInflater {
         functionBlock.setPermanentlyDeletedDate(permanentlyDeletedDate);
         functionBlock.setIsApproved(isApproved);
         functionBlock.setApprovalReviewId(approvalReviewId);
+        functionBlock.setHasApprovedParent(hasApprovedParent);
         functionBlock.setIsReleased(isReleased);
         functionBlock.setBaseVersionId(baseVersionId);
         functionBlock.setPriorVersionId(priorVersionId);
