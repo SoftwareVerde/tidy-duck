@@ -207,7 +207,7 @@ class FunctionBlock extends React.Component {
             }
         }
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
-        const approvalReviewIcon = this.props.functionBlock.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
+        const approvalReviewIcon = this.props.functionBlock.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="Go to the pending or approved Review for this Function Block."/> : "";
         
         return (
             <div className={childItemStyle} onClick={this.onClick}>

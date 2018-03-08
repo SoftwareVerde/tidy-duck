@@ -101,7 +101,7 @@ class MostFunction extends React.Component {
         const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function has been released." /> : "");
         const approvedIcon = (isApproved? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function has been approved." /> : "");
         const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
-        const approvalReviewIcon = this.props.mostFunction.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
+        const approvalReviewIcon = this.props.mostFunction.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="Go to the pending or approved Review for this Function."/> : "";
 
         let trashOrDeleteIcon =  <i className="fa fa-trash action-button disabled-action-button" onClick={(event) => event.stopPropagation()} title="This Function cannot be moved to trash; it is the child of an approved Interface."/>;
         if (!this.props.isInterfaceApproved) {
