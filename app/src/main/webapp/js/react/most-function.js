@@ -92,8 +92,6 @@ class MostFunction extends React.Component {
             return(<div></div>);
         }
 
-        const author = this.props.mostFunction.getAuthor();
-        const company = this.props.mostFunction.getCompany();
         const name = this.props.mostFunction.getName();
         const isDeleted = this.props.mostFunction.isDeleted();
         const childItemStyle = ((this.props.mostFunction.isApproved() && this.props.isInterfaceApproved) ? "child-item" : "unreleased-child-item") + " tidy-object" + (isDeleted ? " deleted-tidy-object" : "");
@@ -102,14 +100,14 @@ class MostFunction extends React.Component {
         const workingIcon = (this.state.showWorkingIcon ? <i className="delete-working-icon fa fa-refresh fa-spin icon"/> : "");
         const releasedIcon = (this.props.mostFunction.isReleased() ? <i className="release-icon fa fa-book icon" title="This Function has been released." /> : "");
         const approvedIcon = (isApproved? <i className="approved-icon fa fa-thumbs-o-up icon" title="This Function has been approved." /> : "");
-        const trashIcon = isDeleted ? "" : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
-        let trashOrDeleteIcon = "";
+        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
+        const approvalReviewIcon = this.props.mostFunction.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
+
+        let trashOrDeleteIcon =  <i className="fa fa-trash action-button disabled-action-button" onClick={(event) => event.stopPropagation()} title="This Function cannot be moved to trash; it is the child of an approved Interface."/>;
         if (!this.props.isInterfaceApproved) {
             trashOrDeleteIcon = isDeleted ? <i className="fa fa-remove action-button" onClick={this.deleteMostFunction} title="Remove"/>
                                           : <i className="fa fa-trash action-button" onClick={this.onMarkAsDeletedClicked} title="Move to Trash Bin"/>;
         }
-        const restoreIcon = isDeleted ? <i className="fa fa-undo action-button" onClick={this.onRestoreFromTrashClicked} title="Remove from Trash Bin"/> : "";
-        const approvalReviewIcon = this.props.mostFunction.getApprovalReviewId() ? <i className="fa fa-clipboard action-button" onClick={this.onApprovalReviewClicked} title="View review where approval was granted."/> : "";
 
         return (
             <div className={childItemStyle} onClick={this.onClick}>
