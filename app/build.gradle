@@ -3,7 +3,7 @@ version '1.0.3'
 
 apply plugin: 'war'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -21,50 +21,50 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly 'org.apache.tomcat:tomcat-servlet-api:7.0.37'
+    compileOnly 'org.apache.tomcat:tomcat-servlet-api:8.0.0-RC1'
 
     compile group: 'com.github.softwareverde', name: 'json', version: 'v1.+'
-    compile group: 'com.github.softwareverde', name: 'java-util', version: 'v0.1.4'
+    implementation group: 'com.github.softwareverde', name: 'java-util', version: 'v2.7.3'
 
-    compile group: 'com.github.softwareverde', name: 'java-db', version: 'v2.3.0+'
-    compile group: 'com.github.softwareverde', name: 'java-db-mysql', version: 'v2.1.1+'
+    implementation group: 'com.github.softwareverde',   name: 'java-db-mysql-embedded', version: 'v3.0.3'
+    implementation group: 'com.github.softwareverde',   name: 'java-mariadb-osx',       version: 'v10.5.9-p4'
+    implementation group: 'com.github.softwareverde',   name: 'java-mariadb-linux',     version: 'v10.5.9-p1'
 
     // Logging
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.9'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.8.2'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+    implementation group: 'com.github.softwareverde',   name: 'java-logging',           version: 'v2.3.0'
 
-    compile project(":..:most-adapter")
+    compile project("most-adapter")
 
-    testCompile 'org.apache.tomcat:tomcat-servlet-api:7.0.37'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.+'
-    testCompile group: 'com.github.softwareverde', name: 'mariaDB4j', version: 'master-SNAPSHOT'
+    testImplementation 'org.apache.tomcat:tomcat-servlet-api:8.0.0-RC1'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '1.+'
+    testImplementation group: 'com.github.softwareverde',   name: 'java-db-mysql-embedded', version: 'v3.0.3'
+    testImplementation group: 'com.github.softwareverde',   name: 'java-mariadb-osx',       version: 'v10.5.9-p4'
+    testImplementation group: 'com.github.softwareverde',   name: 'java-mariadb-linux',     version: 'v10.5.9-p1'
 }
 
-tasks.withType(Test) {
-    testLogging {
-        events "passed", "skipped", "failed", "standardOut"
-        showExceptions true
-        exceptionFormat "full"
-        showCauses true
-        showStackTraces true
-
-        debug {
-            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
-            exceptionFormat "full"
-        }
-        info.events = debug.events
-        info.exceptionFormat = debug.exceptionFormat
-
-        afterSuite { desc, result ->
-            if (! desc.parent) {
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-            }
-        }
-    }
-}
+//tasks.withType(Test) {
+//    testLogging {
+//        events "passed", "skipped", "failed", "standardOut"
+//        showExceptions true
+//        exceptionFormat "full"
+//        showCauses true
+//        showStackTraces true
+//
+//        debug {
+//            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+//            exceptionFormat "full"
+//        }
+//        info.events = debug.events
+//        info.exceptionFormat = debug.exceptionFormat
+//
+//        afterSuite { desc, result ->
+//            if (! desc.parent) {
+//                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+//                def startItem = '|  ', endItem = '  |'
+//                def repeatLength = startItem.length() + output.length() + endItem.length()
+//                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+//            }
+//        }
+//    }
+//}

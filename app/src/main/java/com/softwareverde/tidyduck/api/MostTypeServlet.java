@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.MostTypeModificationChecker;
 import com.softwareverde.tidyduck.Permission;
@@ -13,8 +14,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MostTypeServlet extends AuthenticatedJsonServlet {
-    private Logger _logger = LoggerFactory.getLogger(getClass());
+    
 
     public MostTypeServlet() {
         super._defineEndpoint("most-types", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -93,7 +93,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String msg = "Unable to inflate most types.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return super._generateErrorJson(msg);
         }
     }
@@ -108,7 +108,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
             if (! databaseManager.isMostTypeNameUnique(mostType)) {
                 final String msg = "Unable to create type: type name \"" + mostType.getName() + "\" already exists in the database.";
-                _logger.error(msg);
+                Logger.error(msg);
                 return super._generateErrorJson(msg);
             }
 
@@ -117,7 +117,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             super._setJsonSuccessFields(response);
         } catch (Exception e) {
             String msg = "Unable to create type: ";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return super._generateErrorJson(msg + e.getMessage());
         }
 
@@ -151,7 +151,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update Most Type: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
     }
@@ -267,7 +267,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
 
         PrimitiveType numberBaseType = null;
-        _logger.info("numberBaseTypeID: " + numberBaseTypeId);
+        Logger.info("numberBaseTypeID: " + numberBaseTypeId);
         if (numberBaseTypeId > 0) {
             numberBaseType = new PrimitiveType();
             numberBaseType.setId(numberBaseTypeId);
@@ -544,7 +544,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String msg = "Unable to inflate primitive types.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return super._generateErrorJson(msg);
         }
     }
@@ -566,7 +566,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String msg = "Unable to inflate units.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return super._generateErrorJson(msg);
         }
     }

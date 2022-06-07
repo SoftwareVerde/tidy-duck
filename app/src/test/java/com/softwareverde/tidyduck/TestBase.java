@@ -7,13 +7,15 @@ import com.softwareverde.tidyduck.database.TestDataLoader;
 import java.sql.Connection;
 
 public class TestBase {
-    protected static final MysqlTestDatabase _database = new MysqlTestDatabase();
+    protected static MysqlTestDatabase _database;
 
     public void setup() throws Exception {
+        _database = new MysqlTestDatabase();
         _database.reset();
-        DatabaseConnection<Connection> _databaseConnection = _database.newConnection();
 
         TestDataLoader.initDatabase(_database);
+
+        DatabaseConnection<Connection> _databaseConnection = _database.newConnection();
         TestDataLoader.insertFakeCompany(_databaseConnection);
         TestDataLoader.insertFakeAccount(_databaseConnection);
         TestDataLoader.insertFakeMostType(_databaseConnection);

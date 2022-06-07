@@ -1,19 +1,16 @@
 package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.*;
-import com.softwareverde.database.transaction.DatabaseRunnable;
-import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
+import com.softwareverde.database.jdbc.transaction.DatabaseRunnable;
+import com.softwareverde.database.jdbc.transaction.JdbcDatabaseTransaction;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.most.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.sql.Connection;
 import java.util.List;
 
 public class DatabaseManager {
-
-    private final Logger _logger = LoggerFactory.getLogger(getClass());
     private final Database<Connection> _database;
 
     public DatabaseManager(final Database database) {

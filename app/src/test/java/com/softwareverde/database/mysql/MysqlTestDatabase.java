@@ -1,61 +1,83 @@
 package com.softwareverde.database.mysql;
 
-import ch.vorburger.mariadb4j.DB;
-import ch.vorburger.mariadb4j.DBConfiguration;
-import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.mysql.embedded.EmbeddedMysqlDatabase;
+import com.softwareverde.database.mysql.embedded.properties.EmbeddedDatabaseProperties;
+import com.softwareverde.database.mysql.embedded.properties.MutableEmbeddedDatabaseProperties;
+import com.softwareverde.database.properties.DatabaseCredentials;
+import com.softwareverde.database.query.Query;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.io.File;
+import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class MysqlTestDatabase extends MysqlDatabase {
-    protected final DB _databaseInstance;
-    protected final DatabaseConnectionFactory _databaseConnectionFactory;
-    protected final Credentials _credentials;
+    protected final EmbeddedMysqlDatabase _databaseInstance;
+    protected final MysqlDatabaseConnectionFactory _databaseConnectionFactory;
+    protected final DatabaseCredentials _credentials;
+    protected final EmbeddedDatabaseProperties _databaseProperties;
 
+    protected final String _host;
+    protected final Integer _port;
     protected final String _rootUsername = "root";
-    protected final String _rootPassword = "";
+    protected final String _rootPassword = "password";
     protected final String _databaseSchema = "tidy_duck";
 
-    @Override
-    protected Connection _connect() throws SQLException, ClassNotFoundException {
-        throw new RuntimeException("MysqlTestDatabase._connect() is not supported.");
+    protected synchronized static Integer getAvailablePort() throws Exception {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            socket.setReuseAddress(true);
+            return socket.getLocalPort();
+        }
     }
 
     public MysqlTestDatabase() {
-        super(null, null, null);
-        final DBConfiguration dbConfiguration;
-        {
-            final DBConfigurationBuilder configBuilder = DBConfigurationBuilder.newBuilder();
-            dbConfiguration = configBuilder.build();
+        super(null, null, null, null);
 
-            final String connectionString = configBuilder.getURL(_databaseSchema);
-            _databaseConnectionFactory = new DatabaseConnectionFactory(connectionString, _rootUsername, _rootPassword);
-        }
+        try {
+            _host = "localhost";
+            _port = MysqlTestDatabase.getAvailablePort();
 
-        {
+            _databaseConnectionFactory = new MysqlDatabaseConnectionFactory(_host, _port, _databaseSchema, _rootUsername, _rootPassword);
+
             try {
-                _databaseInstance = DB.newEmbeddedDB(dbConfiguration);
+                final Path databaseInstallDirectory = Files.createTempDirectory("test_db_bin_");
+                final File installationDirectory = databaseInstallDirectory.toFile();
+
+                final Path databaseDataDirectory = Files.createTempDirectory("test_db_data_");
+                final File dataDirectory = databaseDataDirectory.toFile();
+
+                final MysqlDatabaseInitializer databaseInitializer = new MysqlDatabaseInitializer();
+                final MutableEmbeddedDatabaseProperties databaseProperties = new MutableEmbeddedDatabaseProperties();
+                databaseProperties.setHostname(_host);
+                databaseProperties.setPort(_port);
+                databaseProperties.setDataDirectory(dataDirectory);
+                databaseProperties.setInstallationDirectory(installationDirectory);
+                databaseProperties.setRootPassword(_rootPassword);
+                databaseProperties.setSchema(_databaseSchema);
+                databaseProperties.setUsername(_rootUsername);
+                databaseProperties.setPassword(_rootPassword);
+
+                _databaseProperties = databaseProperties;
+                _databaseInstance = new EmbeddedMysqlDatabase(databaseProperties, databaseInitializer);
+                _databaseInstance.install();
                 _databaseInstance.start();
-                _databaseInstance.createDB(_databaseSchema);
             }
             catch (final Exception exception) {
                 throw new RuntimeException(exception);
             }
         }
+        catch (final Exception exception) {
+            throw new RuntimeException(exception);
+        }
 
-        _credentials = new Credentials(_rootUsername, _rootPassword, _databaseSchema);
-    }
-
-    @Override
-    public void setDatabase(final String databaseName) throws DatabaseException {
-        throw new DatabaseException("MysqlTestDatabase.setDatabase() is not supported.");
+        _credentials = new DatabaseCredentials(_rootUsername, _rootPassword);
     }
 
     @Override
     public MysqlDatabaseConnection newConnection() throws DatabaseException {
         try {
-            return _databaseConnectionFactory.newConnection();
+            return _databaseInstance.newConnection();
         }
         catch (final Exception exception) {
             throw new DatabaseException("Unable to connect to database.", exception);
@@ -63,23 +85,21 @@ public class MysqlTestDatabase extends MysqlDatabase {
     }
 
     public void reset() throws DatabaseException {
-        try {
-            _databaseInstance.run("DROP DATABASE " + _databaseSchema, _rootUsername, _rootPassword);
-            _databaseInstance.createDB(_databaseSchema);
-        } catch (Exception e) {
-            throw new DatabaseException(e);
+        try (final MysqlDatabaseConnection databaseConnection = _databaseConnectionFactory.newConnection()) {
+            databaseConnection.executeDdl(new Query("DROP DATABASE " + _databaseSchema));
+            databaseConnection.executeDdl(new Query("CREATE DATABASE " + _databaseSchema));
         }
     }
 
-    public DB getDatabaseInstance() {
-        return _databaseInstance;
-    }
-
-    public Credentials getCredentials() {
+    public DatabaseCredentials getCredentials() {
         return _credentials;
     }
 
-    public DatabaseConnectionFactory getDatabaseConnectionFactory() {
+    public MysqlDatabaseConnectionFactory getDatabaseConnectionFactory() {
         return _databaseConnectionFactory;
+    }
+
+    public MysqlDatabase getDatabaseInstance() {
+        return _databaseInstance;
     }
 }

@@ -1,7 +1,10 @@
 package com.softwareverde.tidyduck.api;
 
 import com.softwareverde.database.*;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Permission;
@@ -11,15 +14,14 @@ import com.softwareverde.tomcat.servlet.BaseServlet;
 import com.softwareverde.tomcat.servlet.JsonServlet;
 import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.util.List;
 
 public class AccountServlet extends JsonServlet {
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    
 
     @Override
     protected Json handleRequest(final HttpServletRequest request, final HttpMethod httpMethod, final Environment environment) {
@@ -56,7 +58,7 @@ public class AccountServlet extends JsonServlet {
                 return super._generateSuccessJson();
             }
             catch (final DatabaseException databaseException) {
-                _logger.error("Error authenticating.", databaseException);
+                Logger.error("Error authenticating.", databaseException);
                 return super._generateErrorJson("Error communicating with the database.");
             }
         }

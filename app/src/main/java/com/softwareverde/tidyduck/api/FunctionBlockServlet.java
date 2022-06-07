@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
@@ -16,8 +17,7 @@ import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
 import jdk.nashorn.internal.objects.annotations.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.crypto.Data;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FunctionBlockServlet extends AuthenticatedJsonServlet {
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    
 
     public FunctionBlockServlet() {
         super._defineEndpoint("function-blocks", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -247,7 +247,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to get function block.", exception);
+            Logger.error("Unable to get function block.", exception);
             return super._generateErrorJson("Unable to get function block.");
         }
     }
@@ -267,7 +267,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             if (!Util.isBlank(requestFunctionCatalogId)) {
                 final Long functionCatalogId = Util.parseLong(requestFunctionCatalogId);
                 if (functionCatalogId < 1) {
-                    _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                    Logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
                     return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
                 }
 
@@ -275,7 +275,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
                 if (errorMessage != null) {
                     errorMessage = "Unable to create function block under function catalog: " + errorMessage;
-                    _logger.error(errorMessage);
+                    Logger.error(errorMessage);
                     return super._generateErrorJson(errorMessage);
                 }
 
@@ -288,7 +288,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
-            _logger.error("Unable to insert Function Block.", exception);
+            Logger.error("Unable to insert Function Block.", exception);
             return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
         }
 
@@ -306,7 +306,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
             if (errorMessage != null) {
                 errorMessage = "Unable to update function block: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -316,12 +316,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateFunctionBlock(functionBlock, currentAccountId);
 
-            _logger.info("User " + currentAccountId + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
+            Logger.info("User " + currentAccountId + " updated function block " + functionBlock.getId() + ", which is currently owned by User " + functionBlock.getCreatorAccountId());
             response.put("functionBlockId", functionBlock.getId());
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function block: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -340,7 +340,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
             if (errorMessage != null) {
                 errorMessage = "Unable to fork function block: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -354,7 +354,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
                 String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, parentFunctionCatalogId, currentAccountId);
                 if (parentErrorMessage != null) {
                     parentErrorMessage = "Unable to fork function block: " + parentErrorMessage;
-                    _logger.error(parentErrorMessage);
+                    Logger.error(parentErrorMessage);
                     return super._generateErrorJson(parentErrorMessage);
                 }
             }
@@ -362,12 +362,12 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long newFunctionBlockId = databaseManager.forkFunctionBlock(functionBlockId, parentFunctionCatalogId, currentAccountId);
 
-            _logger.info("User " + currentAccountId + " forked function block " + functionBlockId + " (new ID: " + newFunctionBlockId + ").");
+            Logger.info("User " + currentAccountId + " forked function block " + functionBlockId + " (new ID: " + newFunctionBlockId + ").");
             response.put("functionBlockId", newFunctionBlockId);
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to fork function block: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -405,7 +405,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final Exception exception) {
-            _logger.error("Unable to check for duplicate Function Block.", exception);
+            Logger.error("Unable to check for duplicate Function Block.", exception);
             return super._generateErrorJson("Unable to check for duplicate Function Block: " + exception.getMessage());
         }
     }
@@ -418,7 +418,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
 
         { // Validate Inputs
             if (functionCatalogId < 1) {
-                _logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
+                Logger.error("Unable to parse Function Catalog ID: " + functionCatalogId);
                 return super._generateErrorJson("Invalid Function Catalog ID: " + functionCatalogId);
             }
         }
@@ -430,14 +430,14 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to add function block to function catalog: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             databaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
         }
         catch (final Exception exception) {
-            _logger.error("Unable to insert Function Block.", exception);
+            Logger.error("Unable to insert Function Block.", exception);
             return super._generateErrorJson("Unable to insert Function Block: " + exception.getMessage());
         }
 
@@ -450,7 +450,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String parentErrorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (parentErrorMessage != null) {
                 parentErrorMessage = "Unable to remove function block from parent function catalog: " + parentErrorMessage;
-                _logger.error(parentErrorMessage);
+                Logger.error(parentErrorMessage);
                 return super._generateErrorJson(parentErrorMessage);
             }
 
@@ -459,7 +459,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function block %d from function catalog %d.", functionBlockId, functionCatalogId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -473,20 +473,20 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to move function block to trash: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (databaseManager.functionBlockHasApprovedParents(functionBlockId)) {
                 errorMessage = "Unable to move function block to trash: the function block is associated with approved function catalogs.";
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             databaseManager.markFunctionBlockAsDeleted(functionBlockId);
 
-            _logger.info("User " + currentAccount.getId() + " marked Function Block " + functionBlockId + " as deleted.");
+            Logger.info("User " + currentAccount.getId() + " marked Function Block " + functionBlockId + " as deleted.");
 
             final Json response = new Json(false);
             super._setJsonSuccessFields(response);
@@ -494,7 +494,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to move function block %d to trash", functionBlockId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -504,16 +504,16 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to restore function block: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long numberOfDeletedChildren = databaseManager.restoreFunctionBlockFromTrash(functionBlockId);
 
-            _logger.info("User " + currentAccount.getId() + " restored Function Block " + functionBlockId);
+            Logger.info("User " + currentAccount.getId() + " restored Function Block " + functionBlockId);
             if (numberOfDeletedChildren > 0) {
-                _logger.info("Restored Function Block " + functionBlockId + " contains " + numberOfDeletedChildren + " deleted Interface relationships.");
+                Logger.info("Restored Function Block " + functionBlockId + " contains " + numberOfDeletedChildren + " deleted Interface relationships.");
             }
 
             final Json response = new Json(false);
@@ -523,7 +523,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to restore function block %d from trash.", functionBlockId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -534,7 +534,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = canAccountViewFunctionBlock(databaseConnection, functionBlockId, currentAccountId);
             if (errorMessage != null) {
                 errorMessage = "Unable to remove function block: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -542,7 +542,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
             if (!functionBlock.isDeleted()) {
                 final String error = "Function block must be moved to trash before deleting.";
-                _logger.error(error);
+                Logger.error(error);
                 return super._generateErrorJson(error);
             }
 
@@ -551,7 +551,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function block %d: " + exception.getMessage(), functionBlockId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -580,7 +580,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to list function blocks.", exception);
+            Logger.error("Unable to list function blocks.", exception);
             return super._generateErrorJson("Unable to list function blocks.");
         }
     }
@@ -627,7 +627,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to list function blocks.", exception);
+            Logger.error("Unable to list function blocks.", exception);
             return super._generateErrorJson("Unable to list function blocks.");
         }
     }
@@ -638,7 +638,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             decodedSearchString = URLDecoder.decode(searchString, "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
-            _logger.error("Unable to list function blocks from search", e);
+            Logger.error("Unable to list function blocks from search", e);
             return super._generateErrorJson("Unable to list function blocks from search.");
         }
 
@@ -669,7 +669,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to list function blocks from search", exception);
+            Logger.error("Unable to list function blocks from search", exception);
             return super._generateErrorJson("Unable to list function blocks from search.");
         }
     }
@@ -691,7 +691,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to list function catalogs for function block " + functionBlockId, exception);
+            Logger.error("Unable to list function catalogs for function block " + functionBlockId, exception);
             return super._generateErrorJson("Unable to list function catalogs.");
         }
     }
@@ -703,7 +703,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             String errorMessage = canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to submit function block for review: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -714,7 +714,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String errorMessage = "Unable to submit function block for review.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
     }

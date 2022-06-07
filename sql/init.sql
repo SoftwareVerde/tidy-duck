@@ -720,4 +720,3 @@ CREATE TABLE review_votes (
     FOREIGN KEY (review_id) REFERENCES reviews (id),
     FOREIGN KEY (account_id) REFERENCES accounts (id)
 ) ENGINE=INNODB;
-

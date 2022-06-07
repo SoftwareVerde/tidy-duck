@@ -2,8 +2,8 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
@@ -243,7 +243,7 @@ public class FunctionBlockDatabaseManager {
 
     private void _nullifyFunctionBlockParentRelationships(final long functionBlockId) throws DatabaseException {
         final Query query = new Query("UPDATE function_catalogs_function_blocks SET function_block_id = ? WHERE function_block_id = ?")
-                .setParameter(null)
+                .setNullParameter()
                 .setParameter(functionBlockId)
                 ;
 

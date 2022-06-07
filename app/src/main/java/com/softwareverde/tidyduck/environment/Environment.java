@@ -4,18 +4,17 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.mysql.MysqlDatabase;
+import com.softwareverde.database.properties.DatabaseProperties;
+import com.softwareverde.database.properties.MutableDatabaseProperties;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.util.IoUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.sql.*;
 
 public class Environment {
-
-    private static final Logger _logger = LoggerFactory.getLogger(Environment.class);
-
     private static Environment _environment;
-    public static Environment getInstance() throws DatabaseException {
+    public static Environment getInstance() {
         if (_environment == null) {
              _environment = new Environment();
         }
@@ -25,23 +24,29 @@ public class Environment {
 
     protected Database<Connection> _database;
 
-    protected void _initDatabase() throws DatabaseException {
+    protected void _initDatabase() {
         final Configuration configuration = new Configuration(IoUtil.getResource(Resource.serverConfigurationFile));
-        final Configuration.DatabaseProperties databaseProperties = configuration.getDatabaseProperties();
+        final Configuration.DatabaseProperties configurationDatabaseProperties = configuration.getDatabaseProperties();
 
-        final String url = databaseProperties.getConnectionUrl();
-        final Integer port = databaseProperties.getPort();
-        final String username = databaseProperties.getUsername();
-        final String password = databaseProperties.getPassword();
-        final String schema = databaseProperties.getSchema();
+        final String url = configurationDatabaseProperties.getConnectionUrl();
+        final Integer port = configurationDatabaseProperties.getPort();
+        final String username = configurationDatabaseProperties.getUsername();
+        final String password = configurationDatabaseProperties.getPassword();
+        final String schema = configurationDatabaseProperties.getSchema();
 
-        final MysqlDatabase mysqlDatabase = new MysqlDatabase(url, username, password);
-        mysqlDatabase.setDatabase(schema);
+        final MutableDatabaseProperties databaseProperties = new MutableDatabaseProperties();
+        databaseProperties.setPort(port);
+        databaseProperties.setHostname(url);
+        databaseProperties.setUsername(username);
+        databaseProperties.setPassword(password);
+        databaseProperties.setSchema(schema);
+
+        final MysqlDatabase mysqlDatabase = new MysqlDatabase(databaseProperties);
 
         _database = mysqlDatabase;
     }
 
-    protected Environment() throws DatabaseException {
+    protected Environment() {
         _initDatabase();
     }
 
@@ -54,21 +59,21 @@ public class Environment {
             try {
                 resultSet.close();
             } catch (Exception e) {
-                _logger.error("Unable to close result set.", e);
+                Logger.error("Unable to close result set.", e);
             }
         }
         if (statement != null) {
             try {
                 connection.close();
             } catch (Exception e) {
-                _logger.error("Unable to close statement.", e);
+                Logger.error("Unable to close statement.", e);
             }
         }
         if (connection != null) {
             try {
                 connection.close();
             } catch (Exception e) {
-                _logger.error("Unable to close connection.", e);
+                Logger.error("Unable to close connection.", e);
             }
         }
     }
@@ -78,7 +83,7 @@ public class Environment {
             try {
                 databaseConnection.close();
             } catch (DatabaseException e) {
-                _logger.error("Unable to close database connection.", e);
+                Logger.error("Unable to close database connection.", e);
             }
         }
     }

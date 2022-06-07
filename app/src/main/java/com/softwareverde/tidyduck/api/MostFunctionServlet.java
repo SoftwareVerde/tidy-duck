@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Permission;
@@ -13,8 +14,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MostFunctionServlet extends AuthenticatedJsonServlet {
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    
 
     public MostFunctionServlet() {
         super._defineEndpoint("most-functions", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -140,7 +140,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             return response;
 
         } catch (final DatabaseException exception) {
-            _logger.error("Unable to get function.", exception);
+            Logger.error("Unable to get function.", exception);
             return super._generateErrorJson("Unable to get function.");
         }
     }
@@ -153,7 +153,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         { // Validate Inputs
             if (mostInterfaceId < 1) {
-                _logger.error("Unable to parse interface ID: " + mostInterfaceId);
+                Logger.error("Unable to parse interface ID: " + mostInterfaceId);
                 return super._generateErrorJson("Invalid interface ID: " + mostInterfaceId);
             }
         }
@@ -173,7 +173,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to add the function to the interface: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -181,7 +181,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             response.put("mostFunctionId", mostFunction.getId());
         }
         catch (final Exception exception) {
-            _logger.error("Unable to insert function.", exception);
+            Logger.error("Unable to insert function.", exception);
             return super._generateErrorJson("Unable to insert function: " + exception.getMessage());
         }
 
@@ -197,7 +197,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
 
         { // Validate Inputs
             if (mostInterfaceId < 1) {
-                _logger.error("Unable to parse Interface ID: " + mostInterfaceId);
+                Logger.error("Unable to parse Interface ID: " + mostInterfaceId);
                 return _generateErrorJson("Invalid Interface ID: " + mostInterfaceId);
             }
         }
@@ -217,7 +217,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to update function: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -225,7 +225,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update function: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return _generateErrorJson(errorMessage);
         }
 
@@ -247,7 +247,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         List<MostFunction> mostInterfaceFunctions = databaseManager.listFunctionsAssociatedWithMostInterface(mostInterfaceId);
         if (_hasConflictingFunction(mostInterfaceFunctions, mostFunction)) {
             final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on interface " + mostInterfaceId;
-            _logger.error(errorMessage);
+            Logger.error(errorMessage);
             return _generateErrorJson(errorMessage);
         }
         // check for duplicate function ID in parent function blocks
@@ -255,7 +255,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         for (final Long functionBlockId : functionBlockIds) {
             if (_functionBlockHasFunctionId(databaseManager, functionBlockId, mostFunction)) {
                 final String errorMessage = "A function with ID " + mostFunction.getMostId() + " already exists on function block " + functionBlockId;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
             }
         }
@@ -291,14 +291,14 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to move function to trash: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.markMostFunctionAsDeleted(mostFunctionId);
 
-            _logger.info("User " + currentAccount.getId() + " marked Function " + mostFunctionId + " as deleted.");
+            Logger.info("User " + currentAccount.getId() + " marked Function " + mostFunctionId + " as deleted.");
 
             final Json response = new Json(false);
             super._setJsonSuccessFields(response);
@@ -306,7 +306,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to move function %d to trash", mostFunctionId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -324,14 +324,14 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to restore function from trash: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.restoreMostFunctionFromTrash(mostFunctionId);
 
-            _logger.info("User " + currentAccount.getId() + " restored function " + mostFunctionId);
+            Logger.info("User " + currentAccount.getId() + " restored function " + mostFunctionId);
 
             final Json response = new Json(false);
             super._setJsonSuccessFields(response);
@@ -339,7 +339,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to restore function %d from trash", mostFunctionId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -358,7 +358,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             String errorMessage = MostInterfaceServlet.canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to delete function: " + errorMessage;
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -366,7 +366,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostInterfaceId);
             if (!mostFunction.isDeleted()) {
                 final String error = "Function must be moved to trash before deleting.";
-                _logger.error(error);
+                Logger.error(error);
                 return super._generateErrorJson(error);
             }
 
@@ -375,7 +375,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function %d from interface %d.", mostFunctionId, mostInterfaceId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -408,7 +408,7 @@ public class MostFunctionServlet extends AuthenticatedJsonServlet {
             return response;
 
         } catch (final DatabaseException exception) {
-            _logger.error("Unable to list functions.", exception);
+            Logger.error("Unable to list functions.", exception);
             return super._generateErrorJson("Unable to list functions.");
         }
     }

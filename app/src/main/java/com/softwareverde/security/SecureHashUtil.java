@@ -1,16 +1,16 @@
 package com.softwareverde.security;
 
+import com.softwareverde.logging.Logger;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 public class SecureHashUtil {
-    private static final Logger _logger = LoggerFactory.getLogger(SecureHashUtil.class);
     private static final int _iterations = 10000;
     private static final int _iterationRandomizerFactor = 10;
     private static final int _keyLength = 512;
@@ -34,7 +34,7 @@ public class SecureHashUtil {
         }
         catch (Exception e) {
             final String msg = "Unable to generate secure hash.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             throw new RuntimeException(msg, e);
         }
     }
@@ -59,7 +59,7 @@ public class SecureHashUtil {
         }
         catch (Exception e) {
             final String msg = "Unable to validate key.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return false;
         }
 
@@ -72,7 +72,7 @@ public class SecureHashUtil {
         }
         catch (NoSuchAlgorithmException e) {
             final String msg = "Unable to generate random password.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return "";
         }
     }

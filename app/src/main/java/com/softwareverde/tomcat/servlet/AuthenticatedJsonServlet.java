@@ -8,16 +8,13 @@ import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.api.ApiRoute;
 import com.softwareverde.tomcat.api.ApiUrlRouter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.softwareverde.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.util.Map;
 
 public class AuthenticatedJsonServlet extends JsonServlet {
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
-
     private final ApiUrlRouter<AuthenticatedJsonRequestHandler> _apiUrlRouter;
 
     public AuthenticatedJsonServlet() {
@@ -47,7 +44,7 @@ public class AuthenticatedJsonServlet extends JsonServlet {
         }
 
         final Long accountId = Session.getAccountId(request);
-        _logger.debug("Authenticated as " + accountId.toString());
+        Logger.debug("Authenticated as " + accountId.toString());
 
         try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
             final AccountInflater accountInflater = new AccountInflater(databaseConnection);
@@ -56,7 +53,7 @@ public class AuthenticatedJsonServlet extends JsonServlet {
             return this.handleAuthenticatedRequest(request, httpMethod, account, environment);
         }
         catch (Exception e) {
-            _logger.error("Unable to complete API call.", e);
+            Logger.error("Unable to complete API call.", e);
             return _generateErrorJson(e.getMessage());
         }
     }

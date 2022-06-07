@@ -1,9 +1,9 @@
 package com.softwareverde.tomcat.servlet;
 
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,7 +17,7 @@ import java.util.Map;
 public abstract class BaseServlet extends HttpServlet {
     public static final String BASE_API_URL = "/api/v1/";
 
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    
 
     public enum HttpMethod {
         GET,
@@ -46,7 +46,7 @@ public abstract class BaseServlet extends HttpServlet {
             Environment environment = Environment.getInstance();
             this.handleRequest(request, response, method, environment);
         } catch (final Exception e) {
-            _logger.error("Unable to handle request.", e);
+            Logger.error("Unable to handle request.", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             PrintWriter writer = response.getWriter();
             writer.append("Server error.");

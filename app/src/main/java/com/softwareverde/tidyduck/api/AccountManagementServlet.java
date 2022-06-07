@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.CompanyInflater;
@@ -13,8 +14,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AccountManagementServlet extends AuthenticatedJsonServlet {
-    private Logger _logger = LoggerFactory.getLogger(getClass());
+    
 
     public AccountManagementServlet() {
         super._defineEndpoint("accounts", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -178,7 +178,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             return response;
 
         } catch (DatabaseException e) {
-            _logger.error("Unable to get accounts.", e);
+            Logger.error("Unable to get accounts.", e);
             return _generateErrorJson("Unable to get accounts.");
         }
     }
@@ -205,7 +205,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             return response;
 
         } catch (DatabaseException e) {
-            _logger.error("Unable to get accounts.", e);
+            Logger.error("Unable to get accounts.", e);
             return _generateErrorJson("Unable to get accounts.");
         }
     }
@@ -223,7 +223,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             return response;
 
         } catch (DatabaseException e) {
-            _logger.error("Unable to get account.", e);
+            Logger.error("Unable to get account.", e);
             return _generateErrorJson("Unable to get account.");
         }
     }
@@ -245,7 +245,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (DatabaseException e) {
-            _logger.error("Unable to get companies from database.", e);
+            Logger.error("Unable to get companies from database.", e);
             return _generateErrorJson("Unable to get companies from database.");
         }
     }
@@ -257,7 +257,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         final String companyName = companyJson.getString("name");
 
         if (Util.isBlank(companyName)) {
-            _logger.error("Unable to insert company: invalid company name.");
+            Logger.error("Unable to insert company: invalid company name.");
             return _generateErrorJson("Unable to insert company: invalid company name.");
         }
 
@@ -267,16 +267,16 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (! databaseManager.insertCompany(company)) {
-                _logger.error("Unable to insert company: company name already exists.");
+                Logger.error("Unable to insert company: company name already exists.");
                 return _generateErrorJson("Unable to insert company: company name already exists.");
             }
 
             response.put("companyId", company.getId());
-            _logger.info("User " + currentAccount.getId() + " created company " + company.getId());
+            Logger.info("User " + currentAccount.getId() + " created company " + company.getId());
             return response;
         }
         catch (DatabaseException e) {
-            _logger.error("Unable to create company: ", e);
+            Logger.error("Unable to create company: ", e);
             return _generateErrorJson("Unable to create company: " + e.getMessage());
         }
     }
@@ -294,7 +294,7 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             if (companyId < 1) {
-                _logger.error("Unable to insert account: invalid company ID.");
+                Logger.error("Unable to insert account: invalid company ID.");
                 return _generateErrorJson("Unable to insert account: invalid company ID.");
             }
 
@@ -318,17 +318,17 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (! databaseManager.insertAccount(account)) {
-                _logger.error("Unable to insert account: username already exists.");
+                Logger.error("Unable to insert account: username already exists.");
                 return _generateErrorJson("Unable to insert account: username already exists.");
             }
 
             response.put("accountId", account.getId());
             response.put("password", account.getPassword());
 
-            _logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId() + " and roles " + roleNames.toString());
+            Logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId() + " and roles " + roleNames.toString());
         }
         catch (DatabaseException e) {
-            _logger.error("Unable to create account.", e);
+            Logger.error("Unable to create account.", e);
             return _generateErrorJson("Unable to create account.");
         }
 
@@ -346,19 +346,19 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
         final Long companyId = Util.parseLong(companyJson.getString("id"));
 
         if (accountId < 1) {
-            _logger.error("Unable to update account: invalid account ID.");
+            Logger.error("Unable to update account: invalid account ID.");
             return _generateErrorJson("Unable to update account: invalid account ID.");
         }
         if (Util.isBlank(username)) {
-            _logger.error("Unable to update account: invalid username.");
+            Logger.error("Unable to update account: invalid username.");
             return _generateErrorJson("Unable to update account: invalid username.");
         }
         if (Util.isBlank(name)) {
-            _logger.error("Unable to update account: invalid name.");
+            Logger.error("Unable to update account: invalid name.");
             return _generateErrorJson("Unable to update account: invalid name.");
         }
         if (companyId < 1) {
-            _logger.error("Unable to update account: invalid company ID.");
+            Logger.error("Unable to update account: invalid company ID.");
             return _generateErrorJson("Unable to update account: invalid company ID.");
         }
 
@@ -378,13 +378,13 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (! databaseManager.updateAccountMetadata(account, isNewUsernameDifferent)) {
-                _logger.error("Unable to update account: username already exists.");
+                Logger.error("Unable to update account: username already exists.");
                 return _generateErrorJson("Unable to update account: username already exists.");
             }
-            _logger.info("User " + currentAccount.getId() + " updated account " + account.getId() + " with the following new information: " + accountJson.toString());
+            Logger.info("User " + currentAccount.getId() + " updated account " + account.getId() + " with the following new information: " + accountJson.toString());
         }
         catch (DatabaseException e) {
-            _logger.error("Unable to update account.", e);
+            Logger.error("Unable to update account.", e);
             return _generateErrorJson("Unable to update account: " + e.getMessage());
         }
 
@@ -408,13 +408,13 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateAccountRoles(providedAccountId, roles);
 
-            _logger.info("User " + currentAccount.getId() + " changed user " + providedAccountId + "'s roles to " + rolesJson.toString());
+            Logger.info("User " + currentAccount.getId() + " changed user " + providedAccountId + "'s roles to " + rolesJson.toString());
 
             final Json response = _generateSuccessJson();
             return response;
         }
         catch (final Exception e) {
-            _logger.error("Unable to attempt password change.", e);
+            Logger.error("Unable to attempt password change.", e);
             return _generateErrorJson("Unable to attempt password change: " + e.getMessage());
         }
     }
@@ -427,25 +427,25 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             final String newPassword = jsonRequest.getString("newPassword");
 
             if (Util.isBlank(oldPassword)) {
-                _logger.error("Unable to change password. Old password is invalid.");
+                Logger.error("Unable to change password. Old password is invalid.");
                 return _generateErrorJson("Old password is invalid.");
             }
             if (newPassword.length() < 8) {
-                _logger.error("Unable to change password. New password is invalid.");
+                Logger.error("Unable to change password. New password is invalid.");
                 return _generateErrorJson("New password is invalid.");
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             if (! databaseManager.changePassword(accountId, oldPassword, newPassword)) {
-                _logger.error("Unable to change password. Invalid credentials.");
+                Logger.error("Unable to change password. Invalid credentials.");
                 return _generateErrorJson("Invalid credentials.");
             }
 
-            _logger.info("User " + currentAccount.getId() + " changed user " + accountId + "'s password.");
+            Logger.info("User " + currentAccount.getId() + " changed user " + accountId + "'s password.");
             return response;
         }
         catch (final Exception e) {
-            _logger.error("Unable to attempt password change.", e);
+            Logger.error("Unable to attempt password change.", e);
             return _generateErrorJson("Unable to attempt password change: " + e.getMessage());
         }
     }
@@ -458,11 +458,11 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
 
             response.put("newPassword", newPassword);
 
-            _logger.info("User " + currentAccount.getId() + " reset user " + accountId + "'s password.");
+            Logger.info("User " + currentAccount.getId() + " reset user " + accountId + "'s password.");
             return response;
         }
         catch (DatabaseException e) {
-            _logger.error("Unable to reset password: ", e);
+            Logger.error("Unable to reset password: ", e);
             return _generateErrorJson("Unable to reset password: " + e.getMessage());
         }
     }
@@ -473,11 +473,11 @@ public class AccountManagementServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.markAccountAsDeleted(accountId);
 
-            _logger.info("User " + currentAccount.getId() + " marked user " + accountId + " as deleted.");
+            Logger.info("User " + currentAccount.getId() + " marked user " + accountId + " as deleted.");
             return response;
         }
         catch (DatabaseException e) {
-            _logger.error("Unable to mark account as deleted: ", e);
+            Logger.error("Unable to mark account as deleted: ", e);
             return _generateErrorJson("Unable to mark account as deleted: " + e.getMessage());
         }
     }

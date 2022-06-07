@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.*;
 import com.softwareverde.tidyduck.environment.Environment;
@@ -13,8 +14,7 @@ import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ReviewServlet extends AuthenticatedJsonServlet {
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    
 
     public ReviewServlet() {
         super._defineEndpoint("reviews", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -169,7 +169,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String errorMessage = "Unable to inflate reviews.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -188,7 +188,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException databaseException) {
             final String errorMessage = "Unable to inflate review ID: " + reviewId;
-            _logger.error(errorMessage, databaseException);
+            Logger.error(errorMessage, databaseException);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -207,7 +207,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final Exception exception) {
-            _logger.error("Unable to submit review.", exception);
+            Logger.error("Unable to submit review.", exception);
             return super._generateErrorJson("Unable to submit review: " + exception.getMessage());
         }
     }
@@ -224,7 +224,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             response.put("reviewId", review.getId());
         }
         catch (final Exception exception) {
-            _logger.error("Unable to submit review.", exception);
+            Logger.error("Unable to submit review.", exception);
             return super._generateErrorJson("Unable to submit review: " + exception.getMessage());
         }
 
@@ -240,7 +240,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
             if (reviewAccountId == accountId) {
                 final String errorMessage = "Unable approve review: a review cannot be approved by its creator.";
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
             }
 
@@ -248,7 +248,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             String deletedChildrenErrorMessage = _checkReviewObjectForDeletedChildren(database, review);
             if (deletedChildrenErrorMessage != null) {
                 deletedChildrenErrorMessage = "Unable approve review: " + deletedChildrenErrorMessage;
-                _logger.error(deletedChildrenErrorMessage);
+                Logger.error(deletedChildrenErrorMessage);
                 return _generateErrorJson(deletedChildrenErrorMessage);
             }
 
@@ -270,12 +270,12 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             final Long minimumRequiredUpvotes = Util.parseLong(minimumRequiredUpvotesString);
             if (minimumRequiredUpvotes == null) {
                 final String errorMessage = "Unable to determine minimum required upvotes.";
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
             }
             if (voteCounter < minimumRequiredUpvotes) {
                 final String errorMessage = "Unable approve review: a review must be upvoted by at least " + minimumRequiredUpvotesString + " people other than the review's creator.";
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return _generateErrorJson(errorMessage);
             }
 
@@ -284,7 +284,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
         catch (DatabaseException e) {
             String errorMessage = "Unable approve review: " + e.getMessage();
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
 
@@ -338,7 +338,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
         catch (DatabaseException e) {
             String errorMessage = "Unable insert review vote.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
     }
@@ -355,7 +355,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
 
             if (reviewVoteId < 1) {
-                _logger.error("Invalid review vote ID:  " + reviewVoteId);
+                Logger.error("Invalid review vote ID:  " + reviewVoteId);
                 return super._generateErrorJson("Invalid review vote ID: " + reviewVoteId);
             }
 
@@ -366,7 +366,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update review vote: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -375,7 +375,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
         try {
             // Validate input
             if (reviewVoteId < 1) {
-                _logger.error("Unable to parse review vote ID: " + reviewVoteId);
+                Logger.error("Unable to parse review vote ID: " + reviewVoteId);
                 return super._generateErrorJson("Invalid review vote ID: " + reviewVoteId);
             }
 
@@ -383,7 +383,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             databaseManager.deleteReviewVote(reviewVoteId);
         }
         catch (final Exception exception) {
-            _logger.error("Unable to insert Interface.", exception);
+            Logger.error("Unable to insert Interface.", exception);
             return super._generateErrorJson("Unable to insert Interface: " + exception.getMessage());
         }
 
@@ -413,7 +413,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         } catch (DatabaseException e) {
             String errorMessage = "Unable to list review comments.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
     }
@@ -434,7 +434,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
 
         } catch (Exception e) {
             String errorMessage = "Unable to add review comment.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage + " " + e);
         }
     }
@@ -485,7 +485,7 @@ public class ReviewServlet extends AuthenticatedJsonServlet {
             }
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to get the object for review.", exception);
+            Logger.error("Unable to get the object for review.", exception);
             throw new Exception("Unable to get the object for review.");
         }
 

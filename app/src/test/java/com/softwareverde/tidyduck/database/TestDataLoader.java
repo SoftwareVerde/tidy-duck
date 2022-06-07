@@ -3,9 +3,15 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
+import com.softwareverde.database.jdbc.JdbcDatabaseConnection;
+import com.softwareverde.database.mysql.SqlScriptRunner;
+import com.softwareverde.database.query.Query;
 import com.softwareverde.database.mysql.MysqlTestDatabase;
+import com.softwareverde.database.util.TransactionUtil;
+import com.softwareverde.logging.Logger;
+import com.softwareverde.util.IoUtil;
 
+import java.io.StringReader;
 import java.sql.Connection;
 
 public class TestDataLoader {
@@ -16,11 +22,12 @@ public class TestDataLoader {
     }
 
     public static void initDatabase(final MysqlTestDatabase database) throws DatabaseException {
-        try {
-            database.getDatabaseInstance().source("sql/init.sql", "root", "", "tidy_duck");
-            database.getDatabaseInstance().source("sql/migrations/v1.0.0.sql", "root", "", "tidy_duck");
-            database.getDatabaseInstance().source("sql/migrations/v1.0.3.sql", "root", "", "tidy_duck");
-            database.getDatabaseInstance().source("sql/migrations/v1.0.4.sql", "root", "", "tidy_duck");
+        try (final JdbcDatabaseConnection databaseConnection = database.newConnection()){
+            final SqlScriptRunner sqlScriptRunner = new SqlScriptRunner(databaseConnection.getRawConnection(), false, false);
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/init.sql")));
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.4.sql")));
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
@@ -128,25 +135,25 @@ public class TestDataLoader {
                 .setParameter("TestFunction") // name)
                 .setParameter(1L) // primitiveTypeId)
                 .setParameter(true) // isPrimaryType)
-                .setParameter(null) // bitfieldLength)
-                .setParameter(null) // enumMax)
-                .setParameter(null) // numberBaseTypeId)
-                .setParameter(null) // numberExponent)
-                .setParameter(null) // numberRangeMin)
-                .setParameter(null) // numberRangeMax)
-                .setParameter(null) // numberStep)
-                .setParameter(null) // numberUnitId)
-                .setParameter(null) // stringMaxSize)
-                .setParameter(null) // streamLength)
-                .setParameter(null) // streamMaxLength)
-                .setParameter(null) // streamMediaType)
-                .setParameter(null) // arrayName)
-                .setParameter(null) // arrayDescription)
-                .setParameter(null) // arrayElementTypeId)
-                .setParameter(null) // arraySize)
-                .setParameter(null) // recordName)
-                .setParameter(null) // recordDescription)
-                .setParameter(null) // recordSize)
+                .setNullParameter() // bitfieldLength)
+                .setNullParameter() // enumMax)
+                .setNullParameter() // numberBaseTypeId)
+                .setNullParameter() // numberExponent)
+                .setNullParameter() // numberRangeMin)
+                .setNullParameter() // numberRangeMax)
+                .setNullParameter() // numberStep)
+                .setNullParameter() // numberUnitId)
+                .setNullParameter() // stringMaxSize)
+                .setNullParameter() // streamLength)
+                .setNullParameter() // streamMaxLength)
+                .setNullParameter() // streamMediaType)
+                .setNullParameter() // arrayName)
+                .setNullParameter() // arrayDescription)
+                .setNullParameter() // arrayElementTypeId)
+                .setNullParameter() // arraySize)
+                .setNullParameter() // recordName)
+                .setNullParameter() // recordDescription)
+                .setNullParameter() // recordSize)
                 ;
 
         final long mostTypeId = databaseConnection.executeSql(query);

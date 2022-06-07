@@ -1,6 +1,6 @@
 package com.softwareverde.database;
 
-import com.softwareverde.database.transaction.JdbcDatabaseTransaction;
+import com.softwareverde.database.jdbc.transaction.JdbcDatabaseTransaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,7 +13,7 @@ public class CallableDatabaseTransaction<T> extends JdbcDatabaseTransaction {
 
     public T call(DatabaseCallable<T, Connection> databaseConnectedCallable) throws DatabaseException {
         try {
-            DatabaseConnection<Connection> databaseConnection = this._database.newConnection();
+            DatabaseConnection<Connection> databaseConnection = this._databaseConnectionFactory.newConnection();
             Throwable throwable = null;
 
             try {

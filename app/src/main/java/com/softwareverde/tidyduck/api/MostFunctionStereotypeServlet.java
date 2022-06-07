@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.MostFunctionStereotypeInflater;
@@ -10,8 +11,7 @@ import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tidyduck.most.MostFunctionStereotype;
 import com.softwareverde.tidyduck.most.Operation;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
-    private Logger _logger = LoggerFactory.getLogger(getClass());
+    
 
     public MostFunctionStereotypeServlet() {
         super._defineEndpoint("most-function-stereotypes", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -49,7 +49,7 @@ public class MostFunctionStereotypeServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String msg = "Unable to inflate most stereotypes.";
-            _logger.error(msg, e);
+            Logger.error(msg, e);
             return super._generateErrorJson(msg);
         }
     }

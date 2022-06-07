@@ -2,10 +2,9 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.logging.Logger;
-import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
@@ -14,8 +13,6 @@ import java.sql.Connection;
 import java.util.*;
 
 public class MostInterfaceInflater {
-
-    protected final Logger _logger = new Slf4jLogger(this.getClass());
     private final DatabaseConnection<Connection> _databaseConnection;
 
     public MostInterfaceInflater(DatabaseConnection<Connection> databaseConnection) {
@@ -72,7 +69,7 @@ public class MostInterfaceInflater {
         for (final MostInterface functionBlock : mostInterfaces) {
             Long baseVersionId = functionBlock.getBaseVersionId();
             if (!groupedFunctionBlocks.containsKey(baseVersionId)) {
-                groupedFunctionBlocks.put(baseVersionId, new ArrayList<MostInterface>());
+                groupedFunctionBlocks.put(baseVersionId, new ArrayList<>());
             }
             groupedFunctionBlocks.get(baseVersionId).add(functionBlock);
         }
@@ -90,7 +87,7 @@ public class MostInterfaceInflater {
         );
         query.setParameter(functionBlockId);
 
-        List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
+        List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long mostInterfaceId = row.getLong("interface_id");
@@ -119,7 +116,7 @@ public class MostInterfaceInflater {
         query.setParameter(accountId);
         query.setParameter(accountId);
 
-        List<MostInterface> mostInterfaces = new ArrayList<MostInterface>();
+        List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             MostInterface mostInterface = convertRowToMostInterface(row);
@@ -143,7 +140,7 @@ public class MostInterfaceInflater {
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            _logger.error("Interface ID " + mostInterfaceId + " not found.");
+            Logger.error("Interface ID " + mostInterfaceId + " not found.");
             return null;
         }
 

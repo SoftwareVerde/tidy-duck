@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.database.ApplicationSetting;
@@ -11,8 +12,7 @@ import com.softwareverde.tidyduck.database.ApplicationSettingsDatabaseManager;
 import com.softwareverde.tidyduck.database.ApplicationSettingsInflater;
 import com.softwareverde.tidyduck.environment.Environment;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class ApplicationSettingsServlet extends AuthenticatedJsonServlet {
 
-    private Logger _logger = LoggerFactory.getLogger(getClass());
+    
 
     public ApplicationSettingsServlet() {
         super._defineEndpoint("application-settings/<settingName>", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -61,7 +61,7 @@ public class ApplicationSettingsServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             final String errorMessage = "Unable to get setting value: " + e.getMessage();
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
     }
@@ -77,7 +77,7 @@ public class ApplicationSettingsServlet extends AuthenticatedJsonServlet {
             return _generateSuccessJson();
         } catch (DatabaseException e) {
             final String errorMessage = "Unable to get setting value: " + e.getMessage();
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return _generateErrorJson(errorMessage);
         }
     }

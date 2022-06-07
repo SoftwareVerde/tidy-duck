@@ -2,10 +2,9 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.logging.Logger;
-import com.softwareverde.logging.slf4j.Slf4jLogger;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.util.Util;
@@ -14,7 +13,6 @@ import java.sql.Connection;
 import java.util.*;
 
 public class FunctionCatalogInflater {
-    protected final Logger _logger = new Slf4jLogger(this.getClass());
     protected final DatabaseConnection<Connection> _databaseConnection;
 
     public FunctionCatalogInflater(final DatabaseConnection<Connection> connection) {
@@ -153,7 +151,7 @@ public class FunctionCatalogInflater {
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            _logger.warn("Could not find functionCatalog w/ ID: "+ functionCatalogId);
+            Logger.warn("Could not find functionCatalog w/ ID: "+ functionCatalogId);
             return null;
         }
 

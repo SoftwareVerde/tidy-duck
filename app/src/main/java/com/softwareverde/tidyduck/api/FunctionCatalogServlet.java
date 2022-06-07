@@ -4,6 +4,7 @@ import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
@@ -13,8 +14,7 @@ import com.softwareverde.tidyduck.most.Company;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.util.Util;
 import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
-    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    
 
     public FunctionCatalogServlet() {
         super._defineEndpoint("function-catalogs", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
@@ -214,7 +214,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to get function catalog.", exception);
+            Logger.error("Unable to get function catalog.", exception);
             return super._generateErrorJson("Unable to get function catalog.");
         }
     }
@@ -260,7 +260,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to list function catalogs.", exception);
+            Logger.error("Unable to list function catalogs.", exception);
             return super._generateErrorJson("Unable to list function catalogs.");
         }
     }
@@ -271,7 +271,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             decodedSearchString = URLDecoder.decode(searchString, "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
-            _logger.error("Unable to list function catalogs from search", e);
+            Logger.error("Unable to list function catalogs from search", e);
             return super._generateErrorJson("Unable to list function catalogs from search.");
         }
 
@@ -300,7 +300,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final DatabaseException exception) {
-            _logger.error("Unable to list function catalogs from search", exception);
+            Logger.error("Unable to list function catalogs from search", exception);
             return super._generateErrorJson("Unable to list function catalogs from search.");
         }
     }
@@ -318,7 +318,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             response.put("functionCatalogId", functionCatalog.getId());
         }
         catch (final Exception exception) {
-            _logger.error("Unable to store Function Catalog.", exception);
+            Logger.error("Unable to store Function Catalog.", exception);
             return super._generateErrorJson("Unable to store Function Catalog: " + exception.getMessage());
         }
 
@@ -336,7 +336,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
             final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
             if (errorMessage != null) {
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -345,11 +345,11 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateFunctionCatalog(functionCatalog, currentAccountId);
 
-            _logger.info("User " + currentAccount.getId() + " updated function catalog " + functionCatalog.getId() + ", which is currently owned by User " + functionCatalog.getCreatorAccountId());
+            Logger.info("User " + currentAccount.getId() + " updated function catalog " + functionCatalog.getId() + ", which is currently owned by User " + functionCatalog.getCreatorAccountId());
             response.put("functionCatalogId", functionCatalog.getId());
         } catch (final Exception exception) {
             final String errorMessage = "Unable to update function catalog: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -365,18 +365,18 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
 
             final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
             if (errorMessage != null) {
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long newFunctionCatalogId = databaseManager.forkFunctionCatalog(functionCatalogId, currentAccountId);
 
-            _logger.info("User " + currentAccount.getId() + " forked function catalog " + functionCatalogId + " (new ID: " + newFunctionCatalogId + ").");
+            Logger.info("User " + currentAccount.getId() + " forked function catalog " + functionCatalogId + " (new ID: " + newFunctionCatalogId + ").");
             response.put("functionCatalogId", newFunctionCatalogId);
         } catch (final Exception exception) {
             final String errorMessage = "Unable to fork function catalog: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
 
@@ -388,14 +388,14 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.setIsDeletedForFunctionCatalog(functionCatalogId, true);
 
-            _logger.info("User " + currentAccount.getId() + " marked Function Catalog " + functionCatalogId + " as deleted.");
+            Logger.info("User " + currentAccount.getId() + " marked Function Catalog " + functionCatalogId + " as deleted.");
 
             final Json response = new Json(false);
             super._setJsonSuccessFields(response);
@@ -403,7 +403,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to move function catalog %d to trash.", functionCatalogId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -412,16 +412,16 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final String errorMessage = canAccountViewFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             final long numberOfDeletedChildren = databaseManager.restoreFunctionCatalogFromTrash(functionCatalogId);
 
-            _logger.info("User " + currentAccount.getId() + " restored Function Catalog " + functionCatalogId);
+            Logger.info("User " + currentAccount.getId() + " restored Function Catalog " + functionCatalogId);
             if (numberOfDeletedChildren > 0) {
-                _logger.info("Restored Function Catalog " + functionCatalogId + " contains " + numberOfDeletedChildren + " deleted Function Block relationships.");
+                Logger.info("Restored Function Catalog " + functionCatalogId + " contains " + numberOfDeletedChildren + " deleted Function Block relationships.");
             }
 
             final Json response = new Json(false);
@@ -431,7 +431,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         }
         catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to restore function catalog %d from trash.", functionCatalogId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -440,7 +440,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -448,7 +448,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
             if (!functionCatalog.isDeleted()) {
                 final String error = "Function catalog must be moved to trash before deleting.";
-                _logger.error(error);
+                Logger.error(error);
                 return super._generateErrorJson(error);
             }
 
@@ -460,7 +460,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (final DatabaseException exception) {
             final String errorMessage = String.format("Unable to delete function catalog %d.", functionCatalogId);
-            _logger.error(errorMessage, exception);
+            Logger.error(errorMessage, exception);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -469,7 +469,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             final String errorMessage = canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
-                _logger.error(errorMessage);
+                Logger.error(errorMessage);
                 return super._generateErrorJson(errorMessage);
             }
 
@@ -481,7 +481,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String errorMessage = "Unable to submit function catalog for review.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -509,7 +509,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (DatabaseException e) {
             String errorMessage = "Unable to get release items.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return super._generateErrorJson(errorMessage);
         }
     }
@@ -544,7 +544,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         } catch (Exception e) {
             String errorMessage = "Unable to release function catalog.";
-            _logger.error(errorMessage, e);
+            Logger.error(errorMessage, e);
             return super._generateErrorJson("Unable to release Function Catalog: " + e.getMessage());
         }
     }
@@ -630,7 +630,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonServlet {
             return response;
         }
         catch (final Exception exception) {
-            _logger.error("Unable to check for duplicate Function Catalog.", exception);
+            Logger.error("Unable to check for duplicate Function Catalog.", exception);
             return super._generateErrorJson("Unable to check for duplicate Function Catalog: " + exception.getMessage());
         }
     }
