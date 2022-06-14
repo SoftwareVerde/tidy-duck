@@ -1,105 +1,114 @@
 package com.softwareverde.tidyduck.api;
 
-import com.softwareverde.database.Database;
-import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.database.jdbc.JdbcDatabaseConnection;
+import com.softwareverde.http.server.servlet.request.Request;
+import com.softwareverde.http.server.servlet.response.Response;
+import com.softwareverde.http.server.servlet.routed.AuthenticatedApplicationServlet;
+import com.softwareverde.http.server.servlet.routed.account.LoginRequestHandler;
+import com.softwareverde.http.server.servlet.session.Session;
+import com.softwareverde.http.server.servlet.session.SessionManager;
+import com.softwareverde.json.Json;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.mostadapter.MostAdapter;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.AuthorizationException;
 import com.softwareverde.tidyduck.Permission;
+import com.softwareverde.tidyduck.authentication.TidyDuckAuthenticator;
 import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.database.FunctionCatalogInflater;
-import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.environment.TidyDuckEnvironment;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.most.MostTypeConverter;
-import com.softwareverde.tomcat.servlet.BaseServlet;
-import com.softwareverde.tomcat.servlet.Session;
 import com.softwareverde.util.Util;
 
+public class MostGeneratorServlet extends AuthenticatedApplicationServlet<TidyDuckEnvironment> {
+    protected final TidyDuckEnvironment _environment;
+    protected final SessionManager _sessionManager;
+    protected final TidyDuckAuthenticator _authenticator;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
+    public MostGeneratorServlet(final TidyDuckEnvironment environment, final SessionManager sessionManager, final TidyDuckAuthenticator authenticator) {
+        super(environment, sessionManager);
 
-public class MostGeneratorServlet extends BaseServlet {
+        _environment = environment;
+        _sessionManager = sessionManager;
+        _authenticator = authenticator;
+    }
+
     @Override
-    protected void handleRequest(final HttpServletRequest request, final HttpServletResponse response, final HttpMethod method, final Environment environment) throws ServletException, IOException {
-        final Database<Connection> database = environment.getDatabase();
-
-        if (! Session.isAuthenticated(request)) {
-            Logger.error("Rejected unauthenticated user.");
-            _authorizationError(response);
-            return;
+    public Response onRequest(final Request request) {
+        final Session session = _sessionManager.getSession(request);
+        if (session == null) {
+            return _getUnauthenticatedErrorResponse();
         }
 
-        try {
-            checkPermissions(request, environment.getDatabase());
-        } catch (Exception e) {
-            Logger.error("Unable to authorize user.", e);
-            _authorizationError(response);
-            return;
+        final Json sessionData = session.getMutableData();
+        if (! sessionData.hasKey(LoginRequestHandler.ACCOUNT_SESSION_KEY)) {
+            return _getUnauthenticatedErrorResponse();
         }
 
-        long functionCatalogId = Util.parseLong(request.getParameter("function_catalog_id"));
+        final long functionCatalogId = Util.parseLong(request.getGetParameters().get("function_catalog_id"));
         if (functionCatalogId < 1) {
             Logger.error("Invalid function catalog id.");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            return _getBadRequestResponse();
         }
-        _returnMostXmlAsAttachment(functionCatalogId, response, database);
-    }
 
-    private void checkPermissions(final HttpServletRequest request, final Database<Connection> database) throws DatabaseException, AuthorizationException {
-        final long accountId = Session.getAccountId(request);
-        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final AccountInflater accountInflater = new AccountInflater(databaseConnection);
-            final Account currentAccount = accountInflater.inflateAccount(accountId);
+        try (final JdbcDatabaseConnection databaseConnection = _environment.getDatabase().newConnection()) {
+            try {
+                checkPermissions(session, databaseConnection);
+            } catch (Exception e) {
+                Logger.error("Unable to authorize user.", e);
+                return _getUnauthenticatedErrorResponse();
+            }
 
-            currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
-        }
-    }
-
-    private void _returnMostXmlAsAttachment(final long functionCatalogId, final HttpServletResponse response, final Database<Connection> database) throws IOException {
-        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
-            final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
-            final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId, true);
-
-            final MostAdapter mostAdapter = new MostAdapter();
-            mostAdapter.setIndented(true);
-            mostAdapter.setIndentationAmount(2);
-
-            MostTypeConverter mostTypeConverter = new MostTypeConverter();
-            final String mostXml = mostAdapter.getMostXml(mostTypeConverter.convertFunctionCatalog(functionCatalog));
-
-            final int mostXmlLength = mostXml.getBytes().length;
-            final String functionCatalogName = functionCatalog.getName();
-            Logger.info(String.format("Generated %d bytes for %s (id: %d).", mostXmlLength, functionCatalogName, functionCatalogId));
-
-            final String fileName = functionCatalog.getName()+".xml";
-            response.setHeader("Content-Disposition", "attachment;filename="+fileName);
-            final PrintWriter writer = response.getWriter();
-            writer.write(mostXml);
+            return _returnMostXmlAsAttachment(functionCatalogId, databaseConnection);
         }
         catch (final Exception exception) {
-            Logger.error("Problem generating MOST XML for function catalog " + functionCatalogId + ".", exception);
-            _internalServerError(response);
-            return;
+            final String errorMessage = "Problem generating MOST XML for function catalog " + functionCatalogId + ".";
+            Logger.error(errorMessage, exception);
+
+            final Response errorResponse = new Response();
+            errorResponse.setCode(Response.Codes.SERVER_ERROR);
+            errorResponse.setContent(errorMessage);
+
+            return errorResponse;
+        }
+        finally {
+            // save any session changes
+            _sessionManager.saveSession(session);
         }
     }
 
-    private void _internalServerError(final HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        final PrintWriter writer = response.getWriter();
-        writer.write("Unable to generate MOST.");
+    private void checkPermissions(final Session session, final JdbcDatabaseConnection databaseConnection) throws DatabaseException, AuthorizationException {
+        final AccountId accountId = TidyDuckAuthenticator.getAccountId(session);
+        final AccountInflater accountInflater = new AccountInflater(databaseConnection);
+        final Account currentAccount = accountInflater.inflateAccount(accountId);
+
+        currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
     }
 
-    private void _authorizationError(final HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        final PrintWriter writer = response.getWriter();
-        writer.write("Not authorized.");
+    private Response _returnMostXmlAsAttachment(final long functionCatalogId, final JdbcDatabaseConnection databaseConnection) throws Exception {
+        final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(databaseConnection);
+        final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId, true);
+
+        final MostAdapter mostAdapter = new MostAdapter();
+        mostAdapter.setIndented(true);
+        mostAdapter.setIndentationAmount(2);
+
+        MostTypeConverter mostTypeConverter = new MostTypeConverter();
+        final String mostXml = mostAdapter.getMostXml(mostTypeConverter.convertFunctionCatalog(functionCatalog));
+
+        final int mostXmlLength = mostXml.getBytes().length;
+        final String functionCatalogName = functionCatalog.getName();
+        Logger.info(String.format("Generated %d bytes for %s (id: %d).", mostXmlLength, functionCatalogName, functionCatalogId));
+
+        final String fileName = functionCatalog.getName()+".xml";
+        final Response response = new Response();
+        response.setHeader("Content-Disposition", "attachment;filename="+fileName);
+        response.setCode(Response.Codes.OK);
+        response.setContent(mostXml);
+
+        return response;
     }
 }

@@ -111,7 +111,7 @@ public class ReviewInflater {
 
         final ReviewVote reviewVote = new ReviewVote();
         final Date createdDate = DateUtil.dateFromDateString(row.getString("created_date"));
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
 
         // Inflate account
         Account account = null;
@@ -148,7 +148,7 @@ public class ReviewInflater {
         final Long functionBlockId = row.getLong("function_block_id");
         final Long mostInterfaceId = row.getLong("interface_id");
         final Long mostFunctionId = row.getLong("function_id");
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
         final String ticketUrl = row.getString("ticket_url");
         final Date createdDate = DateUtil.dateFromDateString(row.getString("created_date"));
         Date approvalDate = null;
@@ -211,7 +211,7 @@ public class ReviewInflater {
 
     private ReviewComment _convertRowToReviewComment(final Row row) {
         final Long id = row.getLong("id");
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
         final Date createdDate = DateUtil.dateFromDateTimeString(row.getString("created_date"));
         final String commentText = row.getString("comment");
 

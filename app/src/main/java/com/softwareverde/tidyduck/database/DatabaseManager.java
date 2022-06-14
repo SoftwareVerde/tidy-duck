@@ -50,7 +50,7 @@ public class DatabaseManager {
         });
     }
 
-    public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
+    public void updateAccountSettings(final AccountId accountId, final Settings settings) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -70,7 +70,7 @@ public class DatabaseManager {
         });
     }
 
-    public boolean changePassword(final long accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
+    public boolean changePassword(final AccountId accountId, final String oldPassword, final String newPasswordHash) throws DatabaseException {
         return this._executeTransaction(new DatabaseCallable<Boolean, Connection>() {
             @Override
             public Boolean call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -80,7 +80,7 @@ public class DatabaseManager {
         });
     }
 
-    public String resetPassword(final long accountId) throws DatabaseException {
+    public String resetPassword(final AccountId accountId) throws DatabaseException {
         return this._executeTransaction(new DatabaseCallable<String, Connection>() {
             @Override
             public String call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -100,7 +100,7 @@ public class DatabaseManager {
         });
     }
 
-    public void markAccountAsDeleted(final long accountId) throws DatabaseException {
+    public void markAccountAsDeleted(final AccountId accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -122,7 +122,7 @@ public class DatabaseManager {
         });
     }
 
-    public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final AccountId accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -132,7 +132,7 @@ public class DatabaseManager {
         });
     }
 
-    public long forkFunctionCatalog(final long functionCatalogId, final Long accountId) throws DatabaseException {
+    public long forkFunctionCatalog(final long functionCatalogId, final AccountId accountId) throws DatabaseException {
         return this._executeTransaction(new DatabaseCallable<Long, Connection>() {
             @Override
             public Long call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -172,7 +172,7 @@ public class DatabaseManager {
         });
     }
 
-    public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
+    public void submitFunctionCatalogForReview(final Long functionCatalogId, final AccountId accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -256,7 +256,7 @@ public class DatabaseManager {
 
     // FUNCTION BLOCK METHODS
 
-    public void insertFunctionBlock(final Long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    public void insertFunctionBlock(final Long functionCatalogId, final FunctionBlock functionBlock, final AccountId accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -296,7 +296,7 @@ public class DatabaseManager {
         });
     }
 
-    public void updateFunctionBlock(final FunctionBlock functionBlock, final Long currentAccountId) throws DatabaseException {
+    public void updateFunctionBlock(final FunctionBlock functionBlock, final AccountId currentAccountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -306,7 +306,7 @@ public class DatabaseManager {
         });
     }
 
-    public long forkFunctionBlock(final long functionBlockId, final Long parentFunctionCatalogId, final Long currentAccountId) throws DatabaseException {
+    public long forkFunctionBlock(final long functionBlockId, final Long parentFunctionCatalogId, final AccountId currentAccountId) throws DatabaseException {
         return this._executeTransaction(new DatabaseCallable<Long, Connection>() {
             @Override
             public Long call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -366,7 +366,7 @@ public class DatabaseManager {
         });
     }
 
-    public void submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+    public void submitFunctionBlockForReview(final long functionBlockId, final AccountId accountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -458,7 +458,7 @@ public class DatabaseManager {
         });
     }
 
-    public void updateMostInterface(final MostInterface mostInterface, final long currentAccountID) throws DatabaseException {
+    public void updateMostInterface(final MostInterface mostInterface, final AccountId currentAccountID) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -468,7 +468,7 @@ public class DatabaseManager {
         });
     }
 
-    public long forkMostInterface(final long mostInterfaceId, final Long parentFunctionBlockId, final long currentAccountId) throws DatabaseException {
+    public long forkMostInterface(final long mostInterfaceId, final Long parentFunctionBlockId, final AccountId currentAccountId) throws DatabaseException {
         return this._executeTransaction(new DatabaseCallable<Long, Connection>() {
             @Override
             public Long call(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -528,7 +528,7 @@ public class DatabaseManager {
         });
     }
 
-    public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+    public void submitMostInterfaceForReview(final long mostInterfaceId, final AccountId submittingAccountId) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -733,7 +733,7 @@ public class DatabaseManager {
         });
     }
 
-    public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
+    public void updateAccountRoles(final AccountId accountId, final List<Role> roles) throws DatabaseException {
         this._executeTransaction(new DatabaseRunnable<Connection>() {
             @Override
             public void run(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {

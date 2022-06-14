@@ -4,17 +4,19 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.MostInterface;
 import com.softwareverde.tidyduck.most.MostFunction;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class MostInterfaceDatabaseManager {
-    private final DatabaseConnection _databaseConnection;
+    private final DatabaseConnection<Connection> _databaseConnection;
 
     private void _insertMostInterface(final MostInterface mostInterface, final MostInterface priorMostInterface) throws DatabaseException {
         final String mostId = mostInterface.getMostId();
@@ -22,7 +24,7 @@ public class MostInterfaceDatabaseManager {
         final String description = mostInterface.getDescription();
         final String version = mostInterface.getVersion();
         final Long priorVersionId = priorMostInterface != null ? priorMostInterface.getId() : null;
-        final Long creatorAccountId = mostInterface.getCreatorAccountId();
+        final AccountId creatorAccountId = mostInterface.getCreatorAccountId();
 
         final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id) VALUES (?, ?, ?, NOW(), ?, ?, ?)")
             .setParameter(mostId)
@@ -54,7 +56,7 @@ public class MostInterfaceDatabaseManager {
         final String description = mostInterface.getDescription();
         final String version = mostInterface.getVersion();
         final Long priorVersionId = mostInterface.getId();
-        final Long creatorAccountId = mostInterface.getCreatorAccountId();
+        final AccountId creatorAccountId = mostInterface.getCreatorAccountId();
         final Long baseVersionId = mostInterface.getBaseVersionId();
 
         final Query query = new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, prior_version_id, creator_account_id, base_version_id) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)")
@@ -81,7 +83,7 @@ public class MostInterfaceDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _setCreatorAccountId(long mostInterfaceId, long accountId) throws DatabaseException {
+    private void _setCreatorAccountId(long mostInterfaceId, AccountId accountId) throws DatabaseException {
         final Query query = new Query("UPDATE interfaces SET creator_account_id = ? WHERE id = ?")
                 .setParameter(accountId)
                 .setParameter(mostInterfaceId)
@@ -116,7 +118,7 @@ public class MostInterfaceDatabaseManager {
         final String newVersion = proposedMostInterface.getVersion();
         final String newDescription = proposedMostInterface.getDescription();
         final long mostInterfaceId = proposedMostInterface.getId();
-        final Long creatorAccountId = proposedMostInterface.getCreatorAccountId();
+        final AccountId creatorAccountId = proposedMostInterface.getCreatorAccountId();
 
         final Query query = new Query("UPDATE interfaces SET most_id = ?, name = ?, description = ?, last_modified_date = NOW(), version = ?, is_approved = ?, creator_account_id = ? WHERE id = ?")
             .setParameter(newMostId)
@@ -267,7 +269,7 @@ public class MostInterfaceDatabaseManager {
         _insertMostInterface(mostInterface);
     }
 
-    public long forkMostInterface(final long mostInterfaceId, final Long parentFunctionBlockId, final long currentAccountId) throws DatabaseException {
+    public long forkMostInterface(final long mostInterfaceId, final Long parentFunctionBlockId, final AccountId currentAccountId) throws DatabaseException {
         MostInterfaceInflater mostInterfaceInflater = new MostInterfaceInflater(_databaseConnection);
         MostInterface mostInterface = mostInterfaceInflater.inflateMostInterface(mostInterfaceId);
 
@@ -280,7 +282,7 @@ public class MostInterfaceDatabaseManager {
         return newMostInterfaceId;
     }
 
-    public void updateMostInterface(final MostInterface proposedMostInterface, final Long currentAccountId) throws DatabaseException {
+    public void updateMostInterface(final MostInterface proposedMostInterface, final AccountId currentAccountId) throws DatabaseException {
         _updateUnapprovedMostInterface(proposedMostInterface);
     }
 
@@ -330,7 +332,7 @@ public class MostInterfaceDatabaseManager {
         }
     }
 
-    public void submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+    public void submitMostInterfaceForReview(final long mostInterfaceId, final AccountId submittingAccountId) throws DatabaseException {
         if (_mostInterfaceHasReview(mostInterfaceId)) {
             // already present, return
             return;
@@ -346,7 +348,7 @@ public class MostInterfaceDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _submitMostInterfaceForReview(final long mostInterfaceId, final long submittingAccountId) throws DatabaseException {
+    private void _submitMostInterfaceForReview(final long mostInterfaceId, final AccountId submittingAccountId) throws DatabaseException {
         final Query query = new Query("INSERT INTO reviews (interface_id, account_id, created_date) VALUES (?, ?, NOW())");
         query.setParameter(mostInterfaceId);
         query.setParameter(submittingAccountId);

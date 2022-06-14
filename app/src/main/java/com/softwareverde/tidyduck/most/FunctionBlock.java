@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.mostadapter.Modification;
+import com.softwareverde.tidyduck.AccountId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +30,7 @@ public class FunctionBlock {
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
-    private Long _creatorAccountId;
+    private AccountId _creatorAccountId;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
@@ -201,9 +202,9 @@ public class FunctionBlock {
         _priorVersionId = priorVersionId;
     }
 
-    public Long getCreatorAccountId() { return _creatorAccountId; }
+    public AccountId getCreatorAccountId() { return _creatorAccountId; }
 
-    public void setCreatorAccountId(final Long creatorAccountId) { _creatorAccountId = creatorAccountId; }
+    public void setCreatorAccountId(final AccountId creatorAccountId) { _creatorAccountId = creatorAccountId; }
 
     public List<Modification> getModifications() {
         return _modifications;

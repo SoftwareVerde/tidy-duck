@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.most.*;
 
 import java.sql.Connection;
@@ -63,7 +64,7 @@ class MostFunctionDatabaseManager {
         final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
         final String description = proposedMostFunction.getDescription();
         final String release = proposedMostFunction.getRelease();
-        final long authorId = proposedMostFunction.getAuthor().getId();
+        final AccountId authorId = proposedMostFunction.getAuthor().getId();
         final long companyId = proposedMostFunction.getCompany().getId();
         final String returnParameterName = proposedMostFunction.getReturnParameterName();
         final String returnParameterDescription = proposedMostFunction.getReturnParameterDescription();
@@ -117,7 +118,7 @@ class MostFunctionDatabaseManager {
         final Long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
         final String description = mostFunction.getDescription();
         final String release = mostFunction.getRelease();
-        final Long authorId = mostFunction.getAuthor().getId();
+        final AccountId authorId = mostFunction.getAuthor().getId();
         final Long companyId = mostFunction.getCompany().getId();
         final String returnParameterName = mostFunction.getReturnParameterName();
         final String returnParameterDescription = mostFunction.getReturnParameterDescription();

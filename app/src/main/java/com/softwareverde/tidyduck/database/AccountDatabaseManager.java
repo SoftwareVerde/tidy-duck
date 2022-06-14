@@ -6,11 +6,11 @@ import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
 import com.softwareverde.security.SecureHashUtil;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ class AccountDatabaseManager {
         if (! _isUsernameUnique(username)) {
             final long duplicateAccountId = _isAccountUsernameMarkedAsDeleted(username);
             if (duplicateAccountId > 0) {
-                _reactivateDeletedAccount(duplicateAccountId, account);
+                _reactivateDeletedAccount(AccountId.wrap(duplicateAccountId), account);
                 return true;
             }
             else {
@@ -49,7 +49,7 @@ class AccountDatabaseManager {
                 .setParameter(companyId)
         ;
 
-        final long accountId = _databaseConnection.executeSql(query);
+        final AccountId accountId = AccountId.wrap(_databaseConnection.executeSql(query));
         account.setId(accountId);
         account.setPassword(password);
 
@@ -60,7 +60,7 @@ class AccountDatabaseManager {
         return true;
     }
 
-    public void markAccountAsDeleted(final long accountId) throws DatabaseException {
+    public void markAccountAsDeleted(final AccountId accountId) throws DatabaseException {
         final Query query = new Query("UPDATE accounts SET is_deleted = ? WHERE id = ?")
                 .setParameter(true)
                 .setParameter(accountId)
@@ -70,7 +70,7 @@ class AccountDatabaseManager {
         _deleteExistingRoles(accountId);
     }
 
-    private void _reactivateDeletedAccount(final long accountId, final Account account) throws DatabaseException {
+    private void _reactivateDeletedAccount(final AccountId accountId, final Account account) throws DatabaseException {
         final String password = SecureHashUtil.generateRandomPassword();
         final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
         final String name = account.getName();
@@ -110,7 +110,7 @@ class AccountDatabaseManager {
         return true;
     }
 
-    public void updateAccountSettings(final long accountId, final Settings settings) throws DatabaseException {
+    public void updateAccountSettings(final AccountId accountId, final Settings settings) throws DatabaseException {
         final Query query = new Query("UPDATE accounts SET theme = ?, default_mode = ? WHERE id = ?")
             .setParameter(settings.getTheme())
             .setParameter(settings.getDefaultMode())
@@ -128,7 +128,7 @@ class AccountDatabaseManager {
             }
         }
 
-        final long accountId = account.getId();
+        final AccountId accountId = account.getId();
         final String newName = account.getName();
         final long newCompanyId = account.getCompany().getId();
 
@@ -144,14 +144,14 @@ class AccountDatabaseManager {
         return true;
     }
 
-    public String resetPassword(final long accountId) throws DatabaseException {
+    public String resetPassword(final AccountId accountId) throws DatabaseException {
         final String newPassword = SecureHashUtil.generateRandomPassword();
         _changePassword(accountId, newPassword);
 
         return newPassword;
     }
 
-    public boolean changePassword(final long accountId, final String oldPassword, final String newPassword) throws DatabaseException {
+    public boolean changePassword(final AccountId accountId, final String oldPassword, final String newPassword) throws DatabaseException {
         if (_validateCurrentPassword(accountId, oldPassword)) {
             _changePassword(accountId, newPassword);
             return true;
@@ -160,7 +160,7 @@ class AccountDatabaseManager {
         return false;
     }
 
-    private void _changePassword(final long accountId, final String newPassword) throws DatabaseException {
+    private void _changePassword(final AccountId accountId, final String newPassword) throws DatabaseException {
         final String newPasswordHash = SecureHashUtil.hashWithPbkdf2(newPassword);
         final Query query = new Query("UPDATE accounts SET password = ? WHERE id = ?")
                 .setParameter(newPasswordHash)
@@ -170,7 +170,7 @@ class AccountDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private boolean _validateCurrentPassword(final Long id, final String password) throws DatabaseException {
+    private boolean _validateCurrentPassword(final AccountId id, final String password) throws DatabaseException {
         final Query query = new Query("SELECT password FROM accounts WHERE id = ?")
                 .setParameter(id)
         ;
@@ -224,21 +224,21 @@ class AccountDatabaseManager {
         return (duplicateCount == 0);
     }
 
-    public void updateAccountRoles(final Long accountId, final List<Role> roles) throws DatabaseException {
+    public void updateAccountRoles(final AccountId accountId, final List<Role> roles) throws DatabaseException {
         _deleteExistingRoles(accountId);
         for (final Role role : roles) {
             _addRole(accountId, role.getId());
         }
     }
 
-    private void _deleteExistingRoles(final Long accountId) throws DatabaseException {
+    private void _deleteExistingRoles(final AccountId accountId) throws DatabaseException {
         final Query query = new Query("DELETE FROM accounts_roles WHERE account_id = ?");
         query.setParameter(accountId);
 
         _databaseConnection.executeSql(query);
     }
 
-    private void _addRole(final Long accountId, final Long roleId) throws DatabaseException {
+    private void _addRole(final AccountId accountId, final Long roleId) throws DatabaseException {
         final Query query = new Query("INSERT INTO accounts_roles (account_id, role_id) VALUES (?, ?)");
         query.setParameter(accountId);
         query.setParameter(roleId);

@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
@@ -28,9 +29,9 @@ class FunctionCatalogDatabaseManager {
     private void _insertFunctionCatalog(final FunctionCatalog functionCatalog) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
-        final Long accountId = functionCatalog.getAuthor().getId();
+        final AccountId accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
-        final Long creatorAccountId = functionCatalog.getCreatorAccountId();
+        final AccountId creatorAccountId = functionCatalog.getCreatorAccountId();
 
         final Query query = new Query("INSERT INTO function_catalogs (name, release_version, account_id, company_id, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, NULL, ?)")
             .setParameter(name)
@@ -45,10 +46,10 @@ class FunctionCatalogDatabaseManager {
         _setBaseVersionId(functionCatalogId, functionCatalogId);
     }
 
-    private long _forkFunctionCatalog(final FunctionCatalog functionCatalog, final long creatorAccountId) throws DatabaseException {
+    private long _forkFunctionCatalog(final FunctionCatalog functionCatalog, final AccountId creatorAccountId) throws DatabaseException {
         final String name = functionCatalog.getName();
         final String release = functionCatalog.getRelease();
-        final Long accountId = functionCatalog.getAuthor().getId();
+        final AccountId accountId = functionCatalog.getAuthor().getId();
         final Long companyId = functionCatalog.getCompany().getId();
         final Long priorVersionId = functionCatalog.getId();
         final Long baseVersionId = functionCatalog.getBaseVersionId();
@@ -79,10 +80,10 @@ class FunctionCatalogDatabaseManager {
     private void _updateFunctionCatalog(final FunctionCatalog proposedFunctionCatalog) throws DatabaseException {
         final String newName = proposedFunctionCatalog.getName();
         final String newReleaseVersion = proposedFunctionCatalog.getRelease();
-        final long newAuthorId = proposedFunctionCatalog.getAuthor().getId();
+        final AccountId newAuthorId = proposedFunctionCatalog.getAuthor().getId();
         final long newCompanyId = proposedFunctionCatalog.getCompany().getId();
         final long functionCatalogId = proposedFunctionCatalog.getId();
-        final Long creatorAccountId = proposedFunctionCatalog.getCreatorAccountId();
+        final AccountId creatorAccountId = proposedFunctionCatalog.getCreatorAccountId();
 
         final Query query = new Query("UPDATE function_catalogs SET name = ?, release_version = ?, account_id = ?, company_id = ?, is_approved = ?, creator_account_id = ? WHERE id = ?")
             .setParameter(newName)
@@ -186,11 +187,11 @@ class FunctionCatalogDatabaseManager {
         _insertFunctionCatalog(functionCatalog);
     }
 
-    public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final Long accountId) throws DatabaseException {
+    public void updateFunctionCatalog(final FunctionCatalog functionCatalog, final AccountId accountId) throws DatabaseException {
         _updateFunctionCatalog(functionCatalog);
     }
 
-    public long forkFunctionCatalog(final long functionCatalogId, final Long accountId) throws DatabaseException {
+    public long forkFunctionCatalog(final long functionCatalogId, final AccountId accountId) throws DatabaseException {
         final FunctionCatalogInflater functionCatalogInflater = new FunctionCatalogInflater(_databaseConnection);
         final FunctionCatalog functionCatalog = functionCatalogInflater.inflateFunctionCatalog(functionCatalogId);
         // need to insert a new function catalog replace this one
@@ -213,7 +214,7 @@ class FunctionCatalogDatabaseManager {
         }
     }
 
-    public void submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
+    public void submitFunctionCatalogForReview(final Long functionCatalogId, final AccountId accountId) throws DatabaseException {
         if (_functionCatalogHasReview(functionCatalogId)) {
             // already present, return
             return;
@@ -229,7 +230,7 @@ class FunctionCatalogDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _submitFunctionCatalogForReview(final Long functionCatalogId, final Long accountId) throws DatabaseException {
+    private void _submitFunctionCatalogForReview(final Long functionCatalogId, final AccountId accountId) throws DatabaseException {
         final Query query = new Query("INSERT INTO reviews (function_catalog_id, account_id, created_date) VALUES (?, ?, NOW())");
         query.setParameter(functionCatalogId);
         query.setParameter(accountId);

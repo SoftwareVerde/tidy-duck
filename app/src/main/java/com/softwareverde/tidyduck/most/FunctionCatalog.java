@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.mostadapter.Modification;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.util.Util;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class FunctionCatalog {
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
-    private Long _creatorAccountId;
+    private AccountId _creatorAccountId;
     private final List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private final List<Modification> _modifications = new ArrayList<>();
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
@@ -142,9 +143,9 @@ public class FunctionCatalog {
         _priorVersionId = priorVersionId;
     }
 
-    public Long getCreatorAccountId() { return _creatorAccountId; }
+    public AccountId getCreatorAccountId() { return _creatorAccountId; }
 
-    public void setCreatorAccountId(final Long creatorAccountId) { _creatorAccountId = creatorAccountId; }
+    public void setCreatorAccountId(final AccountId creatorAccountId) { _creatorAccountId = creatorAccountId; }
 
     public List<FunctionBlock> getFunctionBlocks() {
         return Util.copyList(_functionBlocks);

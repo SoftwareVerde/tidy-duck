@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.Review;
 import com.softwareverde.tidyduck.most.FunctionBlock;
@@ -23,7 +24,7 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection = databaseConnection;
     }
 
-    public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock, final Long accountId) throws DatabaseException {
+    public void insertFunctionBlockForFunctionCatalog(final Long functionCatalogId, final FunctionBlock functionBlock, final AccountId accountId) throws DatabaseException {
         _insertFunctionBlock(functionBlock);
         _associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlock.getId());
     }
@@ -32,7 +33,7 @@ public class FunctionBlockDatabaseManager {
         _insertFunctionBlock(functionBlock);
     }
 
-    public long forkFunctionBlock(final long functionBlockId, final Long parentFunctionCatalogId, final long currentAccountId) throws DatabaseException {
+    public long forkFunctionBlock(final long functionBlockId, final Long parentFunctionCatalogId, final AccountId currentAccountId) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
         final FunctionBlock functionBlock = functionBlockInflater.inflateFunctionBlock(functionBlockId);
 
@@ -51,13 +52,13 @@ public class FunctionBlockDatabaseManager {
         final String name = functionBlock.getName();
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
-        final Long authorId = functionBlock.getAuthor().getId();
+        final AccountId authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
         final String access = functionBlock.getAccess();
         final boolean isSource = functionBlock.isSource();
         final boolean isSink = functionBlock.isSink();
         final Long priorVersionId = priorFunctionBlock != null ? priorFunctionBlock.getId() : null;
-        final Long creatorAccountId = functionBlock.getCreatorAccountId();
+        final AccountId creatorAccountId = functionBlock.getCreatorAccountId();
 
         final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, is_source, is_sink, prior_version_id, creator_account_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)")
             .setParameter(mostId)
@@ -83,19 +84,19 @@ public class FunctionBlockDatabaseManager {
         _insertFunctionBlock(functionBlock, null);
     }
 
-    private long _forkFunctionBlock(final FunctionBlock functionBlock, final Long currentAccountId) throws DatabaseException {
+    private long _forkFunctionBlock(final FunctionBlock functionBlock, final AccountId currentAccountId) throws DatabaseException {
         final String mostId = functionBlock.getMostId();
         final String kind = functionBlock.getKind();
         final String name = functionBlock.getName();
         final String description = functionBlock.getDescription();
         final String release = functionBlock.getRelease();
-        final Long authorId = functionBlock.getAuthor().getId();
+        final AccountId authorId = functionBlock.getAuthor().getId();
         final Long companyId = functionBlock.getCompany().getId();
         final String access = functionBlock.getAccess();
         final boolean isSource = functionBlock.isSource();
         final boolean isSink = functionBlock.isSink();
         final Long priorVersionId = functionBlock.getId();
-        final Long creatorAccountId = currentAccountId;
+        final AccountId creatorAccountId = currentAccountId;
         final Long baseVersionId = functionBlock.getBaseVersionId();
 
         final Query query = new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, is_source, is_sink, prior_version_id, creator_account_id, base_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -127,7 +128,7 @@ public class FunctionBlockDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    private void _setCreatorAccountId(long functionBlockId, long accountId) throws DatabaseException {
+    private void _setCreatorAccountId(long functionBlockId, AccountId accountId) throws DatabaseException {
         final Query query = new Query("UPDATE function_blocks SET creator_account_id = ? WHERE id = ?")
                 .setParameter(accountId)
                 .setParameter(functionBlockId)
@@ -165,10 +166,10 @@ public class FunctionBlockDatabaseManager {
         final String newAccess = proposedFunctionBlock.getAccess();
         final boolean isSource = proposedFunctionBlock.isSource();
         final boolean isSink = proposedFunctionBlock.isSink();
-        final long newAuthorId = proposedFunctionBlock.getAuthor().getId();
+        final AccountId newAuthorId = proposedFunctionBlock.getAuthor().getId();
         final long newCompanyId = proposedFunctionBlock.getCompany().getId();
         final long functionBlockId = proposedFunctionBlock.getId();
-        final Long creatorAccountId = proposedFunctionBlock.getCreatorAccountId();
+        final AccountId creatorAccountId = proposedFunctionBlock.getCreatorAccountId();
 
         final Query query = new Query("UPDATE function_blocks SET most_id = ?, kind = ?, name = ?, description = ?, last_modified_date = NOW(), release_version = ?, account_id = ?, company_id = ?, access = ?, is_source = ?, is_sink = ?, is_approved = ?, creator_account_id = ? WHERE id = ?")
             .setParameter(newMostId)
@@ -342,7 +343,7 @@ public class FunctionBlockDatabaseManager {
         _disassociateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId);
     }
 
-    public void updateFunctionBlock(final FunctionBlock updatedFunctionBlock, final Long accountId) throws DatabaseException {
+    public void updateFunctionBlock(final FunctionBlock updatedFunctionBlock, final AccountId accountId) throws DatabaseException {
         _updateUnapprovedFunctionBlock(updatedFunctionBlock);
     }
 
@@ -378,7 +379,7 @@ public class FunctionBlockDatabaseManager {
         return functionCatalogIds;
     }
 
-    public void submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+    public void submitFunctionBlockForReview(final long functionBlockId, final AccountId accountId) throws DatabaseException {
         if (_functionBlockHasReview(functionBlockId)) {
             // already present, return
             return;
@@ -394,7 +395,7 @@ public class FunctionBlockDatabaseManager {
         return rows.size() > 0;
     }
 
-    private void _submitFunctionBlockForReview(final long functionBlockId, final Long accountId) throws DatabaseException {
+    private void _submitFunctionBlockForReview(final long functionBlockId, final AccountId accountId) throws DatabaseException {
         final Query query = new Query("INSERT INTO reviews (function_block_id, account_id, created_date) VALUES (?, ?, NOW())");
         query.setParameter(functionBlockId);
         query.setParameter(accountId);

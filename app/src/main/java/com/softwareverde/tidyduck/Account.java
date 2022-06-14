@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Account {
-    private Long _id;
+    private AccountId _id;
     private String _username;
     private String _password;
     private String _name;
@@ -17,11 +17,11 @@ public class Account {
     private Settings _settings;
     private Set<Role> _roles = new HashSet<>();
 
-    public Long getId() {
+    public AccountId getId() {
         return _id;
     }
 
-    public void setId(long id) {
+    public void setId(AccountId id) {
         this._id = id;
     }
 

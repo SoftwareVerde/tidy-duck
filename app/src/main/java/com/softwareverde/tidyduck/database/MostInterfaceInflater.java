@@ -5,6 +5,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
 import com.softwareverde.logging.Logger;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.MostFunction;
 import com.softwareverde.tidyduck.most.MostInterface;
@@ -27,7 +28,7 @@ public class MostInterfaceInflater {
                         "WHERE interfaces.is_permanently_deleted = 0 GROUP BY interfaces.id"
         );
 
-        List<MostInterface> mostInterfaces = new ArrayList<>();
+        final List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final MostInterface mostInterface = convertRowToMostInterface(row);
@@ -44,7 +45,7 @@ public class MostInterfaceInflater {
                         "WHERE interfaces.is_deleted = 1 AND interfaces.is_permanently_deleted = 0 GROUP BY interfaces.id"
         );
 
-        List<MostInterface> mostInterfaces = new ArrayList<>();
+        final List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final MostInterface mostInterface = convertRowToMostInterface(row);
@@ -54,12 +55,12 @@ public class MostInterfaceInflater {
     }
 
     public Map<Long, List<MostInterface>> inflateMostInterfacesGroupedByBaseVersionId() throws DatabaseException {
-        List<MostInterface> mostInterfaces = inflateMostInterfaces();
+        final List<MostInterface> mostInterfaces = inflateMostInterfaces();
         return groupByBaseVersionId(mostInterfaces);
     }
 
     public Map<Long, List<MostInterface>> inflateTrashedMostInterfacesGroupedByBaseVersionId() throws DatabaseException {
-        List<MostInterface> mostInterfaces = inflateTrashedMostInterfaces();
+        final List<MostInterface> mostInterfaces = inflateTrashedMostInterfaces();
         return groupByBaseVersionId(mostInterfaces);
     }
 
@@ -67,7 +68,7 @@ public class MostInterfaceInflater {
         final HashMap<Long, List<MostInterface>> groupedFunctionBlocks = new HashMap<>();
 
         for (final MostInterface functionBlock : mostInterfaces) {
-            Long baseVersionId = functionBlock.getBaseVersionId();
+            final Long baseVersionId = functionBlock.getBaseVersionId();
             if (!groupedFunctionBlocks.containsKey(baseVersionId)) {
                 groupedFunctionBlocks.put(baseVersionId, new ArrayList<>());
             }
@@ -87,7 +88,7 @@ public class MostInterfaceInflater {
         );
         query.setParameter(functionBlockId);
 
-        List<MostInterface> mostInterfaces = new ArrayList<>();
+        final List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
             final long mostInterfaceId = row.getLong("interface_id");
@@ -97,7 +98,7 @@ public class MostInterfaceInflater {
         return mostInterfaces;
     }
 
-    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
+    public Map<Long, List<MostInterface>> inflateMostInterfacesMatchingSearchString(final String searchString, final boolean includeDeleted, final AccountId accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query (
                 "SELECT interfaces.*, COALESCE(SUM(function_blocks.is_approved AND NOT function_blocks.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM interfaces\n" +
@@ -116,10 +117,10 @@ public class MostInterfaceInflater {
         query.setParameter(accountId);
         query.setParameter(accountId);
 
-        List<MostInterface> mostInterfaces = new ArrayList<>();
+        final List<MostInterface> mostInterfaces = new ArrayList<>();
         final List<Row> rows = _databaseConnection.query(query);
         for (final Row row : rows) {
-            MostInterface mostInterface = convertRowToMostInterface(row);
+            final MostInterface mostInterface = convertRowToMostInterface(row);
             mostInterfaces.add(mostInterface);
         }
         return groupByBaseVersionId(mostInterfaces);
@@ -145,7 +146,7 @@ public class MostInterfaceInflater {
         }
 
         final Row row = rows.get(0);
-        MostInterface mostInterface = convertRowToMostInterface(row);
+        final MostInterface mostInterface = convertRowToMostInterface(row);
 
         if (inflateChildren) {
             inflateChildren(mostInterface);
@@ -185,9 +186,9 @@ public class MostInterfaceInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
-        final Long creatorAccountId = row.getLong("creator_account_id");
+        final AccountId creatorAccountId = AccountId.wrap(row.getLong("creator_account_id"));
 
-        MostInterface mostInterface = new MostInterface();
+        final MostInterface mostInterface = new MostInterface();
         mostInterface.setId(id);
         mostInterface.setMostId(mostId);
         mostInterface.setName(name);

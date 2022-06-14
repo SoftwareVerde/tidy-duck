@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
@@ -133,7 +134,7 @@ public class FunctionBlockInflater {
         functionBlock.setMostInterfaces(mostInterfaces);
     }
 
-    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
+    public Map<Long, List<FunctionBlock>> inflateFunctionBlocksMatchingSearchString(final String searchString, final boolean includeDeleted, final AccountId accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query (
             "SELECT function_blocks.*, COALESCE(SUM(function_catalogs.is_approved AND NOT function_catalogs.is_permanently_deleted) > 0, 0) AS has_approved_parent FROM function_blocks\n" +
@@ -170,7 +171,7 @@ public class FunctionBlockInflater {
         final String description = row.getString("description");
         final Date lastModifiedDate = DateUtil.dateFromDateString(row.getString("last_modified_date"));
         final String release = row.getString("release_version");
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
         final Long companyId = row.getLong("company_id");
         final String access = row.getString("access");
         final boolean isSource = row.getBoolean("is_source");
@@ -192,7 +193,7 @@ public class FunctionBlockInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
-        final Long creatorAccountId = row.getLong("creator_account_id");
+        final AccountId creatorAccountId = AccountId.wrap(row.getLong("creator_account_id"));
         final boolean hasApprovedParent = row.getBoolean("has_approved_parent");
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);

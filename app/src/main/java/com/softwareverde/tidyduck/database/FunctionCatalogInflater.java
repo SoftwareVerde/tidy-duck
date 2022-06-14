@@ -5,6 +5,7 @@ import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
 import com.softwareverde.logging.Logger;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.util.Util;
@@ -55,7 +56,7 @@ public class FunctionCatalogInflater {
         return functionCatalogs;
     }
 
-    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final Long accountId) throws DatabaseException {
+    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final AccountId accountId) throws DatabaseException {
         // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
         final Query query = new Query ("SELECT * FROM function_catalogs\n" +
                                        "WHERE base_version_id IN (" +
@@ -178,7 +179,7 @@ public class FunctionCatalogInflater {
         final Long id = Util.parseLong(row.getString("id"));
         final String name = row.getString("name");
         final String release = row.getString("release_version");
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
         final Long companyId = row.getLong("company_id");
         final boolean isDeleted = row.getBoolean("is_deleted");
         final String deletedDateString = row.getString("deleted_date");
@@ -197,7 +198,7 @@ public class FunctionCatalogInflater {
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
-        final Long creatorAccountId = row.getLong("creator_account_id");
+        final AccountId creatorAccountId = AccountId.wrap(row.getLong("creator_account_id"));
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);

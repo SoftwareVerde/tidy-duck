@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.most.Author;
 
 import java.sql.Connection;
@@ -15,7 +16,7 @@ public class AuthorInflater {
         _databaseConnection = databaseConnection;
     }
     
-    public Author inflateAuthor(Long accountId) throws DatabaseException {
+    public Author inflateAuthor(AccountId accountId) throws DatabaseException {
         final AccountInflater accountInflater = new AccountInflater(_databaseConnection);
         final Account account = accountInflater.inflateAccount(accountId);
 

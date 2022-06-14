@@ -4,6 +4,7 @@ import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
 import com.softwareverde.database.row.Row;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 
@@ -94,7 +95,7 @@ public class MostFunctionInflater {
         final String returnParameterName = row.getString("return_parameter_name");
         final String returnParameterDescription = row.getString("return_parameter_description");
         final long returnTypeId = row.getLong("return_type_id");
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
         final long companyId = row.getLong("company_id");
 
         final MostFunctionStereotypeInflater mostFunctionStereotypeInflater = new MostFunctionStereotypeInflater(_databaseConnection);
