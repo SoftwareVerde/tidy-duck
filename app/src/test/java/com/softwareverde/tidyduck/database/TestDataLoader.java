@@ -9,6 +9,7 @@ import com.softwareverde.database.query.Query;
 import com.softwareverde.database.mysql.MysqlTestDatabase;
 import com.softwareverde.database.util.TransactionUtil;
 import com.softwareverde.logging.Logger;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.util.IoUtil;
 
 import java.io.StringReader;
@@ -59,7 +60,7 @@ public class TestDataLoader {
      * @param functionBlockId
      * @param interfaceId
      */
-    public static Long insertFakeReview(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long functionBlockId, final Long interfaceId, final long accountId) throws DatabaseException {
+    public static Long insertFakeReview(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long functionBlockId, final Long interfaceId, final AccountId accountId) throws DatabaseException {
         if (functionCatalogId != null) {
             return databaseConnection.executeSql(new Query("INSERT INTO reviews (function_catalog_id, account_id, created_date) VALUES (?, ?, NOW())").setParameter(functionCatalogId).setParameter(accountId));
 

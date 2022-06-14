@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.most.*;
@@ -26,7 +27,7 @@ public class MostInterfaceDatabaseManagerTests extends TestBase {
 
     protected FunctionCatalog _createSavedTestFunctionCatalog() throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -44,7 +45,7 @@ public class MostInterfaceDatabaseManagerTests extends TestBase {
 
     protected FunctionBlock _createSavedTestFunctionBlock(final FunctionCatalog functionCatalog, final String functionBlockName) throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -59,7 +60,7 @@ public class MostInterfaceDatabaseManagerTests extends TestBase {
         functionBlock.setMostId("0xAB");
         functionBlock.setAccess("public");
 
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         return functionBlock;
     }
 
@@ -77,7 +78,7 @@ public class MostInterfaceDatabaseManagerTests extends TestBase {
 
     protected MostFunction _createUnsavedTestMostFunction(final String mostFunctionName) throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);

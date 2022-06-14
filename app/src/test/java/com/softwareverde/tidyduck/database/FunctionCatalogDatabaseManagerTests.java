@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
@@ -32,7 +33,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
     public void should_insert_and_retrieve_single_stored_function_catalog() throws Exception {
         // Setup
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -66,8 +67,8 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
         TestDataLoader.insertFakeAccount(_databaseConnection, "Account 2", 2L);
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
-        final Author newAuthor = authorInflater.inflateAuthor(2L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
+        final Author newAuthor = authorInflater.inflateAuthor(AccountId.wrap(2L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -90,7 +91,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
         functionCatalog.setRelease("v0.0.1");
 
         // Action
-        _functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog, 1L);
+        _functionCatalogDatabaseManager.updateFunctionCatalog(functionCatalog, AccountId.wrap(1L));
         final FunctionCatalog inflatedFunctionCatalog = _functionCatalogInflater.inflateFunctionCatalog(functionCatalog.getId());
 
         // Assert
@@ -106,7 +107,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
     public void should_trash_function_catalog_before_deleting() throws Exception {
         // Setup
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -139,7 +140,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
     public void should_completely_delete_an_existing_uncommitted_function_catalog() throws Exception {
         // Setup
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -168,7 +169,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
     public void deleting_approved_function_catalog_should_use_permanently_deleted_flag() throws Exception {
         // Setup
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -201,7 +202,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
     public void should_inflate_children_of_function_catalog() throws Exception {
         // Setup
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -222,7 +223,7 @@ public class FunctionCatalogDatabaseManagerTests extends TestBase {
         functionBlock.setDescription("Description");
         functionBlock.setRelease("v1.0.0");
         functionBlock.setAccess("public");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
 
         // Action
         final List<FunctionCatalog> inflatedFunctionCatalogs = _functionCatalogInflater.inflateFunctionCatalogs(true);

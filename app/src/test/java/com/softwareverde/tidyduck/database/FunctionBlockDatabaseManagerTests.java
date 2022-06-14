@@ -3,6 +3,7 @@ package com.softwareverde.tidyduck.database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.TestBase;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
@@ -23,7 +24,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
 
     protected FunctionCatalog _createSavedTestFunctionCatalog() throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -40,7 +41,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
 
     protected FunctionBlock _createUnsavedTestFunctionBlock(final String functionBlockName) throws DatabaseException {
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
-        final Author author = authorInflater.inflateAuthor(1L);
+        final Author author = authorInflater.inflateAuthor(AccountId.wrap(1L));
 
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
         final Company company = companyInflater.inflateCompany(1L);
@@ -96,7 +97,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
 
         // Action
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         final FunctionBlock inflatedFunctionBlock = _functionBlockInflater.inflateFunctionBlock(functionBlock.getId());
 
         // Assert
@@ -116,7 +117,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
 
         // Action
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         final List<FunctionBlock> inflatedFunctionBlocks = _functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId());
 
         // Assert
@@ -139,7 +140,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
 
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block 123");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
 
         // Action
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
@@ -158,7 +159,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionCatalog functionCatalog = _createSavedTestFunctionCatalog();
 
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block 123");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
 
         // Action
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog.getId(), functionBlock.getId());
@@ -197,7 +198,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
 
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
 
         final Integer beforeDeleteFunctionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
@@ -229,7 +230,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
 
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
 
         final Integer beforeDeleteFunctionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
@@ -257,7 +258,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
 
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
 
         final Integer beforeDeleteFunctionBlockCount = _getTotalFunctionBlockCountInDatabase("Function Block");
@@ -290,7 +291,7 @@ public class FunctionBlockDatabaseManagerTests extends TestBase {
         final FunctionCatalog functionCatalog2 = _createSavedTestFunctionCatalog();
 
         final FunctionBlock functionBlock = _createUnsavedTestFunctionBlock("Function Block");
-        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, 1L);
+        _functionBlockDatabaseManager.insertFunctionBlockForFunctionCatalog(functionCatalog.getId(), functionBlock, AccountId.wrap(1L));
         _functionBlockDatabaseManager.associateFunctionBlockWithFunctionCatalog(functionCatalog2.getId(), functionBlock.getId());
 
         // Action

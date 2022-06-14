@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.most;
 
+import com.softwareverde.tidyduck.AccountId;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class MostTypeConverterTests {
 
     private Author createAuthor(Company company) {
         Author author = new Author();
-        author.setId(2L);
+        author.setId(AccountId.wrap(2L));
         author.setName("Test Author");
         author.setCompany(company);
         return author;
