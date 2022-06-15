@@ -21,8 +21,6 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly 'org.apache.tomcat:tomcat-servlet-api:8.0.0-RC1'
-
     compile group: 'com.github.softwareverde', name: 'json', version: 'v1.+'
     implementation group: 'com.github.softwareverde', name: 'java-util', version: 'v2.7.3'
 
@@ -41,7 +39,6 @@ dependencies {
 
     compile project("most-adapter")
 
-    testImplementation 'org.apache.tomcat:tomcat-servlet-api:8.0.0-RC1'
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '1.+'
     testImplementation group: 'com.github.softwareverde',   name: 'java-db-mysql-embedded', version: 'v3.0.3'
@@ -49,28 +46,28 @@ dependencies {
     testImplementation group: 'com.github.softwareverde',   name: 'java-mariadb-linux',     version: 'v10.5.9-p1'
 }
 
-//tasks.withType(Test) {
-//    testLogging {
-//        events "passed", "skipped", "failed", "standardOut"
-//        showExceptions true
-//        exceptionFormat "full"
-//        showCauses true
-//        showStackTraces true
-//
-//        debug {
-//            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
-//            exceptionFormat "full"
-//        }
-//        info.events = debug.events
-//        info.exceptionFormat = debug.exceptionFormat
-//
-//        afterSuite { desc, result ->
-//            if (! desc.parent) {
-//                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-//                def startItem = '|  ', endItem = '  |'
-//                def repeatLength = startItem.length() + output.length() + endItem.length()
-//                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-//            }
-//        }
-//    }
-//}
+tasks.withType(Test) {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut"
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        debug {
+            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+            exceptionFormat "full"
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (! desc.parent) {
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
+}
