@@ -1,7 +1,7 @@
 group 'com.softwareverde'
 version '1.0.3'
 
-apply plugin: 'war'
+apply plugin: 'java'
 
 sourceCompatibility = 1.8
 
@@ -44,6 +44,27 @@ dependencies {
     testImplementation group: 'com.github.softwareverde',   name: 'java-db-mysql-embedded', version: 'v3.0.3'
     testImplementation group: 'com.github.softwareverde',   name: 'java-mariadb-osx',       version: 'v10.5.9-p4'
     testImplementation group: 'com.github.softwareverde',   name: 'java-mariadb-linux',     version: 'v10.5.9-p1'
+}
+
+task copyDependencies(type: Copy) {
+    into "$buildDir/libs/"
+
+    from (configurations.runtimeClasspath.files) {
+        into "lib"
+    }
+}
+
+task makeJar(type: Jar) {
+    manifest {
+        attributes  'Implementation-Title': 'Tidy Duck',
+                'Implementation-Version': archiveVersion.get(),
+                'Main-Class': 'com.softwareverde.tidyduck.Main',
+                'Class-Path': (configurations.runtimeClasspath.files).collect { 'lib/' + it.getName() }.join(' ')
+    }
+
+    archiveFileName = project.name + '-' + archiveVersion.get() + '.jar'
+
+    with jar
 }
 
 tasks.withType(Test) {
