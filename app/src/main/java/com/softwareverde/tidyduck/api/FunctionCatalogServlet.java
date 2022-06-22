@@ -198,7 +198,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonApplicationServlet<
             }
         });
 
-        super._defineEndpoint("function-catalog-duplicate-check", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("function-catalogs/duplicate-check", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
 
             @Override
             protected Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
@@ -208,7 +208,7 @@ public class FunctionCatalogServlet extends AuthenticatedJsonApplicationServlet<
             }
         });
 
-        super._defineEndpoint("trashed-function-catalogs", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("function-catalogs/trashed", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
 
             @Override
             protected Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {

@@ -1,10 +1,13 @@
 package com.softwareverde.tidyduck;
 
+import com.softwareverde.json.Json;
+import com.softwareverde.json.Jsonable;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Role {
+public class Role implements Jsonable {
 
     private Long _id;
     private String _name;
@@ -40,5 +43,21 @@ public class Role {
 
     public void setPermissions(final Collection<Permission> permissions) {
         _permissions = new HashSet<>(permissions);
+    }
+
+    @Override
+    public Json toJson() {
+        final Json roleJson = new Json(false);
+
+        final Json permissionsJson = new Json(true);
+        for (final Permission permission : getPermissions()) {
+            permissionsJson.add(permission.name());
+        }
+
+        roleJson.put("id", getId());
+        roleJson.put("name", getName());
+        roleJson.put("permissions", permissionsJson);
+
+        return roleJson;
     }
 }

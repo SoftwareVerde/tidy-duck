@@ -25,7 +25,7 @@ function getMostInterface(mostInterfaceId, callbackFunction) {
 
 // calls callbackFunction with an array of MOST interfaces.
 function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) {
-    let url = ENDPOINT_PREFIX + "api/v1/most-interfaces";
+    let url = API_PREFIX + "most-interfaces";
     if (functionBlockId) {
         url = url.concat("?function_block_id=" + functionBlockId);
     }
@@ -56,7 +56,7 @@ function getMostInterfacesForFunctionBlockId(functionBlockId, callbackFunction) 
 // calls callbackFunction with an array of interfaces in trash
 function getMostInterfacesMarkedAsDeleted(callbackFunction) {
     const request = new Request(
-        API_PREFIX + "trashed-most-interfaces",
+        API_PREFIX + "most-interfaces/trashed",
         {
             method: "GET",
             credentials: "include"
@@ -81,7 +81,7 @@ function getMostInterfacesMarkedAsDeleted(callbackFunction) {
 ///Calls callbackFunction with an array of MOST interfaces filtered by search string.
 function getMostInterfacesMatchingSearchString(searchString, includeDeleted, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
+        API_PREFIX + "most-interfaces/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
         {
             method: "GET",
             credentials: "include"
@@ -155,7 +155,7 @@ function insertMostInterface(functionBlockId, mostInterface, callbackFunction) {
 // calls callbackFunction with wasSuccess
 function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks",
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/function-blocks",
         {
             method: "POST",
             credentials: "include",
@@ -181,7 +181,7 @@ function associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceI
 // calls callbackFunction with wasSuccess
 function disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/function-blocks/" + functionBlockId,
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/function-blocks/" + functionBlockId,
         {
             method: "DELETE",
             credentials: "include"
@@ -203,7 +203,7 @@ function disassociateMostInterfaceFromFunctionBlock(functionBlockId, mostInterfa
 
 function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
+        API_PREFIX + "most-interfaces/" + mostInterfaceId,
         {
             method: "POST",
             credentials: "include",
@@ -229,7 +229,7 @@ function updateMostInterface(mostInterfaceId, mostInterface, callbackFunction) {
 // calls callbackFunction with new MOST interface ID
 function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/fork",
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/fork",
         {
             method: "POST",
             credentials: "include",
@@ -258,7 +258,7 @@ function forkMostInterface(functionBlockId, mostInterfaceId, callbackFunction) {
 
 function deleteMostInterface(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId,
+        API_PREFIX + "most-interfaces/" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"
@@ -281,7 +281,7 @@ function deleteMostInterface(mostInterfaceId, callbackFunction) {
 
 function markMostInterfaceAsDeleted(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/mark-as-deleted",
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/mark-as-deleted",
         {
             method: "POST",
             credentials: "include"
@@ -302,7 +302,7 @@ function markMostInterfaceAsDeleted(mostInterfaceId, callbackFunction) {
 
 function restoreMostInterfaceFromTrash(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-interfaces/" + mostInterfaceId + "/restore-from-trash",
+        API_PREFIX + "most-interfaces/" + mostInterfaceId + "/restore-from-trash",
         {
             method: "POST",
             credentials: "include"
@@ -347,7 +347,7 @@ function submitMostInterfaceforReview(mostInterfaceId, callbackFunction) {
 
 function checkForDuplicateMostInterface(mostInterfaceName, mostInterfaceMostId, mostInterfaceVersionSeriesId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "most-interface-duplicate-check",
+        API_PREFIX + "most-interfaces/duplicate-check",
         {
             method: "POST",
             credentials: "include",

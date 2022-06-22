@@ -25,7 +25,7 @@ function getFunctionBlock(functionBlockId, callbackFunction) {
 
 // calls callbackFunction with an array of function blocks
 function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFunction) {
-    let url = ENDPOINT_PREFIX + "api/v1/function-blocks";
+    let url = ENDPOINT_PREFIX + "function-blocks";
     if (functionCatalogId) {
         url = url.concat("?function_catalog_id=" + functionCatalogId);
     }
@@ -56,7 +56,7 @@ function getFunctionBlocksForFunctionCatalogId(functionCatalogId, callbackFuncti
 // calls callbackFunction with an array of function blocks in trash
 function getFunctionBlocksMarkedAsDeleted(callbackFunction) {
     const request = new Request(
-        API_PREFIX + "trashed-function-blocks",
+        API_PREFIX + "function-blocks/trashed",
         {
             method: "GET",
             credentials: "include"
@@ -81,7 +81,7 @@ function getFunctionBlocksMarkedAsDeleted(callbackFunction) {
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
 function getFunctionBlocksMatchingSearchString(searchString, includeDeleted, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
+        API_PREFIX + "function-blocks/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
         {
             method: "GET",
             credentials: "include"
@@ -155,7 +155,7 @@ function insertFunctionBlock(functionCatalogId, functionBlock, callbackFunction)
 // calls callbackFunction with wasSuccess
 function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/function-catalogs",
+        API_PREFIX + "function-blocks/" + functionBlockId + "/function-catalogs",
         {
             method: "POST",
             credentials: "include",
@@ -180,7 +180,7 @@ function associateFunctionBlockWithFunctionCatalog(functionCatalogId, functionBl
 
 function disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/function-catalogs/" + functionCatalogId,
+        API_PREFIX + "function-blocks/" + functionBlockId + "/function-catalogs/" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"
@@ -203,7 +203,7 @@ function disassociateFunctionBlockFromFunctionCatalog(functionCatalogId, functio
 
 function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
+        API_PREFIX + "function-blocks/" + functionBlockId,
         {
             method: "POST",
             credentials: "include",
@@ -229,7 +229,7 @@ function updateFunctionBlock(functionBlockId, functionBlock, callbackFunction) {
 // calls callbackFunction with new function block ID
 function forkFunctionBlock(functionCatalogId, functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/fork",
+        API_PREFIX + "function-blocks/" + functionBlockId + "/fork",
         {
             method: "POST",
             credentials: "include",
@@ -258,7 +258,7 @@ function forkFunctionBlock(functionCatalogId, functionBlockId, callbackFunction)
 
 function deleteFunctionBlock(functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId,
+        API_PREFIX + "function-blocks/" + functionBlockId,
         {
             method: "DELETE",
             credentials: "include"
@@ -281,7 +281,7 @@ function deleteFunctionBlock(functionBlockId, callbackFunction) {
 
 function markFunctionBlockAsDeleted(functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/mark-as-deleted",
+        API_PREFIX + "function-blocks/" + functionBlockId + "/mark-as-deleted",
         {
             method: "POST",
             credentials: "include"
@@ -302,7 +302,7 @@ function markFunctionBlockAsDeleted(functionBlockId, callbackFunction) {
 
 function restoreFunctionBlockFromTrash(functionBlockId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-blocks/" + functionBlockId + "/restore-from-trash",
+        API_PREFIX + "function-blocks/" + functionBlockId + "/restore-from-trash",
         {
             method: "POST",
             credentials: "include"
@@ -347,7 +347,7 @@ function submitFunctionBlockForReview(functionBlockId, callbackFunction) {
 
 function checkForDuplicateFunctionBlock(functionBlockName, functionBlockMostId, functionBlockVersionSeriesId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-block-duplicate-check",
+        API_PREFIX + "function-blocks/duplicate-check",
         {
             method: "POST",
             credentials: "include",

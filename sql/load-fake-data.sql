@@ -1,9 +1,9 @@
 
 INSERT INTO companies (name) VALUES ('Software Verde, LLC');
 
-INSERT INTO accounts (username, name, password, company_id) VALUES ('josh@softwareverde.com', 'Josh Green', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 1);
-INSERT INTO accounts (username, name, password, company_id) VALUES ('groot@softwareverde.com', 'Andrew Groot', '2628baba2a77860376d77bbcba431f4dbc22517bdcd82daf0c90341d78d6ca4f', 1);
-INSERT INTO accounts (username, name, password, company_id) VALUES ('test@softwareverde.com', 'Test User', '2628baba2a77860376d77bbcba431f4dbc22517bdcd82daf0c90341d78d6ca4f', 1);
+-- INSERT INTO accounts (username, name, password, company_id) VALUES ('josh@softwareverde.com', 'Josh Green', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 1);
+-- INSERT INTO accounts (username, name, password, company_id) VALUES ('groot@softwareverde.com', 'Andrew Groot', '2628baba2a77860376d77bbcba431f4dbc22517bdcd82daf0c90341d78d6ca4f', 1);
+-- INSERT INTO accounts (username, name, password, company_id) VALUES ('test@softwareverde.com', 'Test User', '2628baba2a77860376d77bbcba431f4dbc22517bdcd82daf0c90341d78d6ca4f', 1);
 
 INSERT INTO function_catalogs (name, release_version, account_id, company_id, base_version_id)
 VALUES ('Test Function Catalog', '1.1', 1, 1, 1);

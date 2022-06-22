@@ -1,16 +1,26 @@
 
-function checkAccount(callback) {
+function checkAccount(callbackFunction, callbackWithResponse) {
     tidyFetch(
         new Request(
-            API_PREFIX + "account",
+            API_PREFIX + "session/account",
             {
                 method:         "GET",
                 credentials:    "include"
             }
         ),
         function(data) {
-            if (typeof callback == "function") {
-                callback(data);
+            if (!data.wasSuccess) {
+                console.log("Unable to get account: " + data.errorMessage);
+            }
+
+            if (typeof callbackFunction == "function") {
+                if (callbackWithResponse) {
+                    callbackFunction(data);
+                    return;
+                }
+
+                let account = data.account;
+                callbackFunction(account);
             }
         }
     );
@@ -19,7 +29,7 @@ function checkAccount(callback) {
 function logout(callback) {
     tidyFetch(
         new Request(
-            API_PREFIX + "account/logout",
+            API_PREFIX + "session/logout",
             {
                 method:         "GET",
                 credentials:    "include"
@@ -74,7 +84,7 @@ function getAccounts(callbackFunction) {
 function getActiveAccountsWithModifyPermission(callbackFunction) {
     tidyFetch(
         new Request(
-            API_PREFIX + "filtered-accounts/active-modify-permission"
+            API_PREFIX + "accounts/filtered-accounts/active-modify-permission"
         ),
         function (data) {
             if (!data.wasSuccess) {
@@ -114,7 +124,7 @@ function updateAccountRoles(accountId, roleNames, callbackFunction) {
 
 function getCompanies(callbackFunction) {
     const request = new Request(
-        API_PREFIX + "companies",
+        API_PREFIX + "accounts/companies",
         {
             method: "GET",
             credentials: "include"
@@ -130,7 +140,7 @@ function getCompanies(callbackFunction) {
 
 function createNewCompany(company, callback) {
     const request = new Request(
-        API_PREFIX + "companies",
+        API_PREFIX + "accounts/companies",
         {
             method: "POST",
             credentials: "include",

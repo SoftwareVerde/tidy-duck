@@ -1,5 +1,6 @@
 package com.softwareverde.tidyduck.database;
 
+import com.softwareverde.cryptography.argon2.Argon2;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
 import com.softwareverde.database.query.Query;
@@ -161,7 +162,7 @@ class AccountDatabaseManager {
     }
 
     private void _changePassword(final AccountId accountId, final String newPassword) throws DatabaseException {
-        final String newPasswordHash = SecureHashUtil.hashWithPbkdf2(newPassword);
+        final String newPasswordHash = new Argon2().generateParameterizedHash(newPassword.getBytes());
         final Query query = new Query("UPDATE accounts SET password = ? WHERE id = ?")
                 .setParameter(newPasswordHash)
                 .setParameter(accountId)

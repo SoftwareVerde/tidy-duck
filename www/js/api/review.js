@@ -1,6 +1,6 @@
 // calls callbackFunction with an array of reviews
 function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) {
-    let endpoint = "api/v1/reviews";
+    let endpoint = API_PREFIX + "reviews";
     if (excludeOpenReviews) {
         endpoint += "?excludeOpenReviews=true";
     }
@@ -9,7 +9,7 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
         endpoint += separator + "excludeClosedReviews=true";
     }
     const request = new Request(
-        ENDPOINT_PREFIX + endpoint,
+        endpoint,
         {
             method: "GET",
             credentials: "include"
@@ -34,7 +34,7 @@ function getReviews(excludeOpenReviews, excludeClosedReviews, callbackFunction) 
 // calls callbackFunction with requested review
 function getReview(reviewId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId,
+        API_PREFIX + "reviews/" + reviewId,
         {
             method: "GET",
             credentials: "include",
@@ -55,7 +55,7 @@ function getReview(reviewId, callbackFunction) {
 // calls callbackFunction with new review ID
 function insertReview(review, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews",
+        API_PREFIX + "reviews",
         {
             method: "POST",
             credentials: "include",
@@ -84,7 +84,7 @@ function insertReview(review, callbackFunction) {
 // calls callbackFunction with success flag
 function updateReview(review, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/" + review.id,
+        API_PREFIX + "reviews/" + review.id,
         {
             method: "POST",
             credentials: "include",
@@ -109,7 +109,7 @@ function updateReview(review, callbackFunction) {
 
 function approveReview(reviewId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/approve",
+        API_PREFIX + "reviews/" + reviewId + "/approve",
         {
             method: "POST",
             credentials: "include",
@@ -132,7 +132,7 @@ function approveReview(reviewId, callbackFunction) {
 
 function insertReviewVote(reviewId, reviewVote, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/votes",
+        API_PREFIX + "reviews/" + reviewId + "/votes",
         {
             method: "POST",
             credentials: "include",
@@ -160,7 +160,7 @@ function insertReviewVote(reviewId, reviewVote, callbackFunction) {
 
 function updateReviewVote(reviewVoteId, reviewVote, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/review-votes/" + reviewVoteId,
+        API_PREFIX + "reviews/review-votes/" + reviewVoteId,
         {
             method: "POST",
             credentials: "include",
@@ -184,7 +184,7 @@ function updateReviewVote(reviewVoteId, reviewVote, callbackFunction) {
 
 function deleteReviewVote(reviewVoteId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/review-votes/" + reviewVoteId,
+        API_PREFIX + "reviews/review-votes/" + reviewVoteId,
         {
             method: "DELETE",
             credentials: "include",
@@ -205,7 +205,7 @@ function deleteReviewVote(reviewVoteId, callbackFunction) {
 
 function insertReviewComment(reviewId, reviewComment, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/reviews/" + reviewId + "/comments",
+        API_PREFIX + "reviews/" + reviewId + "/comments",
         {
             method: "POST",
             credentials: "include",

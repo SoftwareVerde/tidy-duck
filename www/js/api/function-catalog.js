@@ -51,7 +51,7 @@ function getFunctionCatalogs(callbackFunction) {
 // calls callbackFunction with an array of function catalogs in trash
 function getFunctionCatalogsMarkedAsDeleted(callbackFunction) {
     const request = new Request(
-        API_PREFIX + "trashed-function-catalogs",
+        API_PREFIX + "function-catalogs/trashed",
         {
             method: "GET",
             credentials: "include"
@@ -76,7 +76,7 @@ function getFunctionCatalogsMarkedAsDeleted(callbackFunction) {
 ///Calls callbackFunction with an array of Function Blocks filtered by search string.
 function getFunctionCatalogsMatchingSearchString(searchString, includeDeleted, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalogs/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
+        API_PREFIX + "function-catalogs/search/" + searchString + (includeDeleted ? "" : "?includeDeleted=false"),
         {
             method: "GET",
             credentials: "include"
@@ -128,7 +128,7 @@ function insertFunctionCatalog(functionCatalog, callbackFunction) {
 
 function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
+        API_PREFIX + "function-catalogs/" + functionCatalogId,
         {
             method: "POST",
             credentials: "include",
@@ -155,7 +155,7 @@ function updateFunctionCatalog(functionCatalogId, functionCatalog, shouldRelease
 // calls callbackFunction with new function catalog ID
 function forkFunctionCatalog(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/fork",
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/fork",
         {
             method: "POST",
             credentials: "include"
@@ -181,7 +181,7 @@ function forkFunctionCatalog(functionCatalogId, callbackFunction) {
 
 function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId,
+        API_PREFIX + "function-catalogs/" + functionCatalogId,
         {
             method: "DELETE",
             credentials: "include"
@@ -204,7 +204,7 @@ function deleteFunctionCatalog(functionCatalogId, callbackFunction) {
 
 function markFunctionCatalogAsDeleted(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/mark-as-deleted",
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/mark-as-deleted",
         {
             method: "POST",
             credentials: "include"
@@ -225,7 +225,7 @@ function markFunctionCatalogAsDeleted(functionCatalogId, callbackFunction) {
 
 function restoreFunctionCatalogFromTrash(functionCatalogId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/function-catalogs/" + functionCatalogId + "/restore-from-trash",
+        API_PREFIX + "function-catalogs/" + functionCatalogId + "/restore-from-trash",
         {
             method: "POST",
             credentials: "include"
@@ -317,7 +317,7 @@ function releaseFunctionCatalog(functionCatalogId, releaseItems, callbackFunctio
 
 function checkForDuplicateFunctionCatalog(functionCatalogName, functionCatalogVersionSeries, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "function-catalog-duplicate-check",
+        API_PREFIX + "function-catalogs/duplicate-check",
         {
             method: "POST",
             credentials: "include",

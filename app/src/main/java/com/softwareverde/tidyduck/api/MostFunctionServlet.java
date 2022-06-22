@@ -126,7 +126,7 @@ public class MostFunctionServlet extends AuthenticatedJsonApplicationServlet<Tid
             }
         });
 
-        super._defineEndpoint("trashed-most-functions", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("most-functions/trashed", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
 
             @Override
             protected Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {

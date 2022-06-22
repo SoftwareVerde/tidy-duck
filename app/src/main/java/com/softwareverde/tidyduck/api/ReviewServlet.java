@@ -127,7 +127,7 @@ public class ReviewServlet extends AuthenticatedJsonApplicationServlet<TidyDuckE
             }
         });
 
-        super._defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("reviews/review-votes/<reviewVoteId>", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
             public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_VOTING);
@@ -140,7 +140,7 @@ public class ReviewServlet extends AuthenticatedJsonApplicationServlet<TidyDuckE
             }
         });
 
-        super._defineEndpoint("review-votes/<reviewVoteId>", HttpMethod.DELETE, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("reviews/review-votes/<reviewVoteId>", HttpMethod.DELETE, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
             public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.REVIEWS_VOTING);

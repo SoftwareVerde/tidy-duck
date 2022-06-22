@@ -1,11 +1,13 @@
 package com.softwareverde.tidyduck.environment;
 
+import com.softwareverde.database.mysql.embedded.properties.MutableEmbeddedDatabaseProperties;
 import com.softwareverde.util.Util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public class Configuration {
@@ -44,16 +46,29 @@ public class Configuration {
     }
 
     private final Properties _properties;
-    private DatabaseProperties _databaseProperties;
+    private MutableEmbeddedDatabaseProperties _databaseProperties;
     private ServerProperties _serverProperties;
 
     private void _loadDatabaseProperties() {
-        _databaseProperties = new DatabaseProperties();
-        _databaseProperties._connectionUrl = _properties.getProperty("database.url", "");
-        _databaseProperties._username = _properties.getProperty("database.username", "");
-        _databaseProperties._password = _properties.getProperty("database.password", "");
-        _databaseProperties._schema = _properties.getProperty("database.schema", "");
-        _databaseProperties._port = Util.parseInt(_properties.getProperty("database.port", ""));
+        _databaseProperties = new MutableEmbeddedDatabaseProperties();
+        _databaseProperties.setHostname(_properties.getProperty("database.url", ""));
+        _databaseProperties.setUsername(_properties.getProperty("database.username", ""));
+        _databaseProperties.setPassword(_properties.getProperty("database.password", ""));
+        _databaseProperties.setRootPassword(_properties.getProperty("database.rootPassword", ""));
+        _databaseProperties.setSchema(_properties.getProperty("database.schema", ""));
+        _databaseProperties.setPort(Util.parseInt(_properties.getProperty("database.port", "")));
+        _databaseProperties.setDataDirectory(new File(_properties.getProperty("database.dataDirectory")));
+        _databaseProperties.setInstallationDirectory(new File(_properties.getProperty("database.installationDirectory")));
+
+        System.out.println(_databaseProperties.getHostname());
+        System.out.println(_databaseProperties.getUsername());
+        System.out.println(_databaseProperties.getPassword());
+        System.out.println(_databaseProperties.getRootPassword());
+        System.out.println(_databaseProperties.getSchema());
+        System.out.println(_databaseProperties.getPort());
+        System.out.println(_databaseProperties.getDataDirectory());
+        System.out.println(_databaseProperties.getInstallationDirectory());
+
     }
 
     private void _loadServerProperties() {
@@ -77,13 +92,15 @@ public class Configuration {
         _serverProperties = serverProperties;
     }
 
-    public Configuration(final String configurationFileContents) {
+    public Configuration(final String configurationFilePath) {
         _properties = new Properties();
 
-        try {
-            _properties.load(new ByteArrayInputStream(configurationFileContents.getBytes("UTF-8")));
+        try (final FileInputStream fileInputStream = new FileInputStream(configurationFilePath)) {
+            _properties.load(fileInputStream);
         }
-        catch (final IOException e) { }
+        catch (final IOException exception) {
+            throw new RuntimeException("Unable to load configuration", exception);
+        }
 
         _loadDatabaseProperties();
         _loadServerProperties();
@@ -101,7 +118,7 @@ public class Configuration {
         _loadServerProperties();
     }
 
-    public DatabaseProperties getDatabaseProperties() { return _databaseProperties; }
+    public MutableEmbeddedDatabaseProperties getDatabaseProperties() { return _databaseProperties; }
 
     public ServerProperties getServerProperties() { return _serverProperties; }
 

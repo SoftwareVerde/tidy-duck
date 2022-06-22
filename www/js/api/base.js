@@ -1,5 +1,5 @@
 const ENDPOINT_PREFIX = "/";
-const API_PREFIX = ENDPOINT_PREFIX + "api/v1/";
+const API_PREFIX = ENDPOINT_PREFIX + "";
 
 function exportFunctionCatalogToMost(functionCatalogId) {
     window.open(ENDPOINT_PREFIX + "v1/generate-most?function_catalog_id=" + functionCatalogId);

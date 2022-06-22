@@ -4,8 +4,10 @@ import com.softwareverde.http.server.HttpServer;
 import com.softwareverde.http.server.endpoint.Endpoint;
 import com.softwareverde.http.server.servlet.DirectoryServlet;
 import com.softwareverde.http.server.servlet.session.SessionManager;
+import com.softwareverde.logging.Log;
 import com.softwareverde.logging.LogLevel;
 import com.softwareverde.logging.Logger;
+import com.softwareverde.logging.filelog.AnnotatedFileLog;
 import com.softwareverde.logging.log.AnnotatedLog;
 import com.softwareverde.tidyduck.api.*;
 import com.softwareverde.tidyduck.authentication.TidyDuckAuthenticator;
@@ -27,6 +29,10 @@ public class Main {
     public Main() {
         final TidyDuckEnvironment environment;
         try {
+            final String logDirectory = "logs";
+            final Log log = AnnotatedFileLog.newInstance(logDirectory);
+            Logger.setLog(log);
+
             Logger.setLog(AnnotatedLog.getInstance());
             Logger.setLogLevel(LogLevel.ON);
             Logger.setLogLevel("com.softwareverde.util", LogLevel.ERROR);
@@ -72,7 +78,6 @@ public class Main {
         functionCatalogEndpoint.setStrictPathEnabled(false);
         functionCatalogEndpoint.setPath("/function-catalogs");
 
-
         final FunctionBlockServlet functionBlockServlet = new FunctionBlockServlet(environment, sessionManager, authenticator);
         final Endpoint functionBlockEndpoint = new Endpoint(functionBlockServlet);
         functionBlockEndpoint.setStrictPathEnabled(false);
@@ -86,7 +91,7 @@ public class Main {
         final MostFunctionStereotypeServlet mostFunctionStereotypeServlet = new MostFunctionStereotypeServlet(environment, sessionManager, authenticator);
         final Endpoint mostFunctionStereotypeEndpoint = new Endpoint(mostFunctionStereotypeServlet);
         mostFunctionStereotypeEndpoint.setStrictPathEnabled(false);
-        mostFunctionStereotypeEndpoint.setPath("/mostFunctionStereotypeEndpoint");
+        mostFunctionStereotypeEndpoint.setPath("/most-function-stereotypes");
 
         final MostGeneratorServlet mostGeneratorServlet = new MostGeneratorServlet(environment, sessionManager, authenticator);
         final Endpoint mostGeneratorEndpoint = new Endpoint(mostGeneratorServlet);
@@ -132,7 +137,6 @@ public class Main {
         _apiServer.addEndpoint(mostInterfaceEndpoint);
         _apiServer.addEndpoint(mostTypeEndpoint);
         _apiServer.addEndpoint(reviewEndpoint);
-        _apiServer.addEndpoint(settingsEndpoint);
         _apiServer.addEndpoint(settingsEndpoint);
         _apiServer.addEndpoint(accountManagementEndpoint);
         _apiServer.addEndpoint(applicationSettingsEndpoint);

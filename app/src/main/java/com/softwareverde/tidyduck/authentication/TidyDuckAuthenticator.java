@@ -12,12 +12,14 @@ import com.softwareverde.http.server.servlet.session.Session;
 import com.softwareverde.json.Json;
 import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.AccountId;
+import com.softwareverde.tidyduck.database.AccountInflater;
 import com.softwareverde.tidyduck.environment.TidyDuckEnvironment;
 
 import java.util.List;
 import java.util.Map;
 
 public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment> {
+    private static String ACCOUNT_ID_PROPERTY = "accountId";
     private final boolean _isTwoFactorEnabled;
     private final PasswordValidator _passwordValidator = new LengthOnlyPasswordValidator();
 
@@ -26,7 +28,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
     }
 
     @Override
-    public AuthenticationResult authenticateUser(Request request, TidyDuckEnvironment environment, Map<String, String> parameters) throws Exception {
+    public AuthenticationResult authenticateUser(final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
         final Json jsonRequest = JsonRequestHandler.getRequestDataAsJson(request);
 
         final String username = jsonRequest.getString("username");
@@ -41,7 +43,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
 
         final JdbcDatabase database = environment.getDatabase();
         try (final JdbcDatabaseConnection databaseConnection = database.newConnection()) {
-            final Query query = new Query("SELECT id, password_hash FROM accounts WHERE username = ?");
+            final Query query = new Query("SELECT id, password FROM accounts WHERE username = ?");
             query.setParameter(username.trim());
 
             final List<Row> rows = databaseConnection.query(query);
@@ -50,7 +52,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
             }
 
             final Row row = rows.get(0);
-            final String passwordHash = row.getString("password_hash");
+            final String passwordHash = row.getString("password");
 
             final Argon2 argon2 = new Argon2(passwordHash);
             final String newHash = argon2.generateParameterizedHash(password.getBytes());
@@ -59,21 +61,15 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
             }
 
             final AccountId accountId = AccountId.wrap(row.getLong("id"));
-
-            // Track last login timestamp
-            databaseConnection.executeSql(new Query("UPDATE accounts SET last_login_timestamp = UNIX_TIMESTAMP(NOW()) WHERE id = ?")
-                    .setParameter(accountId)
-            );
-
             final Json accountJson = new Json(false);
-            accountJson.put("accountId", accountId);
+            accountJson.put(ACCOUNT_ID_PROPERTY, accountId);
+
             return AuthenticationResult.success(accountJson);
         }
         catch (final Exception exception) {
             Logger.error("Exception while validating credentials", exception);
             return AuthenticationResult.failure("Unexpected error during authentication.");
         }
-
     }
 
     @Override
@@ -126,7 +122,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
 
             final JdbcDatabase database = environment.getDatabase();
             try (final JdbcDatabaseConnection databaseConnection = database.newConnection()) {
-                final Query currentPasswordHashQuery = new Query("SELECT password_hash FROM accounts WHERE id = ?");
+                final Query currentPasswordHashQuery = new Query("SELECT password FROM accounts WHERE id = ?");
                 currentPasswordHashQuery.setParameter(accountId);
 
                 final List<Row> rows = databaseConnection.query(currentPasswordHashQuery);
@@ -136,7 +132,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
                 }
 
                 final Row row = rows.get(0);
-                final String passwordHash = row.getString("password_hash");
+                final String passwordHash = row.getString("password");
 
                 final Argon2 oldArgon2 = new Argon2(passwordHash);
                 final String confirmationHash = oldArgon2.generateParameterizedHash(oldPassword.getBytes());
@@ -179,8 +175,8 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
 //            final Json sessionJson = session.getMutableData();
 //            final Boolean isTwoFactorAuthenticated = sessionJson.getBoolean(TwoFactorAuthenticatedApplicationServlet.TWO_FACTOR_IS_AUTHENTICATED_SESSION_KEY);
 
-            final Json json = new Json(false);
-            json.put("id", accountId.longValue());
+
+            final Json json = new AccountInflater(databaseConnection).inflateAccount(accountId).toJson();
             json.put("requiresPasswordReset", requiresPasswordReset);
 
             if (_isTwoFactorEnabled) {
@@ -205,7 +201,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
     public static AccountId getAccountId(final Session session) {
         final Json sessionJson = session.getMutableData();
         final Json accountJson = sessionJson.get(LoginRequestHandler.ACCOUNT_SESSION_KEY);
-        return AccountId.wrap(accountJson.getOrNull("accountID", Json.Types.LONG));
+        return AccountId.wrap(accountJson.getOrNull(ACCOUNT_ID_PROPERTY, Json.Types.LONG));
     }
 
     public static String getUsername(final Session session, final TidyDuckEnvironment environment) {
@@ -235,7 +231,7 @@ public class TidyDuckAuthenticator implements Authenticator<TidyDuckEnvironment>
         final Argon2 newArgon2 = new Argon2();
         final String newHash = newArgon2.generateParameterizedHash(newPassword.getBytes());
 
-        final Query storePasswordHashQuery = new Query("UPDATE accounts SET password_hash = ?, requires_password_reset = 0 WHERE id = ?");
+        final Query storePasswordHashQuery = new Query("UPDATE accounts SET password = ?, requires_password_reset = 0 WHERE id = ?");
         storePasswordHashQuery.setParameter(newHash);
         storePasswordHashQuery.setParameter(accountId);
 

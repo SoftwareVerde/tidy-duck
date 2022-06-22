@@ -18,8 +18,6 @@ import java.sql.Connection;
 import java.util.Map;
 
 public class SettingsServlet extends AuthenticatedJsonApplicationServlet<TidyDuckEnvironment> {
-    
-
     public SettingsServlet(final TidyDuckEnvironment environment, final SessionManager sessionManager, final TidyDuckAuthenticator authenticator) {
         super(environment, sessionManager);
         

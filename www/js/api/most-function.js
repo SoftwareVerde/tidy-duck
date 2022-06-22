@@ -51,7 +51,7 @@ function getMostFunctionsForMostInterfaceId(mostInterfaceId, callbackFunction) {
 // calls callbackFunction with an array of functions in trash
 function getMostFunctionsMarkedAsDeletedForMostInterfaceId(mostInterfaceId, callbackFunction) {
     const request = new Request(
-        API_PREFIX + "trashed-most-functions?most_interface_id=" + mostInterfaceId,
+        API_PREFIX + "most-functions/trashed?most_interface_id=" + mostInterfaceId,
         {
             method: "GET",
             credentials: "include"
@@ -121,7 +121,7 @@ function insertMostFunction(mostInterfaceId, mostFunction, callbackFunction) {
 //calls callbackFunction with modified function ID
 function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId,
+        API_PREFIX + "most-functions/" + mostFunctionId,
         {
             method: "POST",
             credentials: "include",
@@ -146,7 +146,7 @@ function updateMostFunction(mostInterfaceId, mostFunctionId, mostFunction, callb
 
 function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "?most_interface_id=" + mostInterfaceId,
+        API_PREFIX + "most-functions/" + mostFunctionId + "?most_interface_id=" + mostInterfaceId,
         {
             method: "DELETE",
             credentials: "include"
@@ -169,7 +169,7 @@ function deleteMostFunction(mostInterfaceId, mostFunctionId, callbackFunction) {
 
 function markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/mark-as-deleted",
+        API_PREFIX + "most-functions/" + mostFunctionId + "/mark-as-deleted",
         {
             method: "POST",
             credentials: "include",
@@ -193,7 +193,7 @@ function markMostFunctionAsDeleted(mostInterfaceId, mostFunctionId, callbackFunc
 
 function restoreMostFunctionFromTrash(mostInterfaceId, mostFunctionId, callbackFunction) {
     const request = new Request(
-        ENDPOINT_PREFIX + "api/v1/most-functions/" + mostFunctionId + "/restore-from-trash",
+        API_PREFIX + "most-functions/" + mostFunctionId + "/restore-from-trash",
         {
             method: "POST",
             credentials: "include",

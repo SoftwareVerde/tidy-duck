@@ -220,7 +220,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonApplicationServlet<Ti
             }
         });
 
-        super._defineEndpoint("function-block-duplicate-check", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("function-blocks/duplicate-check", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
             public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);
@@ -229,7 +229,7 @@ public class FunctionBlockServlet extends AuthenticatedJsonApplicationServlet<Ti
             }
         });
 
-        super._defineEndpoint("trashed-function-blocks", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("function-blocks/trashed", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
             public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_MODIFY);

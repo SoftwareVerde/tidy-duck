@@ -1,13 +1,23 @@
 package com.softwareverde.tidyduck.environment;
 
+import com.softwareverde.database.DatabaseConnection;
+import com.softwareverde.database.DatabaseInitializer;
 import com.softwareverde.database.jdbc.JdbcDatabase;
+import com.softwareverde.database.jdbc.JdbcDatabaseConnection;
 import com.softwareverde.database.mysql.MysqlDatabase;
+import com.softwareverde.database.mysql.MysqlDatabaseInitializer;
+import com.softwareverde.database.mysql.SqlScriptRunner;
+import com.softwareverde.database.mysql.embedded.EmbeddedMysqlDatabase;
+import com.softwareverde.database.mysql.embedded.properties.MutableEmbeddedDatabaseProperties;
 import com.softwareverde.database.properties.MutableDatabaseProperties;
 import com.softwareverde.http.server.servlet.routed.Environment;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.util.IoUtil;
 import com.softwareverde.util.Util;
 
 
+import java.io.File;
+import java.io.StringReader;
 import java.sql.*;
 
 public class TidyDuckEnvironment implements Environment {
@@ -28,7 +38,7 @@ public class TidyDuckEnvironment implements Environment {
     }
 
     private final Configuration _configuration;
-    protected JdbcDatabase _database;
+    protected EmbeddedMysqlDatabase _database;
 
     private final String _cookiesDirectory;
     private final boolean _shouldCreateSecureCookies;
@@ -36,26 +46,43 @@ public class TidyDuckEnvironment implements Environment {
     private final boolean _isTwoFactorEnabled;
 
     protected void _initDatabase() {
-        final Configuration.DatabaseProperties configurationDatabaseProperties = _configuration.getDatabaseProperties();
+        final MysqlDatabaseInitializer databaseInitializer = new MysqlDatabaseInitializer("sql/init.sql", 1, (maintenanceDatabaseConnection, previousVersion, requiredVersion) -> {
+            if (previousVersion < requiredVersion) {
+                Logger.info(String.format("[Upgrading DB to v%d]", requiredVersion));
+                try {
+                    final SqlScriptRunner sqlScriptRunner = new SqlScriptRunner(maintenanceDatabaseConnection.getRawConnection(), false, false);
+//                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/init.sql")));
+                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/init-accounts.sql")));
+                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/load-fake-data.sql")));
 
-        final String url = configurationDatabaseProperties.getConnectionUrl();
-        final Integer port = configurationDatabaseProperties.getPort();
-        final String username = configurationDatabaseProperties.getUsername();
-        final String password = configurationDatabaseProperties.getPassword();
-        final String schema = configurationDatabaseProperties.getSchema();
+                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
+                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
+                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.4.sql")));
+                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.5.sql")));
+                }
+                catch (final Exception exception) {
+                    Logger.error(String.format("Unable to upgrade database to v%d", requiredVersion));
+                    return false;
+                }
+            }
 
-        final MutableDatabaseProperties databaseProperties = new MutableDatabaseProperties();
-        databaseProperties.setPort(port);
-        databaseProperties.setHostname(url);
-        databaseProperties.setUsername(username);
-        databaseProperties.setPassword(password);
-        databaseProperties.setSchema(schema);
+            return true;
+        });
+        final MutableEmbeddedDatabaseProperties databaseProperties = _configuration.getDatabaseProperties();
 
-        _database = new MysqlDatabase(databaseProperties);
+        _database = new EmbeddedMysqlDatabase(databaseProperties, databaseInitializer);
+
+        try {
+            _database.install();
+            _database.start();
+        }
+        catch (final Exception exception) {
+            throw new RuntimeException("Unable to start database", exception);
+        }
     }
 
     protected TidyDuckEnvironment() {
-        _configuration = new Configuration(IoUtil.getResource(Resource.serverConfigurationFile));
+        _configuration = new Configuration(Resource.serverConfigurationFile);
         _cookiesDirectory = _configuration.getProperty(COOKIES_DIRECTORY_PROPERTY, DEFAULT_COOKIES_DIRECTORY_PATH);
 
         _shouldCreateSecureCookies = Boolean.parseBoolean(_configuration.getProperty(SHOULD_CREATE_SECURE_COOKIES_PROPERTY, "true"));

@@ -9,7 +9,7 @@ mkdir -p out/conf
 cp -R conf/* out/conf/.
 
 # Copy Web Files
-cp -R www/ out/.
+cp -R www out/.
 
 # Create run script
 echo -e "#!/bin/bash\n\nexec java -jar bin/tidy-duck-*.jar\n" > out/run.sh

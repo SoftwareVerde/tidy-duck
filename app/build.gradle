@@ -28,7 +28,7 @@ dependencies {
     implementation group: 'com.github.softwareverde',   name: 'java-mariadb-osx',       version: 'v10.5.9-p4'
     implementation group: 'com.github.softwareverde',   name: 'java-mariadb-linux',     version: 'v10.5.9-p1'
 
-    implementation group: 'com.github.softwareverde',   name: 'http-servlet',           version: '3.3.1'
+    implementation group: 'com.github.softwareverde',   name: 'http-servlet',           version: '3.3.2'
     implementation group: 'com.github.softwareverde',   name: 'java-http-client',       version: 'v2.2.5',  force: true
     implementation group: 'com.github.softwareverde',   name: 'java-cryptography',      version: 'v3.2.1'
 

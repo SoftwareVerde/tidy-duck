@@ -7,7 +7,7 @@ function redirectToLogin() {
         if (! data.wasSuccess) {
             redirectToLogin();
         }
-    });
+    }, true);
 })();
 
 

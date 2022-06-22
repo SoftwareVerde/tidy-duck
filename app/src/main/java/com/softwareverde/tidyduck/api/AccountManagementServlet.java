@@ -22,7 +22,6 @@ import com.softwareverde.tidyduck.util.Util;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +47,21 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
             }
         });
 
-        super._defineEndpoint("filtered-accounts/active-modify-permission", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
+        super._defineEndpoint("accounts/companies", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
+            @Override
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
+                return _getCompanies(environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("accounts/companies", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
+            @Override
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
+                return _insertCompany(currentAccount, request, environment.getDatabase());
+            }
+        });
+
+        super._defineEndpoint("accounts/filtered-accounts/active-modify-permission", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
             public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.ADMIN_MODIFY_USERS);
@@ -57,6 +70,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
             }
         });
 
+        // TODO: ask about how to handle this endpoint and similar endpoints. "accounts/companies" is routing here.
         super._defineEndpoint("accounts/<accountId>", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
             public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
@@ -145,21 +159,6 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
                 return _markAccountAsDeleted(currentAccount, providedAccountId, environment.getDatabase());
             }
         });
-
-
-        super._defineEndpoint("companies", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
-            @Override
-            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
-                return _getCompanies(environment.getDatabase());
-            }
-        });
-
-        super._defineEndpoint("companies", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
-            @Override
-            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
-                return _insertCompany(currentAccount, request, environment.getDatabase());
-            }
-        });
     }
 
     private Json _getAccounts(final Database<Connection> database) throws Exception {
@@ -171,7 +170,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
 
             final Json accountsJson = new Json(true);
             for (final Account account : accounts) {
-                final Json accountJson = _toJson(account);
+                final Json accountJson = account.toJson();
                 accountsJson.add(accountJson);
             }
             response.put("accounts", accountsJson);
@@ -195,7 +194,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
             for (final Account account : accounts) {
                 if (account.hasPermission(Permission.LOGIN)) {
                     if (account.hasPermission(Permission.MOST_COMPONENTS_MODIFY)) {
-                        final Json accountJson = _toJson(account);
+                        final Json accountJson = account.toJson();
                         accountsJson.add(accountJson);
                     }
                 }
@@ -217,7 +216,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
 
             final Json response = new Json(false);
 
-            response.put("account", _toJson(account));
+            response.put("account", account.toJson());
 
             JsonRequestHandler.setJsonSuccessFields(response);
             return response;
@@ -236,7 +235,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
             final List<Company> companies = companyInflater.inflateAllCompanies();
 
             for (final Company company : companies) {
-                final Json companyJson = _toJson(company);
+                final Json companyJson = company.toJson();
                 companiesJson.add(companyJson);
             }
 
@@ -321,7 +320,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
             response.put("accountId", account.getId());
             response.put("password", account.getPassword());
 
-            Logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId() + " and roles " + roleNames.toString());
+            Logger.info("User " + currentAccount.getId() + " created account " + account.getId() + " with company " + company.getId() + " and roles " + roleNames);
         }
         catch (final DatabaseException exception) {
             throw new Exception("Unable to create account.", exception);
@@ -378,7 +377,7 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
                 Logger.error("Unable to update account: username already exists.");
                 throw new IllegalArgumentException("Unable to update account: username already exists.");
             }
-            Logger.info("User " + currentAccount.getId() + " updated account " + account.getId() + " with the following new information: " + accountJson.toString());
+            Logger.info("User " + currentAccount.getId() + " updated account " + account.getId() + " with the following new information: " + accountJson);
         }
         catch (final DatabaseException exception) {
             throw new Exception("Unable to update account.", exception);
@@ -404,10 +403,9 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
             DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateAccountRoles(providedAccountId, roles);
 
-            Logger.info("User " + currentAccount.getId() + " changed user " + providedAccountId + "'s roles to " + rolesJson.toString());
+            Logger.info("User " + currentAccount.getId() + " changed user " + providedAccountId + "'s roles to " + rolesJson);
 
-            final Json response = JsonRequestHandler.generateSuccessJson();
-            return response;
+            return JsonRequestHandler.generateSuccessJson();
         }
         catch (final Exception exception) {
             throw new Exception("Unable to attempt password change.", exception);
@@ -472,57 +470,5 @@ public class AccountManagementServlet extends AuthenticatedJsonApplicationServle
         catch (final DatabaseException exception) {
             throw new Exception("Unable to mark account as deleted", exception);
         }
-    }
-
-    protected Json _toJson(final Account account) {
-        final Json json = new Json(false);
-
-        json.put("id", account.getId());
-        json.put("name", account.getName());
-        json.put("username", account.getUsername());
-        json.put("company", _toJson(account.getCompany()));
-        json.put("settings", _toJson(account.getSettings()));
-        json.put("roles", _toJson(account.getRoles()));
-
-        return json;
-    }
-
-    protected Json _toJson(final Company company) {
-        final Json json = new Json(false);
-
-        json.put("id", company.getId());
-        json.put("name", company.getName());
-
-        return json;
-    }
-
-    protected Json _toJson(final Settings settings) {
-        final Json json = new Json(false);
-
-        json.put("theme", settings.getTheme());
-        json.put("defaultMode", settings.getDefaultMode());
-
-        return json;
-    }
-
-    private Json _toJson(final Collection<Role> roles) {
-        final Json json = new Json(true);
-
-        for (final Role role : roles) {
-            final Json roleJson = new Json(false);
-
-            final Json permissionsJson = new Json(true);
-            for (final Permission permission : role.getPermissions()) {
-                permissionsJson.add(permission.name());
-            }
-
-            roleJson.put("id", role.getId());
-            roleJson.put("name", role.getName());
-            roleJson.put("permissions", permissionsJson);
-
-            json.add(roleJson);
-        }
-
-        return json;
     }
 }

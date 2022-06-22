@@ -258,7 +258,8 @@ class App extends React.Component {
 
         checkAccount(function (checkData) {
             if (checkData.wasSuccess) {
-                getAccount(checkData.accountId, function(accountData) {
+                let account = Account.fromJson(checkData.account);
+                getAccount(account.getId(), function(accountData) {
                     const account = Account.fromJson(accountData);
                     thisApp.setTheme(account.getSettings().getTheme());
 
@@ -277,7 +278,7 @@ class App extends React.Component {
                     }
                 });
             }
-        });
+        }, true);
 
         this.getAllCompanies();
         this.getAccountsForEditForm();
@@ -344,6 +345,7 @@ class App extends React.Component {
     }
 
     onDuckClick() {
+        console.log("Account!: " + this.state.account);
         const accountDefaultMode = this.state.account.getSettings().getDefaultMode();
         this.handleRoleClick(accountDefaultMode, null, false);
     }
