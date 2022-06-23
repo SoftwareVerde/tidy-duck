@@ -2,8 +2,8 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.tidyduck.Permission;
 import com.softwareverde.tidyduck.Role;
 
@@ -68,21 +68,22 @@ public class RoleInflater {
 
         List<Permission> permissions = new ArrayList<>();
         for (final Row row : rows) {
-            addPermission(permissions, Permission.LOGIN,                    row.getBoolean("login"));
-            addPermission(permissions, Permission.ADMIN_CREATE_USERS,       row.getBoolean("admin_create_users"));
-            addPermission(permissions, Permission.ADMIN_MODIFY_USERS,       row.getBoolean("admin_modify_users"));
-            addPermission(permissions, Permission.ADMIN_DELETE_USERS,       row.getBoolean("admin_delete_users"));
-            addPermission(permissions, Permission.ADMIN_RESET_PASSWORD,     row.getBoolean("admin_reset_password"));
-            addPermission(permissions, Permission.MOST_COMPONENTS_RELEASE,  row.getBoolean("most_components_release"));
-            addPermission(permissions, Permission.MOST_COMPONENTS_CREATE,   row.getBoolean("most_components_create"));
-            addPermission(permissions, Permission.MOST_COMPONENTS_MODIFY,   row.getBoolean("most_components_modify"));
-            addPermission(permissions, Permission.MOST_COMPONENTS_VIEW,     row.getBoolean("most_components_view"));
-            addPermission(permissions, Permission.TYPES_CREATE,             row.getBoolean("types_create"));
-            addPermission(permissions, Permission.TYPES_MODIFY,             row.getBoolean("types_modify"));
-            addPermission(permissions, Permission.REVIEWS_APPROVAL,         row.getBoolean("reviews_approval"));
-            addPermission(permissions, Permission.REVIEWS_COMMENTS,         row.getBoolean("reviews_comments"));
-            addPermission(permissions, Permission.REVIEWS_VOTING,           row.getBoolean("reviews_voting"));
-            addPermission(permissions, Permission.REVIEWS_VIEW,             row.getBoolean("reviews_view"));
+            addPermission(permissions, Permission.LOGIN,                                row.getBoolean("login"));
+            addPermission(permissions, Permission.ADMIN_CREATE_USERS,                   row.getBoolean("admin_create_users"));
+            addPermission(permissions, Permission.ADMIN_MODIFY_USERS,                   row.getBoolean("admin_modify_users"));
+            addPermission(permissions, Permission.ADMIN_DELETE_USERS,                   row.getBoolean("admin_delete_users"));
+            addPermission(permissions, Permission.ADMIN_RESET_PASSWORD,                 row.getBoolean("admin_reset_password"));
+            addPermission(permissions, Permission.ADMIN_MODIFY_APPLICATION_SETTINGS,    row.getBoolean("admin_modify_application_settings"));
+            addPermission(permissions, Permission.MOST_COMPONENTS_RELEASE,              row.getBoolean("most_components_release"));
+            addPermission(permissions, Permission.MOST_COMPONENTS_CREATE,               row.getBoolean("most_components_create"));
+            addPermission(permissions, Permission.MOST_COMPONENTS_MODIFY,               row.getBoolean("most_components_modify"));
+            addPermission(permissions, Permission.MOST_COMPONENTS_VIEW,                 row.getBoolean("most_components_view"));
+            addPermission(permissions, Permission.TYPES_CREATE,                         row.getBoolean("types_create"));
+            addPermission(permissions, Permission.TYPES_MODIFY,                         row.getBoolean("types_modify"));
+            addPermission(permissions, Permission.REVIEWS_APPROVAL,                     row.getBoolean("reviews_approval"));
+            addPermission(permissions, Permission.REVIEWS_COMMENTS,                     row.getBoolean("reviews_comments"));
+            addPermission(permissions, Permission.REVIEWS_VOTING,                       row.getBoolean("reviews_voting"));
+            addPermission(permissions, Permission.REVIEWS_VIEW,                         row.getBoolean("reviews_view"));
         }
         return permissions;
     }

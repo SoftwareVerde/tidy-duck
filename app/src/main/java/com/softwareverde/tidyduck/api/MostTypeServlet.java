@@ -3,72 +3,76 @@ package com.softwareverde.tidyduck.api;
 import com.softwareverde.database.Database;
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
+import com.softwareverde.http.HttpMethod;
+import com.softwareverde.http.server.servlet.request.Request;
+import com.softwareverde.http.server.servlet.routed.json.AuthenticatedJsonApplicationServlet;
+import com.softwareverde.http.server.servlet.routed.json.JsonRequestHandler;
+import com.softwareverde.http.server.servlet.session.SessionManager;
 import com.softwareverde.json.Json;
+import com.softwareverde.logging.Logger;
 import com.softwareverde.tidyduck.Account;
 import com.softwareverde.tidyduck.MostTypeModificationChecker;
 import com.softwareverde.tidyduck.Permission;
+import com.softwareverde.tidyduck.authentication.TidyDuckAuthenticator;
 import com.softwareverde.tidyduck.database.DatabaseManager;
 import com.softwareverde.tidyduck.database.MostTypeInflater;
-import com.softwareverde.tidyduck.environment.Environment;
+import com.softwareverde.tidyduck.environment.TidyDuckEnvironment;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.tidyduck.util.Util;
-import com.softwareverde.tomcat.servlet.AuthenticatedJsonServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-public class MostTypeServlet extends AuthenticatedJsonServlet {
-    private Logger _logger = LoggerFactory.getLogger(getClass());
+public class MostTypeServlet extends AuthenticatedJsonApplicationServlet<TidyDuckEnvironment> {
+    
 
-    public MostTypeServlet() {
-        super._defineEndpoint("most-types", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+    public MostTypeServlet(final TidyDuckEnvironment environment, final SessionManager sessionManager, final TidyDuckAuthenticator authenticator) {
+        super(environment, sessionManager);
+
+        super._defineEndpoint("most-types", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
                 return _listMostTypes(environment.getDatabase());
             }
         });
 
-        super._defineEndpoint("most-types", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("most-types", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.TYPES_CREATE);
 
                 return _insertType(request, environment.getDatabase());
             }
         });
 
-        super._defineEndpoint("most-types/<mostTypeId>", HttpMethod.POST, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("most-types/<mostTypeId>", HttpMethod.POST, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.TYPES_MODIFY);
 
                 final long mostTypeId = Util.parseLong(parameters.get("mostTypeId"));
                 if (mostTypeId < 1) {
-                    return _generateErrorJson("Invalid Most Type ID.");
+                    throw new IllegalArgumentException("Invalid Most Type ID.");
                 }
                 return _updateMostType(request, mostTypeId, environment.getDatabase());
             }
         });
 
-        super._defineEndpoint("most-types/primitive-types", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("most-types/primitive-types", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
                 return _listPrimitiveTypes(environment);
             }
         });
 
-        super._defineEndpoint("most-types/most-units", HttpMethod.GET, new AuthenticatedJsonRequestHandler() {
+        super._defineEndpoint("most-types/most-units", HttpMethod.GET, new TidyDuckRequestHandler(sessionManager, authenticator) {
             @Override
-            public Json handleAuthenticatedRequest(final Map<String, String> parameters, final HttpServletRequest request, final HttpMethod httpMethod, final Account currentAccount, final Environment environment) throws Exception {
+            public Json handleRequest(final Account currentAccount, final Request request, final TidyDuckEnvironment environment, final Map<String, String> parameters) throws Exception {
                 currentAccount.requirePermission(Permission.MOST_COMPONENTS_VIEW);
 
                 return _listUnits(environment);
@@ -76,7 +80,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         });
     }
 
-    private Json _listMostTypes(final Database<Connection> database) {
+    private Json _listMostTypes(final Database<Connection> database) throws Exception {
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             Json response = new Json(false);
 
@@ -89,18 +93,17 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             }
             response.put("mostTypes", mostTypesJson);
 
-            super._setJsonSuccessFields(response);
+            JsonRequestHandler.setJsonSuccessFields(response);
             return response;
-        } catch (DatabaseException e) {
-            String msg = "Unable to inflate most types.";
-            _logger.error(msg, e);
-            return super._generateErrorJson(msg);
+        } catch (final DatabaseException e) {
+            final String msg = "Unable to inflate most types.";
+            throw new Exception(msg, e);
         }
     }
 
-    private Json _insertType(HttpServletRequest request, Database<Connection> database) throws IOException {
+    private Json _insertType(final Request request, Database<Connection> database) throws Exception {
         Json response = new Json(false);
-        final Json jsonRequest = _getRequestDataAsJson(request);
+        final Json jsonRequest = JsonRequestHandler.getRequestDataAsJson(request);
 
         try {
             final DatabaseManager databaseManager = new DatabaseManager(database);
@@ -108,24 +111,22 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
 
             if (! databaseManager.isMostTypeNameUnique(mostType)) {
                 final String msg = "Unable to create type: type name \"" + mostType.getName() + "\" already exists in the database.";
-                _logger.error(msg);
-                return super._generateErrorJson(msg);
+                throw new Exception(msg);
             }
 
             databaseManager.insertMostType(mostType);
             response.put("mostTypeId", mostType.getId());
-            super._setJsonSuccessFields(response);
-        } catch (Exception e) {
+            JsonRequestHandler.setJsonSuccessFields(response);
+        } catch (final Exception exception) {
             String msg = "Unable to create type: ";
-            _logger.error(msg, e);
-            return super._generateErrorJson(msg + e.getMessage());
+            throw new Exception(msg, exception);
         }
 
         return response;
     }
 
-    protected Json _updateMostType(final HttpServletRequest request, final long mostTypeId, Database<Connection> database) throws IOException {
-        final Json jsonRequest = _getRequestDataAsJson(request);
+    protected Json _updateMostType(final Request request, final long mostTypeId, Database<Connection> database) throws Exception {
+        final Json jsonRequest = JsonRequestHandler.getRequestDataAsJson(request);
         final Json mostTypeJson = jsonRequest.get("mostType");
 
         try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
@@ -136,23 +137,23 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
             final MostTypeModificationChecker mostTypeModificationChecker = new MostTypeModificationChecker(databaseConnection);
             List<String> errors = mostTypeModificationChecker.checkTypeForIllegalChanges(mostType);
             if (errors.size() > 0) {
-                final Json response = _generateErrorJson("Unable to update type.");
+                final Json response = new Json(false);
                 final Json errorsJson = new Json(errors);
                 response.put("validationErrors", errorsJson);
-                return response;
+                
+                throw new IllegalArgumentException("Unable to update type: " + response.toFormattedString());
             }
 
             final DatabaseManager databaseManager = new DatabaseManager(database);
             databaseManager.updateMostType(mostType);
 
             final Json response = new Json(false);
-            _setJsonSuccessFields(response);
+            JsonRequestHandler.setJsonSuccessFields(response);
             return response;
         }
         catch (final Exception exception) {
             final String errorMessage = "Unable to update Most Type: " + exception.getMessage();
-            _logger.error(errorMessage, exception);
-            return _generateErrorJson(errorMessage);
+            throw new Exception(errorMessage, exception);
         }
     }
 
@@ -267,7 +268,7 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         }
 
         PrimitiveType numberBaseType = null;
-        _logger.info("numberBaseTypeID: " + numberBaseTypeId);
+        Logger.info("numberBaseTypeID: " + numberBaseTypeId);
         if (numberBaseTypeId > 0) {
             numberBaseType = new PrimitiveType();
             numberBaseType.setId(numberBaseTypeId);
@@ -527,47 +528,45 @@ public class MostTypeServlet extends AuthenticatedJsonServlet {
         return recordField;
     }
 
-    private Json _listPrimitiveTypes(Environment environment) {
+    private Json _listPrimitiveTypes(TidyDuckEnvironment environment) throws Exception {
         try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
             Json response = new Json(false);
 
-            MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
-            List<PrimitiveType> primitiveTypes = mostTypeInflater.inflatePrimitiveTypes();
-            Json primitiveTypesJson = new Json(true);
+            final MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
+            final List<PrimitiveType> primitiveTypes = mostTypeInflater.inflatePrimitiveTypes();
+            final Json primitiveTypesJson = new Json(true);
             for (PrimitiveType primitiveType : primitiveTypes) {
                 Json primitiveTypeJson = _toJson(primitiveType);
                 primitiveTypesJson.add(primitiveTypeJson);
             }
             response.put("primitiveTypes", primitiveTypesJson);
 
-            super._setJsonSuccessFields(response);
+            JsonRequestHandler.setJsonSuccessFields(response);
             return response;
-        } catch (DatabaseException e) {
-            String msg = "Unable to inflate primitive types.";
-            _logger.error(msg, e);
-            return super._generateErrorJson(msg);
+        } catch (final DatabaseException exception) {
+            final String msg = "Unable to inflate primitive types.";
+            throw new Exception(msg, exception);
         }
     }
 
-    private Json _listUnits(final Environment environment) {
+    private Json _listUnits(final TidyDuckEnvironment environment) throws Exception {
         try (final DatabaseConnection<Connection> databaseConnection = environment.getDatabase().newConnection()) {
             Json response = new Json(false);
 
-            MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
-            List<MostUnit> units = mostTypeInflater.inflateMostUnits();
-            Json unitsJson = new Json(true);
+            final MostTypeInflater mostTypeInflater = new MostTypeInflater(databaseConnection);
+            final List<MostUnit> units = mostTypeInflater.inflateMostUnits();
+            final Json unitsJson = new Json(true);
             for (MostUnit mostUnit : units) {
                 Json primitiveTypeJson = _toJson(mostUnit);
                 unitsJson.add(primitiveTypeJson);
             }
             response.put("units", unitsJson);
 
-            super._setJsonSuccessFields(response);
+            JsonRequestHandler.setJsonSuccessFields(response);
             return response;
-        } catch (DatabaseException e) {
-            String msg = "Unable to inflate units.";
-            _logger.error(msg, e);
-            return super._generateErrorJson(msg);
+        } catch (final DatabaseException exception) {
+            final String msg = "Unable to inflate units.";
+            throw new Exception(msg, exception);
         }
     }
 

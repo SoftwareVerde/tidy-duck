@@ -1,0 +1,30 @@
+body * {
+    font-size: 14px;
+    word-spacing: 1px;
+}
+
+.svg-icon {
+    /* #FFFFFF */
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}
+
+.button {
+    background-color: #032C46;
+    border: none;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.button:hover {
+    background-color: #143D57;
+}
+
+.delete-working-icon, #loading-children-icon {
+    color: #FFF;
+}
+
+a {
+    color: #FFA;
+}

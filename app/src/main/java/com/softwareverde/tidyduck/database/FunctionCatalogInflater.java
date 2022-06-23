@@ -2,21 +2,18 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.logging.Logger;
-import com.softwareverde.logging.slf4j.Slf4jLogger;
+import com.softwareverde.tidyduck.AccountId;
+import com.softwareverde.tidyduck.DateUtil;
 import com.softwareverde.tidyduck.most.*;
 import com.softwareverde.util.Util;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FunctionCatalogInflater {
-    protected final Logger _logger = new Slf4jLogger(this.getClass());
     protected final DatabaseConnection<Connection> _databaseConnection;
 
     public FunctionCatalogInflater(final DatabaseConnection<Connection> connection) {
@@ -34,7 +31,7 @@ public class FunctionCatalogInflater {
 
     public List<FunctionCatalog> inflateFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
         final Query query = new Query(
-                "SELECT * FROM function_catalogs ORDER BY base_version_id"
+                "SELECT * FROM function_catalogs WHERE is_permanently_deleted = 0 ORDER BY base_version_id"
         );
 
         final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
@@ -59,8 +56,63 @@ public class FunctionCatalogInflater {
         return functionCatalogs;
     }
 
+    public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsMatchingSearchString(final String searchString, final boolean includeDeleted, final AccountId accountId) throws DatabaseException {
+        // Recall that "LIKE" is case-insensitive for MySQL: https://stackoverflow.com/a/14007477/3025921
+        final Query query = new Query ("SELECT * FROM function_catalogs\n" +
+                                       "WHERE base_version_id IN (" +
+                                            "SELECT DISTINCT function_catalogs.base_version_id\n" +
+                                            "FROM function_catalogs\n" +
+                                            "WHERE function_catalogs.name LIKE ?" +
+                                            " AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                                       ")\n" +
+                                       "AND (is_approved = 1 OR creator_account_id = ? OR creator_account_id IS NULL)\n" +
+                                       (includeDeleted ? "" : "AND is_deleted = 0") +
+                                       " AND is_permanently_deleted = 0");
+        query.setParameter("%" + searchString + "%");
+        query.setParameter(accountId);
+        query.setParameter(accountId);
+
+        List<FunctionCatalog> functionCatalogs = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
+            functionCatalogs.add(functionCatalog);
+        }
+        return _groupByBaseVersionId(functionCatalogs);
+    }
+
+    public List<FunctionCatalog> inflateTrashedFunctionCatalogs(final boolean inflateChildren) throws DatabaseException {
+        final Query query = new Query("SELECT * FROM function_catalogs WHERE is_deleted = 1 AND is_permanently_deleted = 0");
+
+        final ArrayList<FunctionCatalog> functionCatalogs = new ArrayList<>();
+        final List<Row> rows = _databaseConnection.query(query);
+        for (final Row row : rows) {
+            FunctionCatalog functionCatalog = _convertRowToFunctionCatalog(row);
+
+            if (inflateChildren) {
+                _inflateChildren(functionCatalog);
+                _inflateClassDefinitions(functionCatalog);
+                _inflatePropertyCommandDefinitions(functionCatalog);
+                _inflateMethodCommandDefinitions(functionCatalog);
+                _inflatePropertyReportDefinitions(functionCatalog);
+                _inflateMethodReportDefinitions(functionCatalog);
+                _inflateTypeDefinitions(functionCatalog);
+                _inflateUnitDefinitions(functionCatalog);
+                _inflateErrorDefinitions(functionCatalog);
+            }
+            functionCatalogs.add(functionCatalog);
+        }
+
+        return functionCatalogs;
+    }
+
     public Map<Long, List<FunctionCatalog>> inflateFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
-        List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
+        final List<FunctionCatalog> functionCatalogs = inflateFunctionCatalogs(false);
+        return _groupByBaseVersionId(functionCatalogs);
+    }
+
+    public Map<Long, List<FunctionCatalog>> inflateTrashedFunctionCatalogsGroupedByBaseVersionId() throws DatabaseException {
+        final List<FunctionCatalog> functionCatalogs = inflateTrashedFunctionCatalogs(false);
         return _groupByBaseVersionId(functionCatalogs);
     }
 
@@ -100,7 +152,7 @@ public class FunctionCatalogInflater {
 
         final List<Row> rows = _databaseConnection.query(query);
         if (rows.size() == 0) {
-            _logger.warn("Could not find functionCatalog w/ ID: "+ functionCatalogId);
+            Logger.warn("Could not find functionCatalog w/ ID: "+ functionCatalogId);
             return null;
         }
 
@@ -127,12 +179,26 @@ public class FunctionCatalogInflater {
         final Long id = Util.parseLong(row.getString("id"));
         final String name = row.getString("name");
         final String release = row.getString("release_version");
-        final Long accountId = row.getLong("account_id");
+        final AccountId accountId = AccountId.wrap(row.getLong("account_id"));
         final Long companyId = row.getLong("company_id");
+        final boolean isDeleted = row.getBoolean("is_deleted");
+        final String deletedDateString = row.getString("deleted_date");
+        Date deletedDate = null;
+        if (deletedDateString != null) {
+            deletedDate = DateUtil.dateFromDateTimeString(deletedDateString);
+        }
+        final boolean isPermanentlyDeleted = row.getBoolean("is_permanently_deleted");
+        final String permanentlyDeletedDateString = row.getString("permanently_deleted_date");
+        Date permanentlyDeletedDate = null;
+        if (permanentlyDeletedDateString != null) {
+            permanentlyDeletedDate = DateUtil.dateFromDateTimeString(permanentlyDeletedDateString);
+        }
         final boolean isApproved = row.getBoolean("is_approved");
+        final Long approvalReviewId = row.getLong("approval_review_id");
         final boolean isReleased = row.getBoolean("is_released");
         final Long baseVersionId = row.getLong("base_version_id");
         final Long priorVersionId = row.getLong("prior_version_id");
+        final AccountId creatorAccountId = AccountId.wrap(row.getLong("creator_account_id"));
 
         final AuthorInflater authorInflater = new AuthorInflater(_databaseConnection);
         final Author author = authorInflater.inflateAuthor(accountId);
@@ -146,17 +212,23 @@ public class FunctionCatalogInflater {
         functionCatalog.setRelease(release);
         functionCatalog.setAuthor(author);
         functionCatalog.setCompany(company);
+        functionCatalog.setIsDeleted(isDeleted);
+        functionCatalog.setDeletedDate(deletedDate);
+        functionCatalog.setIsPermanentlyDeleted(isPermanentlyDeleted);
+        functionCatalog.setPermanentlyDeletedDate(permanentlyDeletedDate);
         functionCatalog.setIsApproved(isApproved);
+        functionCatalog.setApprovalReviewId(approvalReviewId);
         functionCatalog.setIsReleased(isReleased);
         functionCatalog.setBaseVersionId(baseVersionId);
         functionCatalog.setPriorVersionId(priorVersionId);
+        functionCatalog.setCreatorAccountId(creatorAccountId);
 
         return functionCatalog;
     }
 
     private void _inflateChildren(final FunctionCatalog functionCatalog) throws DatabaseException {
         final FunctionBlockInflater functionBlockInflater = new FunctionBlockInflater(_databaseConnection);
-        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), true);
+        final List<FunctionBlock> functionBlocks = functionBlockInflater.inflateFunctionBlocksFromFunctionCatalogId(functionCatalog.getId(), false, true);
         functionCatalog.setFunctionBlocks(functionBlocks);
     }
 

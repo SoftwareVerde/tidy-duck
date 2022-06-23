@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.mostadapter.Modification;
+import com.softwareverde.tidyduck.AccountId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,10 +20,17 @@ public class FunctionBlock {
     private String _access;
     private boolean _isSink;
     private boolean _isSource;
+    private boolean _isDeleted;
+    private Date _deletedDate;
+    private boolean _isPermanentlyDeleted;
+    private Date _permanentlyDeletedDate;
     private boolean _isApproved;
+    private Long _approvalReviewId;
+    private boolean _hasApprovedParent;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
+    private AccountId _creatorAccountId;
     private List<Modification> _modifications = new ArrayList<>();
     private List<MostInterface> _mostInterfaces = new ArrayList<>();
 
@@ -122,6 +130,38 @@ public class FunctionBlock {
         _isSource = source;
     }
 
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
+    }
+
+    public boolean isPermanentlyDeleted() {
+        return _isPermanentlyDeleted;
+    }
+
+    public void setIsPermanentlyDeleted(final boolean permanentlyDeleted) {
+        _isPermanentlyDeleted = permanentlyDeleted;
+    }
+
+    public Date getPermanentlyDeletedDate() {
+        return _permanentlyDeletedDate;
+    }
+
+    public void setPermanentlyDeletedDate(final Date permanentlyDeletedDate) {
+        _permanentlyDeletedDate = permanentlyDeletedDate;
+    }
+
     public boolean isApproved() {
         return _isApproved;
     }
@@ -129,6 +169,14 @@ public class FunctionBlock {
     public void setIsApproved(final boolean approved) {
         _isApproved = approved;
     }
+
+    public Long getApprovalReviewId() { return _approvalReviewId; }
+
+    public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
+
+    public boolean getHasApprovedParent() { return _hasApprovedParent; }
+
+    public void setHasApprovedParent(final boolean hasApprovedParent) { _hasApprovedParent = hasApprovedParent; }
 
     public boolean isReleased() {
         return _isReleased;
@@ -153,6 +201,10 @@ public class FunctionBlock {
     public void setPriorVersionId(Long priorVersionId) {
         _priorVersionId = priorVersionId;
     }
+
+    public AccountId getCreatorAccountId() { return _creatorAccountId; }
+
+    public void setCreatorAccountId(final AccountId creatorAccountId) { _creatorAccountId = creatorAccountId; }
 
     public List<Modification> getModifications() {
         return _modifications;

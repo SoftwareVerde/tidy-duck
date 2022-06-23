@@ -1,0 +1,22 @@
+body * {
+    color: #4A4A4A;
+}
+
+.svg-icon {
+    /* approximate #4A4A4A -> 4A = 74, 74/255 = 29.01 */
+    -webkit-filter: invert(29%);
+    filter: invert(29%);
+}
+
+.button {
+    background-color: #FFDD66;
+    border: solid 1px #BBAA22;
+    box-shadow: 5px 5px 5px #CCCCCC;
+
+    transition: background-color 0.5s ease;
+}
+
+.button:hover {
+    background-color: #FFEE77;
+}
+

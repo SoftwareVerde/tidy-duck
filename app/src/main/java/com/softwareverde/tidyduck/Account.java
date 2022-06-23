@@ -1,5 +1,7 @@
 package com.softwareverde.tidyduck;
 
+import com.softwareverde.json.Json;
+import com.softwareverde.json.Jsonable;
 import com.softwareverde.tidyduck.most.Author;
 import com.softwareverde.tidyduck.most.Company;
 
@@ -7,8 +9,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Account {
-    private Long _id;
+public class Account implements Jsonable {
+    private AccountId _id;
     private String _username;
     private String _password;
     private String _name;
@@ -17,11 +19,11 @@ public class Account {
     private Settings _settings;
     private Set<Role> _roles = new HashSet<>();
 
-    public Long getId() {
+    public AccountId getId() {
         return _id;
     }
 
-    public void setId(long id) {
+    public void setId(AccountId id) {
         this._id = id;
     }
 
@@ -87,7 +89,7 @@ public class Account {
     }
 
     private Collection<Permission> _getAllRolePermissions() {
-        HashSet<Permission> permissions = new HashSet<>();
+        final HashSet<Permission> permissions = new HashSet<>();
         for (final Role role : _roles) {
             permissions.addAll(role.getPermissions());
         }
@@ -110,7 +112,7 @@ public class Account {
      */
     public void requirePermission(final Permission permission) throws AuthorizationException {
         if (!_getAllRolePermissions().contains(permission)) {
-            StringBuilder stringBuilder = new StringBuilder();
+            final StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("User ");
             stringBuilder.append(_username);
             stringBuilder.append(" does not have permission: ");
@@ -126,5 +128,30 @@ public class Account {
         author.setName(_name);
         author.setCompany(_company);
         return author;
+    }
+
+    @Override
+    public Json toJson() {
+        final Json json = new Json(false);
+
+        json.put("id", _id);
+        json.put("name", _name);
+        json.put("username", _username);
+        json.put("company", _company.toJson());
+        json.put("settings", _settings.toJson());
+        json.put("roles", _toJson(_roles));
+
+        return json;
+    }
+
+    private Json _toJson(final Collection<Role> roles) {
+        final Json json = new Json(true);
+
+        for (final Role role : roles) {
+            final Json roleJson = role.toJson();
+            json.add(roleJson);
+        }
+
+        return json;
     }
 }

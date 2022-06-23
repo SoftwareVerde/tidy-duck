@@ -1,0 +1,235 @@
+#reviews-container {
+    background-color: #EDEDED;
+    box-shadow: 0px 0px 15px #CCCCCC;
+
+    width: 80%;
+    display: block;
+    margin: 3em auto 3em auto;
+    border: 0px solid;
+    border-radius: 5px;
+    padding: 0 1em;
+}
+
+#reviews-container h1 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 2em 0;
+}
+
+#loading-reviews-icon {
+    margin-top: 3em;
+}
+
+.review-entry {
+    cursor: pointer;
+    margin: 1em 0;
+    border: #CCC solid thin;
+    border-radius: 5px;
+
+    transition: background-color 0.5s ease;
+}
+
+.review-name {
+    padding: 5px;
+    font-weight: bold;
+    border-bottom: #CCC solid thin;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.review-content {
+    padding: 5px;
+}
+
+.review-content table th {
+    min-width: 125px;
+    text-align: left;
+}
+
+.review-comment {
+    margin: 10px;
+    border: black solid thin;
+}
+
+.review-comment-header {
+    padding: 5px;
+}
+
+.review-comment-content {
+    font-size: 110%;
+    padding: 5px;
+}
+
+.approval-form {
+    position: fixed;
+    z-index: 1;
+    bottom: 0;
+    width: calc(100% - 40px); /* account for right-padding */
+    margin: 0;
+    padding: 20px;
+    border-top: black solid thin;
+    box-shadow: 0px 0px 20px #CCC;
+}
+
+.approval-form .comments-area {
+    width: 40%;
+    height: 250px;
+    display: inline-block;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    margin: 5px 0px;
+    background-color: rgba(100, 100, 100, 0.2);
+    border: #777 solid thin;
+    box-sizing: border-box;
+}
+
+.approval-form .vote-area {
+    width: 60%;
+    height: 250px;
+    margin: 5px 0;
+    text-align: center;
+    display: inline-block;
+    overflow-y: auto;
+}
+
+.approval-form .approval-date {
+    font-size: 2em;
+    text-align: center;
+    padding: 2em 0.25em;
+}
+
+.approval-form .approval-date:before {content: "\f087";
+    font-family: FontAwesome, sans-serif;
+    font-size: 6em;
+    color: #dfdfdf;
+    z-index: -1;
+    position: absolute;
+    text-align: center;
+    top: 20%;
+    left: 58%;
+}
+
+@media only screen and (max-width: 940px) {
+    .approval-form .comments-area, .approval-form .vote-area {
+        height: 300px;
+    }
+
+    .selected-review-display-area {
+        margin-bottom: 370px;
+    }
+
+    .input-field {
+        min-width: 170px;
+    }
+}
+
+.approval-form .toolbar {
+    min-height: 50px;
+    display: block;
+}
+
+.approval-form .toolbar .toolbar-item {
+    width: 50px;
+    height: 50px;
+    justify-content: space-evenly;
+}
+
+.approval-form .toolbar .toolbar-item i {
+    font-size: 2em;
+    padding: 0;
+}
+
+.approval-form .vote-list {
+    width: 25%;
+    max-height: 45%;
+    margin: 0.5em 0 1em 0;
+    display: inline-block;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background-color: rgba(100, 100, 100, 0.2);
+    border: #777 solid thin;
+}
+
+.vote-item {
+    margin: 3px;
+    padding: 2px;
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+}
+
+.vote-list i {
+    padding-right: 1em;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.vote-area i.fa-thumbs-up {
+    color: #00AA00;
+}
+
+.vote-area i.fa-thumbs-down {
+    color: #AA0000;
+}
+
+.comments-area .input-field, .vote-area .input-field {
+    width: 100%;
+}
+
+.vote-area .submit-comment-form {
+    float: left;
+    text-align: center;
+    width: 70%;
+}
+
+.vote-area .submit-comment-form .button {
+    width: 50%;
+    min-width: 115px;
+    margin: 0;
+}
+
+.submit-comment-form .input-field textarea {
+    min-height: 5em;
+}
+
+.vote-area .button {
+    width: 20%;
+    min-width: 100px;
+    margin: 0;
+}
+
+.ticket-url-area {
+    float: left;
+    width: calc(70% - 3em);
+    display: inline-block;
+    text-align: left;
+    padding-left: 3em;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ticket-url-area .input-field {
+    display: inline-block;
+    width: 70%;
+    float: none;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-bottom: 0px;
+}
+
+.ticket-url {
+    text-decoration: none;
+}
+
+.ticket-url i {
+    vertical-align: middle;
+    display: inline;
+    padding-right: 5px;
+}
+
+.ticket-url-text {
+    text-decoration: underline;
+}
+

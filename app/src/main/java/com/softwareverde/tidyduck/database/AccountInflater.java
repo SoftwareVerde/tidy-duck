@@ -2,9 +2,10 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.database.Row;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.row.Row;
 import com.softwareverde.tidyduck.Account;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.Role;
 import com.softwareverde.tidyduck.Settings;
 import com.softwareverde.tidyduck.most.Company;
@@ -22,19 +23,30 @@ public class AccountInflater {
     }
 
     public List<Account> inflateAccounts() throws DatabaseException {
-        final Query query = new Query("SELECT id FROM accounts");
+        return inflateAccounts(false);
+    }
+
+    public List<Account> inflateAccounts(final boolean includeDeletedAccounts) throws DatabaseException {
+        final Query query;
+
+        if (includeDeletedAccounts) {
+            query = new Query("SELECT id FROM accounts");
+        }
+        else {
+            query = new Query("SELECT id FROM accounts WHERE is_deleted = 0");
+        }
 
         List<Row> rows = _databaseConnection.query(query);
         List<Account> accounts = new ArrayList<>();
         for (final Row row : rows) {
-            final long accountId = row.getLong("id");
+            final AccountId accountId = AccountId.wrap(row.getLong("id"));
             final Account account = inflateAccount(accountId);
             accounts.add(account);
         }
         return accounts;
     }
 
-    public Account inflateAccount(final Long accountId) throws DatabaseException {
+    public Account inflateAccount(final AccountId accountId) throws DatabaseException {
         final CompanyInflater companyInflater = new CompanyInflater(_databaseConnection);
 
         final Query query = new Query("SELECT * FROM accounts WHERE id = ?");
@@ -64,7 +76,7 @@ public class AccountInflater {
         return account;
     }
 
-    private List<Role> getRoles(final long accountId) throws DatabaseException {
+    private List<Role> getRoles(final AccountId accountId) throws DatabaseException {
         final Query query = new Query("SELECT roles.id FROM roles INNER JOIN accounts_roles ON accounts_roles.role_id = roles.id WHERE accounts_roles.account_id = ?");
         query.setParameter(accountId);
 

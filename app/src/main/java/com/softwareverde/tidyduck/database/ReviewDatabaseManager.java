@@ -2,11 +2,8 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
-import com.softwareverde.tidyduck.Account;
-import com.softwareverde.tidyduck.Review;
-import com.softwareverde.tidyduck.ReviewComment;
-import com.softwareverde.tidyduck.ReviewVote;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.tidyduck.*;
 import com.softwareverde.tidyduck.most.FunctionBlock;
 import com.softwareverde.tidyduck.most.FunctionCatalog;
 import com.softwareverde.tidyduck.most.MostFunction;
@@ -39,7 +36,7 @@ class ReviewDatabaseManager {
         Long mostInterfaceId = null;
         Long mostFunctionId = null;
 
-        final long accountId = account.getId();
+        final AccountId accountId = account.getId();
         if (functionCatalog != null) {
             functionCatalogId = functionCatalog.getId();
         }
@@ -76,7 +73,7 @@ class ReviewDatabaseManager {
         final Account account = review.getAccount();
         final String ticketUrl = review.getTicketUrl();
 
-        final long accountId = account.getId();
+        final AccountId accountId = account.getId();
 
         Long functionCatalogId = null;
         Long functionBlockId = null;
@@ -113,6 +110,7 @@ class ReviewDatabaseManager {
         final FunctionBlock functionBlock = review.getFunctionBlock();
         final MostInterface mostInterface = review.getMostInterface();
         final MostFunction mostFunction = review.getMostFunction();
+        final long reviewId = review.getId();
 
         Long functionCatalogId = null;
         Long functionBlockId = null;
@@ -122,27 +120,32 @@ class ReviewDatabaseManager {
         if (functionCatalog != null) {
             functionCatalogId = functionCatalog.getId();
             FunctionCatalogDatabaseManager functionCatalogDatabaseManager = new FunctionCatalogDatabaseManager(_databaseConnection);
-            functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalogId);
+            functionCatalogDatabaseManager.approveFunctionCatalog(functionCatalogId, reviewId);
         }
         else if (functionBlock != null) {
             functionBlockId = functionBlock.getId();
             FunctionBlockDatabaseManager functionBlockDatabaseManager = new FunctionBlockDatabaseManager(_databaseConnection);
-            functionBlockDatabaseManager.approveFunctionBlock(functionBlockId);
+            functionBlockDatabaseManager.approveFunctionBlock(functionBlockId, reviewId);
         }
         else if (mostInterface != null) {
             mostInterfaceId = mostInterface.getId();
             MostInterfaceDatabaseManager mostInterfaceDatabaseManager = new MostInterfaceDatabaseManager(_databaseConnection);
-            mostInterfaceDatabaseManager.approveMostInterface(mostInterfaceId);
+            mostInterfaceDatabaseManager.approveMostInterface(mostInterfaceId, reviewId);
         }
         else if (mostFunction != null) {
             mostFunctionId = mostFunction.getId();
             MostFunctionDatabaseManager mostFunctionDatabaseManager = new MostFunctionDatabaseManager(_databaseConnection);
-            mostFunctionDatabaseManager.approveMostFunction(mostFunctionId);
+            mostFunctionDatabaseManager.approveMostFunction(mostFunctionId, reviewId);
         }
+
+        final Query query = new Query("UPDATE reviews SET approval_date = NOW() WHERE id = ?")
+                .setParameter(reviewId);
+
+        _databaseConnection.executeSql(query);
     }
 
     public void insertReviewVote(final ReviewVote reviewVote, final long reviewId) throws DatabaseException {
-        final long accountId = reviewVote.getAccount().getId();
+        final AccountId accountId = reviewVote.getAccount().getId();
         final boolean isUpvote = reviewVote.isUpvote();
 
         final Query query = new Query("INSERT INTO review_votes (review_id, account_id, created_date, is_upvote) VALUES (?, ?, NOW(), ?)")
@@ -168,7 +171,7 @@ class ReviewDatabaseManager {
     }
 
     public void insertReviewComment(final ReviewComment reviewComment, final long reviewId) throws DatabaseException {
-        final long accountId = reviewComment.getAccount().getId();
+        final AccountId accountId = reviewComment.getAccount().getId();
         final String commentText = reviewComment.getCommentText();
 
         final Query query = new Query("INSERT INTO review_comments (review_id, account_id, created_date, comment) VALUES (?, ?, NOW(), ?)");

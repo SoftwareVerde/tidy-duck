@@ -1,0 +1,219 @@
+.small-container, .large-container, .popup-container {
+    background-color: #9DA1AE;
+    color: #032334 !important;
+}
+
+#settings-icon:hover {
+    background-color: #369;
+}
+
+#types-container {
+    background-color: #9DA1AE;
+    color: #032334 !important;
+}
+
+.settings-success-container i {
+    color: #032C46;
+}
+
+.accounts-table {
+    color: #032C46;
+}
+
+.accounts-table .user-column:hover {
+    box-shadow: 3px 6px 15px #888888;
+}
+
+.navigation-column {
+    background-color: #032C46;
+    color: #101010;
+    margin: 5px;
+}
+
+.navigation-item {
+    color: #FFFFFF !important;
+    background-color: #9DA1AE;
+    border: none;
+    transition: background-color 0.5s ease;
+    transition: max-height 1s ease;
+}
+.navigation-item:hover {
+    background-color: #C4C7CF;
+}
+
+.navigation-item:nth-last-of-type(2) {
+    background-color: #6E7688;
+    border: solid 1px #505C71;
+}
+
+.navigation-item:nth-last-of-type(2):hover {
+    background-color: #C4C7CF;
+    border: solid 1px #032334;
+}
+
+.navigation-item:nth-last-of-type(3) {
+    background-color: #505C71;
+    border: solid 1px #31465C;
+}
+
+.navigation-item:nth-last-of-type(3):hover {
+    background-color: #C4C7CF;
+    border: solid 1px #032334;
+}
+
+.navigation-item:nth-last-of-type(4) {
+    background-color: #31465C;
+    border: solid 1px #20353A;
+}
+
+.navigation-item:nth-last-of-type(4):hover {
+    background-color: #C4C7CF;
+    border: solid 1px #032334;
+}
+
+.navigation-item:nth-last-of-type(5) {
+    background-color: #20353A;
+    border: solid 1px #102219;
+}
+
+.navigation-item:nth-last-of-type(5):hover {
+    background-color: #C4C7CF;
+    border: solid 1px #032334;
+}
+
+.navigation-item-menu {
+    border: solid 1px #505C71;
+    background-color: #838EA4;
+}
+
+.navigation-item-menu-item {
+    color: #FFFFFF;
+}
+
+.navigation-item .button {
+    box-shadow: none !important;
+}
+
+.metadata-form {
+    background-color: #9DA1AE;
+    box-shadow: none !important;
+}
+
+.metadata-form .metadata-form-title {
+    color: #212121;
+}
+
+.parameter-display-area {
+    color: #032C46;
+}
+
+.search-form, .filter-form {
+    background-color: #9DA1AE;
+    color: #032334;
+}
+
+.search-result {
+    border: solid 1px #000;
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.unapproved-search-result {
+    border: dashed 2px #FFF;
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.parameter {
+    border: solid 1px #000;
+    background-color: #032C46;
+    color: #FFF;
+
+    transition: background-color 0.5s ease;
+}
+
+.parameter .input-field label {
+    color: #FFF;
+}
+
+.parameter .input-field-small label {
+    color: #FFF;
+}
+
+.child-item, .unreleased-child-item {
+    color: #032334;
+    background-color: #9DA1AE;
+    transition: background-color 0.5s ease;
+}
+
+.unreleased-child-item {
+    box-sizing: border-box;
+    border: 2px dashed #FFFFFF;
+}
+
+.child-item:hover, .unreleased-child-item:hover {
+    background-color: #C4C7CF;
+}
+
+.child-item-title {
+    border-bottom: solid 1px #032334;
+}
+
+.child-item:hover .child-item-title {
+    border-bottom: solid 1px #032334;
+}
+
+.child-item-menu-item {
+    background-color: #838EA4;
+}
+
+.child-item:hover .child-item-menu-item {
+    background-color: #838EA4;
+}
+
+#header .role-toggle, #header .role {
+    border: 1px solid rgba(0, 0, 0, 0.5) !important;
+    color: #DDD;
+}
+
+.tidy-object .action-button {
+    color: #032334;
+    border-color: #032334;
+}
+
+.tidy-object .disabled-action-button {
+    color: #335566;
+    border-color: #335566;
+}
+
+.tidy-object .action-button:hover {
+    color: #FFDD66;
+    border-color: #FFDD66;
+}
+
+.deleted-tidy-object {
+    background-color: #d97441 !important;
+}
+
+.deleted-tidy-object:hover {
+    background-color: #FE6903 !important;
+}
+
+.tidy-object .description-wrapper:before {
+    background-color: rgba(157, 161, 174, 0.5);
+    transition: background-color 0.5s ease;
+}
+
+.deleted-tidy-object .description-wrapper:before {
+    background-color: rgba(255, 255, 255, 0.0) !important;
+    transition: background-color 0.5s ease;
+}
+
+.tidy-object:hover .description-wrapper:before {
+    background-color: rgba(192, 199, 207, 0.5);
+}
+

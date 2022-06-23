@@ -1,3 +1,4 @@
 rootProject.name = 'tidy-duck'
 
-include ":..:most-adapter"
+include ":most-adapter"
+project(":most-adapter").projectDir = file("../most-adapter")

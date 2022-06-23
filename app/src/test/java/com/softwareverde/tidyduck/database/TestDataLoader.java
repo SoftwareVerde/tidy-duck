@@ -3,21 +3,35 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
+import com.softwareverde.database.jdbc.JdbcDatabaseConnection;
+import com.softwareverde.database.mysql.SqlScriptRunner;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.database.mysql.MysqlTestDatabase;
+import com.softwareverde.database.util.TransactionUtil;
+import com.softwareverde.logging.Logger;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.util.IoUtil;
 
+import java.io.StringReader;
 import java.sql.Connection;
 
 public class TestDataLoader {
+
     public static int generateRandomAutoIncrementId() {
         // generate random ID but make sure it's greater than zero
         return (int) (((Math.random() * 7777) % 1000) + 1);
     }
 
-    public static void initDatabase(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/init.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
-        databaseConnection.executeSql(new Query(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
+    public static void initDatabase(final MysqlTestDatabase database) throws DatabaseException {
+        try (final JdbcDatabaseConnection databaseConnection = database.newConnection()){
+            final SqlScriptRunner sqlScriptRunner = new SqlScriptRunner(databaseConnection.getRawConnection(), false, false);
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/init.sql")));
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.0.sql")));
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.3.sql")));
+            sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/migrations/v1.0.4.sql")));
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 
     public static void insertFakeCompany(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
@@ -25,7 +39,7 @@ public class TestDataLoader {
     }
 
     public static void insertFakeAccount(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, company_id) VALUES ('Josh Green', 1)"));
+        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, username, password, company_id) VALUES ('Josh Green', 'test@example.com', 'test', 1)"));
         databaseConnection.executeSql(new Query("INSERT INTO accounts_roles VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5)"));
     }
 
@@ -34,7 +48,7 @@ public class TestDataLoader {
     }
 
     public static void insertFakeAccount(final DatabaseConnection<Connection> databaseConnection, final String accountName, final Long companyId) throws DatabaseException {
-        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, company_id) VALUES (?, ?)").setParameter(accountName).setParameter(companyId));
+        databaseConnection.executeSql(new Query("INSERT INTO accounts (name, username, password, company_id) VALUES (?, 'test@example.com', 'test', ?)").setParameter(accountName).setParameter(companyId));
     }
 
     /**
@@ -46,7 +60,7 @@ public class TestDataLoader {
      * @param functionBlockId
      * @param interfaceId
      */
-    public static Long insertFakeReview(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long functionBlockId, final Long interfaceId, final long accountId) throws DatabaseException {
+    public static Long insertFakeReview(final DatabaseConnection<Connection> databaseConnection, final Long functionCatalogId, final Long functionBlockId, final Long interfaceId, final AccountId accountId) throws DatabaseException {
         if (functionCatalogId != null) {
             return databaseConnection.executeSql(new Query("INSERT INTO reviews (function_catalog_id, account_id, created_date) VALUES (?, ?, NOW())").setParameter(functionCatalogId).setParameter(accountId));
 
@@ -78,7 +92,7 @@ public class TestDataLoader {
         return functionCatalogId;
     }
 
-    private static long insertFakeFunctionBlock(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+    public static long insertFakeFunctionBlock(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         final long functionBlockId = databaseConnection.executeSql(new Query("INSERT INTO function_blocks (most_id, kind, name, description, last_modified_date, release_version, account_id, company_id, access, base_version_id) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)")
                 .setParameter("0xFF")
                 .setParameter("Proprietary")
@@ -100,7 +114,7 @@ public class TestDataLoader {
         return functionBlockId;
     }
 
-    private static long insertFakeMostInterface(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+    public static long insertFakeMostInterface(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
         final long mostInterfaceId = databaseConnection.executeSql(new Query("INSERT INTO interfaces (most_id, name, description, last_modified_date, version, base_version_id) VALUES (?, ?, ?, NOW(), ?, ?)")
                 .setParameter("1")
                 .setParameter("TestInterface")
@@ -112,12 +126,44 @@ public class TestDataLoader {
         return mostInterfaceId;
     }
 
-    /// TODO: Insert Function and Return Type for Function
+    public static long insertFakeMostType(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
+        final Query query = new Query("INSERT INTO most_types (name, primitive_type_id, is_primary_type, bitfield_length, enum_max, " +
+                "number_base_type_id, number_exponent, number_range_min, number_range_max, number_step, " +
+                "number_unit_id, string_max_size, stream_length, stream_max_length, stream_media_type, " +
+                "array_name, array_description, array_element_type_id, array_size, record_name, " +
+                "record_description, record_size) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .setParameter("TestFunction") // name)
+                .setParameter(1L) // primitiveTypeId)
+                .setParameter(true) // isPrimaryType)
+                .setNullParameter() // bitfieldLength)
+                .setNullParameter() // enumMax)
+                .setNullParameter() // numberBaseTypeId)
+                .setNullParameter() // numberExponent)
+                .setNullParameter() // numberRangeMin)
+                .setNullParameter() // numberRangeMax)
+                .setNullParameter() // numberStep)
+                .setNullParameter() // numberUnitId)
+                .setNullParameter() // stringMaxSize)
+                .setNullParameter() // streamLength)
+                .setNullParameter() // streamMaxLength)
+                .setNullParameter() // streamMediaType)
+                .setNullParameter() // arrayName)
+                .setNullParameter() // arrayDescription)
+                .setNullParameter() // arrayElementTypeId)
+                .setNullParameter() // arraySize)
+                .setNullParameter() // recordName)
+                .setNullParameter() // recordDescription)
+                .setNullParameter() // recordSize)
+                ;
+
+        final long mostTypeId = databaseConnection.executeSql(query);
+        return mostTypeId;
+    }
+
+    /// TODO: Insert Fake Function
     /*
     private static long insertFakeMostFunction(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
 
-    }
-
-    private static long insertFakeMostType(final DatabaseConnection<Connection> databaseConnection) throws DatabaseException {
-    */
+    }*/
 }

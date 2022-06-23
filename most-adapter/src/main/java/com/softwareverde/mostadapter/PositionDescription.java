@@ -40,9 +40,20 @@ public class PositionDescription implements XmlNode {
     public Element generateXmlElement(Document document) {
         Element posDescriptionElement = XmlUtil.createTextElement(document, "PosDescription", Util.coalesce(_value));
 
-        posDescriptionElement.setAttribute("PosX", _positionX);
-        posDescriptionElement.setAttribute("PosY", _positionY);
+        String positionX = _nullIfEmpty(_positionX);
+        String positionY = _nullIfEmpty(_positionY);
+
+        posDescriptionElement.setAttribute("PosX", positionX);
+        posDescriptionElement.setAttribute("PosY", positionY);
 
         return posDescriptionElement;
+    }
+
+    private String _nullIfEmpty(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return NULL;
+        } else {
+            return value;
+        }
     }
 }

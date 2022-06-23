@@ -2,7 +2,8 @@ package com.softwareverde.tidyduck.database;
 
 import com.softwareverde.database.DatabaseConnection;
 import com.softwareverde.database.DatabaseException;
-import com.softwareverde.database.Query;
+import com.softwareverde.database.query.Query;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.tidyduck.most.*;
 
 import java.sql.Connection;
@@ -63,7 +64,7 @@ class MostFunctionDatabaseManager {
         final long functionStereotypeId = proposedMostFunction.getFunctionStereotype().getId();
         final String description = proposedMostFunction.getDescription();
         final String release = proposedMostFunction.getRelease();
-        final long authorId = proposedMostFunction.getAuthor().getId();
+        final AccountId authorId = proposedMostFunction.getAuthor().getId();
         final long companyId = proposedMostFunction.getCompany().getId();
         final String returnParameterName = proposedMostFunction.getReturnParameterName();
         final String returnParameterDescription = proposedMostFunction.getReturnParameterDescription();
@@ -117,7 +118,7 @@ class MostFunctionDatabaseManager {
         final Long functionStereotypeId = mostFunction.getFunctionStereotype().getId();
         final String description = mostFunction.getDescription();
         final String release = mostFunction.getRelease();
-        final Long authorId = mostFunction.getAuthor().getId();
+        final AccountId authorId = mostFunction.getAuthor().getId();
         final Long companyId = mostFunction.getCompany().getId();
         final String returnParameterName = mostFunction.getReturnParameterName();
         final String returnParameterDescription = mostFunction.getReturnParameterDescription();
@@ -180,9 +181,10 @@ class MostFunctionDatabaseManager {
     }
 
     private void _addOperationToFunction(final long newFunctionId, final Operation operation) throws DatabaseException {
-        final Query query = new Query("INSERT INTO functions_operations (function_id, operation_id) VALUES (?, ?)")
+        final Query query = new Query("INSERT INTO functions_operations (function_id, operation_id, channel) VALUES (?, ?, ?)")
             .setParameter(newFunctionId)
             .setParameter(operation.getId())
+            .setParameter(operation.getChannel())
         ;
 
         _databaseConnection.executeSql(query);
@@ -213,19 +215,64 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void deleteMostFunctionFromMostInterface(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
-        _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
-        _deleteMostFunctionIfUnapproved(mostFunctionId);
+    public void deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
+        _deleteMostFunction(mostInterfaceId, mostFunctionId);
     }
 
-    private void _deleteMostFunctionIfUnapproved(final long mostFunctionId) throws DatabaseException {
+    public void setIsDeletedForMostFunction(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_deleted = ? WHERE id = ?")
+                .setParameter(isDeleted)
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+
+        _setIsDeletedForMostFunctionParentAssociation(mostFunctionId, isDeleted);
+    }
+
+    public void restoreMostFunctionFromTrash(final long mostFunctionId) throws DatabaseException {
+        setIsDeletedForMostFunction(mostFunctionId, false);
+    }
+
+    private void _setIsDeletedForMostFunctionParentAssociation(final long mostFunctionId, final boolean isDeleted) throws DatabaseException {
+        final Query query = new Query("UPDATE interfaces_functions SET is_deleted = ? WHERE function_id = ?")
+                .setParameter(isDeleted)
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
+    }
+
+    private void _deleteMostFunction(final long mostInterfaceId, final long mostFunctionId) throws DatabaseException {
         final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(_databaseConnection);
         final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
 
-        if (! mostFunction.isReleased()) {
+        if (mostFunction.isReleased()) {
+            throw new IllegalStateException("Released function catalogs cannot be deleted.");
+        }
+
+        if (!mostFunction.isDeleted()) {
+            throw new IllegalStateException("Only trashed items can be deleted.");
+        }
+
+        if (mostFunction.isApproved()) {
+            // approved, be careful
+            _markAsPermanentlyDeleted(mostFunctionId);
+        }
+        else {
+            // not approved, delete
+            _disassociateMostFunctionWithMostInterface(mostInterfaceId, mostFunctionId);
             _deleteMostFunctionFromDatabase(mostFunctionId);
         }
 
+    }
+
+    private void _markAsPermanentlyDeleted(final long mostFunctionId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_permanently_deleted = 1, permanently_deleted_date = NOW() WHERE id = ?")
+                .setParameter(mostFunctionId)
+                ;
+
+        _databaseConnection.executeSql(query);
     }
 
     private void _deleteMostFunctionFromDatabase(final long mostFunctionId) throws DatabaseException {
@@ -240,9 +287,10 @@ class MostFunctionDatabaseManager {
         _databaseConnection.executeSql(query);
     }
 
-    public void approveMostFunction(final long mostFunctionId) throws DatabaseException {
-        final Query query = new Query("UPDATE functions SET is_approved = ? WHERE id = ?")
+    public void approveMostFunction(final long mostFunctionId, final long reviewId) throws DatabaseException {
+        final Query query = new Query("UPDATE functions SET is_approved = ?, approval_review_id = COALESCE(approval_review_id, ?) WHERE id = ?")
                 .setParameter(true)
+                .setParameter(reviewId)
                 .setParameter(mostFunctionId);
 
         _databaseConnection.executeSql(query);

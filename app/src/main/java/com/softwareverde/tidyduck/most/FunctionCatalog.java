@@ -1,9 +1,11 @@
 package com.softwareverde.tidyduck.most;
 
 import com.softwareverde.mostadapter.Modification;
+import com.softwareverde.tidyduck.AccountId;
 import com.softwareverde.util.Util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FunctionCatalog {
@@ -12,10 +14,16 @@ public class FunctionCatalog {
     private String _release;
     private Author _author;
     private Company _company;
+    private boolean _isDeleted;
+    private Date _deletedDate;
+    private boolean _isPermanentlyDeleted;
+    private Date _permanentlyDeletedDate;
     private boolean _isApproved;
+    private Long _approvalReviewId;
     private boolean _isReleased;
     private Long _baseVersionId;
     private Long _priorVersionId;
+    private AccountId _creatorAccountId;
     private final List<FunctionBlock> _functionBlocks = new ArrayList<>();
     private final List<Modification> _modifications = new ArrayList<>();
     private final List<ClassDefinition> _classDefinitions = new ArrayList<>();
@@ -67,6 +75,38 @@ public class FunctionCatalog {
         _company = company;
     }
 
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
+    }
+
+    public boolean isPermanentlyDeleted() {
+        return _isPermanentlyDeleted;
+    }
+
+    public void setIsPermanentlyDeleted(final boolean permanentlyDeleted) {
+        _isPermanentlyDeleted = permanentlyDeleted;
+    }
+
+    public Date isPermanentlyDeletedDate() {
+        return _permanentlyDeletedDate;
+    }
+
+    public void setPermanentlyDeletedDate(final Date permanentlyDeletedDate) {
+        _permanentlyDeletedDate = permanentlyDeletedDate;
+    }
+
     public boolean isApproved() {
         return _isApproved;
     }
@@ -74,6 +114,10 @@ public class FunctionCatalog {
     public void setIsApproved(final boolean approved) {
         _isApproved = approved;
     }
+
+    public Long getApprovalReviewId() { return _approvalReviewId; }
+
+    public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
 
     public boolean isReleased() {
         return _isReleased;
@@ -98,6 +142,10 @@ public class FunctionCatalog {
     public void setPriorVersionId(final Long priorVersionId) {
         _priorVersionId = priorVersionId;
     }
+
+    public AccountId getCreatorAccountId() { return _creatorAccountId; }
+
+    public void setCreatorAccountId(final AccountId creatorAccountId) { _creatorAccountId = creatorAccountId; }
 
     public List<FunctionBlock> getFunctionBlocks() {
         return Util.copyList(_functionBlocks);

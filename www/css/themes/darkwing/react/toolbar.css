@@ -1,0 +1,98 @@
+.toolbar {
+    background: none;
+    min-height: 75px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.toolbar .toolbar-item {
+    background-color: #505C71;
+    color: #FFFFFF;
+    border-radius: 5px;
+    margin: 2px;
+    height: 75px;
+    width: 75px;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+}
+
+.tooltip {
+    visibility: hidden;
+    background-color: #505C71;
+    color: #FFFFFF;
+    text-align: center;
+    border-radius: 5px;
+    padding: 3px 5px;
+    position: absolute;
+    right: 7px;
+    margin-top: 56px;
+    font-size: 1.5em;
+    opacity: 0;
+    transition: opacity 0.33s;
+}
+
+.toolbar-item:hover .tooltip {
+    opacity: 1;
+    position: absolute;
+    visibility: visible;
+}
+
+.toolbar .navigation-indicator, .unreleased-navigation-indicator {
+    background-color: #505C71;
+    color: #FFFFFF;
+    border-radius: 5px;
+    margin: 2px;
+    height: 75px;
+    min-width: 75px;
+    padding-right: 1em;
+    padding-left: 1em;
+
+    display: inline-grid;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+}
+
+.unreleased-navigation-indicator {
+    box-sizing: border-box;
+    border: 2px dashed #FFFFFF;
+}
+
+.trashed-navigation-indicator {
+    background-color: #BF4F04 !important;
+}
+
+.trashed-navigation-indicator:hover {
+    background-color: #FE6903 !important;
+}
+
+.toolbar .navigation-indicator i {
+    margin: 5px;
+}
+
+.toolbar .toolbar-item:hover, .navigation-indicator:hover, .unreleased-navigation-indicator:hover {
+    background-color: #9DA1AE;
+}
+
+.toolbar .toolbar-item i {
+    font-size: 55px;
+    padding-top: 5px;
+    color: #FFFFFF;
+}
+
+.toolbar .toolbar-item .svg-icon {
+    /* #FFFFFF */
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+}

@@ -1,6 +1,8 @@
 package com.softwareverde.mostadapter;
 
 public class Operation {
+    public static final String DEFAULT_OPERATION = "Control";
+
     public enum OperationType {
         // Property operations
         SET("PCmdSet", true),
@@ -47,6 +49,7 @@ public class Operation {
 
     private OperationType _operationType;
     private String _parameterPosition;
+    private String _channel = DEFAULT_OPERATION;
 
     public OperationType getOperationType() {
         return _operationType;
@@ -62,5 +65,13 @@ public class Operation {
 
     public void setParameterPosition(final String parameterPosition) {
         _parameterPosition = parameterPosition;
+    }
+
+    public String getChannel() {
+        return _channel;
+    }
+
+    public void setChannel(final String channel) {
+        _channel = channel;
     }
 }

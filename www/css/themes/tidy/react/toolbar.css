@@ -1,0 +1,104 @@
+.toolbar {
+    background: none;
+    min-height: 75px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.toolbar .toolbar-item {
+    background-color: #FFFFFF;
+    color: #4A4A4A;
+    border-radius: 5px;
+    border: 1px solid #4A4A4A;
+    margin: 2px;
+    height: 75px;
+    width: 75px;
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+    transition: background-color 0.25s ease;
+}
+
+.tooltip {
+    visibility: hidden;
+    background-color: #101010;
+    color: #FFFFFF;
+    text-align: center;
+    border-radius: 5px;
+    padding: 3px 5px;
+    position: absolute;
+    right: 7px;
+    margin-top: 56px;
+    font-size: 1.5em;
+    opacity: 0;
+    transition: opacity 0.33s;
+}
+
+.toolbar-item:hover .tooltip {
+    opacity: 1;
+    position: absolute;
+    visibility: visible;
+}
+
+.toolbar .navigation-indicator, .unreleased-navigation-indicator {
+    background-color: #FFFFFF;
+    color: #4A4A4A;
+    border-radius: 5px;
+    border: 1px solid #4A4A4A;
+    margin: 2px;
+    height: 75px;
+    min-width: 75px;
+    padding-right: 1em;
+    padding-left: 1em;
+
+    display: inline-grid;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+
+    cursor: pointer;
+
+    transition: color 0.5s ease;
+    transition: background-color 0.25s ease;
+}
+
+.unreleased-navigation-indicator {
+    border: 1px dashed #4A4A4A;
+}
+
+.trashed-navigation-indicator {
+    background-color: #FFD9D9 !important;
+}
+
+.trashed-navigation-indicator:hover {
+    background-color: #FFA0A0 !important;
+}
+
+.toolbar .navigation-indicator i {
+    margin: 5px;
+}
+
+.toolbar .unreleased-navigation-indicator:hover, .navigation-indicator:hover {
+    background-color: #FFEE77;
+    border: solid 1px #C0C0C0;
+}
+
+.toolbar .toolbar-item:hover {
+    background-color: #FFEE77;
+    border: solid 1px #C0C0C0;
+}
+
+.toolbar .toolbar-item:hover i {
+    color: #000000;
+}
+
+.toolbar .toolbar-item i {
+    font-size: 55px;
+    padding-top: 5px;
+}

@@ -1,6 +1,7 @@
 package com.softwareverde.tidyduck.most;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,8 +19,13 @@ public abstract class MostFunction {
     private String _name;
     private String _description;
     private String _release;
+    private boolean _isDeleted;
+    private Date _deletedDate;
+    private boolean _isPermanentlyDeleted;
+    private Date _permanentlyDeletedDate;
     private boolean _isApproved;
     private boolean _isReleased;
+    private Long _approvalReviewId;
     private MostFunctionStereotype _functionStereotype;
     private Author _author;
     private Company _company;
@@ -68,6 +74,38 @@ public abstract class MostFunction {
         _release = release;
     }
 
+    public boolean isDeleted() {
+        return _isDeleted;
+    }
+
+    public void setIsDeleted(final boolean deleted) {
+        _isDeleted = deleted;
+    }
+
+    public Date getDeletedDate() {
+        return _deletedDate;
+    }
+
+    public void setDeletedDate(final Date deletedDate) {
+        _deletedDate = deletedDate;
+    }
+
+    public boolean isPermanentlyDeleted() {
+        return _isPermanentlyDeleted;
+    }
+
+    public void setIsPermanentlyDeleted(final boolean permanentlyDeleted) {
+        _isPermanentlyDeleted = permanentlyDeleted;
+    }
+
+    public Date getPermanentlyDeletedDate() {
+        return _permanentlyDeletedDate;
+    }
+
+    public void setPermanentlyDeletedDate(final Date permanentlyDeletedDate) {
+        _permanentlyDeletedDate = permanentlyDeletedDate;
+    }
+
     public boolean isApproved() {
         return _isApproved;
     }
@@ -75,6 +113,10 @@ public abstract class MostFunction {
     public void setIsApproved(final boolean approved) {
         _isApproved = approved;
     }
+
+    public Long getApprovalReviewId() { return _approvalReviewId; }
+
+    public void setApprovalReviewId(final Long approvalReviewId) { _approvalReviewId = approvalReviewId; }
 
     public boolean isReleased() {
         return _isReleased;
