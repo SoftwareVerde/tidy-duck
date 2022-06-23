@@ -345,7 +345,6 @@ class App extends React.Component {
     }
 
     onDuckClick() {
-        console.log("Account!: " + this.state.account);
         const accountDefaultMode = this.state.account.getSettings().getDefaultMode();
         this.handleRoleClick(accountDefaultMode, null, false);
     }
