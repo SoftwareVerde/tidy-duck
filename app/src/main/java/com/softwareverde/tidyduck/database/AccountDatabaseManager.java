@@ -182,7 +182,10 @@ class AccountDatabaseManager {
         }
         final String storedPassword = rows.get(0).getString("password");
 
-        return SecureHashUtil.validateHashWithPbkdf2(password, storedPassword);
+        final Argon2 argon2 = new Argon2(storedPassword);
+        final String newHash = argon2.generateParameterizedHash(password.getBytes());
+
+        return storedPassword.equals(newHash);
     }
 
     private boolean _isUsernameUnique(final String username) throws DatabaseException {
