@@ -38,7 +38,7 @@ class AccountDatabaseManager {
         }
 
         final String password = SecureHashUtil.generateRandomPassword();
-        final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
+        final String passwordHash = new Argon2().generateParameterizedHash(password.getBytes());
         final String name = account.getName();
         final Long companyId = account.getCompany().getId();
         final List<Role> roles = new ArrayList<>(account.getRoles());
@@ -73,7 +73,7 @@ class AccountDatabaseManager {
 
     private void _reactivateDeletedAccount(final AccountId accountId, final Account account) throws DatabaseException {
         final String password = SecureHashUtil.generateRandomPassword();
-        final String passwordHash = SecureHashUtil.hashWithPbkdf2(password);
+        final String passwordHash = new Argon2().generateParameterizedHash(password.getBytes());
         final String name = account.getName();
         final Long companyId = account.getCompany().getId();
         final List<Role> roles = new ArrayList<>(account.getRoles());

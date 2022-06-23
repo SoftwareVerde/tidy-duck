@@ -3838,10 +3838,8 @@ class App extends React.Component {
     }
 
     logout() {
-        logout(function (data) {
-            if (data.wasSuccess) {
-                window.location.replace("/");
-            }
+        logout(function () {
+            window.location.replace("/");
         });
     }
 

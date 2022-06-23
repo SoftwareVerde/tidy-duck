@@ -27,20 +27,21 @@ function checkAccount(callbackFunction, callbackWithResponse) {
 }
 
 function logout(callback) {
-    tidyFetch(
-        new Request(
-            API_PREFIX + "session/logout",
-            {
-                method:         "GET",
-                credentials:    "include"
-            }
-        ),
-        function (data) {
-            if (typeof callback == "function") {
-                callback(data);
-            }
+    let request = new Request(
+        API_PREFIX + "session/logout",
+        {
+            method:         "GET",
+            credentials:    "include"
         }
     );
+
+    fetch(request, { credentials: "include" }).then(function(response) {
+        if (response.ok) {
+            if (typeof callback == "function") {
+                callback();
+            }
+        }
+    })
 }
 
 function getAccount(accountId, callbackFunction) {
