@@ -59,16 +59,6 @@ public class Configuration {
         _databaseProperties.setPort(Util.parseInt(_properties.getProperty("database.port", "")));
         _databaseProperties.setDataDirectory(new File(_properties.getProperty("database.dataDirectory")));
         _databaseProperties.setInstallationDirectory(new File(_properties.getProperty("database.installationDirectory")));
-
-        System.out.println(_databaseProperties.getHostname());
-        System.out.println(_databaseProperties.getUsername());
-        System.out.println(_databaseProperties.getPassword());
-        System.out.println(_databaseProperties.getRootPassword());
-        System.out.println(_databaseProperties.getSchema());
-        System.out.println(_databaseProperties.getPort());
-        System.out.println(_databaseProperties.getDataDirectory());
-        System.out.println(_databaseProperties.getInstallationDirectory());
-
     }
 
     private void _loadServerProperties() {
