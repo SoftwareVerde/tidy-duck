@@ -51,7 +51,6 @@ public class TidyDuckEnvironment implements Environment {
                 Logger.info(String.format("[Upgrading DB to v%d]", requiredVersion));
                 try {
                     final SqlScriptRunner sqlScriptRunner = new SqlScriptRunner(maintenanceDatabaseConnection.getRawConnection(), false, false);
-//                    sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/init.sql")));
                     sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/init-accounts.sql")));
                     sqlScriptRunner.runScript(new StringReader(IoUtil.getResource("/sql/load-fake-data.sql")));
 
@@ -73,7 +72,6 @@ public class TidyDuckEnvironment implements Environment {
         _database = new EmbeddedMysqlDatabase(databaseProperties, databaseInitializer);
 
         try {
-            _database.install();
             _database.start();
         }
         catch (final Exception exception) {
