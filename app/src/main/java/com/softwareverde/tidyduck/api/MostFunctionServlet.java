@@ -370,7 +370,7 @@ public class MostFunctionServlet extends AuthenticatedJsonApplicationServlet<Tid
             }
 
             final MostFunctionInflater mostFunctionInflater = new MostFunctionInflater(databaseConnection);
-            final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostInterfaceId);
+            final MostFunction mostFunction = mostFunctionInflater.inflateMostFunction(mostFunctionId);
             if (!mostFunction.isDeleted()) {
                 final String error = "Function must be moved to trash before deleting.";
                 Logger.error(error);
