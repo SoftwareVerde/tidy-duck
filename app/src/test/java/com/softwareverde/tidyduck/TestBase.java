@@ -15,9 +15,10 @@ public class TestBase {
 
         TestDataLoader.initDatabase(_database);
 
-        DatabaseConnection<Connection> _databaseConnection = _database.newConnection();
-        TestDataLoader.insertFakeCompany(_databaseConnection);
-        TestDataLoader.insertFakeAccount(_databaseConnection);
-        TestDataLoader.insertFakeMostType(_databaseConnection);
+        try (DatabaseConnection<Connection> _databaseConnection = _database.newConnection()) {
+            TestDataLoader.insertFakeCompany(_databaseConnection);
+            TestDataLoader.insertFakeAccount(_databaseConnection);
+            TestDataLoader.insertFakeMostType(_databaseConnection);
+        }
     }
 }

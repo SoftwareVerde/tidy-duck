@@ -182,12 +182,13 @@ public class MostFunctionServlet extends AuthenticatedJsonApplicationServlet<Tid
                 return errorJson;
             }
 
-            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
-            if (errorMessage != null) {
-                errorMessage = "Unable to add the function to the interface: " + errorMessage;
-                Logger.error(errorMessage);
-                throw new IllegalArgumentException(errorMessage);
+            try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+                String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+                if (errorMessage != null) {
+                    errorMessage = "Unable to add the function to the interface: " + errorMessage;
+                    Logger.error(errorMessage);
+                    throw new IllegalArgumentException(errorMessage);
+                }
             }
 
             databaseManager.insertMostFunction(mostInterfaceId, mostFunction);
@@ -225,12 +226,13 @@ public class MostFunctionServlet extends AuthenticatedJsonApplicationServlet<Tid
                 return errorJson;
             }
 
-            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
-            if (errorMessage != null) {
-                errorMessage = "Unable to update function: " + errorMessage;
-                Logger.error(errorMessage);
-                throw new IllegalArgumentException(errorMessage);
+            try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+                String errorMessage = MostInterfaceServlet.canAccountModifyMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
+                if (errorMessage != null) {
+                    errorMessage = "Unable to update function: " + errorMessage;
+                    Logger.error(errorMessage);
+                    throw new IllegalArgumentException(errorMessage);
+                }
             }
 
             databaseManager.updateMostFunction(mostInterfaceId, mostFunction);
@@ -359,8 +361,7 @@ public class MostFunctionServlet extends AuthenticatedJsonApplicationServlet<Tid
             throw new IllegalArgumentException(String.format("Invalid interface id: %s", mostInterfaceString));
         }
 
-        try {
-            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             String errorMessage = MostInterfaceServlet.canAccountViewMostInterface(databaseConnection, mostInterfaceId, currentAccount.getId());
             if (errorMessage != null) {
 

@@ -284,11 +284,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonApplicationServlet<Ti
                     throw new IllegalArgumentException("Invalid Function Block ID: " + functionBlockId);
                 }
 
-                final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-                String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
-                if (errorMessage != null) {
-                    errorMessage = "Unable to insert interface: " + errorMessage;
-                    throw new Exception(errorMessage);
+                try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+                    String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+                    if (errorMessage != null) {
+                        errorMessage = "Unable to insert interface: " + errorMessage;
+                        throw new Exception(errorMessage);
+                    }
                 }
 
                 databaseManager.insertMostInterface(functionBlockId, mostInterface);
@@ -438,11 +439,12 @@ public class MostInterfaceServlet extends AuthenticatedJsonApplicationServlet<Ti
                 throw new IllegalArgumentException(errorMessage);
             }
 
-            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-            String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
-            if (errorMessage != null) {
-                errorMessage = "Unable to associate interface with function block: " + errorMessage;
-                throw new Exception(errorMessage);
+            try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+                String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
+                if (errorMessage != null) {
+                    errorMessage = "Unable to associate interface with function block: " + errorMessage;
+                    throw new Exception(errorMessage);
+                }
             }
 
             databaseManager.associateMostInterfaceWithFunctionBlock(functionBlockId, mostInterfaceId);
@@ -456,9 +458,8 @@ public class MostInterfaceServlet extends AuthenticatedJsonApplicationServlet<Ti
 
     private Json _disassociateInterfaceFromFunctionBlock(final long functionBlockId, final long mostInterfaceId, final Account currentAccount, final Database<Connection> database) throws Exception {
         final Json response = JsonRequestHandler.generateSuccessJson();
-        try {
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             // only need to check parent
-            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
             String errorMessage = FunctionBlockServlet.canAccountModifyFunctionBlock(databaseConnection, functionBlockId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to disassociate interface from function block: " + errorMessage;

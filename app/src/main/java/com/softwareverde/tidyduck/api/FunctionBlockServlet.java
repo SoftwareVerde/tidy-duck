@@ -276,14 +276,15 @@ public class FunctionBlockServlet extends AuthenticatedJsonApplicationServlet<Ti
                     throw new IllegalArgumentException("Invalid Function Catalog ID: " + functionCatalogId);
                 }
 
-                final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-                String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
-                if (errorMessage != null) {
-                    errorMessage = "Unable to create function block under function catalog: " + errorMessage;
-                    throw new Exception(errorMessage);
-                }
+                try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
+                    String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccountId);
+                    if (errorMessage != null) {
+                        errorMessage = "Unable to create function block under function catalog: " + errorMessage;
+                        throw new Exception(errorMessage);
+                    }
 
-                databaseManager.insertFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
+                    databaseManager.insertFunctionBlock(functionCatalogId, functionBlock, currentAccountId);
+                }
             }
             else {
                 databaseManager.insertOrphanedFunctionBlock(functionBlock);
@@ -420,10 +421,8 @@ public class FunctionBlockServlet extends AuthenticatedJsonApplicationServlet<Ti
             }
         }
 
-        try {
-            final DatabaseManager databaseManager = new DatabaseManager(database);
-            final DatabaseConnection<Connection> databaseConnection = database.newConnection();
-
+        final DatabaseManager databaseManager = new DatabaseManager(database);
+        try (final DatabaseConnection<Connection> databaseConnection = database.newConnection()) {
             String errorMessage = FunctionCatalogServlet.canAccountModifyFunctionCatalog(databaseConnection, functionCatalogId, currentAccount.getId());
             if (errorMessage != null) {
                 errorMessage = "Unable to add function block to function catalog: " + errorMessage;
