@@ -63,7 +63,6 @@ public class Configuration {
 
     private void _loadServerProperties() {
         final Integer port = Util.parseInt(_properties.getProperty("server.httpPort", "8080"));
-
         final Integer tlsPort = Util.parseInt(_properties.getProperty("server.tlsPort", "4443"));
         final Integer externalTlsPort = Util.parseInt(_properties.getProperty("server.externalTlsPort", "4443"));
         final String tlsKeyFile = _properties.getProperty("server.tlsKeyFile", "");

@@ -32,10 +32,7 @@ public class Main {
             final String logDirectory = "logs";
             final Log log = AnnotatedFileLog.newInstance(logDirectory);
             Logger.setLog(log);
-
-            Logger.setLog(AnnotatedLog.getInstance());
-            Logger.setLogLevel(LogLevel.ON);
-            Logger.setLogLevel("com.softwareverde.util", LogLevel.ERROR);
+            Logger.setLogLevel(LogLevel.INFO);
 
             environment = TidyDuckEnvironment.getInstance();
         }

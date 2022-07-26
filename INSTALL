@@ -6,9 +6,8 @@
 Dependencies
 ============
 
-    - Tomcat (7.0+)
     - MySQL  (5.5+)
-    - Java   (1.7+)
+    - Java   (1.8+)
 
 ===========
 MySQL Setup
@@ -17,9 +16,9 @@ MySQL Setup
     ----------------------
     Database Configuration
     ----------------------
-        For each environment, put the connection details in the file:
+        Put the connection details in the file:
 
-            app/src/{environment}/resources/server.conf
+            conf/server.conf
 
     ------------------
     Enable Strict Mode
@@ -32,56 +31,17 @@ MySQL Setup
         (This will enable strict mode in order to enforce data integrity constraints.)
 
     ------------------
-    Load MySQL Schema
-    ------------------
-        1. From the tidy-duck directory, connect to MySQL
-
-                mysql -u root -p
-
-        2. Run the init-schema.sql script.
-
-                source sql/init-schema.sql
-
-        3. Run the init.sql script.
-
-                use tidy_duck;
-                source sql/init.sql
-                source sql/init-accounts.sql
-
-        4. Run any database migrations (in chronological order)
-
-               source sql/migrations/[file1].sql
-               source sql/migrations/[file2].sql
-                ...
-               source sql/migrations/[fileN].sql
-
-           Alternatively, the following command should run each migration (the root password will need to be typed for each file):
-
-               ls sql/migrations/ | while read file; do echo $file; mysql tidy_duck -u root -p < $file; done
-
-    ------------------
     Create MySQL User
     ------------------
 
         Create the application sql-account (with limited access)
-        Be sure to modify the command below to use the password set within app/src/{environment}/resources/server.conf
+        Be sure to modify the command below to use the password set within conf/server.conf
 
             mysql -u root -p tidy_duck -e "CREATE USER 'tidy_duck'@'%' IDENTIFIED BY '__PASSWORD__'; GRANT SELECT, INSERT, UPDATE, DELETE ON tidy_duck.* TO 'tidy_duck'@'%'; FLUSH PRIVILEGES;"
 
         If the above command fails the tidy_duck user already exist and needs re-created, the following command will delete it:
 
             mysql -u root -p tidy_duck -e "DROP USER tidy_duck;"
-
-=======
-Logging
-=======
-
-    Create the logging destination directory.
-    (This file may be configured within app/src/{environment}/resources/log4j2.xml)
-
-        sudo mkdir /var/log/tidy-duck
-        sudo chmod -R 770 /var/log/tidy-duck
-        sudo chown -R tomcat7:tomcat7 /var/log/tidy-duck
 
 ====================
 Create User Accounts
@@ -110,41 +70,27 @@ Compilation
 
         scripts/make.sh
 
-    This script will echo the location of the war file for deployment.
+    This script will output all of the necessary application files to the local out directory.
 
 ==========
 Deployment
 ==========
 
-    Tidy Duck is a Tomcat7 application. To deploy it, take the generated war file and move it to the Tomcat Modules directory.
-    The application should be the only application on the server; thus "ROOT.war" should be the name of the application file.
+    After building the application with the make.sh script, upload the contents of the out directory to a desired
+    location on your server.
 
-    Deploying the war remotely:
-        A deploy script (scripts/deploy.sh) is provided for easy deployment from your local machine.
-        The script accepts two arguments, the first being the path to the war file, the second argument being the ip/url of the server.
-        The script will prompt you for your password multiple times; the first 2 times being your ssh password (unless you have an ssh key established),
-        the 3rd prompt will be requesting sudo for your account on the server machine to deploy the jar.
-
-        Example invocation:
-
-            ./scripts/deploy.sh app/build/libs/tidy-duck-v1.0.war 10.1.2.173
-
-    Server-Side/Manual Installation:
-
-        sudo mv app/build/libs/*.war /var/lib/tomcat7/webapps/ROOT.war
-        sudo chown tomcat7:tomcat7 /var/lib/tomcat7/webapps/ROOT.war
+    You may start the application using the generated run.sh. Alternatively, you may setup a systemctl service or
+    daemon of your choice to run the run.sh script or emulate the script's behavior.
 
 ==========
 Web Access
 ==========
 
-    Tomcat is configured to listen on port 8080 by default.
+    Tidy Duck uses a lightweight Java servlet that is configured to listen on port 8080 by default.
     Depending on your network configuration, it may be best to setup a reverse proxy.
-    Alternatively, you can configure Tomcat to listen on port 80, or to forward ports from port 80 to 8080.
 
-    Forwarding ports:
-
-        sudo iptables -t nat -A OUTPUT -o lo -p tcp --dport 80 -j REDIRECT --to-port 8080
+    Alternatively, you may configure Tidy Duck to listen on the port of your choice by adding the server.httpPort
+    property to the conf/server.conf file. You may also specify the TLS port with the server.tlsPort property.
 
 ===============
 Troubleshooting
@@ -165,8 +111,14 @@ Troubleshooting
     ---------------------------------------------------
 
         This can be caused by SELinux not allowing name-based resolution of the database server or some other restriction.
-        Have a system adminstrator check the SELinux logs to determine if it is getting in the way.  Exceptions may need to
-        added in order to get the applicaiton working.
+        Have a system administrator check the SELinux logs to determine if it is getting in the way.  Exceptions may need to
+        added in order to get the application working.
 
-        Alternatively, or at least temporarily, disable SELinux to ensure that it is not causing the probelm.
+        Alternatively, or at least temporarily, disable SELinux to ensure that it is not causing the problem.
 
+    ---------------------------------------------------
+    Application fails to connect to embedded database
+    ---------------------------------------------------
+
+        This can occur when running the application as root server user. It is recommended to start the application as
+        another user.
